@@ -21,11 +21,11 @@ public:
 		     const string & desc) noexcept
     : name(__name), symbol(__symbol), description(desc) {}
 
-  string get_name() const noexcept { return name; }
+  const string & get_name() const noexcept { return name; }
 
-  string get_symbol() const noexcept { return symbol; }
+  const string & get_symbol() const noexcept { return symbol; }
 
-  string get_description() const noexcept { return description; }
+  const string & get_description() const noexcept { return description; }
 };
 
 class Unit 
@@ -46,11 +46,11 @@ public:
     : name(__name), symbol(__symbol), description(desc),
       physical_quantity(phy_quan) {}
 
-  string get_name() const noexcept { return name; }
+  const string & get_name() const noexcept { return name; }
 
-  string get_symbol() const noexcept { return symbol; }
+  const string & get_symbol() const noexcept { return symbol; }
 
-  string get_description() const noexcept { return description; }
+  const string & get_description() const noexcept { return description; }
 
   const PhysicalQuantity & get_physical_quantity() const noexcept
   {
@@ -76,6 +76,11 @@ public:
   {
     if (++instance_counter > 1)
       throw domain_error("UnitTable instanced twice");
+  }
+
+  ~UnitTable()
+  {
+    name_tbl.for_each([] (auto p) { delete p.second; });
   }
 
   void register_unit(const Unit & unit)
@@ -115,20 +120,20 @@ public:
     return symbol_tbl.contains(symbol);
   }
 
-  Unit * unit_by_name(const string & name) const noexcept
+  Unit * search_by_name(const string & name) const noexcept
   {
     auto p = name_tbl.search(name);
     return p ? p->second : nullptr;
   }
 
-  Unit * unit_by_symbol(const string & symbol) const noexcept
+  Unit * search_by_symbol(const string & symbol) const noexcept
   {
     auto p = symbol_tbl.search(symbol);
     return p ? p->second : nullptr;
   }
 };
 
-
+extern UnitTable unit_tbl;
 
 template <class Unit>
 class Quantity 
@@ -136,15 +141,36 @@ class Quantity
   Unit * unit_ptr = nullptr;
   double value;
 
-  void validate()
+  void validate(Unit * ptr)
   {
-    
+    {
+      const string & name = ptr->get_name();
+      if (unit_tbl.exists_name(name))
+	{
+	  ostringstream s;
+	  s << "Repeated unit name " << name;
+	  throw domain_error(s.str());
+	}
+    }
+
+    {
+      const string & symbol = ptr->get_symbol();
+      if (unit_tbl.exists_symbol(symbol))
+	{
+	  ostringstream s;
+	  s << "Repeated unit symbol " << symbol;
+	  throw domain_error(s.str());
+	}
+    }
   }
 
 public:
 
   Quantity(Unit * __unit_ptr, const double val) 
-    : unit_ptr(__unit_ptr), value(val) {}
+    : unit_ptr(__unit_ptr), value(val)
+  {
+    validate(unit_ptr);
+  }
 
   double get_value() const noexcept { return value; }
 
