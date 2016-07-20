@@ -8,89 +8,86 @@
 
 # include <tpl_dynMapTree.H>
 
+# include <unititem.H>
+
 using namespace std; 
 
-struct PhysicalQuantity 
-{
-  const string name;
-  const string symbol;
-  const string description;
+using PhysicalQuantity = UnitItem;
 
-  PhysicalQuantity(const string & __name, const string & __symbol,
-		     const string & desc) noexcept
-    : name(__name), symbol(__symbol), description(desc) {}
-};
+using Unit = UnitItem;
 
-class PhysicalQuantityTable
-{
-  DynMapTree<string, PhysicalQuantity> name_tbl;
-};
-
-struct Unit 
-{
-  const string name;
-  const string symbol;
-  const string description;
-
-  const PhysicalQuantity physical_quantity;
-
-  double min_val = 0;
-  double max_val = 0;
-  
-  Unit(const string & __name, const string & __symbol,
-       const string & desc, const PhysicalQuantity & phy_quan) noexcept
-    : name(__name), symbol(__symbol), description(desc),
-      physical_quantity(phy_quan) {}
-
-  bool value_is_valid(const double value) const noexcept
-  {
-    return value >= min_val and value <= max_val;
-  }
-};
+    // we store here both Physical quantities and units 
+using UnitTable = UnitItemTable;
 
 
-extern UnitTable unit_tbl;
-
-template <class Unit>
 class Quantity 
 {
-  Unit * unit_ptr = nullptr;
-  double value;
+  PhysicalQuantity * physical_quantity_ptr = nullptr; // its address in unit_tbl
+  Unit * unit_ptr = nullptr;                      // its address in unit_tbl
+  double value;                                   // magnitude
 
-  void validate(Unit * ptr)
+  static UnitTable unit_tbl; // contains all the physical quantities and units
+
+  // checks that UnitItem object is registered in unit_tbl
+  template <class U> void validate(U * ptr, const string & type_name)
   {
     {
-      const string & name = ptr->get_name();
+      const string & name = ptr->name;
       if (unit_tbl.exists_name(name))
 	{
 	  ostringstream s;
-	  s << "Repeated unit name " << name;
+	  s << "Repeated " << type_name << " name " << name;
 	  throw domain_error(s.str());
 	}
     }
 
     {
-      const string & symbol = ptr->get_symbol();
+      const string & symbol = ptr->symbol;
       if (unit_tbl.exists_symbol(symbol))
 	{
 	  ostringstream s;
-	  s << "Repeated unit symbol " << symbol;
+	  s << "Repeated " << type_name << " symbol " << symbol;
 	  throw domain_error(s.str());
 	}
     }
+  }
+
+  void validate_physical_quantity()
+  {
+    validate(physical_quantity_ptr, "PhysicalQuantity");
+  }
+
+  void validate_unit()
+  {
+    validate(unit_ptr, "Unit");
   }
 
 public:
 
-  Quantity(Unit * __unit_ptr, const double val) 
-    : unit_ptr(__unit_ptr), value(val)
+  Quantity(PhysicalQuantity * __physical_quantity,
+	   Unit *              __unit_ptr,
+	   const double        val) 
+    : physical_quantity_ptr(__physical_quantity), unit_ptr(__unit_ptr),
+      value(val)
   {
-    validate(unit_ptr);
+    validate_unit();
+    validate_physical_quantity();
   }
 
   double get_value() const noexcept { return value; }
 
   operator double() const noexcept { return value; }
+
+  const PhysicalQuantity & get_physical_quantity() const noexcept
+  {
+    return *physical_quantity_ptr;
+  }
+
+  const Unit & get_unit() const noexcept
+  {
+    return *unit_ptr;
+  }
+
 };
 
 

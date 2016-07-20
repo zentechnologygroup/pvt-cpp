@@ -1,6 +1,6 @@
 
 # include <units.H>
 
-short UnitTable::instance_counter = 0;
+UnitTable Quantity::unit_tbl;
 
-UnitTable unit_tbl;
+
