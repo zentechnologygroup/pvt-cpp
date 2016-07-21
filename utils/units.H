@@ -16,9 +16,7 @@ using PhysicalQuantity = UnitItem;
 
 using Unit = UnitItem;
 
-    // we store here both Physical quantities and units 
-using UnitTable = UnitItemTable;
-
+extern void init_units();
 
 class Quantity 
 {
@@ -26,14 +24,18 @@ class Quantity
   Unit * unit_ptr = nullptr;                      // its address in unit_tbl
   double value;                                   // magnitude
 
-  static UnitTable unit_tbl; // contains all the physical quantities and units
+public:
+
+  static UnitItemTable tbl; // contains all physical quantities and units
+
+private:
 
   // checks that UnitItem object is registered in unit_tbl
   template <class U> void validate(U * ptr, const string & type_name)
   {
     {
       const string & name = ptr->name;
-      if (unit_tbl.exists_name(name))
+      if (tbl.exists_name(name))
 	{
 	  ostringstream s;
 	  s << "Repeated " << type_name << " name " << name;
@@ -43,7 +45,7 @@ class Quantity
 
     {
       const string & symbol = ptr->symbol;
-      if (unit_tbl.exists_symbol(symbol))
+      if (tbl.exists_symbol(symbol))
 	{
 	  ostringstream s;
 	  s << "Repeated " << type_name << " symbol " << symbol;
@@ -87,11 +89,6 @@ public:
   {
     return *unit_ptr;
   }
-
 };
-
-
-
-
 
 # endif // UNITS_H
