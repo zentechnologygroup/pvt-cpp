@@ -12,11 +12,20 @@
 
 using namespace std; 
 
-using PhysicalQuantity = UnitItem;
+struct PhysicalQuantity : public UnitItem
+{
+  using UnitItem::UnitItem;
+};
 
-using Unit = UnitItem;
+struct Unit : public UnitItem
+{
+  using UnitItem::UnitItem;
+};
 
 extern void init_units();
+
+extern UnitItemTable physical_quantity_tbl;
+extern UnitItemTable unit_tbl;
 
 class Quantity 
 {

@@ -37,6 +37,7 @@ class UnitItemTable
 
 public:
 
+  // returns a iterator to pair<string, UnitItem*>
   auto get_it() { return name_tbl.get_it(); }
 
   ~UnitItemTable()

@@ -23,9 +23,11 @@ LOCALLIBS = ./libutils.a
 
 SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lm -lc
 
-SRCS = test-unititem.cc test-unit.cc 
+TESTSRCS = test-unititem.cc test-unit.cc 
 
-OBJS = $(SRCS:.cc=.o)
+TESTOBJS = $(TESTSRCS:.cc=.o)
+
+SRCS = $(LIBSRCS) $(TESTSRCS)
 
 NormalLibraryObjectRule()
 

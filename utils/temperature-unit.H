@@ -6,11 +6,12 @@
 
 struct Temperature 
 {
-
+  PhysicalQuantity * physical_quantity_ptr = nullptr;
 };
 
-struct Kelvin 
+struct Kelvin : public Temperature
 {
+  Unit 
   Kelvin()
   // falta
   {

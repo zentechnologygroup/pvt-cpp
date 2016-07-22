@@ -1,11 +1,13 @@
 
 # include <units.H>
 
-UnitItemTable Quantity::tbl;
+UnitItemTable physical_quantity_tbl;
+UnitItemTable unit_tbl;
 
 void init_units()
 {
-  Quantity::tbl.register_item("Temperature", "T", "Measure of hot or cold");
+  physical_quantity_tbl.
+    register_item("Temperature", "T", "Measure of hot or cold");
 }
 
 
