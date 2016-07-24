@@ -32,16 +32,7 @@ int main(int argc, char *argv[])
       table.register_item(name.str(), symbol.str(), desc.str());
     }
 
-  for (size_t i = n; i < 2*n; ++i)
-    {
-      ostringstream name, symbol, desc;
-      name << "Name_" << i;
-      symbol << "Symbol_" << i;
-      desc << "Description_" << i;
-      table.register_item(UnitItem(name.str(), symbol.str(), desc.str()));
-    }
-
-  for (size_t i = 0; i < 2*n; ++i)
+  for (size_t i = 0; i < n; ++i)
     {
       ostringstream name, symbol;
       name << "Name_" << i;
@@ -72,7 +63,7 @@ int main(int argc, char *argv[])
 	}  
     }
 
-  if (table.size() != 2*n)
+  if (table.size() != n)
     {
       cout << "test failed in line " << __LINE__ << endl;
       abort();

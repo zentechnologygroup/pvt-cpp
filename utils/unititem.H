@@ -1,18 +1,19 @@
 # ifndef DESC_TABLE_H
 # define DESC_TABLE_H
 
+# include <memory>
 # include <sstream>
 # include <string>
 # include <tpl_dynMapTree.H>
 
 struct UnitItem
 {
-  const std::string name;
-  const std::string symbol;
-  const std::string description;
+  const std::string name        = "Undefined";
+  const std::string symbol      = "Undefined";
+  const std::string description = "Undefined";
 
   UnitItem(const std::string & __name, const std::string & __symbol,
-	      const std::string & desc) noexcept
+	   const std::string & desc) noexcept
     : name(__name), symbol(__symbol), description(desc) {}
 
     string to_string() const
@@ -32,8 +33,8 @@ struct UnitItem
 
 class UnitItemTable
 {
-  DynMapTree<std::string, UnitItem*> name_tbl;   // index by unit name
-  DynMapTree<std::string, UnitItem*> symbol_tbl; // index by symbol name
+  DynMapTree<std::string, const UnitItem*> name_tbl;   // index by unit name
+  DynMapTree<std::string, const UnitItem*> symbol_tbl; // index by symbol name
 
 public:
 
@@ -45,31 +46,32 @@ public:
     name_tbl.for_each([] (auto p) { delete p.second; });
   }
 
-  void register_item(const UnitItem & unit)
+  void register_item(const UnitItem * ptr)
   {
-    if (name_tbl.contains(unit.name))
+    if (name_tbl.contains(ptr->name))
       {
 	ostringstream s;
-	s << " name " << unit.name << " already exist";
+	s << " name " << ptr->name << " already exist";
 	throw domain_error(s.str());
       }
 
-    if (symbol_tbl.contains(unit.symbol))
+    if (symbol_tbl.contains(ptr->symbol))
       {
 	ostringstream s;
-	s << "unit symbol " << unit.symbol << " already exist";
+	s << "unit symbol " << ptr->symbol << " already exist";
 	throw domain_error(s.str());
       }
     
-    UnitItem * ptr = new UnitItem(unit);
-    name_tbl.insert(unit.name, ptr);
-    symbol_tbl.insert(unit.symbol, ptr);
+    name_tbl.insert(ptr->name, ptr);
+    symbol_tbl.insert(ptr->symbol, ptr);
   }
 
-  void register_item(const string & name, const string & symbol,
-		     const string & desc)
+  const UnitItem * register_item(const string & name, const string & symbol,
+				 const string & desc)
   {
-    register_item(UnitItem(name, symbol, desc));
+    unique_ptr<UnitItem> ptr(new UnitItem(name, symbol, desc));
+    register_item(ptr.get());
+    return ptr.release();
   }
 
   bool exists_name(const string & name) const noexcept
@@ -82,19 +84,42 @@ public:
     return symbol_tbl.contains(symbol);
   }
 
-  UnitItem * search_by_name(const string & name) const noexcept
+  const UnitItem * search_by_name(const string & name) const noexcept
   {
     auto p = name_tbl.search(name);
     return p ? p->second : nullptr;
   }
 
-  UnitItem * search_by_symbol(const string & symbol) const noexcept
+  const UnitItem * search_by_symbol(const string & symbol) const noexcept
   {
     auto p = symbol_tbl.search(symbol);
     return p ? p->second : nullptr;
   }
 
   size_t size() const noexcept { return name_tbl.size(); }
+
+  void validate(const UnitItem * ptr, const string & str)
+  {
+    {
+      const string & name = ptr->name;
+      if (exists_name(str))
+	{
+	  ostringstream s;
+	  s << "Repeated " << str << " name " << name;
+	  throw domain_error(s.str());
+	}
+    }
+
+    {
+      const string & symbol = ptr->symbol;
+      if (exists_symbol(str))
+	{
+	  ostringstream s;
+	  s << "Repeated " << str << " symbol " << symbol;
+	  throw domain_error(s.str());
+	}
+    }
+  }
 };
 
 

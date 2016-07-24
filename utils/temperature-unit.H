@@ -11,7 +11,7 @@ struct Temperature
 
 struct Kelvin : public Temperature
 {
-  Unit 
+  Unit * 
   Kelvin()
   // falta
   {

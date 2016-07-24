@@ -2,6 +2,7 @@
 # ifndef UNITS_H
 # define UNITS_H
 
+# include <memory>
 # include <string>
 # include <sstream>
 # include <limits>
@@ -12,91 +13,167 @@
 
 using namespace std; 
 
-struct PhysicalQuantity : public UnitItem
+class PhysicalQuantity : public UnitItem
 {
   using UnitItem::UnitItem;
+  static UnitItemTable tbl;
+
+protected:
+
+  PhysicalQuantity(const string & name,
+		   const string & symbol,
+		   const string & desc)
+    : UnitItem(name, symbol, desc)
+  {
+    tbl.register_item(name, symbol, desc);
+  }
 };
 
-struct Unit : public UnitItem
-{
-  using UnitItem::UnitItem;
-};
+# define Declare_Physical_Quantity(name, symbol, desc)		      \
+  struct name : public PhysicalQuantity				      \
+  {								      \
+								      \
+    using PhysicalQuantity::PhysicalQuantity;			      \
+								      \
+    static const name & get_instance()				      \
+    {								      \
+      static name instance(#name, symbol, desc);		      \
+      return instance;						      \
+    }								      \
+								      \
+  private:							      \
+								      \
+    name() : PhysicalQuantity(#name, symbol, desc) {}		      \
+								      \
+  public:							      \
+								      \
+    name(const name&) = delete;					      \
+    void operator = (const name&) = delete;			      \
+  };
 
-extern void init_units();
-
-extern UnitItemTable physical_quantity_tbl;
 extern UnitItemTable unit_tbl;
 
+# define Declare_Unit(name, symbol, desc, physical_quantity_name, min, max) \
+  struct name : public UnitItem						\
+  {									\
+    template <typename U> friend class Quantity;			\
+    									\
+    const PhysicalQuantity & physical_quantity;				\
+    const double min_val = min;						\
+    const double max_val = max;						\
+									\
+  private:								\
+									\
+    name()								\
+      : UnitItem(#name, symbol, desc),					\
+      physical_quantity(physical_quantity_name::get_instance())		\
+      {									\
+	unit_tbl.register_item(#name, symbol, desc);			\
+      }									\
+									\
+  public:								\
+									\
+    static const name & get_instance()					\
+    {									\
+      static name instance;						\
+      return instance;							\
+    }									\
+									\
+    name(const name&) = delete;						\
+    void operator = (const name&) = delete;				\
+  };
+
+
+template <class SrcUnit, class TgtUnit> extern
+double convert(const double & /* val */,
+	       const SrcUnit & /* src_unit */,
+	       const TgtUnit & /* tgt_unit */);
+
+template <class UnitName>
 class Quantity 
 {
-  PhysicalQuantity * physical_quantity_ptr = nullptr; // its address in unit_tbl
-  Unit * unit_ptr = nullptr;                      // its address in unit_tbl
-  double value;                                   // magnitude
-
 public:
 
-  static UnitItemTable tbl; // contains all physical quantities and units
+  const UnitName & unit; 
+  double value;
 
 private:
 
-  // checks that UnitItem object is registered in unit_tbl
-  template <class U> void validate(U * ptr, const string & type_name)
+  template <class SrcUnit>
+  void check_physical_units()
   {
-    {
-      const string & name = ptr->name;
-      if (tbl.exists_name(name))
-	{
-	  ostringstream s;
-	  s << "Repeated " << type_name << " name " << name;
-	  throw domain_error(s.str());
-	}
-    }
+    if (&unit.physical_quantity == &SrcUnit::get_instance().physical_quantity)
+      return;
 
-    {
-      const string & symbol = ptr->symbol;
-      if (tbl.exists_symbol(symbol))
-	{
-	  ostringstream s;
-	  s << "Repeated " << type_name << " symbol " << symbol;
-	  throw domain_error(s.str());
-	}
-    }
+    ostringstream s;
+    s << "Units do not refer to the same physical quantities" << endl
+      << "Source physical quantity = " << unit.physical_quantity.name << endl
+      << "target physical quantity = " << SrcUnit::get_instance().name;
+    throw domain_error(s.str());
   }
 
-  void validate_physical_quantity()
+  void check_value()
   {
-    validate(physical_quantity_ptr, "PhysicalQuantity");
-  }
+    if (value >= unit.min_val and value <= unit.max_val)
+      return;
 
-  void validate_unit()
-  {
-    validate(unit_ptr, "Unit");
+    ostringstream s;
+    s << "Value " << value << " is not inside in [" << unit.min_val << ","
+      << unit.max_val;
+    throw domain_error(s.str());
   }
 
 public:
 
-  Quantity(PhysicalQuantity * __physical_quantity,
-	   Unit *              __unit_ptr,
-	   const double        val) 
-    : physical_quantity_ptr(__physical_quantity), unit_ptr(__unit_ptr),
-      value(val)
+  Quantity(double val = 0) : unit(UnitName::get_instance()), value(val)
   {
-    validate_unit();
-    validate_physical_quantity();
+    check_value();
   }
 
   double get_value() const noexcept { return value; }
 
   operator double() const noexcept { return value; }
 
-  const PhysicalQuantity & get_physical_quantity() const noexcept
+  string to_string() const
   {
-    return *physical_quantity_ptr;
+    ostringstream s;
+    s << value << " " << unit.symbol;
+    return s.str();
   }
 
-  const Unit & get_unit() const noexcept
+  friend ostream & operator << (ostream & out, const Quantity & q)
   {
-    return *unit_ptr;
+    return out << q.to_string();
+  }
+
+  template <class SrcUnit>
+  Quantity(const Quantity<SrcUnit> & q)
+    : unit(UnitName::get_instance())
+  {
+    check_physical_units<SrcUnit>();
+    value = convert(q.value, SrcUnit::get_instance(), unit);
+    check_value();
+  }
+
+  template <class SrcUnit>
+  Quantity & operator = (const Quantity<SrcUnit> & q)
+  {
+    if (&q == this)
+      return *this;
+    
+    check_physical_units<SrcUnit>();
+    value = convert(q.value, SrcUnit::get_instance(), unit);
+    check_value();
+
+    return *this;
+  }
+
+  template <class TgtUnit> operator TgtUnit() const
+  {
+    TgtUnit ret;
+    ret = convert<UnitName, TgtUnit>(value, unit, TgtUnit::get_instance());
+    ret.check_value();
+    return ret;
   }
 };
 
