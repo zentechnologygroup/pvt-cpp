@@ -252,14 +252,5 @@ Hybrid_Ops(long);
 Hybrid_Ops(float);
 Hybrid_Ops(double);
 
-// Hybrid_Add(int);
-// Hybrid_Sub(int);
-// Hybrid_Mult(int);
-// Hybrid_Div(int);
-
-//Hybrid_Ops(int);
-// Hybrid_Ops(long);
-// Hybrid_Ops(float);
-// Hybrid_Ops(double);
 
 # endif // UNITS_H
