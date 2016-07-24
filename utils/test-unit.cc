@@ -53,11 +53,13 @@ int main(int argc, char *argv[])
   Quantity<Km> d1_km(100);
 
   d2_cm = d1_km;
+  d2_cm = 2*d1_cm;
+  d2_cm = d1_cm*2;
 
   cout << "cm = " << dist_cm << endl
        << "km = " << dist_km << endl
        << "d1_cm = " << d1_cm << endl
        << "d2_cm = " << d2_cm << endl;
-  
+
   return 0;
 }

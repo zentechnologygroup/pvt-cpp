@@ -130,6 +130,18 @@ public:
     check_value();
   }
 
+  Quantity(const Quantity & q) : unit(q.unit), value(q.value) {}
+
+  Quantity & operator = (const Quantity & q)
+  {
+    if (&q == this)
+      return *this;
+
+    value = q.value;
+
+    return *this;
+  }
+
   double get_value() const noexcept { return value; }
 
   operator double() const noexcept { return value; }
@@ -158,7 +170,7 @@ public:
   template <class SrcUnit>
   Quantity & operator = (const Quantity<SrcUnit> & q)
   {
-    if (&q == this)
+    if ((void*) &q == (void*) this)
       return *this;
     
     check_physical_units<SrcUnit>();
@@ -176,5 +188,78 @@ public:
     return ret;
   }
 };
+
+# define Hybrid_Add(type)						\
+  template <class UnitName> inline					\
+  Quantity<UnitName> operator + (type lhs, const Quantity<UnitName> & rhs) \
+  {									\
+    return Quantity<UnitName>(lhs + rhs.get_value());			\
+  }									\
+									\
+  template <class UnitName> inline					\
+  Quantity<UnitName> operator + (const Quantity<UnitName> & lhs, type rhs) \
+  {									\
+    return rhs+lhs;							\
+  }
+
+# define Hybrid_Sub(type)						\
+  template <class UnitName> inline					\
+  Quantity<UnitName> operator - (type lhs, const Quantity<UnitName> & rhs) \
+  {									\
+    return Quantity<UnitName>(lhs - rhs.get_value());			\
+  }									\
+									\
+  template <class UnitName> inline					\
+  Quantity<UnitName> operator - (const Quantity<UnitName> & lhs, type rhs) \
+  {									\
+    return Quantity<UnitName>(lhs.get_value() - rhs);			\
+  }
+
+# define Hybrid_Mult(type)						\
+  template <class UnitName> inline					\
+  Quantity<UnitName> operator * (type lhs, const Quantity<UnitName> & rhs) \
+  {									\
+    return Quantity<UnitName>(lhs*rhs.get_value());			\
+  }									\
+									\
+  template <class UnitName> inline					\
+  Quantity<UnitName> operator * (const Quantity<UnitName> & lhs, type rhs) \
+  {									\
+    return rhs*lhs;							\
+  }
+
+# define Hybrid_Div(type)						\
+  template <class UnitName> inline					\
+  Quantity<UnitName> operator / (type lhs, const Quantity<UnitName> & rhs) \
+  {									\
+    return Quantity<UnitName>(lhs / rhs.get_value());			\
+  }									\
+									\
+  template <class UnitName> inline					\
+  Quantity<UnitName> operator / (const Quantity<UnitName> & lhs, type rhs) \
+  {									\
+    return Quantity<UnitName>(lhs.get_value() / rhs);			\
+  }
+
+# define Hybrid_Ops(type)			\
+  Hybrid_Add(type);				\
+  Hybrid_Sub(type);				\
+  Hybrid_Mult(type);				\
+  Hybrid_Div(type);
+
+Hybrid_Ops(int);
+Hybrid_Ops(long);
+Hybrid_Ops(float);
+Hybrid_Ops(double);
+
+// Hybrid_Add(int);
+// Hybrid_Sub(int);
+// Hybrid_Mult(int);
+// Hybrid_Div(int);
+
+//Hybrid_Ops(int);
+// Hybrid_Ops(long);
+// Hybrid_Ops(float);
+// Hybrid_Ops(double);
 
 # endif // UNITS_H
