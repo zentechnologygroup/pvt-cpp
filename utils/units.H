@@ -98,9 +98,19 @@ inline DynList<UnitItem> units()
     void operator = (const name&) = delete;				\
   };
 
+# define Declare_Compound_Unit(name, symbol, desc, physical_quantity_name, \
+			       min, max, Unit1, Unit2)			\
+  Declare_Unit(name, symbol, desc, physical_quantity_name, min, max);	\
+  template <> struct Combine_Units<Unit1, Unit2> { using type = name; };
 
 template <class SrcUnit, class TgtUnit> extern
-double convert(const double & /* val */);	       
+double convert(const double & /* val */);
+
+template <typename U1, typename U2>
+struct Combine_Units
+{
+  using type = U1;
+};
 
 template <class UnitName>
 class Quantity 
@@ -138,7 +148,8 @@ private:
 
 public:
 
-  Quantity(double val = 0) : unit(UnitName::get_instance()), value(val)
+  Quantity(double val = 0)
+    : unit(UnitName::get_instance()), value(val)
   {
     check_value();
   }
@@ -156,8 +167,6 @@ public:
   }
 
   double get_value() const noexcept { return value; }
-
-  operator double() const noexcept { return value; }
 
   string to_string() const
   {
@@ -196,77 +205,53 @@ public:
   template <class TgtUnit> operator TgtUnit() const
   {
     TgtUnit ret;
-    ret = convert<UnitName, TgtUnit>(value);
+    ret.value = convert<UnitName, TgtUnit>(value);
     ret.check_value();
     return ret;
   }
 
-  template <class TgtUnit>
-  Quantity & operator += (const Quantity<TgtUnit> & rhs)
+  Quantity & operator += (const Quantity & rhs)
   {
-    check_physical_units(rhs);
     value += rhs.value;
     check_value();
     return *this;
   }
 
-  template <class TgtUnit>
-  Quantity operator + (const Quantity<TgtUnit> & rhs)
+  Quantity operator + (const Quantity & rhs)
   {
     Quantity ret(*this);
     ret += rhs;
     return ret;
   }
 
-  template <class TgtUnit>
-  Quantity & operator -= (const Quantity<TgtUnit> & rhs)
+  Quantity & operator -= (const Quantity & rhs)
   {
-    check_physical_units(rhs);
     value -= rhs.value;
     check_value();
     return *this;
   }
 
-  template <class TgtUnit>
-  Quantity operator - (const Quantity<TgtUnit> & rhs)
+  Quantity operator - (const Quantity & rhs)
   {
     Quantity ret(*this);
     ret -= rhs;
     return ret;
   }
 
-  template <class TgtUnit>
-  Quantity & operator *= (const Quantity<TgtUnit> & rhs)
+  template <class U>
+  Quantity<typename Combine_Units<UnitName, U>::type>
+  operator * (const Quantity<U> & rhs) const
   {
-    check_physical_units(rhs);
-    value *= rhs.value;
-    check_value();
-    return *this;
+    using T = typename Combine_Units<UnitName, U>::type;
+    return Quantity<T>(value * rhs.value);
   }
 
-  template <class TgtUnit>
-  Quantity operator * (const Quantity<TgtUnit> & rhs)
+  template <class U>
+  Quantity<typename Combine_Units<UnitName, U>::type>
+  operator / (const Quantity<U> & rhs) const
   {
-    Quantity ret(*this);
-    ret *= rhs;
-    return ret;
-  }
-
-  template <class TgtUnit>
-  Quantity & operator /= (const Quantity<TgtUnit> & rhs)
-  {
-    check_physical_units(rhs);
-    value /= rhs.value;
-    check_value();
-    return *this;
-  }
-
-  template <class TgtUnit>
-  Quantity operator / (const Quantity<TgtUnit> & rhs)
-  {
-    Quantity ret(*this);
-    ret /= rhs;
-    return ret;
+    using T = typename Combine_Units<UnitName, U>::type;
+    return Quantity<T>(value / rhs.value);
   }
 };
 

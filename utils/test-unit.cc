@@ -4,16 +4,83 @@
 
 Declare_Physical_Quantity(Distance, "d",
 			  "Measure about how far appart an object is");
-Declare_Unit(Cm, "cm", "1/100 meter", Distance, 0,
-	     numeric_limits<double>::max());
-Declare_Unit(Km, "Km", "1000 meters", Distance, 0,
-	     numeric_limits<double>::max());
+Declare_Unit(Cm, "cm", "1/100 meter", Distance,
+	     0, numeric_limits<double>::max());
+Declare_Unit(Km, "km", "1000 meters", Distance,
+	     0, numeric_limits<double>::max());
+Declare_Unit(Mt, "mt", "Standard measure of length", Distance,
+	     0, numeric_limits<double>::max());
+Declare_Unit(Mi, "mi", "English unit of length", Distance,
+	     0, numeric_limits<double>::max());
+
+template <> double convert<Cm,Km>(const double & val) { return val/(1000*100); }
+
+template <> double convert<Km, Cm>(const double & val) { return 1000*100*val; }
+
+template <> double convert<Km, Mi>(const double & val) { return val/1609.344; }
+
+template <> double convert<Mi, Km>(const double & val) { return 1609.344*val; }
+
+Declare_Physical_Quantity(Time, "t", "The mistery of the life");
+Declare_Unit(Second, "s", "base unit time", Time,
+	     0, numeric_limits<double>::max());
+Declare_Unit(Minute, "m", "60 seconds", Time,
+	     0, numeric_limits<double>::max());
+Declare_Unit(Hour, "h", "60 minutes", Time,
+	     0, numeric_limits<double>::max());
 
 template <> double
-convert<Cm, Km>(const double & val) { return val/(1000*100); }
+convert<Second, Minute>(const double & val) { return val/60; }
 
 template <> double
-convert<Km, Cm>(const double & val) { return 1000*100*val; }
+convert<Second, Hour>(const double & val) { return val/3600; }
+
+template <> double
+convert<Hour, Second>(const double & val) { return 3600*val; }
+
+template <> double
+convert<Hour, Minute>(const double & val) { return 60*val; }
+
+template <> double
+convert<Minute, Hour>(const double & val) { return val/60; }
+
+template <> double
+convert<Minute, Second>(const double & val) { return val/60; }
+
+Declare_Physical_Quantity(Speed, "v", "Rate of change of position");
+Declare_Compound_Unit(km_h, "km/h", "Standard measure of speed", Speed,
+		      0, numeric_limits<double>::max(), Km, Hour);
+Declare_Compound_Unit(mt_s, "mt/s", "some more physically familiar", Speed,
+		      0, numeric_limits<double>::max(), Mt, Second);
+Declare_Compound_Unit(mi_h, "mi/h", "English measure of speed", Speed,
+		      0, numeric_limits<double>::max(), Mi, Hour);
+
+//template <> struct Combine_Units<Km, Hour> { using type = km_h; };
+
+template <> double convert<km_h, mt_s>(const double & val)
+{
+  return 1000*val/3600;
+}
+
+template <> double convert<km_h, mi_h>(const double & val)
+{
+  return val/1609.344;
+}
+
+Quantity<km_h> compute_speed(const Quantity<Km> & dist,
+			     const Quantity<Hour> & time)
+{
+  return dist/time;
+}
+
+void test_speed(const Quantity<Km> & dist, const Quantity<Hour> & time)
+{
+  auto speed = compute_speed(dist, time);
+
+  cout << "Speed = " << speed << endl
+       << "      = " << (Quantity<mt_s>) speed << endl
+       << "      = " << (Quantity<mi_h>) speed << endl;
+}
 
 Declare_Physical_Quantity(Temperature, "T", "Quantity of hot or cold");
 Declare_Unit(Kelvin, "K", "Absolute scale of temperature", Temperature,
@@ -28,7 +95,6 @@ Declare_Unit(Rankine, "Ra",
 	     "Absolute scale of temperature", Temperature,
 	     0, numeric_limits<double>::max());
 
-Declare_Physical_Quantity(Time, "t", "The mistery of the life");
 
 int main(int argc, char *argv[])
 {
@@ -50,9 +116,8 @@ int main(int argc, char *argv[])
   d2_cm = d1_km;
   d2_cm = 2*d1_cm;
   d2_cm = d1_cm*2;
-  d2_cm += d1_km;
 
-  double d = d2_cm;
+  // double d = d2_cm;
 
 
   cout << "cm = " << dist_cm << endl
@@ -60,10 +125,19 @@ int main(int argc, char *argv[])
        << "d1_cm = " << d1_cm << endl
        << "d2_cm = " << d2_cm << endl;
 
+  test_speed(1000, Quantity<Hour>(1));
+
+  cout << "Physical quantities:" << endl;
   PhysicalQuantity::quantities().for_each([] (auto p)
    {
      cout << p.name << endl;
    });
+
+  cout << endl
+       << "Units:" << endl;
+  units().for_each([] (auto p) { cout << p.name << endl; });
+  cout << endl
+       << endl;
 
   return 0;
 }
