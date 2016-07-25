@@ -1,4 +1,5 @@
 
+# include <cmath>
 # include <units.H>
 
 Declare_Physical_Quantity(Distance, "d",
@@ -9,16 +10,10 @@ Declare_Unit(Km, "Km", "1000 meters", Distance, 0,
 	     numeric_limits<double>::max());
 
 template <> double
-convert<Cm, Km>(const double & val , const Cm &, const Km &)
-{
-  return val/(1000*100);
-}
+convert<Cm, Km>(const double & val) { return val/(1000*100); }
 
 template <> double
-convert<Km, Cm>(const double & val , const Km &, const Cm &)
-{
-  return 1000*100*val;
-}
+convert<Km, Cm>(const double & val) { return 1000*100*val; }
 
 Declare_Physical_Quantity(Temperature, "T", "Quantity of hot or cold");
 Declare_Unit(Kelvin, "K", "Absolute scale of temperature", Temperature,
@@ -55,11 +50,20 @@ int main(int argc, char *argv[])
   d2_cm = d1_km;
   d2_cm = 2*d1_cm;
   d2_cm = d1_cm*2;
+  d2_cm += d1_km;
+
+  double d = d2_cm;
+
 
   cout << "cm = " << dist_cm << endl
        << "km = " << dist_km << endl
        << "d1_cm = " << d1_cm << endl
        << "d2_cm = " << d2_cm << endl;
+
+  PhysicalQuantity::quantities().for_each([] (auto p)
+   {
+     cout << p.name << endl;
+   });
 
   return 0;
 }

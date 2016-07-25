@@ -27,6 +27,16 @@ protected:
   {
     tbl.register_item(name, symbol, desc);
   }
+
+public:
+
+  static DynList<PhysicalQuantity> quantities()
+  {
+    return tbl.items().map<PhysicalQuantity>([] (auto p)
+      {
+	return *static_cast<const PhysicalQuantity*>(p);
+      });
+  }
 };
 
 # define Declare_Physical_Quantity(name, symbol, desc)		      \
@@ -52,6 +62,11 @@ protected:
   };
 
 extern UnitItemTable unit_tbl;
+
+inline DynList<UnitItem> units()
+{
+  return unit_tbl.items().map<UnitItem>([] (auto p) { return *p; });
+}
 
 # define Declare_Unit(name, symbol, desc, physical_quantity_name, min, max) \
   struct name : public UnitItem						\
@@ -85,9 +100,7 @@ extern UnitItemTable unit_tbl;
 
 
 template <class SrcUnit, class TgtUnit> extern
-double convert(const double & /* val */,
-	       const SrcUnit & /* src_unit */,
-	       const TgtUnit & /* tgt_unit */);
+double convert(const double & /* val */);	       
 
 template <class UnitName>
 class Quantity 
@@ -100,9 +113,9 @@ public:
 private:
 
   template <class SrcUnit>
-  void check_physical_units()
+  void check_physical_units(const Quantity<SrcUnit> & q)
   {
-    if (&unit.physical_quantity == &SrcUnit::get_instance().physical_quantity)
+    if ((void*) &unit.physical_quantity == (void*) &(q.unit.physical_quantity))
       return;
 
     ostringstream s;
@@ -162,8 +175,8 @@ public:
   Quantity(const Quantity<SrcUnit> & q)
     : unit(UnitName::get_instance())
   {
-    check_physical_units<SrcUnit>();
-    value = convert(q.value, SrcUnit::get_instance(), unit);
+    check_physical_units(q);
+    value = convert<SrcUnit, UnitName>(q.value);
     check_value();
   }
 
@@ -173,8 +186,8 @@ public:
     if ((void*) &q == (void*) this)
       return *this;
     
-    check_physical_units<SrcUnit>();
-    value = convert(q.value, SrcUnit::get_instance(), unit);
+    check_physical_units(q);
+    value = convert<SrcUnit, UnitName>(q.value);
     check_value();
 
     return *this;
@@ -183,8 +196,76 @@ public:
   template <class TgtUnit> operator TgtUnit() const
   {
     TgtUnit ret;
-    ret = convert<UnitName, TgtUnit>(value, unit, TgtUnit::get_instance());
+    ret = convert<UnitName, TgtUnit>(value);
     ret.check_value();
+    return ret;
+  }
+
+  template <class TgtUnit>
+  Quantity & operator += (const Quantity<TgtUnit> & rhs)
+  {
+    check_physical_units(rhs);
+    value += rhs.value;
+    check_value();
+    return *this;
+  }
+
+  template <class TgtUnit>
+  Quantity operator + (const Quantity<TgtUnit> & rhs)
+  {
+    Quantity ret(*this);
+    ret += rhs;
+    return ret;
+  }
+
+  template <class TgtUnit>
+  Quantity & operator -= (const Quantity<TgtUnit> & rhs)
+  {
+    check_physical_units(rhs);
+    value -= rhs.value;
+    check_value();
+    return *this;
+  }
+
+  template <class TgtUnit>
+  Quantity operator - (const Quantity<TgtUnit> & rhs)
+  {
+    Quantity ret(*this);
+    ret -= rhs;
+    return ret;
+  }
+
+  template <class TgtUnit>
+  Quantity & operator *= (const Quantity<TgtUnit> & rhs)
+  {
+    check_physical_units(rhs);
+    value *= rhs.value;
+    check_value();
+    return *this;
+  }
+
+  template <class TgtUnit>
+  Quantity operator * (const Quantity<TgtUnit> & rhs)
+  {
+    Quantity ret(*this);
+    ret *= rhs;
+    return ret;
+  }
+
+  template <class TgtUnit>
+  Quantity & operator /= (const Quantity<TgtUnit> & rhs)
+  {
+    check_physical_units(rhs);
+    value /= rhs.value;
+    check_value();
+    return *this;
+  }
+
+  template <class TgtUnit>
+  Quantity operator / (const Quantity<TgtUnit> & rhs)
+  {
+    Quantity ret(*this);
+    ret /= rhs;
     return ret;
   }
 };

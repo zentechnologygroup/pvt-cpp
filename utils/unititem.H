@@ -38,6 +38,11 @@ class UnitItemTable
 
 public:
 
+  DynList<const UnitItem*> items() const
+  {
+    return name_tbl.values();
+  }
+
   // returns a iterator to pair<string, UnitItem*>
   auto get_it() { return name_tbl.get_it(); }
 
