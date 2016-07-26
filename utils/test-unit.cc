@@ -1,6 +1,7 @@
 
 # include <cmath>
 # include <units.H>
+# include "test-utils.H"
 
 Declare_Physical_Quantity(Distance, "d",
 			  "Measure about how far appart an object is");
@@ -16,6 +17,8 @@ Declare_Unit(Mi, "mi", "English unit of length", Distance,
 template <> double convert<Cm,Km>(const double & val) { return val/(1000*100); }
 
 template <> double convert<Km, Cm>(const double & val) { return 1000*100*val; }
+
+template <> double convert<Km, Mt>(const double & val) { return 1000*val; }
 
 template <> double convert<Km, Mi>(const double & val) { return val/1609.344; }
 
@@ -55,8 +58,6 @@ Declare_Compound_Unit(mt_s, "mt/s", "some more physically familiar", Speed,
 Declare_Compound_Unit(mi_h, "mi/h", "English measure of speed", Speed,
 		      0, numeric_limits<double>::max(), Mi, Hour);
 
-//template <> struct Combine_Units<Km, Hour> { using type = km_h; };
-
 template <> double convert<km_h, mt_s>(const double & val)
 {
   return 1000*val/3600;
@@ -67,20 +68,14 @@ template <> double convert<km_h, mi_h>(const double & val)
   return val/1609.344;
 }
 
-Quantity<km_h> compute_speed(const Quantity<Km> & dist,
-			     const Quantity<Hour> & time)
+void test_speed()
 {
-  return dist/time;
+  Quantity<Km> dist = 1000;
+  test_assert((Quantity<Mt>) dist == Quantity<Mt>(1000*1000));
+  test_assert((Quantity<Cm>) dist == 1000*1000*100);
+  test_assert(Quantity<Mi>(dist) == 1000/1609.344);
 }
 
-void test_speed(const Quantity<Km> & dist, const Quantity<Hour> & time)
-{
-  auto speed = compute_speed(dist, time);
-
-  cout << "Speed = " << speed << endl
-       << "      = " << (Quantity<mt_s>) speed << endl
-       << "      = " << (Quantity<mi_h>) speed << endl;
-}
 
 Declare_Physical_Quantity(Temperature, "T", "Quantity of hot or cold");
 Declare_Unit(Kelvin, "K", "Absolute scale of temperature", Temperature,
@@ -96,8 +91,10 @@ Declare_Unit(Rankine, "Ra",
 	     0, numeric_limits<double>::max());
 
 
-int main(int argc, char *argv[])
+int main()
 {
+  test_speed();
+
   cout << Temperature::get_instance() << endl
        << endl
        << Cm::get_instance().physical_quantity << endl
@@ -124,8 +121,6 @@ int main(int argc, char *argv[])
        << "km = " << dist_km << endl
        << "d1_cm = " << d1_cm << endl
        << "d2_cm = " << d2_cm << endl;
-
-  test_speed(1000, Quantity<Hour>(1));
 
   cout << "Physical quantities:" << endl;
   PhysicalQuantity::quantities().for_each([] (auto p)

@@ -254,6 +254,28 @@ public:
     using T = typename Combine_Units<UnitName, U>::type;
     return Quantity<T>(value / rhs.value);
   }
+
+  template <class U>
+  bool operator < (const Quantity<U> & rhs) const
+  {
+    Quantity r = rhs; // here e conversion is done
+    return value < r.value;
+  }
+
+  template <class U>
+  bool operator > (const Quantity<U> & rhs) const
+  {
+    Quantity r = rhs; // here e conversion is done
+    return value > r.value;
+  }
+
+  // TODO: poner un epsilon
+  template <class U>
+  bool operator == (const Quantity<U> & rhs) const
+  {
+    Quantity r = rhs; // here e conversion is done
+    return value == r.value;
+  }
 };
 
 # define Hybrid_Add(type)						\
@@ -308,11 +330,49 @@ public:
     return Quantity<UnitName>(lhs.get_value() / rhs);			\
   }
 
+# define Hybrid_Cmp(type)			\
+  template <class U> inline				\
+  bool operator < (const Quantity<U> & lhs, type rhs)	\
+  {							\
+    return lhs < Quantity<U>(rhs);			\
+  }							\
+							\
+  template <class U> inline			\
+  bool operator < (type lhs, const Quantity<U> & rhs)	\
+  {							\
+    return Quantity<U>(lhs) < rhs;			\
+  }							\
+							\
+  template <class U> inline				\
+  bool operator > (const Quantity<U> & lhs, type rhs)	\
+  {							\
+    return lhs > Quantity<U>(rhs);			\
+  }							\
+							\
+  template <class U> inline			\
+  bool operator > (type lhs, const Quantity<U> & rhs)	\
+  {							\
+    return Quantity<U>(lhs) > rhs;			\
+  }							\
+							\
+  template <class U> inline				\
+  bool operator == (const Quantity<U> & lhs, type rhs)	\
+  {							\
+    return lhs == Quantity<U>(rhs);			\
+  }							\
+							\
+  template <class U> inline				\
+  bool operator == (type lhs, const Quantity<U> & rhs)	\
+  {							\
+    return Quantity<U>(lhs) == rhs;			\
+  }							\
+
 # define Hybrid_Ops(type)			\
   Hybrid_Add(type);				\
   Hybrid_Sub(type);				\
   Hybrid_Mult(type);				\
-  Hybrid_Div(type);
+  Hybrid_Div(type);				\
+  Hybrid_Cmp(type);
 
 Hybrid_Ops(int);
 Hybrid_Ops(long);
