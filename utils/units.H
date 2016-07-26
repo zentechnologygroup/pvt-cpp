@@ -99,14 +99,14 @@ inline DynList<UnitItem> units()
   };
 
 # define Declare_Compound_Unit(name, symbol, desc, physical_quantity_name, \
-			       min, max, Unit1, Unit2)			\
+			       min, max, Unit1, Units...)	\
   Declare_Unit(name, symbol, desc, physical_quantity_name, min, max);	\
-  template <> struct Combine_Units<Unit1, Unit2> { using type = name; };
+  template <> struct Combine_Units<Unit1, Units> { using type = name; };
 
 template <class SrcUnit, class TgtUnit> extern
-double convert(const double & /* val */);
+double convert(double /* val */);
 
-template <typename U1, typename U2>
+template <typename U1, typename ...Units>
 struct Combine_Units
 {
   using type = U1;
@@ -269,12 +269,17 @@ public:
     return value > r.value;
   }
 
-  // TODO: poner un epsilon
   template <class U>
   bool operator == (const Quantity<U> & rhs) const
   {
     Quantity r = rhs; // here e conversion is done
     return value == r.value;
+  }
+
+  template <class U>
+  bool operator != (const Quantity<U> & rhs) const
+  {
+    return not (*this == rhs);
   }
 };
 
@@ -366,6 +371,18 @@ public:
   {							\
     return Quantity<U>(lhs) == rhs;			\
   }							\
+							\
+  template <class U> inline				\
+  bool operator != (const Quantity<U> & lhs, type rhs)	\
+  {							\
+    return not (lhs == rhs);				\
+  }							\
+							\
+  template <class U> inline				\
+  bool operator != (type lhs, const Quantity<U> & rhs)	\
+  {							\
+    return not (lhs == rhs);				\
+  }
 
 # define Hybrid_Ops(type)			\
   Hybrid_Add(type);				\
