@@ -135,6 +135,7 @@ private:
     throw domain_error(s.str());
   }
 
+  // helper for validating that value is in the [min_val, max_val]
   void check_value()
   {
     if (value >= unit.min_val and value <= unit.max_val)
