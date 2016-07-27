@@ -78,12 +78,42 @@ template <> double convert<Calorie, Joule>(double val) { return val/4.18; }
 
 void test()
 {
-  Quantity<Kilometer> dist = 1000;
+  Quantity<Kilometer> dist = 10;
+  dist += 50;
+  dist -= 10;
+  dist = 10*dist;
+  dist = 500 + dist; // final value must be 1000
+
+  test_assert(dist == 1000);
+  test_assert(dist < 1000.001);
+  test_assert(dist > 999.999);
+  test_assert(dist < Quantity<Kilometer>(1000.00000001));
+  test_assert(dist != 1000.0001);
+  test_assert(1000 == dist);
+  test_assert(1000.001 > dist);
+  test_assert(999.999 < dist);
+  test_assert(1000.0001 != dist);
+  test_assert(dist >  Quantity<Kilometer>(999.99999999));
+  test_assert(1000 >= dist);
+  test_assert(dist >= 1000);
+  test_assert(dist >= Quantity<Kilometer>(1000));
+  test_assert(dist <= 1000);
+  test_assert(1000 <= dist);
+  test_assert(dist <= Quantity<Centimeter>(1000*1000*100));
+  test_assert(1000.0001 >= dist);
+  test_assert(dist >= 999.99999);
+  test_assert(dist >= (Quantity<Centimeter>(1000*1000*100 - .000000001)));
+
+  test_assert(dist == Quantity<Kilometer>(1000));
+  test_assert(dist < Quantity<Kilometer>(1000.001));
+  test_assert(dist > Quantity<Kilometer>(999.999));
+  test_assert(dist != Quantity<Kilometer>(1000.0001));
 
   test_assert((Quantity<Meter>) dist == Quantity<Meter>(1000*1000));
   test_assert((Quantity<Centimeter>) dist == Quantity<Centimeter>(1000*1000*100));
   test_assert((Quantity<Mile>) dist == Quantity<Mile>(1000/1609.344));
 
+  test_assert(dist == Quantity<Centimeter>(1000*1000*100));
   test_assert((Quantity<Centimeter>) dist == 1000*1000*100);
   test_assert((Quantity<Meter>) dist == 1000*1000);
   test_assert((Quantity<Mile>) dist == 1000/1609.344);
@@ -110,7 +140,7 @@ void test()
   test_assert(1000/1609.344 == (Quantity<Mi_h>) speed);
   test_assert(1000/1609.34 != (Quantity<Mi_h>) speed);
 
-  Quantity<Kilogram> mass = 70; // my mass
+  Quantity<Kilogram> mass = 70; // my body mass!
 
   Quantity<Mt_s> speed_mt_s = { speed };
   Quantity<Joule> energy = (0.5*mass)*(speed_mt_s*speed_mt_s); // kinetic energy

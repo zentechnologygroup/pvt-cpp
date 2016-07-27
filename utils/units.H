@@ -154,7 +154,7 @@ private:
 
     ostringstream s;
     s << "Value " << value << " is not inside in [" << unit.min_val << ","
-      << unit.max_val;
+      << unit.max_val << "]";
     throw domain_error(s.str());
   }
 
@@ -269,21 +269,35 @@ public:
   template <class U>
   bool operator < (const Quantity<U> & rhs) const
   {
-    Quantity r = rhs; // here e conversion is done
+    Quantity r = { rhs }; // here the conversion is done
     return value < r.value;
+  }
+
+  template <class U>
+  bool operator <= (const Quantity<U> & rhs) const
+  {
+    Quantity r = { rhs }; // here the conversion is done
+    return value <= r.value;
   }
 
   template <class U>
   bool operator > (const Quantity<U> & rhs) const
   {
-    Quantity r = rhs; // here e conversion is done
+    Quantity r = { rhs }; // here the conversion is done
     return value > r.value;
+  }
+
+  template <class U>
+  bool operator >= (const Quantity<U> & rhs) const
+  {
+    Quantity r = { rhs }; // here the conversion is done
+    return value >= r.value;
   }
 
   template <class U>
   bool operator == (const Quantity<U> & rhs) const
   {
-    Quantity r = rhs; // here e conversion is done
+    Quantity r = { rhs }; // here the conversion is done
     return value == r.value;
   }
 
@@ -299,12 +313,6 @@ public:
   Quantity<UnitName> operator + (type lhs, const Quantity<UnitName> & rhs) \
   {									\
     return Quantity<UnitName>(lhs + rhs.get_value());			\
-  }									\
-									\
-  template <class UnitName> inline					\
-  Quantity<UnitName> operator + (const Quantity<UnitName> & lhs, type rhs) \
-  {									\
-    return rhs+lhs;							\
   }
 
 # define Hybrid_Sub(type)						\
@@ -312,12 +320,6 @@ public:
   Quantity<UnitName> operator - (type lhs, const Quantity<UnitName> & rhs) \
   {									\
     return Quantity<UnitName>(lhs - rhs.get_value());			\
-  }									\
-									\
-  template <class UnitName> inline					\
-  Quantity<UnitName> operator - (const Quantity<UnitName> & lhs, type rhs) \
-  {									\
-    return Quantity<UnitName>(lhs.get_value() - rhs);			\
   }
 
 # define Hybrid_Mult(type)						\
@@ -325,12 +327,6 @@ public:
   Quantity<UnitName> operator * (type lhs, const Quantity<UnitName> & rhs) \
   {									\
     return Quantity<UnitName>(lhs*rhs.get_value());			\
-  }									\
-									\
-  template <class UnitName> inline					\
-  Quantity<UnitName> operator * (const Quantity<UnitName> & lhs, type rhs) \
-  {									\
-    return rhs*lhs;							\
   }
 
 # define Hybrid_Div(type)						\
@@ -338,25 +334,31 @@ public:
   Quantity<UnitName> operator / (type lhs, const Quantity<UnitName> & rhs) \
   {									\
     return Quantity<UnitName>(lhs / rhs.get_value());			\
-  }									\
-									\
-  template <class UnitName> inline					\
-  Quantity<UnitName> operator / (const Quantity<UnitName> & lhs, type rhs) \
-  {									\
-    return Quantity<UnitName>(lhs.get_value() / rhs);			\
   }
 
-# define Hybrid_Cmp(type)			\
+# define Hybrid_Cmp(type)				\
+  template <class U> inline				\
+  bool operator < (type lhs, const Quantity<U> & rhs)	\
+  {							\
+    return Quantity<U>(lhs) < rhs;			\
+  }							\
+							\
   template <class U> inline				\
   bool operator < (const Quantity<U> & lhs, type rhs)	\
   {							\
     return lhs < Quantity<U>(rhs);			\
   }							\
 							\
-  template <class U> inline			\
-  bool operator < (type lhs, const Quantity<U> & rhs)	\
+  template <class U> inline				\
+  bool operator <= (const Quantity<U> & lhs, type rhs)	\
   {							\
-    return Quantity<U>(lhs) < rhs;			\
+    return lhs <= Quantity<U>(rhs);			\
+  }							\
+							\
+  template <class U> inline				\
+  bool operator <= (type lhs, const Quantity<U> & rhs)	\
+  {							\
+    return Quantity<U>(lhs) <= rhs;			\
   }							\
 							\
   template <class U> inline				\
@@ -365,10 +367,22 @@ public:
     return lhs > Quantity<U>(rhs);			\
   }							\
 							\
-  template <class U> inline			\
+  template <class U> inline				\
   bool operator > (type lhs, const Quantity<U> & rhs)	\
   {							\
     return Quantity<U>(lhs) > rhs;			\
+  }							\
+							\
+  template <class U> inline				\
+  bool operator >= (const Quantity<U> & lhs, type rhs)	\
+  {							\
+    return lhs >= Quantity<U>(rhs);			\
+  }							\
+							\
+  template <class U> inline				\
+  bool operator >= (type lhs, const Quantity<U> & rhs)	\
+  {							\
+    return Quantity<U>(lhs) >= rhs;			\
   }							\
 							\
   template <class U> inline				\
