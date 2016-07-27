@@ -30,61 +30,72 @@ protected:
 
 public:
 
-  static DynList<PhysicalQuantity> quantities()
+  static DynList<const PhysicalQuantity *> quantities()
   {
-    return tbl.items().map<PhysicalQuantity>([] (auto p)
+    return tbl.items().map<const PhysicalQuantity*>([] (auto p)
       {
-	return *static_cast<const PhysicalQuantity*>(p);
+	return static_cast<const PhysicalQuantity*>(p);
       });
   }
 };
 
-# define Declare_Physical_Quantity(name, symbol, desc)		      \
-  struct name : public PhysicalQuantity				      \
-  {								      \
-								      \
-    using PhysicalQuantity::PhysicalQuantity;			      \
-								      \
-    static const name & get_instance()				      \
-    {								      \
-      static name instance(#name, symbol, desc);		      \
-      return instance;						      \
-    }								      \
-								      \
-  private:							      \
-								      \
-    name() : PhysicalQuantity(#name, symbol, desc) {}		      \
-								      \
-  public:							      \
-								      \
-    name(const name&) = delete;					      \
-    void operator = (const name&) = delete;			      \
+# define Declare_Physical_Quantity(name, symbol, desc)	\
+  struct name : public PhysicalQuantity			\
+  {							\
+							\
+    static const name & get_instance()			\
+    {							\
+      static name instance(#name, symbol, desc);	\
+      return instance;					\
+    }							\
+							\
+  private:						\
+							\
+    using PhysicalQuantity::PhysicalQuantity;		\
+							\
+    name() : PhysicalQuantity(#name, symbol, desc) {}	\
+							\
+  public:						\
+							\
+    name(const name&) = delete;				\
+    void operator = (const name&) = delete;		\
   };
 
-extern UnitItemTable unit_tbl;
-
-inline DynList<UnitItem> units()
+struct Unit : public UnitItem
 {
-  return unit_tbl.items().map<UnitItem>([] (auto p) { return *p; });
-}
+  template <typename U> friend class Quantity;
+
+  const PhysicalQuantity & physical_quantity;
+  const double min_val = 0;
+  const double max_val = 0;
+
+private:
+
+  static UnitItemTable tbl;
+  static DynSetTree<const Unit *> unit_tbl;
+
+public:
+
+  static DynList<const Unit*> units() { return unit_tbl.keys(); }
+
+protected:
+
+  Unit(const string & name, const string & symbol, const string & desc,
+       const PhysicalQuantity & phy_q, double min, double max)
+    : UnitItem(name, symbol, desc), physical_quantity(phy_q),
+      min_val(min), max_val(max)
+  {
+    tbl.register_item(name, symbol, desc);
+    unit_tbl.insert(this);
+  }
+};
 
 # define Declare_Unit(name, symbol, desc, physical_quantity_name, min, max) \
-  struct name : public UnitItem						\
+  class name : public Unit						\
   {									\
-    template <typename U> friend class Quantity;			\
-    									\
-    const PhysicalQuantity & physical_quantity;				\
-    const double min_val = min;						\
-    const double max_val = max;						\
-									\
-  private:								\
-									\
     name()								\
-      : UnitItem(#name, symbol, desc),					\
-      physical_quantity(physical_quantity_name::get_instance())		\
-      {									\
-	unit_tbl.register_item(#name, symbol, desc);			\
-      }									\
+      : Unit(#name, symbol, desc,					\
+	     physical_quantity_name::get_instance(), min, max) {}	\
 									\
   public:								\
 									\
@@ -99,7 +110,7 @@ inline DynList<UnitItem> units()
   };
 
 # define Declare_Compound_Unit(name, symbol, desc, physical_quantity_name, \
-			       min, max, Unit1, Units...)	\
+			       min, max, Unit1, Units...)		\
   Declare_Unit(name, symbol, desc, physical_quantity_name, min, max);	\
   template <> struct Combine_Units<Unit1, Units> { using type = name; };
 

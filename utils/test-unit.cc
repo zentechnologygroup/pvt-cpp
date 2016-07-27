@@ -72,7 +72,7 @@ Declare_Physical_Quantity(Energy, "E",
 			    transfered o transformed in order to do some work)");
 Declare_Compound_Unit(Joule, "J", "Energy unit in ISU", Energy, 0,
  		      numeric_limits<double>::max(), Kilogram, Mt_s);
-Declare_Unit(Calorie, "Cal", "", Energy, 0, numeric_limits<double>::max());
+Declare_Unit(Calorie, "Cal", "Calorie", Energy, 0, numeric_limits<double>::max());
 template <> double convert<Joule, Calorie>(double val) { return 4.18*val; }
 template <> double convert<Calorie, Joule>(double val) { return val/4.18; }
 
@@ -121,8 +121,6 @@ void test()
        << "Energy   = " << energy << endl
        << "         = " << (Quantity<Calorie>) energy << endl
        << endl;
-  
-  //Quantity<Joule> ek = (0.5*mass*speed*speed);
 }
 
 
@@ -132,14 +130,22 @@ int main()
 
   cout << "Physical Quantities:" << endl;
   PhysicalQuantity::quantities().for_each([] (auto p)
-   {
-     cout << p.name << endl;
-   });
-
+    {
+      cout << "Physical quantity name   = " << p->name << endl
+	   << "Physical quantity symbol = " << p->symbol << endl
+	   << "Physical quantity desc   = " << p->description << endl
+	   << endl;
+    });
   cout << endl
        << "Units:" << endl
        << endl;
-  units().for_each([] (auto p) { cout << p.name << endl; });
+  Unit::units().for_each([] (auto p)
+    {
+      cout << "Unit name   = " << p->name << endl
+	   << "Unit symbol = " << p->symbol << endl
+	   << "Unit desc: " << p->description << endl
+	   << "Physical unit: " << p->physical_quantity.name << endl;
+    });
   cout << endl
        << endl;
 

@@ -1,7 +1,7 @@
 
 # include <units.H>
 
-
 UnitItemTable PhysicalQuantity::tbl;
 
-UnitItemTable unit_tbl;
+UnitItemTable Unit::tbl;
+DynSetTree<const Unit*> Unit::unit_tbl;
