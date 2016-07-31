@@ -16,12 +16,12 @@ Declare_Unit(Meter, "mt", "Standard measure of length", Distance,
 	     0, numeric_limits<double>::max());
 Declare_Unit(Mile, "mi", "English unit of length", Distance,
 	     0, numeric_limits<double>::max());
-template <> double convert<Centimeter, Kilometer>(double v) { return v/(1000*100); }
-template <> double convert<Kilometer, Centimeter>(double v) { return 1000*100*v; }
-template <> double convert<Kilometer, Meter>(double val) { return 1000*val; }
-template <> double convert<Meter, Kilometer>(double val) { return val/1000; }
-template <> double convert<Kilometer, Mile>(double val) { return val/1609.344; }
-template <> double convert<Mile, Kilometer>(double val) { return 1609.344*val; }
+template <> double unit_convert<Centimeter, Kilometer>(double v) { return v/(1000*100); }
+template <> double unit_convert<Kilometer, Centimeter>(double v) { return 1000*100*v; }
+template <> double unit_convert<Kilometer, Meter>(double v) { return 1000*v; }
+template <> double unit_convert<Meter, Kilometer>(double v) { return v/1000; }
+template <> double unit_convert<Kilometer, Mile>(double v) { return v/1609.344; }
+template <> double unit_convert<Mile, Kilometer>(double v) { return 1609.344*v; }
 
 // Time declarations
 Declare_Physical_Quantity(Time, "t", "The mistery of the life");
@@ -31,12 +31,12 @@ Declare_Unit(Minute, "m", "60 seconds", Time,
 	     0, numeric_limits<double>::max());
 Declare_Unit(Hour, "h", "60 minutes", Time,
 	     0, numeric_limits<double>::max());
-template <> double convert<Second, Minute>(double val) { return val/60; }
-template <> double convert<Second, Hour>(double val) { return val/3600; }
-template <> double convert<Hour, Second>(double val) { return 3600*val; }
-template <> double convert<Hour, Minute>(double val) { return 60*val; }
-template <> double convert<Minute, Hour>(double val) { return val/60; }
-template <> double convert<Minute, Second>(double val) { return val/60; }
+template <> double unit_convert<Second, Minute>(double v) { return v/60; }
+template <> double unit_convert<Second, Hour>(double v) { return v/3600; }
+template <> double unit_convert<Hour, Second>(double v) { return 3600*v; }
+template <> double unit_convert<Hour, Minute>(double v) { return 60*v; }
+template <> double unit_convert<Minute, Hour>(double v) { return v/60; }
+template <> double unit_convert<Minute, Second>(double v) { return v/60; }
 
 // Speed declarations
 Declare_Physical_Quantity(Speed, "v", "Rate of change of position");
@@ -46,12 +46,12 @@ Declare_Compound_Unit(Mt_s, "mt/s", "some more physically familiar", Speed,
 		      0, numeric_limits<double>::max(), Meter, Second);
 Declare_Compound_Unit(Mi_h, "mi/h", "English measure of speed", Speed,
 		      0, numeric_limits<double>::max(), Mile, Hour);
-template <> double convert<Km_h, Mt_s>(double val) { return 1000*val/3600; }
-template <> double convert<Km_h, Mi_h>(double val) { return val/1609.344; }
-template <> double convert<Mi_h, Km_h>(double val) { return 1609.344*val; }
-template <> double convert<Mi_h, Mt_s>(double val)
+template <> double unit_convert<Km_h, Mt_s>(double v) { return 1000*v/3600; }
+template <> double unit_convert<Km_h, Mi_h>(double v) { return v/1609.344; }
+template <> double unit_convert<Mi_h, Km_h>(double v) { return 1609.344*v; }
+template <> double unit_convert<Mi_h, Mt_s>(double v)
 {
-  return 1609.344*1000*val/3600;
+  return 1609.344*1000*v/3600;
 }
 
 Quantity<Mi_h>

@@ -139,7 +139,7 @@ using namespace std;
     The heart of this conversion approach underlies on the following
     generic template function:
 
-        template <class SrcUnit, class TgtUnit> double convert(double val);
+        template <class SrcUnit, class TgtUnit> double unit_convert(double val);
 
     The goal of this function is to covert a magnitude `val` expressed
     in units of type `SrcUnit` to a magnitude expressed in units of
@@ -152,7 +152,7 @@ using namespace std;
     `Kilometer` could be written thus:
 
         template <class LightYear, class Kilometer> 
-	double convert(double val)
+	double unit_convert(double val)
 	{
 	  return 9.4604e15 * val;
 	}
@@ -162,7 +162,7 @@ using namespace std;
    called. 
 
    Note that the opposite is not allowed while the function
-   `convert<Kilometer, LightYear>()` is not still written.
+   `unit_convert<Kilometer, LightYear>()` is not still written.
 
    ## Quantities
 
@@ -246,6 +246,11 @@ public:
 
   static DynList<const Unit*> units() { return unit_tbl.keys(); }
 
+  static const Unit * search(const string & symbol)
+  {
+    auto ptr 
+  }
+
 protected:
 
   Unit(const string & name, const string & symbol, const string & desc,
@@ -286,7 +291,7 @@ protected:
 template <typename...> struct __always_false : std::false_type {};
 
 template <class SrcUnit, class TgtUnit> inline
-double convert(double /* val */)
+double unit_convert(double /* val */)
 {
   static_assert(__always_false<SrcUnit, TgtUnit>::value,
 		"No specialization exists!");
@@ -377,7 +382,7 @@ public:
     : unit(UnitName::get_instance())
   {
     check_physical_units(q);
-    value = convert<SrcUnit, UnitName>(q.value);
+    value = unit_convert<SrcUnit, UnitName>(q.value);
     check_value();
   }
 
@@ -388,7 +393,7 @@ public:
       return *this;
     
     check_physical_units(q);
-    value = convert<SrcUnit, UnitName>(q.value);
+    value = unit_convert<SrcUnit, UnitName>(q.value);
     check_value();
 
     return *this;
@@ -397,7 +402,7 @@ public:
   // template <class TgtUnit> operator TgtUnit() const
   // {
   //   TgtUnit ret;
-  //   ret.value = convert<UnitName, TgtUnit>(value);
+  //   ret.value = unit_convert<UnitName, TgtUnit>(value);
   //   ret.check_value();
   //   return ret;
   // }
@@ -485,6 +490,16 @@ public:
   bool operator != (const Quantity<U> & rhs) const
   {
     return not (*this == rhs);
+  }
+
+  template <class U> Quantity convert() const
+  {
+    return Quantity<U>(*this);
+  }
+
+  double convert(const string & symbol) const
+  {
+    
   }
 };
 

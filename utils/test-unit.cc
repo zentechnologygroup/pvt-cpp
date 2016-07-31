@@ -15,12 +15,16 @@ Declare_Unit(Meter, "mt", "Standard measure of length", Distance,
 	     0, numeric_limits<double>::max());
 Declare_Unit(Mile, "mi", "English unit of length", Distance,
 	     0, numeric_limits<double>::max());
-template <> double convert<Centimeter, Kilometer>(double v) { return v/(1000*100); }
-template <> double convert<Kilometer, Centimeter>(double v) { return 1000*100*v; }
-template <> double convert<Kilometer, Meter>(double val) { return 1000*val; }
-template <> double convert<Meter, Kilometer>(double val) { return val/1000; }
-template <> double convert<Kilometer, Mile>(double val) { return val/1609.344; }
-template <> double convert<Mile, Kilometer>(double val) { return 1609.344*val; }
+template <> double
+unit_convert<Centimeter, Kilometer>(double v) { return v/(1000*100); }
+template <> double
+unit_convert<Kilometer, Centimeter>(double v) { return 1000*100*v; }
+template <> double unit_convert<Kilometer, Meter>(double v) { return 1000*v; }
+template <> double unit_convert<Meter, Kilometer>(double v) { return v/1000; }
+template <> double
+unit_convert<Kilometer, Mile>(double v) { return v/1609.344; }
+template <> double
+unit_convert<Mile, Kilometer>(double v) { return 1609.344*v; }
 
 // Time declarations
 Declare_Physical_Quantity(Time, "t", "The mistery of the life");
@@ -30,12 +34,12 @@ Declare_Unit(Minute, "m", "60 seconds", Time,
 	     0, numeric_limits<double>::max());
 Declare_Unit(Hour, "h", "60 minutes", Time,
 	     0, numeric_limits<double>::max());
-template <> double convert<Second, Minute>(double val) { return val/60; }
-template <> double convert<Second, Hour>(double val) { return val/3600; }
-template <> double convert<Hour, Second>(double val) { return 3600*val; }
-template <> double convert<Hour, Minute>(double val) { return 60*val; }
-template <> double convert<Minute, Hour>(double val) { return val/60; }
-template <> double convert<Minute, Second>(double val) { return val/60; }
+template <> double unit_convert<Second, Minute>(double v) { return v/60; }
+template <> double unit_convert<Second, Hour>(double v) { return v/3600; }
+template <> double unit_convert<Hour, Second>(double v) { return 3600*v; }
+template <> double unit_convert<Hour, Minute>(double v) { return 60*v; }
+template <> double unit_convert<Minute, Hour>(double v) { return v/60; }
+template <> double unit_convert<Minute, Second>(double v) { return v/60; }
 
 // Speed declarations
 Declare_Physical_Quantity(Speed, "v", "Rate of change of position");
@@ -45,26 +49,30 @@ Declare_Compound_Unit(Mt_s, "mt/s", "some more physically familiar", Speed,
 		      0, numeric_limits<double>::max(), Meter, Second);
 Declare_Compound_Unit(Mi_h, "mi/h", "English measure of speed", Speed,
 		      0, numeric_limits<double>::max(), Mile, Hour);
-template <> double convert<Km_h, Mt_s>(double val) { return 1000*val/3600; }
-template <> double convert<Km_h, Mi_h>(double val) { return val/1609.344; }
+template <> double unit_convert<Km_h, Mt_s>(double v) { return 1000*v/3600; }
+template <> double unit_convert<Km_h, Mi_h>(double v) { return v/1609.344; }
 
 // Mass declarations
 Declare_Physical_Quantity(Mass, "m", "Resistance of an object to acceleration");
 Declare_Unit(Kilogram, "kg", "mass unit of the metric system", Mass,
 	     0, numeric_limits<double>::max());
-Declare_Unit(Gram, "gm", "1/1000 of a Kg", Mass, 0, numeric_limits<double>::max());
-Declare_Unit(Pound, "lb", "0.45359237 Kg", Mass, 0, numeric_limits<double>::max());
-template <> double convert<Kilogram, Gram>(double val) { return val/1000; }
-template <> double convert<Kilogram, Pound>(double val) { return 0.45359237*val; }
-template <> double convert<Gram, Kilogram>(double val) { return 1000*val; }
-template <> double convert<Pound, Kilogram>(double val) { return val/0.45359237; }
-template <> double convert<Pound, Gram>(double val)
+Declare_Unit(Gram, "gm", "1/1000 of a Kg", Mass,
+	     0, numeric_limits<double>::max());
+Declare_Unit(Pound, "lb", "0.45359237 Kg", Mass,
+	     0, numeric_limits<double>::max());
+template <> double unit_convert<Kilogram, Gram>(double v) { return v/1000; }
+template <> double
+unit_convert<Kilogram, Pound>(double v) { return 0.45359237*v; }
+template <> double
+unit_convert<Gram, Kilogram>(double v) { return 1000*v; }
+template <> double unit_convert<Pound, Kilogram>(double v) { return v/0.45359237; }
+template <> double unit_convert<Pound, Gram>(double v)
 {
-  return convert<Kilogram, Pound>(convert<Pound, Kilogram>(val));
+  return unit_convert<Kilogram, Pound>(unit_convert<Pound, Kilogram>(v));
 }
-template <> double convert<Gram, Pound>(double val)
+template <> double unit_convert<Gram, Pound>(double v)
 {
-  return convert<Kilogram, Pound>(convert<Gram, Kilogram>(val));
+  return unit_convert<Kilogram, Pound>(unit_convert<Gram, Kilogram>(v));
 }
 
 Declare_Physical_Quantity(Energy, "E",
@@ -72,9 +80,10 @@ Declare_Physical_Quantity(Energy, "E",
 			    transfered o transformed in order to do some work)");
 Declare_Compound_Unit(Joule, "J", "Energy unit in ISU", Energy, 0,
  		      numeric_limits<double>::max(), Kilogram, Mt_s);
-Declare_Unit(Calorie, "Cal", "Calorie", Energy, 0, numeric_limits<double>::max());
-template <> double convert<Joule, Calorie>(double val) { return 4.18*val; }
-template <> double convert<Calorie, Joule>(double val) { return val/4.18; }
+Declare_Unit(Calorie, "Cal", "Calorie", Energy, 0,
+	     numeric_limits<double>::max());
+template <> double unit_convert<Joule, Calorie>(double v) { return 4.18*v; }
+template <> double unit_convert<Calorie, Joule>(double v) { return v/4.18; }
 
 void test()
 {
@@ -112,7 +121,8 @@ void test()
   test_assert(dist != Quantity<Kilometer>(1000.0001));
 
   test_assert((Quantity<Meter>) dist == Quantity<Meter>(1000*1000));
-  test_assert((Quantity<Centimeter>) dist == Quantity<Centimeter>(1000*1000*100));
+  test_assert((Quantity<Centimeter>) dist ==
+	      Quantity<Centimeter>(1000*1000*100));
   test_assert((Quantity<Mile>) dist == Quantity<Mile>(1000/1609.344));
 
   test_assert(dist == Quantity<Centimeter>(1000*1000*100));
@@ -155,12 +165,12 @@ void test()
        << endl;
 }
 
-Quantity<Mi_h> speed(const Quantity<Kilometer> & dist, const Quantity<Hour> & time)
+Quantity<Mi_h>
+speed(const Quantity<Kilometer> & dist, const Quantity<Hour> & time)
 {
   auto s = dist/time;
   return s;
 }
-
 
 int main()
 {
