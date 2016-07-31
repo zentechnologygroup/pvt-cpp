@@ -1,5 +1,6 @@
 
 # include <cmath>
+# include <ahSort.H>
 # include <units.H>
 # include "test-utils.H"
 
@@ -14,11 +15,10 @@ Declare_Unit(Meter, "mt", "Standard measure of length", Distance,
 	     0, numeric_limits<double>::max());
 Declare_Unit(Mile, "mi", "English unit of length", Distance,
 	     0, numeric_limits<double>::max());
-template <> double convert<Centimeter, Kilometer>(double val)
-{ return val/(1000*100); }
-template <> double convert<Kilometer, Centimeter>(double val)
-{ return 1000*100*val; }
+template <> double convert<Centimeter, Kilometer>(double v) { return v/(1000*100); }
+template <> double convert<Kilometer, Centimeter>(double v) { return 1000*100*v; }
 template <> double convert<Kilometer, Meter>(double val) { return 1000*val; }
+template <> double convert<Meter, Kilometer>(double val) { return val/1000; }
 template <> double convert<Kilometer, Mile>(double val) { return val/1609.344; }
 template <> double convert<Mile, Kilometer>(double val) { return 1609.344*val; }
 
@@ -83,6 +83,8 @@ void test()
   dist -= 10;
   dist = 10*dist;
   dist = 500 + dist; // final value must be 1000
+
+  Quantity<Kilometer> v = { Quantity<Centimeter>(10) };
 
   test_assert(dist == 1000);
   test_assert(dist < 1000.001);
@@ -153,9 +155,23 @@ void test()
        << endl;
 }
 
+Quantity<Mi_h> speed(const Quantity<Kilometer> & dist, const Quantity<Hour> & time)
+{
+  auto s = dist/time;
+  return s;
+}
+
 
 int main()
 {
+  auto dist = Quantity<Meter>(1000000);
+  auto time = Quantity<Minute>(60);
+  auto s = speed(dist, time);
+  cout << "dist = " << dist << endl
+       << "time = " << time << endl
+       << "speed = " << s << endl
+       << endl;
+
   test();
 
   cout << "Physical Quantities:" << endl;
@@ -168,14 +184,18 @@ int main()
     });
   cout << endl
        << "Units:" << endl
+       << endl
        << endl;
-  Unit::units().for_each([] (auto p)
-    {
-      cout << "Unit name   = " << p->name << endl
-	   << "Unit symbol = " << p->symbol << endl
-	   << "Unit desc: " << p->description << endl
-	   << "Physical unit: " << p->physical_quantity.name << endl;
-    });
+  sort(Unit::units(), [] (auto p1, auto p2)
+       { return p1->physical_quantity.name < p2->physical_quantity.name; })
+    .for_each([] (auto p)
+	      {
+		cout << "    Unit name   = " << p->name << endl
+		     << "    Unit symbol = " << p->symbol << endl
+		     << "    Unit desc: " << p->description << endl
+		     << "    Physical unit: " << p->physical_quantity.name << endl
+		     << endl;
+	      });
   cout << endl
        << endl;
 
