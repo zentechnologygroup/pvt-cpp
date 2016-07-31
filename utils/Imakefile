@@ -23,7 +23,7 @@ LOCALLIBS = ./libutils.a
 
 SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lm -lc
 
-TESTSRCS = test-unititem.cc test-unit.cc 
+TESTSRCS = test-unititem.cc test-unit.cc example-unit.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
@@ -39,5 +39,8 @@ NormalProgramTarget(test-unititem,test-unititem.o,$(DEPLIBS),$(LOCALLIBS),$(SYSL
 
 AllTarget(test-unit)
 NormalProgramTarget(test-unit,test-unit.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
+
+AllTarget(eample-unit)
+NormalProgramTarget(example-unit,example-unit.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
 
 DependTarget()
