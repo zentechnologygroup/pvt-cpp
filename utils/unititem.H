@@ -33,12 +33,12 @@ struct UnitItem
 
 class UnitItemTable
 {
-  DynMapTree<std::string, const UnitItem*> name_tbl;   // index by unit name
-  DynMapTree<std::string, const UnitItem*> symbol_tbl; // index by symbol name
+  DynMapTree<std::string, const UnitItem * const> name_tbl; // index by unit
+  DynMapTree<std::string, const UnitItem * const> symbol_tbl; // index by symbol
 
 public:
 
-  DynList<const UnitItem*> items() const
+  DynList<const UnitItem * const> items() const
   {
     return name_tbl.values();
   }
@@ -71,7 +71,8 @@ public:
     symbol_tbl.insert(ptr->symbol, ptr);
   }
 
-  const UnitItem * register_item(const string & name, const string & symbol,
+  const UnitItem * register_item(const string & name,
+				 const string & symbol,
 				 const string & desc)
   {
     unique_ptr<UnitItem> ptr(new UnitItem(name, symbol, desc));

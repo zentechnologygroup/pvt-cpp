@@ -113,6 +113,16 @@ representing the physical quantity `Speed` between the interval `[0,
 max]` (max is the maximum value represented with a `double`) and
 composed by the units `Kilometer` and `Hour`.
 
+# Validations
+
+The library performs some validations, concretely those related to the
+names and symbols. In that sense, neither the physical quantities nor
+the unit cannot have the same names or symbols. 
+
+The exception `domain_error` is thrown if a duplicated name or symbol
+is detected. These checking are lazily done in running time, at the
+moment of the first use of a physical quantity or a name
+
 ## Units conversion
 
 The heart of this conversion approach underlies on the following

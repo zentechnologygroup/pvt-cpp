@@ -132,6 +132,16 @@ representing the physical quantity `Speed` between the interval `[0,
 max]` (max is the maximum value represented with a `double`) and
 composed by the units `Kilometer` and `Hour`.
 
+## Validations
+
+The library performs some validations, concretely those related to the
+names and symbols. In that sense, neither the physical quantities nor
+the units cannot have the same names or symbols. 
+
+The exception `domain_error` is thrown if a duplicated name or symbol
+is detected. These checking are lazily done in running time, at the
+moment of the first use of a physical quantity or a name
+
 ## Units conversion
 
 The heart of this conversion approach underlies on the following
@@ -328,6 +338,10 @@ In this way, other length units could be used and their conversions
 transparently done when the `volume()` function is called.
 */
 
+/** Defines a physical magnitude
+
+     @author Leandro Rabindranath Leon
+ */
 class PhysicalQuantity : public UnitItem
 {
   using UnitItem::UnitItem;
@@ -345,6 +359,7 @@ protected:
 
 public:
 
+  // Return all the defined  physical magnitudes  
   static DynList<const PhysicalQuantity *> quantities()
   {
     return tbl.items().map<const PhysicalQuantity*>([] (auto p)
@@ -354,6 +369,13 @@ public:
   }
 };
 
+/** Defines a new physical magnitude
+
+    @param[in] name of the new physical quantity
+    @param[in] symbol string used as unit symbol
+    @param[in] desc description 
+
+ */
 # define Declare_Physical_Quantity(name, symbol, desc)	\
   struct name : public PhysicalQuantity			\
   {							\
@@ -376,6 +398,9 @@ public:
     void operator = (const name&) = delete;		\
   };
 
+/** Unit base class
+
+ */
 struct Unit : public UnitItem
 {
   template <typename U> friend class Quantity;
@@ -391,8 +416,15 @@ private:
 
 public:
 
+  /// Return a list of all declared and used units
   static DynList<const Unit*> units() { return unit_tbl.keys(); }
 
+  /** Search the unit associated to a symbol
+      
+      @param[in] symbol string containing the unit symbol
+      @return constant pointer to the symbol. If the symbol is not
+      found, then `nullptr` is returned
+  */
   static const Unit * search_by_symbol(const string & symbol)
   {
     auto ptr = tbl.search_by_symbol(symbol);
@@ -400,6 +432,12 @@ public:
     return unit_ptr;
   }
 
+  /** Search the unit associated to a name
+      
+      @param[in] name string containing the unit name
+      @return constant pointer to the symbol. If the name is not
+      found, then `nullptr` is returned
+  */
   static const Unit * search_by_name(const string & symbol)
   {
     auto ptr = tbl.search_by_name(symbol);
@@ -419,6 +457,16 @@ protected:
   }
 };
 
+/** Declare a new unit
+
+    @param[in] name of unit
+    @param[in] symbol of unit
+    @param[in] desc description
+    @param[in] physical_quantity_name reference to a previusly defined
+    `Physical_Quantity` object associated to the unit
+    @param[in] min minimum value of the unit
+    @param[in] max maximum value of the unit
+*/
 # define Declare_Unit(name, symbol, desc, physical_quantity_name, min, max) \
   class name : public Unit						\
   {									\
@@ -440,8 +488,8 @@ protected:
 
 template <typename...> struct __always_false : std::false_type {};
 
-template <typename ...Units>
-struct Combine_Units
+/* Default compound unit meta function */
+template <typename ...Units> struct Combine_Units
 {
   Combine_Units()
   {
@@ -450,6 +498,17 @@ struct Combine_Units
   }	
 };
 
+/** Declare a compound unit; that is a unit composed by several units
+
+    @param[in] name of compound unit
+    @param[in] symbol of unit
+    @param[in] desc description
+    @param[in] physical_quantity_name reference to the physical
+    quantity associated to the new unit
+    @param[in] min minimum value of the unit
+    @param[in] max maximum value of the unit
+    @param[in] Units list of units compounding the new unit
+*/
 # define Declare_Compound_Unit(name, symbol, desc, physical_quantity_name, \
 			       min, max, Units...)			\
   Declare_Unit(name, symbol, desc, physical_quantity_name, min, max);	\
@@ -458,6 +517,8 @@ struct Combine_Units
     using type = name;							\
   };
 
+// this template performs the conversion. In absence of definition the
+// compiler falls here and emits an error due to the static_assert
 template <class SrcUnit, class TgtUnit> inline
 double unit_convert(double /* val */)
 {
@@ -465,29 +526,21 @@ double unit_convert(double /* val */)
 		"No specialization exists!");
 }
 
-using UnitConvertFct = double (*)(double);
+/** Quantity 
 
-// template <typename U1, typename U2> 	  //typename ...Units>
-// struct Combine_Units
-// {
-//   using type = U1;
-
-//   Combine_Units()
-//   {
-//     static_assert(__always_false<U1, U2>::value, "ERROR");
-//   }
-// };
-
+ */
 template <class UnitName>
 class Quantity 
 {
 public:
 
-  const UnitName & unit; 
-  double value;
-
+  const UnitName & unit;
+  
 private:
 
+  double value;
+
+  // throw exception if the units do not share the same physical quantity
   template <class SrcUnit>
   void check_physical_units(const Quantity<SrcUnit> & q) const
   {
@@ -501,7 +554,8 @@ private:
     throw domain_error(s.str());
   }
 
-  // helper for validating that value is in [min_val, max_val]
+  // helper for validating that value is in [min_val, max_val]. It
+  // throws range_error if value is not in the interval
   void check_value()
   {
     if (value >= unit.min_val and value <= unit.max_val)
@@ -510,14 +564,17 @@ private:
     ostringstream s;
     s << "Value " << value << " is not inside in [" << unit.min_val << ","
       << unit.max_val << "]";
-    throw domain_error(s.str());
+    throw range_error(s.str());
   }
 
+  // assign to value the value contained in q converted to UnitName
+  // and validates that both units refer to the same physical quantity
+  // and the converted value is inside the valid range
   template <class SrcUnit>
   void assign_converted(const Quantity<SrcUnit> & q)
   {
     check_physical_units(q);
-    value = unit_convert<SrcUnit, UnitName>(q.value);
+    value = unit_convert<SrcUnit, UnitName>(q.get_value());
     check_value();
   }
 
@@ -526,23 +583,27 @@ public:
   Quantity(double val = 0)
     : unit(UnitName::get_instance()), value(val)
   {
-    check_value();
+    check_value(); // value must be inside the specified range
   }
 
-  Quantity(const Quantity & q) : unit(q.unit), value(q.value) {}
+  // direct copy constructor
+  Quantity(const Quantity & q) noexcept : unit(q.unit), value(q.get_value()) {}
 
-  Quantity & operator = (const Quantity & q)
+  // direct copy assignment 
+  Quantity & operator = (const Quantity & q) noexcept
   {
     if (&q == this)
       return *this;
 
-    value = q.value;
+    value = q.get_value();
 
     return *this;
   }
 
+  /// Returns the scalar value
   double get_value() const noexcept { return value; }
 
+  /// Return the stringfied value (the unit symbol is concatenated)
   string to_string() const
   {
     ostringstream s;
@@ -555,6 +616,7 @@ public:
     return out << q.to_string();
   }
 
+  /// Inter unit constructor. Perform the conversion
   template <class SrcUnit>
   Quantity(const Quantity<SrcUnit> & q)
     : unit(UnitName::get_instance())
@@ -562,6 +624,7 @@ public:
     assign_converted(q);
   }
 
+  /// Inter unit assignment. Perform the conversion
   template <class SrcUnit>
   Quantity & operator = (const Quantity<SrcUnit> & q)
   {
@@ -575,7 +638,7 @@ public:
 
   Quantity & operator += (const Quantity & rhs)
   {
-    value += rhs.value;
+    value += rhs.get_value();
     check_value();
     return *this;
   }
@@ -589,7 +652,7 @@ public:
 
   Quantity & operator -= (const Quantity & rhs)
   {
-    value -= rhs.value;
+    value -= rhs.get_value();
     check_value();
     return *this;
   }
@@ -606,7 +669,7 @@ public:
   operator * (const Quantity<U> & rhs) const
   {
     using T = typename Combine_Units<UnitName, U>::type;
-    return Quantity<T>(value * rhs.value);
+    return Quantity<T>(value * rhs.get_value());
   }
 
   template <class U>
@@ -614,42 +677,42 @@ public:
   operator / (const Quantity<U> & rhs) const
   {
     using T = typename Combine_Units<UnitName, U>::type;
-    return Quantity<T>(value / rhs.value);
+    return Quantity<T>(value / rhs.get_value());
   }
 
   template <class U>
   bool operator < (const Quantity<U> & rhs) const
   {
     Quantity r = { rhs }; // here the conversion is done
-    return value < r.value;
+    return value < r.get_value();
   }
 
   template <class U>
   bool operator <= (const Quantity<U> & rhs) const
   {
     Quantity r = { rhs }; // here the conversion is done
-    return value <= r.value;
+    return value <= r.get_value();
   }
 
   template <class U>
   bool operator > (const Quantity<U> & rhs) const
   {
     Quantity r = { rhs }; // here the conversion is done
-    return value > r.value;
+    return value > r.get_value();
   }
 
   template <class U>
   bool operator >= (const Quantity<U> & rhs) const
   {
     Quantity r = { rhs }; // here the conversion is done
-    return value >= r.value;
+    return value >= r.get_value();
   }
 
   template <class U>
   bool operator == (const Quantity<U> & rhs) const
   {
     Quantity r = { rhs }; // here the conversion is done
-    return value == r.value;
+    return value == r.get_value();
   }
 
   template <class U>
