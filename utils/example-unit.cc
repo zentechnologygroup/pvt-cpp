@@ -54,9 +54,32 @@ template <> double unit_convert<Mi_h, Mt_s>(double v)
   return 1609.344*1000*v/3600;
 }
 
+Declare_Compound_Unit(Mt2, "mt2", "", Distance, 0,
+		      numeric_limits<double>::max(), Meter, Meter);
+Declare_Compound_Unit(Mt3, "mt3", "", Distance, 0,
+		      numeric_limits<double>::max(), Mt2, Meter);
+
 Quantity<Mi_h>
 speed(const Quantity<Kilometer> & dist, const Quantity<Hour> & time)
 {
+  Quantity<Meter> dist_meter = dist; // testing of conversion while construction
+
+  Quantity<Mile> dist_mile; // testing of convertion while assignment
+  dist_mile = dist;
+
+  cout << "Distance = " << dist << endl
+       << "         = " << dist_meter << endl
+       << "         = " << dist_mile << endl
+       << endl;
+
+  auto s = dist_meter*dist_meter*dist_meter;
+  // auto s = dist_meter*dist_meter; // must not compile
+  /// auto s = dist_meter/time; // must not compile
+
+  cout << "**** s = " << s << endl
+       << typeid(s).name() << endl
+       << endl;
+
   return Quantity<Mi_h>(dist/time);
 }
 
