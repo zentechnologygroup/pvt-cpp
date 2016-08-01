@@ -175,10 +175,12 @@ using namespace std;
    unit used for expressing the quantity. Consider for example the
    following code snippet:
 
-       Quantity<LightYear> dist = 100;
+       Quantity<LightYear> dist = 1000;
 
     defines a variable `dist` containing a `double` whose value is
     1000 lightyears. 
+
+    In or
  */
 
 class PhysicalQuantity : public UnitItem
@@ -246,9 +248,18 @@ public:
 
   static DynList<const Unit*> units() { return unit_tbl.keys(); }
 
-  static const Unit * search(const string & symbol)
+  static const Unit * search_by_symbol(const string & symbol)
   {
-    auto ptr 
+    auto ptr = tbl.search_by_symbol(symbol);
+    const Unit * unit_ptr = static_cast<const Unit*>(ptr);
+    return unit_ptr;
+  }
+
+  static const Unit * search_by_name(const string & symbol)
+  {
+    auto ptr = tbl.search_by_name(symbol);
+    const Unit * unit_ptr = static_cast<const Unit*>(ptr);
+    return unit_ptr;
   }
 
 protected:
@@ -297,6 +308,8 @@ double unit_convert(double /* val */)
 		"No specialization exists!");
 }
 
+using UnitConvertFct = double (*)(double);
+
 template <typename U1, typename U2> 	  //typename ...Units>
 struct Combine_Units
 {
@@ -343,6 +356,14 @@ private:
     throw domain_error(s.str());
   }
 
+  template <class SrcUnit>
+  void assign_converted(const Quantity<SrcUnit> & q)
+  {
+    check_physical_units(q);
+    value = unit_convert<SrcUnit, UnitName>(q.value);
+    check_value();
+  }
+
 public:
 
   Quantity(double val = 0)
@@ -381,9 +402,7 @@ public:
   Quantity(const Quantity<SrcUnit> & q)
     : unit(UnitName::get_instance())
   {
-    check_physical_units(q);
-    value = unit_convert<SrcUnit, UnitName>(q.value);
-    check_value();
+    assign_converted(q);
   }
 
   template <class SrcUnit>
@@ -391,21 +410,11 @@ public:
   {
     if ((void*) &q == (void*) this)
       return *this;
-    
-    check_physical_units(q);
-    value = unit_convert<SrcUnit, UnitName>(q.value);
-    check_value();
+
+    assign_converted(q);
 
     return *this;
   }
-
-  // template <class TgtUnit> operator TgtUnit() const
-  // {
-  //   TgtUnit ret;
-  //   ret.value = unit_convert<UnitName, TgtUnit>(value);
-  //   ret.check_value();
-  //   return ret;
-  // }
 
   Quantity & operator += (const Quantity & rhs)
   {
@@ -492,14 +501,10 @@ public:
     return not (*this == rhs);
   }
 
+  /// Return `this` converted to `Quantity<U>
   template <class U> Quantity convert() const
   {
     return Quantity<U>(*this);
-  }
-
-  double convert(const string & symbol) const
-  {
-    
   }
 };
 
