@@ -58,6 +58,8 @@ Declare_Compound_Unit(Mt2, "mt2", "", Distance, 0,
 		      numeric_limits<double>::max(), Meter, Meter);
 Declare_Compound_Unit(Mt3, "mt3", "", Distance, 0,
 		      numeric_limits<double>::max(), Mt2, Meter);
+Declare_Compound_Unit(Mt4, "mt4", "", Distance, 0,
+		      numeric_limits<double>::max(), Mt3, Meter);
 
 Quantity<Mi_h>
 speed(const Quantity<Kilometer> & dist, const Quantity<Hour> & time)
@@ -72,7 +74,7 @@ speed(const Quantity<Kilometer> & dist, const Quantity<Hour> & time)
        << "         = " << dist_mile << endl
        << endl;
 
-  auto s = dist_meter*dist_meter*dist_meter;
+  auto s = dist_meter*dist_meter*dist_meter*dist_meter;
   // auto s = dist_meter*dist_meter; // must not compile
   /// auto s = dist_meter/time; // must not compile
 
