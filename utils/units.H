@@ -9,6 +9,7 @@
 # include <sstream>
 # include <limits>
 
+# include <tpl_dynSetHash.H>
 # include <tpl_dynMapTree.H>
 
 # include <unititem.H>
@@ -525,6 +526,96 @@ double unit_convert(double /* val */)
   static_assert(__always_false<SrcUnit, TgtUnit>::value,
 		"No specialization exists!");
 }
+
+template <class SrcUnit, class TgtUnit>
+class Unit_Converter
+{
+  double convert(double val)
+  {
+    return unit_convert<SrcUnit, TgtUnit>(val);
+  }
+
+  typedef double (Unit_Converter::*convert_fct)(double);
+
+  using HashTbl = DynMapHash<pair<const char*, const char*>, convert_fct>;
+
+  static HashTbl name_name_tbl;
+  static HashTbl name_symbol_tbl;
+  static HashTbl symbol_name_tbl;
+  static HashTbl symbol_symbol_tbl;
+
+public:
+
+  Unit_Converter()
+  {
+    // TODO: validar duplicados
+    auto src_instance = SrcUnit::get_instance();
+    auto tgt_instance = TgtUnit::get_instance();
+    
+    const char * src_name = src_instance.name.c_str();
+    const char * tgt_name = tgt_instance.name.c_str();
+    const char * src_symbol = src_instance.symbol.c_str();
+    const char * tgt_symbol = tgt_instance.symbol.c_str();
+
+    auto fct_ptr = &Unit_Converter::convert;
+
+    name_name_tbl.insert(make_pair(src_name, tgt_name), fct_ptr);
+    name_symbol_tbl.insert(make_pair(src_name, tgt_symbol), fct_ptr);
+    symbol_name_tbl.insert(make_pair(src_symbol, tgt_name), fct_ptr);
+    symbol_symbol_tbl.insert(make_pair(src_symbol, tgt_symbol), fct_ptr);
+  }
+
+  static double name_to_name(const string & src_name, const string & tgt_name,
+			     double val)
+  {
+    auto p = name_name_tbl.search(make_pair(src_name.c_str(), tgt_name.c_str()));
+    if (p == nullptr)
+      {
+	ostringstream s;
+	s << "Conversion from unit name " << src_name << " to unit name "
+	  << tgt_name << " has not been registered";
+	throw domain_error(s.str());
+      }
+
+    auto fct = p->second;
+
+    return (*fct)(val);
+  }
+
+  static double
+  name_to_symbol(const string & src_name, const string & tgt_symbol, double val)
+  {
+    auto p = name_name_tbl.search(make_pair(src_name.c_str(), tgt_symbol.c_str()));
+    if (p == nullptr)
+      {
+	ostringstream s;
+	s << "Conversion from unit name " << src_name << " to unit symbol "
+	  << tgt_symbol << " has not been registered";
+	throw domain_error(s.str());
+      }
+
+    auto fct = p->second;
+
+    return (*fct)(val);
+  }
+
+  static double
+  symbol_to_name(const string & src_symbol, const string & tgt_name, double val)
+  {
+    auto p = name_name_tbl.search(make_pair(src_symbol.c_str(), tgt_name.c_str()));
+    if (p == nullptr)
+      {
+	ostringstream s;
+	s << "Conversion from symbol name " << src_symbol << " to unit name "
+	  << tgt_name << " has not been registered";
+	throw domain_error(s.str());
+      }
+
+    auto fct = p->second;
+
+    return (*fct)(val);
+  }
+};
 
 /** Quantity 
 

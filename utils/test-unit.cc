@@ -155,7 +155,7 @@ void test()
   Quantity<Kilogram> mass = 70; // my body mass!
 
   const double speed_mt_s = speed.get_value();
-  Quantity<Joule> energy = (0.5*mass)*Quantity<Mt_s>(speed_mt_s*speed_mt_s); // kinetic energy
+  Quantity<Joule> energy = (0.5*mass)*Quantity<Mt_s>(speed_mt_s*speed_mt_s);
 
   cout << "Distance = " << dist << endl
        << "Time     = " << time << endl
