@@ -585,7 +585,8 @@ public:
   static double
   name_to_symbol(const string & src_name, const string & tgt_symbol, double val)
   {
-    auto p = name_name_tbl.search(make_pair(src_name.c_str(), tgt_symbol.c_str()));
+    auto p = name_name_tbl.search(make_pair(src_name.c_str(),
+					    tgt_symbol.c_str()));
     if (p == nullptr)
       {
 	ostringstream s;
@@ -602,12 +603,32 @@ public:
   static double
   symbol_to_name(const string & src_symbol, const string & tgt_name, double val)
   {
-    auto p = name_name_tbl.search(make_pair(src_symbol.c_str(), tgt_name.c_str()));
+    auto p = name_name_tbl.search(make_pair(src_symbol.c_str(),
+					    tgt_name.c_str()));
     if (p == nullptr)
       {
 	ostringstream s;
 	s << "Conversion from symbol name " << src_symbol << " to unit name "
 	  << tgt_name << " has not been registered";
+	throw domain_error(s.str());
+      }
+
+    auto fct = p->second;
+
+    return (*fct)(val);
+  }
+
+  static double
+  symbol_to_symbol(const string & src_symbol, const string & tgt_symbol,
+		   double val)
+  {
+    auto p = name_name_tbl.search(make_pair(src_symbol.c_str(),
+					    tgt_symbol.c_str()));
+    if (p == nullptr)
+      {
+	ostringstream s;
+	s << "Conversion from symbol name " << src_symbol << " to symbool name "
+	  << tgt_symbol << " has not been registered";
 	throw domain_error(s.str());
       }
 
