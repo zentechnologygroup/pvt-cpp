@@ -549,11 +549,22 @@ public:
 
   Unit_Converter()
   {
-    const auto & src_instance = SrcUnit::get_instance();
-    const auto & tgt_instance = TgtUnit::get_instance();
-    
+    const Unit & src_instance = SrcUnit::get_instance();
+    const Unit & tgt_instance = TgtUnit::get_instance();
+
     const char * src_name = src_instance.name.c_str();
     const char * tgt_name = tgt_instance.name.c_str();
+
+    if (&src_instance.physical_quantity != &tgt_instance.physical_quantity)
+      {
+	ostringstream s;
+	s << "Conversion from " << src_name << " to " << tgt_name
+	  << " does not shae the same physical quantities ("
+	  << src_instance.physical_quantity.name << ", "
+	  << tgt_instance.physical_quantity.name << ")";
+	throw domain_error(s.str());
+      }
+    
     const char * src_symbol = src_instance.symbol.c_str();
     const char * tgt_symbol = tgt_instance.symbol.c_str();
 
@@ -731,6 +742,8 @@ public:
   }
 };
 
+class VtlQuantity; // forward declaration
+
 /** Quantity 
 
  */
@@ -790,7 +803,11 @@ public:
     return *this;
   }
 
-  Quantity & operator += (const Quantity & rhs)
+  inline Quantity(const VtlQuantity & q);
+
+  inline Quantity & operator = (const VtlQuantity & q);
+
+  Quantity & operator += (const Quantity & rhs) 
   {
     value += rhs.get_value();
     check_value();
@@ -882,124 +899,107 @@ public:
   }
 };
 
-# define Hybrid_Add(type)						\
-  template <class UnitName> inline					\
-  Quantity<UnitName> operator + (type lhs, const Quantity<UnitName> & rhs) \
-  {									\
-    return Quantity<UnitName>(lhs + rhs.get_value());			\
+template <class UnitName> inline
+Quantity<UnitName> operator + (double lhs, const Quantity<UnitName> & rhs)
+{
+  return Quantity<UnitName>(lhs + rhs.get_value());
+}
+
+template <class UnitName> inline
+Quantity<UnitName> operator - (double lhs, const Quantity<UnitName> & rhs)
+{
+  return Quantity<UnitName>(lhs - rhs.get_value());
+}
+
+template <class UnitName> inline
+Quantity<UnitName> operator * (double lhs, const Quantity<UnitName> & rhs)
+{
+  return Quantity<UnitName>(lhs*rhs.get_value());
+}
+
+template <class UnitName> inline					
+Quantity<UnitName> operator * (const Quantity<UnitName> & lhs, double rhs)
+{
+  return Quantity<UnitName>(lhs.get_value()*rhs);
+}
+
+template <class UnitName> inline
+Quantity<UnitName> operator / (double lhs, const Quantity<UnitName> & rhs)
+{
+  return Quantity<UnitName>(lhs / rhs.get_value());
+}
+
+template <class U> inline
+bool operator < (double lhs, const Quantity<U> & rhs)
+{
+  return Quantity<U>(lhs) < rhs;
+}
+
+template <class U> inline
+bool operator < (const Quantity<U> & lhs, double rhs)
+{
+  return lhs < Quantity<U>(rhs);
+}
+
+template <class U> inline
+bool operator <= (const Quantity<U> & lhs, double rhs)
+{
+  return lhs <= Quantity<U>(rhs);
+}
+
+template <class U> inline
+bool operator <= (double lhs, const Quantity<U> & rhs)
+{
+  return Quantity<U>(lhs) <= rhs;
+}
+
+template <class U> inline
+bool operator > (const Quantity<U> & lhs, double rhs)
+{
+  return lhs > Quantity<U>(rhs);
+}
+
+template <class U> inline
+bool operator > (double lhs, const Quantity<U> & rhs)
+{
+  return Quantity<U>(lhs) > rhs;
+}
+
+template <class U> inline
+bool operator >= (const Quantity<U> & lhs, double rhs)
+{
+  return lhs >= Quantity<U>(rhs);
+}
+
+template <class U> inline				
+bool operator >= (double lhs, const Quantity<U> & rhs) 
+{
+  return Quantity<U>(lhs) >= rhs;
   }
 
-# define Hybrid_Sub(type)						\
-  template <class UnitName> inline					\
-  Quantity<UnitName> operator - (type lhs, const Quantity<UnitName> & rhs) \
-  {									\
-    return Quantity<UnitName>(lhs - rhs.get_value());			\
-  }
+template <class U> inline
+bool operator == (const Quantity<U> & lhs, double rhs)
+{
+  return lhs == Quantity<U>(rhs);
+}
 
-# define Hybrid_Mult(type)						\
-  template <class UnitName> inline					\
-  Quantity<UnitName> operator * (type lhs, const Quantity<UnitName> & rhs) \
-  {									\
-    return Quantity<UnitName>(lhs*rhs.get_value());			\
-  }									\
-									\
-  template <class UnitName> inline					\
-  Quantity<UnitName> operator * (const Quantity<UnitName> & lhs, type rhs) \
-  {									\
-    return Quantity<UnitName>(lhs.get_value()*rhs);			\
-  }
+template <class U> inline
+bool operator == (double lhs, const Quantity<U> & rhs)
+{
+  return Quantity<U>(lhs) == rhs;
+}
 
-# define Hybrid_Div(type)						\
-  template <class UnitName> inline					\
-  Quantity<UnitName> operator / (type lhs, const Quantity<UnitName> & rhs) \
-  {									\
-    return Quantity<UnitName>(lhs / rhs.get_value());			\
-  }
+template <class U> inline
+bool operator != (const Quantity<U> & lhs, double rhs)
+{
+  return not (lhs == rhs);
+}
 
-# define Hybrid_Cmp(type)				\
-  template <class U> inline				\
-  bool operator < (type lhs, const Quantity<U> & rhs)	\
-  {							\
-    return Quantity<U>(lhs) < rhs;			\
-  }							\
-							\
-  template <class U> inline				\
-  bool operator < (const Quantity<U> & lhs, type rhs)	\
-  {							\
-    return lhs < Quantity<U>(rhs);			\
-  }							\
-							\
-  template <class U> inline				\
-  bool operator <= (const Quantity<U> & lhs, type rhs)	\
-  {							\
-    return lhs <= Quantity<U>(rhs);			\
-  }							\
-							\
-  template <class U> inline				\
-  bool operator <= (type lhs, const Quantity<U> & rhs)	\
-  {							\
-    return Quantity<U>(lhs) <= rhs;			\
-  }							\
-							\
-  template <class U> inline				\
-  bool operator > (const Quantity<U> & lhs, type rhs)	\
-  {							\
-    return lhs > Quantity<U>(rhs);			\
-  }							\
-							\
-  template <class U> inline				\
-  bool operator > (type lhs, const Quantity<U> & rhs)	\
-  {							\
-    return Quantity<U>(lhs) > rhs;			\
-  }							\
-							\
-  template <class U> inline				\
-  bool operator >= (const Quantity<U> & lhs, type rhs)	\
-  {							\
-    return lhs >= Quantity<U>(rhs);			\
-  }							\
-							\
-  template <class U> inline				\
-  bool operator >= (type lhs, const Quantity<U> & rhs)	\
-  {							\
-    return Quantity<U>(lhs) >= rhs;			\
-  }							\
-							\
-  template <class U> inline				\
-  bool operator == (const Quantity<U> & lhs, type rhs)	\
-  {							\
-    return lhs == Quantity<U>(rhs);			\
-  }							\
-							\
-  template <class U> inline				\
-  bool operator == (type lhs, const Quantity<U> & rhs)	\
-  {							\
-    return Quantity<U>(lhs) == rhs;			\
-  }							\
-							\
-  template <class U> inline				\
-  bool operator != (const Quantity<U> & lhs, type rhs)	\
-  {							\
-    return not (lhs == rhs);				\
-  }							\
-							\
-  template <class U> inline				\
-  bool operator != (type lhs, const Quantity<U> & rhs)	\
-  {							\
-    return not (lhs == rhs);				\
-  }
-
-# define Hybrid_Ops(type)			\
-  Hybrid_Add(type);				\
-  Hybrid_Sub(type);				\
-  Hybrid_Mult(type);				\
-  Hybrid_Div(type);				\
-  Hybrid_Cmp(type);
-
-Hybrid_Ops(int);
-Hybrid_Ops(long);
-Hybrid_Ops(float);
-Hybrid_Ops(double);
+template <class U> inline
+bool operator != (double lhs, const Quantity<U> & rhs)
+{
+  return not (lhs == rhs);
+}
 
 
 class VtlQuantity : public BaseQuantity
@@ -1019,8 +1019,96 @@ public:
     else
       value = unit_convert_name_to_name(q.unit.name, q.get_value(), unit.name);
   }
+
+  VtlQuantity & operator = (const VtlQuantity & q)
+  {
+    if (this == &q)
+      return *this;
+
+    if (&unit.physical_quantity == &q.unit.physical_quantity)
+      {
+	value = q.get_value();
+	return *this;
+      }
+
+    value = unit_convert_name_to_name(q.unit.name, q.get_value(), unit.name);
+
+    return *this;
+  }
+
+  template <class U>
+  VtlQuantity(const Quantity<U> & q) : BaseQuantity(q.unit, q.get_value()) {}
+
+  template <class U>
+  VtlQuantity & operator = (const Quantity<Unit> & q)
+  {
+    if (&unit.physical_quantity == &q.unit.physical_quantity)
+      {
+	value = q.get_value();
+	return *this;
+      }
+
+    value = unit_convert_name_to_name(q.unit.name, q.get_value(), unit.name);
+
+    return *this;
+  }
+
+  VtlQuantity & operator += (const VtlQuantity & rhs)
+  {
+    value += rhs.get_value();
+    check_value();
+    return *this;
+  }
+
+  VtlQuantity operator + (const VtlQuantity & rhs)
+  {
+    VtlQuantity ret(*this);
+    ret += rhs;
+    return ret;
+  }
+
+  VtlQuantity & operator -= (const VtlQuantity & rhs)
+  {
+    value -= rhs.get_value();
+    check_value();
+    return *this;
+  }
+
+  VtlQuantity operator - (const VtlQuantity & rhs)
+  {
+    VtlQuantity ret(*this);
+    ret -= rhs;
+    return ret;
+  }
+  
+  template <class U>
+  Quantity<typename Combine_Units<UnitName, U>::type>
+  operator * (const Quantity<U> & rhs) const
+  {
+    using T = typename Combine_Units<UnitName, U>::type;
+    return Quantity<T>(value * rhs.get_value());
+  }
+
 };
 
+
+template <class UnitName>
+Quantity<UnitName>::Quantity(const VtlQuantity & q)
+  : BaseQuantity(q.unit, q.get_value()) {}
+
+template <class UnitName>
+Quantity<UnitName> & Quantity<UnitName>::operator = (const VtlQuantity & q)
+{
+  if (&unit.physical_quantity == &q.unit.physical_quantity)
+    {
+      value = q.get_value();
+      return *this;
+    }
+  
+  value = unit_convert_name_to_name(q.unit.name, q.get_value(), unit.name);
+
+  return *this;
+}
 
 
 # endif // UNITS_H
