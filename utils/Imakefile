@@ -23,7 +23,7 @@ LOCALLIBS = ./libutils.a
 
 SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lm -lc
 
-TESTSRCS = test-unititem.cc test-unit.cc example-unit.cc
+TESTSRCS = test-unititem.cc test-unit.cc example-unit.cc test-dynunit.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
@@ -36,6 +36,9 @@ InstallLibrary(utils,./)
 
 AllTarget(test-unititem)
 NormalProgramTarget(test-unititem,test-unititem.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
+
+AllTarget(test-dynunit)
+NormalProgramTarget(test-dynunit,test-dynunit.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
 
 AllTarget(test-unit)
 NormalProgramTarget(test-unit,test-unit.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
