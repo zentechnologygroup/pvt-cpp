@@ -82,15 +82,52 @@ Declare_Unit(Calorie, "Cal", "Calorie", Energy, 0,
 template <> double unit_convert<Joule, Calorie>(double v) { return 4.18*v; }
 template <> double unit_convert<Calorie, Joule>(double v) { return v/4.18; }
 
-void test()
+void register_conversions()
 {
-  Unit_Converter<Joule, Calorie>(); 
-  Unit_Converter<Calorie, Joule>();
-  
+  UnitConverter<Centimeter, Kilometer>();
+  UnitConverter<Kilometer, Centimeter>();
+  UnitConverter<Kilometer, Meter>();
+  UnitConverter<Meter, Kilometer>();
+  UnitConverter<Kilometer, Mile>();
+  UnitConverter<Mile, Kilometer>();
+
+  UnitConverter<Second, Minute>();
+  UnitConverter<Second, Hour>();
+  UnitConverter<Minute, Second>();
+  UnitConverter<Minute, Hour>();
+  UnitConverter<Hour, Second>();
+  UnitConverter<Hour, Minute>();
+
+  UnitConverter<Kilogram, Gram>();
+  UnitConverter<Kilogram, Pound>();
+  UnitConverter<Gram, Kilogram>();
+  UnitConverter<Pound, Kilogram>();
+  UnitConverter<Pound, Gram>();
+  UnitConverter<Gram, Pound>();
+
+  UnitConverter<Joule, Calorie>(); 
+  UnitConverter<Calorie, Joule>();
+
+  __compound_unit_tbl.items().for_each([] (auto p)
+    {
+      p.first.for_each([] (auto s) { cout << s << " "; });
+      cout << "--> " << p.second << endl;
+    });
 }
 
-int main(int argc, char *argv[])
+void test()
 {
+  VtlQuantity dist("Kilometer", 1000);
+  VtlQuantity time("Hour", 1);
+
+  VtlQuantity speed = dist/time;
+
+  cout << "Speed = " << speed << endl;
+}
+
+int main()
+{
+  register_conversions();
   test();
   return 0;
 }

@@ -458,36 +458,26 @@ protected:
   }
 };
 
-/** Declare a new unit
+using Unit_Convert_Fct_Ptr = double (*)(double);
 
-    @param[in] name of unit
-    @param[in] symbol of unit
-    @param[in] desc description
-    @param[in] physical_quantity_name reference to a previusly defined
-    `Physical_Quantity` object associated to the unit
-    @param[in] min minimum value of the unit
-    @param[in] max maximum value of the unit
-*/
-# define Declare_Unit(name, symbol, desc, physical_quantity_name, min, max) \
-  class name : public Unit						\
-  {									\
-    name()								\
-      : Unit(#name, symbol, desc,					\
-	     physical_quantity_name::get_instance(), min, max) {}	\
-									\
-  public:								\
-									\
-    static const name & get_instance()					\
-    {									\
-      static name instance;						\
-      return instance;							\
-    }									\
-									\
-    name(const name&) = delete;						\
-    void operator = (const name&) = delete;				\
-  };
+using UnitHashTbl =
+  DynMapHash<pair<const char*, const char*>, Unit_Convert_Fct_Ptr>;
+
+# include "multiunitmap.H"
+
+extern UnitHashTbl __unit_name_name_tbl;
+extern UnitHashTbl __unit_name_symbol_tbl;
+extern UnitHashTbl __unit_symbol_name_tbl;
+extern UnitHashTbl __unit_symbol_symbol_tbl;
+extern CompoundUnitTbl __compound_unit_tbl;
 
 template <typename...> struct __always_false : std::false_type {};
+
+inline const Unit * search_compound_unit(const string & uname1,
+					 const string & uname2)
+{
+  return __compound_unit_tbl.search({uname1, uname2});
+}
 
 /* Default compound unit meta function */
 template <typename ...Units> struct Combine_Units
@@ -499,25 +489,6 @@ template <typename ...Units> struct Combine_Units
   }	
 };
 
-/** Declare a compound unit; that is a unit composed by several units
-
-    @param[in] name of compound unit
-    @param[in] symbol of unit
-    @param[in] desc description
-    @param[in] physical_quantity_name reference to the physical
-    quantity associated to the new unit
-    @param[in] min minimum value of the unit
-    @param[in] max maximum value of the unit
-    @param[in] Units list of units compounding the new unit
-*/
-# define Declare_Compound_Unit(name, symbol, desc, physical_quantity_name, \
-			       min, max, Units...)			\
-  Declare_Unit(name, symbol, desc, physical_quantity_name, min, max);	\
-  template <> struct Combine_Units<Units>				\
-  {									\
-    using type = name;							\
-  };
-
 // this template performs the conversion. In absence of definition the
 // compiler falls here and emits an error due to the static_assert
 template <class SrcUnit, class TgtUnit> inline
@@ -527,27 +498,19 @@ double unit_convert(double /* val */)
 		"No specialization exists!");
 }
 
-using unit_convert_fct_ptr = double (*)(double);
-
-using UnitHashTbl =
-  DynMapHash<pair<const char*, const char*>, unit_convert_fct_ptr>;
-
-extern UnitHashTbl __unit_name_name_tbl;
-extern UnitHashTbl __unit_name_symbol_tbl;
-extern UnitHashTbl __unit_symbol_name_tbl;
-extern UnitHashTbl __unit_symbol_symbol_tbl;
-
 template <class SrcUnit, class TgtUnit>
-class Unit_Converter
+class UnitConverter
 {
   static double convert(double val)
   {
     return unit_convert<SrcUnit, TgtUnit>(val);
   }
 
+  Unit_Convert_Fct_Ptr fct_ptr = nullptr;
+
 public:
 
-  Unit_Converter()
+  UnitConverter()
   {
     const Unit & src_instance = SrcUnit::get_instance();
     const Unit & tgt_instance = TgtUnit::get_instance();
@@ -600,13 +563,15 @@ public:
 	throw domain_error(s.str());
       }
 
-    auto fct_ptr = &Unit_Converter::convert;
+    fct_ptr = &UnitConverter::convert;
 
     __unit_name_name_tbl.insert(make_pair(src_name, tgt_name), fct_ptr);
     __unit_name_symbol_tbl.insert(make_pair(src_name, tgt_symbol), fct_ptr);
     __unit_symbol_name_tbl.insert(make_pair(src_symbol, tgt_name), fct_ptr);
     __unit_symbol_symbol_tbl.insert(make_pair(src_symbol, tgt_symbol), fct_ptr);
   }
+
+  Unit_Convert_Fct_Ptr operator () () const noexcept { return fct_ptr; }
 };
 
 inline double unit_convert_name_to_name(const string & src_name,
@@ -684,6 +649,92 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
 
   return (*fct)(val);
 }
+
+/** Declare a new unit
+
+    @param[in] name of unit
+    @param[in] symbol of unit
+    @param[in] desc description
+    @param[in] physical_quantity_name reference to a previusly defined
+    `Physical_Quantity` object associated to the unit
+    @param[in] min minimum value of the unit
+    @param[in] max maximum value of the unit
+*/
+# define Declare_Unit(name, symbol, desc, physical_quantity_name, min, max) \
+  class name : public Unit						\
+  {									\
+    name()								\
+      : Unit(#name, symbol, desc,					\
+	     physical_quantity_name::get_instance(), min, max) {}	\
+									\
+  public:								\
+									\
+    static const name & get_instance()					\
+    {									\
+      static name instance;						\
+      return instance;							\
+    }									\
+									\
+    name(const name&) = delete;						\
+    void operator = (const name&) = delete;				\
+  };
+
+
+/** Declare a compound unit; that is a unit composed by two units
+
+    @param[in] name of compound unit
+    @param[in] symbol of unit
+    @param[in] desc description
+    @param[in] physical_quantity_name reference to the physical
+    quantity associated to the new unit
+    @param[in] min minimum value of the unit
+    @param[in] max maximum value of the unit
+    @param[in] Unit1 first unit from left to right 
+    @param[in] Unit2 second unit from left to right 
+*/
+# define Declare_Compound_Unit(__name, symbol, desc, physical_quantity_name, \
+			       min, max, Unit1, Unit2)			\
+  Declare_Unit(__name, symbol, desc, physical_quantity_name, min, max);	\
+  template <> struct Combine_Units<Unit1, Unit2>			\
+  {									\
+    using type = __name;						\
+    Combine_Units()							\
+      {									\
+	cout << "****************" << endl;				\
+	__compound_unit_tbl.insert({Unit1::get_instance().name,		\
+	      Unit2::get_instance().name}, __name::get_instance());	\
+      }									\
+    static const Combine_Units combine_unit;				\
+  };									\
+									\
+  const Combine_Units<Unit1, Unit2> Combine_Units<Unit1, Unit2>::combine_unit;
+
+/** Declare a compound unit; that is a unit composed by three units
+
+    @param[in] name of compound unit
+    @param[in] symbol of unit
+    @param[in] desc description
+    @param[in] physical_quantity_name reference to the physical
+    quantity associated to the new unit
+    @param[in] min minimum value of the unit
+    @param[in] max maximum value of the unit
+    @param[in] Unit1 first unit from left to right 
+    @param[in] Unit2 second unit from left to right 
+    @param[in] Unit3 second unit from left to right 
+*/
+# define Declare_Compound_Unit3(__name, symbol, desc, physical_quantity_name, \
+				min, max, Unit1, Unit2, Unit3)		\
+  Declare_Unit(__name, symbol, desc, physical_quantity_name, min, max);	\
+  template <> struct Combine_Units<Unit1, Unit2, Unit3>			\
+  {									\
+    using type = __name;						\
+    Combine_Units()							\
+      {									\
+	__compound_unit_tbl.insert({Unit1::get_instance().name,		\
+	      Unit2::get_instance().name, Unit3::get_instance()},	\
+	  __name::get_instance());					\
+      }									\
+  };
 
 class BaseQuantity
 {
@@ -814,7 +865,7 @@ public:
     return *this;
   }
 
-  Quantity operator + (const Quantity & rhs)
+  Quantity operator + (const Quantity & rhs) const
   {
     Quantity ret(*this);
     ret += rhs;
@@ -828,7 +879,7 @@ public:
     return *this;
   }
 
-  Quantity operator - (const Quantity & rhs)
+  Quantity operator - (const Quantity & rhs) const
   {
     Quantity ret(*this);
     ret -= rhs;
@@ -1004,6 +1055,13 @@ bool operator != (double lhs, const Quantity<U> & rhs)
 
 class VtlQuantity : public BaseQuantity
 {
+  void compound_error(const string & uname1, const string & uname2) const
+  {
+    ostringstream s;
+    s << "There is no compund unit between " << uname1 << " and " << uname2;
+    throw domain_error(s.str());
+  }
+
 public:
 
   VtlQuantity(const string & unit_name, double val = 0)
@@ -1060,7 +1118,7 @@ public:
     return *this;
   }
 
-  VtlQuantity operator + (const VtlQuantity & rhs)
+  VtlQuantity operator + (const VtlQuantity & rhs) const
   {
     VtlQuantity ret(*this);
     ret += rhs;
@@ -1074,20 +1132,37 @@ public:
     return *this;
   }
 
-  VtlQuantity operator - (const VtlQuantity & rhs)
+  VtlQuantity operator - (const VtlQuantity & rhs) const
   {
     VtlQuantity ret(*this);
     ret -= rhs;
     return ret;
   }
-  
-  template <class U>
-  Quantity<typename Combine_Units<UnitName, U>::type>
-  operator * (const Quantity<U> & rhs) const
+
+  VtlQuantity operator * (const VtlQuantity & rhs) const
   {
-    using T = typename Combine_Units<UnitName, U>::type;
-    return Quantity<T>(value * rhs.get_value());
+    auto unit_ptr = search_compound_unit(unit.name, rhs.unit.name);
+    if (unit_ptr == nullptr)
+      compound_error(unit.name, rhs.unit.name);
+
+    return VtlQuantity(unit_ptr->name, value*rhs.get_value());
   }
+
+  VtlQuantity operator / (const VtlQuantity & rhs) const
+  {
+    auto unit_ptr = search_compound_unit(unit.name, rhs.unit.name);
+    if (unit_ptr == nullptr)
+      compound_error(unit.name, rhs.unit.name);
+
+    return VtlQuantity(unit_ptr->name, value/rhs.get_value());
+  }
+
+  // template <class U> VtlQuantity
+  // operator * (const Quantity<U> & rhs) const
+  // {
+  //   using T = typename Combine_Units<UnitName, U>::type;
+  //   return Quantity<T>(value * rhs.get_value());
+  // }
 
 };
 

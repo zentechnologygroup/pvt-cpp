@@ -65,7 +65,8 @@ template <> double
 unit_convert<Kilogram, Pound>(double v) { return 0.45359237*v; }
 template <> double
 unit_convert<Gram, Kilogram>(double v) { return 1000*v; }
-template <> double unit_convert<Pound, Kilogram>(double v) { return v/0.45359237; }
+template <> double unit_convert<Pound, Kilogram>(double v)
+{ return v/0.45359237; }
 template <> double unit_convert<Pound, Gram>(double v)
 {
   return unit_convert<Kilogram, Pound>(unit_convert<Pound, Kilogram>(v));
