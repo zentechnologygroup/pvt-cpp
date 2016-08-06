@@ -355,7 +355,7 @@ protected:
 		   const string & desc)
     : UnitItem(name, symbol, desc)
   {
-    tbl.register_item(name, symbol, desc);
+    tbl.register_item(this);
   }
 
 public:
@@ -377,26 +377,24 @@ public:
     @param[in] desc description 
 
  */
-# define Declare_Physical_Quantity(name, symbol, desc)	\
-  struct name : public PhysicalQuantity			\
-  {							\
-							\
-    static const name & get_instance()			\
-    {							\
-      static name instance(#name, symbol, desc);	\
-      return instance;					\
-    }							\
-							\
-  private:						\
-							\
-    using PhysicalQuantity::PhysicalQuantity;		\
-							\
-    name() : PhysicalQuantity(#name, symbol, desc) {}	\
-							\
-  public:						\
-							\
-    name(const name&) = delete;				\
-    void operator = (const name&) = delete;		\
+# define Declare_Physical_Quantity(__name, symbol, desc)	\
+  struct __name : public PhysicalQuantity			\
+  {								\
+    								\
+    static const __name & get_instance()			\
+    {								\
+      static __name instance;					\
+      return instance;						\
+    }								\
+    								\
+  private:							\
+    								\
+    __name() : PhysicalQuantity(#__name, symbol, desc) {}	\
+    								\
+  public:							\
+    								\
+    __name(const __name&) = delete;				\
+    void operator = (const __name&) = delete;			\
   };
 
 /** Unit base class
@@ -404,11 +402,25 @@ public:
  */
 struct Unit : public UnitItem
 {
-  template <typename U> friend class Quantity;
-
   const PhysicalQuantity & physical_quantity;
   const double min_val = 0;
   const double max_val = 0;
+
+  string to_string() const
+  {
+    ostringstream s;
+    s << "Unit name         = " << name << endl
+      << "symbol            = " << symbol << endl
+      << "physical quantity = " << physical_quantity.name << endl
+      << "min               = " << min_val << endl
+      << "max               = " << max_val;
+    return s.str();
+  }
+
+  friend ostream & operator << (ostream & out, const Unit & unit)
+  {
+    return out << unit.to_string();
+  }
 
 private:
 
@@ -419,6 +431,19 @@ public:
 
   /// Return a list of all declared and used units
   static DynList<const Unit*> units() { return unit_tbl.keys(); }
+
+  /** Search the unit associated to a name
+      
+      @param[in] name string containing the unit name
+      @return constant pointer to the symbol. If the name is not
+      found, then `nullptr` is returned
+  */
+  static const Unit * search_by_name(const string & symbol)
+  {
+    const UnitItem * ptr = tbl.search_by_name(symbol);
+    const Unit * unit_ptr = static_cast<const Unit*>(ptr);
+    return unit_ptr;
+  }
 
   /** Search the unit associated to a symbol
       
@@ -433,19 +458,6 @@ public:
     return unit_ptr;
   }
 
-  /** Search the unit associated to a name
-      
-      @param[in] name string containing the unit name
-      @return constant pointer to the symbol. If the name is not
-      found, then `nullptr` is returned
-  */
-  static const Unit * search_by_name(const string & symbol)
-  {
-    auto ptr = tbl.search_by_name(symbol);
-    const Unit * unit_ptr = static_cast<const Unit*>(ptr);
-    return unit_ptr;
-  }
-
 protected:
 
   Unit(const string & name, const string & symbol, const string & desc,
@@ -453,15 +465,14 @@ protected:
     : UnitItem(name, symbol, desc), physical_quantity(phy_q),
       min_val(min), max_val(max)
   {
-    tbl.register_item(name, symbol, desc);
+    tbl.register_item(this);
     unit_tbl.insert(this);
   }
 };
 
 using Unit_Convert_Fct_Ptr = double (*)(double);
 
-using UnitHashTbl =
-  DynMapHash<pair<const char*, const char*>, Unit_Convert_Fct_Ptr>;
+using UnitHashTbl = DynMapTree<pair<string, string>, Unit_Convert_Fct_Ptr>;
 
 # include "multiunitmap.H"
 
@@ -496,6 +507,7 @@ double unit_convert(double /* val */)
 {
   static_assert(__always_false<SrcUnit, TgtUnit>::value,
 		"No specialization exists!");
+  return 0;
 }
 
 template <class SrcUnit, class TgtUnit>
@@ -515,8 +527,8 @@ public:
     const Unit & src_instance = SrcUnit::get_instance();
     const Unit & tgt_instance = TgtUnit::get_instance();
 
-    const char * src_name = src_instance.name.c_str();
-    const char * tgt_name = tgt_instance.name.c_str();
+    const string & src_name = src_instance.name;
+    const string & tgt_name = tgt_instance.name;
 
     if (&src_instance.physical_quantity != &tgt_instance.physical_quantity)
       {
@@ -528,8 +540,8 @@ public:
 	throw domain_error(s.str());
       }
     
-    const char * src_symbol = src_instance.symbol.c_str();
-    const char * tgt_symbol = tgt_instance.symbol.c_str();
+    const string & src_symbol = src_instance.symbol;
+    const string & tgt_symbol = tgt_instance.symbol;
 
     if (__unit_name_name_tbl.has(make_pair(src_name, tgt_name)))
       {
@@ -569,6 +581,11 @@ public:
     __unit_name_symbol_tbl.insert(make_pair(src_name, tgt_symbol), fct_ptr);
     __unit_symbol_name_tbl.insert(make_pair(src_symbol, tgt_name), fct_ptr);
     __unit_symbol_symbol_tbl.insert(make_pair(src_symbol, tgt_symbol), fct_ptr);
+
+    assert(__unit_name_name_tbl.has(make_pair(src_name, tgt_name)));
+    assert(__unit_name_symbol_tbl.has(make_pair(src_name, tgt_symbol)));
+    assert(__unit_symbol_name_tbl.has(make_pair(src_symbol, tgt_name)));
+    assert(__unit_symbol_symbol_tbl.has(make_pair(src_symbol, tgt_symbol)));
   }
 
   Unit_Convert_Fct_Ptr operator () () const noexcept { return fct_ptr; }
@@ -578,8 +595,7 @@ inline double unit_convert_name_to_name(const string & src_name,
 					double val,
 					const string & tgt_name)
 {
-  auto p = __unit_name_name_tbl.search(make_pair(src_name.c_str(),
-						 tgt_name.c_str()));
+  auto p = __unit_name_name_tbl.search(make_pair(src_name, tgt_name));
   if (p == nullptr)
     {
       ostringstream s;
@@ -597,8 +613,7 @@ inline double unit_convert_name_to_symbol(const string & src_name,
 					  double val,
 					  const string & tgt_symbol)
 {
-  auto p = __unit_name_symbol_tbl.search(make_pair(src_name.c_str(),
-						   tgt_symbol.c_str()));
+  auto p = __unit_name_symbol_tbl.search(make_pair(src_name, tgt_symbol));
   if (p == nullptr)
     {
       ostringstream s;
@@ -616,8 +631,7 @@ inline double unit_convert_symbol_to_name(const string & src_symbol,
 					  double val,
 					  const string & tgt_name)
 {
-  auto p = __unit_symbol_name_tbl.search(make_pair(src_symbol.c_str(),
-						   tgt_name.c_str()));
+  auto p = __unit_symbol_name_tbl.search(make_pair(src_symbol, tgt_name));
   if (p == nullptr)
     {
       ostringstream s;
@@ -635,8 +649,7 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
 					    double val,
 					    const string & tgt_symbol)
 {
-  auto p = __unit_symbol_symbol_tbl.search(make_pair(src_symbol.c_str(),
-						     tgt_symbol.c_str()));
+  auto p = __unit_symbol_symbol_tbl.search(make_pair(src_symbol, tgt_symbol));
   if (p == nullptr)
     {
       ostringstream s;
@@ -652,37 +665,40 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
 
 /** Declare a new unit
 
-    @param[in] name of unit
+    @param[in] __name of unit
     @param[in] symbol of unit
     @param[in] desc description
-    @param[in] physical_quantity_name reference to a previusly defined
+    @param[in] physical_quantity reference to a previusly defined
     `Physical_Quantity` object associated to the unit
     @param[in] min minimum value of the unit
     @param[in] max maximum value of the unit
 */
-# define Declare_Unit(name, symbol, desc, physical_quantity_name, min, max) \
-  class name : public Unit						\
+# define Declare_Unit(__name, symbol, desc, physical_quantity, min, max) \
+  class __name : public Unit						\
   {									\
-    name()								\
-      : Unit(#name, symbol, desc,					\
-	     physical_quantity_name::get_instance(), min, max) {}	\
+    __name() : Unit(#__name, symbol, desc,				\
+		    physical_quantity::get_instance(), min, max) {}	\
 									\
   public:								\
 									\
-    static const name & get_instance()					\
+    static const __name & get_instance()				\
     {									\
-      static name instance;						\
+      static __name instance;						\
       return instance;							\
     }									\
 									\
-    name(const name&) = delete;						\
-    void operator = (const name&) = delete;				\
+    __name(const __name&) = delete;					\
+    void operator = (const __name&) = delete;				\
   };
 
 
+# define Declare_Conversion(Unit1, Unit2, val)		\
+  UnitConverter<Unit1, Unit2> __uc_##Unit1##_to_##Unit2;	\
+  template <> double unit_convert<Unit1, Unit2>(double val)
+
 /** Declare a compound unit; that is a unit composed by two units
 
-    @param[in] name of compound unit
+    @param[in] __name of compound unit
     @param[in] symbol of unit
     @param[in] desc description
     @param[in] physical_quantity_name reference to the physical
@@ -700,14 +716,12 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
     using type = __name;						\
     Combine_Units()							\
       {									\
-	cout << "****************" << endl;				\
 	__compound_unit_tbl.insert({Unit1::get_instance().name,		\
 	      Unit2::get_instance().name}, __name::get_instance());	\
       }									\
-    static const Combine_Units combine_unit;				\
+    static const Combine_Units<Unit1, Unit2> __cu_trigger;		\
   };									\
-									\
-  const Combine_Units<Unit1, Unit2> Combine_Units<Unit1, Unit2>::combine_unit;
+  const Combine_Units<Unit1, Unit2> Combine_Units<Unit1, Unit2>::__cu_trigger;
 
 /** Declare a compound unit; that is a unit composed by three units
 
@@ -772,6 +786,16 @@ protected:
     s << "Units do not refer to the same physical quantities" << endl
       << "Source physical quantity = " << unit.physical_quantity.name << endl
       << "target physical quantity = " << q.unit.physical_quantity.name;
+    throw domain_error(s.str());
+  }
+
+  void verify_same_unit(const Unit & __unit) const
+  {
+    if (&this->unit == &__unit)
+      return;
+
+    ostringstream s;
+    s << "Different units: " << unit.name << " != " << __unit.name;
     throw domain_error(s.str());
   }
 
@@ -948,6 +972,13 @@ public:
   {
     return Quantity<U>(*this);
   }
+
+  inline Quantity & operator += (const VtlQuantity & rhs) const;
+  inline Quantity & operator -= (const VtlQuantity & rhs) const;
+  inline VtlQuantity operator + (const VtlQuantity & rhs) const;
+  inline VtlQuantity operator - (const VtlQuantity & rhs) const;
+  inline VtlQuantity  operator * (const VtlQuantity &) const;
+  inline VtlQuantity  operator / (const VtlQuantity &) const;
 };
 
 template <class UnitName> inline
@@ -1052,13 +1083,17 @@ bool operator != (double lhs, const Quantity<U> & rhs)
   return not (lhs == rhs);
 }
 
-
 class VtlQuantity : public BaseQuantity
 {
-  void compound_error(const string & uname1, const string & uname2) const
+  // return the compund unit corresponding to uname1 x uname2
+  const Unit & verify_compound(const Unit & unit1, const Unit & unit2) const
   {
+    auto unit_ptr = search_compound_unit(unit1.name, unit2.name);
+    if (unit_ptr != nullptr)
+      return *unit_ptr;
     ostringstream s;
-    s << "There is no compund unit between " << uname1 << " and " << uname2;
+    s << "There is no compund unit between " << unit1.name << " and "
+      << unit2.name;
     throw domain_error(s.str());
   }
 
@@ -1111,6 +1146,20 @@ public:
     return *this;
   }
 
+  VtlQuantity & operator += (double rhs)
+  {
+    value += rhs;
+    check_value();
+    return *this;
+  }
+
+  VtlQuantity & operator -= (double rhs)
+  {
+    value -= rhs;
+    check_value();
+    return *this;
+  }
+
   VtlQuantity & operator += (const VtlQuantity & rhs)
   {
     value += rhs.get_value();
@@ -1141,31 +1190,97 @@ public:
 
   VtlQuantity operator * (const VtlQuantity & rhs) const
   {
-    auto unit_ptr = search_compound_unit(unit.name, rhs.unit.name);
-    if (unit_ptr == nullptr)
-      compound_error(unit.name, rhs.unit.name);
-
-    return VtlQuantity(unit_ptr->name, value*rhs.get_value());
+    return VtlQuantity(verify_compound(unit, rhs.unit).name,
+		       value*rhs.get_value());
   }
 
   VtlQuantity operator / (const VtlQuantity & rhs) const
   {
-    auto unit_ptr = search_compound_unit(unit.name, rhs.unit.name);
-    if (unit_ptr == nullptr)
-      compound_error(unit.name, rhs.unit.name);
-
-    return VtlQuantity(unit_ptr->name, value/rhs.get_value());
+    return VtlQuantity(verify_compound(unit, rhs.unit).name,
+		       value/rhs.get_value());
   }
 
-  // template <class U> VtlQuantity
-  // operator * (const Quantity<U> & rhs) const
-  // {
-  //   using T = typename Combine_Units<UnitName, U>::type;
-  //   return Quantity<T>(value * rhs.get_value());
-  // }
+  template <class U> VtlQuantity
+  operator * (const Quantity<U> & rhs) const
+  {
+    return VtlQuantity(verify_compound(unit, rhs.unit).name,
+		       value*rhs.get_value());
+  }
 
+  template <class U> VtlQuantity
+  operator / (const Quantity<U> & rhs) const
+  {
+    return VtlQuantity(verify_compound(unit, rhs.unit).name,
+		       value/rhs.get_value());
+  }
+
+  bool operator < (const VtlQuantity & rhs) const noexcept
+  {
+    return value < rhs.value;
+  }    
+
+  bool operator <= (const VtlQuantity & rhs) const noexcept
+  {
+    return value <= rhs.value;
+  }
+
+  bool operator > (const VtlQuantity & rhs) const noexcept
+  {
+    return value > rhs.value;
+  }    
+
+  bool operator >= (const VtlQuantity & rhs) const noexcept
+  {
+    return value >= rhs.value;
+  }    
+
+  bool operator == (const VtlQuantity & rhs) const noexcept
+  {
+    return value == rhs.value;
+  }    
+
+  bool operator != (const VtlQuantity & rhs) const noexcept
+  {
+    return value != rhs.value;
+  }
+
+  bool operator < (double rhs) const noexcept { return value < rhs; }
+  bool operator <= (double rhs) const noexcept { return value <= rhs; }
+  bool operator > (double rhs) const noexcept { return value > rhs; }
+  bool operator >= (double rhs) const noexcept { return value >= rhs; }
+  bool operator == (double rhs) const noexcept { return value == rhs; }
+  bool operator != (double rhs) const noexcept { return value != rhs; }
 };
 
+inline bool operator < (double lhs, const VtlQuantity & rhs) noexcept
+{
+  return lhs < rhs.get_value();
+}
+
+inline bool operator > (double lhs, const VtlQuantity & rhs) noexcept
+{
+  return lhs > rhs.get_value();
+}
+
+inline bool operator <= (double lhs, const VtlQuantity & rhs) noexcept
+{
+  return lhs <= rhs.get_value();
+}
+
+inline bool operator >= (double lhs, const VtlQuantity & rhs) noexcept
+{
+  return lhs >= rhs.get_value();
+}
+
+inline bool operator == (double lhs, const VtlQuantity & rhs) noexcept
+{
+  return lhs == rhs.get_value();
+}
+
+inline bool operator != (double lhs, const VtlQuantity & rhs) noexcept
+{
+  return lhs != rhs.get_value();
+}
 
 template <class UnitName>
 Quantity<UnitName>::Quantity(const VtlQuantity & q)
@@ -1183,6 +1298,54 @@ Quantity<UnitName> & Quantity<UnitName>::operator = (const VtlQuantity & q)
   value = unit_convert_name_to_name(q.unit.name, q.get_value(), unit.name);
 
   return *this;
+}
+
+template <class UnitName> Quantity<UnitName> &
+Quantity<UnitName>::operator += (const VtlQuantity & rhs) const
+{
+  verify_same_unit(rhs.unit);
+  value += rhs.get_value();
+  check_value();
+  return *this;
+}
+
+template <class UnitName> Quantity<UnitName> &
+Quantity<UnitName>::operator -= (const VtlQuantity & rhs) const
+{
+  verify_same_unit(rhs.unit);
+  value -= rhs.get_value();
+  check_value();
+  return *this;
+}
+
+template <class UnitName> VtlQuantity
+Quantity<UnitName>::operator + (const VtlQuantity & rhs) const
+{
+  verify_same_unit(rhs.unit);
+  VtlQuantity ret(*this);
+  ret += rhs;
+  return ret;
+}
+
+template <class UnitName> VtlQuantity
+Quantity<UnitName>::operator - (const VtlQuantity & rhs) const
+{
+  verify_same_unit(rhs.unit);
+  VtlQuantity ret(*this);
+  ret -= rhs;
+  return ret;
+}
+
+template <class UnitName> VtlQuantity
+Quantity<UnitName>::operator * (const VtlQuantity & rhs) const
+{
+  return VtlQuantity(verify_compound(unit, rhs.unit).name, value*rhs.get_value());
+}
+
+template <class UnitName> VtlQuantity
+Quantity<UnitName>::operator / (const VtlQuantity & rhs) const
+{
+  return VtlQuantity(verify_compound(unit, rhs.unit).name, value/rhs.get_value());
 }
 
 

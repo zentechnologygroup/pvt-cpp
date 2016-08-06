@@ -39,15 +39,15 @@ AllTarget(test-unititem)
 NormalProgramTarget(test-unititem,test-unititem.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
 
 AllTarget(test-dynunit)
-NormalProgramTarget(test-dynunit,test-dynunit.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
+NormalProgramTarget(test-dynunit,units.o test-dynunit.o,,,$(SYSLIBS))
 
 AllTarget(test-unit)
-NormalProgramTarget(test-unit,test-unit.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
+NormalProgramTarget(test-unit,units.o test-unit.o,,,$(SYSLIBS))
 
 AllTarget(example-unit)
-NormalProgramTarget(example-unit,example-unit.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
+NormalProgramTarget(example-unit,units.o example-unit.o,,,$(SYSLIBS))
 
 AllTarget(test-foo)
-NormalProgramTarget(test-foo,test-foo.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
+NormalProgramTarget(test-foo,units.o test-foo.o,,,$(SYSLIBS))
 
 DependTarget()
