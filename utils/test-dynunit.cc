@@ -14,6 +14,7 @@ Declare_Unit(Meter, "mt", "Standard measure of length", Distance,
 Declare_Unit(Mile, "mi", "English unit of length", Distance,
 	     0, numeric_limits<double>::max());
 Declare_Conversion(Centimeter, Kilometer, v) { return v/(1000*100); }
+Declare_Conversion(Centimeter, Meter, v) { return v/100; }
 Declare_Conversion(Kilometer, Centimeter, v) { return 1000*100*v; }
 Declare_Conversion(Kilometer, Meter, v) { return 1000*v; }
 Declare_Conversion(Meter, Kilometer, v) { return v/1000; }
@@ -43,6 +44,8 @@ Declare_Compound_Unit(Mt_s, "mt/s", "some more physically familiar", Speed,
 		      0, numeric_limits<double>::max(), Meter, Second);
 Declare_Compound_Unit(Mi_h, "mi/h", "English measure of speed", Speed,
 		      0, numeric_limits<double>::max(), Mile, Hour);
+Declare_Compound_Unit(Mt_m, "mt/m", "meter/min", Speed,
+		      0, numeric_limits<double>::max(), Meter, Minute);
 //template <> double unit_convert<Km_h, Mt_s>(double v) { return 1000*v/3600; }
 Declare_Conversion(Km_h, Mt_s, val) { return 1000*val/3600; }
 Declare_Conversion(Km_h, Mi_h, v) { return v/1609.344; }
@@ -68,9 +71,10 @@ Declare_Conversion(Gram, Pound, v)
   return unit_convert<Kilogram, Pound>(unit_convert<Gram, Kilogram>(v));
 }
 
-Declare_Physical_Quantity(Energy, "E",
-			  R"(Very mysterious property of something that can be
-			    transfered o transformed in order to do some work)");
+Declare_Physical_Quantity
+(Energy, "E",
+ R"(Very mysterious property of something that can be
+   transfered o transformed in order to do some work)");
 Declare_Compound_Unit(Joule, "J", "Energy unit in ISU", Energy, 0,
  		      numeric_limits<double>::max(), Kilogram, Mt_s);
 Declare_Unit(Calorie, "Cal", "Calorie", Energy, 0,
@@ -89,32 +93,65 @@ void register_conversions()
 
 void test()
 {
-  VtlQuantity dist("Kilometer", 1000);
+  VtlQuantity dist_km("Kilometer", 1000);
 
-  cout << dist.unit << endl;
-  return;
-  dist += 50;
-  dist -= 50;
-  dist += Quantity<Kilometer>(50);
-  dist -= Quantity<Kilometer>(50);
-  dist += VtlQuantity("Kilometer", 50);
-  dist -= VtlQuantity("Kilometer", 50);
+  cout << dist_km.unit << endl;
+  dist_km += 50;
+  dist_km -= 50;
+  dist_km += Quantity<Kilometer>(50);
+  dist_km -= Quantity<Kilometer>(50);
+  dist_km += VtlQuantity("Kilometer", 50);
+  dist_km -= VtlQuantity("Kilometer", 50);
 
-  test_assert(dist == 1000);
-  test_assert(1000 == dist);
+  test_assert(dist_km == 1000);
+  test_assert(1000 == dist_km);
 
-  VtlQuantity time("Hour", 1);
-  VtlQuantity meters("Meter", 1000);
+  VtlQuantity dist_mt("Meter", 1000*1000);
+
+  cout << "dist_km = " << dist_km << endl
+       << "dist_mt = " << dist_mt << endl;
+
+  test_assert(dist_km == dist_mt);
+  test_assert(dist_km >= dist_mt);
+  test_assert(dist_mt >=
+	      VtlQuantity(Centimeter::get_instance(), 1000*1000*100 - 1));
+  test_assert(dist_mt >
+	      VtlQuantity(Kilometer::get_instance(), 1000 - .00000001));
+  test_assert(dist_mt < VtlQuantity(Meter::get_instance(), 1000*1000 + .001));
+  test_assert(dist_mt <= VtlQuantity(Meter::get_instance(), 1000*1000));
+  
+  VtlQuantity hours("Hour", 1);
+  Quantity<Minute> minutes(60);
   VtlQuantity seconds("Second", 3600);
 
-  VtlQuantity speed1 = dist/time;
-  VtlQuantity speed2 = meters/seconds;
-  Quantity<Km_h> speed3 = speed2;
+  VtlQuantity sum = hours + minutes;
+  sum = sum - minutes;
 
-  cout << "Speed1 = " << speed1 << endl
-       << "Speed2 = " << speed2 << endl
-       << "Speed2 in speed1 = " << VtlQuantity(speed2.unit.name, speed1) << endl
-       << "Speed3 = " << speed3 << endl;
+  test_assert(sum == hours);
+  test_assert(hours == minutes);
+  test_assert(hours == seconds);
+
+  try
+    {
+      VtlQuantity m(Kilogram::get_instance(), hours);
+      test_assert(false); // it must not reach here
+    }
+  catch (exception & e)
+    {
+      cout << "Exception : " << e.what() << endl;
+    }
+
+  VtlQuantity speed_km_h = dist_km/hours;
+  VtlQuantity speed_mt_s = dist_mt/seconds;
+  VtlQuantity speed_mt_m = dist_mt/minutes;
+  Quantity<Km_h> speed3 = speed_mt_s;
+
+  cout << "speed_km_h = " << speed_km_h << endl
+       << "speed_mt_s = " << speed_mt_s << endl
+       << "speed_mt_m = " << speed_mt_m << endl
+       << "Speed2 in speed1 = " << VtlQuantity(speed_mt_s.unit.name, speed_km_h)
+       << endl
+       << "Speed3 (Quantity<Km_h>) = " << speed3 << endl;
 }
 
 int main()
