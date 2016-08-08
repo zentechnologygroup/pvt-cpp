@@ -1,5 +1,6 @@
 DEPEND = sh ./depend.sh
 
+PVT=/home/lrleon/pvt
 ALEPHW = $(shell echo $$ALEPHW)
 POCO = $(shell echo $$POCO)
 CXXPATH = $(shell echo $$CXXPATH)
@@ -7,7 +8,7 @@ CXXPATH = $(shell echo $$CXXPATH)
 CC = $(CXXPATH)/bin/clang
 CXX = $(CXXPATH)/bin/clang++
 
-INCLUDES = -I$(ALEPHW) -I.
+INCLUDES = -I$(ALEPHW) -I$(PVT)/include
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
 FLAGS = -std=c++14 $(WARN) -O0 -g
 
@@ -17,13 +18,11 @@ CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 LIBSRCS = units.cc 
 LIBOBJS = $(LIBSRCS:.cc=.o)
 
-DEPLIBS = ./libutils.a
-
-LOCALLIBS = ./libutils.a
 
 SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lm -lc
 
-TESTSRCS = test-unititem.cc test-unit.cc example-unit.cc test-dynunit.cc
+TESTSRCS = test-unititem.cc test-unit.cc example-unit.cc test-dynunit.cc \
+	test-foo.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
@@ -35,15 +34,18 @@ NormalLibraryTarget(utils,$(LIBOBJS))
 InstallLibrary(utils,./)
 
 AllTarget(test-unititem)
-NormalProgramTarget(test-unititem,test-unititem.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
+NormalProgramTarget(test-unititem,test-unititem.o,,,$(SYSLIBS))
 
 AllTarget(test-dynunit)
-NormalProgramTarget(test-dynunit,test-dynunit.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
+NormalProgramTarget(test-dynunit,units.o test-dynunit.o,,,$(SYSLIBS))
 
 AllTarget(test-unit)
-NormalProgramTarget(test-unit,test-unit.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
+NormalProgramTarget(test-unit,units.o test-unit.o,,,$(SYSLIBS))
 
-AllTarget(eample-unit)
-NormalProgramTarget(example-unit,example-unit.o,$(DEPLIBS),$(LOCALLIBS),$(SYSLIBS))
+AllTarget(example-unit)
+NormalProgramTarget(example-unit,units.o example-unit.o,,,$(SYSLIBS))
+
+AllTarget(test-foo)
+NormalProgramTarget(test-foo,units.o test-foo.o,,,$(SYSLIBS))
 
 DependTarget()

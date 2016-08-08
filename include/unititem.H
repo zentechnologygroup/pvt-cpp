@@ -14,16 +14,19 @@ struct UnitItem
 
   UnitItem(const std::string & __name, const std::string & __symbol,
 	   const std::string & desc) noexcept
-    : name(__name), symbol(__symbol), description(desc) {}
+    : name(__name), symbol(__symbol), description(desc)
+  {
+    // empty
+  }
 
-    string to_string() const
-    {
-      ostringstream s;
-      s << "UnitItem name = " << name << endl
-	<< "Symbol        = " << symbol << endl
-	<< "Description   = " << description;
-      return s.str();
-    }
+  string to_string() const
+  {
+    ostringstream s;
+    s << "UnitItem name = " << name << endl
+      << "Symbol        = " << symbol << endl
+      << "Description   = " << description;
+    return s.str();
+  }
 
   friend ostream & operator << (ostream & out, const UnitItem & ui)
   {
@@ -46,11 +49,6 @@ public:
   // returns a iterator to pair<string, UnitItem*>
   auto get_it() { return name_tbl.get_it(); }
 
-  ~UnitItemTable()
-  {
-    name_tbl.for_each([] (auto p) { delete p.second; });
-  }
-
   void register_item(const UnitItem * ptr)
   {
     if (name_tbl.contains(ptr->name))
@@ -69,15 +67,6 @@ public:
     
     name_tbl.insert(ptr->name, ptr);
     symbol_tbl.insert(ptr->symbol, ptr);
-  }
-
-  const UnitItem * register_item(const string & name,
-				 const string & symbol,
-				 const string & desc)
-  {
-    unique_ptr<UnitItem> ptr(new UnitItem(name, symbol, desc));
-    register_item(ptr.get());
-    return ptr.release();
   }
 
   bool exists_name(const string & name) const noexcept

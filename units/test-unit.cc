@@ -61,10 +61,9 @@ Declare_Unit(Gram, "gm", "1/1000 of a Kg", Mass,
 Declare_Unit(Pound, "lb", "0.45359237 Kg", Mass,
 	     0, numeric_limits<double>::max());
 template <> double unit_convert<Kilogram, Gram>(double v) { return v/1000; }
-template <> double
-unit_convert<Kilogram, Pound>(double v) { return 0.45359237*v; }
-template <> double
-unit_convert<Gram, Kilogram>(double v) { return 1000*v; }
+template <> double unit_convert<Kilogram, Pound>(double v)
+{ return 0.45359237*v; }
+template <> double unit_convert<Gram, Kilogram>(double v) { return 1000*v; }
 template <> double unit_convert<Pound, Kilogram>(double v) { return v/0.45359237; }
 template <> double unit_convert<Pound, Gram>(double v)
 {
