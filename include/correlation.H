@@ -2,7 +2,9 @@
 # ifndef CORRELATION_H
 # define CORRELATION_H
 
+# include <typeinfo>
 # include <sstream>
+# include <utils.H>
 # include <units.H>
 
 struct CorrelationPrecondition
@@ -30,6 +32,9 @@ struct CorrelationPrecondition
 	throw range_error(s.str());
       }
   }
+
+  CorrelationPrecondition(const BaseQuantity & q, double min, double max)
+    : CorrelationPrecondition(q.unit, min, max) {}    
 
   bool check(const BaseQuantity & val) const noexcept
   {
@@ -63,10 +68,49 @@ struct CorrelationPrecondition
   }
 };
 
-class Correlation
+
+struct Correlation
 {
   const string name;
-  DynList<CorrelationPrecondition> preconditions;
+  const Unit & result_unit;
+  
+  Correlation(const string & name, const Unit & result_unit)
+    : name(name), result_unit(result_unit) {}
+
+  virtual string type() const = 0;
+
+  string to_string() const
+  {
+    ostringstream s;
+    s << "Correlation " << name << " of type " << type()
+      << " with result type " << result_unit;
+    return s.str();
+  }
 };
+
+# define Correlation_Type() \
+  virtual string type() const { return demangle(typeid(*this).name()); }
+
+struct OilCorrelation : public Correlation
+{
+  Correlation_Type();
+  using Correlation::Correlation;
+};
+
+
+struct GasCorrelation : public Correlation
+{
+  Correlation_Type();
+  using Correlation::Correlation;
+};
+
+
+struct WaterCorrelation : public Correlation
+{
+  Correlation_Type();
+  using Correlation::Correlation;
+};
+
+
 
 # endif // endl
