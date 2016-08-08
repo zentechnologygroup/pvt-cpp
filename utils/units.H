@@ -1080,14 +1080,13 @@ public:
     ret -= rhs;
     return ret;
   }
-  
-  template <class U>
-  Quantity<typename Combine_Units<UnitName, U>::type>
-  operator * (const Quantity<U> & rhs) const
-  {
-    using T = typename Combine_Units<UnitName, U>::type;
-    return Quantity<T>(value * rhs.get_value());
-  }
+
+  // template <class U>
+  // VtlQuantity operator * (const Quantity<U> & rhs) const
+  // {
+  //   using T = typename Combine_Units<UnitName, U>::type;
+  //   return Quantity<T>(value * rhs.get_value());
+  // }
 
 };
 
