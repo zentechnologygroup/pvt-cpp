@@ -22,7 +22,7 @@ LIBOBJS = $(LIBSRCS:.cc=.o)
 SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lm -lc
 
 TESTSRCS = test-unititem.cc test-unit.cc example-unit.cc test-dynunit.cc \
-	test-foo.cc
+	test-foo.cc test-temperature.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
@@ -47,5 +47,8 @@ NormalProgramTarget(example-unit,units.o example-unit.o,,,$(SYSLIBS))
 
 AllTarget(test-foo)
 NormalProgramTarget(test-foo,units.o test-foo.o,,,$(SYSLIBS))
+
+AllTarget(test-temperature)
+NormalProgramTarget(test-temperature,units.o test-temperature.o,,,$(SYSLIBS))
 
 DependTarget()

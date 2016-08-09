@@ -777,6 +777,7 @@ public:
 
   VtlQuantity(const string & unit_name, double val = 0)
     : BaseQuantity(*Unit::search_by_name(unit_name), val)
+      // TODO: validar si no se enuentra la unidad
   {
     check_value();
   }
@@ -888,14 +889,6 @@ public:
     return ret;
   }
 
-<<<<<<< HEAD:utils/units.H
-  // template <class U>
-  // VtlQuantity operator * (const Quantity<U> & rhs) const
-  // {
-  //   using T = typename Combine_Units<UnitName, U>::type;
-  //   return Quantity<T>(value * rhs.get_value());
-  // }
-=======
   VtlQuantity operator * (const VtlQuantity & rhs) const
   {
     return VtlQuantity(verify_compound(unit, rhs.unit).name,
@@ -973,7 +966,6 @@ public:
   {
     return not (*this == rhs);
   }
->>>>>>> b21b35b205bb6df44defdf0045fcbc896955910b:include/units.H
 
   bool operator < (double rhs) const noexcept { return value < rhs; }
   bool operator <= (double rhs) const noexcept { return value <= rhs; }

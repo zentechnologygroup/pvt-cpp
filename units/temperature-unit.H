@@ -4,20 +4,32 @@
 
 # include <units.H>
 
-struct Temperature 
-{
-  PhysicalQuantity * physical_quantity_ptr = nullptr;
-};
+Declare_Physical_Quantity(Temperature, "T",
+			  "Average thermal energy of the particles in a substance");
 
-struct Kelvin : public Temperature
-{
-  Unit * 
-  Kelvin()
-  // falta
-  {
+Declare_Unit(Kelvin, "degK",
+	     "Absolute scale where the zero is the lowest temperature",
+	     Temperature, 0, numeric_limits<double>::max());
+Declare_Unit(Celsius, "degC",
+	     "Scale based on water freezing (0) and boiling point (100)",
+	     Temperature, -273.15, numeric_limits<double>::max());
+Declare_Unit(Fahrenheit, "degF", 
+	     "Scale based on brine freezing (0) and boiling point (100)",
+	     Temperature, -459.67, numeric_limits<double>::max());
+Declare_Unit(Rankine, "degR", "Absolute scale of temperature", Temperature,
+	     0, numeric_limits<double>::max());
 
-  }
-};
-
+Declare_Conversion(Kelvin, Fahrenheit, t) { return 1.8*t - 459.67; }
+Declare_Conversion(Fahrenheit, Kelvin, t) { return (t + 459.67)/1.8; }
+Declare_Conversion(Celsius, Fahrenheit, t) { return 1.8*t + 32; }
+Declare_Conversion(Fahrenheit, Celsius, t) { return (t - 32)/1.8; }
+Declare_Conversion(Kelvin, Rankine, t) { return 1.8*t; }
+Declare_Conversion(Rankine, Kelvin, t) { return t/1.8; }
+Declare_Conversion(Rankine, Celsius, t) { return (t - 491.67)/1.8; }
+Declare_Conversion(Celsius, Rankine, t) { return (t + 273.15)*1.8; }
+Declare_Conversion(Rankine, Fahrenheit, t) { return t - 459.67; }
+Declare_Conversion(Fahrenheit, Rankine, t) { return t + 459.67; }
+Declare_Conversion(Kelvin, Celsius, t) { return t - 273.15; }
+Declare_Conversion(Celsius, Kelvin, t) { return t + 273.15; }
 
 # endif // TEMPERATURE_UNIT_H
