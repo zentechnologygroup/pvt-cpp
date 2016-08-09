@@ -18,11 +18,10 @@ CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 LIBSRCS = units.cc 
 LIBOBJS = $(LIBSRCS:.cc=.o)
 
-
-SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lm -lc
+SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
 
 TESTSRCS = test-unititem.cc test-unit.cc example-unit.cc test-dynunit.cc \
-	test-foo.cc test-temperature.cc
+	test-foo.cc test-temperature.cc test-all-units-1.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
@@ -50,5 +49,8 @@ NormalProgramTarget(test-foo,units.o test-foo.o,,,$(SYSLIBS))
 
 AllTarget(test-temperature)
 NormalProgramTarget(test-temperature,units.o test-temperature.o,,,$(SYSLIBS))
+
+AllTarget(test-all-units-1)
+NormalProgramTarget(test-all-units-1,units.o test-all-units-1.o,,,$(SYSLIBS))
 
 DependTarget()

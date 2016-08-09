@@ -38,11 +38,11 @@ protected:
 public:
 
   // Return all the defined  physical magnitudes  
-  static DynList<const PhysicalQuantity *> quantities()
+  static DynList<const PhysicalQuantity * const> quantities()
   {
-    return tbl.items().map<const PhysicalQuantity*>([] (auto p)
+    return tbl.items().map<const PhysicalQuantity * const>([] (auto p)
       {
-	return static_cast<const PhysicalQuantity*>(p);
+	return static_cast<const PhysicalQuantity * const>(p);
       });
   }
 };
@@ -773,11 +773,38 @@ class VtlQuantity : public BaseQuantity
     throw domain_error(s.str());
   }
 
+  const Unit & unit_given_name(const string & name) const
+  {
+    auto ptr = Unit::search_by_name(name);
+    if (ptr != nullptr)
+      return *ptr;
+
+    ostringstream s;
+    s << "Nonexistent unit name " << name;
+    throw domain_error(s.str());
+  }
+
+  const Unit & unit_given_symbol(const string & symbol) const
+  {
+    auto ptr = Unit::search_by_symbol(symbol);
+    if (ptr != nullptr)
+      return *ptr;
+
+    ostringstream s;
+    s << "Nonexistent unit symbol " << symbol;
+    throw domain_error(s.str());
+  }
+
 public:
 
   VtlQuantity(const string & unit_name, double val = 0)
-    : BaseQuantity(*Unit::search_by_name(unit_name), val)
-      // TODO: validar si no se enuentra la unidad
+    : BaseQuantity(unit_given_name(unit_name), val)
+  {
+    check_value();
+  }
+
+  VtlQuantity(double val, const string & symbol)
+    : BaseQuantity(unit_given_symbol(symbol), val)
   {
     check_value();
   }

@@ -6,7 +6,7 @@ using namespace TCLAP;
 
 void test(int argc, char *argv[])
 {
-CmdLine cmd(argv[0], ' ', "0");
+  CmdLine cmd(argv[0], ' ', "0");
 
   ValueArg<double> temp("t", "temperature", "temperature", true, 0, "temperature");
   cmd.add(temp);
