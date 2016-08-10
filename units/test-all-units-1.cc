@@ -2,14 +2,39 @@
 # include <gsl/gsl_rng.h>
 # include <ctime>
 # include <memory>
+# include <algorithm>
 # include <tclap/CmdLine.h>
+# include <ahFunctional.H>
 # include <pvt-units.H>
 
 using namespace std;
 using namespace TCLAP;
 
-void test_conversions(const PhysicalQuantity & pq,
-		      const size_t ntries, double max, gsl_rng * r)
+DynList<DynList<string>> format(const DynList<DynList<string>> & mat)
+{
+  DynList<size_t> ilens = rep<size_t>(mat.nth(0).size(), 0);
+  DynList<size_t> maxs = mat.foldl(ilens, [] (const DynList<size_t> & acu,
+					      const DynList<string> & l)
+    {
+      return zip(acu, l).map<size_t>([] (auto p)
+        { return max(p.first, p.second.size()); });
+    });
+
+  // here maxs contains the maximum size of each column
+
+  return mat.map<DynList<string>>([&maxs] (const auto & l)
+    {
+      return zip(maxs, l).template map<DynList<string>>([] (auto p)
+	{
+	  const string blanks(p.first - p.second.size(), ' ');
+	  return blanks + p.second;
+	});
+    });
+}
+
+DynList<DynList<string>>
+test_conversions(const PhysicalQuantity & pq,
+		 const size_t ntries, double max, gsl_rng * r)
 {
   using Puv = pair<const Unit * const, DynList<double>>;
   auto units = Unit::units().filter([p = &pq] (auto u)
@@ -40,6 +65,10 @@ void test_conversions(const PhysicalQuantity & pq,
 		     cout << endl
 			  << endl;
 		   });
+
+  DynList<DynList<string>> ret;
+
+  return ret;
 }
 
 void test()
@@ -87,7 +116,8 @@ int main(int argc, char *argv[])
 
   //test();
 
-  test_conversions(Temperature::get_instance(), 3, 1000, r.get());
+  test_conversions(Temperature::get_instance(), ntries.getValue(),
+		   max.getValue(), r.get());
 
   return 0;
 }
