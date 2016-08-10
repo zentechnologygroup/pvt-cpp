@@ -45,6 +45,12 @@ public:
 	return static_cast<const PhysicalQuantity * const>(p);
       });
   }
+
+  static const PhysicalQuantity * search(const string & name)
+  {
+    auto ptr = tbl.search_by_name(name);
+    return static_cast<const PhysicalQuantity * const>(ptr);
+  }
 };
 
 /** Defines a new physical magnitude
@@ -447,7 +453,8 @@ protected:
       return;
 
     ostringstream s;
-    s << "Value " << value << " is not inside in [" << unit.min_val << ","
+    s << "Value " << value << " for unit " << unit.name
+      << " is not inside in [" << unit.min_val << ","
       << unit.max_val << "]";
     throw range_error(s.str());
   }

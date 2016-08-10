@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
       name << "Name_" << i;
       symbol << "Symbol_" << i;
       desc << "Description_" << i;
-      table.register_item(name.str(), symbol.str(), desc.str());
+      table.register_item(new UnitItem(name.str(), symbol.str(), desc.str()));
     }
 
   for (size_t i = 0; i < n; ++i)

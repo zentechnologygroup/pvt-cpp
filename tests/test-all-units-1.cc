@@ -3,8 +3,12 @@
 # include <ctime>
 # include <memory>
 # include <algorithm>
+
 # include <tclap/CmdLine.h>
+
 # include <ahFunctional.H>
+# include <ah-string-utils.H>
+
 # include <pvt-units.H>
 
 using namespace std;
@@ -40,7 +44,6 @@ DynList<DynList<string>> format_csv(const DynList<DynList<string>> & mat)
       const DynList<string> & curr_row = row_it.get_curr();
       const string & last = curr_row.get_last();
       DynList<string> row;
-      cout << "size = " << curr_row.size() << endl;
       for (auto it = curr_row.get_it(); it.has_curr(); it.next())
 	{
 	  const string & s = it.get_curr();
@@ -68,7 +71,7 @@ string to_string(const DynList<DynList<string>> & mat)
 
 DynList<DynList<string>>
 test_conversions(const PhysicalQuantity & pq,
-		 const size_t ntries, double max, gsl_rng * r)
+		 const size_t nsamples, double max, gsl_rng * r)
 {
   using Puv = pair<const Unit * const, DynList<double>>;
 
@@ -77,7 +80,7 @@ test_conversions(const PhysicalQuantity & pq,
 				    { return &u->physical_quantity == p; });
 
       // generate the random samples
-  auto samples = units.map<Puv>([ntries, r, max] (auto unit_ptr)
+  auto samples = units.map<Puv>([nsamples, r, max] (auto unit_ptr)
     {
       auto min = unit_ptr->min_val;
       if (max > unit_ptr->max_val or max < min)
@@ -88,7 +91,7 @@ test_conversions(const PhysicalQuantity & pq,
 	}
       auto urange = max - min;
       DynList<double> values;
-      for (size_t i = 0; i < ntries; ++i)
+      for (size_t i = 0; i < nsamples; ++i)
 	{
 	  auto val = min + urange*gsl_rng_uniform(r);
 	  values.append(val);
@@ -114,8 +117,6 @@ test_conversions(const PhysicalQuantity & pq,
 	}
       
       DynList<string> ret;
-      cout << "Samples size = " << samples.size() << endl
-      << "conversions size = " << conversions.size() << endl;
       ret.append(p.first->name);
       ret.append(samples.map<string>([] (auto v) { return to_string(v); }));
       ret.append(conversions);
@@ -125,7 +126,7 @@ test_conversions(const PhysicalQuantity & pq,
 
       // generate title row
   DynList<string> title = { "Unit name" };
-  DynList<string> vals = range(ntries).map<string>([] (auto i)
+  DynList<string> vals = range(nsamples).map<string>([] (auto i)
                          { return "sample-" + to_string(i); });
   title.append(vals);
 
@@ -170,28 +171,44 @@ int main(int argc, char *argv[])
 {
   CmdLine cmd(argv[0], ' ', "0");
 
-  ValueArg<size_t> ntries = { "n", "num-tries", "number of tries", false, 3,
-			      "number of tries" };
-  cmd.add(ntries);
+  ValueArg<size_t> nsamples = { "n", "num-samples", "number of samples", false,
+				3, "number of samples" };
+  cmd.add(nsamples);
 
   ValueArg<double> max = { "m", "max", "maximum value", false, 1000,
 			   "maximum value" };
   cmd.add(max);
 
   unsigned long dft_seed = time(nullptr);
-  ValueArg<unsigned long> seed = { "s", "seed", "seed for random number generator",
-				  false, dft_seed, "random seed" };
+  ValueArg<unsigned long> seed = { "s", "seed",
+				   "seed for random number generator",
+				   false, dft_seed, "random seed" };
   cmd.add(seed);
 
   SwitchArg csv("c", "csv", "output in csv format", false);
   cmd.add(csv);
+
+  vector<string> pq;
+  PhysicalQuantity::quantities().for_each([&pq] (auto p)
+					  { pq.push_back(p->name); });
+  ValuesConstraint<string> allowed(pq);
+  ValueArg<string> pm = { "P", "physical-quantity", "name of physical quantity",
+			  true, "", &allowed };
+  cmd.add(pm);
 
   cmd.parse(argc, argv);
 
   unique_ptr<gsl_rng, decltype(gsl_rng_free)*>
     r(gsl_rng_alloc(gsl_rng_mt19937), gsl_rng_free);
 
-  auto mat = test_conversions(Temperature::get_instance(), ntries.getValue(),
+  auto ptr = PhysicalQuantity::search(pm.getValue());
+  if (ptr == nullptr)
+    {
+      cout << "Physical quantity " << pm.getValue() << " not found " << endl;
+      abort();
+    }
+
+  auto mat = test_conversions(*ptr, nsamples.getValue(),
 			      max.getValue(), r.get());
 
   if (csv.getValue())
