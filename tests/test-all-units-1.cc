@@ -1,6 +1,7 @@
 
 # include <gsl/gsl_rng.h>
 # include <ctime>
+# include <cmath>
 # include <memory>
 # include <algorithm>
 
@@ -71,7 +72,8 @@ string to_string(const DynList<DynList<string>> & mat)
 
 DynList<DynList<string>>
 test_conversions(const PhysicalQuantity & pq,
-		 const size_t nsamples, double max, gsl_rng * r)
+		 const size_t nsamples, double max, double epsilon,
+		 gsl_rng * r)
 {
   using Puv = pair<const Unit * const, DynList<double>>;
 
@@ -100,7 +102,7 @@ test_conversions(const PhysicalQuantity & pq,
     });
 
       // generate the rows
-  auto rows = samples.map<DynList<string>>([&units] (Puv p)
+  auto rows = samples.map<DynList<string>>([&units, epsilon] (Puv p)
     {
       DynList<string> conversions;
       const DynList<double> & samples = p.second;
@@ -112,6 +114,20 @@ test_conversions(const PhysicalQuantity & pq,
 	    {
 	      const Unit * const unit_ptr = ut.get_curr();
 	      VtlQuantity conv = { *unit_ptr, q }; // conversion
+
+	      VtlQuantity inv = { *p.first, conv };
+	      if (abs(q.get_value() - inv.get_value()) > epsilon)
+		{
+		  ostringstream s;
+		  s << "Conversion for value " << val << " from unit "
+		    << p.first->name << " to unit " << unit_ptr->name
+		    << " does not satisfy epsilon threshold " << epsilon << endl
+		    << "Original value     = " << q << endl
+		    << "Intermediate value = " << conv << endl
+		    << "Returned value = " << inv << endl;
+		  throw range_error(s.str());
+		}
+
 	      conversions.append(to_string(conv.get_value()));
 	    }
 	}
@@ -146,37 +162,17 @@ test_conversions(const PhysicalQuantity & pq,
   return ret;
 }
 
-void test()
-{
-  auto all_units = Unit::units();
-  auto physical_quantities = PhysicalQuantity::quantities();
-  for (auto pq_it = physical_quantities.get_it(); pq_it.has_curr(); pq_it.next())
-    {
-      const PhysicalQuantity * const pq_ptr = pq_it.get_curr();
-      cout << "Physical quantity: " << pq_ptr->name << endl;
-
-      auto units = all_units.filter([pq_ptr] (const auto & u)
-        { return &u->physical_quantity == pq_ptr; });
-      for (auto it = units.get_it(); it.has_curr(); it.next())
-	{
-	  auto u = it.get_curr();
-	  cout << "Unit: " << endl
-	       << *u << endl
-	       << endl;
-	}
-    }
-}
-
 int main(int argc, char *argv[])
 {
   CmdLine cmd(argv[0], ' ', "0");
 
-  ValueArg<size_t> nsamples = { "n", "num-samples", "number of samples", false,
+  ValueArg<size_t> nsamples = { "n", "num-samples",
+				"number of random samples", false,
 				3, "number of samples" };
   cmd.add(nsamples);
 
   ValueArg<double> max = { "m", "max", "maximum value", false, 1000,
-			   "maximum value" };
+			   "maximum value of physical magnitude" };
   cmd.add(max);
 
   unsigned long dft_seed = time(nullptr);
@@ -187,6 +183,11 @@ int main(int argc, char *argv[])
 
   SwitchArg csv("c", "csv", "output in csv format", false);
   cmd.add(csv);
+
+  ValueArg<double> epsilon("E", "epsilon",
+			   "precision threshold for numeric comparaisons",
+			   false, 1e-20, "precision threshold");
+  cmd.add(epsilon);
 
   vector<string> pq;
   PhysicalQuantity::quantities().for_each([&pq] (auto p)
@@ -200,6 +201,7 @@ int main(int argc, char *argv[])
 
   unique_ptr<gsl_rng, decltype(gsl_rng_free)*>
     r(gsl_rng_alloc(gsl_rng_mt19937), gsl_rng_free);
+  gsl_rng_set(r.get(), seed.getValue() % gsl_rng_max(r.get()));
 
   auto ptr = PhysicalQuantity::search(pm.getValue());
   if (ptr == nullptr)
@@ -209,7 +211,7 @@ int main(int argc, char *argv[])
     }
 
   auto mat = test_conversions(*ptr, nsamples.getValue(),
-			      max.getValue(), r.get());
+			      max.getValue(), epsilon.getValue(), r.get());
 
   if (csv.getValue())
     cout << to_string(format_csv(mat)) << endl;

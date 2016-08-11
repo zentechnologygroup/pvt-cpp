@@ -73,9 +73,16 @@ struct Correlation
 {
   const string name;
   const Unit & result_unit;
+
+  mutable DynList<CorrelationPrecondition> preconditions;
   
   Correlation(const string & name, const Unit & result_unit)
     : name(name), result_unit(result_unit) {}
+
+  void add_precondition(const CorrelationPrecondition & precondition)
+  {
+    preconditions.append(precondition);
+  }
 
   virtual string type() const = 0;
 
@@ -86,6 +93,7 @@ struct Correlation
       << " with result type " << result_unit;
     return s.str();
   }
+  
 };
 
 # define Correlation_Type() \

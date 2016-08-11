@@ -28,13 +28,13 @@ Declare_Unit(psia, "psia",
                  Used for making clear that the pressure is relative
                  to a vacuum rather than the ambient atmospheric pressure.
                  Since atmospheric pressure at sea level is around 14.7 psi)D",
-	     Pressure, -14.70004878943643466864, numeric_limits<double>::max());
+	     Pressure, -14.7, numeric_limits<double>::max());
 
 Declare_Unit(psig, "psig",
 	     R"D(Pound-force per square inch. Unit of pressure of stress based
                  on avoirdupois units. It is the pressure resulting from a force
                  of one pound-force applied to an area of one square inch)D",
-	     Pressure, -14.7, numeric_limits<double>::max());
+	     Pressure, -29.4, numeric_limits<double>::max());
 
 Declare_Unit(Atmosphere, "atm", "unit of pressure defined as 101325 Pa",
 	     Pressure, -1.00027898968870666706, numeric_limits<double>::max());
