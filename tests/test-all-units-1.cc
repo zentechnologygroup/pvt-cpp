@@ -109,11 +109,34 @@ test_conversions(const PhysicalQuantity & pq,
       for (auto it = samples.get_it(); it.has_curr(); it.next())
 	{
 	  double val = it.get_curr();
-	  VtlQuantity q = { *p.first, val };
+	  VtlQuantity q(*p.first);
+	  try
+	    {
+	      q = VtlQuantity(*p.first, val);
+	    }
+	  catch (exception & e)
+	    {
+	      cout << "Error with generated sample" << endl
+		   << e.what() << endl
+		   << "Sample " << val << " is not inside [" << p.first->min_val
+		   << ", " << p.first->max_val << "]" << endl;
+	      abort();
+	    }
 	  for (auto ut = units.get_it(); ut.has_curr(); ut.next())
 	    {
 	      const Unit * const unit_ptr = ut.get_curr();
-	      VtlQuantity conv = { *unit_ptr, q }; // conversion
+	      VtlQuantity conv(*unit_ptr);
+	      try
+		{
+		  conv = VtlQuantity(*unit_ptr, q); // conversion
+		}
+	      catch (exception & e)
+		{
+		  cout << "Error converting " << q << " to " << unit_ptr->name
+		       << endl
+		       << e.what() << endl;
+		  abort();
+		}
 
 	      VtlQuantity inv = { *p.first, conv };
 	      if (abs(q.get_value() - inv.get_value()) > epsilon)
