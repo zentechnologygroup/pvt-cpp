@@ -454,7 +454,9 @@ protected:
 
   double value;
 
-  BaseQuantity(const Unit & __unit, double val = 0) : unit(__unit), value(val) {}
+  BaseQuantity(const Unit & __unit) : unit(__unit), value(unit.min_val) {}
+  
+  BaseQuantity(const Unit & __unit, double val) : unit(__unit), value(val) {}
   
   // helper for validating that value is in [min_val, max_val]. It
   // throws range_error if value is not in the interval
@@ -532,8 +534,14 @@ class Quantity : public BaseQuantity
 
 public:
 
-  Quantity(double val = 0) 
+  Quantity(double val) 
     : BaseQuantity(UnitName::get_instance(), val)
+  {
+    check_value(); // value must be inside the specified range
+  }
+
+  Quantity() 
+    : BaseQuantity(UnitName::get_instance())
   {
     check_value(); // value must be inside the specified range
   }
@@ -831,8 +839,14 @@ public:
     check_value();
   }
 
-  VtlQuantity(const Unit & unit, double val = 0)
+  VtlQuantity(const Unit & unit, double val)
     : BaseQuantity(unit, val)
+  {
+    check_value();
+  }
+
+  VtlQuantity(const Unit & unit)
+    : BaseQuantity(unit)
   {
     check_value();
   }

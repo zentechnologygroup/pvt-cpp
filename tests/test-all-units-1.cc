@@ -31,13 +31,21 @@ test_conversions(const PhysicalQuantity & pq,
   auto samples = units.map<Puv>([nsamples, r, max] (auto unit_ptr)
     {
       auto min = unit_ptr->min_val;
-      if (max > unit_ptr->max_val or max < min)
+      auto m = std::min(max, unit_ptr->max_val);
+      if (m < min)
 	{
 	  ostringstream s;
-	  s << "max value " << max << " is invalid";
+	  s << "max value " << m << " for unit " << unit_ptr->name
+	    << " is lesser than " << min;
 	  throw domain_error(s.str());
 	}
-      auto urange = max - min;
+      if (m <= 0)
+	{
+	  ostringstream s;
+	  s << "max value " << m << "  is lesser than 0";
+	  throw domain_error(s.str());
+	}
+      auto urange = m - min;
       DynList<double> values;
       for (size_t i = 0; i < nsamples; ++i)
 	{
