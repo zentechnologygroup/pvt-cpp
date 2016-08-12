@@ -1,0 +1,10 @@
+
+# define IHaveSubdirs
+# define PassCDebugFlags
+
+ALEPHW = $(shell echo $$ALEPHW)
+
+SUBDIRS = units tests
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))

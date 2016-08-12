@@ -1,14 +1,8 @@
 DEPEND = sh ./depend.sh
 
-PVT=/home/lrleon/pvt
 ALEPHW = $(shell echo $$ALEPHW)
-POCO = $(shell echo $$POCO)
-CXXPATH = $(shell echo $$CXXPATH)
 
-CC = $(CXXPATH)/bin/clang
-CXX = $(CXXPATH)/bin/clang++
-
-INCLUDES = -I$(ALEPHW) -I$(PVT)/include
+INCLUDES = -I../include -I$(ALEPHW) 
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
 FLAGS = -std=c++14 $(WARN) -O0 -g
 

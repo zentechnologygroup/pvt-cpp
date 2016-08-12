@@ -1,15 +1,8 @@
 DEPEND = sh ./depend.sh
 
-PVT=/home/lrleon/pvt
-ALEPHW = $(shell echo $$ALEPHW)
-POCO = $(shell echo $$POCO)
-CXXPATH = $(shell echo $$CXXPATH)
-
-CC = $(CXXPATH)/bin/clang
-CXX = $(CXXPATH)/bin/clang++
-
-INCLUDES = -I$(ALEPHW) -I$(PVT)/include
-WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
+INCLUDES = -I../include -I$(ALEPHW) 
+WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
+	-Wno-parentheses
 FLAGS = -std=c++14 $(WARN) -O0 -g
 
 OPTIONS = $(FLAGS)
@@ -19,14 +12,14 @@ UNITS=../units/units.o
 
 SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
 
-TESTSRCS = test-all-units-1.cc test-temperature.cc
+TESTSRCS = test-all-units-1.cc test-conversion.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
 SRCS = $(TESTSRCS)
 
-AllTarget(test-temperature)
-NormalProgramTarget(test-temperature,$(UNITS) test-temperature.o,,,$(SYSLIBS))
+AllTarget(test-conversion)
+NormalProgramTarget(test-conversion,$(UNITS) test-conversion.o,,,$(SYSLIBS))
 
 AllTarget(test-all-units-1)
 NormalProgramTarget(test-all-units-1,$(UNITS) test-all-units-1.o,,,$(SYSLIBS))

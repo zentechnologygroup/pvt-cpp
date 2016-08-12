@@ -108,12 +108,12 @@ struct Unit : public UnitItem
 private:
 
   static UnitItemTable tbl;
-  static DynSetTree<const Unit *> unit_tbl;
+  static DynSetTree<const Unit * const> unit_tbl;
 
 public:
 
   /// Return a list of all declared and used units
-  static DynList<const Unit*> units() { return unit_tbl.keys(); }
+  static DynList<const Unit* const> units() { return unit_tbl.keys(); }
 
   /** Search the unit associated to a name
       
@@ -139,6 +139,17 @@ public:
     auto ptr = tbl.search_by_symbol(symbol);
     const Unit * unit_ptr = static_cast<const Unit*>(ptr);
     return unit_ptr;
+  }
+
+  static DynList<const Unit * const> units(const PhysicalQuantity & pq)
+  {
+    return unit_tbl.filter([&pq] (auto ptr)
+			   { return &ptr->physical_quantity == &pq; });
+  }
+
+  static DynList<const Unit * const> units(const string & symbol)
+  {
+    return unit_tbl.filter([&symbol] (auto ptr) { return ptr->symbol == symbol; });
   }
 
 protected:
@@ -768,8 +779,10 @@ bool operator != (double lhs, const Quantity<U> & rhs)
 
 class VtlQuantity : public BaseQuantity
 {
+public:
+  
   // return the compund unit corresponding to uname1 x uname2
-  const Unit & verify_compound(const Unit & unit1, const Unit & unit2) const
+  static const Unit & verify_compound(const Unit & unit1, const Unit & unit2) 
   {
     auto unit_ptr = search_compound_unit(unit1.name, unit2.name);
     if (unit_ptr != nullptr)
@@ -779,6 +792,8 @@ class VtlQuantity : public BaseQuantity
       << unit2.name;
     throw domain_error(s.str());
   }
+
+private:
 
   const Unit & unit_given_name(const string & name) const
   {
@@ -1096,13 +1111,15 @@ Quantity<UnitName>::operator - (const VtlQuantity & rhs) const
 template <class UnitName> VtlQuantity
 Quantity<UnitName>::operator * (const VtlQuantity & rhs) const
 {
-  return VtlQuantity(verify_compound(unit, rhs.unit).name, value*rhs.get_value());
+  return VtlQuantity(VtlQuantity::verify_compound(unit, rhs.unit).name,
+		     value*rhs.get_value());
 }
 
 template <class UnitName> VtlQuantity
 Quantity<UnitName>::operator / (const VtlQuantity & rhs) const
 {
-  return VtlQuantity(verify_compound(unit, rhs.unit).name, value/rhs.get_value());
+  return VtlQuantity(VtlQuantity::verify_compound(unit, rhs.unit).name,
+		     value/rhs.get_value());
 }
 
 

@@ -14,61 +14,7 @@
 
 using namespace std;
 using namespace TCLAP;
-
-DynList<DynList<string>> format(const DynList<DynList<string>> & mat)
-{
-  DynList<size_t> ilens = rep<size_t>(mat.nth(0).size(), 0);
-  DynList<size_t> maxs = mat.foldl(ilens, [] (const DynList<size_t> & acu,
-					      const DynList<string> & l)
-    {
-      return zip(acu, l).map<size_t>([] (auto p)
-        { return max(p.first, p.second.size()); });
-    });
-
-  // here maxs contains the maximum size of each column
-
-  return mat.map<DynList<string>>([&maxs] (const DynList<string> & l)
-    {
-      return zip(maxs, l).template map<string>([] (auto p)
-	{
-	  const string blanks(p.first - p.second.size(), ' ');
-	  return blanks + p.second + " ";
-	});
-    });
-}
-
-DynList<DynList<string>> format_csv(const DynList<DynList<string>> & mat)
-{
-  DynList<DynList<string>> ret;
-  for (auto row_it = mat.get_it(); row_it.has_curr(); row_it.next())
-    {
-      const DynList<string> & curr_row = row_it.get_curr();
-      const string & last = curr_row.get_last();
-      DynList<string> row;
-      for (auto it = curr_row.get_it(); it.has_curr(); it.next())
-	{
-	  const string & s = it.get_curr();
-	  if (&s == &last)
-	    row.append(s);
-	  else
-	    row.append(s + ",");
-	}
-      ret.append(row);
-    }
-
-  return ret;
-}
-
-string to_string(const DynList<DynList<string>> & mat)
-{
-  ostringstream s;
-  mat.for_each([&s] (const auto & row)
-	       {
-		 row.for_each([&s] (const string & str) { s << str; });
-		 s << endl;
-	       });
-  return s.str();
-}
+using namespace Aleph;
 
 DynList<DynList<string>>
 test_conversions(const PhysicalQuantity & pq,
@@ -237,9 +183,9 @@ int main(int argc, char *argv[])
 			      max.getValue(), epsilon.getValue(), r.get());
 
   if (csv.getValue())
-    cout << to_string(format_csv(mat)) << endl;
+    cout << to_string(format_string_csv(mat)) << endl;
   else
-    cout << to_string(format(mat)) << endl;
+    cout << to_string(format_string(mat)) << endl;
 
   return 0;
 }
