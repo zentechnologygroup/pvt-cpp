@@ -52,7 +52,7 @@ Declare_Unit(Sg, "sg",
 Declare_Conversion(Kg_m3, Gr_cm3, v) { return  v * 0.001; }
 Declare_Conversion(Kg_L, Gr_cm3, v) { return v; }
 Declare_Conversion(Lb_ft3, Gr_cm3, v) { return  v * 0.016018463374; }
-Declare_Conversion(Sg, Gr_cm3, v) { return  v * 0.9990167 ; }    
+Declare_Conversion(Sg, Gr_cm3, v) { return  v * 0.999016; }    
 Declare_Conversion(Lb_Gal, Gr_cm3, v) { return  v * 0.119826793 ; }    
 Declare_Conversion(Lb_Inch3, Gr_cm3, v) { return  v * 27.679967537 ; }    
 
