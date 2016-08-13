@@ -285,6 +285,17 @@ public:
   Unit_Convert_Fct_Ptr operator () () const noexcept { return fct_ptr; }
 };
 
+inline Unit_Convert_Fct_Ptr search_conversion(const Unit & src, const Unit & tgt)
+{
+  auto p = __unit_name_name_tbl.search(make_pair(src.name, tgt.name));
+  return p == nullptr ? nullptr : p->second;
+}
+
+inline bool exist_conversion(const Unit & src, const Unit & tgt)
+{
+  return search_conversion(src, tgt) != nullptr;
+}
+
 inline double unit_convert_name_to_name(const string & src_name,
 					double val,
 					const string & tgt_name)
@@ -1136,5 +1147,30 @@ Quantity<UnitName>::operator / (const VtlQuantity & rhs) const
 		     value/rhs.get_value());
 }
 
+inline pair<bool, DynList<string>> check_conversions(const PhysicalQuantity & pq)
+{
+  DynList<string> missing;
+  auto units = Unit::units(pq);
+  for (auto it1 = units.get_it(); it1.has_curr(); it1.next())
+    {
+      auto src_unit = it1.get_curr();
+      for (auto it2 = units.get_it(); it2.has_curr(); it2.next())
+	{
+	  auto tgt_unit = it2.get_curr();
+	  if (src_unit == tgt_unit)
+	    continue;
+	  if (not exist_conversion(*src_unit, *tgt_unit))
+	    {
+	      ostringstream s;
+	      s << "Missing conversion from " << src_unit->name << "("
+		<< src_unit->symbol << ") to " << tgt_unit->name << "("
+		<< tgt_unit->symbol << ")";
+	      missing.append(s.str());
+	    }
+	}
+    }
+
+  return make_pair(missing.is_empty(), move(missing));
+}
 
 # endif // UNITS_H

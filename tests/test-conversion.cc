@@ -43,7 +43,12 @@ void test(int argc, char *argv[])
     {
       if (verbose)
 	cout << "    " << val << " to " << u->symbol << endl;
-      cout << "    " << val << " = " << VtlQuantity(*u, val) << endl;
+      if (exist_conversion(*unit_ptr, *u))
+	cout << "    " << val << " = " << VtlQuantity(*u, val) << endl;
+      else
+	cout << "    "  << val << " = "
+	     << "WARNING: there is no conversion from " << unit_ptr->symbol
+	     << " to " << u->symbol << endl;
     }
 }
 

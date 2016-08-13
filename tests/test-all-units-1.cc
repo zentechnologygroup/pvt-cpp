@@ -206,6 +206,14 @@ int main(int argc, char *argv[])
       abort();
     }
 
+  auto p = check_conversions(*ptr);
+  if (not p.first)
+    {
+      cout << "Missing conversions: " << endl;
+      p.second.for_each([] (auto s) { cout << "    " << s << endl; });
+      abort();
+    }
+
   cout << "Seed = " << seed.getValue() << endl;
 
   auto mat = test_conversions(*ptr, ver.getValue(), nsamples.getValue(),

@@ -13,65 +13,84 @@ Declare_Physical_Quantity(Density, "rho",
 Declare_Unit(Gr_cm3, "gr/cm3",
 	     R"DESC(unit of density declared as gr (mass in gram) per cm3
                     (unit volume in cubic centimeter))DESC",
-	     Density, 0.58592, 1.04428);
+	     Density, 0.0001, 3.30);
 
 Declare_Unit(Kg_m3, "kg/m3",
 	     R"DESC(unit of density declared as kg (mass in kilogram) per m3 
                     (unit volume in cubic meter))DESC",
-	     Density, 585.92, 1044.28044);
+	     Density, 0.1, 3300);
 
 Declare_Unit(Kg_L, "kg/L",
 	     R"DESC(unit of density declared as kg (mass in kilogram ) per L
                     (unit volume in liter))DESC",
-	     Density, 585.92, 1044.28044); // TODO: mala
+	     Density, 0.0001, 3.30);
 
 Declare_Unit(Lb_ft3, "lb/ft3",
 	     R"DESC(unit of density declared as lb (mass in pound ) per ft3
                     (unit volume in cubic feet))DESC",
-	     Density, 36.52, 65192.28814); // TODO: creo que está mala dado el límite 
+	     Density, 0.006242782, 206.0117994);
+
+Declare_Unit(Lb_Gal, "lb/gal",
+	     R"DESC(unit of density declared as lb (mass in pound ) per Gal
+                    (unit volume in Gallons))DESC",
+	     Density, 0.000834538, 27.5397507);
+
+Declare_Unit(Lb_Inch3, "lb/inch3",
+	     R"DESC(unit of density declared as lb (mass in pound ) per inch3
+                    (unit volume in cubic inches))DESC",
+	     Density, 0.000003613, 0.119219793);
 
 Declare_Unit(Sg, "sg",
 	     R"DESC(Specific gravity is the ratio of the density of a substance
                     to the density of a reference substance water)DESC",
-	     Density, 0.58592, 1.04428);
+	     Density, 0.0001, 3.30);
 
 // to gramPerCubicCentimeter     
 
 Declare_Conversion(Kg_m3, Gr_cm3, v) { return 0.001*v; }
-Declare_Conversion(Kg_L, Gr_cm3, v) { return 0.001*v; } // TODO: mala
+Declare_Conversion(Kg_L, Gr_cm3, v) { return v; }
 Declare_Conversion(Lb_ft3, Gr_cm3, v) { return  v * 0.016018463374; }
-Declare_Conversion(Sg, Gr_cm3, v) { return  v * 0.9990167 ; }       
+Declare_Conversion(Sg, Gr_cm3, v) { return  v * 0.999016; }    
+Declare_Conversion(Lb_Gal, Gr_cm3, v) { return  v * 0.119826793 ; }    
+Declare_Conversion(Lb_Inch3, Gr_cm3, v) { return  v * 27.679967537 ; }    
 
 // To KilogramPerCubicMeter
 
-Declare_Conversion(Gr_cm3, Kg_m3, v) { return  v * 1000; }
-Declare_Conversion(Kg_L, Kg_m3, v) { return  v; } // TODO: mala
-Declare_Conversion(Lb_ft3, Kg_m3, v) { return  16.018499958 * v; }
-Declare_Conversion(Sg, Kg_m3, v) { return  999.039523707 * v; }
-       
-     
+Declare_Conversion(Gr_cm3, Kg_m3, v) { return v * 1000; }
+Declare_Conversion(Kg_L, Kg_m3, v) { return v * 1000; }
+Declare_Conversion(Lb_ft3, Kg_m3, v) { return v * 16.018499958; }  
+Declare_Conversion(Sg, Kg_m3, v) { return v * 999.016; }
+Declare_Conversion(Lb_Gal, Kg_m3, v) { return  119.826792768*v; } // OJO
+//Declare_Conversion(Lb_Gal, Kg_m3, v) { return  v * 119.826792768 * v; }// OJO
+Declare_Conversion(Lb_Inch3, Kg_m3, v) { return  v * 27679.967536934; }
+
 // To KilogramPerLiter  
  
-Declare_Conversion(Gr_cm3, Kg_L, v) { return  1000 * v ; }
-Declare_Conversion(Kg_m3, Kg_L, v) { return  0.001 * v ; }
-Declare_Conversion(Lb_ft3, Kg_L, v) { return  1 / 62.427818000 * v; }
-Declare_Conversion(Sg, Kg_L, v) { return  0.9990167 * v; }
-       
-            
+Declare_Conversion(Gr_cm3, Kg_L, v) { return v; }
+Declare_Conversion(Kg_m3, Kg_L, v) { return v * 0.001; }
+Declare_Conversion(Lb_ft3, Kg_L, v) { return v * 0.016018499958; }
+Declare_Conversion(Sg, Kg_L, v) { return 0.999016 * v; }
+Declare_Conversion(Lb_Gal, Kg_L, v) { return v * 0.119826792768 ; }    
+Declare_Conversion(Lb_Inch3, Kg_L, v) { return v * 27.679967537 ; }    
+
+                  
 // To Specific Gravity sg
 
-Declare_Conversion(Gr_cm3, Sg, v) { return  1e-6*v; } // TODO mala
-Declare_Conversion(Kg_m3, Sg, v) { return 0.001*v ; } // TODO mala
-Declare_Conversion(Lb_ft3, Sg, v) { return 0.01601846337*v; } // TODO: correcta pero cambio a *
-Declare_Conversion(Kg_L, Sg, v) { return 0.001*v; } // TODO
-     
-// To Specific pound Per Cubic Feet
+Declare_Conversion(Gr_cm3, Sg, v) { return  v / 0.999016; }
+Declare_Conversion(Kg_m3, Sg, v) { return  v / 999.016; }
+Declare_Conversion(Lb_ft3, Sg, v) { return v / 62.366389027; }
+Declare_Conversion(Kg_L, Sg, v) { return  v / 0.999016; }
+Declare_Conversion(Lb_Gal, Sg, v) { return  v / 8.337167147 ; }    
+Declare_Conversion(Lb_Inch3, Sg, v) { return  v / 0.036091661 ; }    
 
-Declare_Conversion(Gr_cm3, Lb_ft3, v) { return 0.06242796058*v; } // TODO: MALA
-Declare_Conversion(Kg_m3, Lb_ft3, v) { return 62.42796058*v; } 
-Declare_Conversion(Kg_L, Lb_ft3, v) { return 62.42796058*v; } 
-Declare_Conversion(Sg, Lb_ft3, v) { return 62.42796058*v; } 
+// To Pound Per Cubic Feet
 
+Declare_Conversion(Gr_cm3, Lb_ft3, v) { return  v * 62.427818000; }
+Declare_Conversion(Kg_m3, Lb_ft3, v) { return  v * 0.062427818000; }
+Declare_Conversion(Kg_L, Lb_ft3, v) { return  v * 62.427818000; }      
+Declare_Conversion(Sg, Lb_ft3, v) { return  v * 62.366389027; }
+Declare_Conversion(Lb_Gal, Lb_ft3, v) { return  v * 7.480525210; }      
+Declare_Conversion(Lb_Inch3, Lb_ft3, v) { return  v * 1727.999975642; }
 
 
 # endif // DENSITY_UNIT_H
