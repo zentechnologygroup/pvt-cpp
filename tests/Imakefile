@@ -1,5 +1,8 @@
 DEPEND = sh ./depend.sh
 
+# KLEE=/home/lrleon/klee/Release+Asserts/bin
+# CLANGCPP=/home/lrleon/LLVM-3.4.2/bin/clang++ -I$(KLEE)/include
+
 INCLUDES = -I../include -I$(ALEPHW) 
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
 	-Wno-parentheses
@@ -7,6 +10,10 @@ FLAGS = -std=c++14 $(WARN) -O0 -g
 
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
+
+# %.ccL %.bc:
+# 	$(RM) $@	; 	\	@@\
+# 	$(CLANGCPP) $(INCLUDES) $(CXXFLAGS) -emit-llvm -c -g $*.cc
 
 UNITS=../units/units.o
 

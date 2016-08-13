@@ -17,7 +17,7 @@ using namespace TCLAP;
 using namespace Aleph;
 
 DynList<DynList<string>>
-test_conversions(const PhysicalQuantity & pq,
+test_conversions(const PhysicalQuantity & pq, bool verbose,
 		 const size_t nsamples, double max, double epsilon,
 		 gsl_rng * r)
 {
@@ -27,36 +27,38 @@ test_conversions(const PhysicalQuantity & pq,
   auto units = Unit::units().filter([p = &pq] (auto u)
 				    { return &u->physical_quantity == p; });
 
+  if (verbose)
+    cout << "Generating random samples " << endl;
+
       // generate the random samples
-  auto samples = units.map<Puv>([nsamples, r, max] (auto unit_ptr)
+  auto samples = units.map<Puv>([nsamples, r, max, verbose] (auto unit_ptr)
     {
+      if (verbose)
+	cout << "    For " << unit_ptr->name << ":";
       auto min = unit_ptr->min_val;
-      auto m = std::min(max, unit_ptr->max_val);
-      if (m < min)
-	{
-	  ostringstream s;
-	  s << "max value " << m << " for unit " << unit_ptr->name
-	    << " is lesser than " << min;
-	  throw domain_error(s.str());
-	}
-      if (m <= 0)
-	{
-	  ostringstream s;
-	  s << "max value " << m << "  is lesser than 0";
-	  throw domain_error(s.str());
-	}
-      auto urange = m - min;
+      auto urange = unit_ptr->max_val - min;
+      urange = std::min(urange, max);
       DynList<double> values;
       for (size_t i = 0; i < nsamples; ++i)
 	{
 	  auto val = min + urange*gsl_rng_uniform(r);
 	  values.append(val);
+	  if (verbose)
+	    cout << " " << val;
 	}
+      if (verbose)
+	cout << endl;
+      
       return make_pair(unit_ptr, move(values));
     });
 
+  if (verbose)
+    cout << endl
+	 << "Testing " << endl
+	 << endl;
+
       // generate the rows
-  auto rows = samples.map<DynList<string>>([&units, epsilon] (Puv p)
+  auto rows = samples.map<DynList<string>>([&units, epsilon, verbose] (Puv p)
     {
       DynList<string> conversions;
       const DynList<double> & samples = p.second;
@@ -66,7 +68,11 @@ test_conversions(const PhysicalQuantity & pq,
 	  VtlQuantity q(*p.first);
 	  try
 	    {
+	      if (verbose)
+		cout << "    sample = " << val << endl;
 	      q = VtlQuantity(*p.first, val);
+	      if (verbose)
+		cout << "    Instantiated = " << q << endl;
 	    }
 	  catch (exception & e)
 	    {
@@ -82,7 +88,12 @@ test_conversions(const PhysicalQuantity & pq,
 	      VtlQuantity conv(*unit_ptr);
 	      try
 		{
+		  if (verbose)
+		    cout << "        Converting " << q << " to "
+			 << unit_ptr->symbol << endl;
 		  conv = VtlQuantity(*unit_ptr, q); // conversion
+		  if (verbose)
+		    cout << "        done = " << conv << endl;
 		}
 	      catch (exception & e)
 		{
@@ -92,7 +103,12 @@ test_conversions(const PhysicalQuantity & pq,
 		  abort();
 		}
 
+	      if (verbose)
+		cout << "        Returning to " << p.first->symbol << endl;
 	      VtlQuantity inv = { *p.first, conv };
+	      if (verbose)
+		cout << "        done = " << inv << endl
+		     << endl;
 	      if (abs(q.get_value() - inv.get_value()) > epsilon)
 		{
 		  ostringstream s;
@@ -148,8 +164,8 @@ int main(int argc, char *argv[])
 				3, "number of samples" };
   cmd.add(nsamples);
 
-  ValueArg<double> max = { "m", "max", "maximum value", false, 1000,
-			   "maximum value of physical magnitude" };
+  ValueArg<double> max = { "m", "max", "maximum range of a unit", false, 1000,
+			   "maximum range of a unit" };
   cmd.add(max);
 
   unsigned long dft_seed = time(nullptr);
@@ -174,6 +190,9 @@ int main(int argc, char *argv[])
 			  true, "", &allowed };
   cmd.add(pm);
 
+  SwitchArg ver = { "v", "verbose", "verbose mode", false };
+  cmd.add(ver);
+
   cmd.parse(argc, argv);
 
   unique_ptr<gsl_rng, decltype(gsl_rng_free)*>
@@ -187,7 +206,9 @@ int main(int argc, char *argv[])
       abort();
     }
 
-  auto mat = test_conversions(*ptr, nsamples.getValue(),
+  cout << "Seed = " << seed.getValue() << endl;
+
+  auto mat = test_conversions(*ptr, ver.getValue(), nsamples.getValue(),
 			      max.getValue(), epsilon.getValue(), r.get());
 
   if (csv.getValue())

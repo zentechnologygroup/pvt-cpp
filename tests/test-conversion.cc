@@ -18,7 +18,12 @@ void test(int argc, char *argv[])
   ValueArg<double> sample("s", "sample", "sample", true, 0, "sample");
   cmd.add(sample);
 
+  SwitchArg v("v", "verbose", "verbose mode", false);
+  cmd.add(v);
+
   cmd.parse(argc, argv);
+
+  auto verbose = v.getValue();
 
   auto unit_ptr = Unit::search_by_symbol(unit.getValue());
   if (unit_ptr == nullptr)
@@ -35,7 +40,11 @@ void test(int argc, char *argv[])
   VtlQuantity val(*unit_ptr, sample.getValue());
 
   for (auto u : Unit::units(unit_ptr->physical_quantity))
-    cout << "    " << val << " = " << VtlQuantity(*u, val) << endl;
+    {
+      if (verbose)
+	cout << "    " << val << " to " << u->symbol << endl;
+      cout << "    " << val << " = " << VtlQuantity(*u, val) << endl;
+    }
 }
 
 int main(int argc, char *argv[])

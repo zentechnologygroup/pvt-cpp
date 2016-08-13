@@ -11,3 +11,6 @@
 ## 4. programa scriptque ejecute todos los tests
 - Created at   2016-08-11 14:19:13 -0400
 
+## 5. modo verbose a test-conversion
+- Created at   2016-08-13 12:10:58 -0400
+
