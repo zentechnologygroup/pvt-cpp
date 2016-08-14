@@ -31,8 +31,6 @@ Declare_Unit(Sgw_PPM, "swppm",
 	     R"DESC(Total solid disolved in a brine
 	      measure in Part Per Million PPM)DESC", WaterSpecicGravity, 0, 317642.11170139315);
 
-
-
 //To Water Specific Gravity in lb/ft3
 Declare_Conversion( Sgw_Percent, pwl_lb_ft3, v) { return  62.366389027 + 0.438603 * v +  0.00160074 * pow( v , 2) ;}
 Declare_Conversion( Sgw_PPM, pwl_lb_ft3, v) { return   62.366389027 + 0.438603 * (v/10000) +  0.00160074 * pow( (v/10000), 2) ; }
@@ -43,8 +41,6 @@ Declare_Conversion( Sgw_sg, pwl_lb_ft3, v) { return  v * 62.366389027; }
 Declare_Conversion( Sgw_Percent, Sgw_sg, v) { return  (    62.368 + 0.438603 * v +  0.00160074 * pow(v,2)    ) / 62.366389027 ;  }
 Declare_Conversion( Sgw_PPM, Sgw_sg, v) { return (  62.366389027 + 0.438603 * (v/10000) + 0.00160074 * pow((v/10000),2)    ) / 62.366389027; }
 Declare_Conversion( pwl_lb_ft3, Sgw_sg, v) { return  v / 62.366389027;  }
-
-
 
 
 //To Water Salinity in PPM
