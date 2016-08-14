@@ -16,14 +16,21 @@
 
 using namespace std;
 
+class Unit;
+
 /** Defines a physical magnitude
 
      @author Leandro Rabindranath Leon
  */
 class PhysicalQuantity : public UnitItem
 {
+  friend class Unit;
+  
   using UnitItem::UnitItem;
+
   static UnitItemTable tbl;
+
+  DynList<const Unit * const> unit_list;
 
 protected:
 
@@ -36,6 +43,8 @@ protected:
   }
 
 public:
+
+  const DynList<const Unit * const> & units() const { return unit_list; }
 
   // Return all the defined  physical magnitudes  
   static DynList<const PhysicalQuantity * const> quantities()
@@ -83,8 +92,19 @@ public:
 /** Unit base class
 
  */
-struct Unit : public UnitItem
+class Unit : public UnitItem
 {
+  double epsilon = 1e-6;
+
+public:
+
+  double get_epsilon() const { return epsilon; }
+
+  void set_epsilon(double epsilon) const
+  {
+    const_cast<Unit*>(this)->epsilon = epsilon;
+  }
+
   const PhysicalQuantity & physical_quantity;
   const double min_val = 0;
   const double max_val = 0;
@@ -96,7 +116,8 @@ struct Unit : public UnitItem
       << "symbol            = " << symbol << endl
       << "physical quantity = " << physical_quantity.name << endl
       << "min               = " << min_val << endl
-      << "max               = " << max_val;
+      << "max               = " << max_val << endl
+      << "epsilon           = " << epsilon;
     return s.str();
   }
 
@@ -112,8 +133,17 @@ private:
 
 public:
 
+  /// return the number of units
+  static size_t size() { return unit_tbl.size(); }
+
   /// Return a list of all declared and used units
   static DynList<const Unit* const> units() { return unit_tbl.keys(); }
+
+  /// return all the units associated to this (including this)
+  const DynList<const Unit* const> & sibling_units() const
+  {
+    return physical_quantity.units();
+  }
 
   /** Search the unit associated to a name
       
@@ -141,15 +171,9 @@ public:
     return unit_ptr;
   }
 
-  static DynList<const Unit * const> units(const PhysicalQuantity & pq)
+  static const DynList<const Unit * const> & units(const PhysicalQuantity & pq)
   {
-    return unit_tbl.filter([&pq] (auto ptr)
-			   { return &ptr->physical_quantity == &pq; });
-  }
-
-  static DynList<const Unit * const> units(const string & symbol)
-  {
-    return unit_tbl.filter([&symbol] (auto ptr) { return ptr->symbol == symbol; });
+    return pq.units();
   }
 
 protected:
@@ -159,8 +183,16 @@ protected:
     : UnitItem(name, symbol, desc), physical_quantity(phy_q),
       min_val(min), max_val(max)
   {
+    if (min_val >= max_val)
+      {
+	ostringstream s;
+	s << "Unit constructor: minimum value " << min_val
+	  << " is greater than maximum value " << max_val;
+	throw domain_error(s.str());
+      }
     tbl.register_item(this);
     unit_tbl.insert(this);
+    const_cast<PhysicalQuantity&>(physical_quantity).unit_list.append(this);
   }
 };
 
@@ -476,9 +508,13 @@ protected:
     if (value >= unit.min_val and value <= unit.max_val)
       return;
 
+    if (abs(value - unit.min_val) <= unit.get_epsilon() or
+	abs(value - unit.max_val) <= unit.get_epsilon())
+      return;
+
     ostringstream s;
-    s << "Value " << value << " for unit " << unit.name
-      << " is not inside in [" << unit.min_val << ","
+    s << "Value " << value << " for unit " << unit.name << "(" << unit.symbol
+      << ") is not inside in [" << unit.min_val << ", "
       << unit.max_val << "]";
     throw range_error(s.str());
   }

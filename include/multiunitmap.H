@@ -10,7 +10,7 @@
 
 using namespace std;
 
-struct Unit;
+class Unit;
 
 class CompoundUnitTbl
 {
