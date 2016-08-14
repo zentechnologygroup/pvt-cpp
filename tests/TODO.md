@@ -20,10 +20,15 @@
 
 ## 6. test-all-units-1 y test-conversion: probar primero existan todas las conversiones y reportar las que no esten
 - Created at   2016-08-13 14:04:13 -0400
+- Completed at 2016-08-14 18:39:51 -0400
 
 ## 7. Poner una lista de unidades en PhysicalQuantity
 - Created at   2016-08-14 12:44:43 -0400
+- Completed at 2016-08-14 18:39:55 -0400
 
 ## 8. Revisar métodos De Unit que retornan Units
 - Created at   2016-08-14 13:34:54 -0400
+
+## 9. opcion all-tests que ejecute todos los test para todas la magnitude
+- Created at   2016-08-14 18:39:24 -0400
 
