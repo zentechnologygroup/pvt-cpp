@@ -4,17 +4,27 @@
 
 # include <typeinfo>
 # include <sstream>
+
+# include <ah-string-utils.H>
+
 # include <utils.H>
 # include <units.H>
 
-struct CorrelationPrecondition
+struct CorrelationPar
 {
+  const string name;
   const Unit & unit;
   const double min_val;
   const double max_val;
 
-  CorrelationPrecondition(const Unit & unit, double min, double max)
-    : unit(unit), min_val(min), max_val(max)
+  DynList<string> to_list_string() const
+  {
+    return { name, unit.symbol, to_string(min_val), to_string(max_val) };
+  }
+
+  CorrelationPar(const string & name, const Unit & unit,
+		 double min, double max)
+    : name(name), unit(unit), min_val(min), max_val(max)
   {
     ostringstream s;
     if (min_val < unit.min_val)
@@ -33,8 +43,8 @@ struct CorrelationPrecondition
       }
   }
 
-  CorrelationPrecondition(const BaseQuantity & q, double min, double max)
-    : CorrelationPrecondition(q.unit, min, max) {}    
+  CorrelationPar(const string & name, BaseQuantity & q, double min, double max)
+    : CorrelationPar(name, q.unit, min, max) {}    
 
   bool check(const BaseQuantity & val) const noexcept
   {
@@ -69,31 +79,49 @@ struct CorrelationPrecondition
 };
 
 
-struct Correlation
+class Correlation
 {
+  // parameters must be sorted in declaration order and the last one
+  // corresponds to te return valur
+  DynList<CorrelationPar> pars;
   const string name;
-  const Unit & result_unit;
-
-  mutable DynList<CorrelationPrecondition> preconditions;
   
-  Correlation(const string & name, const Unit & result_unit)
-    : name(name), result_unit(result_unit) {}
+public:
 
-  void add_precondition(const CorrelationPrecondition & precondition)
+  Correlation(const string & name, const Unit & result_unit,
+	      const double min_val, const double max_val)
+    : name(name)
   {
-    preconditions.append(precondition);
+    pars.emplace("Result", result_unit, min_val, max_val);
+  }
+
+  void add_parameter(const CorrelationPar & par)
+  {
+    pars.append(par);
   }
 
   virtual string type() const = 0;
 
   string to_string() const
   {
+    auto prows = pars.map<DynList<string>>([] (const auto & c)
+      {
+	DynList<string> ret = { "    " };
+	ret.append(c.to_list_string());
+	return ret;
+      });
+
     ostringstream s;
-    s << "Correlation " << name << " of type " << type()
-      << " with result type " << result_unit;
+    s << "Correlation " << name << " of type " << type() << endl
+      << ::to_string(format_string(prows));      
+
     return s.str();
   }
-  
+
+  friend ostream & operator << (ostream & out, const Correlation & c)
+  {
+    return out << c.to_string();
+  }
 };
 
 # define Correlation_Type() \

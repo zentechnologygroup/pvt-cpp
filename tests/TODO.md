@@ -1,34 +1,20 @@
 # TODO list
-## 1. Homologar proceso de compilacion y hacerlo independiente de la distro
-- Created at   2016-08-11 14:17:53 -0400
-- Completed at 2016-08-13 14:04:36 -0400
-
-## 2. Readme's en cada dir con instrucciones
-- Created at   2016-08-11 14:18:13 -0400
-- Completed at 2016-08-13 14:04:40 -0400
-
-## 3. escribir Imakefile de directorio raíz
-- Created at   2016-08-11 14:18:59 -0400
-- Completed at 2016-08-13 14:04:53 -0400
-
-## 4. programa scriptque ejecute todos los tests
+## 1. programa scriptque ejecute todos los tests
 - Created at   2016-08-11 14:19:13 -0400
 
-## 5. modo verbose a test-conversion
-- Created at   2016-08-13 12:10:58 -0400
-- Completed at 2016-08-13 14:05:08 -0400
-
-## 6. test-all-units-1 y test-conversion: probar primero existan todas las conversiones y reportar las que no esten
-- Created at   2016-08-13 14:04:13 -0400
-- Completed at 2016-08-14 18:39:51 -0400
-
-## 7. Poner una lista de unidades en PhysicalQuantity
-- Created at   2016-08-14 12:44:43 -0400
-- Completed at 2016-08-14 18:39:55 -0400
-
-## 8. Revisar métodos De Unit que retornan Units
+## 2. Revisar métodos De Unit que retornan Units
 - Created at   2016-08-14 13:34:54 -0400
 
-## 9. opcion all-tests que ejecute todos los test para todas la magnitude
+## 3. opcion all-tests que ejecute todos los test para todas la magnitude
 - Created at   2016-08-14 18:39:24 -0400
+
+## 4. la auditoria debe hacerse sobre los nombres
+- Created at    símbolos y extremos
+- Completed at 2016-08-14 19:42:44 -0400
+
+## 5. el test 2 debe validad nombres de símbolos y extremos
+- Created at   2016-08-14 19:43:07 -0400
+
+## 6. indagar uso de klee con c++14
+- Created at   2016-08-14 19:52:59 -0400
 

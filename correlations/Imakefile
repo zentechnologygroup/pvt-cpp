@@ -2,12 +2,9 @@ DEPEND = sh ./depend.sh
 
 PVT=/home/lrleon/pvt
 ALEPHW = $(shell echo $$ALEPHW)
-CXXPATH = $(shell echo $$CXXPATH)
 
-CC = $(CXXPATH)/bin/clang
-CXX = $(CXXPATH)/bin/clang++
+UNITS=../units/units.o
 
-UNITSLIB=../units/units.o
 INCLUDES = -I$(ALEPHW) -I$(PVT)/include
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
 FLAGS = -std=c++14 $(WARN) -O0 -g
@@ -17,15 +14,16 @@ CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
 SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lm -lc
 
-TESTSRCS = test-corr.cc
+TESTSRCS = test-corr.cc example-correlation.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
 SRCS = $(LIBSRCS) $(TESTSRCS)
 
-NormalLibraryObjectRule()
-
 AllTarget(test-corr)
-NormalProgramTarget(test-corr,$(UNITSLIB) test-corr.o,,,$(SYSLIBS))
+NormalProgramTarget(test-corr,$(UNITS) test-corr.o,,,$(SYSLIBS))
+
+AllTarget(example-correlation)
+NormalProgramTarget(example-correlation,$(UNITS) example-correlation.o,,,$(SYSLIBS))
 
 DependTarget()

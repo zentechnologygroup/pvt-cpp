@@ -69,15 +69,15 @@ Declare_Conversion(Pwl_lb_ft3, Sgw_sg, v) { return  v / 62.366389027;  }
 //To Water Salinity in PPM
 Declare_Conversion(Pwl_lb_ft3, Sgw_PPM, v)
 {
-  return (-0.4386 + sqrt(pow(0.4386, 2) - 4 * 0.00160074 * (62.366389027-v))) /
-    (2 * 0.00160074 )  * 10000 ;
+  return (-0.4386 + sqrt(pow(0.4386, 2) - 4*0.00160074*(62.366389027-v))) /
+    (2*0.00160074) * 10000 ;
 }
 
 Declare_Conversion(Sgw_sg, Sgw_PPM, v)
 {
   double n = -0.4386 +
     sqrt(pow(0.4386, 2) - 4*0.00160074*(62.366389027 -v*62.366389027));
-  return n / (2* 0.00160074)  * 10000 ;
+  return n / (2* 0.00160074) * 10000 ;
 }
 
 Declare_Conversion( Sgw_Percent, Sgw_PPM, v) { return  v * 10000  ; }    
@@ -86,7 +86,7 @@ Declare_Conversion( Sgw_Percent, Sgw_PPM, v) { return  v * 10000  ; }
 Declare_Conversion(Pwl_lb_ft3, Sgw_Percent, v)
 {
   double n = -0.4386 + sqrt(pow(0.4386, 2) - 4*0.00160074*(62.366389027 - v));
-  return n / (2 * 0.00160074);
+  return n / (2*0.00160074);
 }
 
 Declare_Conversion(Sgw_sg, Sgw_Percent, v)
@@ -94,7 +94,7 @@ Declare_Conversion(Sgw_sg, Sgw_Percent, v)
   double n = -0.4386 +
     sqrt(pow(0.4386, 2) - 4*0.00160074*(62.366389027-v*62.366389027));
 
-  return n / (2 * 0.00160074 );
+  return n / (2*0.00160074);
 }
 
 Declare_Conversion(Sgw_PPM, Sgw_Percent, v) { return v/10000; }
