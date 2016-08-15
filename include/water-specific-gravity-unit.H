@@ -1,4 +1,3 @@
-
 # ifndef WATER_SPECIFIC_GRAVITY_UNIT_H
 # define WATER_SPECIFIC_GRAVITY_UNIT_H
 
@@ -31,7 +30,7 @@ Declare_Unit(Pwl_lb_ft3, "pwl_lb/ft3",
 Declare_Unit(Sgw_Percent, "sgwPercent",
 	     R"DESC(Unit used to measure salinity of a brine
 	            in normal conditions in percentage of disolved solid)DESC",
-	     WaterSpecicGravity, 1, 1.2506);
+	     WaterSpecicGravity, 0, 31.764211170139315);
 
 Declare_Unit(Sgw_sg, "swsg",
 	     R"DESC(Specific gravity of a brine in normal conditions, it is
