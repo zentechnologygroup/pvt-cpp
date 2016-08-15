@@ -508,14 +508,19 @@ protected:
     if (value >= unit.min_val and value <= unit.max_val)
       return;
 
-    if (abs(value - unit.min_val) <= unit.get_epsilon() or
-	abs(value - unit.max_val) <= unit.get_epsilon())
+    // TODO: revisar
+    if (not (value >= unit.min_val))
+      {
+	if (abs(value - unit.min_val) <= unit.get_epsilon())
+	  return;
+      }
+    else if (abs(value - unit.max_val) <= unit.get_epsilon())
       return;
 
     ostringstream s;
     s << "Value " << value << " for unit " << unit.name << " (" << unit.symbol
       << ") is not inside in [" << unit.min_val << ", "
-      << unit.max_val << "]";
+      << unit.max_val << "] epsilon = " << unit.get_epsilon();
     throw range_error(s.str());
   }
 

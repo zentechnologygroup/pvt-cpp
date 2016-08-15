@@ -54,7 +54,7 @@ generate_row(const Unit & unit, double val, double epsilon, bool verbose)
 	}
       catch (exception & e)
 	{
-	  cout << "Error converting " << q << " to " << unit_ptr->name
+	  cout << "Error " << q << " to " << unit_ptr->name
 	       << endl
 	       << e.what() << endl;
 	  abort();
