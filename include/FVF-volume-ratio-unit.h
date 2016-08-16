@@ -1,5 +1,4 @@
 
-
 # ifndef FVF_VOLUME_RATIO_UNIT_H
 # define FVF_VOLUME_RATIO_UNIT_H
 
@@ -9,9 +8,9 @@
 Declare_Physical_Quantity(FVFvolumeRatio, "FVFV_V",
      R"DESC( this is a dimensionless ratio (volume per volume) 
      that denoted The oil formation volume factor (FVF) this
-      relates the volume of oil at stock-tank 
-      conditions to the volume of oil at elevated 
-      pressure and temperature in the reservoir. )DESC");
+     relates the volume of oil at stock-tank 
+     conditions to the volume of oil at elevated 
+     pressure and temperature in the reservoir. )DESC");
 
     
 Declare_Unit(RB_STB, "RB/STB",
