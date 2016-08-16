@@ -96,13 +96,24 @@ class Unit : public UnitItem
 {
   double epsilon = 1e-6;
 
+  static void validate_ratio(const double ratio)
+  {
+    if (not (ratio <= 0 or ratio >= 0.2))
+      return;
+
+    ostringstream s;
+    s << "epsilon ratio " << ratio << " is not inside (0, 0.2)";
+    throw domain_error(s.str());
+  }
+
 public:
 
   double get_epsilon() const { return epsilon; }
 
-  void set_epsilon(double epsilon) const
+  void set_epsilon(double ratio = 0.01) const
   {
-    const_cast<Unit*>(this)->epsilon = epsilon;
+    validate_ratio(ratio);
+    const_cast<Unit*>(this)->epsilon = ratio*(max_val - min_val);
   }
 
   const PhysicalQuantity & physical_quantity;
@@ -117,7 +128,7 @@ public:
       << "physical quantity = " << physical_quantity.name << endl
       << "min               = " << min_val << endl
       << "max               = " << max_val << endl
-      << "epsilon           = " << epsilon;
+      << "epsilon           = " << epsilon << "( " << 100*epsilon << " %";
     return s.str();
   }
 
@@ -179,7 +190,8 @@ public:
 protected:
 
   Unit(const string & name, const string & symbol, const string & desc,
-       const PhysicalQuantity & phy_q, double min, double max)
+       const PhysicalQuantity & phy_q, const double min, const double max,
+       const double epsilon_ratio = 0.01)
     : UnitItem(name, symbol, desc), physical_quantity(phy_q),
       min_val(min), max_val(max)
   {
@@ -190,6 +202,9 @@ protected:
 	  << " is greater than maximum value " << max_val;
 	throw domain_error(s.str());
       }
+
+    set_epsilon(epsilon_ratio);
+
     tbl.register_item(this);
     unit_tbl.insert(this);
     const_cast<PhysicalQuantity&>(physical_quantity).unit_list.append(this);
@@ -411,11 +426,11 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
     @param[in] min minimum value of the unit
     @param[in] max maximum value of the unit
 */
-# define Declare_Unit(__name, symbol, desc, physical_quantity, min, max) \
+# define Declare_Unit(__name, symbol, desc, physical_quantity, min, max, ...)\
   class __name : public Unit						\
   {									\
     __name() : Unit(#__name, symbol, desc,				\
-		    physical_quantity::get_instance(), min, max) {}	\
+		    physical_quantity::get_instance(), min, max __VA_ARGS__) {} \
 									\
   public:								\
 									\
