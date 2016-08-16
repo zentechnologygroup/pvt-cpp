@@ -1,4 +1,3 @@
-
 # ifndef GOR_GLR_UNIT_H
 # define GOR_GLR_UNIT_H
 
@@ -18,26 +17,26 @@ Declare_Unit(SCF_STB, "scf/STB",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
          measured in cubic feet of gas at standard conditions per 
          barrel of liquid (oil,condensate or/and water).)DESC",
-         Density, 0, 1000000000000);
+         volumeRatio, 0, 1000000000000);
 
 Declare_Unit(Mscf_STB, "Mscf/STB",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
          measured in thousand of cubic feet of gas at standard conditions per 
          barrel of liquid (oil,condensate or/and water).)DESC",
-         Density, 0, 1000000000);
+         volumeRatio, 0, 1000000000);
 
 
 Declare_Unit(MMscf_STB, "MMscf/STB",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
          measured in million of cubic feet of gas at standard conditions per 
          barrel of liquid (oil,condensate or/and water).)DESC",
-         Density, 0, 1000);
+         volumeRatio, 0, 1000);
 
 Declare_Unit(Sm3_Sm3, "Sm3/Sm3",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
          measured in metrics units, cubic meters of gas at standard conditions per 
          cubic meters of liquid (oil,condensate or/and water).)DESC",
-         Density, 0, 5643340857.78781);
+         volumeRatio, 0, 5643340857.78781);
 
 
 
