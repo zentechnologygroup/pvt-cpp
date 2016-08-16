@@ -79,23 +79,32 @@ struct CorrelationPar
 };
 
 
-class Correlation
+struct Correlation
 {
-  // parameters must be sorted in declaration order and the last one
-  // corresponds to te return value
-  const string name;
+  const string type_name;
+  const string subtype_name;
   const Unit & unit;
   const double min_val;
   const double max_val;
+
+private:
+
   DynList<CorrelationPar> pars;
   
 public:
 
-  virtual string type() const = 0;
+  virtual string correlation_name() const
+  {
+    ostringstream s;
+    s << type_name << " : " << subtype_name << " : "
+      << demangle(typeid(*this).name());
+    return s.str();
+  }
 
-  Correlation(const string & name, const Unit & result_unit,
-	      const double min_val, const double max_val)
-    : name(name), unit(result_unit), min_val(min_val), max_val(max_val) {}
+  Correlation(const string & type_name, const string & subtype_name,
+	      const Unit & result_unit, const double min_val, const double max_val)
+    : type_name(type_name), subtype_name(subtype_name),
+      unit(result_unit), min_val(min_val), max_val(max_val) {}
 
   void add_parameter(const string & name, const Unit & unit,
 		     double min, double max)
@@ -111,7 +120,7 @@ public:
       {
 	ostringstream s;
 	s << "Unit symbol " << unit_symbol << " not found for parameter "
-	  << name << " in correlation " << type();
+	  << name << " in correlation " << correlation_name();
 	throw domain_error(s.str());
       }
     
@@ -128,8 +137,7 @@ public:
       });
 
     ostringstream s;
-    s << type() << endl
-      << "  Name        = " << name << endl
+    s << correlation_name() << endl
       << "  Return type = " << unit.symbol << endl
       << "  Min result  = " << min_val << endl
       << "  Max result  = " << max_val << endl
@@ -145,29 +153,26 @@ public:
   }
 };
 
-# define Correlation_Type() \
-  virtual string type() const { return demangle(typeid(*this).name()); }
+# define Declare_Correlation_Type(type_name)	\
+  struct type_name : public Correlation		\
+  {						\
+    type_name(const string & subtype_name, const Unit & result_unit, \
+	      const double min_val, const double max_val)		\
+      : Correlation(#type_name, subtype_name, result_unit, min_val, max_val) {} \
+  };
 
-struct OilCorrelation : public Correlation
-{
-  Correlation_Type();
-  using Correlation::Correlation;
-};
+Declare_Correlation_Type(OilCorrelation);
 
+Declare_Correlation_Type(GasCorrelation);
 
-struct GasCorrelation : public Correlation
-{
-  Correlation_Type();
-  using Correlation::Correlation;
-};
+Declare_Correlation_Type(WaterCorrelation);
 
-
-struct WaterCorrelation : public Correlation
-{
-  Correlation_Type();
-  using Correlation::Correlation;
-};
-
-
+# define Declare_Correlation_Subtype(subtype_name, type_name)	\
+  struct subtype_name : public type_name			\
+  {								\
+    subtype_name(const Unit & result_unit,			\
+		 const double min_val, const double max_val)	\
+      : type_name(#subtype_name, result_unit, min_val, max_val) {}	\
+  };
 
 # endif // endl

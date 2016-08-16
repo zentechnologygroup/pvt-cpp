@@ -28,12 +28,14 @@ Declare_Unit(m3_m3, "m3/m3",
 
 // The oil formation volume factor (FVF) volume conversions 
        
-// To cubic meters at reservoir conditions per cubic meters at stock-tank conditions (m3/m3)
+// To cubic meters at reservoir conditions per cubic meters at
+// stock-tank conditions (m3/m3)
    
 Declare_Conversion(RB_STB, m3_m3, v) { return  v ; }
 
 
-// To  barrels at reservoir conditions per barrel at stock-tank conditions (RB/STB)
+// To  barrels at reservoir conditions per barrel at stock-tank
+// conditions (RB/STB)
 
 Declare_Conversion(m3_m3, RB_STB, v) { return  v ; }
 
