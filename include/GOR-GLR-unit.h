@@ -1,18 +1,17 @@
 
-
 # ifndef GOR_GLR_UNIT_H
 # define GOR_GLR_UNIT_H
 
 # include <units.H>
 
 
-Declare_Physical_Quantity(OilDensity, "rho_o",
+Declare_Physical_Quantity(volumeRatio, "V_V",
      R"DESC(The gas/oil ratio (GOR) is the ratio of the 
-            volume of gas that comes out of solution, 
-            to the volume of oil at standard conditions, The gas/liquid ratio (GLR) is the ratio of the 
-            volume of gas that comes out of solution, 
-            to the volume of liquid (usually oil+water) at standard conditions. 
-            Both are a dimensionless ratio (volume per volume))DESC");
+        volume of gas that comes out of solution, 
+        to the volume of oil at standard conditions, The gas/liquid ratio (GLR) is the ratio of the 
+        volume of gas that comes out of solution, 
+        to the volume of liquid (usually oil+water) at standard conditions. 
+        Both are a dimensionless ratio (volume per volume))DESC");
 
     
 Declare_Unit(SCF_STB, "scf/STB",
@@ -49,7 +48,6 @@ Declare_Unit(Sm3_Sm3, "Sm3/Sm3",
 Declare_Conversion(MSCF_STB, scf_STB, v) { return  v * 1000  ; }
 Declare_Conversion(MMSCF_STB, scf_STB, v) { return  v * 1000000 ; }       
 Declare_Conversion(Sm3_Sm3, scf_STB, v) { return  v * 0.1772  ; }
-
 
 
 // To thousand standard cubic feet per stock tank barrels (Mscf/STB)
