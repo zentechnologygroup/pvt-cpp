@@ -1,5 +1,5 @@
-# ifndef GOR_GLR_UNIT_H
-# define GOR_GLR_UNIT_H
+# ifndef GOR_GLR_VOLUME_RATIO_UNIT_H
+# define GOR_GLR_VOLUME_RATIO_UNIT_H
 
 # include <units.H>
 
@@ -68,4 +68,4 @@ Declare_Conversion(MSCF_STB, Sm3_Sm3, v) { return  v / 0.0001772 ; }
 Declare_Conversion(MMSCF_STB, Sm3_Sm3, v) { return  v / 0.0000001772  ; }
 
 
-# endif //  GOR_GLR_UNIT_H
+# endif //  GOR_GLR_VOLUME_RATIO_UNIT_H
