@@ -128,7 +128,7 @@ public:
       << "physical quantity = " << physical_quantity.name << endl
       << "min               = " << min_val << endl
       << "max               = " << max_val << endl
-      << "epsilon           = " << epsilon << "( " << 100*epsilon << " %";
+      << "epsilon           = " << epsilon << "( " << 100*epsilon << " %)";
     return s.str();
   }
 
@@ -415,7 +415,6 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
   return (*fct)(val);
 }
 
-// TODO: epsilon
 /** Declare a new unit
 
     @param[in] __name of unit
@@ -524,17 +523,8 @@ protected:
     if (value >= unit.min_val and value <= unit.max_val)
       return;
 
-    // TODO: revisar
-
-    cout << "Value = " << value << endl
-	 << "abs(value - unit.min_val) = " << abs(value - unit.min_val) << endl
-	 << "abs(value - unit.max_val) = " << abs(value - unit.max_val) << endl
-	 << "epsilon = " << unit.get_epsilon() << endl;
-
-    if (abs(value - unit.min_val) <= unit.get_epsilon())
-      return;
-    
-    if (abs(value - unit.max_val) <= unit.get_epsilon())
+    if (abs(value - unit.min_val) <= unit.get_epsilon() or
+	abs(value - unit.max_val) <= unit.get_epsilon())
       return;
 
     ostringstream s;

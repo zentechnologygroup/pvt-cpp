@@ -84,16 +84,16 @@ class Correlation
   // parameters must be sorted in declaration order and the last one
   // corresponds to te return valur
   DynList<CorrelationPar> pars;
-  const string name;
   
 public:
 
   Correlation(const string & name, const Unit & result_unit,
 	      const double min_val, const double max_val)
-    : name(name)
   {
-    pars.emplace("Result", result_unit, min_val, max_val);
+    pars.emplace(name, result_unit, min_val, max_val);
   }
+
+  const string & name() const { return pars.get_last().name; }
 
   void add_parameter(const CorrelationPar & par)
   {
@@ -112,8 +112,8 @@ public:
       });
 
     ostringstream s;
-    s << "Correlation " << name << " of type " << type() << endl
-      << ::to_string(format_string(prows));      
+    s << type() << endl
+      << ::to_string(format_string(prows));
 
     return s.str();
   }
