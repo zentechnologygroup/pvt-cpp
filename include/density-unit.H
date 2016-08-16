@@ -42,7 +42,7 @@ Declare_Unit(Lb_Inch3, "lb/inch3",
 Declare_Unit(Sg, "sg",
 	     R"DESC(Specific gravity is the ratio of the density of a substance
             to the density of a reference substance water)DESC",
-	     Density, 0.0001, 3.30);
+	     Density, 0.00010009849692097025, 3.303250398392018);
 
 // to gramPerCubicCentimeter     
 
@@ -96,8 +96,8 @@ Declare_Conversion( Kg_m3, Lb_Gal, v)  { return 0.0083453790 * v ; }
 Declare_Conversion( Gr_cm3, Lb_Gal, v) { return  8.3453790000 * v ; }
 Declare_Conversion( Kg_L, Lb_Gal, v) { return  8.3453790000 * v ; }
 Declare_Conversion( Lb_ft3, Lb_Gal, v) { return  0.1336804532 * v ; }
-Declare_Conversion( Sg, Lb_Gal, v) { return   8.3370336210 * v ; }
-Declare_Conversion( Lb_Inch3, Lb_Gal, v) { return   230.9998198034* v ; }
+Declare_Conversion( Sg, Lb_Gal, v) { return   8.3371671471* v ; }
+Declare_Conversion( Lb_Inch3, Lb_Gal, v) { return   230.9998198034 * v ; }
 
 
 // To Pound per cubic inches
