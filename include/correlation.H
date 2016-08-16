@@ -82,25 +82,41 @@ struct CorrelationPar
 class Correlation
 {
   // parameters must be sorted in declaration order and the last one
-  // corresponds to te return valur
+  // corresponds to te return value
+  const string name;
+  const Unit & unit;
+  const double min_val;
+  const double max_val;
   DynList<CorrelationPar> pars;
   
 public:
 
+  virtual string type() const = 0;
+
   Correlation(const string & name, const Unit & result_unit,
 	      const double min_val, const double max_val)
+    : name(name), unit(result_unit), min_val(min_val), max_val(max_val) {}
+
+  void add_parameter(const string & name, const Unit & unit,
+		     double min, double max)
   {
-    pars.emplace(name, result_unit, min_val, max_val);
+    pars.emplace(name, unit, max, min);
   }
 
-  const string & name() const { return pars.get_last().name; }
-
-  void add_parameter(const CorrelationPar & par)
+  void add_parameter(const string & name, const string & unit_symbol,
+		     double min, double max)
   {
-    pars.append(par);
+    auto unit_ptr = Unit::search_by_symbol(unit_symbol);
+    if (unit_ptr == nullptr)
+      {
+	ostringstream s;
+	s << "Unit symbol " << unit_symbol << " not found for parameter "
+	  << name << " in correlation " << type();
+	throw domain_error(s.str());
+      }
+    
+    add_parameter(name, *unit_ptr, max, min);
   }
-
-  virtual string type() const = 0;
 
   string to_string() const
   {
@@ -113,6 +129,11 @@ public:
 
     ostringstream s;
     s << type() << endl
+      << "  Name        = " << name << endl
+      << "  Return type = " << unit.symbol << endl
+      << "  Min result  = " << min_val << endl
+      << "  Max result  = " << max_val << endl
+      << "  Parametters:" << endl 
       << ::to_string(format_string(prows));
 
     return s.str();
