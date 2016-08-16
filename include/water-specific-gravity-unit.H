@@ -25,22 +25,22 @@ Declare_Physical_Quantity(WaterSpecicGravity, "Sgw",
 Declare_Unit(Pwl_lb_ft3, "pwl_lb/ft3",
 	     R"DESC(unit used to measure desity of produce water (brine) 
          in normal conditions denoted as pound per cubic feet)DESC",
-	     WaterSpecicGravity, 62.366389027, 78);
+	     WaterSpecicGravity, 62.366389027, 75);
 
 Declare_Unit(Sgw_Percent, "sgwPercent",
 	     R"DESC(Unit used to measure salinity of a brine
 	     in normal conditions in percentage of disolved solid)DESC",
-	     WaterSpecicGravity, 0, 31.764211170139315);
+	     WaterSpecicGravity, 0, 26.28319558586105);
 
 Declare_Unit(Sgw_sg, "swsg",
 	     R"DESC(Specific gravity of a brine in normal conditions, it is
          the ratio of the density of a brine to the density of a
-         pure water;)DESC", WaterSpecicGravity, 1, 1.2506);
+         pure water;)DESC", WaterSpecicGravity, 1, 1.2025708265317492);
 
 Declare_Unit(Sgw_PPM, "swppm",
 	     R"DESC(Total solid disolved in a brine
 	     measure in Part Per Million PPM)DESC",
-	     WaterSpecicGravity, 0, 317642.11170139315);
+	     WaterSpecicGravity, 0, 262831.9558586105);
 
 //To Water Specific Gravity in lb/ft3
 Declare_Conversion(Sgw_Percent, Pwl_lb_ft3, v)
