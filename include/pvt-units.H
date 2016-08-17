@@ -7,5 +7,7 @@
 # include <density-unit.H>
 # include <crude-oil-specific-gravity-unit.H>
 # include <water-specific-gravity-unit.H>
+# include <GOR-GLR-volume-ratio-unit.H>
+# include <FVF-volume-ratio-unit.H>
 
 # endif // PVT_UNITS_H

@@ -3,7 +3,6 @@
 
 # include <units.H>
 
-
 Declare_Physical_Quantity(GORGLRvolumeRatio, "GORGLR_V_V",
      R"DESC(The gas/oil ratio (GOR) is the ratio of the 
         volume of gas that comes out of solution, 
@@ -32,8 +31,8 @@ Declare_Unit(MMscf_STB, "MMscf/STB",
 
 Declare_Unit(Sm3_Sm3, "Sm3/Sm3",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
-         measured in metrics units, cubic meters of gas at standard conditions per 
-         cubic meters of liquid (oil,condensate or/and water).)DESC",
+         measured in metrics units, cubic meters of gas at standard conditions
+         per cubic meters of liquid (oil,condensate or/and water).)DESC",
          GORGLRvolumeRatio, 0, 5643340857.78781);
 
 // The gas/oil ratio (GOR) and The gas/liquid ratio (GLR) conversions 

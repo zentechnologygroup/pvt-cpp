@@ -575,6 +575,11 @@ public:
   }
 };
 
+inline double pow(const BaseQuantity & q, const double e)
+{
+  return pow(q.get_value(), e);
+}
+
 class VtlQuantity; // forward declaration
 
 /** Quantity 

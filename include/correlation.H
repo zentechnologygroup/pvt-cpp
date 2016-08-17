@@ -8,7 +8,7 @@
 # include <ah-string-utils.H>
 
 # include <utils.H>
-# include <units.H>
+# include <pvt-units.H>
 
 struct CorrelationPar
 {
@@ -78,7 +78,6 @@ struct CorrelationPar
   }
 };
 
-
 struct Correlation
 {
   const string type_name;
@@ -93,6 +92,8 @@ private:
   
 public:
 
+  const DynList<CorrelationPar> & get_pars() const noexcept { return pars; }
+
   virtual string correlation_name() const
   {
     ostringstream s;
@@ -105,6 +106,10 @@ public:
 	      const Unit & result_unit, const double min_val, const double max_val)
     : type_name(type_name), subtype_name(subtype_name),
       unit(result_unit), min_val(min_val), max_val(max_val) {}
+
+  virtual ~Correlation() = 0; // Correlation is abstract
+
+protected:
 
   void add_parameter(const string & name, const Unit & unit,
 		     double min, double max)
@@ -126,6 +131,8 @@ public:
     
     add_parameter(name, *unit_ptr, max, min);
   }
+
+public:
 
   string to_string() const
   {
@@ -153,13 +160,19 @@ public:
   }
 };
 
+inline Correlation::~Correlation() {}
+
 # define Declare_Correlation_Type(type_name)	\
   struct type_name : public Correlation		\
   {						\
     type_name(const string & subtype_name, const Unit & result_unit, \
 	      const double min_val, const double max_val)		\
       : Correlation(#type_name, subtype_name, result_unit, min_val, max_val) {} \
-  };
+    virtual ~type_name() = 0;						\
+    using Correlation::add_parameter;					\
+  };									\
+									\
+  inline type_name::~type_name() {}
 
 Declare_Correlation_Type(OilCorrelation);
 
@@ -173,6 +186,11 @@ Declare_Correlation_Type(WaterCorrelation);
     subtype_name(const Unit & result_unit,			\
 		 const double min_val, const double max_val)	\
       : type_name(#subtype_name, result_unit, min_val, max_val) {}	\
-  };
+    virtual ~subtype_name() = 0;					\
+  protected:								\
+    using type_name::add_parameter;					\
+  };									\
+									\
+  inline subtype_name::~subtype_name() {}
 
 # endif // endl
