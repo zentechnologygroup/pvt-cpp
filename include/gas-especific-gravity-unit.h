@@ -16,15 +16,15 @@ Declare_Unit(Sgg, "sgg",
 	     R"DESC(The specific gravity of a gas  dimensionless ratio (density per density))DESC", gasSpecificGravity, 0.5, 5);
 
 Declare_Unit(rhog_kg_m3_atStandCond, "kg/m3atStandCond",
-	     R"DESC(gas density at standart condition.
+	     R"DESC(gas density at standard condition.
 	     Acording to SPE: 15°C [288.15°K, 59°F] and 100 kPa.
-	     . Air density in this standart pressure and temperature 
+	     . Air density in this standard pressure and temperature 
 	     is 1.225 kg/m3)DESC", gasSpecificGravity, 0.6125, 6.125);
 
 Declare_Unit(rhog_lb_ft3_atStandCond, "lb/ft3atStandCond",
-	     R"DESC(gas density at standart condition.
+	     R"DESC(gas density at standard condition.
 	     Acording to SPE: 15°C [288.15°K, 59°F] and 100 kPa.
-	     . Air density in this standart pressure and temperature 
+	     . Air density in this standard pressure and temperature 
 	     is 0.0764740771 lb/ft3)DESC", gasSpecificGravity, 0.03823703855, 0.38237038549999997);
 
 
@@ -33,7 +33,7 @@ Declare_Unit(rhog_lb_ft3_atStandCond, "lb/ft3atStandCond",
 Declare_Conversion(rhog_kg_m3_atStandCond, Sgg, v) { return  v / 1.225 ; }
 Declare_Conversion(rhog_lb_ft3_atStandCond, Sgg, v) { return v / 0.0764740771 ; }
 
-// To gas density at standart condition
+// To gas density at standard condition
 // Acording to SPE: 15°C [288.15°K, 59°F] and 100 kPa
 // measured in kg/m3
 
@@ -41,7 +41,7 @@ Declare_Conversion(Sgg, rhog_kg_m3_atStandCond, v) { return v * 1.225; }
 Declare_Conversion(rhog_lb_ft3_atStandCond, rhog_kg_m3_atStandCond, v) { return v * 16.0184999578 ; }
 
 
-// To gas density at standart condition
+// To gas density at standard condition
 // Acording to SPE: 15°C [288.15°K, 59°F] and 100 kPa
 // measured in lb/ft3
 
