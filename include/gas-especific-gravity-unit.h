@@ -13,7 +13,10 @@ Declare_Physical_Quantity(gasSpecificGravity, "Yg",
 		[288.15°K, 59°F] and standard pressure to be 100 kPa.)DESC");
 
 Declare_Unit(Sgg, "sgg",
-	     R"DESC(The specific gravity of a gas  dimensionless ratio (density per density))DESC", gasSpecificGravity, 0.5, 5);
+	     R"DESC(it is defined as the ratio of the density of a gas,
+	     compared to the density of air in the same 
+	     pressure and temperature condition (ussualy standard condition)
+	     . it is a dimensionless ratio (density per density)DESC", gasSpecificGravity, 0.5, 5);
 
 Declare_Unit(rhog_kg_m3_atStandCond, "kg/m3atStandCond",
 	     R"DESC(gas density at standard condition.
