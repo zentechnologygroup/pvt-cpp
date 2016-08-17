@@ -18,3 +18,6 @@
 ## 6. indagar uso de klee con c++14
 - Created at   2016-08-14 19:52:59 -0400
 
+## 7. cada correlación debe ser un singleton y anotarse en tabla
+- Created at   2016-08-16 20:14:29 -0400
+

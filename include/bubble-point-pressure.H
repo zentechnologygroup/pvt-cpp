@@ -12,7 +12,10 @@ struct PbAlMarhounCorrelation : public BubblePointPressure
   PbAlMarhounCorrelation()
     : BubblePointPressure(psia::get_instance(), 130, 3573)
   {
-
+    add_parameter("yg", Sg_do::get_instance().symbol, 0.752, 1.367);
+    add_parameter("yo", Sg_do::get_instance().symbol, 0.937707, 0.803521);
+    add_parameter("rsb", SCF_STB::get_instance().symbol, 26, 1602);
+    add_parameter("temperature", Rankine::get_instance().symbol, 533.67, 699.67);
   }
 
   Quantity<psia> operator ()

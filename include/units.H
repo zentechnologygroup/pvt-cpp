@@ -441,7 +441,10 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
 									\
     __name(const __name&) = delete;					\
     void operator = (const __name&) = delete;				\
-  };
+  };									\
+									\
+  UnitConverter<__name, __name> __uc_##__name_to_##__name;		\
+  template <> double unit_convert<__name, __name>(double val) { return val; }
 
 
 # define Declare_Conversion(Unit1, Unit2, val)		\
