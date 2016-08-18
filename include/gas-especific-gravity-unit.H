@@ -3,7 +3,6 @@
 
 # include <units.H>
 
-
 Declare_Physical_Quantity(gasSpecificGravity, "Yg",
 		R"DESC(The specific gravity of a gas, γ, is the 
 		ratio of the density of the gas at standard pressure
@@ -16,7 +15,8 @@ Declare_Unit(Sgg, "sgg",
 	     R"DESC(it is defined as the ratio of the density of a gas,
 	     compared to the density of air in the same 
 	     pressure and temperature condition (ussualy standard condition)
-	     . it is a dimensionless ratio (density per density)DESC", gasSpecificGravity, 0.5, 5);
+	     . it is a dimensionless ratio (density per density)DESC",
+	     gasSpecificGravity, 0.5, 5);
 
 Declare_Unit(rhog_kg_m3_atStandCond, "kg/m3atStandCond",
 	     R"DESC(gas density at standard condition.
@@ -28,7 +28,8 @@ Declare_Unit(rhog_lb_ft3_atStandCond, "lb/ft3atStandCond",
 	     R"DESC(gas density at standard condition.
 	     Acording to SPE: 15°C [288.15°K, 59°F] and 100 kPa.
 	     . Air density in this standard pressure and temperature 
-	     is 0.0764740771 lb/ft3)DESC", gasSpecificGravity, 0.03823703855, 0.38237038549999997);
+	     is 0.0764740771 lb/ft3)DESC", gasSpecificGravity,
+	     0.03823703855, 0.38237038549999997);
 
 
 // To specific gravity of a gas
@@ -41,7 +42,8 @@ Declare_Conversion(rhog_lb_ft3_atStandCond, Sgg, v) { return v / 0.0764740771 ; 
 // measured in kg/m3
 
 Declare_Conversion(Sgg, rhog_kg_m3_atStandCond, v) { return v * 1.225; }
-Declare_Conversion(rhog_lb_ft3_atStandCond, rhog_kg_m3_atStandCond, v) { return v * 16.0184999578 ; }
+Declare_Conversion(rhog_lb_ft3_atStandCond, rhog_kg_m3_atStandCond, v)
+{ return v * 16.0184999578 ; }
 
 
 // To gas density at standard condition
@@ -49,7 +51,8 @@ Declare_Conversion(rhog_lb_ft3_atStandCond, rhog_kg_m3_atStandCond, v) { return 
 // measured in lb/ft3
 
 Declare_Conversion(Sgg, rhog_lb_ft3_atStandCond, v) { return v * 0.0764740771; }
-Declare_Conversion(rhog_kg_m3_atStandCond, rhog_lb_ft3_atStandCond, v) { return v * 0.0624278180 ; }
+Declare_Conversion(rhog_kg_m3_atStandCond, rhog_lb_ft3_atStandCond, v)
+{ return v * 0.0624278180 ; }
 
 
        

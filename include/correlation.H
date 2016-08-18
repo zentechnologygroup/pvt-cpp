@@ -58,8 +58,7 @@ struct CorrelationPar
     if (&q.unit != &unit)
       {
 	s << "Unit " << q.unit.name << " is different from " << unit.name;
-	throw domain_error(s.str());
-	
+	throw domain_error(s.str());	
       }
 
     if (q.get_value() < min_val)
@@ -82,17 +81,23 @@ struct Correlation
 {
   const string type_name;
   const string subtype_name;
+  const string name;
   const Unit & unit;
   const double min_val;
   const double max_val;
 
 private:
 
-  DynList<CorrelationPar> pars;
+  DynList<CorrelationPar> preconditions;
+
+  static DynMapTree<string, const Correlation * const> tbl;
   
 public:
 
-  const DynList<CorrelationPar> & get_pars() const noexcept { return pars; }
+  const DynList<CorrelationPar> & get_preconditions() const noexcept
+  {
+    return preconditions;
+  }
 
   virtual string correlation_name() const
   {
@@ -103,8 +108,9 @@ public:
   }
 
   Correlation(const string & type_name, const string & subtype_name,
-	      const Unit & result_unit, const double min_val, const double max_val)
-    : type_name(type_name), subtype_name(subtype_name),
+	      const string & name, const Unit & result_unit,
+	      double min_val, double max_val)
+    : type_name(type_name), subtype_name(subtype_name), name(name),
       unit(result_unit), min_val(min_val), max_val(max_val) {}
 
   virtual ~Correlation() = 0; // Correlation is abstract
@@ -114,7 +120,15 @@ protected:
   void add_parameter(const string & name, const Unit & unit,
 		     double min, double max)
   {
-    pars.emplace(name, unit, max, min);
+    if (min >= max)
+      {
+	ostringstream s;
+	s << "minimum value " << min << " is greater than maximum value " << max
+	  << " for parameter " << name;
+	throw domain_error(s.str());
+      }
+    
+    preconditions.emplace(name, unit, min, max);
   }
 
   void add_parameter(const string & name, const string & unit_symbol,
@@ -128,15 +142,15 @@ protected:
 	  << name << " in correlation " << correlation_name();
 	throw domain_error(s.str());
       }
-    
-    add_parameter(name, *unit_ptr, max, min);
+
+    add_parameter(name, *unit_ptr, min, max);
   }
 
 public:
 
   string to_string() const
   {
-    auto prows = pars.map<DynList<string>>([] (const auto & c)
+    auto prows = preconditions.map<DynList<string>>([] (const auto & c)
       {
 	DynList<string> ret = { "    " };
 	ret.append(c.to_list_string());
@@ -158,16 +172,65 @@ public:
   {
     return out << c.to_string();
   }
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> &) const = 0;
+
+  /** return a list of validated and adequately converted correlation
+      parameters
+      
+      @throw domain_error if there is an conversion error
+      @throw range_error if a parameter is out of precondition range
+  */
+  DynList<VtlQuantity>
+  verify_preconditions(const DynList<VtlQuantity> & pars) const
+  {
+    using PreIt = DynList<CorrelationPar>::Iterator;
+    using ParIt = DynList<VtlQuantity>::Iterator;
+    Pair_Iterator<PreIt, ParIt> it(preconditions.get_it(), pars.get_it());
+    DynList<VtlQuantity> ret;
+    for (size_t i = 1; it.has_curr(); it.next(), ++i)
+      {
+	auto p = it.get_curr();
+	auto precondition = p.first;
+	auto par = p.second;
+	try
+	  {
+	    VtlQuantity curr_par(par.unit, par); // conversion should be done
+	    precondition.verify(curr_par);
+	    ret.append(curr_par);
+	  }
+	catch (exception & e)
+	  {
+	    ostringstream s;
+	    s << e.what() << endl
+	      << "Processing parameter " << i;
+	    throw domain_error(s.str());
+	  }
+      }
+
+    if (not it.was_traversed())
+      {
+	ostringstream s;
+	s << "number of preconditions " << preconditions.size()
+	  << " is different than number of parameters " << pars.size();
+	throw domain_error(s.str());
+      }
+
+    return ret;
+  }
 };
 
 inline Correlation::~Correlation() {}
+//inline double Correlation::compute(const DynList<double> &) { return 0; }
 
 # define Declare_Correlation_Type(type_name)	\
   struct type_name : public Correlation		\
   {						\
-    type_name(const string & subtype_name, const Unit & result_unit, \
+    type_name(const string & subtype_name, const string & name,		\
+	      const Unit & result_unit,					\
 	      const double min_val, const double max_val)		\
-      : Correlation(#type_name, subtype_name, result_unit, min_val, max_val) {} \
+      : Correlation(#type_name, subtype_name, name, result_unit,	\
+		    min_val, max_val) {}				\
     virtual ~type_name() = 0;						\
     using Correlation::add_parameter;					\
   };									\
@@ -183,9 +246,9 @@ Declare_Correlation_Type(WaterCorrelation);
 # define Declare_Correlation_Subtype(subtype_name, type_name)	\
   struct subtype_name : public type_name			\
   {								\
-    subtype_name(const Unit & result_unit,			\
+    subtype_name(const string & name, const Unit & result_unit,	\
 		 const double min_val, const double max_val)	\
-      : type_name(#subtype_name, result_unit, min_val, max_val) {}	\
+      : type_name(#subtype_name, name, result_unit, min_val, max_val) {} \
     virtual ~subtype_name() = 0;					\
   protected:								\
     using type_name::add_parameter;					\

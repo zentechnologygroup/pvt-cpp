@@ -1,0 +1,25 @@
+DEPEND = sh ./depend.sh
+
+ALEPHW = $(shell echo $$ALEPHW)
+
+INCLUDES = -I../include -I$(ALEPHW) 
+WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
+FLAGS = -std=c++14 $(WARN) -O0 -g
+
+OPTIONS = $(FLAGS)
+CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
+
+LIBSRCS = lib-vars.cc
+LIBOBJS = $(LIBSRCS:.cc=.o)
+
+SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
+
+SRCS = $(LIBSRCS)
+
+NormalLibraryObjectRule()
+
+NormalLibraryTarget(pvt,$(LIBOBJS))
+InstallLibrary(pvt,./)
+
+
+DependTarget()

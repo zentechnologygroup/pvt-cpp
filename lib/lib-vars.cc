@@ -1,6 +1,7 @@
 
-# include <units.H>
+# include <correlation.H>
 
+// the following data is declared in units.H
 UnitItemTable PhysicalQuantity::tbl;
 
 UnitItemTable Unit::tbl;
@@ -13,3 +14,5 @@ UnitHashTbl __unit_symbol_symbol_tbl;
 CompoundUnitTbl __compound_unit_tbl;
 
 
+// the following data is declared in correlation.H
+DynMapTree<string, const Correlation * const> Correlation::tbl;

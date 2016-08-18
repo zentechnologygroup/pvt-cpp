@@ -9,5 +9,6 @@
 # include <water-specific-gravity-unit.H>
 # include <GOR-GLR-volume-ratio-unit.H>
 # include <FVF-volume-ratio-unit.H>
+# include <gas-especific-gravity-unit.H>
 
 # endif // PVT_UNITS_H

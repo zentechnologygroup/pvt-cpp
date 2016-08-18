@@ -15,20 +15,24 @@ CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 # 	$(RM) $@	; 	\	@@\
 # 	$(CLANGCPP) $(INCLUDES) $(CXXFLAGS) -emit-llvm -c -g $*.cc
 
-UNITS=../units/units.o
+#PVTOBJS=../lib/units.o
+PVTOBJS=../lib/lib-vars.o
 
 SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
 
-TESTSRCS = test-all-units-1.cc test-conversion.cc
+TESTSRCS = test-all-units-1.cc test-conversion.cc test-corr.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
 SRCS = $(TESTSRCS)
 
 AllTarget(test-conversion)
-NormalProgramTarget(test-conversion,$(UNITS) test-conversion.o,,,$(SYSLIBS))
+NormalProgramTarget(test-conversion,$(PVTOBJS) test-conversion.o,,,$(SYSLIBS))
+
+AllTarget(test-corr)
+NormalProgramTarget(test-corr,$(PVTOBJS) test-corr.o,,,$(SYSLIBS))
 
 AllTarget(test-all-units-1)
-NormalProgramTarget(test-all-units-1,$(UNITS) test-all-units-1.o,,,$(SYSLIBS))
+NormalProgramTarget(test-all-units-1,$(PVTOBJS) test-all-units-1.o,,,$(SYSLIBS))
 
 DependTarget()

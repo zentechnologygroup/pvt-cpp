@@ -21,3 +21,9 @@
 ## 7. cada correlación debe ser un singleton y anotarse en tabla
 - Created at   2016-08-16 20:14:29 -0400
 
+## 8. función virtual en Correlation que ejecute la correlación dada una lista de parámetros
+- Created at   2016-08-16 21:01:36 -0400
+
+## 9. símbolos __ N1 __to__ N2 deben ser extern y extraidos por script para lib-vars.cc
+- Created at   2016-08-17 19:21:05 -0400
+
