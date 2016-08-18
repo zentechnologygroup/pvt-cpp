@@ -9,9 +9,11 @@ FLAGS = -std=c++14 $(WARN) -O0 -g
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
-UNITS = ../lib/units.o
+SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
 
-SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
+DEPLIBS	= $(TOP)/lib/libpvt.a
+
+LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
 
 TESTSRCS = test-unititem.cc test-unit.cc example-unit.cc test-dynunit.cc \
 	test-foo.cc 
@@ -21,18 +23,18 @@ TESTOBJS = $(TESTSRCS:.cc=.o)
 SRCS = $(TESTSRCS)
 
 AllTarget(test-unititem)
-NormalProgramTarget(test-unititem,test-unititem.o,,,$(SYSLIBS))
+NormalProgramTarget(test-unititem,test-unititem.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(test-dynunit)
-NormalProgramTarget(test-dynunit,$(UNITS) test-dynunit.o,,,$(SYSLIBS))
+NormalProgramTarget(test-dynunit,../lib/pvt.o test-dynunit.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(test-unit)
-NormalProgramTarget(test-unit,$(UNITS) test-unit.o,,,$(SYSLIBS))
+NormalProgramTarget(test-unit,../lib/pvt.o test-unit.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(example-unit)
-NormalProgramTarget(example-unit,$(UNITS) example-unit.o,,,$(SYSLIBS))
+NormalProgramTarget(example-unit,example-unit.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(test-foo)
-NormalProgramTarget(test-foo,$(UNITS) test-foo.o,,,$(SYSLIBS))
+NormalProgramTarget(test-foo,test-foo.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()

@@ -15,10 +15,12 @@ CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 # 	$(RM) $@	; 	\	@@\
 # 	$(CLANGCPP) $(INCLUDES) $(CXXFLAGS) -emit-llvm -c -g $*.cc
 
-#PVTOBJS=../lib/units.o
-PVTOBJS=../lib/lib-vars.o
 
-SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
+SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
+
+DEPLIBS	= $(TOP)/lib/libpvt.a
+
+LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
 
 TESTSRCS = test-all-units-1.cc test-conversion.cc test-corr.cc
 
@@ -27,12 +29,12 @@ TESTOBJS = $(TESTSRCS:.cc=.o)
 SRCS = $(TESTSRCS)
 
 AllTarget(test-conversion)
-NormalProgramTarget(test-conversion,$(PVTOBJS) test-conversion.o,,,$(SYSLIBS))
+NormalProgramTarget(test-conversion,test-conversion.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(test-corr)
-NormalProgramTarget(test-corr,$(PVTOBJS) test-corr.o,,,$(SYSLIBS))
+NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(test-all-units-1)
-NormalProgramTarget(test-all-units-1,$(PVTOBJS) test-all-units-1.o,,,$(SYSLIBS))
+NormalProgramTarget(test-all-units-1,test-all-units-1.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()

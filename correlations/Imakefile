@@ -12,7 +12,11 @@ FLAGS = -std=c++14 $(WARN) -O0 -g
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
-SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lm -lc
+SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
+
+DEPLIBS	= $(TOP)/lib/libpvt.a
+
+LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
 
 TESTSRCS = test-corr.cc example-correlation.cc
 
@@ -21,9 +25,9 @@ TESTOBJS = $(TESTSRCS:.cc=.o)
 SRCS = $(LIBSRCS) $(TESTSRCS)
 
 AllTarget(test-corr)
-NormalProgramTarget(test-corr,$(UNITS) test-corr.o,,,$(SYSLIBS))
+NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(example-correlation)
-NormalProgramTarget(example-correlation,$(UNITS) example-correlation.o,,,$(SYSLIBS))
+NormalProgramTarget(example-correlation,example-correlation.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()

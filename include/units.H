@@ -443,17 +443,13 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
     void operator = (const __name&) = delete;				\
   };									\
 									\
-  UnitConverter<__name, __name> __uc__##__name##__to__##__name;	/*
-
-
-
-								 */	\
+  extern UnitConverter<__name, __name> __uc__##__name##__to__##__name;	\
   template <> inline double unit_convert<__name, __name>(double val)	\
   { return val; }
 
 
 # define Declare_Conversion(Unit1, Unit2, val)		    \
-  UnitConverter<Unit1, Unit2> __uc__##Unit1##__to__##Unit2;		\
+  extern UnitConverter<Unit1, Unit2> __uc__##Unit1##__to__##Unit2;	\
   template <> inline double unit_convert<Unit1, Unit2>(double val)
 
 /** Declare a compound unit; that is a unit composed by two units

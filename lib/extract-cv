@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+def usage
+  puts '', 'usage:'
+end
+
+if ARGV.empty?
+  usage
+  exit
+end
+
+file_name = ARGV.shift
+
+lines = `grep "UnitConverter.*__uc__" "#{file_name}"`.split("\n")
+
+lines.each do |line|
+  r = line.match(/UnitConverter<.*,.*> __uc__.*__to__[^;.]*;/)
+  puts r[0]
+end

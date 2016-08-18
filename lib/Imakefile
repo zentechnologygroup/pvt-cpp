@@ -10,11 +10,19 @@ OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
 LIBSRCS = lib-vars.cc
-LIBOBJS = $(LIBSRCS:.cc=.o)
-
-SYSLIBS = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
+LIBOBJS = pvt.o
 
 SRCS = $(LIBSRCS)
+
+pvt.cc: lib-vars.cc
+	$(RM) -f $@;					\	@@\
+	$(CPP) $(CXXFLAGS) lib-vars.cc > $*.tmp;	\	@@\
+	cat lib-vars.cc > $@;				\	@@\
+	./extract-cv $*.tmp >> $@;			\	@@\
+	$(RM) $*.tmp
+
+clean::
+	$(RM) -f pvt.cc
 
 NormalLibraryObjectRule()
 
