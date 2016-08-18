@@ -11,9 +11,9 @@ CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
 SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
 
-DEPLIBS	= $(TOP)/lib/libpvt.a
+DEPLIBS	=
 
-LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
+LOCAL_LIBRARIES = 
 
 TESTSRCS = test-unititem.cc test-unit.cc example-unit.cc test-dynunit.cc \
 	test-foo.cc 
@@ -21,20 +21,38 @@ TESTSRCS = test-unititem.cc test-unit.cc example-unit.cc test-dynunit.cc \
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
 SRCS = $(TESTSRCS)
+OBJS = $(TOP)/lib/pvt.o $(SRCS:.cc=.o)
+
+
+ALEPHW = $(shell echo $$ALEPHW)
+
+
+EXTRACT_CV = $(TOP)/bin/extract-cv
+
+dynunits.cc: test-dynunit.cc $(TOP)/lib/lib-vars.cc
+	$(RM) -f $@;					\	@@\
+	$(CPP) $(CXXFLAGS) test-dynunit.cc > $*.tmp;	\	@@\
+	cat $(TOP)/lib/lib-vars.cc > $@;		\	@@\
+	cat test-dynunit.cc >> $@;			\	@@\
+	$(EXTRACT_CV) $*.tmp >> $@;			\	@@\
+	$(RM) $*.tmp
+
+clean::
+	$(RM) dynunits.cc
 
 AllTarget(test-unititem)
-NormalProgramTarget(test-unititem,test-unititem.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+NormalProgramTarget(test-unititem,test-unititem.o,,,$(SYS_LIBRARIES))
 
 AllTarget(test-dynunit)
-NormalProgramTarget(test-dynunit,../lib/pvt.o test-dynunit.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+NormalProgramTarget(test-dynunit,dynunits.o,,,$(SYS_LIBRARIES))
 
 AllTarget(test-unit)
-NormalProgramTarget(test-unit,../lib/pvt.o test-unit.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+NormalProgramTarget(test-unit,$(TOP)/lib/pvt.o test-unit.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(example-unit)
-NormalProgramTarget(example-unit,example-unit.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+NormalProgramTarget(example-unit,$(TOP)/lib/pvt.o example-unit.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(test-foo)
-NormalProgramTarget(test-foo,test-foo.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+NormalProgramTarget(test-foo,$(TOP)/lib/pvt.o test-foo.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()

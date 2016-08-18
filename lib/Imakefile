@@ -10,24 +10,25 @@ OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
 LIBSRCS = lib-vars.cc
-LIBOBJS = pvt.o
 
 SRCS = $(LIBSRCS)
+OBJS = pvt.o
 
-pvt.cc: lib-vars.cc
+EXTRACT_CV = $(TOP)/bin/extract-cv
+
+pvt.cc: lib-vars.cc 
 	$(RM) -f $@;					\	@@\
 	$(CPP) $(CXXFLAGS) lib-vars.cc > $*.tmp;	\	@@\
 	cat lib-vars.cc > $@;				\	@@\
-	./extract-cv $*.tmp >> $@;			\	@@\
+	$(EXTRACT_CV) $*.tmp >> $@;			\	@@\
 	$(RM) $*.tmp
+
+pvt.o: pvt.cc ../include/pvt-correlations.H
 
 clean::
 	$(RM) -f pvt.cc
 
 NormalLibraryObjectRule()
-
-NormalLibraryTarget(pvt,$(LIBOBJS))
+NormalLibraryTarget(pvt,$(OBJS))
 InstallLibrary(pvt,./)
-
-
 DependTarget()

@@ -107,15 +107,27 @@ public:
     return s.str();
   }
 
+  static DynList<const Correlation * const> list() { return tbl.values(); }
+
+protected:
+
   Correlation(const string & type_name, const string & subtype_name,
 	      const string & name, const Unit & result_unit,
 	      double min_val, double max_val)
     : type_name(type_name), subtype_name(subtype_name), name(name),
-      unit(result_unit), min_val(min_val), max_val(max_val) {}
+      unit(result_unit), min_val(min_val), max_val(max_val)
+  {
+    if (tbl.has(name))
+      {
+	ostringstream s;
+	s << "Correlation::Correlation: duplicated correlation name" << name;
+	throw domain_error(s.str());
+      }
+
+    tbl.insert(name, this);
+  }
 
   virtual ~Correlation() = 0; // Correlation is abstract
-
-protected:
 
   void add_parameter(const string & name, const Unit & unit,
 		     double min, double max)
@@ -214,6 +226,20 @@ public:
 	s << "number of preconditions " << preconditions.size()
 	  << " is different than number of parameters " << pars.size();
 	throw domain_error(s.str());
+      }
+
+    return ret;
+  }
+
+  VtlQuantity verify_result(const VtlQuantity & result) const
+  {
+    VtlQuantity ret = result;
+    if (ret.get_value()  < min_val or ret.get_value() > max_val)
+      {
+	ostringstream s;
+	s << "Return value is out of range [" << min_val << ", "
+	  << max_val << "]";
+	throw range_error(s.str());
       }
 
     return ret;

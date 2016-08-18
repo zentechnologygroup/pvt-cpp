@@ -2,8 +2,6 @@
 # define IHaveSubdirs
 # define PassCDebugFlags
 
-ALEPHW = $(shell echo $$ALEPHW)
-
 SUBDIRS = lib units correlations tests
 
 MakeSubdirs($(SUBDIRS))

@@ -6,41 +6,44 @@
 
 Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
 
-# define Declare_Correlation(__name, subtype_name, ret_unit, min_ret, max_ret) \
-  struct __name : public subtype_name					\
-  {									\
-									\
-    static const __name & get_instance()				\
-    {									\
-      static __name instance;						\
-      return instance;							\
-    }									\
-									\
-  private:								\
-									\
-    __name() : PhysicalQuantity(#__name, symbol, desc) {}		\
-									\
+
+# define Correlation_Singleton(name)					\
   public:								\
 									\
-    __name(const __name&) = delete;					\
-    void operator = (const __name&) = delete;				\
-  };
+  static const name & get_instance()					\
+  {									\
+    static name instance;						\
+    return instance;							\
+  }									\
+									\
+  name(const name&) = delete;						\
+  void operator = (const name&) = delete;				\
+  									\
+private:
 
+template <class Corr> 
+inline void instantiate_correlation()
+{
+  auto i = Corr::get_instance();
+};
+
+# define Instantiate_Correlation(name)		\
+  extern 
+ 
 class PbAlMarhounCorrelation : public BubblePointPressure
 {
+  Correlation_Singleton(PbAlMarhounCorrelation);
+
   Quantity<psia> compute(const Quantity<Sgg> & yg,     // gas specific gravity 
 			 const Quantity<Sg_do> & yo,    // oil specific gravity 
 			 const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
 			 const Quantity<Rankine> & temperature) const 
   {
-    double r = 0.00538088 * pow(rsb, 0.715082) * pow(yg, -1.87784);
-    r *= pow(yo.get_value(), 1437);
-    r += pow(temperature, 1.32657);
+    double r = 0.00538088 * pow(rsb, 0.715082) * pow(yg, -1.87784) *
+      pow(yo, 1437) * pow(temperature, 1.32657);
 
     return Quantity<psia>(r);
   }
-
-public:
 
   PbAlMarhounCorrelation()
     : BubblePointPressure("BubblePointPressure", psia::get_instance(), 130, 3573)
@@ -51,26 +54,36 @@ public:
     add_parameter("temperature", Rankine::get_instance().symbol, 533.67, 699.67);
   }
 
+public:
+
   virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
   {
     auto pars = verify_preconditions(__pars);
+    
     auto it = pars.get_it();
     const auto & yg = it.get_curr(); it.next();
     const auto & yp = it.get_curr(); it.next();
     const auto & rsb = it.get_curr(); it.next();
     const auto & temperature = it.get_curr();
-    return compute(yg, yp, rsb, temperature);
+
+    auto ret = compute(yg, yp, rsb, temperature);
+
+    return verify_result(ret);
   }
 
-  Quantity<psia> operator ()
+  Quantity<psia> operator () 
   (const Quantity<Sgg> & yg,               // gas specific gravity 
    const Quantity<Sg_do> & yo,             // oil specific gravity 
    const Quantity<SCF_STB> & rsb,          // Solution GOR at Pb
-   const Quantity<Rankine> & temperature)
+   const Quantity<Rankine> & temperature) const
   {
     return compute({yg, yo, rsb, temperature});
   }
 };
+
+
+// TODO: encontrar la manera de que el singleton tenga una
+// referencia. Tal vez con punero 
 
 
 # endif // BUBBLE_POINT_PRESSURE_H
