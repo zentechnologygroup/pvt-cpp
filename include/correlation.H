@@ -282,4 +282,20 @@ Declare_Correlation_Type(WaterCorrelation);
 									\
   inline subtype_name::~subtype_name() {}
 
+
+# define Correlation_Singleton(name)					\
+  public:								\
+									\
+  static const name & get_instance()					\
+  {									\
+    static name instance;						\
+    return instance;							\
+  }									\
+									\
+  name(const name&) = delete;						\
+  void operator = (const name&) = delete;				\
+  									\
+private:
+
+
 # endif // endl

@@ -6,29 +6,6 @@
 
 Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
 
-
-# define Correlation_Singleton(name)					\
-  public:								\
-									\
-  static const name & get_instance()					\
-  {									\
-    static name instance;						\
-    return instance;							\
-  }									\
-									\
-  name(const name&) = delete;						\
-  void operator = (const name&) = delete;				\
-  									\
-private:
-
-template <class Corr> 
-inline void instantiate_correlation()
-{
-  auto i = Corr::get_instance();
-};
-
-# define Instantiate_Correlation(name)		\
-  extern 
  
 class PbAlMarhounCorrelation : public BubblePointPressure
 {
