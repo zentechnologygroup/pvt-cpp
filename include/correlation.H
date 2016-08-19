@@ -70,7 +70,7 @@ struct CorrelationPar
 
     if (q.get_value() > max_val)
       {
-	s << "Value " << q.get_value() << " is greater than the minimum value "
+	s << "Value " << q << " is greater than the maximum value "
 	  << max_val << " for precondition ";
 	throw range_error(s.str());
       }
@@ -89,6 +89,7 @@ struct Correlation
 private:
 
   DynList<CorrelationPar> preconditions;
+  size_t n = 0;
 
   static DynMapTree<string, const Correlation * const> tbl;
   
@@ -99,6 +100,14 @@ public:
     return preconditions;
   }
 
+  DynList<const Unit *> get_par_types() const
+  {
+    return preconditions.map<const Unit *>([] (const auto & par)
+						 { return &par.unit; });
+  }
+
+  size_t get_num_pars() const noexcept { return n; }
+
   virtual string correlation_name() const
   {
     ostringstream s;
@@ -108,6 +117,12 @@ public:
   }
 
   static DynList<const Correlation * const> list() { return tbl.values(); }
+
+  static const Correlation * search_by_name(const string & name)
+  {
+    auto ptr = tbl.search(name);
+    return ptr != nullptr ? ptr->second : nullptr;
+  }
 
 protected:
 
@@ -141,6 +156,12 @@ protected:
       }
     
     preconditions.emplace(name, unit, min, max);
+    ++n;
+  }
+
+  void add_parameter(const string & name, const Unit & unit)
+  {
+    preconditions.emplace(name, unit, unit.min_val, unit.max_val);
   }
 
   void add_parameter(const string & name, const string & unit_symbol,
@@ -215,7 +236,8 @@ public:
 	  {
 	    ostringstream s;
 	    s << e.what() << endl
-	      << "Processing parameter " << i;
+	      << "Processing parameter " << i << " ("
+	      << preconditions.nth(i - 1).name << ")";
 	    throw domain_error(s.str());
 	  }
       }
@@ -237,8 +259,11 @@ public:
     if (ret.get_value()  < min_val or ret.get_value() > max_val)
       {
 	ostringstream s;
-	s << "Return value is out of range [" << min_val << ", "
-	  << max_val << "]";
+	s << "Correlation return value " << ret.get_value() << " "
+	  << ret.unit.symbol << " is out of range ["
+	  << min_val << ", " << max_val << "]" << endl
+	  << "Error was detected while converting from " << result
+	  << " to " << ret.unit.symbol;
 	throw range_error(s.str());
       }
 

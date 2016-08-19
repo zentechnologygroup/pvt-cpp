@@ -50,6 +50,7 @@ void test(int argc, char *argv[])
 	     << "WARNING: there is no conversion from " << unit_ptr->symbol
 	     << " to " << u->symbol << endl;
     }
+  cout << endl;
 }
 
 int main(int argc, char *argv[])

@@ -7,7 +7,10 @@ struct CorrelationInstantiater
 {
   CorrelationInstantiater()
   {
-    PbAlMarhounCorrelation::get_instance();
+    PbAlMarhoun::get_instance();
+    PbAlShammasi::get_instance();
+    PbDeGhettoEHOil::get_instance();
+    PbDindorukChristman::get_instance();
   }
 };
 

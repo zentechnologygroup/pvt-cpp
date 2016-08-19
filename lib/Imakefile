@@ -23,10 +23,12 @@ pvt.cc: lib-vars.cc
 	$(EXTRACT_CV) $*.tmp >> $@;			\	@@\
 	$(RM) $*.tmp
 
-pvt.o: pvt.cc ../include/pvt-correlations.H
+pvt.o: pvt.cc ../include/pvt-correlations.H ../include/correlation.H
 
 clean::
 	$(RM) -f pvt.cc
+
+lib-vars.o: ../include/correlation.H ../include/bubble-point-pressure.H
 
 NormalLibraryObjectRule()
 NormalLibraryTarget(pvt,$(OBJS))
