@@ -239,10 +239,15 @@ class PbDindorukChristman : public BubblePointPressure
     constexpr double a10 = 1.370508349;
     constexpr double a11 = 0.011688308;
 
-    double div = a5 + pow(2*rsb, a6) / pow(yg, a7);
-    double a = (pow(a1*temperature, a2) + pow(a3*api, a4)) / div*div;
+    const double n =
+      a1*pow(temperature.get_value(), a2) + a3*pow(api.get_value(), a4);
+    
+    const double div = a5 + 2*pow(rsb.get_value(), a6) / pow(yg, a7);
+    const double d = div*div;
 
-    double pb = a8 + (pow(rsb, a9) * pow(10, a) / pow(yg, a10)) + a11;
+    const double a = n/d;
+
+    double pb = a8 * (pow(rsb.get_value(), a9) * pow(10, a) / pow(yg, a10) + a11);
 
     return Quantity<psia>(pb);
   }
