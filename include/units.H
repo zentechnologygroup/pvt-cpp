@@ -102,7 +102,7 @@ class Unit : public UnitItem
       return;
 
     ostringstream s;
-    s << "epsilon ratio " << ratio << " is not inside (0, 0.2)";
+    s << "epsilon ratio " << ratio << " is not inside (0, " << ratio << ")";
     throw domain_error(s.str());
   }
 
