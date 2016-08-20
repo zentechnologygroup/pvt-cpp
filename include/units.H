@@ -930,7 +930,7 @@ public:
   VtlQuantity(const VtlQuantity & q) noexcept : BaseQuantity(q.unit, q.value) {}
 
   VtlQuantity(const string & unit_name, const VtlQuantity & q)
-    : BaseQuantity(*Unit::search_by_name(unit_name), q.get_value())
+    : BaseQuantity(unit_given_name(unit_name), q.get_value())
   {
     if (&unit == &q.unit)
       value = q.value;

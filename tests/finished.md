@@ -40,3 +40,9 @@
 - Comment      
 - Finished     
 
+## 8. función virtual en Correlation que ejecute la correlación dada una lista de parámetros
+- Created at   2016-08-16 21:01:36 -0400
+- Completed at 
+- Comment      
+- Finished     
+

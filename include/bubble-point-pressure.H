@@ -50,9 +50,7 @@ public:
     const auto & rsb = it.get_curr(); it.next();
     const auto & temperature = it.get_curr();
 
-    auto ret = compute(yg, yo, rsb, temperature);
-
-    return verify_result(ret);
+    return compute(yg, yo, rsb, temperature);
   }
 
   Quantity<psia> operator () 
@@ -116,9 +114,7 @@ public:
     const auto & rsb = it.get_curr(); it.next();
     const auto & temperature = it.get_curr();
 
-    auto ret = compute(yg, yp, rsb, temperature);
-
-    return verify_result(ret);
+    return compute(yg, yp, rsb, temperature);
   }
 
   Quantity<psia> operator () 
@@ -168,6 +164,75 @@ class PbDeGhettoEHOil : public BubblePointPressure
 			 const Quantity<Api> & api,    // oil specific gravity 
 			 const Quantity<Fahrenheit> & temperature) const 
   {
+    const double n = 10.7025*pow(rsb.get_value()/yg.get_value(), 1.0/1.1128);
+    const double d =
+      pow(10, 0.0169*api.get_value() - 0.00156*temperature.get_value()); 
+    const double ret  = n/d;
+
+    return Quantity<psia>(ret);
+  }
+
+public:
+
+  Quantity<psia> operator () (const Quantity<Sgg> & yg, 
+			      const Quantity<SCF_STB> & rsb,
+			      const Quantity<Api> & api,    
+			      const Quantity<Fahrenheit> & temperature) const 
+  {
+    return compute({yg, rsb, api, temperature});
+  }
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+    
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); it.next();
+    const auto & api = it.get_curr(); it.next();
+    const auto & temperature = it.get_curr();
+
+    return compute(yg, rsb, api, temperature);
+  }
+};
+
+
+/** DE GHETTO CORRELATION FOR HEAVY OILS (MODIFIED STANDING
+    CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE 
+
+    Based on 1200 measured data points from 65 heavy and extra-heavy
+    oil samples. Oil samples have been divided in two different API
+    gravity classes: extra-heavy oils for °API<=10, heavy oils for
+    10<°API<=22.3. 
+        
+    @see: Giambattista De Ghetto, Francesco Paone and Marco
+    Villa. "Pressure-Volume-Temperature. Correlations for Heavy and
+    Extra Heavy Oils," SPE 3 0316, 1995.  
+
+    @see: M.B. Standing. "A Pressure-Volume-Temperature Correlation
+    for Mixtures of California Oil and Gases", Drill. & Prod. Prac.,
+    Beal C. The Viscosity-Temperature Chart 0361-39 Nat. Bur. Stds
+    Circular C461-1947". 
+ */
+class PbDeGhettoHOil : public BubblePointPressure
+{
+   Correlation_Singleton(PbDeGhettoHOil);
+
+  PbDeGhettoHOil()
+    : BubblePointPressure("PbDeGhettoHOil", psia::get_instance(),
+			  208.86, 4021.96)
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.623, 1.517);
+    add_parameter("rsb", SCF_STB::get_instance(), 17.21, 640.25);
+    add_parameter("api", Api::get_instance(), 6, 22.3);
+    add_parameter("temperature", Fahrenheit::get_instance(), 131.4, 250.7);
+  }
+
+  Quantity<psia> compute(const Quantity<Sgg> & yg,     // gas specific gravity 
+			 const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
+			 const Quantity<Api> & api,    // oil specific gravity 
+			 const Quantity<Fahrenheit> & temperature) const 
+  {
     double factor = pow(rsb.get_value()/yg.get_value(), 0.7885) *
       (pow(10, 0.0020*temperature.get_value()) / pow(10, 0.0142*api.get_value()));
 
@@ -194,9 +259,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & temperature = it.get_curr();
 
-    auto ret = compute(yg, rsb, api, temperature);
-
-    return verify_result(ret);
+    return compute(yg, rsb, api, temperature);
   }
 };
 
@@ -259,9 +322,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & temperature = it.get_curr();
 
-    auto ret = compute(yg, rsb, api, temperature);
-
-    return verify_result(ret);
+    return compute(yg, rsb, api, temperature);
   }
 
   Quantity<psia> operator () 
@@ -271,6 +332,65 @@ public:
    const Quantity<Fahrenheit> & temperature) const
   {
     return compute({yg, rsb, api, temperature});
+  }
+};
+
+
+/** DOKLA & OSMAN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE 
+        
+    Based on 51 bottomhole samples from UAE reservoirs.
+        
+    @see: Dokla, M.E., and Osman, M.E.: "Correlation of PVT Properties
+    for UAE Crudes". Trans AIME, 1992, 293, 41-46. 
+ */
+class PbDoklaOsman : public BubblePointPressure
+{
+   Correlation_Singleton(PbDoklaOsman);
+
+  PbDoklaOsman()
+    : BubblePointPressure("PbDoklaOsman", psia::get_instance(), 590, // 4640
+			  6000
+			  )
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.798, 1.290);
+    add_parameter("rsb", SCF_STB::get_instance(), 181, 2266);
+    add_parameter("yo", Sg_do::get_instance(), 0.8236, 0.886);
+    add_parameter("temperature", Rankine::get_instance(), 649.67, 734.67);
+  }
+
+  Quantity<psia> compute(const Quantity<Sgg> & yg,     // gas specific gravity 
+			 const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
+			 const Quantity<Sg_do> & yo,    // oil specific gravity 
+			 const Quantity<Rankine> & temperature) const 
+  {
+    const double pb = 8363.86 * pow(yg, -1.01049) * pow(yo, 0.107991) *
+      pow(temperature, -0.952584) * pow(rsb, 0.724047);
+
+    return Quantity<psia>(pb);
+  }
+
+public:
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+    
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); it.next();
+    const auto & yo = it.get_curr(); it.next();
+    const auto & temperature = it.get_curr();
+
+    return compute(yg, rsb, yo, temperature);
+  }
+
+  Quantity<psia> operator () 
+  (const Quantity<Sgg> & yg,               // gas specific gravity 
+   const Quantity<SCF_STB> & rsb,          // Solution GOR at Pb
+   const Quantity<Sg_do> & yo,             // oil specific gravity 
+   const Quantity<Rankine> & temperature) const
+  {
+    return compute({yg, rsb, yo, temperature});
   }
 };
 
