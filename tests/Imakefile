@@ -6,7 +6,9 @@ DEPEND = sh ./depend.sh
 INCLUDES = -I../include -I$(ALEPHW) 
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
 	-Wno-parentheses
-FLAGS = -std=c++14 $(WARN) -O0 -g
+
+#FLAGS = -std=c++14 $(WARN) -O0 -g
+FLAGS = -std=c++14 $(WARN) -Ofast -DNDEBUG
 
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)

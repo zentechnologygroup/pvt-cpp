@@ -10,36 +10,43 @@
 using namespace TCLAP;
 
 DynList<DynList<double>>
-generate_samples(const DynList<CorrelationPar> & pars, double ratio)
+generate_pars_values(const Correlation * const corr_ptr, size_t n)
 {
-  auto steps = pars.map<double>([ratio] (auto par)
-				{
-				  return (par.max_val - par.min_val)*ratio;
-				});
-  auto samples =
-    zip(pars.map<const CorrelationPar*>([] (const auto & par) { return &par; }),
-	steps).map<DynList<double>>([] (auto p)
-    {
-      auto par = p.first;
-      auto step = p.second;
-      DynList<double> ret;
-      for (double val = par->min_val; val <= par->max_val; val += step)
-	ret.append(val);
-      return ret;
-    });
-
-  return comb(samples);
+  return corr_ptr->get_preconditions().map<DynList<double>>([n] (const auto & par)
+      {
+	const double s = (par.max_val - par.min_val)/n;
+	DynList<double> ret;
+	for (double v = par.min_val; v <= par.max_val; v += s)
+	  ret.append(v);
+	return ret;
+      });
 }
 
-void full_test(const Correlation * const corr_ptr, double step, bool verbose)
+struct Samples_Fct
 {
-  if (step <= 0 or step >= 1)
-    {
-      cout << "step " << step << " is not inside (0, 1) " << endl;
-      abort();
-    }
+  DynList<DynList<double>> ret;
+  const Correlation * const corr_ptr;
   
-  auto samples = generate_samples(corr_ptr->get_preconditions(), step);
+  Samples_Fct(const Correlation * const corr_ptr) : corr_ptr(corr_ptr) {}
+
+  void operator () (const DynList<double> & pars)
+  {
+    ret.append(pars);
+  }
+};
+
+DynList<DynList<double>>
+generate_samples(const Correlation * const corr_ptr, size_t n)
+{
+  Samples_Fct samples_fct = corr_ptr;
+  comb_op(generate_pars_values(corr_ptr, n), samples_fct);
+
+  return move(samples_fct.ret);
+}
+
+void full_test(const Correlation * const corr_ptr, size_t n, bool verbose)
+{
+  auto samples = generate_samples(corr_ptr, n);
   auto results = samples.map<double>([corr_ptr, verbose] (auto sample)
     {
       if (verbose)
@@ -95,33 +102,56 @@ void full_test(const Correlation * const corr_ptr, double step, bool verbose)
 using P = pair<double, DynList<double>>;
 using T = pair<P, P>;
 
-T find_extremes(const Correlation * const corr_ptr, double step)
+struct Find_Extremes
 {
-  if (step <= 0 or step >= 1)
-    {
-      cout << "step " << step << " is not inside (0, 1) " << endl;
-      abort();
-    }
+  const Correlation * const corr_ptr = nullptr;
+  double min_val = numeric_limits<double>::max();
+  DynList<double> min_pars;
+  double max_val = numeric_limits<double>::min();
+  DynList<double> max_pars;
+  bool verbose = false;
   
-  T init = make_pair(make_pair(numeric_limits<double>::max(), DynList<double>()),
-		     make_pair(numeric_limits<double>::min(), DynList<double>()));
-  
-  auto samples = generate_samples(corr_ptr->get_preconditions(), step);
+  Find_Extremes(const Correlation * const ptr, bool verbose)
+    : corr_ptr(ptr), verbose(verbose) {}
 
-  return samples.foldl<T>(init, [corr_ptr] (auto a, auto s)
-    {
-      auto r = corr_ptr->compute(s);
+  void operator () (const DynList<double> & pars) 
+  {
+    auto r = corr_ptr->compute(pars);
+    if (r < min_val)
+      {
+	if (verbose)
+	  cout << "New min at " << corr_ptr->call_string(pars) << " = "
+	       << r << " " << corr_ptr->unit.symbol << endl;
+	min_val = r;
+	min_pars = pars;
+      }
+    if (r > max_val)
+      {
+	if (verbose)
+	  cout << "New max at " << corr_ptr->call_string(pars) << " = "
+	       << r << " " << corr_ptr->unit.symbol<< endl;
+	max_val = r;
+	max_pars = pars;
+      }
+  }
+};
 
-      T ret = a;
-      
-      if (r < a.first.first)
-	ret.first = make_pair(r, s);
+T find_extremes(const Correlation * const corr_ptr, size_t n, bool verbose)
+{
+  auto samples =
+    corr_ptr->get_preconditions().map<DynList<double>>([n] (const auto & par)
+      {
+	const double s = (par.max_val - par.min_val)/n;
+	DynList<double> ret;
+	for (double v = par.min_val; v <= par.max_val; v += s)
+	  ret.append(v);
+	return ret;
+      });
+  Find_Extremes finder = { corr_ptr, verbose };
+  comb_op(samples, finder);
 
-      if (r > a.second.first)
-	ret.second = make_pair(r, s);
-
-      return ret;
-    });
+  return make_pair(make_pair(finder.min_val, finder.min_pars),
+		   make_pair(finder.max_val, finder.max_pars));
 } 
 
 void test(int argc, char *argv[])
@@ -132,7 +162,7 @@ void test(int argc, char *argv[])
   Correlation::list().for_each([&correlations] (auto p)
 			       { correlations.push_back(p->name); });
   ValuesConstraint<string> allowed = correlations;
-  ValueArg<string> correlation = { "c", "correlation", "correlation name",
+  ValueArg<string> correlation = { "C", "correlation", "correlation name",
 				   true, "", &allowed};
   cmd.add(correlation);
 
@@ -142,13 +172,17 @@ void test(int argc, char *argv[])
   SwitchArg full = { "f", "full", "full test", false };
   cmd.add(full);
 
-  ValueArg<double> step = { "s", "step", "step in full test", false,
-			    0.1, "step" };
-  cmd.add(step);
+  ValueArg<size_t> n = { "n", "num-samples",
+			 "number of samples by parameter", false, 10,
+			 "number of samples" };
+  cmd.add(n);
 
   UnlabeledMultiArg<double> pars = { "pars", "correlation parameter values",
 				     false, "values" };
   cmd.add(pars);
+
+  SwitchArg extremes = { "x", "extremes", "compute extremes", false };
+  cmd.add(extremes);
 
   SwitchArg verbose = { "v", "verbose", "verbose mode", false };
   cmd.add(verbose);
@@ -167,9 +201,23 @@ void test(int argc, char *argv[])
     cout << *correlation_ptr << endl
 	 << endl;
 
+  if (extremes.getValue())
+    {
+      auto vals =
+	find_extremes(correlation_ptr, n.getValue(), verbose.getValue());
+      cout << "min at " << correlation_ptr->call_string(vals.first.second)
+	   << " = " << vals.first.first << " " << correlation_ptr->unit.symbol
+	   <<endl
+	   << "max at " << correlation_ptr->call_string(vals.second.second)
+	   << " = " << vals.second.first << " " << correlation_ptr->unit.symbol
+	   << endl
+	   << endl;
+      return;
+    }
+
   if (full.getValue())
     {
-      full_test(correlation_ptr, step.getValue(), verbose.getValue());
+      full_test(correlation_ptr, n.getValue(), verbose.getValue());
       return;
     }
 

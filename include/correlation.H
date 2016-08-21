@@ -252,9 +252,9 @@ public:
 
   virtual VtlQuantity compute(const DynList<VtlQuantity> &) const = 0;
 
-  double compute_and_check(const DynList<double> & pars) const
+  VtlQuantity compute_and_check(const DynList<VtlQuantity> & pars) const
   {
-    return verify_result(compute(pars)).get_value();
+    return verify_result(compute(pars));
   }
 
   double compute(const DynList<double> & values) const
@@ -268,7 +268,12 @@ public:
 	return VtlQuantity(*p.first, p.second);
       });
 
-    return compute_and_check(pars);
+    return compute(pars).get_value();
+  }
+
+  double compute_and_check(const DynList<double> & pars) const
+  {
+    return verify_result(VtlQuantity(unit, compute(pars))).get_value();
   }
 
   /** return a list of validated and adequately converted correlation
