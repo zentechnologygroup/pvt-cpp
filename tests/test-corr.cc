@@ -12,7 +12,8 @@ using namespace TCLAP;
 DynList<DynList<double>>
 generate_pars_values(const Correlation * const corr_ptr, size_t n)
 {
-  return corr_ptr->get_preconditions().map<DynList<double>>([n] (const auto & par)
+  return
+    corr_ptr->get_preconditions().map<DynList<double>>([n] (const auto & par)
       {
 	const double s = (par.max_val - par.min_val)/n;
 	DynList<double> ret;
@@ -29,9 +30,10 @@ struct Samples_Fct
   
   Samples_Fct(const Correlation * const corr_ptr) : corr_ptr(corr_ptr) {}
 
-  void operator () (const DynList<double> & pars)
+  bool operator () (const DynList<double> & pars)
   {
     ret.append(pars);
+    return true;
   }
 };
 
@@ -39,7 +41,7 @@ DynList<DynList<double>>
 generate_samples(const Correlation * const corr_ptr, size_t n)
 {
   Samples_Fct samples_fct = corr_ptr;
-  comb_op(generate_pars_values(corr_ptr, n), samples_fct);
+  traverse_perm(generate_pars_values(corr_ptr, n), samples_fct);
 
   return move(samples_fct.ret);
 }
@@ -114,7 +116,7 @@ struct Find_Extremes
   Find_Extremes(const Correlation * const ptr, bool verbose)
     : corr_ptr(ptr), verbose(verbose) {}
 
-  void operator () (const DynList<double> & pars) 
+  bool operator () (const DynList<double> & pars) 
   {
     auto r = corr_ptr->compute(pars);
     if (r < min_val)
@@ -133,6 +135,7 @@ struct Find_Extremes
 	max_val = r;
 	max_pars = pars;
       }
+    return true;
   }
 };
 
@@ -148,7 +151,7 @@ T find_extremes(const Correlation * const corr_ptr, size_t n, bool verbose)
 	return ret;
       });
   Find_Extremes finder = { corr_ptr, verbose };
-  comb_op(samples, finder);
+  traverse_perm(samples, finder);
 
   return make_pair(make_pair(finder.min_val, finder.min_pars),
 		   make_pair(finder.max_val, finder.max_pars));
