@@ -12,7 +12,10 @@ struct CorrelationInstantiater
     PbDeGhettoEHOil::get_instance();
     PbDeGhettoHOil::get_instance();
     PbDindorukChristman::get_instance();
-    PbDoklaOsman::get_instance(); 
+    PbDoklaOsman::get_instance();
+    PbHanafy::get_instance();
+    PbKartoatmodjoSchmidt::get_instance();
+    PbLasater::get_instance();
   }
 };
 

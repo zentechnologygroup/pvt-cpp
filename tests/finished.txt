@@ -1,0 +1,8 @@
+Programar test general de conversion para cualquier unidad,2016-08-11 14:17:22 -0400,2016-08-11 16:36:14 -0400,,2016-08-11 16:36:23 -0400
+Homologar proceso de compilacion y hacerlo independiente de la distro,2016-08-11 14:17:53 -0400,2016-08-13 14:04:36 -0400,,2016-08-15 09:18:06 -0400
+Readme's en cada dir con instrucciones,2016-08-11 14:18:13 -0400,2016-08-13 14:04:40 -0400,,2016-08-15 09:18:14 -0400
+escribir Imakefile de directorio raíz,2016-08-11 14:18:59 -0400,2016-08-13 14:04:53 -0400,,2016-08-15 09:18:16 -0400
+modo verbose a test-conversion,2016-08-13 12:10:58 -0400,2016-08-13 14:05:08 -0400,,2016-08-15 09:18:24 -0400
+test-all-units-1 y test-conversion: probar primero existan todas las conversiones y reportar las que no esten,2016-08-13 14:04:13 -0400,2016-08-14 18:39:51 -0400,,2016-08-15 09:18:33 -0400
+Poner una lista de unidades en PhysicalQuantity,2016-08-14 12:44:43 -0400,2016-08-14 18:39:55 -0400,,2016-08-15 09:18:46 -0400
+función virtual en Correlation que ejecute la correlación dada una lista de parámetros,2016-08-16 21:01:36 -0400,,,2016-08-20 13:38:06 -0400

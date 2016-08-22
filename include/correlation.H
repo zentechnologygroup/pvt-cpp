@@ -397,4 +397,5 @@ Declare_Correlation_Type(WaterCorrelation);
 private:
 
 
-# endif // endl
+
+# endif // CORRELATION_H

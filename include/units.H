@@ -98,7 +98,7 @@ class Unit : public UnitItem
 
   static void validate_ratio(const double ratio)
   {
-    if (not (ratio <= 0 or ratio >= 0.2))
+    if (not (ratio <= 0 or ratio > 0.3))
       return;
 
     ostringstream s;
@@ -191,7 +191,7 @@ protected:
 
   Unit(const string & name, const string & symbol, const string & desc,
        const PhysicalQuantity & phy_q, const double min, const double max,
-       const double epsilon_ratio = 0.01)
+       const double epsilon_ratio = 0.05)
     : UnitItem(name, symbol, desc), physical_quantity(phy_q),
       min_val(min), max_val(max)
   {
@@ -425,11 +425,11 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
     @param[in] min minimum value of the unit
     @param[in] max maximum value of the unit
 */
-# define Declare_Unit(__name, symbol, desc, physical_quantity, min, max, ...)\
+# define Declare_Unit(__name, symbol, desc, physical_quantity, min, max)\
   class __name : public Unit						\
   {									\
     __name() : Unit(#__name, symbol, desc,				\
-		    physical_quantity::get_instance(), min, max __VA_ARGS__) {} \
+		    physical_quantity::get_instance(), min, max) {}	\
 									\
   public:								\
 									\

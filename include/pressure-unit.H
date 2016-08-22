@@ -29,7 +29,8 @@ Declare_Unit(psia, "psia",
 	     R"DESC(Pounds per square inch absolute (psia) is used to make
 	            it clear that the pressure is relative to a vacuum rather than
 	            the ambient atmospheric pressure. Since atmospheric pressure 
-	            at sea level is around 14.7 psi)DESC", Pressure, 0, 29985.3); 
+	            at sea level is around 14.7 psi)DESC", Pressure,
+	     0, 29985.3);  
 
 Declare_Unit(psig, "psig",
 	     R"DESC(Pound-force per square inch is a unit of pressure or of

@@ -29,3 +29,12 @@
 ## 9. Cambiar referencia contsnate a Unit por un puntero constante
 - Created at   2016-08-20 13:37:31 -0400
 
+## 10. modificar Declare_Unit para que reciba obligatoriamemnte la precisión
+- Created at   2016-08-21 22:26:57 -0400
+
+## 11. TODO.txt
+- Created at   2016-08-21 22:28:37 -0400
+
+## 12. opción -p print ara test-conversion
+- Created at   2016-08-21 22:32:15 -0400
+

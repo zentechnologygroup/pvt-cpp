@@ -23,7 +23,7 @@ pvt.cc: lib-vars.cc
 	$(EXTRACT_CV) $*.tmp >> $@;			\	@@\
 	$(RM) $*.tmp
 
-pvt.o: pvt.cc ../include/pvt-correlations.H ../include/correlation.H ../include/bubble-point-pressure.H
+pvt.o: pvt.cc ../include/pvt-correlations.H ../include/correlation.H ../include/bubble-point-pressure.H ../include/units.H
 
 clean::
 	$(RM) -f pvt.cc

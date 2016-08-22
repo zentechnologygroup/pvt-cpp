@@ -17,7 +17,8 @@ generate_pars_values(const Correlation * const corr_ptr, size_t n)
       {
 	const double s = (par.max_val - par.min_val)/n;
 	DynList<double> ret;
-	for (double v = par.min_val; v <= par.max_val; v += s)
+	double v = par.min_val;
+	for (size_t i = 0; i < n; v += s, ++i)
 	  ret.append(v);
 	return ret;
       });
