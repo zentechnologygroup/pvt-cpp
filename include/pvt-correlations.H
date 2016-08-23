@@ -18,6 +18,12 @@ struct CorrelationInstantiater
     PbLasater::get_instance();
     PbPetroskyFarshad::get_instance();
     PbStanding::get_instance();
+    PbTotalCFP::get_instance();
+    PbVasquezBeggs::get_instance();
+    PbVelarde::get_instance();
+    PbCegarra::get_instance();
+    PbPerezML::get_instance();
+    PbMillanArcia::get_instance();
   }
 };
 

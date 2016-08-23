@@ -202,6 +202,11 @@ protected:
     tbl.insert(name, this);
   }
 
+  Correlation(const string & type_name, const string & subtype_name,
+	      const string & name, const Unit & result_unit)
+    : Correlation(type_name, subtype_name, name, result_unit,
+		  result_unit.min_val, result_unit.max_val) {}
+
   virtual ~Correlation() = 0; // Correlation is abstract
 
   void add_parameter(const string & name, const Unit & unit,
@@ -221,7 +226,7 @@ protected:
 
   void add_parameter(const string & name, const Unit & unit)
   {
-    preconditions.emplace(name, unit, unit.min_val, unit.max_val);
+    add_parameter(name, unit, unit.min_val, unit.max_val);
   }
 
   void add_parameter(const string & name, const string & unit_symbol,
@@ -390,6 +395,9 @@ Declare_Correlation_Type(WaterCorrelation);
     subtype_name(const string & name, const Unit & result_unit,	\
 		 const double min_val, const double max_val)	\
       : type_name(#subtype_name, name, result_unit, min_val, max_val) {} \
+									\
+    subtype_name(const string & name, const Unit & unit)		\
+      : type_name(#subtype_name, name, unit, unit.min_val, unit.max_val) {} \
     virtual ~subtype_name() = 0;					\
   protected:								\
     using type_name::add_parameter;					\

@@ -47,7 +47,7 @@ generate_samples(const Correlation * const corr_ptr, size_t n)
   return move(samples_fct.ret);
 }
 
-void full_test(const Correlation * const corr_ptr, size_t n, bool verbose)
+void full_mat(const Correlation * const corr_ptr, size_t n, bool verbose)
 {
   auto samples = generate_samples(corr_ptr, n);
   auto results = samples.map<double>([corr_ptr, verbose] (auto sample)
@@ -100,6 +100,35 @@ void full_test(const Correlation * const corr_ptr, size_t n, bool verbose)
   mat.insert(header);
 
   cout << to_string(format_string(mat)) << endl;
+}
+
+void mat_csv(const Correlation * const corr_ptr, size_t n, bool ignore_exception)
+{
+      // header
+  corr_ptr->get_preconditions().for_each([] (auto pre)
+    {
+      cout << pre.name << "(" << pre.unit.symbol << "), ";
+    });
+  cout << corr_ptr->name << "(" << corr_ptr->unit.name << ")" << endl;
+
+  auto pars = generate_pars_values(corr_ptr, n);
+  traverse_perm(pars, [corr_ptr, ignore_exception] (const auto & s)
+    {
+      try
+	{
+	  s.for_each([] (auto v) { cout << v << ", "; });
+	  auto r = corr_ptr->compute(s);
+	  cout << r << endl;
+	}
+      catch (...)
+	{
+	  if (ignore_exception)
+	    cout << "NA" << endl;
+	  else
+	    throw;
+	}
+      return true;
+    });
 }
 
 using P = pair<double, DynList<double>>;
@@ -173,8 +202,11 @@ void test(int argc, char *argv[])
   SwitchArg print = { "p", "print", "print correlation information", false };
   cmd.add(print);
 
-  SwitchArg full = { "f", "full", "full test", false };
-  cmd.add(full);
+  SwitchArg mat = { "f", "mattrix", "generate matrix", false };
+  cmd.add(mat);
+
+  SwitchArg csv = { "c", "csv", "generate csv", false };
+  cmd.add(csv);
 
   ValueArg<size_t> n = { "n", "num-samples",
 			 "number of samples by parameter", false, 10,
@@ -195,6 +227,12 @@ void test(int argc, char *argv[])
   cmd.add(python);
 
   cmd.parse(argc, argv);
+
+  if (mat.getValue() and csv.getValue())
+    {
+      cout << "Error: options -c and -f cannot be together" << endl;
+      abort();
+    }
 
   auto correlation_ptr = Correlation::search_by_name(correlation.getValue());
   if (correlation_ptr == nullptr)
@@ -222,9 +260,15 @@ void test(int argc, char *argv[])
       return;
     }
 
-  if (full.getValue())
+  if (csv.getValue())
     {
-      full_test(correlation_ptr, n.getValue(), verbose.getValue());
+      mat_csv(correlation_ptr, n.getValue(), verbose.getValue());
+      return;
+    }
+
+  if (mat.getValue())
+    {
+      full_mat(correlation_ptr, n.getValue(), verbose.getValue());
       return;
     }
 

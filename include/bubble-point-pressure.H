@@ -64,6 +64,7 @@ public:
   }
 };
 
+/*****************************************************************/
 
 /** AL-SHAMMASI CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE
 
@@ -131,6 +132,7 @@ public:
   }
 };
 
+/*****************************************************************/
 
 /**  DE GHETTO CORRELATION FOR EXTRA HEAVY OILS, CALCULATION OF BUBBLE
      POINT PRESSURE
@@ -201,6 +203,7 @@ public:
   }
 };
 
+/*****************************************************************/
 
 /** DE GHETTO CORRELATION FOR HEAVY OILS (MODIFIED STANDING
     CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE 
@@ -269,6 +272,8 @@ public:
     return compute(yg, rsb, api, t);
   }
 };
+
+/*****************************************************************/
 
 /**  DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE   
 
@@ -348,6 +353,7 @@ public:
   }
 };
 
+/*****************************************************************/
 
 /** DOKLA & OSMAN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE 
         
@@ -406,6 +412,8 @@ public:
   }
 };
 
+/*****************************************************************/
+
 /**  HANAFY CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE   
         
      Based on experimental PVT data of 324 fluid samples taken from
@@ -459,6 +467,8 @@ public:
     return compute({rsb});
   }
 };
+
+/*****************************************************************/
 
 /** KARTOATMODJO & SCHMIDT CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE   
 
@@ -557,6 +567,8 @@ public:
   }
 };
 
+/*****************************************************************/
+
 /** LASATER CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE  
         
     Based on 158 experimentally measured bubble point pressures of 137
@@ -635,6 +647,8 @@ public:
   }
 };
 
+/*****************************************************************/
+
 /** PETROSKY & FARSHAD CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE   
         
     Based on 81 laboratory PVT analyses.
@@ -699,6 +713,8 @@ public:
     return compute({yg, rsb, api, t});
   }
 };
+
+/*****************************************************************/
 
 /** STANDING CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE 
     
@@ -765,6 +781,473 @@ public:
   }
 };
 
+/*****************************************************************/
+
+/** TOTAL CFP CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE  
+        
+    @see: TOTAL Compagnie Francaise Des Petroles CFP: " Proyectos de
+    Inyección de Fluidos Correlaciones PVT para Crudos del Oriente de
+    Venezuela" S.A. MENEVEN Sep. 1983. 
+
+    @see: C. Bánzer. "Correlaciones Numéricas P.V.T.", Universidad del
+    Zulia, 1996. 
+
+    VALIDADA CON PYTHON!
+ */
+class PbTotalCFP : public BubblePointPressure
+{
+  Correlation_Singleton(PbTotalCFP);
+
+  PbTotalCFP()
+    : BubblePointPressure("PbTotalCFP", psia::get_instance())
+  {
+    add_parameter("yg", Sgg::get_instance());
+    add_parameter("rsb", SCF_STB::get_instance());
+    add_parameter("api", Api::get_instance(), Api::get_instance().min_val, 45);
+    add_parameter("t", Fahrenheit::get_instance());
+  }
+
+  Quantity<psia> compute(const Quantity<Sgg> & yg,
+			 const Quantity<SCF_STB> & rsb,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t) const
+  {
+    double c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+
+    auto raw_api = api.get_value();
+    if (raw_api <= 10)
+      {
+	c1 = 12.847;
+	c2 = 0.9636;
+	c3 = 0.000993;
+	c4 = 0.03417;
+      }
+    else if (raw_api <= 35)
+      {
+	c1 = 25.2755;
+	c2 = 0.7617;
+	c3 = 0.000835;
+	c4 = 0.011292;
+      }
+    else
+      {
+	c1 = 216.4711;
+	c2 = 0.6922;
+	c3 = -0.000427;
+	c4 = 0.02314;
+      }
+
+    const double pb = c1 * pow(rsb.get_value()/yg.get_value(), c2) *
+      pow(10, (c3*t.get_value()) - (c4*raw_api));
+
+    return Quantity<psia>(pb);
+  }
+
+public:
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); it.next();
+    const auto & api = it.get_curr(); it.next();
+    const auto & t = it.get_curr(); 
+
+    return compute(yg, rsb, api, t);
+  }
+
+  Quantity<psia> operator () (const Quantity<Sgg> & yg,
+			      const Quantity<SCF_STB> & rsb,
+			      const Quantity<Api> & api,
+			      const Quantity<Fahrenheit> & t) const
+  {
+    return compute({yg, rsb, api, t});
+  }
+};
+
+/*****************************************************************/
+
+/** VASQUEZ & BEGGS CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE   
+
+    Based on more than 600 laboratory PVT analyses from fields all over the world.
+    
+    @see: M.E. Vasquez and H.D. Beggs. "Correlations for Fluid
+    Physical Property Prediction," JPT 968-70, June 1980.  
+
+    @see: H.B. Bradley. "Petroleum Engineering Handbook", Society of
+    Petroleum Engineers, Richardson TX, U.S.A., 1987. 
+
+    VALIDADA CON PYTHON!
+*/
+class PbVasquezBeggs : public BubblePointPressure
+{
+  Correlation_Singleton(PbVasquezBeggs);
+
+  PbVasquezBeggs()
+    : BubblePointPressure("PbVasquezBeggs", psia::get_instance(), 50, 5250)
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.56, 1.18);
+    add_parameter("rsb", SCF_STB::get_instance(), 20, 2070);
+    add_parameter("api", Api::get_instance(), 16, 58);
+    add_parameter("t", Fahrenheit::get_instance(), 70, 295);
+    add_parameter("tsep", Fahrenheit::get_instance());
+    add_parameter("pset", psia::get_instance());
+  }
+
+  Quantity<psia> compute(const Quantity<Sgg> & yg,
+			 const Quantity<SCF_STB> & rsb,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t,
+			 const Quantity<Fahrenheit> & tsep,
+			 const Quantity<psia> & psep) const
+  {
+    double c1 = 0, c2 = 0, c3 = 0;
+
+    auto raw_api = api.get_value();
+    if (raw_api <= 30)
+      {
+	c1 = 0.0362;
+	c2 = 1.0937;
+	c3 = 25.724;
+      }
+    else 
+      {
+	c1 = 0.0178;
+	c2 = 1.187;
+	c3 = 23.931;
+      }
+
+    const double ygs = yg.get_value() * (1 + 5.912e-05 * raw_api *
+					 tsep.get_value() *
+					 log10(psep.get_value()/114.7));
+
+    const double pb_aux = rsb.get_value() /
+      (c1*ygs*exp((c3*raw_api) / (t.get_value() + 460)));
+
+    const double pb = pow(pb_aux, 1/c2);
+
+    return Quantity<psia>(pb);
+  }
+
+public:
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); it.next();
+    const auto & api = it.get_curr(); it.next();
+    const auto & t = it.get_curr(); it.next();
+    const auto & tsep = it.get_curr(); it.next();
+    const auto & psep = it.get_curr();
+
+    return compute(yg, rsb, api, t, tsep, psep);
+  }
+
+  Quantity<psia> operator () (const Quantity<Sgg> & yg,
+			      const Quantity<SCF_STB> & rsb,
+			      const Quantity<Api> & api,
+			      const Quantity<Fahrenheit> & t,
+			      const Quantity<Fahrenheit> & tsep,
+			      const Quantity<psia> & psep) const
+  {
+    return compute({yg, rsb, api, t, tsep, psep});
+  }
+};
+
+/*****************************************************************/
+
+/** VELARDE CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE  
+
+    Based on 728 laboratory measured bubble point pressures.
+        
+    @see:J. Velarde, T.A. Blasingame and W.D. McCain, Jr. "Correlation
+    of Black Oil Properties at Pressures Below Bubble Point Pressure -
+    A New Approach," The Petroleum Society 97-93, 1997.  
+
+    VALIDADA CON PYTHON!
+ */
+class PbVelarde : public BubblePointPressure
+{
+  Correlation_Singleton(PbVelarde);
+
+  PbVelarde()
+    : BubblePointPressure("PbVelarde", psia::get_instance(), 70, 6700)
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.556, 1.367);
+    add_parameter("rsb", SCF_STB::get_instance(), 10, 1870);
+    add_parameter("api", Api::get_instance(), 12, 55);
+    add_parameter("t", Fahrenheit::get_instance(), 74, 327);
+  }
+
+  Quantity<psia> compute(const Quantity<Sgg> & yg,
+			 const Quantity<SCF_STB> & rsb,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t) const
+  {
+    const double x = 0.013098 * pow(t, 0.282372) - 8.2e-06 * pow(api, 2.176124);
+
+    const double pb = 1091.47 *
+      pow((pow(rsb, 0.081465) * pow(yg, -0.161488) * pow(10, x) - 0.740152),
+	  5.354891);
+
+    return Quantity<psia>(pb);
+  }
+
+public:
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); it.next();
+    const auto & api = it.get_curr(); it.next();
+    const auto & t = it.get_curr();
+
+    return compute(yg, rsb, api, t);
+  }
+
+  Quantity<psia> operator () (const Quantity<Sgg> & yg,
+			      const Quantity<SCF_STB> & rsb,
+			      const Quantity<Api> & api,
+			      const Quantity<Fahrenheit> & t) const
+  {
+    return compute({yg, rsb, api, t});
+  }
+};
+
+/*****************************************************************/
+
+/** STANDING CORRELATION MODIFIED BY CEGARRA, CALCULATION OF BUBBLE
+    POINT PRESSURE
+
+    Based on 375 consistent PVT analyses. The data bank was compiled
+    from 8394 fields of eastern Venezuela subdivided into 5192 fields
+    of light oil and 3202 fields of medium oil. The correlation takes
+    the functional form of Standing. 
+        
+    @see: Cegarra, L., 2007: "Correlación para el cálculo de la
+    presión de burbuja de los yacimientos de crudo liviano y mediano
+    del Oriente de Venezuela". Trabajo especial de grado. Universidad
+    del Zulia  
+
+    @see: M.B. Standing. "A Pressure-Volume-Temperature Correlation
+    for Mixtures of California Oil and Gases , " Drill. &
+    Prod. Prac.,Beal C. The Viscosity-Temperature Chart 0361-39
+    Nat. Bur . Stds Circular C461-1947". 
+
+    VALIDADA CON PYTHON!
+ */
+class PbCegarra : public BubblePointPressure
+{
+  Correlation_Singleton(PbCegarra);
+
+  PbCegarra()
+    : BubblePointPressure("PbCegarra", psia::get_instance(), 735, 7303)
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.654, 1.337);
+    add_parameter("rsb", SCF_STB::get_instance(), 135, 4290);
+    add_parameter("api", Api::get_instance(), 22, 41.9);
+    add_parameter("t", Fahrenheit::get_instance(), 117, 354);
+  }
+
+  Quantity<psia> compute(const Quantity<Sgg> & yg,
+			 const Quantity<SCF_STB> & rsb,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t) const
+  {
+    const double raw_api = api.get_value();
+
+    double l1 = 0, l2 = 0, l3 = 0, l4 = 0, l5 = 0;
+    if (raw_api < 29.9)
+      {
+	l1 = 154.158;
+	l2 = 0.4577;
+	l3 = 0.0006680;
+	l4 = 0.000514;
+	l5 = 4.70257;
+      }
+    else if (raw_api >= 29.9)
+      {
+	l1 = 809.238;
+	l2 = 0.32;
+	l3 = 0.00061;
+	l4 = 0.011;
+	l5 = 1.1142;
+      }
+
+    const double pb = l1 * (pow((rsb.get_value()/yg.get_value()), l2) *
+			    pow(10, l3*t.get_value() - l4*raw_api) - l5);
+
+    return Quantity<psia>(pb);
+  }
+
+public:
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); it.next();
+    const auto & api = it.get_curr(); it.next();
+    const auto & t = it.get_curr();
+
+    return compute(yg, rsb, api, t);
+  }
+
+  Quantity<psia> operator () (const Quantity<Sgg> & yg,
+			      const Quantity<SCF_STB> & rsb,
+			      const Quantity<Api> & api,
+			      const Quantity<Fahrenheit> & t) const
+  {
+    return compute({yg, rsb, api, t});
+  }
+};
+
+/*****************************************************************/
+
+/** MILLÁN-ARCIA CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE  
+
+    Venezuelan heavy crudes were correlated.
+        
+    @see: E.A. Millán-Arcia, 1984: Correlaciones para estimar el
+    comportamiento PVT de crudos pesados venezolanos. I Jornadas
+    Técnicas Corpoven 
+
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los
+    Teques, Octubre de 2001 
+
+    VALIDADA CON PYTHON!
+ */ 
+class PbPerezML : public BubblePointPressure
+{
+  Correlation_Singleton(PbPerezML);
+
+  PbPerezML()
+    : BubblePointPressure("PbPerezML", psia::get_instance(), 405, 1335)
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.571, 0.981);
+    add_parameter("rsb", SCF_STB::get_instance(), 38, 121);
+    add_parameter("api", Api::get_instance(), 6.4, 12.9);
+    add_parameter("t", Fahrenheit::get_instance(), 112, 300);
+  }
+
+  Quantity<psia> compute(const Quantity<Sgg> & yg,
+			 const Quantity<SCF_STB> & rsb,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t) const
+  {
+    const double x = 0.0002573*t.get_value() - 0.0253643*api.get_value();
+        
+    const double pb = 10.667657 *
+      pow(rsb.get_value()/yg.get_value(), 1.00139101) * pow(10, x);
+
+    return Quantity<psia>(pb);
+  }
+
+public:
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); it.next();
+    const auto & api = it.get_curr(); it.next();
+    const auto & t = it.get_curr();
+
+    return compute(yg, rsb, api, t);
+  }
+
+  Quantity<psia> operator () (const Quantity<Sgg> & yg,
+			      const Quantity<SCF_STB> & rsb,
+			      const Quantity<Api> & api,
+			      const Quantity<Fahrenheit> & t) const
+  {
+    return compute({yg, rsb, api, t});
+  }
+};
+
+
+/*****************************************************************/
+
+/** MILLÁN-ARCIA CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE  
+
+    Venezuelan heavy crudes were correlated.
+        
+    @see: E.A. Millán-Arcia, 1984: Correlaciones para estimar el
+    comportamiento PVT de crudos pesados venezolanos. I Jornadas
+    Técnicas Corpoven
+
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los
+    Teques, Octubre de 2001 
+
+    VALIDADA CON PYTHON!
+ */
+class PbMillanArcia : public BubblePointPressure
+{
+  Correlation_Singleton(PbMillanArcia);
+
+  PbMillanArcia()
+    : BubblePointPressure("PbMillanArcia", psia::get_instance(), 222, 3432.7)
+  {
+    add_parameter("yg", Sgg::get_instance());
+    add_parameter("rsb", SCF_STB::get_instance(), 53, 459);
+    add_parameter("api", Api::get_instance(), 9, 20.2);
+    add_parameter("t", Fahrenheit::get_instance(), 87, 195);
+  }
+
+  Quantity<psia> compute(const Quantity<Sgg> & yg,
+			 const Quantity<SCF_STB> & rsb,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t) const
+  {
+    const double x = 0.00091*t.get_value() - 0.0125*api.get_value();
+        
+    const double pb = 25.3302 * pow(pow(rsb.get_value()/yg.get_value(), 0.8303) *
+				    pow(10, x), 0.9433);
+
+    return Quantity<psia>(pb);
+  }
+
+public:
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); it.next();
+    const auto & api = it.get_curr(); it.next();
+    const auto & t = it.get_curr();
+
+    return compute(yg, rsb, api, t);
+  }
+
+  Quantity<psia> operator () (const Quantity<Sgg> & yg,
+			      const Quantity<SCF_STB> & rsb,
+			      const Quantity<Api> & api,
+			      const Quantity<Fahrenheit> & t) const
+  {
+    return compute({yg, rsb, api, t});
+  }
+};
 
 
 # endif // BUBBLE_POINT_PRESSURE_H
