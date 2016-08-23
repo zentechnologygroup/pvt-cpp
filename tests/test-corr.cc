@@ -191,6 +191,39 @@ void test(int argc, char *argv[])
 {
   CmdLine cmd(argv[0], ' ', "0");
 
+  auto __units =
+    to_vector(Unit::units().map<string>([] (auto u) { return u->symbol; }));
+  ValuesConstraint<string> units = __units;
+  ValueArg<string> p1 = { "1", "unit-1", "unit for parameter 1", false, "",
+			  &units };
+  ValueArg<string> p2 = { "2", "unit-2", "unit for parameter 2", false, "",
+			  &units };
+  ValueArg<string> p3 = { "3", "unit-3", "unit for parameter 3", false, "",
+			  &units };
+  ValueArg<string> p4 = { "4", "unit-4", "unit for parameter 4", false, "",
+			  &units };
+  ValueArg<string> p5 = { "5", "unit-5", "unit for parameter 5", false, "",
+			  &units };
+  ValueArg<string> p6 = { "6", "unit-6", "unit for parameter 6", false, "",
+			  &units };
+  ValueArg<string> p7 = { "7", "unit-7", "unit for parameter 7", false, "",
+			  &units };
+  ValueArg<string> p8 = { "8", "unit-8", "unit for parameter 8", false, "",
+			  &units };
+  ValueArg<string> p9 = { "9", "unit-8", "unit for parameter 9", false, "",
+			  &units };
+  cmd.add(p1);
+  cmd.add(p2);
+  cmd.add(p3);
+  cmd.add(p4);
+  cmd.add(p5);
+  cmd.add(p6);
+  cmd.add(p7);
+  cmd.add(p8);
+  cmd.add(p9);
+
+  ValueArg<string> * uptr[] = { &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9 }; 
+
   vector<string> correlations;
   Correlation::list().for_each([&correlations] (auto p)
 			       { correlations.push_back(p->name); });
