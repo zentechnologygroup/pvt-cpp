@@ -6,3 +6,4 @@ modo verbose a test-conversion,2016-08-13 12:10:58 -0400,2016-08-13 14:05:08 -04
 test-all-units-1 y test-conversion: probar primero existan todas las conversiones y reportar las que no esten,2016-08-13 14:04:13 -0400,2016-08-14 18:39:51 -0400,,2016-08-15 09:18:33 -0400
 Poner una lista de unidades en PhysicalQuantity,2016-08-14 12:44:43 -0400,2016-08-14 18:39:55 -0400,,2016-08-15 09:18:46 -0400
 función virtual en Correlation que ejecute la correlación dada una lista de parámetros,2016-08-16 21:01:36 -0400,,,2016-08-20 13:38:06 -0400
+modificar Declare_Unit para que reciba obligatoriamemnte la precisión,2016-08-21 22:26:57 -0400,2016-08-22 19:54:15 -0400,,2016-08-22 19:54:18 -0400

@@ -191,6 +191,9 @@ void test(int argc, char *argv[])
   SwitchArg verbose = { "v", "verbose", "verbose mode", false };
   cmd.add(verbose);
 
+  SwitchArg python = { "y", "print-python-call", "print python call", false };
+  cmd.add(python);
+
   cmd.parse(argc, argv);
 
   auto correlation_ptr = Correlation::search_by_name(correlation.getValue());
@@ -230,6 +233,10 @@ void test(int argc, char *argv[])
    map<VtlQuantity>([] (auto p) { return VtlQuantity(*p.first, p.second); });
 
   auto ret = correlation_ptr->compute_and_check(pars_list);
+
+  if (python.getValue())
+    cout << correlation_ptr->python_call(pars_list) << endl
+	 << endl;
 
   cout << correlation_ptr->call_string(pars_list) << ") = " << ret << endl;
 

@@ -133,6 +133,22 @@ public:
       });
   }
 
+  string python_call(const DynList<VtlQuantity> & vals) const
+  {
+    size_t count = get_num_pars();
+    ostringstream s;
+    s << name << "Correlation(";
+    vals.for_each([&s, &count] (auto v)
+		  {
+		    s << v.get_value();
+		    if (--count)
+		      s << ", ";
+		  });
+    s << ")";
+
+    return s.str();
+  }    
+
   string call_string(const DynList<VtlQuantity> & vals) const
   {
     size_t count = get_num_pars();

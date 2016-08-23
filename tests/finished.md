@@ -46,3 +46,9 @@
 - Comment      
 - Finished     
 
+## 9. modificar Declare_Unit para que reciba obligatoriamemnte la precisión
+- Created at   2016-08-21 22:26:57 -0400
+- Completed at 2016-08-22 19:54:15 -0400
+- Comment      
+- Finished     
+

@@ -29,12 +29,22 @@
 ## 9. Cambiar referencia contsnate a Unit por un puntero constante
 - Created at   2016-08-20 13:37:31 -0400
 
-## 10. modificar Declare_Unit para que reciba obligatoriamemnte la precisión
-- Created at   2016-08-21 22:26:57 -0400
-
-## 11. TODO.txt
+## 10. TODO.txt
 - Created at   2016-08-21 22:28:37 -0400
 
-## 12. opción -p print ara test-conversion
+## 11. opción -p print ara test-conversion
 - Created at   2016-08-21 22:32:15 -0400
+
+## 12. opción python signature
+- Created at   2016-08-22 19:03:05 -0400
+- Completed at 2016-08-22 19:53:54 -0400
+
+## 13. opción csv
+- Created at   2016-08-22 19:03:17 -0400
+
+## 14. opción que genere matrix aún con excepciones
+- Created at   2016-08-22 19:03:55 -0400
+
+## 15. opción para cambiar unidad de un cierto tipo de parámetro
+- Created at   2016-08-22 20:37:38 -0400
 

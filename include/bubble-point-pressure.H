@@ -13,6 +13,7 @@ Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
     @see Al-Marhoun, M.A.: "PVT Correlation for Middle East Crude
     Oils". Journal Petroleum Technology, May 1988, pp. 650-666.  
 
+    VALIDADA CON PYTHON!
  */
 class PbAlMarhoun : public BubblePointPressure
 {
@@ -73,6 +74,8 @@ public:
     @see Al-Shammasi A.A.: "Bubble Point Pressure and Oil Formation Volumen
     Factor Correlations". SPE paper 53185 Presented at the Middle East
     Oil Show and Conference, 20-23 february 1999. 
+
+    VALIDADA CON PYTHON!
  */
 class PbAlShammasi : public BubblePointPressure
 {
@@ -97,7 +100,7 @@ class PbAlShammasi : public BubblePointPressure
     constexpr double c3 = 0.783716;
 
     // NOTE python version uses floor(yo*yp). However, original doesn't use it
-    double r = pow(yo, c1) * exp(c2 * yo.get_value() * yg.get_value()) *
+    double r = pow(yo, c1) * exp(c2 * floor(yo.get_value() * yg.get_value())) *
       pow(rsb.get_value() * (t.get_value() + 460) * yg.get_value(), c3);
 
     return r >= 0 ? Quantity<psia>(r) : 0;
@@ -145,6 +148,8 @@ public:
      for Mixtures of California Oil and Gases", Drill. & Prod. Prac.,
      Beal C. The Viscosity-Temperature Chart 0361-39 Nat. Bur. Stds
      Circular C461-1947". 
+
+     VALIDADA CON PYTHON!
  */
 class PbDeGhettoEHOil : public BubblePointPressure
 {
@@ -213,6 +218,8 @@ public:
     for Mixtures of California Oil and Gases", Drill. & Prod. Prac.,
     Beal C. The Viscosity-Temperature Chart 0361-39 Nat. Bur. Stds
     Circular C461-1947". 
+
+    VALIDADA CON PYTHON!
  */
 class PbDeGhettoHOil : public BubblePointPressure
 {
@@ -270,6 +277,8 @@ public:
      @see: Dindoruk B., Christman G.: "PVT Properties and Viscosity
      Correlation for Gulf of Mexico Oils". SPE Journal Reservoir
      Evaluation & Engineering Volumen 7, Number 6, December 2004. 
+
+     VALIDADA CON PYTHON! pero se sale de rango
  */
 class PbDindorukChristman : public BubblePointPressure
 {
@@ -304,10 +313,10 @@ class PbDindorukChristman : public BubblePointPressure
 
     const double n = a1*pow(t, a2) + a3*pow(api, a4);
     
-    const double div = a5 + 2*pow(rsb, a6) / pow(yg, a7);
-    const double d = div*div;
+    const double d = a5 + 2*pow(rsb, a6) / pow(yg, a7);
+    const double d2 = d*d;
 
-    const double a = n/d;
+    const double a = n/d2;
 
     double pb = a8 * (pow(rsb, a9) * pow(10, a) / pow(yg, a10) + a11);
 
@@ -346,6 +355,8 @@ public:
         
     @see: Dokla, M.E., and Osman, M.E.: "Correlation of PVT Properties
     for UAE Crudes". Trans AIME, 1992, 293, 41-46. 
+
+    VALIDADA CON PYTHON! ligera diferencia quizá explicada por la conversión
  */
 class PbDoklaOsman : public BubblePointPressure
 {
@@ -406,6 +417,8 @@ public:
      @see: H.H. Hanafy, S.M. Macary, Y.M. ElNady, A.A. Bayomi and
      M.H. El Batanony. "A New Approach for Predicting the Crude Oil
      Properties", SPE 37439, 1997. 
+
+     VALIDADA CON PYTHON!
  */
 class PbHanafy : public BubblePointPressure
 {
@@ -459,6 +472,8 @@ public:
 
     @see: R.S. Kartoatmodjo and Z. Schmidt. "New Correlations For
     Crude Oil Physical Properties", SPE 23556, 1991. 
+
+    VALIDADA CON PYTHON!
  */
 class PbKartoatmodjoSchmidt : public BubblePointPressure
 {
@@ -555,6 +570,8 @@ public:
 
     @see: Beggs, H.D. "Oil System Correlations", Petroleum Engineering
     Handbook, H.C. SPE, Richardson, TX (1987). Cap 22. Pag 22-6. 
+
+    VALIDADA CON PYTHON!
  */
 class PbLasater : public BubblePointPressure
 {
@@ -592,6 +609,136 @@ class PbLasater : public BubblePointPressure
     const double pb = (pbfactor * (t.get_value() + 459.6)) / yg.get_value();
 
     return Quantity<psia>(pb);
+  }
+
+public:
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); it.next();
+    const auto & api = it.get_curr(); it.next();
+    const auto & t = it.get_curr(); 
+
+    return compute(yg, rsb, api, t);
+  }
+
+  Quantity<psia> operator () (const Quantity<Sgg> & yg,
+			      const Quantity<SCF_STB> & rsb,
+			      const Quantity<Api> & api,
+			      const Quantity<Fahrenheit> & t) const
+  {
+    return compute({yg, rsb, api, t});
+  }
+};
+
+/** PETROSKY & FARSHAD CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE   
+        
+    Based on 81 laboratory PVT analyses.
+    
+    Fluid samples were obtained from reservoirs located offshore Texas
+    and Louisiana. Producing areas from Galveston Island, eastward,
+    through Main Pass are represented. 
+        
+    @see:G.E. Petrosky Jr. and
+    F.F. Farshad. "Pressure-Volume-Temperature Correlations for Gulf
+    of Mexico Crude Oils," SPE 26644, 1993.
+
+    VALIDADA CON PYTHON!
+ */
+class PbPetroskyFarshad : public BubblePointPressure
+{
+  Correlation_Singleton(PbPetroskyFarshad);
+
+  PbPetroskyFarshad()
+    : BubblePointPressure("PbPetroskyFarshad", psia::get_instance(), 1574, 6523)
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.5781, 0.8519);
+    add_parameter("rsb", SCF_STB::get_instance(), 217, 1406);
+    add_parameter("api", Api::get_instance(), 16.3, 45);
+    add_parameter("t", Fahrenheit::get_instance(), 114, 288);
+  }
+
+  Quantity<psia> compute(const Quantity<Sgg> & yg,
+			 const Quantity<SCF_STB> & rsb,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t) const
+  {
+        // effective molecular weight
+    const double x = 0.00004561*pow(t, 1.3911) - 0.0007916*pow(api, 1.541);
+
+    const double pb = 112.727 *
+      ((pow(rsb, 0.5774)/pow(yg, 0.8439)*pow(10, x)) - 12.34);
+
+    return Quantity<psia>(pb);
+  }
+
+public:
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); it.next();
+    const auto & api = it.get_curr(); it.next();
+    const auto & t = it.get_curr(); 
+
+    return compute(yg, rsb, api, t);
+  }
+
+  Quantity<psia> operator () (const Quantity<Sgg> & yg,
+			      const Quantity<SCF_STB> & rsb,
+			      const Quantity<Api> & api,
+			      const Quantity<Fahrenheit> & t) const
+  {
+    return compute({yg, rsb, api, t});
+  }
+};
+
+/** STANDING CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE 
+    
+    Based on 105 experimentally determined bubble point pressures from
+    22 different Californian crude-oil-natural-gas mixtures. 
+        
+    @see: M.B. Standing. "A Pressure-Volume-Temperature Correlation
+    for Mixtures of California Oil and Gases", Drill. & Prod. Prac.,
+    Beal C. The Viscosity-Temperature Chart 0361-39 Nat. Bur. Stds
+    Circular C461-1947". 
+
+    @see: A.A. Al-Shammasi. "A Review of Bubblepoint Pressure and Oil
+    Formation Volume Factor Correlations", SPE 71302, 2001. 
+
+    VALIDADA CON PYTHON!
+ */
+class PbStanding : public BubblePointPressure
+{
+  Correlation_Singleton(PbStanding);
+
+  PbStanding()
+    : BubblePointPressure("PbStanding", psia::get_instance(), 130, 7000)
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.59, 0.95);
+    add_parameter("rsb", SCF_STB::get_instance(), 20, 1425);
+    add_parameter("api", Api::get_instance(), 16.5, 63.8);
+    add_parameter("t", Fahrenheit::get_instance(), 100, 258);
+  }
+
+  Quantity<psia> compute(const Quantity<Sgg> & yg,
+			 const Quantity<SCF_STB> & rsb,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t) const
+  {
+    const double pb =
+      pow(rsb.get_value()/yg.get_value(), 0.83) *
+      (pow(10, 0.00091*t.get_value() -0.0125*api.get_value())) -
+      1.4;
+
+    return Quantity<psia>(18.2*pb);
   }
 
 public:

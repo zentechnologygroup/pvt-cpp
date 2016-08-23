@@ -16,6 +16,8 @@ struct CorrelationInstantiater
     PbHanafy::get_instance();
     PbKartoatmodjoSchmidt::get_instance();
     PbLasater::get_instance();
+    PbPetroskyFarshad::get_instance();
+    PbStanding::get_instance();
   }
 };
 

@@ -584,6 +584,11 @@ inline double pow(const BaseQuantity & q, const double e)
   return pow(q.get_value(), e);
 }
 
+inline double pow(const double b, const BaseQuantity & e)
+{
+  return pow(b, e.get_value());
+}
+
 inline double exp(const BaseQuantity & q)
 {
   return exp(q.get_value());
