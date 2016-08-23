@@ -25,16 +25,17 @@ class PbAlMarhoun : public BubblePointPressure
     add_parameter("yg", Sgg::get_instance(), 0.752, 1.367);
     add_parameter("yo", Sg_do::get_instance(), 0.803521, 0.937707);
     add_parameter("rsb", SCF_STB::get_instance(), 26, 1602);
-    add_parameter("t", Rankine::get_instance(), 533.67, 699.67);
+    add_parameter("t", Fahrenheit::get_instance(), 74, 240);
   }
 
   Quantity<psia> compute(const Quantity<Sgg> & yg,     // gas specific gravity 
 			 const Quantity<Sg_do> & yo,    // oil specific gravity 
 			 const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
-			 const Quantity<Rankine> & t) const 
+			 const Quantity<Fahrenheit> & t) const 
   {
+    Quantity<Rankine> taux = { t }; // t converted to Rankine 
     double r = 0.00538088 * pow(rsb, 0.715082) * pow(yg, -1.87784) *
-      pow(yo, 3.1437) * pow(t, 1.32657);
+      pow(yo, 3.1437) * pow(taux, 1.32657);
 
     return Quantity<psia>(r);
   }
@@ -58,7 +59,7 @@ public:
   (const Quantity<Sgg>     & yg,           // gas specific gravity 
    const Quantity<Sg_do>   & yo,           // oil specific gravity 
    const Quantity<SCF_STB> & rsb,          // Solution GOR at Pb
-   const Quantity<Rankine> & t) const
+   const Quantity<Fahrenheit> & t) const
   {
     return compute({yg, yo, rsb, t});
   }
@@ -100,11 +101,10 @@ class PbAlShammasi : public BubblePointPressure
     constexpr double c2 = -1.841408;
     constexpr double c3 = 0.783716;
 
-    // NOTE python version uses floor(yo*yp). However, original doesn't use it
     double r = pow(yo, c1) * exp(c2 * floor(yo.get_value() * yg.get_value())) *
       pow(rsb.get_value() * (t.get_value() + 460) * yg.get_value(), c3);
 
-    return r >= 0 ? Quantity<psia>(r) : 0;
+    return Quantity<psia>(r);
   }
 
 public:
@@ -134,88 +134,20 @@ public:
 
 /*****************************************************************/
 
-/**  DE GHETTO CORRELATION FOR EXTRA HEAVY OILS, CALCULATION OF BUBBLE
-     POINT PRESSURE
+/** DE GHETTO CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS (MODIFIED
+    STANDING CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE    
         
-     Based on 1200 measured data points from 65 heavy and extra-heavy
-     oil samples. Oil samples have been divided in two different API
-     gravity classes: extra-heavy oils for °API<=10, heavy oils for
-     10<°API<=22.3. 
-        
-     Giambattista De Ghetto, Francesco Paone and Marco
-     Villa. "Pressure-Volume-Temperature. Correlations for Heavy
-     and Extra Heavy Oils," SPE 30316, 1995. 
+    Based on 1200 measured data points of 63 heavy and extra-heavy oil
+    samples obtained from the Mediterranean Basin, Africa and the
+    Persian Gulf.  
 
-     @see M.B. Standing. "A Pressure-Volume-Temperature Correlation
-     for Mixtures of California Oil and Gases", Drill. & Prod. Prac.,
-     Beal C. The Viscosity-Temperature Chart 0361-39 Nat. Bur. Stds
-     Circular C461-1947". 
-
-     VALIDADA CON PYTHON!
- */
-class PbDeGhettoEHOil : public BubblePointPressure
-{
-   Correlation_Singleton(PbDeGhettoEHOil);
-
-  PbDeGhettoEHOil()
-    : BubblePointPressure("PbDeGhettoEHOil", psia::get_instance(),
-			  208.86, 4021.96)
-  {
-    add_parameter("yg", Sgg::get_instance(), 0.623, 1.517);
-    add_parameter("rsb", SCF_STB::get_instance(), 17.21, 640.25);
-    add_parameter("api", Api::get_instance(), 6, 22.3);
-    add_parameter("t", Fahrenheit::get_instance(), 131.4, 250.7);
-  }
-
-  Quantity<psia> compute(const Quantity<Sgg> & yg,     // gas specific gravity 
-			 const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
-			 const Quantity<Api> & api,    // oil specific gravity 
-			 const Quantity<Fahrenheit> & t) const 
-  {
-    const double n = 10.7025*pow(rsb.get_value()/yg.get_value(), 1.0/1.1128);
-    const double d = pow(10, 0.0169*api.get_value() - 0.00156*t.get_value()); 
-    const double ret  = n/d;
-
-    return Quantity<psia>(ret);
-  }
-
-public:
-
-  Quantity<psia> operator () (const Quantity<Sgg> & yg, 
-			      const Quantity<SCF_STB> & rsb,
-			      const Quantity<Api> & api,    
-			      const Quantity<Fahrenheit> & t) const 
-  {
-    return compute({yg, rsb, api, t});
-  }
-
-  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
-  {
-    auto pars = verify_preconditions(__pars);
-    
-    auto it = pars.get_it();
-    const auto & yg = it.get_curr(); it.next();
-    const auto & rsb = it.get_curr(); it.next();
-    const auto & api = it.get_curr(); it.next();
-    const auto & t = it.get_curr();
-
-    return compute(yg, rsb, api, t);
-  }
-};
-
-/*****************************************************************/
-
-/** DE GHETTO CORRELATION FOR HEAVY OILS (MODIFIED STANDING
-    CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE 
-
-    Based on 1200 measured data points from 65 heavy and extra-heavy
-    oil samples. Oil samples have been divided in two different API
-    gravity classes: extra-heavy oils for °API<=10, heavy oils for
+    Oil samples have been divided in two different API gravity
+    classes: extra-heavy oils for °API<=10, heavy oils for
     10<°API<=22.3. 
         
     @see: Giambattista De Ghetto, Francesco Paone and Marco
     Villa. "Pressure-Volume-Temperature. Correlations for Heavy and
-    Extra Heavy Oils," SPE 3 0316, 1995.  
+    Extra Heavy Oils," SPE 30316, 1995. 
 
     @see: M.B. Standing. "A Pressure-Volume-Temperature Correlation
     for Mixtures of California Oil and Gases", Drill. & Prod. Prac.,
@@ -224,13 +156,12 @@ public:
 
     VALIDADA CON PYTHON!
  */
-class PbDeGhettoHOil : public BubblePointPressure
+class PbDeGhetto : public BubblePointPressure
 {
-   Correlation_Singleton(PbDeGhettoHOil);
+   Correlation_Singleton(PbDeGhetto);
 
-  PbDeGhettoHOil()
-    : BubblePointPressure("PbDeGhettoHOil", psia::get_instance(),
-			  208.86, 4021.96)
+  PbDeGhetto()
+    : BubblePointPressure("PbDeGhetto", psia::get_instance(), 208.86, 4021.96)
   {
     add_parameter("yg", Sgg::get_instance(), 0.623, 1.517);
     add_parameter("rsb", SCF_STB::get_instance(), 17.21, 640.25);
@@ -243,10 +174,20 @@ class PbDeGhettoHOil : public BubblePointPressure
 			 const Quantity<Api> & api,    // oil specific gravity 
 			 const Quantity<Fahrenheit> & t) const 
   {
-    double factor = pow(rsb.get_value()/yg.get_value(), 0.7885) *
-      (pow(10, 0.0020*t.get_value()) / pow(10, 0.0142*api.get_value()));
+    const double raw_api = api.get_value();
+    const double raw_rsb = rsb.get_value();
+    const double raw_yg = yg.get_value();
+    const double raw_t = t.get_value();
+    double pb = 0;
+    
+    if (raw_api <= 10) // Extra-heavy oil
+      pb = (pow(raw_rsb/raw_yg, 1/1.1128)*10.7025 /
+	    pow(10, 0.0169*raw_api - 0.00156*raw_t));
+    else
+      pb = 15.7286 * pow(raw_rsb/raw_yg, 0.7885) *
+	(pow(10, 0.0020*raw_t) / pow(10, 0.0142*raw_api));
 
-    return Quantity<psia>(15.7286*factor);
+    return Quantity<psia>(pb);
   }
 
 public:

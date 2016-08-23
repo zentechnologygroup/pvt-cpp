@@ -12,35 +12,26 @@ def PbAlMarhounCorrelation(Yg, Yo, Rsb, T):
     return PbAlMarhoun
 
 def PbAlShammasiCorrelation(Yg, Yo, Rsb, T):
-        c1 = 5.527215
-        c2 = -1.841408
-        c3 = 0.783716
+    c1 = 5.527215
+    c2 = -1.841408
+    c3 = 0.783716
         
-        Pb = (Yo ** c1) * exp(c2 * floor(Yo * Yg)) * (Rsb * (T + 460) * Yg) ** c3 
+    Pb = (Yo ** c1) * exp(c2 * floor(Yo * Yg)) * (Rsb * (T + 460) * Yg) ** c3 
         
-        if Pb < 0:
-            
-            Pb = 0
+    PbAlShammasi = Pb
         
-        PbAlShammasi = Pb
-        
-        return PbAlShammasi
+    return PbAlShammasi
 
-def PbDeGhettoEHOilCorrelation(Yg, Rsb, API, T):
-    Pb = (Rsb / Yg) ** (1 / 1.1128) * 10.7025 / (10 ** ((0.0169 * API) - (0.00156 * T)))
+def PbDeGhettoCorrelation(Yg, Rsb, API, T):
+    if API <= 10: # Extra-heavy oil
+        Pb = (Rsb / Yg) ** (1 / 1.1128) * 10.7025 / (10 ** ((0.0169 * API) - (0.00156 * T)))
+    else:
+        Pb = 15.7286*(((Rsb/Yg)**0.7885)*((10**(0.0020*T))/(10**(0.0142*API))))
         
-    if Pb < 0:
-        Pb = 0
-    PbDeGhettoEHOil = Pb
+    PbDeGhetto = Pb
         
-    return PbDeGhettoEHOil
+    return PbDeGhetto
 
-def PbDeGhettoHOilCorrelation(Yg, Rsb, API, T):
-    Pb=15.7286*(((Rsb/Yg)**0.7885)*((10**(0.0020*T))/(10**(0.0142*API))))
-        
-    PbDeGhettoHOil = Pb
-        
-    return PbDeGhettoHOil
 
 
 def PbDindorukChristmanCorrelation(Yg, Rsb, API, T):
