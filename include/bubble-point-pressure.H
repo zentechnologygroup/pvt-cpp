@@ -314,7 +314,7 @@ class PbDoklaOsman : public BubblePointPressure
     add_parameter("yg", Sgg::get_instance(), 0.798, 1.290);
     add_parameter("rsb", SCF_STB::get_instance(), 181, 2266);
     add_parameter("yo", Sg_do::get_instance(), 0.8236, 0.886);
-    add_parameter("t", Rankine::get_instance(), 649.67, 734.67);
+    add_parameter("t", Fahrenheit::get_instance(), 190, 275);
   }
 
   Quantity<psia> compute(const Quantity<Sgg> & yg,     // gas specific gravity 
@@ -343,9 +343,9 @@ public:
     return compute(yg, rsb, yo, temperature);
   }
 
-  Quantity<psia> operator () (const Quantity<Sgg> & yg, // gas specific gravity 
-			      const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
-			      const Quantity<Sg_do> & yo, // oil specific gravity 
+  Quantity<psia> operator () (const Quantity<Sgg> & yg, 
+			      const Quantity<SCF_STB> & rsb, 
+			      const Quantity<Sg_do> & yo,
 			      const Quantity<Rankine> & t) const
   {
     return compute({yg, rsb, yo, t});
@@ -1161,6 +1161,76 @@ class PbMillanArcia : public BubblePointPressure
         
     const double pb = 25.3302 * pow(pow(rsb.get_value()/yg.get_value(), 0.8303) *
 				    pow(10, x), 0.9433);
+
+    return Quantity<psia>(pb);
+  }
+
+public:
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); it.next();
+    const auto & api = it.get_curr(); it.next();
+    const auto & t = it.get_curr();
+
+    return compute(yg, rsb, api, t);
+  }
+
+  Quantity<psia> operator () (const Quantity<Sgg> & yg,
+			      const Quantity<SCF_STB> & rsb,
+			      const Quantity<Api> & api,
+			      const Quantity<Fahrenheit> & t) const
+  {
+    return compute({yg, rsb, api, t});
+  }
+};
+
+/*****************************************************************/
+
+/** MANUCCI-ROSALES CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE 
+
+    Crude oils of eastern Venezuela were correlated, by using
+    differential separation data from laboratory PVT analysis.  
+        
+    @see: J.E. Manucci, E.E. Rosales, 1968: "Correlaciones de presión
+    de burbujeo y factor volumétrico del petróleo para crudos el
+    oriente de Venezuela". Corporación Venezolana del Petróleo, II
+    Jornadas técnicas de petróleo, marzo 1968 
+
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los
+    Teques, Octubre de 2001 
+
+    VALIDADA CON PYTHON!
+ */
+class PbManucciRosales : public BubblePointPressure
+{
+  Correlation_Singleton(PbManucciRosales);
+
+  PbManucciRosales()
+    : BubblePointPressure("PbManucciRosales", psia::get_instance(), 1230, 5035)
+  {
+    add_parameter("yg", Sgg::get_instance());
+    add_parameter("rsb", SCF_STB::get_instance(), 180, 2500);
+    add_parameter("api", Api::get_instance(), 14, 40);
+    add_parameter("t", Fahrenheit::get_instance(), 165, 304);
+  }
+
+  Quantity<psia> compute(const Quantity<Sgg> & yg,
+			 const Quantity<SCF_STB> & rsb,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t) const
+  {
+    const double x = 0.000922*t.get_value() - 0.0072*api.get_value();
+        
+    const double pb = 84.88 * pow(rsb.get_value()/yg.get_value(), 0.53) *
+      pow(10, x);
 
     return Quantity<psia>(pb);
   }

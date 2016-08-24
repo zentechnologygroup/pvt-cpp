@@ -1,6 +1,5 @@
 from math import exp, log10, floor
 
-
 def PbAlMarhounCorrelation(Yg, Yo, Rsb, T):        
     Pb = (5.38088 * 10 ** -3) * (Rsb ** 0.715082) * (Yg ** -1.87784) * (Yo ** 3.1437) * (T ** 1.32657)
         
@@ -269,4 +268,21 @@ def PbMillanArciaCorrelation(Yg, Rsb, API, T):
     PbMillanArcia = Pb
     return PbMillanArcia
 
+def PbManucciRosalesCorrelation(Yg, Rsb, API, T):
+    X = (0.000922 * T) - (0.0072 * API)
+    Pb = 84.88 * (((Rsb / Yg) ** 0.53) * (10 ** X))
+    PbManucciRosales = Pb
+    return PbManucciRosales
 
+def RsAlShammasiCorrelation(Yg, Pb, P, API, T, Rsb):
+    # Transformation from °API to oil specific gravity
+    Yo = 141.5 / ( API + 131.5 ) # conversion Leandro
+    c1 = 5.527215
+    c2 = -1.841408
+    c3 = 0.783716
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        Rs = ((P / (Yo ** c1 * exp(c2 * floor(Yo * Yg)))) ** (1 / c3)) / ((T + 460) * Yg)
+    RsAlShammasi = Rs
+    return RsAlShammasi

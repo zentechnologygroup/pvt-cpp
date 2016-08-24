@@ -122,12 +122,14 @@ public:
     size_t count = get_num_pars();
     ostringstream s;
     s << name << "Correlation(";
-    vals.for_each([&s, &count] (auto v)
-		  {
-		    s << v.get_value();
-		    if (--count)
-		      s << ", ";
-		  });
+    zipEq(preconditions_list(), pointers_list(vals)).
+      for_each([&s, &count] (auto p)
+      {
+	VtlQuantity q(p.first->unit, *p.second);
+	s << q.get_value();
+	if (--count)
+	  s << ", ";
+      });
     s << ")";
 
     return s.str();
@@ -139,7 +141,8 @@ public:
     ostringstream s;
     s << name << "(";
 
-    zipEq(preconditions_list(), pointers_list(vals)).for_each([&s, &count] (auto p)
+    zipEq(preconditions_list(), pointers_list(vals)).
+      for_each([&s, &count] (auto p)
       {
 	VtlQuantity q(p.first->unit, *p.second);
 	s << q;

@@ -132,7 +132,7 @@ test_extremes_conversions(const PhysicalQuantity & pq, bool verbose,
 	}
     }
 
-  DynList<DynList<string>> ret = move(title);
+  DynList<DynList<string>> ret = { move(title) } ;
   ret.append(rows);
 
   return ret;
@@ -212,7 +212,7 @@ test_random_conversions(const PhysicalQuantity & pq, bool verbose,
 	}
     }
 
-  DynList<DynList<string>> ret = move(title);
+  DynList<DynList<string>> ret = { move(title) } ;
   ret.append(rows);
 
   return ret;

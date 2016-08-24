@@ -47,37 +47,27 @@ generate_samples(const Correlation * const corr_ptr, size_t n)
   return move(samples_fct.ret);
 }
 
-void full_mat(const Correlation * const corr_ptr, size_t n, bool verbose)
+void full_mat(const Correlation * const corr_ptr, size_t n,
+	      bool ignore_exception)
 {
   auto samples = generate_samples(corr_ptr, n);
-  auto results = samples.map<double>([corr_ptr, verbose] (auto sample)
+  auto results = samples.map<string>([corr_ptr, ignore_exception] (auto sample)
     {
-      if (verbose)
+      if (ignore_exception)
 	{
-	  double ret = 0;
-	  cout << corr_ptr->call_string(sample) << " = ";
+	  string ret;
 	  try
 	    {
-	      ret = corr_ptr->compute_and_check(sample);
+	      ret = to_string(corr_ptr->compute_and_check(sample));
 	    }
 	  catch (exception & e)
 	    {
-	      cout << e.what();
+	      ret = "NA";
 	    }
-	  cout << ret << " " << corr_ptr->unit.symbol << endl;
 	  return ret;
 	}
-      
-      try
-	{
-	  return corr_ptr->compute_and_check(sample);
-	}
-      catch (exception & e)
-	{
-	  ostringstream s;
-	  s << corr_ptr->call_string(sample) << ": " << e.what();
-	  throw domain_error(s.str());
-	}
+      else
+	return to_string(corr_ptr->compute_and_check(sample));
     });
 
   auto mat = zip(samples, results).map<DynList<string>>([] (auto p)
@@ -85,7 +75,7 @@ void full_mat(const Correlation * const corr_ptr, size_t n, bool verbose)
       DynList<string> ret;
       ret.append(p.first.template map<string>([] (auto v)
 					      { return to_string(v); }));
-      ret.append(to_string(p.second));
+      ret.append(p.second);
       return ret;
     });
 
@@ -102,30 +92,27 @@ void full_mat(const Correlation * const corr_ptr, size_t n, bool verbose)
   cout << to_string(format_string(mat)) << endl;
 }
 
-void mat_csv(const Correlation * const corr_ptr, size_t n, bool ignore_exception)
+void mat_csv(const Correlation * const corr_ptr, size_t n)
 {
-      // header
+      // csv header
   corr_ptr->get_preconditions().for_each([] (auto pre)
     {
-      cout << pre.name << "(" << pre.unit.symbol << "), ";
+      cout << pre.name << " (" << pre.unit.symbol << "), ";
     });
-  cout << corr_ptr->name << "(" << corr_ptr->unit.name << ")" << endl;
+  cout << corr_ptr->name << " (" << corr_ptr->unit.name << ")" << endl;
 
   auto pars = generate_pars_values(corr_ptr, n);
-  traverse_perm(pars, [corr_ptr, ignore_exception] (const auto & s)
+  traverse_perm(pars, [corr_ptr] (const auto & s)
     {
       try
 	{
 	  s.for_each([] (auto v) { cout << v << ", "; });
-	  auto r = corr_ptr->compute(s);
+	  auto r = corr_ptr->compute_and_check(s);
 	  cout << r << endl;
 	}
       catch (...)
 	{
-	  if (ignore_exception)
-	    cout << "NA" << endl;
-	  else
-	    throw;
+	  cout << "NA" << endl;
 	}
       return true;
     });
@@ -259,6 +246,9 @@ void test(int argc, char *argv[])
   SwitchArg verbose = { "v", "verbose", "verbose mode", false };
   cmd.add(verbose);
 
+  SwitchArg ignore = { "i", "ignore-exception", "ignore exception", false };
+  cmd.add(ignore);
+
   SwitchArg python = { "y", "print-python-call", "print python call", false };
   cmd.add(python);
 
@@ -298,13 +288,13 @@ void test(int argc, char *argv[])
 
   if (csv.getValue())
     {
-      mat_csv(correlation_ptr, n.getValue(), verbose.getValue());
+      mat_csv(correlation_ptr, n.getValue());
       return;
     }
 
   if (mat.getValue())
     {
-      full_mat(correlation_ptr, n.getValue(), verbose.getValue());
+      full_mat(correlation_ptr, n.getValue(), ignore.getValue());
       return;
     }
 

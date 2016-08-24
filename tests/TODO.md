@@ -34,6 +34,7 @@
 
 ## 11. opción -p print ara test-conversion
 - Created at   2016-08-21 22:32:15 -0400
+- Completed at 2016-08-24 10:30:15 -0400
 
 ## 12. opción python signature
 - Created at   2016-08-22 19:03:05 -0400
@@ -41,13 +42,19 @@
 
 ## 13. opción csv
 - Created at   2016-08-22 19:03:17 -0400
+- Completed at 2016-08-24 10:30:03 -0400
 
 ## 14. opción que genere matrix aún con excepciones
 - Created at   2016-08-22 19:03:55 -0400
 
 ## 15. opción para cambiar unidad de un cierto tipo de parámetro
 - Created at   2016-08-22 20:37:38 -0400
+- Completed at 2016-08-24 10:30:00 -0400
 
 ## 16. corregir formato python cuando hay cambio de unidades
 - Created at   2016-08-23 21:41:56 -0400
+- Completed at 2016-08-24 10:29:55 -0400
+
+## 17. poner NA en salida cuando haya error
+- Created at   2016-08-24 10:30:32 -0400
 
