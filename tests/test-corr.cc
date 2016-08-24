@@ -15,9 +15,9 @@ generate_pars_values(const Correlation * const corr_ptr, size_t n)
   return
     corr_ptr->get_preconditions().map<DynList<double>>([n] (const auto & par)
       {
-	const double s = (par.max_val - par.min_val)/n;
+	const double s = (par.max_val.get_value() - par.min_val.get_value())/n;
 	DynList<double> ret;
-	double v = par.min_val;
+	double v = par.min_val.get_value();
 	for (size_t i = 0; i < n; v += s, ++i)
 	  ret.append(v);
 	return ret;
@@ -174,9 +174,11 @@ T find_extremes(const Correlation * const corr_ptr, size_t n, bool verbose)
   auto samples =
     corr_ptr->get_preconditions().map<DynList<double>>([n] (const auto & par)
       {
-	const double s = (par.max_val - par.min_val)/n;
+	const double min = par.min_val.get_value();
+	const double max = par.max_val.get_value();
+	const double s = (max - min)/n;
 	DynList<double> ret;
-	for (double v = par.min_val; v <= par.max_val; v += s)
+	for (double v = min; v <= max; v += s) 
 	  ret.append(v);
 	return ret;
       });
@@ -198,31 +200,32 @@ void test(int argc, char *argv[])
 			   &units };
    ValueArg<string> p2 = { "2", "unit-2", "unit for parameter 2", false, "",
 			   &units };
-  // ValueArg<string> p3 = { "3", "unit-3", "unit for parameter 3", false, "",
-  // 			  &units };
-  // ValueArg<string> p4 = { "4", "unit-4", "unit for parameter 4", false, "",
-  // 			  &units };
-  // ValueArg<string> p5 = { "5", "unit-5", "unit for parameter 5", false, "",
-  // 			  &units };
-  // ValueArg<string> p6 = { "6", "unit-6", "unit for parameter 6", false, "",
-  // 			  &units };
-  // ValueArg<string> p7 = { "7", "unit-7", "unit for parameter 7", false, "",
-  // 			  &units };
-  // ValueArg<string> p8 = { "8", "unit-8", "unit for parameter 8", false, "",
-  // 			  &units };
-  // ValueArg<string> p9 = { "9", "unit-8", "unit for parameter 9", false, "",
-  // 			  &units };
-   cmd.add(p1);
-   cmd.add(p2);
-  // cmd.add(p3);
-  // cmd.add(p4);
-  // cmd.add(p5);
-  // cmd.add(p6);
-  // cmd.add(p7);
-  // cmd.add(p8);
-  // cmd.add(p9);
+  ValueArg<string> p3 = { "3", "unit-3", "unit for parameter 3", false, "",
+  			  &units };
+  ValueArg<string> p4 = { "4", "unit-4", "unit for parameter 4", false, "",
+  			  &units };
+  ValueArg<string> p5 = { "5", "unit-5", "unit for parameter 5", false, "",
+  			  &units };
+  ValueArg<string> p6 = { "6", "unit-6", "unit for parameter 6", false, "",
+  			  &units };
+  ValueArg<string> p7 = { "7", "unit-7", "unit for parameter 7", false, "",
+  			  &units };
+  ValueArg<string> p8 = { "8", "unit-8", "unit for parameter 8", false, "",
+  			  &units };
+  ValueArg<string> p9 = { "9", "unit-9", "unit for parameter 9", false, "",
+  			  &units };
+  cmd.add(p1);
+  cmd.add(p2);
+  cmd.add(p3);
+  cmd.add(p4);
+  cmd.add(p5);
+  cmd.add(p6);
+  cmd.add(p7);
+  cmd.add(p8);
+  cmd.add(p9);
 
-  // ValueArg<string> * uptr[] = { &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9 }; 
+  DynList<ValueArg<string>*> unit_ptrs =
+    { &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9 };
 
   vector<string> correlations;
   Correlation::list().for_each([&correlations] (auto p)
@@ -305,8 +308,20 @@ void test(int argc, char *argv[])
       return;
     }
 
+  int i = 0;
+  auto par_types = zip(correlation_ptr->get_par_types(), unit_ptrs).
+    map<const Unit * const >([&i] (auto p)
+      {
+	i++;
+	if (not p.second->isSet())
+	  return p.first;
+	const Unit * const unit_ptr =
+	  Unit::search_by_symbol(p.second->getValue());
+	return unit_ptr;
+      });
+
   auto pars_list =
-    zip(correlation_ptr->get_par_types(), vector_to_DynList(pars.getValue())).
+    zip(par_types, to_DynList(pars.getValue())).
    map<VtlQuantity>([] (auto p) { return VtlQuantity(*p.first, p.second); });
 
   auto ret = correlation_ptr->compute_and_check(pars_list);

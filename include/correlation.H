@@ -15,37 +15,21 @@ struct CorrelationPar
 {
   const string name;
   const Unit & unit;
-  const double min_val;
-  const double max_val;
+  const VtlQuantity min_val;
+  const VtlQuantity max_val;
 
   DynList<string> to_list_string() const
   {
-    return { name, unit.symbol, to_string(min_val), to_string(max_val) };
+    return { name, unit.symbol, min_val.to_string(), max_val.to_string() };
   }
 
   CorrelationPar(const string & name, const Unit & unit,
-		 double min, double max)
-    : name(name), unit(unit), min_val(min), max_val(max)
-  {
-    ostringstream s;
-    if (min_val < unit.min_val)
-      {
-	s << "Minimum value " << min_val
-	  << " for precondition is lesser than the minimum value "
-	  << unit.min_val << " for unit " << unit.name;
-	throw range_error(s.str());
-      }
-    if (max_val > unit.max_val)
-      {
-	s << "Maximum value " << max_val
-	  << " for precondition is greater than the maximum value "
-	  << unit.max_val << " for unit " << unit.name;
-	throw range_error(s.str());
-      }
-  }
+		 const VtlQuantity min, const VtlQuantity max)
+    : name(name), unit(unit), min_val(unit, min), max_val(unit, max) {}
 
   CorrelationPar(const string & name, BaseQuantity & q, double min, double max)
-    : CorrelationPar(name, q.unit, min, max) {}    
+    : CorrelationPar(name, q.unit,
+		     VtlQuantity(q.unit, min), VtlQuantity(q.unit, max)) {}
 
   bool check(const BaseQuantity & val) const noexcept
   {
@@ -56,11 +40,11 @@ struct CorrelationPar
   void verify(const BaseQuantity & q) const
   {
     ostringstream s;
-    if (&q.unit != &unit)
-      {
-	s << "Unit " << q.unit.name << " is different from " << unit.name;
-	throw domain_error(s.str());	
-      }
+    // if (&q.unit != &unit)
+    //   {
+    // 	s << "Unit " << q.unit.name << " is different from " << unit.name;
+    // 	throw domain_error(s.str());	
+    //   }
 
     if (q.get_value() < min_val)
       {
@@ -210,7 +194,7 @@ protected:
   virtual ~Correlation() = 0; // Correlation is abstract
 
   void add_parameter(const string & name, const Unit & unit,
-		     double min, double max)
+		     const VtlQuantity & min, const VtlQuantity & max)
   {
     if (min >= max)
       {
@@ -226,22 +210,14 @@ protected:
 
   void add_parameter(const string & name, const Unit & unit)
   {
-    add_parameter(name, unit, unit.min_val, unit.max_val);
+    add_parameter(name, unit, VtlQuantity(unit, unit.min_val),
+		  VtlQuantity(unit, unit.max_val));
   }
 
-  void add_parameter(const string & name, const string & unit_symbol,
+  void add_parameter(const string & name, const Unit & unit,
 		     double min, double max)
   {
-    auto unit_ptr = Unit::search_by_symbol(unit_symbol);
-    if (unit_ptr == nullptr)
-      {
-	ostringstream s;
-	s << "Unit symbol " << unit_symbol << " not found for parameter "
-	  << name << " in correlation " << correlation_name();
-	throw domain_error(s.str());
-      }
-
-    add_parameter(name, *unit_ptr, min, max);
+    add_parameter(name, unit, VtlQuantity(unit, min), VtlQuantity(unit, max));
   }
 
 public:
@@ -317,7 +293,7 @@ public:
 	auto par = p.second;
 	try
 	  {
-	    VtlQuantity curr_par(par.unit, par); // conversion should be done
+	    VtlQuantity curr_par(precondition.unit, par); // conversion is done
 	    precondition.verify(curr_par);
 	    ret.append(curr_par);
 	  }

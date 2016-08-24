@@ -31,11 +31,10 @@ class PbAlMarhoun : public BubblePointPressure
   Quantity<psia> compute(const Quantity<Sgg> & yg,     // gas specific gravity 
 			 const Quantity<Sg_do> & yo,    // oil specific gravity 
 			 const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
-			 const Quantity<Fahrenheit> & t) const 
+			 const Quantity<Rankine> & t) const 
   {
-    Quantity<Rankine> taux = { t }; // t converted to Rankine 
     double r = 0.00538088 * pow(rsb, 0.715082) * pow(yg, -1.87784) *
-      pow(yo, 3.1437) * pow(taux, 1.32657);
+      pow(yo, 3.1437) * pow(t, 1.32657);
 
     return Quantity<psia>(r);
   }

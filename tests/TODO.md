@@ -48,3 +48,6 @@
 ## 15. opción para cambiar unidad de un cierto tipo de parámetro
 - Created at   2016-08-22 20:37:38 -0400
 
+## 16. corregir formato python cuando hay cambio de unidades
+- Created at   2016-08-23 21:41:56 -0400
+
