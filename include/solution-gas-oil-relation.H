@@ -14,7 +14,7 @@ class RsAlShammasi : public SolutionGasOilRelation
   {
     add_parameter("yg", Sgg::get_instance(), 0.51, 3.44);
     add_parameter("pb", psia::get_instance(), 31.7, 7127);
-    add_parameter("p", psia::get_instance());
+    add_parameter("p", psia::get_instance(), Quantity<Atmosphere>(1));
     add_parameter("api", Api::get_instance(), 6, 63.7);
     add_parameter("t", Fahrenheit::get_instance(), 74, 341.6);
     add_parameter("rsb", SCF_STB::get_instance());
@@ -56,8 +56,8 @@ public:
     const auto & pb = it.get_curr(); it.next();
     const auto & p = it.get_curr(); it.next();
     const auto & yo = it.get_curr(); it.next();
-    const auto & rsb = it.get_curr(); it.next();
-    const auto & t = it.get_curr(); 
+    const auto & t = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); 
 
     return compute(yg, pb, p, yo, t, rsb);
   }

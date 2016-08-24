@@ -9,18 +9,19 @@ FLAGS = -std=c++14 $(WARN) -O0 -g
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
-LIBSRCS = lib-vars.cc
+LIBSRCS = units-vars.cc correlations-vars.cc
 
 SRCS = $(LIBSRCS)
 OBJS = pvt.o
 
 EXTRACT_CV = $(TOP)/bin/extract-cv
 
-pvt.cc: lib-vars.cc 
+pvt.cc: units-vars.cc correlations-vars.cc
 	$(RM) -f $@;					\	@@\
-	$(CPP) $(CXXFLAGS) lib-vars.cc > $*.tmp;	\	@@\
-	cat lib-vars.cc > $@;				\	@@\
+	$(CPP) $(CXXFLAGS) units-vars.cc > $*.tmp;	\	@@\
+	cat units-vars.cc > $@;			\	@@\
 	$(EXTRACT_CV) $*.tmp >> $@;			\	@@\
+	cat correlations-vars.cc >> $@;		\	@@\
 	$(RM) $*.tmp
 
 pvt.o: pvt.cc ../include/pvt-correlations.H ../include/correlation.H ../include/bubble-point-pressure.H ../include/units.H

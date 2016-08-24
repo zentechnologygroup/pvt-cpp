@@ -211,6 +211,12 @@ protected:
     ++n;
   }
 
+  void add_parameter(const string & name, const Unit & unit,
+		     const VtlQuantity & min)
+  {
+    add_parameter(name, unit, min, VtlQuantity(unit, unit.max_val));
+  }
+
   void add_parameter(const string & name, const Unit & unit)
   {
     add_parameter(name, unit, VtlQuantity(unit, unit.min_val),

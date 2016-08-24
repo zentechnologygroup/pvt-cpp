@@ -314,11 +314,11 @@ void test(int argc, char *argv[])
     zip(par_types, to_DynList(pars.getValue())).
    map<VtlQuantity>([] (auto p) { return VtlQuantity(*p.first, p.second); });
 
-  auto ret = correlation_ptr->compute_and_check(pars_list);
-
   if (python.getValue())
     cout << correlation_ptr->python_call(pars_list) << endl
 	 << endl;
+
+  auto ret = correlation_ptr->compute_and_check(pars_list);
 
   cout << correlation_ptr->call_string(pars_list) << ") = " << ret << endl;
 
