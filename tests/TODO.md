@@ -58,3 +58,6 @@
 ## 17. poner NA en salida cuando haya error
 - Created at   2016-08-24 10:30:32 -0400
 
+## 18. verificar rigurosamente orden y unidades de correlaciones
+- Created at   2016-08-24 14:34:13 -0400
+
