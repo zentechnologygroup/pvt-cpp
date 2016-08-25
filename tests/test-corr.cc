@@ -112,7 +112,7 @@ void mat_csv(const Correlation * const corr_ptr, size_t n)
 	}
       catch (...)
 	{
-	  cout << "NA" << endl;
+	  cout << endl;
 	}
       return true;
     });
@@ -318,9 +318,17 @@ void test(int argc, char *argv[])
     cout << correlation_ptr->python_call(pars_list) << endl
 	 << endl;
 
-  auto ret = correlation_ptr->compute_and_check(pars_list);
-
-  cout << correlation_ptr->call_string(pars_list) << ") = " << ret << endl;
+    if (ignore.getValue())
+      {
+	auto ret = correlation_ptr->compute(pars_list);
+	cout << correlation_ptr->call_string(pars_list) << ") = " << ret
+	     << " (ERROR)" << endl;
+      }
+    else
+      {
+	auto ret = correlation_ptr->compute_and_check(pars_list);
+	cout << correlation_ptr->call_string(pars_list) << ") = " << ret << endl;
+      }
 
   cout << endl;
 }

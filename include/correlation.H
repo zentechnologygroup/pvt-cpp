@@ -199,15 +199,17 @@ protected:
   void add_parameter(const string & name, const Unit & unit,
 		     const VtlQuantity & min, const VtlQuantity & max)
   {
-    if (min >= max)
+    auto min_aux = VtlQuantity(unit, min);
+    auto max_aux = VtlQuantity(unit, max);
+    if (min_aux >= max_aux)
       {
 	ostringstream s;
-	s << "minimum value " << min << " is greater than maximum value " << max
-	  << " for parameter " << name;
+	s << "minimum value " << min_aux << " is greater than maximum value "
+	  << max_aux << " for parameter " << name;
 	throw domain_error(s.str());
       }
     
-    preconditions.emplace(name, unit, min, max);
+    preconditions.emplace(name, unit, min_aux, max_aux);
     ++n;
   }
 

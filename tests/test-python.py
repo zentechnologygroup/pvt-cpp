@@ -274,9 +274,15 @@ def PbManucciRosalesCorrelation(Yg, Rsb, API, T):
     PbManucciRosales = Pb
     return PbManucciRosales
 
-def RsAlShammasiCorrelation(Yg, Pb, P, API, T, Rsb):
+def RsAlShammasiCorrelation(Yg, Pb, P, Yo, T, Rsb):
     # Transformation from °API to oil specific gravity
-    Yo = 141.5 / ( API + 131.5 ) # conversion Leandro
+    #Yo = 141.5 / ( API + 131.5 ) # conversion Leandro
+    print Yg
+    print Pb
+    print P
+    print Yo
+    print T
+    print Rsb
     c1 = 5.527215
     c2 = -1.841408
     c3 = 0.783716

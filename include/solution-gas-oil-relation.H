@@ -15,7 +15,11 @@ class RsAlShammasi : public SolutionGasOilRelation
     add_parameter("yg", Sgg::get_instance(), 0.51, 3.44);
     add_parameter("pb", psia::get_instance(), 31.7, 7127);
     add_parameter("p", psia::get_instance(), Quantity<Atmosphere>(1));
-    add_parameter("api", Api::get_instance(), 6, 63.7);
+
+    // min and max of api are put inverted because Sg_do unit is inverse
+    add_parameter("yo", Sg_do::get_instance(),
+		  Quantity<Api>(63.7), Quantity<Api>(6));
+    
     add_parameter("t", Fahrenheit::get_instance(), 74, 341.6);
     add_parameter("rsb", SCF_STB::get_instance());
   }
@@ -37,10 +41,19 @@ class RsAlShammasi : public SolutionGasOilRelation
     const double raw_yo = yo.get_value();
     const double raw_yg = yg.get_value();
     const double raw_p  = p.get_value();
-        
+
     const double rs =
-      pow(raw_p/pow(raw_yo, c1) * exp(c2*floor(raw_yo*raw_yg)), c3_inv) /
-      ((t.get_value() + 460) * raw_yg);
+      pow(raw_p/(pow(raw_yo, c1)*exp(c2*floor(raw_yo*raw_yg))), c3_inv) /
+      ((t.get_value() + 460) * raw_yg); 
+
+ // / ((T + 460) * Yg)
+
+
+ //  ((P / (Yo**c1 * exp(c2 * floor(Yo * Yg)) )) ** (1/c3)) / ((T + 460) * Yg)
+
+ //    const double rs =
+ //      pow(raw_p/pow(raw_yo, c1) * exp(c2*floor(raw_yo*raw_yg)), c3_inv) /
+ //      ((t.get_value() + 460) * raw_yg);
 
     return Quantity<SCF_STB>(rs);
   }
