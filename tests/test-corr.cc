@@ -321,8 +321,7 @@ void test(int argc, char *argv[])
     if (ignore.getValue())
       {
 	auto ret = correlation_ptr->compute(pars_list);
-	cout << correlation_ptr->call_string(pars_list) << ") = " << ret
-	     << " (ERROR)" << endl;
+	cout << correlation_ptr->call_string(pars_list) << ") = " << ret << endl;
       }
     else
       {

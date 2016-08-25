@@ -276,7 +276,8 @@ public:
 	return VtlQuantity(*p.first, p.second);
       });
 
-    return compute(pars).get_value();
+    VtlQuantity ret = { unit, compute(pars) }; // here conversion is done
+    return ret.get_value();
   }
 
   double compute_and_check(const DynList<double> & pars) const
@@ -331,19 +332,19 @@ public:
 
   VtlQuantity verify_result(const VtlQuantity & result) const
   {
-    VtlQuantity ret = result;
-    if (ret.get_value()  < min_val or ret.get_value() > max_val)
+    assert(&result.unit == &unit);
+    if (result.get_value()  < min_val or result.get_value() > max_val)
       {
 	ostringstream s;
-	s << "Correlation return value " << ret.get_value() << " "
-	  << ret.unit.symbol << " is out of range ["
+	s << "Correlation return value " << result.get_value() << " "
+	  << result.unit.symbol << " is out of range ["
 	  << min_val << ", " << max_val << "]" << endl
 	  << "Error was detected while converting from " << result
-	  << " to " << ret.unit.symbol;
+	  << " to " << result.unit.symbol;
 	throw range_error(s.str());
       }
 
-    return ret;
+    return result;
   }
 
   bool check_result(const VtlQuantity & result) const

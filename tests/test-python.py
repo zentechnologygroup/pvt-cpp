@@ -292,3 +292,75 @@ def RsAlShammasiCorrelation(Yg, Pb, P, Yo, T, Rsb):
         Rs = ((P / (Yo ** c1 * exp(c2 * floor(Yo * Yg)))) ** (1 / c3)) / ((T + 460) * Yg)
     RsAlShammasi = Rs
     return RsAlShammasi
+
+
+def RsAlMarhounCorrelation(Yg, Pb, P, Yo, T, Rsb):
+    c1 = 5.38088 * 10 ** -3
+    c2 = -1.87784
+    c3 = 3.1437
+    c4 = 1.32657
+    c5 = 1 / 0.715082
+        
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        Rs = (P / (c1 * Yg ** c2 * Yo ** c3 * T ** c4)) ** c5
+    RsAlMarhoun = Rs
+    return RsAlMarhoun
+
+def RsDeGhettoCorrelation(Yg, Pb, P, API, T, Tsep, Psep, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        if API <= 10: # Extra-heavy oil
+            Rs = Yg * ((P / 10.7025) * 10 **(0.0169 * API - 0.00156 * T)) ** 1.1128
+        else:
+            YgCorr = Yg * (1 + 0.5912 * API * Tsep * log10(Psep / 114.7) * 10 ** -4)
+            Rs = ((YgCorr * P ** 1.2057) / 56.434) * 10 ** (10.9267 * API / (T + 460))
+    RsDeGhetto = Rs
+    return RsDeGhetto
+        
+
+def RsDindorukChristmanCorrelation(Yg, Pb, P, API, T, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:    
+        a1 = 4.86996 * 10 ** -6
+        a2 = 5.730982539
+        a3 = 9.9251 * 10 ** -3
+        a4 = 1.776179364
+        a5 = 44.2500268
+        a6 = 2.702889206
+        a7 = 0.744335673
+        a8 = 3.35975497
+        a9 = 28.10133245
+        a10 = 1.57905016
+        a11 = 0.928131344
+        A = (a1 * API ** a2 + a3 * T ** a4) / (a5 + (2 * API ** a6) / (Pb ** a7)) ** 2
+        Rs = ((P / a8 + a9) * Yg ** a10 * 10 ** A) ** a11
+    RsDindorukChristman = Rs
+    return  RsDindorukChristman
+
+def RsDoklaOsmanCorrelation(Yg, Pb, P, Yo, T, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else: 
+        Rs = ((1/0.836386 * 10 **4) * P * Yg ** 1.01049 * Yo ** -0.107991 * T ** 0.952584) ** (1/0.724047)
+    RsDoklaOsman = Rs
+    return RsDoklaOsman       
+
+def RsGlasoCorrelation (Yg, Pb, P, API, T, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        a = -0.30218
+        b = 1.7447
+        c = 1.7669 - log10(P)
+        if (b ** 2 - 4 * a * c) < 0: # To avoid calculating the root of a negative number
+            R = -b / (2 * a)
+        else:
+            R = (-b + (b ** 2 - 4 * a * c) ** 0.5) / (2 * a)
+        F = 10 ** R
+        Rs = Yg*((F * API ** 0.989) / (T ** 0.172)) ** (1 / 0.816)
+        RsGlaso = Rs
+        return RsGlaso

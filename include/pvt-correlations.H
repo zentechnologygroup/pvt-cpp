@@ -28,6 +28,11 @@ struct CorrelationInstantiater
     PbManucciRosales::get_instance();
 
     RsAlShammasi::get_instance();
+    RsAlMarhoun::get_instance();
+    RsDeGhetto::get_instance();
+    RsDindorukChristman::get_instance();
+    RsDoklaOsman::get_instance();
+    RsGlaso::get_instance();
   }
 };
 
