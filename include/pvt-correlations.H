@@ -33,6 +33,9 @@ struct CorrelationInstantiater
     RsDindorukChristman::get_instance();
     RsDoklaOsman::get_instance();
     RsGlaso::get_instance();
+    RsHanafy::get_instance();
+    RsKartoatmodjoSchmidt::get_instance();
+    RsLasater::get_instance();
   }
 };
 

@@ -594,6 +594,11 @@ inline double exp(const BaseQuantity & q)
   return exp(q.get_value());
 }
 
+inline double log10(const BaseQuantity & q)
+{
+  return log10(q.get_value());
+}
+
 class VtlQuantity; // forward declaration
 
 /** Quantity 
@@ -792,6 +797,12 @@ template <class UnitName> inline
 Quantity<UnitName> operator / (double lhs, const Quantity<UnitName> & rhs)
 {
   return Quantity<UnitName>(lhs / rhs.get_value());
+}
+
+template <class UnitName> inline
+Quantity<UnitName> operator / (const Quantity<UnitName> & lhs, double rhs)
+{
+  return Quantity<UnitName>(lhs.get_value() / rhs);
 }
 
 template <class U> inline

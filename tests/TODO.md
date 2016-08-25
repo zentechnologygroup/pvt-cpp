@@ -61,3 +61,6 @@
 ## 18. verificar rigurosamente orden y unidades de correlaciones
 - Created at   2016-08-24 14:34:13 -0400
 
+## 19. Poner parametro en test-corr que indique intervalo para un parámetros
+- Created at   2016-08-25 15:46:17 -0400
+

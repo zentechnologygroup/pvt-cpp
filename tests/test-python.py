@@ -364,3 +364,59 @@ def RsGlasoCorrelation (Yg, Pb, P, API, T, Rsb):
         Rs = Yg*((F * API ** 0.989) / (T ** 0.172)) ** (1 / 0.816)
         RsGlaso = Rs
         return RsGlaso
+
+
+def RsKartoatmodjoSchmidtCorrelation(Yg, Pb, P, API, T, Tsep, Psep, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        c = 1 + 0.1595 * API ** 0.4078 * Tsep ** -0.2466 * log10(Psep / 114.7)
+        YgCorr = c * Yg 
+        if API > 30:
+            c1 = 0.0315
+            c2 = 0.7587
+            c3 = 1.0937
+            c4 = 11.289
+        else:
+            c1 = 0.05958
+            c2 = 0.7972
+            c3 = 1.0014
+            c4 = 13.1405
+    Rs = c1 * (YgCorr) **c2 * (P) ** c3 * (10) ** (c4 * API / (T + 460) )
+    RsKartoatmodjoSchmidt = Rs
+    return RsKartoatmodjoSchmidt
+    
+def RsLasaterCorrelation(Yg, Pb, P, Yo, T, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        API = 141.5 / Yo - 131.5
+        if API <= 40:
+            Mo = 630 - 10 * API
+        else:
+            Mo = 73110 * API ** -1.562
+        # Calculation of Xpb = Bubble point pressure factor (P * Yg) / T
+        Xpb = P * Yg / T
+        if Xpb < 3.29:
+            c1 = 0.359
+            c2 = ((1.473 * P * Yg) / T)
+            c3 = 0.476
+            Sy = c1 * log(c2 + c3)
+        else:
+            c1 = ((0.121 * P * Yg) / T)
+            c2 = -0.236
+            c3 = 0.281
+            Sy = (c1 + c2) ** c3
+                
+        if Sy>=1:
+            Sy=0.99999999
+        Rs = (132755 * Yo * Sy) / (Mo * (1 - Sy))
+    
+    
+        if Rs < 0: # Logical condition
+            
+            Rs = 0
+    
+        RsLasater = Rs
+    
+        return RsLasater

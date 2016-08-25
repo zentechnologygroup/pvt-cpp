@@ -16,3 +16,4 @@ opción para cambiar unidad de un cierto tipo de parámetro,2016-08-22 20:37:38 
 corregir formato python cuando hay cambio de unidades,2016-08-23 21:41:56 -0400,2016-08-24 10:29:55 -0400,
 poner NA en salida cuando haya error,2016-08-24 10:30:32 -0400,,
 verificar rigurosamente orden y unidades de correlaciones,2016-08-24 14:34:13 -0400,,
+Poner parametro en test-corr que indique intervalo para un parámetros,2016-08-25 15:46:17 -0400,,
