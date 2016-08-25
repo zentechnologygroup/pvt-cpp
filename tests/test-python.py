@@ -410,11 +410,9 @@ def RsLasaterCorrelation(Yg, Pb, P, Yo, T, Rsb):
                 
         if Sy>=1:
             Sy=0.99999999
-        Rs = (132755 * Yo * Sy) / (Mo * (1 - Sy))
+        Rs = (132755 * Yo * Sy) / (Mo * (1 - Sy))    
     
-    
-        if Rs < 0: # Logical condition
-            
+        if Rs < 0: # Logical condition            
             Rs = 0
     
         RsLasater = Rs

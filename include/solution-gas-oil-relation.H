@@ -767,7 +767,7 @@ class RsLasater : public SolutionGasOilRelation
         
     const double rs = (132755*yo.get_value()*sy) / (mo*(1 - sy));
     
-    return Quantity<SCF_STB>(rs);
+    return Quantity<SCF_STB>(rs >= 0 ? rs : 0);
   }
 
 public:
