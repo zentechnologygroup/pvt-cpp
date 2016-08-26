@@ -495,7 +495,7 @@ class RsGlaso : public SolutionGasOilRelation
     constexpr double a = -0.30218;
     constexpr double b = 1.7447;
     constexpr double b2 = b*b; // b**2
-    const double c = 1.7669 - log10(p.get_value());
+    const double c = 1.7669 - log10(p);
 
     // TODO: considerar resolver la eq 2do grado y decidir por el
     // valor de p. La solución es log10(p)=(17669*a-2500*b^2)/(10000*a)
