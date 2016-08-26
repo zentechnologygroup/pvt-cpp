@@ -36,6 +36,7 @@ struct CorrelationInstantiater
     RsHanafy::get_instance();
     RsKartoatmodjoSchmidt::get_instance();
     RsLasater::get_instance();
+    RsPetroskyFarshad::get_instance();
   }
 };
 

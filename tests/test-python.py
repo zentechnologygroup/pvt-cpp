@@ -418,3 +418,13 @@ def RsLasaterCorrelation(Yg, Pb, P, Yo, T, Rsb):
         RsLasater = Rs
     
         return RsLasater
+
+
+def RsPetroskyFarshadCorrelation(Yg, Pb, P, API, T, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        X = 7.916 * 10 ** -4 * API ** 1.541 - 4.561 * 10 ** -5 * T ** 1.3911
+        Rs = ((P / 112.727 + 12.34) * Yg ** 0.8439 * 10 ** X) ** 1.73184
+    RsPetroskyFarshad = Rs
+    return RsPetroskyFarshad

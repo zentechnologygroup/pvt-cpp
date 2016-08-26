@@ -1,4 +1,4 @@
->
+
 # ifndef CORRELATION_H
 # define CORRELATION_H
 
@@ -408,8 +408,26 @@ Declare_Correlation_Type(WaterCorrelation);
   									\
 private:
 
-# define Open_Correlation(name, subtype, result_unit)	\
+# define Open_Correlation(name, subtype, result_unit, args...)	\
   class name : public subtype				\
+  {							\
+    Correlation_Singleton(name);			\
+    name()						\
+      : subtype(#name, result_unit::get_instance(), ##args)
 
+# define Declare_Correlation_Parameter(name, unit, args...)	\
+  add_parameter(#name, unit::get_instance(), ##args);
+
+# define Open_Correlation_Parameters(name, unit, args...)	\
+  {								\
+    Declare_Correlation_Parameter(name, unit, ##args);
+
+# define Close_Correlation_Parameters()		\
+  }
+
+# define Close_Correlation()			\
+  }
+
+  
 
 # endif // CORRELATION_H

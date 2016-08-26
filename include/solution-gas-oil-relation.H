@@ -819,6 +819,20 @@ public:
 
 /*****************************************************************/
 
+/**  PETROSKY & FARSHAD CORRELATION, CALCULATION OF SOLUTION GOR
+
+     Based on 81 laboratory PVT analyses.
+  
+   Fluid samples were obtained from reservoirs located offshore Texas
+   and Louisiana. Producing areas from Galveston Island, eastward,
+   through Main Pass are represented.
+        
+   @see:G.E. Petrosky Jr. and
+   F.F. Farshad. "Pressure-Volume-Temperature Correlations for Gulf of
+   Mexico Crude Oils," SPE 26644, 1993. 
+          
+   Validada con python!
+ */
 class RsPetroskyFarshad : public SolutionGasOilRelation
 {
   Correlation_Singleton(RsPetroskyFarshad);
@@ -826,58 +840,31 @@ class RsPetroskyFarshad : public SolutionGasOilRelation
   RsPetroskyFarshad()
     : SolutionGasOilRelation("RsPetroskyFarshad", SCF_STB::get_instance())
   {
-    add_parameter("yg", Sgg::get_instance(), 0.574, 1.223);
-    add_parameter("pb", psia::get_instance(), 48, 5780);
+    add_parameter("yg", Sgg::get_instance(), 0.5781, 0.8519);
+    add_parameter("pb", psia::get_instance(), 1574, 6523);
     add_parameter("p", psia::get_instance());
-    add_parameter("yo", Sg_do::get_instance(),
-		  Quantity<Api>(51.1), Quantity<Api>(17.9));
-    add_parameter("t", Rankine::get_instance(),
-		  Quantity<Fahrenheit>(82), Quantity<Fahrenheit>(272));
-    add_parameter("rsb", SCF_STB::get_instance(), 3, 2905);
+    add_parameter("api", Api::get_instance(), 16.3, 45);
+    add_parameter("t", Fahrenheit::get_instance(), 114, 288);
+    add_parameter("rsb", SCF_STB::get_instance(), 217, 1406);
   }
 
   Quantity<SCF_STB> compute(const Quantity<Sgg> & yg,
 			    const Quantity<psia> & pb,
 			    const Quantity<psia> & p,
-			    const Quantity<Sg_do> & yo,
-			    const Quantity<Rankine> & t,
+			    const Quantity<Api> & api,
+			    const Quantity<Fahrenheit> & t,
 			    const Quantity<SCF_STB> & rsb) const
   {
     if (p >= pb)
       return rsb;
 
-    const double raw_api = Quantity<Api>(yo).get_value();
-    const double mo =
-      raw_api <= 40 ? 630 - 10*raw_api : pow(73110*raw_api, -1.562);
-
     const double raw_p = p.get_value();
-    const double raw_yg = yg.get_value();
-    const double raw_t = t.get_value();
-
-        // Calculation of Xpb = 
-    double sy = 0;
-    const double xpb = raw_p*raw_yg/raw_t; // Bubble point pressure factor
-    if (xpb < 3.29)
-      {
-	constexpr double c1 = 0.359;
-	const double     c2 = (1.473*raw_p*raw_yg) / raw_t;
-	constexpr double c3 = 0.476;
-	sy = c1 * log(c2 + c3);
-      }
-    else
-      {        
-	const double     c1 = (0.121*raw_p*raw_yg) / raw_t;
-	constexpr double c2 = -0.236;
-	constexpr double c3 = 0.281;
-	sy = pow(c1 + c2, c3);
-      }        
-
-    if (sy >= 1)
-      sy = 0.99999999;
+    const double x = 0.0007916 * pow(api, 1.541) - 0.00004561 * pow(t, 1.3911);
         
-    const double rs = (132755*yo.get_value()*sy) / (mo*(1 - sy));
-    
-    return Quantity<SCF_STB>(rs >= 0 ? rs : 0);
+    const double rs = pow((raw_p/112.727 + 12.34) * pow(yg, 0.8439) * pow(10, x),
+			  1.73184);
+
+    return Quantity<SCF_STB>(rs);
   }
 
 public:
@@ -890,22 +877,40 @@ public:
     const auto & yg = it.get_curr(); it.next();
     const auto & pb = it.get_curr(); it.next();
     const auto & p = it.get_curr(); it.next();
-    const auto & yo = it.get_curr(); it.next();
+    const auto & api = it.get_curr(); it.next();
     const auto & t = it.get_curr(); it.next();
     const auto & rsb = it.get_curr(); 
 
-    return compute(yg, pb, p, yo, t, rsb);
+    return compute(yg, pb, p, api, t, rsb);
   }
 
   Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<Sg_do> & yo,
-			    const Quantity<Rankine> & t,
-			    const Quantity<SCF_STB> & rsb) const
+				 const Quantity<psia> & pb,
+				 const Quantity<psia> & p,
+				 const Quantity<Api> & api,
+				 const Quantity<Fahrenheit> & t,
+				 const Quantity<SCF_STB> & rsb) const
   {
-    return compute({yg, pb, p, yo, t, rsb});
+    return compute({yg, pb, p, api, t, rsb});
   }
 };
+
+/*****************************************************************/
+
+class RsStanding : public SolutionGasOilRelation
+{
+public:
+  static const RsStanding & get_instance()
+  {
+    static RsStanding instance; return instance;
+  }
+  RsStanding(const RsStanding&) = delete;
+  void operator = (const RsStanding&) = delete;
+private:;
+  RsStanding() : SolutionGasOilRelation("RsStanding", SCF_STB::get_instance())
+{ add_parameter(foo, Fahrenheit::get_instance(), 20, 100);;;
+}
+};
+
 
 # endif // SOLUTION_GAS_OIL_REKATION_H

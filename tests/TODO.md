@@ -67,3 +67,9 @@
 ## 20. foldl_perm
 - Created at   2016-08-25 21:59:08 -0400
 
+## 21. modificar RsGlaso para que use la raíz de la eq 2do grado
+- Created at   2016-08-26 12:14:58 -0400
+
+## 22. modificar RsGlaso para que use la raíz de la eq 2do gradop
+- Created at   2016-08-26 12:31:48 -0400
+
