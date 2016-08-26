@@ -1,4 +1,4 @@
-
+>
 # ifndef CORRELATION_H
 # define CORRELATION_H
 
@@ -408,6 +408,8 @@ Declare_Correlation_Type(WaterCorrelation);
   									\
 private:
 
+# define Open_Correlation(name, subtype, result_unit)	\
+  class name : public subtype				\
 
 
 # endif // CORRELATION_H

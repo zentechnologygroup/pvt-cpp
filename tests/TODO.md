@@ -64,3 +64,6 @@
 ## 19. Poner parametro en test-corr que indique intervalo para un parámetros
 - Created at   2016-08-25 15:46:17 -0400
 
+## 20. foldl_perm
+- Created at   2016-08-25 21:59:08 -0400
+

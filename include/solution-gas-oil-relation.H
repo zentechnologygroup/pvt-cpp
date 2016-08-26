@@ -660,7 +660,8 @@ class RsKartoatmodjoSchmidt : public SolutionGasOilRelation
 	constexpr double c2 = 0.7587;
 	constexpr double c3 = 1.0937;
 	constexpr double c4 = 11.289;
-	rs = c1 * pow(ygcorr, c2) * pow(p, c3) * pow(10, c4*raw_api/(raw_t + 460));
+	rs = c1 * pow(ygcorr, c2) * pow(p, c3) *
+	  pow(10, c4*raw_api/(raw_t + 460));
       }
     else
       {
@@ -668,7 +669,8 @@ class RsKartoatmodjoSchmidt : public SolutionGasOilRelation
 	constexpr double c2 = 0.7972;
 	constexpr double c3 = 1.0014;
 	constexpr double c4 = 13.1405;
-	rs = c1 * pow(ygcorr, c2) * pow(p, c3) * pow(10, c4*raw_api/(raw_t + 460));
+	rs = c1 * pow(ygcorr, c2) * pow(p, c3) *
+	  pow(10, c4*raw_api/(raw_t + 460));
       }
 
     return Quantity<SCF_STB>(rs);
@@ -709,12 +711,120 @@ public:
 
 /*****************************************************************/
 
+/** LASATER CORRELATION, CALCULATION OF SOLUTION GOR
+         
+    Based on 158 experimentally measured bubble point pressures of 137
+    independent systems.
+
+    The data were obtained from Canada, Western and Mid-Continental
+    United States, and South America. 
+          
+    @see: Lasater, J.A., "Bubble Point Pressure Correlation" Trans.,
+        AIME (1958) 213,379-381. 
+    @:see: Beggs, H.D. "Oil System Correlations", Petroleum
+        Engineering Handbook, H.C. SPE, Richardson, TX (1987). Cap
+        22. Pag 22-6.  
+
+     Validada con python!
+ */
 class RsLasater : public SolutionGasOilRelation
 {
   Correlation_Singleton(RsLasater);
 
   RsLasater()
     : SolutionGasOilRelation("RsLasater", SCF_STB::get_instance())
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.574, 1.223);
+    add_parameter("pb", psia::get_instance(), 48, 5780);
+    add_parameter("p", psia::get_instance());
+    add_parameter("yo", Sg_do::get_instance(),
+		  Quantity<Api>(51.1), Quantity<Api>(17.9));
+    add_parameter("t", Rankine::get_instance(),
+		  Quantity<Fahrenheit>(82), Quantity<Fahrenheit>(272));
+    add_parameter("rsb", SCF_STB::get_instance(), 3, 2905);
+  }
+
+  Quantity<SCF_STB> compute(const Quantity<Sgg> & yg,
+			    const Quantity<psia> & pb,
+			    const Quantity<psia> & p,
+			    const Quantity<Sg_do> & yo,
+			    const Quantity<Rankine> & t,
+			    const Quantity<SCF_STB> & rsb) const
+  {
+    if (p >= pb)
+      return rsb;
+
+    const double raw_api = Quantity<Api>(yo).get_value();
+    const double mo =
+      raw_api <= 40 ? 630 - 10*raw_api : pow(73110*raw_api, -1.562);
+
+    const double raw_p = p.get_value();
+    const double raw_yg = yg.get_value();
+    const double raw_t = t.get_value();
+
+        // Calculation of Xpb = 
+    double sy = 0;
+    const double xpb = raw_p*raw_yg/raw_t; // Bubble point pressure factor
+    if (xpb < 3.29)
+      {
+	constexpr double c1 = 0.359;
+	const double     c2 = (1.473*raw_p*raw_yg) / raw_t;
+	constexpr double c3 = 0.476;
+	sy = c1 * log(c2 + c3);
+      }
+    else
+      {        
+	const double     c1 = (0.121*raw_p*raw_yg) / raw_t;
+	constexpr double c2 = -0.236;
+	constexpr double c3 = 0.281;
+	sy = pow(c1 + c2, c3);
+      }        
+
+    if (sy >= 1)
+      sy = 0.99999999;
+        
+    const double rs = (132755*yo.get_value()*sy) / (mo*(1 - sy));
+    
+    return Quantity<SCF_STB>(rs >= 0 ? rs : 0);
+  }
+
+public:
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+    
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr(); it.next();
+    const auto & pb = it.get_curr(); it.next();
+    const auto & p = it.get_curr(); it.next();
+    const auto & yo = it.get_curr(); it.next();
+    const auto & t = it.get_curr(); it.next();
+    const auto & rsb = it.get_curr(); 
+
+    return compute(yg, pb, p, yo, t, rsb);
+  }
+
+  Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
+			    const Quantity<psia> & pb,
+			    const Quantity<psia> & p,
+			    const Quantity<Sg_do> & yo,
+			    const Quantity<Rankine> & t,
+			    const Quantity<SCF_STB> & rsb) const
+  {
+    return compute({yg, pb, p, yo, t, rsb});
+  }
+};
+
+
+/*****************************************************************/
+
+class RsPetroskyFarshad : public SolutionGasOilRelation
+{
+  Correlation_Singleton(RsPetroskyFarshad);
+
+  RsPetroskyFarshad()
+    : SolutionGasOilRelation("RsPetroskyFarshad", SCF_STB::get_instance())
   {
     add_parameter("yg", Sgg::get_instance(), 0.574, 1.223);
     add_parameter("pb", psia::get_instance(), 48, 5780);

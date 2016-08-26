@@ -1,4 +1,4 @@
-from math import exp, log10, floor
+from math import exp, log10, floor, log
 
 def PbAlMarhounCorrelation(Yg, Yo, Rsb, T):        
     Pb = (5.38088 * 10 ** -3) * (Rsb ** 0.715082) * (Yg ** -1.87784) * (Yo ** 3.1437) * (T ** 1.32657)
