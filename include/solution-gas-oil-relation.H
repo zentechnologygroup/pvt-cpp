@@ -897,20 +897,55 @@ public:
 
 /*****************************************************************/
 
-class RsStanding : public SolutionGasOilRelation
+// Begin_Correlation(RsTest, SolutionGasOilRelation, Fahrenheit);
+// Declare_Correlation_Parameter(p1, Fahrenheit, 10, 300);
+// Declare_Correlation_Parameter(p2, psia, 100, 3000);
+// End_Correlation_Parameters();
+// End_Correlation();
+
+class RsTest : public SolutionGasOilRelation
 {
-public:
-  static const RsStanding & get_instance()
+  template <size_t... Is>
+  VtlQuantity __compute(const DynList<VtlQuantity> & pars,
+			  index_sequence<Is...>) const
   {
-    static RsStanding instance; return instance;
-  }
-  RsStanding(const RsStanding&) = delete;
-  void operator = (const RsStanding&) = delete;
-private:;
-  RsStanding() : SolutionGasOilRelation("RsStanding", SCF_STB::get_instance())
-{ add_parameter(foo, Fahrenheit::get_instance(), 20, 100);;;
+    vector<const VtlQuantity> v = to_vector(pars);
+    return compute(v.at(Is)...);
 }
-};
 
+  VtlQuantity __compute(const DynList<VtlQuantity>& pars) const
+  {
+    constexpr size_t N =
+      utils::function_traits<decltype(&RsTest::compute)>::arity;
+    return __compute(pars, std::make_index_sequence<N>());
+}
 
+  VtlQuantity compute(const Quantity<Fahrenheit> & ,
+		      const Quantity<psia> &) const
+  {
+    return VtlQuantity(Fahrenheit::get_instance());
+  }
+
+public:
+
+  static const RsTest & get_instance()
+  { static RsTest instance; return instance; }
+
+  RsTest(const RsTest&) = delete;
+  void operator = (const RsTest&) = delete;
+
+private:;
+
+  RsTest() : SolutionGasOilRelation("RsTest", Fahrenheit::get_instance())
+  {;
+    add_parameter("p1", Fahrenheit::get_instance(), 10, 300);;
+    add_parameter("p2", psia::get_instance(), 100, 3000);;
+  }
+public:
+  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+    return __compute(pars);
+  };
+};;
 # endif // SOLUTION_GAS_OIL_REKATION_H

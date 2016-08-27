@@ -7,7 +7,9 @@
 
 # include <ahFunctional.H>
 # include <ah-string-utils.H>
+# include <ah-stl-utils.H>
 
+# include <traits.hpp>
 # include <utils.H>
 # include <pvt-units.H>
 
@@ -394,6 +396,30 @@ Declare_Correlation_Type(WaterCorrelation);
   inline subtype_name::~subtype_name() {}
 
 
+template <typename F> struct compute_arity;
+
+template <typename Ret, typename ...Args> struct compute_arity<Ret(Args...)>
+{
+  static constexpr std::size_t value = sizeof...(Args);
+};
+
+template <typename Func, typename T, std::size_t ... Is>
+decltype(auto)
+  call_compute(Func&& f, const DynList<T>& pars, std::index_sequence<Is...>)
+{
+  std::vector<T> v = to_vector(pars);
+ 
+  return std::forward<Func>(f)(v.at(Is)...);
+}
+ 
+template <typename Func, typename T>
+decltype(auto) call_compute(Func&& f, const DynList<T>& pars)
+{
+  constexpr std::size_t N =
+    compute_arity<std::remove_pointer_t<std::decay_t<Func>>>::value;
+  return call_compute(std::forward<Func>(f), pars, std::make_index_sequence<N>());
+}
+
 # define Correlation_Singleton(name)					\
   public:								\
 									\
@@ -408,25 +434,45 @@ Declare_Correlation_Type(WaterCorrelation);
   									\
 private:
 
-# define Open_Correlation(name, subtype, result_unit, args...)	\
-  class name : public subtype				\
-  {							\
-    Correlation_Singleton(name);			\
-    name()						\
-      : subtype(#name, result_unit::get_instance(), ##args)
+# define Begin_Correlation(name, subtype, result_unit, args...)	\
+  class name : public subtype					\
+  {								\
+    template <size_t ... Is>						\
+      VtlQuantity __compute(const DynList<VtlQuantity>& pars,		\
+			    index_sequence<Is...>) const			\
+    {									\
+      vector<const VtlQuantity> v = to_vector(pars);			\
+      return compute(v.at(Is)...);					\
+    }									\
+    									\
+    VtlQuantity __compute(const DynList<VtlQuantity>& pars) const	\
+    {									\
+      constexpr size_t N =						\
+	utils::function_traits<decltype(&name::compute)>::arity;	\
+      return __compute(pars, std::make_index_sequence<N>());		\
+    }									\
+    									\
+    Correlation_Singleton(name);					\
+    name()								\
+      : subtype(#name, result_unit::get_instance(), ##args)		\
+      {
 
 # define Declare_Correlation_Parameter(name, unit, args...)	\
   add_parameter(#name, unit::get_instance(), ##args);
 
-# define Open_Correlation_Parameters(name, unit, args...)	\
-  {								\
-    Declare_Correlation_Parameter(name, unit, ##args);
+# define End_Correlation_Parameters()		\
+  }						\
+public:									\
+ virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const	\
+ {									\
+   auto pars = verify_preconditions(__pars);				\
+   return __compute(pars);						\
+ }									
 
-# define Close_Correlation_Parameters()		\
-  }
+# define End_Correlation()			\
+  };
 
-# define Close_Correlation()			\
-  }
+
 
   
 
