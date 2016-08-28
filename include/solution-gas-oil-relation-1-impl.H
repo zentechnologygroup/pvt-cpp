@@ -105,3 +105,55 @@ RsVasquezBeggs::impl(const Quantity<Sgg> & yg,
   return Quantity<SCF_STB>(rs > 0 ? rs : 0);
 }
 
+
+inline Quantity<SCF_STB> RsVelarde::impl(const Quantity<Sgg> & yg,
+					 const Quantity<psig> & pb,
+					 const Quantity<psig> & p,
+					 const Quantity<Api> & api,
+					 const Quantity<Fahrenheit> & t,
+					 const Quantity<SCF_STB> & rsb) const
+{
+  const double raw_pb = pb.get_value();
+  const double raw_p  = p.get_value();
+  if (raw_p >= raw_pb)
+    return rsb;
+
+  constexpr double a0 = 9.73e-07;
+  constexpr double a1 = 1.672608;
+  constexpr double a2 = 0.92987;
+  constexpr double a3 = 0.247235;
+  constexpr double a4 = 1.056052;
+        
+  constexpr double b0 = 0.022339;
+  constexpr double b1 = -1.00475;
+  constexpr double b2 = 0.337711;
+  constexpr double b3 = 0.132795;
+  constexpr double b4 = 0.302065;
+        
+  constexpr double c0 = 0.725167;
+  constexpr double c1 = -1.48548;
+  constexpr double c2 = -0.164741;
+  constexpr double c3 = -0.09133;
+  constexpr double c4 = 0.047094;
+
+  const double raw_yg = yg.get_value();
+  const double raw_api = api.get_value();
+  const double raw_t = t.get_value();
+
+  const double s1 =
+    a0 * pow(raw_yg, a1) * pow(raw_api, a2) * pow(raw_t, a3) * pow(raw_pb, a4);
+
+  const double s2 =
+    b0 * pow(raw_yg, b1) * pow(raw_api, b2) * pow(raw_t, b3) * pow(raw_pb, b4);
+
+  const double s3 =
+    c0 * pow(raw_yg, c1) * pow(raw_api, c2) * pow(raw_t, c3) * pow(raw_pb, c4);
+        
+  const double pr = raw_p / raw_pb;
+        
+  const double rsr = s1 * pow(pr, s2) + (1 - s1) * pow(pr, s3);
+        
+  const double rs = rsr * rsb.get_value();
+
+  return Quantity<SCF_STB>(rs);
+}

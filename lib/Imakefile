@@ -16,7 +16,7 @@ OBJS = pvt.o
 
 EXTRACT_CV = $(TOP)/bin/extract-cv
 
-pvt.cc: units-vars.cc correlations-vars.cc ../include/pvt-correlations.H ../include/correlation.H ../include/bubble-point-pressure.H ../include/units.H ../include/pvt-units.H ../include/solution-gas-oil-relation.H ../include/solution-gas-oil-relation-1.H
+pvt.cc: units-vars.cc correlations-vars.cc ../include/pvt-correlations.H ../include/correlation.H ../include/bubble-point-pressure.H ../include/units.H ../include/pvt-units.H ../include/solution-gas-oil-relation.H ../include/solution-gas-oil-relation-1.H ../include/solution-gas-oil-relation-1-impl.H 
 	$(RM) -f $@;					\	@@\
 	$(CPP) $(CXXFLAGS) units-vars.cc > $*.tmp;	\	@@\
 	cat units-vars.cc > $@;			\	@@\
@@ -28,10 +28,6 @@ pvt.o: pvt.cc
 
 clean::
 	$(RM) -f pvt.cc
-
-all:: ../include/correlation.H ../include/bubble-point-pressure.H ../include/solution-gas-oil-relation.H ../include/solution-gas-oil-relation-1.H
-
-lib-vars.o: ../include/correlation.H ../include/bubble-point-pressure.H
 
 NormalLibraryObjectRule()
 NormalLibraryTarget(pvt,$(OBJS))

@@ -79,3 +79,23 @@ add_parameter("rsb", "SCF_STB", 0, 2199)
 end_correlation()
 
 
+begin_correlation("RsVelarde", "SolutionGasOilRelation", "SCF_STB")
+add_doc(%Q[    VELARDE CORRELATION, CALCULATION OF SOLUTION GOR
+
+    Based on 195 PVT reports, including 2097 data sets.
+                     
+     @see: J. Velarde, T.A. Blasingame and W.D. McCain, Jr. 
+    "Correlation of Black Oil Properties at Pressures below
+     Bubble Point Pressure - A New Approach," 
+    The Petroleum Society 97-93, 1997.
+  ])
+
+add_parameter("yg", "Sgg", 0.561, 1.101)
+add_parameter("pb", "psig", "Quantity<psia>(106)", "Quantity<psia>(5312)")
+add_parameter("p", "psig")
+add_parameter("api", "Api", 11.6, 53.4)
+add_parameter("t", "Fahrenheit", 70, 307)
+add_parameter("rsb", "SCF_STB", 102, 1808)
+end_correlation()
+
+

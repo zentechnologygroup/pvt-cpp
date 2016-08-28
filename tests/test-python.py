@@ -490,3 +490,41 @@ def RsVasquezBeggsCorrelation(Yg, Pb, P, API, T, Tsep, Psep, Rsb):
     RsVasquezBeggs = Rs
     
     return RsVasquezBeggs
+
+
+def RsVelardeCorrelation(Yg, Pb, P, API, T, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        a0 = 9.73 * 10 ** -7
+        a1 = 1.672608
+        a2 = 0.92987
+        a3 = 0.247235
+        a4 = 1.056052
+        
+        b0 = 0.022339
+        b1 = -1.00475
+        b2 = 0.337711
+        b3 = 0.132795
+        b4 = 0.302065
+        
+        c0 = 0.725167
+        c1 = -1.48548
+        c2 = -0.164741
+        c3 = -0.09133
+        c4 = 0.047094
+        
+        S1 = a0 * Yg ** a1 * API ** a2 * T ** a3 * Pb ** a4
+        S2 = b0 * Yg ** b1 * API ** b2 * T ** b3 * Pb ** b4
+        S3 = c0 * Yg ** c1 * API ** c2 * T ** c3 * Pb ** c4
+        
+        Pr = 1.0*P / Pb
+        Rsr = S1 * Pr ** S2 + (1 - S1) * Pr ** S3
+        Rs = Rsr * Rsb    
+    
+    if Rs < 0: # Logical condition            
+        Rs = 0
+    
+    RsVelarde = Rs
+    
+    return RsVelarde

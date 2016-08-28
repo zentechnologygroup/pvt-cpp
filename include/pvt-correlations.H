@@ -43,6 +43,7 @@ struct CorrelationInstantiater
     RsStanding::get_instance();
     RsTotalCFP::get_instance();
     RsVasquezBeggs::get_instance();
+    RsVelarde::get_instance();
   }
 };
 
