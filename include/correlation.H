@@ -434,6 +434,8 @@ decltype(auto) call_compute(Func&& f, const DynList<T>& pars)
   									\
 private:
 
+# include <boost/preprocessor.hpp>
+
 # define Begin_Correlation(name, subtype, result_unit, args...)	\
   class name : public subtype					\
   {								\

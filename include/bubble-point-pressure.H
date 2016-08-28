@@ -28,10 +28,10 @@ class PbAlMarhoun : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 74, 240);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,     // gas specific gravity 
-			 const Quantity<Sg_do> & yo,    // oil specific gravity 
-			 const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
-			 const Quantity<Rankine> & t) const 
+  Quantity<psia> impl(const Quantity<Sgg> & yg,     // gas specific gravity 
+		      const Quantity<Sg_do> & yo,    // oil specific gravity 
+		      const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
+		      const Quantity<Rankine> & t) const 
   {
     double r = 0.00538088 * pow(rsb, 0.715082) * pow(yg, -1.87784) *
       pow(yo, 3.1437) * pow(t, 1.32657);
@@ -51,7 +51,7 @@ public:
     const auto & rsb = it.get_curr(); it.next();
     const auto & t = it.get_curr();
 
-    return compute(yg, yo, rsb, t);
+    return impl(yg, yo, rsb, t);
   }
 
   Quantity<psia> operator () 
@@ -91,10 +91,10 @@ class PbAlShammasi : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 74, 341.6);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,     // gas specific gravity 
-			 const Quantity<Sg_do> & yo,    // oil specific gravity 
-			 const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
-			 const Quantity<Fahrenheit> & t) const 
+  Quantity<psia> impl(const Quantity<Sgg> & yg,     // gas specific gravity 
+		      const Quantity<Sg_do> & yo,    // oil specific gravity 
+		      const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
+		      const Quantity<Fahrenheit> & t) const 
   {
     constexpr double c1 = 5.527215;
     constexpr double c2 = -1.841408;
@@ -118,7 +118,7 @@ public:
     const auto & rsb = it.get_curr(); it.next();
     const auto & t = it.get_curr();
 
-    return compute(yg, yo, rsb, t);
+    return impl(yg, yo, rsb, t);
   }
 
   Quantity<psia> operator () 
@@ -168,10 +168,10 @@ class PbDeGhetto : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 131.4, 250.7);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,     // gas specific gravity 
-			 const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
-			 const Quantity<Api> & api,    // oil specific gravity 
-			 const Quantity<Fahrenheit> & t) const 
+  Quantity<psia> impl(const Quantity<Sgg> & yg,     // gas specific gravity 
+		      const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
+		      const Quantity<Api> & api,    // oil specific gravity 
+		      const Quantity<Fahrenheit> & t) const 
   {
     const double raw_api = api.get_value();
     const double raw_rsb = rsb.get_value();
@@ -209,7 +209,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & t = it.get_curr();
 
-    return compute(yg, rsb, api, t);
+    return impl(yg, rsb, api, t);
   }
 };
 
@@ -239,10 +239,10 @@ class PbDindorukChristman : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 117, 276);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,     // gas specific gravity 
-			 const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
-			 const Quantity<Api> & api,    // oil specific gravity 
-			 const Quantity<Fahrenheit> & t) const 
+  Quantity<psia> impl(const Quantity<Sgg> & yg,     // gas specific gravity 
+		      const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
+		      const Quantity<Api> & api,    // oil specific gravity 
+		      const Quantity<Fahrenheit> & t) const 
   {
     constexpr double a1  = 0.000000000142828; // 1.42828 * 10 ** -10;
     constexpr double a2  = 2.844591797;
@@ -280,7 +280,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & t = it.get_curr();
 
-    return compute(yg, rsb, api, t);
+    return impl(yg, rsb, api, t);
   }
 
   Quantity<psia> operator () 
@@ -317,10 +317,10 @@ class PbDoklaOsman : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 190, 275);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,     // gas specific gravity 
-			 const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
-			 const Quantity<Sg_do> & yo,    // oil specific gravity 
-			 const Quantity<Rankine> & t) const 
+  Quantity<psia> impl(const Quantity<Sgg> & yg,     // gas specific gravity 
+		      const Quantity<SCF_STB> & rsb, // Solution GOR at Pb
+		      const Quantity<Sg_do> & yo,    // oil specific gravity 
+		      const Quantity<Rankine> & t) const 
   {
     const double pb = 8363.86 * pow(yg, -1.01049) * pow(yo, 0.107991) *
       pow(t, -0.952584) * pow(rsb, 0.724047);
@@ -340,7 +340,7 @@ public:
     const auto & yo = it.get_curr(); it.next();
     const auto & temperature = it.get_curr();
 
-    return compute(yg, rsb, yo, temperature);
+    return impl(yg, rsb, yo, temperature);
   }
 
   Quantity<psia> operator () (const Quantity<Sgg> & yg, 
@@ -378,7 +378,7 @@ class PbHanafy : public BubblePointPressure
     add_parameter("rsb", SCF_STB::get_instance(), 36, 5003);
   }
 
-  Quantity<psia> compute(const Quantity<SCF_STB> & rsb) const
+  Quantity<psia> impl(const Quantity<SCF_STB> & rsb) const
   {
         // Total flash gas-oil ratio
     const double rsft = 69 + 1.071 * rsb.get_value();
@@ -399,7 +399,7 @@ public:
 
     const VtlQuantity & rsb = pars.get_first();
 
-    return compute(rsb);
+    return impl(rsb);
   }
 
   Quantity<psia> operator () (const Quantity<SCF_STB> & rsb) const
@@ -444,12 +444,12 @@ class PbKartoatmodjoSchmidt : public BubblePointPressure
     add_parameter("psep", psia::get_instance(), 14.7, 1414.7);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,
-			 const Quantity<SCF_STB> & rsb,
-			 const Quantity<Api> & api,
-			 const Quantity<Fahrenheit> & t,
-			 const Quantity<Fahrenheit> & tsep,
-			 const Quantity<psia> & psep) const
+  Quantity<psia> impl(const Quantity<Sgg> & yg,
+		      const Quantity<SCF_STB> & rsb,
+		      const Quantity<Api> & api,
+		      const Quantity<Fahrenheit> & t,
+		      const Quantity<Fahrenheit> & tsep,
+		      const Quantity<psia> & psep) const
   {
     const double raw_api = api.get_value();
     const double c = 1 + 0.1595 * pow(raw_api, 0.4078) * pow(tsep, -0.2466) *
@@ -493,7 +493,7 @@ public:
     const auto & tsep = it.get_curr(); it.next();
     const auto & psep = it.get_curr(); 
 
-    return compute(yg, rsb, api, t, tsep, psep);
+    return impl(yg, rsb, api, t, tsep, psep);
   }
 
   Quantity<psia> operator () (const Quantity<Sgg> & yg,
@@ -538,10 +538,10 @@ class PbLasater : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 82, 272);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,
-			 const Quantity<SCF_STB> & rsb,
-			 const Quantity<Api> & api,
-			 const Quantity<Fahrenheit> & t) const
+  Quantity<psia> impl(const Quantity<Sgg> & yg,
+		      const Quantity<SCF_STB> & rsb,
+		      const Quantity<Api> & api,
+		      const Quantity<Fahrenheit> & t) const
   {
         // effective molecular weight
     const double mo =
@@ -575,7 +575,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & t = it.get_curr(); 
 
-    return compute(yg, rsb, api, t);
+    return impl(yg, rsb, api, t);
   }
 
   Quantity<psia> operator () (const Quantity<Sgg> & yg,
@@ -616,10 +616,10 @@ class PbPetroskyFarshad : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 114, 288);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,
-			 const Quantity<SCF_STB> & rsb,
-			 const Quantity<Api> & api,
-			 const Quantity<Fahrenheit> & t) const
+  Quantity<psia> impl(const Quantity<Sgg> & yg,
+		      const Quantity<SCF_STB> & rsb,
+		      const Quantity<Api> & api,
+		      const Quantity<Fahrenheit> & t) const
   {
         // effective molecular weight
     const double x = 0.00004561*pow(t, 1.3911) - 0.0007916*pow(api, 1.541);
@@ -642,7 +642,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & t = it.get_curr(); 
 
-    return compute(yg, rsb, api, t);
+    return impl(yg, rsb, api, t);
   }
 
   Quantity<psia> operator () (const Quantity<Sgg> & yg,
@@ -684,10 +684,10 @@ class PbStanding : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 100, 258);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,
-			 const Quantity<SCF_STB> & rsb,
-			 const Quantity<Api> & api,
-			 const Quantity<Fahrenheit> & t) const
+  Quantity<psia> impl(const Quantity<Sgg> & yg,
+		      const Quantity<SCF_STB> & rsb,
+		      const Quantity<Api> & api,
+		      const Quantity<Fahrenheit> & t) const
   {
     const double pb =
       pow(rsb.get_value()/yg.get_value(), 0.83) *
@@ -709,7 +709,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & t = it.get_curr(); 
 
-    return compute(yg, rsb, api, t);
+    return impl(yg, rsb, api, t);
   }
 
   Quantity<psia> operator () (const Quantity<Sgg> & yg,
@@ -747,10 +747,10 @@ class PbTotalCFP : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance());
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,
-			 const Quantity<SCF_STB> & rsb,
-			 const Quantity<Api> & api,
-			 const Quantity<Fahrenheit> & t) const
+  Quantity<psia> impl(const Quantity<Sgg> & yg,
+		      const Quantity<SCF_STB> & rsb,
+		      const Quantity<Api> & api,
+		      const Quantity<Fahrenheit> & t) const
   {
     double c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 
@@ -795,7 +795,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & t = it.get_curr(); 
 
-    return compute(yg, rsb, api, t);
+    return impl(yg, rsb, api, t);
   }
 
   Quantity<psia> operator () (const Quantity<Sgg> & yg,
@@ -836,12 +836,12 @@ class PbVasquezBeggs : public BubblePointPressure
     add_parameter("pset", psia::get_instance());
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,
-			 const Quantity<SCF_STB> & rsb,
-			 const Quantity<Api> & api,
-			 const Quantity<Fahrenheit> & t,
-			 const Quantity<Fahrenheit> & tsep,
-			 const Quantity<psia> & psep) const
+  Quantity<psia> impl(const Quantity<Sgg> & yg,
+		      const Quantity<SCF_STB> & rsb,
+		      const Quantity<Api> & api,
+		      const Quantity<Fahrenheit> & t,
+		      const Quantity<Fahrenheit> & tsep,
+		      const Quantity<psia> & psep) const
   {
     double c1 = 0, c2 = 0, c3 = 0;
 
@@ -885,7 +885,7 @@ public:
     const auto & tsep = it.get_curr(); it.next();
     const auto & psep = it.get_curr();
 
-    return compute(yg, rsb, api, t, tsep, psep);
+    return impl(yg, rsb, api, t, tsep, psep);
   }
 
   Quantity<psia> operator () (const Quantity<Sgg> & yg,
@@ -924,10 +924,10 @@ class PbVelarde : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 74, 327);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,
-			 const Quantity<SCF_STB> & rsb,
-			 const Quantity<Api> & api,
-			 const Quantity<Fahrenheit> & t) const
+  Quantity<psia> impl(const Quantity<Sgg> & yg,
+		      const Quantity<SCF_STB> & rsb,
+		      const Quantity<Api> & api,
+		      const Quantity<Fahrenheit> & t) const
   {
     const double x = 0.013098 * pow(t, 0.282372) - 8.2e-06 * pow(api, 2.176124);
 
@@ -950,7 +950,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & t = it.get_curr();
 
-    return compute(yg, rsb, api, t);
+    return impl(yg, rsb, api, t);
   }
 
   Quantity<psia> operator () (const Quantity<Sgg> & yg,
@@ -997,10 +997,10 @@ class PbCegarra : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 117, 354);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,
-			 const Quantity<SCF_STB> & rsb,
-			 const Quantity<Api> & api,
-			 const Quantity<Fahrenheit> & t) const
+  Quantity<psia> impl(const Quantity<Sgg> & yg,
+		      const Quantity<SCF_STB> & rsb,
+		      const Quantity<Api> & api,
+		      const Quantity<Fahrenheit> & t) const
   {
     const double raw_api = api.get_value();
 
@@ -1040,7 +1040,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & t = it.get_curr();
 
-    return compute(yg, rsb, api, t);
+    return impl(yg, rsb, api, t);
   }
 
   Quantity<psia> operator () (const Quantity<Sgg> & yg,
@@ -1083,10 +1083,10 @@ class PbPerezML : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 112, 300);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,
-			 const Quantity<SCF_STB> & rsb,
-			 const Quantity<Api> & api,
-			 const Quantity<Fahrenheit> & t) const
+  Quantity<psia> impl(const Quantity<Sgg> & yg,
+		      const Quantity<SCF_STB> & rsb,
+		      const Quantity<Api> & api,
+		      const Quantity<Fahrenheit> & t) const
   {
     const double x = 0.0002573*t.get_value() - 0.0253643*api.get_value();
         
@@ -1108,7 +1108,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & t = it.get_curr();
 
-    return compute(yg, rsb, api, t);
+    return impl(yg, rsb, api, t);
   }
 
   Quantity<psia> operator () (const Quantity<Sgg> & yg,
@@ -1152,10 +1152,10 @@ class PbMillanArcia : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 87, 195);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,
-			 const Quantity<SCF_STB> & rsb,
-			 const Quantity<Api> & api,
-			 const Quantity<Fahrenheit> & t) const
+  Quantity<psia> impl(const Quantity<Sgg> & yg,
+		      const Quantity<SCF_STB> & rsb,
+		      const Quantity<Api> & api,
+		      const Quantity<Fahrenheit> & t) const
   {
     const double x = 0.00091*t.get_value() - 0.0125*api.get_value();
         
@@ -1177,7 +1177,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & t = it.get_curr();
 
-    return compute(yg, rsb, api, t);
+    return impl(yg, rsb, api, t);
   }
 
   Quantity<psia> operator () (const Quantity<Sgg> & yg,
@@ -1222,10 +1222,10 @@ class PbManucciRosales : public BubblePointPressure
     add_parameter("t", Fahrenheit::get_instance(), 165, 304);
   }
 
-  Quantity<psia> compute(const Quantity<Sgg> & yg,
-			 const Quantity<SCF_STB> & rsb,
-			 const Quantity<Api> & api,
-			 const Quantity<Fahrenheit> & t) const
+  Quantity<psia> impl(const Quantity<Sgg> & yg,
+		      const Quantity<SCF_STB> & rsb,
+		      const Quantity<Api> & api,
+		      const Quantity<Fahrenheit> & t) const
   {
     const double x = 0.000922*t.get_value() - 0.0072*api.get_value();
         
@@ -1247,7 +1247,7 @@ public:
     const auto & api = it.get_curr(); it.next();
     const auto & t = it.get_curr();
 
-    return compute(yg, rsb, api, t);
+    return impl(yg, rsb, api, t);
   }
 
   Quantity<psia> operator () (const Quantity<Sgg> & yg,

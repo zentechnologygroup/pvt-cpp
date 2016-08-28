@@ -1,0 +1,41 @@
+ DEPEND = sh ./depend.sh
+
+INCLUDES = -I../include -I$(ALEPHW) 
+WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
+	-Wno-parentheses
+
+FLAGS = -std=c++14 $(WARN) -O0 -g
+#FLAGS = -std=c++14 $(WARN) -Ofast -DNDEBUG
+
+OPTIONS = $(FLAGS)
+CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
+
+
+
+
+SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
+
+DEPLIBS	= $(TOP)/lib/libpvt.a
+
+LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
+
+TESTSRCS = test-all-units-1.cc test-conversion.cc test-corr.cc test-seq.cc
+
+TESTOBJS = $(TESTSRCS:.cc=.o)
+
+SRCS = $(TESTSRCS)
+
+AllTarget(test-conversion)
+NormalProgramTarget(test-conversion,test-conversion.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(test-corr)
+NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(test-all-units-1)
+NormalProgramTarget(test-all-units-1,test-all-units-1.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(test-seq)
+NormalProgramTarget(test-seq,test-seq.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+DependTarget()
+

@@ -36,12 +36,12 @@ class RsAlShammasi : public SolutionGasOilRelation
     add_parameter("rsb", SCF_STB::get_instance(), 6, 3298.6);
   }
 
-  Quantity<SCF_STB> compute(const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<Sg_do> & yo,
-			    const Quantity<Fahrenheit> & t,
-			    const Quantity<SCF_STB> & rsb) const
+  Quantity<SCF_STB> impl(const Quantity<Sgg> & yg,
+			 const Quantity<psia> & pb,
+			 const Quantity<psia> & p,
+			 const Quantity<Sg_do> & yo,
+			 const Quantity<Fahrenheit> & t,
+			 const Quantity<SCF_STB> & rsb) const
   {
     if (p >= pb)
       return rsb;
@@ -75,7 +75,7 @@ public:
     const auto & t = it.get_curr(); it.next();
     const auto & rsb = it.get_curr(); 
 
-    return compute(yg, pb, p, yo, t, rsb);
+    return impl(yg, pb, p, yo, t, rsb);
   }
 
   Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
@@ -120,12 +120,12 @@ class RsAlMarhoun : public SolutionGasOilRelation
     add_parameter("rsb", SCF_STB::get_instance(), 26, 1602);
   }
 
-  Quantity<SCF_STB> compute(const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<Sg_do> & yo,
-			    const Quantity<Fahrenheit> & t,
-			    const Quantity<SCF_STB> & rsb) const
+  Quantity<SCF_STB> impl(const Quantity<Sgg> & yg,
+			 const Quantity<psia> & pb,
+			 const Quantity<psia> & p,
+			 const Quantity<Sg_do> & yo,
+			 const Quantity<Fahrenheit> & t,
+			 const Quantity<SCF_STB> & rsb) const
   {
     if (p >= pb)
       return rsb;
@@ -156,7 +156,7 @@ public:
     const auto & t = it.get_curr(); it.next();
     const auto & rsb = it.get_curr(); 
 
-    return compute(yg, pb, p, yo, t, rsb);
+    return impl(yg, pb, p, yo, t, rsb);
   }
 
   Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
@@ -219,14 +219,14 @@ class RsDeGhetto : public SolutionGasOilRelation
     add_parameter("rsb", SCF_STB::get_instance(), 26, 1602);
   }
 
-  Quantity<SCF_STB> compute(const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<Api> & api,
-			    const Quantity<Fahrenheit> & t,
-			    const Quantity<Fahrenheit> & tsep,
-			    const Quantity<psia> & psep,
-			    const Quantity<SCF_STB> & rsb) const
+  Quantity<SCF_STB> impl(const Quantity<Sgg> & yg,
+			 const Quantity<psia> & pb,
+			 const Quantity<psia> & p,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t,
+			 const Quantity<Fahrenheit> & tsep,
+			 const Quantity<psia> & psep,
+			 const Quantity<SCF_STB> & rsb) const
   {
     if (p >= pb)
       return rsb;
@@ -269,7 +269,7 @@ public:
     const auto & psep = it.get_curr(); it.next();
     const auto & rsb = it.get_curr(); 
 
-    return compute(yg, pb, p, yo, t, tsep, psep, rsb);
+    return impl(yg, pb, p, yo, t, tsep, psep, rsb);
   }
 
   Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
@@ -312,12 +312,12 @@ class RsDindorukChristman : public SolutionGasOilRelation
     add_parameter("rsb", SCF_STB::get_instance(), 133, 3050);
   }
 
-  Quantity<SCF_STB> compute(const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<Api> & api,
-			    const Quantity<Fahrenheit> & t,
-			    const Quantity<SCF_STB> & rsb) const
+  Quantity<SCF_STB> impl(const Quantity<Sgg> & yg,
+			 const Quantity<psia> & pb,
+			 const Quantity<psia> & p,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t,
+			 const Quantity<SCF_STB> & rsb) const
   {
     if (p >= pb)
       return rsb;
@@ -360,7 +360,7 @@ public:
     const auto & t = it.get_curr(); it.next();
     const auto & rsb = it.get_curr(); 
 
-    return compute(yg, pb, p, api, t, rsb);
+    return impl(yg, pb, p, api, t, rsb);
   }
 
   Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
@@ -401,12 +401,12 @@ class RsDoklaOsman : public SolutionGasOilRelation
     add_parameter("rsb", SCF_STB::get_instance(), 181, 2266);
   }
 
-  Quantity<SCF_STB> compute(const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<Sg_do> & yo,
-			    const Quantity<Rankine> & t,
-			    const Quantity<SCF_STB> & rsb) const
+  Quantity<SCF_STB> impl(const Quantity<Sgg> & yg,
+			 const Quantity<psia> & pb,
+			 const Quantity<psia> & p,
+			 const Quantity<Sg_do> & yo,
+			 const Quantity<Rankine> & t,
+			 const Quantity<SCF_STB> & rsb) const
   {
     if (p >= pb)
       return rsb;
@@ -436,7 +436,7 @@ public:
     const auto & t = it.get_curr(); it.next();
     const auto & rsb = it.get_curr(); 
 
-    return compute(yg, pb, p, yo, t, rsb);
+    return impl(yg, pb, p, yo, t, rsb);
   }
 
   Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
@@ -482,12 +482,12 @@ class RsGlaso : public SolutionGasOilRelation
     add_parameter("rsb", SCF_STB::get_instance(), 90, 2637);
   }
 
-  Quantity<SCF_STB> compute(const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<Api> & api,
-			    const Quantity<Fahrenheit> & t,
-			    const Quantity<SCF_STB> & rsb) const
+  Quantity<SCF_STB> impl(const Quantity<Sgg> & yg,
+			 const Quantity<psia> & pb,
+			 const Quantity<psia> & p,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t,
+			 const Quantity<SCF_STB> & rsb) const
   {
     if (p >= pb)
       return rsb;
@@ -526,7 +526,7 @@ public:
     const auto & t = it.get_curr(); it.next();
     const auto & rsb = it.get_curr(); 
 
-    return compute(yg, pb, p, api, t, rsb);
+    return impl(yg, pb, p, api, t, rsb);
   }
 
   Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
@@ -565,9 +565,9 @@ class RsHanafy : public SolutionGasOilRelation
     add_parameter("rsb", SCF_STB::get_instance(), 97, 4272);
   }
 
-  Quantity<SCF_STB> compute(const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<SCF_STB> & rsb) const
+  Quantity<SCF_STB> impl(const Quantity<psia> & pb,
+			 const Quantity<psia> & p,
+			 const Quantity<SCF_STB> & rsb) const
   {
     if (p >= pb)
       return rsb;
@@ -588,7 +588,7 @@ public:
     const auto & p = it.get_curr(); it.next();
     const auto & rsb = it.get_curr(); 
 
-    return compute(pb, p, rsb);
+    return impl(pb, p, rsb);
   }
 
   Quantity<SCF_STB> operator () (const Quantity<psia> & pb,
@@ -634,14 +634,14 @@ class RsKartoatmodjoSchmidt : public SolutionGasOilRelation
     add_parameter("rsb", SCF_STB::get_instance(), 0, 2890);
   }
 
-  Quantity<SCF_STB> compute(const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<Api> & api,
-			    const Quantity<Fahrenheit> & t,
-			    const Quantity<Fahrenheit> & tsep,
-			    const Quantity<psia> & psep,
-			    const Quantity<SCF_STB> & rsb) const
+  Quantity<SCF_STB> impl(const Quantity<Sgg> & yg,
+			 const Quantity<psia> & pb,
+			 const Quantity<psia> & p,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t,
+			 const Quantity<Fahrenheit> & tsep,
+			 const Quantity<psia> & psep,
+			 const Quantity<SCF_STB> & rsb) const
   {
     if (p >= pb)
       return rsb;
@@ -692,17 +692,17 @@ public:
     const auto & psep = it.get_curr(); it.next();
     const auto & rsb = it.get_curr(); 
 
-    return compute(yg, pb, p, api, t, tsep, psep, rsb);
+    return impl(yg, pb, p, api, t, tsep, psep, rsb);
   }
 
   Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<Api> & api,
-			    const Quantity<Fahrenheit> & t,
-			    const Quantity<Fahrenheit> & tsep,
-			    const Quantity<psia> & psep,
-			    const Quantity<SCF_STB> & rsb) const
+				 const Quantity<psia> & pb,
+				 const Quantity<psia> & p,
+				 const Quantity<Api> & api,
+				 const Quantity<Fahrenheit> & t,
+				 const Quantity<Fahrenheit> & tsep,
+				 const Quantity<psia> & psep,
+				 const Quantity<SCF_STB> & rsb) const
   {
     return compute({yg, pb, p, api, t, tsep, psep, rsb});
   }
@@ -744,12 +744,12 @@ class RsLasater : public SolutionGasOilRelation
     add_parameter("rsb", SCF_STB::get_instance(), 3, 2905);
   }
 
-  Quantity<SCF_STB> compute(const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<Sg_do> & yo,
-			    const Quantity<Rankine> & t,
-			    const Quantity<SCF_STB> & rsb) const
+  Quantity<SCF_STB> impl(const Quantity<Sgg> & yg,
+			 const Quantity<psia> & pb,
+			 const Quantity<psia> & p,
+			 const Quantity<Sg_do> & yo,
+			 const Quantity<Rankine> & t,
+			 const Quantity<SCF_STB> & rsb) const
   {
     if (p >= pb)
       return rsb;
@@ -802,15 +802,15 @@ public:
     const auto & t = it.get_curr(); it.next();
     const auto & rsb = it.get_curr(); 
 
-    return compute(yg, pb, p, yo, t, rsb);
+    return impl(yg, pb, p, yo, t, rsb);
   }
 
   Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<Sg_do> & yo,
-			    const Quantity<Rankine> & t,
-			    const Quantity<SCF_STB> & rsb) const
+				 const Quantity<psia> & pb,
+				 const Quantity<psia> & p,
+				 const Quantity<Sg_do> & yo,
+				 const Quantity<Rankine> & t,
+				 const Quantity<SCF_STB> & rsb) const
   {
     return compute({yg, pb, p, yo, t, rsb});
   }
@@ -848,12 +848,12 @@ class RsPetroskyFarshad : public SolutionGasOilRelation
     add_parameter("rsb", SCF_STB::get_instance(), 217, 1406);
   }
 
-  Quantity<SCF_STB> compute(const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
-			    const Quantity<psia> & p,
-			    const Quantity<Api> & api,
-			    const Quantity<Fahrenheit> & t,
-			    const Quantity<SCF_STB> & rsb) const
+  Quantity<SCF_STB> impl(const Quantity<Sgg> & yg,
+			 const Quantity<psia> & pb,
+			 const Quantity<psia> & p,
+			 const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t,
+			 const Quantity<SCF_STB> & rsb) const
   {
     if (p >= pb)
       return rsb;
@@ -881,7 +881,7 @@ public:
     const auto & t = it.get_curr(); it.next();
     const auto & rsb = it.get_curr(); 
 
-    return compute(yg, pb, p, api, t, rsb);
+    return impl(yg, pb, p, api, t, rsb);
   }
 
   Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
@@ -903,49 +903,63 @@ public:
 // End_Correlation_Parameters();
 // End_Correlation();
 
-class RsTest : public SolutionGasOilRelation
+class RsStanding : public SolutionGasOilRelation
 {
-  template <size_t... Is>
-  VtlQuantity __compute(const DynList<VtlQuantity> & pars,
-			  index_sequence<Is...>) const
-  {
-    vector<const VtlQuantity> v = to_vector(pars);
-    return compute(v.at(Is)...);
-}
+  Correlation_Singleton(RsStanding);
 
-  VtlQuantity __compute(const DynList<VtlQuantity>& pars) const
+  RsStanding()
+    : SolutionGasOilRelation("RsStanding", SCF_STB::get_instance(), 0, 10)
   {
-    constexpr size_t N =
-      utils::function_traits<decltype(&RsTest::compute)>::arity;
-    return __compute(pars, std::make_index_sequence<N>());
-}
-
-  VtlQuantity compute(const Quantity<Fahrenheit> & ,
-		      const Quantity<psia> &) const
-  {
-    return VtlQuantity(Fahrenheit::get_instance());
+    add_parameter("yg", Sgg::get_instance());
+    add_parameter("pb", psia::get_instance());
+    add_parameter("p", psia::get_instance());
+    add_parameter("api", Api::get_instance());
+    add_parameter("t", Fahrenheit::get_instance());
+    add_parameter("rsb", SCF_STB::get_instance());
   }
 
 public:
-
-  static const RsTest & get_instance()
-  { static RsTest instance; return instance; }
-
-  RsTest(const RsTest&) = delete;
-  void operator = (const RsTest&) = delete;
-
-private:;
-
-  RsTest() : SolutionGasOilRelation("RsTest", Fahrenheit::get_instance())
-  {;
-    add_parameter("p1", Fahrenheit::get_instance(), 10, 300);;
-    add_parameter("p2", psia::get_instance(), 100, 3000);;
+  inline Quantity<SCF_STB> impl(const Quantity<Sgg> & yg,
+				const Quantity<psia> & pb,
+				const Quantity<psia> & p,
+				const Quantity<Api> & api,
+				const Quantity<Fahrenheit> & t,
+				const Quantity<SCF_STB> & rsb) const
+    ;
+  Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
+				 const Quantity<psia> & pb,
+				 const Quantity<psia> & p,
+				 const Quantity<Api> & api,
+				 const Quantity<Fahrenheit> & t,
+				 const Quantity<SCF_STB> & rsb) const
+  {
+    return compute({yg,pb,p,api,t,rsb});
   }
-public:
   virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
   {
     auto pars = verify_preconditions(__pars);
-    return __compute(pars);
-  };
-};;
+
+    auto it = pars.get_it();
+    const auto & yg = it.get_curr();it.next();
+    const auto & pb = it.get_curr();it.next();
+    const auto & p = it.get_curr();it.next();
+    const auto & api = it.get_curr();it.next();
+    const auto & t = it.get_curr();it.next();
+    const auto & rsb = it.get_curr();
+
+    return impl(yg,pb,p,api,t,rsb);
+  }
+};
+
+inline Quantity<SCF_STB> RsStanding::impl(const Quantity<Sgg> & yg,
+					  const Quantity<psia> & pb,
+					  const Quantity<psia> & p,
+					  const Quantity<Api> & api,
+					  const Quantity<Fahrenheit> & t,
+					  const Quantity<SCF_STB> & rsb) const
+{
+  // put here the implementation
+}
+
+
 # endif // SOLUTION_GAS_OIL_REKATION_H
