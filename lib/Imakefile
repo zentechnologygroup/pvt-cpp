@@ -10,7 +10,7 @@ FLAGS = -std=c++14 $(WARN) -O0 -g
 
 .rb.H: ./gen-corr
 	$(RM) $*.H	; 	\	@@\
-	./gen-corr $*.rb | clang-format -style=Google > $@
+	./gen-corr $*.rb | clang-format -style=Mozilla > ../include/$@
 
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
@@ -22,7 +22,7 @@ OBJS = pvt.o
 
 EXTRACT_CV = $(TOP)/bin/extract-cv
 
-pvt.cc: units-vars.cc correlations-vars.cc ../include/pvt-correlations.H ../include/correlation.H ../include/bubble-point-pressure.H ../include/units.H ../include/pvt-units.H solution-gas-oil-relation.H
+pvt.cc: units-vars.cc correlations-vars.cc ../include/pvt-correlations.H ../include/correlation.H ../include/bubble-point-pressure.H ../include/units.H ../include/pvt-units.H ../include/solution-gas-oil-relation.H ../include/solution-gas-oil-relation-1.H
 	$(RM) -f $@;					\	@@\
 	$(CPP) $(CXXFLAGS) units-vars.cc > $*.tmp;	\	@@\
 	cat units-vars.cc > $@;			\	@@\

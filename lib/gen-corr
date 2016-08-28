@@ -47,7 +47,8 @@ class CorrelationGen
   end  
 
   def gen_impl_declaration
-    s = "public:\n"
+    s = "public:\n"\
+        "\n"
     s += "inline " + impl_type + " impl"
     s += gen_pars
   end
@@ -131,17 +132,45 @@ def end_correlation
   $corr_list << $curr_corr
 end
 
-def gen_correlations
+def gen_impl_declarations
+  s = ""
   $corr_list.each do |corr|
-    puts corr.gen_class
-    puts 
+    s += corr.gen_impl + "\n\n"
   end
+  s
+end
+
+def gen_correlations
+  s = ""
+  $corr_list.each do |corr|
+    s += corr.gen_class + "\n\n"
+  end
+  s
 end
 
 file = ARGV.shift
 
 load file
 
-gen_correlations
+if ARGV.shift
+  puts "#{gen_impl_declarations}"
+    #r = `clang-format -style=Mozilla < "#{s}"`
+  #puts s
+else
+
+  guard_name = file.gsub '-', '_'
+  guard_name.gsub! '.', '_'
+  guard_name.upcase!
+
+  puts "# ifndef #{guard_name}"
+  puts "# define #{guard_name}"
+  puts 
+  puts "# include <correlation.H>"
+  puts
+  puts "#{gen_correlations}"
+  puts 
+  puts " # endif // #{guard_name}"
+end
+
 
 
