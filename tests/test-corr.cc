@@ -215,11 +215,12 @@ void test(int argc, char *argv[])
     { &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9 };
 
   vector<string> correlations;
-  Correlation::list().for_each([&correlations] (auto p)
-			       { correlations.push_back(p->name); });
+  auto correlation_list = Correlation::list();
+  correlation_list.for_each([&correlations] (auto p)
+			    { correlations.push_back(p->name); });
   ValuesConstraint<string> allowed = correlations;
   ValueArg<string> correlation = { "C", "correlation", "correlation name",
-				   true, "", &allowed};
+				   false, "", &allowed};
   cmd.add(correlation);
 
   SwitchArg print = { "p", "print", "print correlation information", false };
@@ -252,7 +253,49 @@ void test(int argc, char *argv[])
   SwitchArg python = { "y", "print-python-call", "print python call", false };
   cmd.add(python);
 
+  SwitchArg list_corr = { "l", "list", "list correlations", false };
+  cmd.add(list_corr);
+
+  SwitchArg list_Corr = { "L", "List", "detailed list of correlations", false };
+  cmd.add(list_Corr);
+
+  ValueArg<string> describe = { "D", "describe-correlation", 
+				"describe correlation", false, "", &allowed};
+  cmd.add(describe);
+
   cmd.parse(argc, argv);
+
+  if (list_corr.getValue())
+    {
+      auto l = correlation_list.map<DynList<string>>([] (auto p)
+        {
+	  return DynList<string>({p->name, p->subtype_name, p->type_name});
+	});
+      cout << to_string(format_string(l)) << endl;
+      exit(0);
+    }
+
+  if (list_Corr.getValue())
+    {
+      cout << "Available correlations:" << endl;
+      correlation_list.for_each([] (auto p) { cout << *p << endl; });
+      exit(0);
+    }
+
+  if (describe.isSet())
+    {
+      auto ptr = Correlation::search_by_name(describe.getValue());
+      cout << *ptr << endl
+	   << endl;
+      exit(0);
+    }
+
+  if (not correlation.isSet())
+    {
+      cout << "Error: -C option not set" << endl
+	   << "if option -l is not set then option -C is mandatory" << endl;
+      exit(0);
+    }
 
   if (mat.getValue() and csv.getValue())
     {

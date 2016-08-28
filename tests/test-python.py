@@ -428,3 +428,65 @@ def RsPetroskyFarshadCorrelation(Yg, Pb, P, API, T, Rsb):
         Rs = ((P / 112.727 + 12.34) * Yg ** 0.8439 * 10 ** X) ** 1.73184
     RsPetroskyFarshad = Rs
     return RsPetroskyFarshad
+
+
+def RsStandingCorrelation(Yg, Pb, P, API, T, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        Rs = Yg * (((P / 18.2) + 1.4) * 10 ** (0.0125 * API - 0.00091 * T)) ** 1.2048  
+    if Rs < 0: # Logical condition
+        Rs = 0
+    RsStanding = Rs
+    return RsStanding
+
+def RsTotalCFPCorrelation(Yg, Pb, P, API, T, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        if API <= 10:
+            c1 = 12.2651
+            c2 = 0.030405
+            c3 = 0
+            c4 = 0.9669
+            
+        if 10 < API <= 35:
+            c1 = 15.0057
+            c2 = 0.0152
+            c3 = 4.484 * 10 ** -4
+            c4 = 1.095
+        
+        if 35 < API <= 45:
+            c1 = 112.925
+            c2 = 0.0248
+            c3 = -1.469 * 10 ** -3
+            c4 = 1.129
+        
+        Rs = Yg * ((P / c1) * (10) ** ((c2 * API) - (c3 * T))) ** c4
+        
+    if Rs < 0: # Logical condition
+        Rs = 0 
+    RsTotalCFP = Rs
+    return RsTotalCFP
+
+def RsVasquezBeggsCorrelation(Yg, Pb, P, API, T, Tsep, Psep, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        if API <= 30:
+            c1 = 0.0362
+            c2 = 1.0937
+            c3 = 25.724
+        else:
+            c1 = 0.0178
+            c2 = 1.187
+            c3 = 23.931
+        Ygs= Yg*(1.+5.912*10**-5*(API)*(Tsep)*log10(Psep/114.7))
+        Rs = c1 * Ygs * P ** c2 * exp((c3 * API) / (T + 460))
+    
+    if Rs < 0:
+        Rs = 0 
+    
+    RsVasquezBeggs = Rs
+    
+    return RsVasquezBeggs

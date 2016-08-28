@@ -3,6 +3,9 @@
 
 # include <bubble-point-pressure.H>
 # include <solution-gas-oil-relation.H>
+# include <solution-gas-oil-relation-1.H>
+
+# include <solution-gas-oil-relation-1-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -37,6 +40,9 @@ struct CorrelationInstantiater
     RsKartoatmodjoSchmidt::get_instance();
     RsLasater::get_instance();
     RsPetroskyFarshad::get_instance();
+    RsStanding::get_instance();
+    RsTotalCFP::get_instance();
+    RsVasquezBeggs::get_instance();
   }
 };
 

@@ -2,7 +2,7 @@
 # define IHaveSubdirs
 # define PassCDebugFlags
 
-SUBDIRS = lib units correlations tests
+SUBDIRS = include lib units correlations tests
 
 MakeSubdirs($(SUBDIRS))
 DependSubdirs($(SUBDIRS))

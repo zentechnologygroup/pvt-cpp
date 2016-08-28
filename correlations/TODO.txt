@@ -1,0 +1,4 @@
+validación generica de parámetros,2016-08-16 20:53:52 -0400,,
+generación genérica de matriz de valores de una correlación según paso %,2016-08-16 20:54:35 -0400,,
+cada correlacion debe ser un singleton,2016-08-17 14:57:38 -0400,,
+cada correlación debe estar en una tabla,2016-08-17 14:57:50 -0400,,

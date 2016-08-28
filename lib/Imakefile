@@ -6,12 +6,6 @@ INCLUDES = -I../include -I$(ALEPHW)
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
 FLAGS = -std=c++14 $(WARN) -O0 -g
 
-.SUFFIXES: .rb .H .cc
-
-.rb.H: ./gen-corr
-	$(RM) $*.H	; 	\	@@\
-	./gen-corr $*.rb | clang-format -style=Mozilla > ../include/$@
-
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
@@ -34,6 +28,8 @@ pvt.o: pvt.cc
 
 clean::
 	$(RM) -f pvt.cc
+
+all:: ../include/correlation.H ../include/bubble-point-pressure.H ../include/solution-gas-oil-relation.H ../include/solution-gas-oil-relation-1.H
 
 lib-vars.o: ../include/correlation.H ../include/bubble-point-pressure.H
 

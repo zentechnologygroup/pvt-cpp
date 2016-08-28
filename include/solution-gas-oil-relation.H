@@ -3,7 +3,6 @@
 
 # include <correlation.H>
 
-Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation);
 
 /**  AL-SHAMMASI CORRELATION, CALCULATION OF SOLUTION GOR
 
@@ -896,70 +895,6 @@ public:
 };
 
 /*****************************************************************/
-
-// Begin_Correlation(RsTest, SolutionGasOilRelation, Fahrenheit);
-// Declare_Correlation_Parameter(p1, Fahrenheit, 10, 300);
-// Declare_Correlation_Parameter(p2, psia, 100, 3000);
-// End_Correlation_Parameters();
-// End_Correlation();
-
-class RsStanding : public SolutionGasOilRelation
-{
-  Correlation_Singleton(RsStanding);
-
-  RsStanding()
-    : SolutionGasOilRelation("RsStanding", SCF_STB::get_instance(), 0, 10)
-  {
-    add_parameter("yg", Sgg::get_instance());
-    add_parameter("pb", psia::get_instance());
-    add_parameter("p", psia::get_instance());
-    add_parameter("api", Api::get_instance());
-    add_parameter("t", Fahrenheit::get_instance());
-    add_parameter("rsb", SCF_STB::get_instance());
-  }
-
-public:
-  inline Quantity<SCF_STB> impl(const Quantity<Sgg> & yg,
-				const Quantity<psia> & pb,
-				const Quantity<psia> & p,
-				const Quantity<Api> & api,
-				const Quantity<Fahrenheit> & t,
-				const Quantity<SCF_STB> & rsb) const
-    ;
-  Quantity<SCF_STB> operator () (const Quantity<Sgg> & yg,
-				 const Quantity<psia> & pb,
-				 const Quantity<psia> & p,
-				 const Quantity<Api> & api,
-				 const Quantity<Fahrenheit> & t,
-				 const Quantity<SCF_STB> & rsb) const
-  {
-    return compute({yg,pb,p,api,t,rsb});
-  }
-  virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const
-  {
-    auto pars = verify_preconditions(__pars);
-
-    auto it = pars.get_it();
-    const auto & yg = it.get_curr();it.next();
-    const auto & pb = it.get_curr();it.next();
-    const auto & p = it.get_curr();it.next();
-    const auto & api = it.get_curr();it.next();
-    const auto & t = it.get_curr();it.next();
-    const auto & rsb = it.get_curr();
-
-    return impl(yg,pb,p,api,t,rsb);
-  }
-};
-
-inline Quantity<SCF_STB> RsStanding::impl(const Quantity<Sgg> & yg,
-					  const Quantity<psia> & pb,
-					  const Quantity<psia> & p,
-					  const Quantity<Api> & api,
-					  const Quantity<Fahrenheit> & t,
-					  const Quantity<SCF_STB> & rsb) const
-{
-  // put here the implementation
-}
 
 
 # endif // SOLUTION_GAS_OIL_REKATION_H

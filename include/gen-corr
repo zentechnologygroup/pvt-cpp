@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # -*- coding: iso-8859-1 -*-
 
+require 'optparse'
+
 class CorrelationGen
 
   class Parameter
@@ -29,6 +31,12 @@ class CorrelationGen
       @min = min
       @max = max
       @pars = []
+  end
+
+  attr_reader :name
+
+  def add_doc(str)
+    @doc = str
   end
 
   def add_parameter(name, unit, min = nil, max = nil)
@@ -80,12 +88,16 @@ class CorrelationGen
   end
 
   def gen_class
-    s = "class #{@name} : public #{@subtype}\n" \
-        "{\n"\
-        "Correlation_Singleton(#{@name});\n"\
-        "\n"\
-        "#{@name}()\n"\
-        "  : #{@subtype}(\"#{@name}\", #{@unit}::get_instance()"
+    s = "/** #{@name}\n\n"
+    s += @doc if @doc
+    s += "\n"\
+         "*/\n"
+    s += "class #{@name} : public #{@subtype}\n" \
+         "{\n"\
+         "Correlation_Singleton(#{@name});\n"\
+         "\n"\
+         "#{@name}()\n"\
+         "  : #{@subtype}(\"#{@name}\", #{@unit}::get_instance()"
     s += ", #{@min}" if @min
     s += ", #{@max}" if @max
     s += ")\n"\
@@ -128,6 +140,10 @@ def add_parameter(name, unit, min = nil, max = nil)
   $curr_corr.add_parameter(name, unit, min, max)
 end
 
+def add_doc(str)
+  $curr_corr.add_doc(str)
+end
+
 def end_correlation
   $corr_list << $curr_corr
 end
@@ -148,16 +164,36 @@ def gen_correlations
   s
 end
 
-file = ARGV.shift
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-f NAME', '--file NAME', 
+          'file name with correlations') do |file_name|
+    options[:file_name] = file_name
+  end
+
+  opts.on('-H', '--header', 'generate header with c++ correlations') do
+    options[:header] = true
+  end
+
+  opts.on('-C NAME', '--c++ NAME',
+          'generate c++ correlation implementation') do |corr_name|
+    options[:corr_name] = corr_name
+  end    
+  
+end
+
+options_parser.parse!
+
+file = options[:file_name]
+
+raise 'correlations file not specified' if file.nil?
 
 load file
 
-if ARGV.shift
-  puts "#{gen_impl_declarations}"
-    #r = `clang-format -style=Mozilla < "#{s}"`
-  #puts s
-else
-
+header = options[:header]
+if header
+  
   guard_name = file.gsub '-', '_'
   guard_name.gsub! '.', '_'
   guard_name.upcase!
@@ -170,7 +206,29 @@ else
   puts "#{gen_correlations}"
   puts 
   puts " # endif // #{guard_name}"
+  
+  exit
 end
+
+#require 'enumerable'
+
+require 'open3'
+
+corr_name = options[:corr_name]
+if corr_name
+  corr = $corr_list.find { |c| c.name.upcase == corr_name.upcase }
+  raise "correlation #{corr_name} not found" unless corr
+  # File.open('tmp', "w+").write("#{corr.gen_impl}")
+  # stdout, stderr, exit_status = Open3.capture3('cat tmp')
+  # puts stdout
+  # puts stderr
+  # puts exit_status
+  puts "#{corr.gen_impl}"
+  exit
+end
+
+puts "#{gen_impl_declarations}"
+
 
 
 

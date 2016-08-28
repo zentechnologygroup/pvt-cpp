@@ -434,46 +434,8 @@ decltype(auto) call_compute(Func&& f, const DynList<T>& pars)
   									\
 private:
 
-# include <boost/preprocessor.hpp>
-
-# define Begin_Correlation(name, subtype, result_unit, args...)	\
-  class name : public subtype					\
-  {								\
-    template <size_t ... Is>						\
-      VtlQuantity __compute(const DynList<VtlQuantity>& pars,		\
-			    index_sequence<Is...>) const			\
-    {									\
-      vector<const VtlQuantity> v = to_vector(pars);			\
-      return compute(v.at(Is)...);					\
-    }									\
-    									\
-    VtlQuantity __compute(const DynList<VtlQuantity>& pars) const	\
-    {									\
-      constexpr size_t N =						\
-	utils::function_traits<decltype(&name::compute)>::arity;	\
-      return __compute(pars, std::make_index_sequence<N>());		\
-    }									\
-    									\
-    Correlation_Singleton(name);					\
-    name()								\
-      : subtype(#name, result_unit::get_instance(), ##args)		\
-      {
-
-# define Declare_Correlation_Parameter(name, unit, args...)	\
-  add_parameter(#name, unit::get_instance(), ##args);
-
-# define End_Correlation_Parameters()		\
-  }						\
-public:									\
- virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) const	\
- {									\
-   auto pars = verify_preconditions(__pars);				\
-   return __compute(pars);						\
- }									
-
-# define End_Correlation()			\
-  };
-
+Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
+Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation);
 
 
   

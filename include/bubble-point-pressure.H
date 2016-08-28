@@ -4,7 +4,6 @@
 
 # include <correlation.H>
 
-Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
 
 /** AL-MARHOUN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE
 
