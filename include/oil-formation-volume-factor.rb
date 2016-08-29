@@ -30,3 +30,34 @@ add_parameter("co", "psia_1")
 
 end_correlation()
 
+################################################################
+
+begin_correlation("BoAlShammasi", "OilFormationVolumeFactor", "RB_STB",
+                  1.02, 2.916)
+add_doc(%Q[   Al-SHAMMASI CORRELATION, CALCULATION OF OIL FORMATION VOLUME FACTOR 
+
+    @see: Al-Shammasi, A.A.: "Bubble Point Pressure and Oil Formation
+    Volume Factor Correlations", SPE 53185, 1999  
+
+    @see: McCain, W.D., Jr. "The Properties of Petroleum Fluids", 2nd
+    ed. Tulsa, OK: PennWell Books, 1990. 
+        
+    Based on a total of 1709 data sets (1661 data sets from 13
+    different published literature papers and 48 data sets originated
+    from Kuwait reservoirs from unpublished sources). 
+
+    The data available after excluding the duplicates and the repeated
+    data sets for formation volume factor are 1345 data sets. 
+ ])
+
+add_parameter("yg", "Sgg", 0.51, 3.44)
+add_parameter("yo", "Sg_do", "Quantity<Api>(6)", "Quantity<Api>(63.7)")
+add_parameter("rs", "SCF_STB", 6, 3298.6)
+add_parameter("rsb", "SCF_STB")
+add_parameter("t", "Fahrenheit", 74, 341.6)
+add_parameter("p", "psia")
+add_parameter("pb", "psia", 31.7, 7127)
+add_parameter("co", "psia_1")
+
+end_correlation()
+

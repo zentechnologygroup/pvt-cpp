@@ -35,5 +35,17 @@ BoAlmarhoun::impl(const Quantity<Sgg> & yg,
   return Quantity<RB_STB>(max(min_val, bo));
 }
 
+inline Quantity<RB_STB>
+BoAlShammasi::impl(const Quantity<Sgg> & yg,
+		   const Quantity<Sg_do> & yo,
+		   const Quantity<SCF_STB> & rs,
+		   const Quantity<SCF_STB> & rsb,
+		   const Quantity<Fahrenheit> & t,
+		   const Quantity<psia> & p,
+		   const Quantity<psia> & pb,
+		   const Quantity<psia_1> & co) const
+{
+  // put here the implementation
+}
 
 # endif // OIL_FORMATION_VOLUME_FACTOR_IMPL_H

@@ -83,4 +83,84 @@ public:
   }
 };
 
+/** BoAlShammasi
+
+   Al-SHAMMASI CORRELATION, CALCULATION OF OIL FORMATION VOLUME FACTOR
+
+    @see: Al-Shammasi, A.A.: "Bubble Point Pressure and Oil Formation
+    Volume Factor Correlations", SPE 53185, 1999
+
+    @see: McCain, W.D., Jr. "The Properties of Petroleum Fluids", 2nd
+    ed. Tulsa, OK: PennWell Books, 1990.
+
+    Based on a total of 1709 data sets (1661 data sets from 13
+    different published literature papers and 48 data sets originated
+    from Kuwait reservoirs from unpublished sources).
+
+    The data available after excluding the duplicates and the repeated
+    data sets for formation volume factor are 1345 data sets.
+
+*/
+class BoAlShammasi : public OilFormationVolumeFactor
+{
+  Correlation_Singleton(BoAlShammasi);
+
+  BoAlShammasi()
+    : OilFormationVolumeFactor("BoAlShammasi", RB_STB::get_instance(), 1.02,
+                               2.916)
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.51, 3.44);
+    add_parameter("yo", Sg_do::get_instance(), Quantity<Api>(6),
+                  Quantity<Api>(63.7));
+    add_parameter("rs", SCF_STB::get_instance(), 6, 3298.6);
+    add_parameter("rsb", SCF_STB::get_instance());
+    add_parameter("t", Fahrenheit::get_instance(), 74, 341.6);
+    add_parameter("p", psia::get_instance());
+    add_parameter("pb", psia::get_instance(), 31.7, 7127);
+    add_parameter("co", psia_1::get_instance());
+  }
+
+public:
+  inline Quantity<RB_STB> impl(
+    const Quantity<Sgg>& yg, const Quantity<Sg_do>& yo,
+    const Quantity<SCF_STB>& rs, const Quantity<SCF_STB>& rsb,
+    const Quantity<Fahrenheit>& t, const Quantity<psia>& p,
+    const Quantity<psia>& pb, const Quantity<psia_1>& co) const;
+
+  Quantity<RB_STB> operator()(const Quantity<Sgg>& yg,
+                              const Quantity<Sg_do>& yo,
+                              const Quantity<SCF_STB>& rs,
+                              const Quantity<SCF_STB>& rsb,
+                              const Quantity<Fahrenheit>& t,
+                              const Quantity<psia>& p, const Quantity<psia>& pb,
+                              const Quantity<psia_1>& co) const
+  {
+    return compute({ yg, yo, rs, rsb, t, p, pb, co });
+  }
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity>& __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto& yg = it.get_curr();
+    it.next();
+    const auto& yo = it.get_curr();
+    it.next();
+    const auto& rs = it.get_curr();
+    it.next();
+    const auto& rsb = it.get_curr();
+    it.next();
+    const auto& t = it.get_curr();
+    it.next();
+    const auto& p = it.get_curr();
+    it.next();
+    const auto& pb = it.get_curr();
+    it.next();
+    const auto& co = it.get_curr();
+
+    return impl(yg, yo, rs, rsb, t, p, pb, co);
+  }
+};
+
 #endif // OIL_FORMATION_VOLUME_FACTOR_H

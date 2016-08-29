@@ -76,3 +76,15 @@
 ## 23. indicar error al equipo en radio P/Pb para algunos códigos python
 - Created at   2016-08-29 09:13:46 -0400
 
+## 24. Revisar salida de correlación : no se ve el tipo
+- Created at   2016-08-29 14:57:20 -0400
+
+## 25. validar que la antidad de pars en lin comm sea la misma de la correlación
+- Created at   2016-08-29 15:15:04 -0400
+
+## 26. opción que permita fijar parámetros y rango a la vez
+- Created at   2016-08-29 16:41:28 -0400
+
+## 27. test que valide que las unidades sean las mismas para familias de correlaciones
+- Created at   2016-08-29 16:41:53 -0400
+
