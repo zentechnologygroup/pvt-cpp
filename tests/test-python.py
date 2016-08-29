@@ -528,3 +528,71 @@ def RsVelardeCorrelation(Yg, Pb, P, API, T, Rsb):
     RsVelarde = Rs
     
     return RsVelarde
+
+def RsCegarraCorrelation(Yg, Pb, P, API, T, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        if API < 29.9:
+            l1 = 154.158
+            l2 = 0.4577
+            l3 = 0.0006680
+            l4 = 0.000514
+            l5 = 4.70257
+        elif API >= 29.9:
+            l1 = 809.238
+            l2 = 0.32
+            l3 = 0.00061
+            l4 = 0.011 
+            l5 = 1.1142
+        Rs = Yg * ((((P/l1) + l5) * (10 ** ((l4 * API) - (l3 * T)))) ** (1/l2))
+    if Rs < 0: # Logical condition
+        Rs = 0 
+    RsCegarra = Rs
+    return RsCegarra
+
+def RsPerezMLCorrelation(Yg, Pb, P, API, T, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        Rs = Rsb * ((1.0*P/Pb) ** 0.881)
+    if Rs < 0: # Logical condition
+        Rs = 0 
+    RsPerezML = Rs
+    return RsPerezML
+
+def RsMillanArciaCorrelation(Yg, Pb, P, API, T, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        Rs = (Rsb/1.031) * ((1.0*P/Pb) ** 0.83)
+    if Rs < 0: # Logical condition
+        Rs = 0 
+    RsMillanArcia = Rs
+    return RsMillanArcia
+        
+
+def RsManucciRosalesCorrelation(Yg, Pb, P, API, T, Rsb):
+    if P >= Pb: # Logical condition
+        Rs = Rsb
+    else:
+        X = (0.000922 * T) - (0.0072 * API)
+        Rs = Yg * ((P/(84.88 * (10 ** X))) ** (1/0.53))
+        if Rs < 0: # Logical condition
+            Rs = 0 
+    RsManucciRosales = Rs
+    return RsManucciRosales
+
+def BoAlmarhounCorrelation(Yg, Yo, Rs, Rsb, T, P, Pb, Co):
+    if P < Pb: # Saturated oil
+        F = Rs ** 0.74239 * Yg ** 0.323294 * Yo ** -1.20204
+        Bo = 0.497069 + 0.862963 * 10 ** -3 * T + 0.182594 * 10 ** -2 * F + 0.318099 * 10 ** -5 * F ** 2 
+    else: # Undersaturated oil
+        Fb = Rsb ** 0.74239 * Yg ** 0.323294 * Yo ** -1.20204
+        Bob = 0.497069 + 0.862963 * 10 ** -3 * T + 0.182594 * 10 ** -2 * Fb + 0.318099 * 10 ** -5 * Fb ** 2
+        Bo = Bob * exp(Co * (Pb - P))
+        if Bo < 1:
+            Bo = 1            
+        
+    BoAlmarhoun = Bo
+    return BoAlmarhoun 

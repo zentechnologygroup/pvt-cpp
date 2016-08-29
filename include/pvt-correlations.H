@@ -4,8 +4,10 @@
 # include <bubble-point-pressure.H>
 # include <solution-gas-oil-relation.H>
 # include <solution-gas-oil-relation-1.H>
+# include <oil-formation-volume-factor.H>
 
 # include <solution-gas-oil-relation-1-impl.H>
+# include <oil-formation-volume-factor-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -44,6 +46,12 @@ struct CorrelationInstantiater
     RsTotalCFP::get_instance();
     RsVasquezBeggs::get_instance();
     RsVelarde::get_instance();
+    RsCegarra::get_instance();
+    RsPerezML::get_instance();
+    RsMillanArcia::get_instance();
+    RsManucciRosales::get_instance();
+
+    BoAlmarhoun::get_instance();
   }
 };
 

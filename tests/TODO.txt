@@ -20,3 +20,4 @@ Poner parametro en test-corr que indique intervalo para un parámetros,2016-08-2
 foldl_perm,2016-08-25 21:59:08 -0400,,
 modificar RsGlaso para que use la raíz de la eq 2do grado,2016-08-26 12:14:58 -0400,,
 modificar RsGlaso para que use la raíz de la eq 2do gradop,2016-08-26 12:31:48 -0400,,
+indicar error al equipo en radio P/Pb para algunos códigos python,2016-08-29 09:13:46 -0400,,

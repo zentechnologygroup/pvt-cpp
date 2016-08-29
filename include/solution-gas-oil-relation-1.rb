@@ -22,6 +22,7 @@ add_parameter("t", "Fahrenheit", 100, 258)
 add_parameter("rsb", "SCF_STB", 20, 1425)
 end_correlation()
 
+################################################################        
 
 ## verificada con python
 begin_correlation("RsTotalCFP", "SolutionGasOilRelation", "SCF_STB")
@@ -43,6 +44,7 @@ add_parameter("t", "Fahrenheit")
 add_parameter("rsb", "SCF_STB")
 end_correlation()
 
+################################################################
 
 ## verificada con python
 begin_correlation("RsVasquezBeggs", "SolutionGasOilRelation", "SCF_STB")
@@ -78,7 +80,9 @@ add_parameter("psep", "psia", 60, 595)
 add_parameter("rsb", "SCF_STB", 0, 2199)
 end_correlation()
 
+################################################################<
 
+## verificada con python
 begin_correlation("RsVelarde", "SolutionGasOilRelation", "SCF_STB")
 add_doc(%Q[    VELARDE CORRELATION, CALCULATION OF SOLUTION GOR
 
@@ -99,3 +103,115 @@ add_parameter("rsb", "SCF_STB", 102, 1808)
 end_correlation()
 
 
+################################################################
+
+## verificada con python
+begin_correlation("RsCegarra", "SolutionGasOilRelation", "SCF_STB")
+add_doc(%Q[    CEGARRA CORRELATION (MODIFIED STANDING CORRELATION),
+    CALCULATION OF SOLUTION GOR 
+
+    Based on 375 consistent PVT analyses. The data bank was compiled
+    from 8394 fields of eastern Venezuela subdivided into 5192 fields
+    of light oil and 3202 fields of medium oil. The correlation takes
+    the functional form of Standing. 
+
+    @see: Cegarra, L., 2007: "Correlación para el cálculo de la
+    presión de burbuja de los yacimientos de crudo liviano y mediano
+    del Oriente de Venezuela". Trabajo especial de grado. Universidad
+    del Zulia  
+
+
+@see: M.B. Standing. "A Pressure-Volume-Temperature Correlation for
+    Mixtures of California Oil and Gases , " Drill. & Prod. Prac.,Beal
+    C. The Viscosity-Temperature Chart 0361-39 Nat. Bur . Stds
+    Circular C461-1947"     
+  ])
+
+add_parameter("yg", "Sgg", 0.654, 1.337)
+add_parameter("pb", "psia", 735, 7303)
+add_parameter("p", "psia")
+add_parameter("api", "Api", 22, 41.9)
+add_parameter("t", "Fahrenheit", 117, 354)
+add_parameter("rsb", "SCF_STB", 135, 4290)
+end_correlation()
+
+################################################################
+
+## verificada con python
+begin_correlation("RsPerezML", "SolutionGasOilRelation", "SCF_STB")
+add_doc(%Q[    PEREZ ET AL. CORRELATION (MODIFIED MILLÁN-ARCIA
+    CORRELATION), CALCULATION OF SOLUTION GOR 
+                     
+      
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los Teques,
+    Octubre de 2001 
+  ])
+
+add_parameter("yg", "Sgg")
+add_parameter("pb", "psia", 405, 1335)
+add_parameter("p", "psia")
+add_parameter("api", "Api", 6.4, 12.9)
+add_parameter("t", "Fahrenheit", 112, 300)
+add_parameter("rsb", "SCF_STB", 38, 121)
+end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("RsMillanArcia", "SolutionGasOilRelation", "SCF_STB")
+add_doc(%Q[    MILLÁN-ARCIA CORRELATION, CALCULATION OF SOLUTION GOR  
+
+    Venezuelan heavy crudes,
+        
+    @see: E.A. Millán-Arcia, 1984: Correlaciones para estimar el
+    comportamiento PVT de crudos pesados venezolanos. I Jornadas
+    Técnicas Corpoven 
+
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los Teques,
+    Octubre de 2001 
+  ])
+
+add_parameter("yg", "Sgg")
+add_parameter("pb", "psia", 222, 3432.7)
+add_parameter("p", "psia")
+add_parameter("api", "Api", 9, 20.2)
+add_parameter("t", "Fahrenheit", 87, 195)
+add_parameter("rsb", "SCF_STB", 53, 459)
+end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("RsManucciRosales", "SolutionGasOilRelation", "SCF_STB")
+add_doc(%Q[    MANUCCI-ROSALES CORRELATION, CALCULATION OF SOLUTION GOR 
+
+    Crude oils of eastern Venezuela were correlated, by using
+    differential separation data from laboratory PVT analysis. 
+        
+    @see: J.E. Manucci, E.E. Rosales, 1968: "Correlaciones de presión
+    de burbujeo y factor volumétrico del petróleo para crudos el
+    oriente de Venezuela". Corporación Venezolana del Petróleo, II
+    Jornadas técnicas de petróleo, marzo 1968 
+
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los Teques,
+    Octubre de 2001 
+  ])
+
+add_parameter("yg", "Sgg")
+add_parameter("pb", "psia", 1230, 5035)
+add_parameter("p", "psia")
+add_parameter("api", "Api", 14, 40)
+add_parameter("t", "Fahrenheit", 165, 304)
+add_parameter("rsb", "SCF_STB", 180, 2500)
+end_correlation()

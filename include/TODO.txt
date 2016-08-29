@@ -1,0 +1,2 @@
+dirimir qué hacer con parámetro rsb en OilFormationVolumeFactor,2016-08-29 09:54:22 -0400,,
+homologar unidad psia^-1 (Coefficient of isothermal compressibility),2016-08-29 10:02:02 -0400,,

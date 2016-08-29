@@ -1,4 +1,7 @@
 
+# ifndef SOLUTION_GAS_OIL_RELATION_IMPL_H
+# define SOLUTION_GAS_OIL_RELATION_IMPL_H
+
 # include <solution-gas-oil-relation-1.H>
 
 inline Quantity<SCF_STB> RsStanding::impl(const Quantity<Sgg> & yg,
@@ -151,9 +154,106 @@ inline Quantity<SCF_STB> RsVelarde::impl(const Quantity<Sgg> & yg,
         
   const double pr = raw_p / raw_pb;
         
-  const double rsr = s1 * pow(pr, s2) + (1 - s1) * pow(pr, s3);
+  const double rsr = s1*pow(pr, s2) + (1 - s1)*pow(pr, s3);
         
-  const double rs = rsr * rsb.get_value();
+  const double rs = rsr*rsb.get_value();
 
   return Quantity<SCF_STB>(rs);
 }
+
+inline Quantity<SCF_STB> RsCegarra::impl(const Quantity<Sgg> & yg,
+					 const Quantity<psia> & pb,
+					 const Quantity<psia> & p,
+					 const Quantity<Api> & api,
+					 const Quantity<Fahrenheit> & t,
+					 const Quantity<SCF_STB> & rsb) const
+{
+  const double raw_pb = pb.get_value();
+  const double raw_p  = p.get_value();
+  if (raw_p >= raw_pb)
+    return rsb;
+
+  double l1 = 0, l2 = 0, l3 = 0, l4 = 0, l5 = 0;
+  const double raw_api = api.get_value();
+  if (raw_api < 29.9)
+    {
+      l1 = 154.158;
+      l2 = 0.4577;
+      l3 = 0.0006680;
+      l4 = 0.000514;
+      l5 = 4.70257;
+    }
+  else 
+    {
+      l1 = 809.238;
+      l2 = 0.32;
+      l3 = 0.00061;
+      l4 = 0.011;
+      l5 = 1.1142;
+    }
+
+  const double raw_yg = yg.get_value();
+  const double raw_t = t.get_value();
+
+  const double rs =
+    raw_yg * pow( (raw_p/l1 + l5) * pow(10, l4*raw_api - l3*raw_t), 1/l2);
+
+  return Quantity<SCF_STB>(rs); 
+}
+
+inline Quantity<SCF_STB> RsPerezML::impl(const Quantity<Sgg> &,
+					 const Quantity<psia> & pb,
+					 const Quantity<psia> & p,
+					 const Quantity<Api> &,
+					 const Quantity<Fahrenheit> &,
+					 const Quantity<SCF_STB> & rsb) const
+{
+  const double raw_pb = pb.get_value();
+  const double raw_p  = p.get_value();
+  if (raw_p >= raw_pb)
+    return rsb;
+
+  const double rs = (rsb.get_value()/1.031) * pow((raw_p/raw_pb), 0.83);
+
+  return Quantity<SCF_STB>(rs);
+}
+
+inline Quantity<SCF_STB>
+RsMillanArcia::impl(const Quantity<Sgg> &,
+		    const Quantity<psia> & pb,
+		    const Quantity<psia> & p,
+		    const Quantity<Api> &,
+		    const Quantity<Fahrenheit> &,
+		    const Quantity<SCF_STB> & rsb) const
+{
+  const double raw_pb = pb.get_value();
+  const double raw_p  = p.get_value();
+  if (raw_p >= raw_pb)
+    return rsb;
+
+  const double rs = (rsb.get_value()/1.031) * pow(raw_p/raw_pb, 0.83);
+
+  return Quantity<SCF_STB>(rs);
+}
+
+inline Quantity<SCF_STB>
+RsManucciRosales::impl(const Quantity<Sgg> & yg,
+		       const Quantity<psia> & pb,
+		       const Quantity<psia> & p,
+		       const Quantity<Api> & api,
+		       const Quantity<Fahrenheit> & t,
+		       const Quantity<SCF_STB> & rsb) const
+{
+  const double raw_pb = pb.get_value();
+  const double raw_p  = p.get_value();
+  if (raw_p >= raw_pb)
+    return rsb;
+
+  const double x = 0.000922*t.get_value() - 0.0072*api.get_value();
+            
+  const double rs = yg.get_value() * pow(raw_p/(84.88 * pow(10, x) ), 1/0.53);
+
+  return Quantity<SCF_STB>(rs);
+}
+
+# endif // SOLUTION_GAS_OIL_RELATION_IMPL_H

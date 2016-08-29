@@ -11,14 +11,17 @@ CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
 .SUFFIXES: .rb .H .cc
 
-.rb.H: ./gen-corr
-	$(RM) $*.H	; 	\	@@\
+.rb.H: gen-corr
+	$(RM) $*.H; 	\	@@\
 	./gen-corr -f $*.rb -H | clang-format -style=Mozilla > $@
 
-CORRS = solution-gas-oil-relation-1.rb
+CORRS = solution-gas-oil-relation-1.rb oil-formation-volume-factor.rb
 
 HCORRS = $(CORRS:.rb=.H)
 
-depend:: solution-gas-oil-relation-1.H
+depend:: $(HCORRS)
 
-all:: solution-gas-oil-relation-1.H
+all:: $(HCORRS)
+
+clean::
+	$(RM) $(HCORRS)

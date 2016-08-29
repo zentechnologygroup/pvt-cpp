@@ -30,7 +30,9 @@ Declare_Unit(psia, "psia",
 	            it clear that the pressure is relative to a vacuum rather than
 	            the ambient atmospheric pressure. Since atmospheric pressure 
 	            at sea level is around 14.7 psi)DESC", Pressure,
-	     0, 29985.3);  
+	     0, 29985.3);
+
+Declare_Unit(psia_1, "psia^-1", "Inverse of psia", Pressure, 1e-6, 1e7);
 
 Declare_Unit(psig, "psig",
 	     R"DESC(Pound-force per square inch is a unit of pressure or of
@@ -45,7 +47,10 @@ Declare_Unit(Atmosphere, "atm",
                     resulting from a force of one pound-force applied to 
                     an area of one square inch)DESC", Pressure, 0, 2041.39);
 
-// pressure conversions 
+// pressure conversions
+
+Declare_Conversion(psia, psia_1, val) { return 1/val; }
+Declare_Conversion(psia_1, psia, val) { return 1/val; }
   
 // To atmophere (atm)
 Declare_Conversion(Bar, Atmosphere, v) { return v * 0.986923267; }

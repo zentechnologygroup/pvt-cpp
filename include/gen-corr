@@ -119,7 +119,8 @@ class CorrelationGen
 
   def gen_impl
     "\n"\
-    "inline #{impl_type} #{@name}::impl#{gen_pars}\n"\
+    "inline #{impl_type}\n"\
+    "#{@name}::impl#{gen_pars}\n"\
     "{\n"\
     "    // put here the implementation\n"\
     "}\n"
@@ -196,6 +197,7 @@ if header
   
   guard_name = file.gsub '-', '_'
   guard_name.gsub! '.', '_'
+  guard_name.gsub! 'rb', 'H'
   guard_name.upcase!
 
   puts "# ifndef #{guard_name}"

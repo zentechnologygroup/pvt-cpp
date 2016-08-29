@@ -436,7 +436,7 @@ private:
 
 Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
 Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation);
-
+Declare_Correlation_Subtype(OilFormationVolumeFactor, OilCorrelation);
 
   
 

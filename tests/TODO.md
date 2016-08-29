@@ -73,3 +73,6 @@
 ## 22. modificar RsGlaso para que use la raíz de la eq 2do gradop
 - Created at   2016-08-26 12:31:48 -0400
 
+## 23. indicar error al equipo en radio P/Pb para algunos códigos python
+- Created at   2016-08-29 09:13:46 -0400
+
