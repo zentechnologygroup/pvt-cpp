@@ -32,7 +32,6 @@ def PbDeGhettoCorrelation(Yg, Rsb, API, T):
     return PbDeGhetto
 
 
-
 def PbDindorukChristmanCorrelation(Yg, Rsb, API, T):
     a1 = 1.42828 * 10 ** -10
     a2 = 2.844591797
@@ -609,3 +608,15 @@ def BoAlShammasiCorrelation(Yg, Yo, Rs, Rsb, T, P, Pb, Co):
     BoAlShammasi = Bo
     return BoAlShammasi 
     
+def BoAlShammasiCorrelation(Yg, Yo, Rs, Rsb, T, P, Pb, Co):
+    if P < Pb: # Saturated oil
+        Bo = 1 + (5.53 * 10 ** -7) * (Rs * (T - 60)) + 0.000181 * (Rs / Yo) + 0.000449 * ((T - 60) / Yo) + 0.000206 * (Rs * Yg / Yo)
+    else: # Undersaturated oil
+        Bob = 1 + (5.53 * 10 ** -7) * (Rsb * (T - 60)) + 0.000181 * (Rsb / Yo) + 0.000449 * ((T - 60) / Yo) + 0.000206 * (Rsb * Yg / Yo)
+        Bo = Bob * exp(Co * (Pb - P))
+            
+    if Bo < 1:
+        Bo = 1
+           
+    BoAlShammasi = Bo
+    return BoAlShammasi 

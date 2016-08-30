@@ -110,8 +110,8 @@ class BoAlShammasi : public OilFormationVolumeFactor
                                2.916)
   {
     add_parameter("yg", Sgg::get_instance(), 0.51, 3.44);
-    add_parameter("yo", Sg_do::get_instance(), Quantity<Api>(6),
-                  Quantity<Api>(63.7));
+    add_parameter("yo", Sg_do::get_instance(), Quantity<Api>(63.7),
+                  Quantity<Api>(6));
     add_parameter("rs", SCF_STB::get_instance(), 6, 3298.6);
     add_parameter("rsb", SCF_STB::get_instance());
     add_parameter("t", Fahrenheit::get_instance(), 74, 341.6);
