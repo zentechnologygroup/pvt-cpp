@@ -620,3 +620,73 @@ def BoAlShammasiCorrelation(Yg, Yo, Rs, Rsb, T, P, Pb, Co):
            
     BoAlShammasi = Bo
     return BoAlShammasi 
+
+def BoDeGhettoCorrelation(Yg, API, Rs, Rsb, T, Tsep, P, Pb, Psep, Co):
+    c1 = 4.677 * 10 ** -4
+    c2 = 1.751 * 10 ** -5
+    c3 = -1.811 * 10 ** -8
+        
+    Ygs = Yg * (1. + 5.912 * (10**-5) * (API) * (Tsep) * log10(Psep/114.7))
+                         
+    if P < Pb: # Saturated oil
+        Bo = 1 + c1 * Rs + c2 * (T - 60) * (API / Ygs) + c3 * Rs * (T - 60) * (API / Ygs)
+    else: # Undersaturated oil
+        Bob = 1 + c1 * Rsb + c2 * (T - 60) * (API / Ygs) + c3 * Rsb * (T - 60) * (API / Ygs)
+            
+        Bo = Bob * exp(Co * (Pb - P))
+                    
+    if Bo < 1:
+        Bo = 1
+    BoDeGhetto = Bo
+    return BoDeGhetto
+
+
+def BoDindorukChristmanCorrelation(Yg, API, Rs, Rsb, T, Tsep, P, Pb, Co):
+    a1 = 2.510755 * 10 ** 0
+    a2 = -4.852538 * 10 ** 0
+    a3 = 1.1835 * 10 ** 1
+    a4 = 1.365428 * 10 ** 5
+    a5 = 2.25288 * 10 ** 0
+    a6 = 1.00719 * 10 ** 1
+    a7 = 4.450849 * 10 ** -1
+    a8 = 5.352624 * 10 ** 0
+    a9 = -6.309052 * 10 ** -1
+    a10 = 9.000749 * 10 ** -1
+    a11 = 9.871766 * 10 ** -1
+    a12 = 7.865146 * 10 ** -4
+    a13 = 2.689173 * 10 ** -6
+    a14 = 1.100001 * 10 ** -5
+    
+    b1 = 4.236114474
+    b2 = 24.316998249
+    b3 = 0.958319868
+    b4 = 0.924700438
+    b5 = 1.287177430
+    b6 = 1.353868836
+    b7 = 12.581487761
+    b8 = 9.828286832
+    
+    Yo = 141.5 / (131.5 + API)
+    
+    if P < Pb: # Saturated oil
+        A = (((Rs ** a1 * Yg ** a2) / Yo ** a3) + a4 * (T - 60) ** a5 + a6 * Rs) ** a7 / (a8 + (2 * Rs ** a9 / Yg ** a10) * (T - 60)) ** 2
+        Bo = a11 + a12 * A + a13 * A ** 2 + a14 * (T - 60) * API / Yg
+        if Bo > 2:
+            BoDL = Bo
+            n = (T - Tsep) ** b1 * (log10(BoDL) * tanh(BoDL)) ** b2 + b3 * (BoDL - 1) ** b4
+            d = (1 + BoDL ** b5 * (T - Tsep) ** b6 * (log10(BoDL)) ** b7 ) ** b8
+            Bo = 1 + (n / d)
+    else: # Undersaturated oil
+        Ab = (((Rsb ** a1 * Yg ** a2) / Yo ** a3) + a4 * (T - 60) ** a5 + a6 * Rsb) ** a7 / (a8 + (2 * Rsb ** a9 / Yg ** a10) * (T - 60)) ** 2
+        Bob = a11 + a12 * Ab + a13 * Ab ** 2 + a14 * (T - 60) * API / Yg
+        if Bob > 2:
+            BoDL = Bob
+            n = (T - Tsep) ** b1 * (log10(BoDL) * tanh(BoDL)) ** b2 + b3 * (BoDL - 1) ** b4
+            d = (1 + BoDL ** b5 * (T - Tsep) ** b6 * (log10(BoDL)) ** b7 ) ** b8
+            Bob = 1 + (n / d)
+        Bo = Bob * exp(Co * (Pb - P))
+    if Bo < 1:
+        Bo = 1
+    BoDindorukChristman = Bo
+    return BoDindorukChristman
+    

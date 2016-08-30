@@ -180,27 +180,20 @@ void test(int argc, char *argv[])
 {
   CmdLine cmd(argv[0], ' ', "0");
 
-   auto __units =
-     to_vector(Unit::units().map<string>([] (auto u) { return u->symbol; }));
-   ValuesConstraint<string> units = __units;
-   ValueArg<string> p1 = { "1", "unit-1", "unit for parameter 1", false, "",
+  auto __units =
+    to_vector(Unit::units().map<string>([] (auto u) { return u->symbol; }));
+  ValuesConstraint<string> units = __units;
+  ValueArg<string> p1 = { "", "1", "unit for parameter 1", false, "", &units };
+  ValueArg<string> p2 = { "", "2", "unit for parameter 2", false, "", &units };
+  ValueArg<string> p3 = { "", "3", "unit for parameter 3", false, "", &units };
+  ValueArg<string> p4 = { "", "4", "unit for parameter 4", false, "", &units };
+  ValueArg<string> p5 = { "", "5", "unit for parameter 5", false, "", &units };
+  ValueArg<string> p6 = { "", "6", "unit for parameter 6", false, "", &units };
+  ValueArg<string> p7 = { "", "7", "unit for parameter 7", false, "", &units };
+  ValueArg<string> p8 = { "", "8", "unit for parameter 8", false, "", &units };
+  ValueArg<string> p9 = { "", "9", "unit for parameter 9", false, "", &units };
+  ValueArg<string> p10 = { "", "10", "unit for parameter 10", false, "",
 			   &units };
-   ValueArg<string> p2 = { "2", "unit-2", "unit for parameter 2", false, "",
-			   &units };
-  ValueArg<string> p3 = { "3", "unit-3", "unit for parameter 3", false, "",
-  			  &units };
-  ValueArg<string> p4 = { "4", "unit-4", "unit for parameter 4", false, "",
-  			  &units };
-  ValueArg<string> p5 = { "5", "unit-5", "unit for parameter 5", false, "",
-  			  &units };
-  ValueArg<string> p6 = { "6", "unit-6", "unit for parameter 6", false, "",
-  			  &units };
-  ValueArg<string> p7 = { "7", "unit-7", "unit for parameter 7", false, "",
-  			  &units };
-  ValueArg<string> p8 = { "8", "unit-8", "unit for parameter 8", false, "",
-  			  &units };
-  ValueArg<string> p9 = { "9", "unit-9", "unit for parameter 9", false, "",
-  			  &units };
   cmd.add(p1);
   cmd.add(p2);
   cmd.add(p3);
@@ -210,9 +203,10 @@ void test(int argc, char *argv[])
   cmd.add(p7);
   cmd.add(p8);
   cmd.add(p9);
+  cmd.add(p10);
 
   DynList<ValueArg<string>*> unit_ptrs =
-    { &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9 };
+    { &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10 };
 
   vector<string> correlations;
   auto correlation_list = Correlation::list();
@@ -339,6 +333,14 @@ void test(int argc, char *argv[])
     {
       full_mat(correlation_ptr, n.getValue(), ignore.getValue());
       return;
+    }
+
+  if (pars.getValue().size() != correlation_ptr->get_num_pars())
+    {
+      cout << "Correlation " << correlation_ptr->name << " expects "
+	   << correlation_ptr->get_num_pars() << " parameters but "
+	   << pars.getValue().size() << " were passed" << endl;
+      abort();
     }
 
   int i = 0;

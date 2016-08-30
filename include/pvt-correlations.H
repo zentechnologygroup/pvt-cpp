@@ -52,7 +52,9 @@ struct CorrelationInstantiater
     RsManucciRosales::get_instance();
 
     BoAlmarhoun::get_instance();
-    BoAlShammasi::get_instance(); 
+    BoAlShammasi::get_instance();
+    BoDeGhetto::get_instance();
+    BoDindorukChristman::get_instance();
   }
 };
 

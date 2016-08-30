@@ -1,0 +1,2 @@
+- BoDindorukChristman es demasiado compleja como para indagar
+  manualmente los caminos de ejecución . Quizá aquí klee sería de interés

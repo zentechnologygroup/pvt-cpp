@@ -249,7 +249,7 @@ public:
       << "  Return type = " << unit.symbol << endl
       << "  Min result  = " << min_val << endl
       << "  Max result  = " << max_val << endl
-      << "  Parametters:" << endl 
+      << "  Parameters (" << prows.size() << "):" << endl 
       << ::to_string(format_string(prows));
 
     return s.str();
@@ -300,6 +300,7 @@ public:
     using ParIt = DynList<VtlQuantity>::Iterator;
     Pair_Iterator<PreIt, ParIt> it(preconditions.get_it(), pars.get_it());
     DynList<VtlQuantity> ret;
+
     for (size_t i = 1; it.has_curr(); it.next(), ++i)
       {
 	auto p = it.get_curr();

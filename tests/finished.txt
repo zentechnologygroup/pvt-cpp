@@ -7,3 +7,12 @@ test-all-units-1 y test-conversion: probar primero existan todas las conversione
 Poner una lista de unidades en PhysicalQuantity,2016-08-14 12:44:43 -0400,2016-08-14 18:39:55 -0400,,2016-08-15 09:18:46 -0400
 función virtual en Correlation que ejecute la correlación dada una lista de parámetros,2016-08-16 21:01:36 -0400,,,2016-08-20 13:38:06 -0400
 modificar Declare_Unit para que reciba obligatoriamemnte la precisión,2016-08-21 22:26:57 -0400,2016-08-22 19:54:15 -0400,,2016-08-22 19:54:18 -0400
+símbolos __ N1 __to__ N2 deben ser extern y extraidos por script para lib-vars.cc,2016-08-17 19:21:05 -0400,2016-08-20 13:38:25 -0400,,2016-08-30 09:40:16 -0400
+cada correlación debe ser un singleton y anotarse en tabla,2016-08-16 20:14:29 -0400,2016-08-20 13:37:58 -0400,,2016-08-30 09:40:28 -0400
+opción para cambiar unidad de un cierto tipo de parámetro,2016-08-22 20:37:38 -0400,2016-08-24 10:30:00 -0400,,2016-08-30 09:40:45 -0400
+opción -p print ara test-conversion,2016-08-21 22:32:15 -0400,2016-08-24 10:30:15 -0400,,2016-08-30 09:41:01 -0400
+validar que la antidad de pars en lin comm sea la misma de la correlación,2016-08-29 15:15:04 -0400,2016-08-30 10:18:52 -0400,,2016-08-30 10:18:55 -0400
+corregir formato python cuando hay cambio de unidades,2016-08-23 21:41:56 -0400,2016-08-24 10:29:55 -0400,,2016-08-30 10:49:18 -0400
+opción python signature,2016-08-22 19:03:05 -0400,2016-08-22 19:53:54 -0400,,2016-08-30 10:49:47 -0400
+opción csv,2016-08-22 19:03:17 -0400,2016-08-24 10:30:03 -0400,,2016-08-30 10:50:02 -0400
+TODO.txt,2016-08-21 22:28:37 -0400,2016-08-30 10:50:28 -0400,,2016-08-30 10:50:31 -0400

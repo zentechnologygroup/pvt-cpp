@@ -18,73 +18,43 @@
 ## 6. indagar uso de klee con c++14
 - Created at   2016-08-14 19:52:59 -0400
 
-## 7. cada correlación debe ser un singleton y anotarse en tabla
-- Created at   2016-08-16 20:14:29 -0400
-- Completed at 2016-08-20 13:37:58 -0400
-
-## 8. símbolos __ N1 __to__ N2 deben ser extern y extraidos por script para lib-vars.cc
-- Created at   2016-08-17 19:21:05 -0400
-- Completed at 2016-08-20 13:38:25 -0400
-
-## 9. Cambiar referencia contsnate a Unit por un puntero constante
+## 7. Cambiar referencia contsnate a Unit por un puntero constante
 - Created at   2016-08-20 13:37:31 -0400
 
-## 10. TODO.txt
-- Created at   2016-08-21 22:28:37 -0400
-
-## 11. opción -p print ara test-conversion
-- Created at   2016-08-21 22:32:15 -0400
-- Completed at 2016-08-24 10:30:15 -0400
-
-## 12. opción python signature
-- Created at   2016-08-22 19:03:05 -0400
-- Completed at 2016-08-22 19:53:54 -0400
-
-## 13. opción csv
-- Created at   2016-08-22 19:03:17 -0400
-- Completed at 2016-08-24 10:30:03 -0400
-
-## 14. opción que genere matrix aún con excepciones
+## 8. opción que genere matrix aún con excepciones
 - Created at   2016-08-22 19:03:55 -0400
 
-## 15. opción para cambiar unidad de un cierto tipo de parámetro
-- Created at   2016-08-22 20:37:38 -0400
-- Completed at 2016-08-24 10:30:00 -0400
-
-## 16. corregir formato python cuando hay cambio de unidades
-- Created at   2016-08-23 21:41:56 -0400
-- Completed at 2016-08-24 10:29:55 -0400
-
-## 17. poner NA en salida cuando haya error
+## 9. poner NA en salida cuando haya error
 - Created at   2016-08-24 10:30:32 -0400
+- Completed at 2016-08-30 10:49:35 -0400
 
-## 18. verificar rigurosamente orden y unidades de correlaciones
+## 10. verificar rigurosamente orden y unidades de correlaciones
 - Created at   2016-08-24 14:34:13 -0400
 
-## 19. Poner parametro en test-corr que indique intervalo para un parámetros
+## 11. Poner parametro en test-corr que indique intervalo para un parámetros
 - Created at   2016-08-25 15:46:17 -0400
 
-## 20. foldl_perm
+## 12. foldl_perm
 - Created at   2016-08-25 21:59:08 -0400
 
-## 21. modificar RsGlaso para que use la raíz de la eq 2do grado
+## 13. modificar RsGlaso para que use la raíz de la eq 2do grado
 - Created at   2016-08-26 12:14:58 -0400
 
-## 22. modificar RsGlaso para que use la raíz de la eq 2do gradop
+## 14. modificar RsGlaso para que use la raíz de la eq 2do gradop
 - Created at   2016-08-26 12:31:48 -0400
 
-## 23. indicar error al equipo en radio P/Pb para algunos códigos python
+## 15. indicar error al equipo en radio P/Pb para algunos códigos python
 - Created at   2016-08-29 09:13:46 -0400
 
-## 24. Revisar salida de correlación : no se ve el tipo
+## 16. Revisar salida de correlación : no se ve el tipo
 - Created at   2016-08-29 14:57:20 -0400
 
-## 25. validar que la antidad de pars en lin comm sea la misma de la correlación
-- Created at   2016-08-29 15:15:04 -0400
-
-## 26. opción que permita fijar parámetros y rango a la vez
+## 17. opción que permita fijar parámetros y rango a la vez
 - Created at   2016-08-29 16:41:28 -0400
 
-## 27. test que valide que las unidades sean las mismas para familias de correlaciones
+## 18. test que valide que las unidades sean las mismas para familias de correlaciones
 - Created at   2016-08-29 16:41:53 -0400
+
+## 19. especificación de unidad en más de 10 parámetros
+- Created at   2016-08-30 09:39:15 -0400
 
