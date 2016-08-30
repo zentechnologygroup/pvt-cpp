@@ -55,6 +55,8 @@ struct CorrelationInstantiater
     BoAlShammasi::get_instance();
     BoDeGhetto::get_instance();
     BoDindorukChristman::get_instance();
+    BoDoklaOsman::get_instance();
+    BoGlaso::get_instance();
   }
 };
 

@@ -690,3 +690,25 @@ def BoDindorukChristmanCorrelation(Yg, API, Rs, Rsb, T, Tsep, P, Pb, Co):
     BoDindorukChristman = Bo
     return BoDindorukChristman
     
+def BoDoklaOsmanCorrelation(Yg, Yo, Rs, Rsb, T, P, Pb, Co):
+    if P < Pb: # Saturated oil
+        M = Rs ** 0.773572 * Yg ** 0.40402 * Yo ** -0.882605
+        Bo = 0.431935 * 10 ** -1 + 0.156667 * 10 ** -2 * T + 0.139775 * 10 ** -2 * M + 0.380525 * 10 ** -5 * M ** 2
+    else: # Undersaturated oil
+        Mb = Rsb ** 0.773572 * Yg ** 0.40402 * Yo ** -0.882605
+        Bob = 0.431935 * 10 ** -1 + 0.156667 * 10 ** -2 * T + 0.139775 * 10 ** -2 * Mb + 0.380525 * 10 ** -5 * Mb ** 2
+        Bo = Bob * exp(Co * (Pb - P))
+    BoDoklaOsman = Bo
+    return BoDoklaOsman 
+
+def BoGlasoCorrelation(Yg, Yo, Rs, Rsb, T, P, Pb, Co):
+    if P < Pb: # Saturated oil
+        F = Rs * (Yg / Yo) ** 0.526 + 0.968 * T
+        Bo = 1 + 10 ** (-6.58511 + 2.91329 * log10(F) - 0.27683 * (log10(F)) ** 2)
+    else: # Undersaturated oil
+        Fb = Rsb * (Yg / Yo) ** 0.526 + 0.968 * T
+        Bob = 1 + 10 ** (-6.58511 + 2.91329 * log10(Fb) - 0.27683 * (log10(Fb)) ** 2)
+    Bo = Bob * exp(Co * (Pb - P))
+    BoGlaso = Bo
+        
+    return BoGlaso

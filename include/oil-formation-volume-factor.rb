@@ -124,3 +124,70 @@ add_parameter("pb", "psia")
 add_parameter("co", "psia_1")
 
 end_correlation()
+
+################################################################
+
+## verificada con python
+begin_correlation("BoDoklaOsman", "OilFormationVolumeFactor", "RB_STB",
+                  1.216, 2.493)
+add_doc(%Q[    DOKLA & OSMAN CORRELATION, CALCULATION OF OIL FORMATION
+    VOLUME FACTOR    
+
+    @see: Dokla, M.E. y Osman, M.E.: "Correlation of PVT Properties
+    for UAE Crudes",Trans AIME (1992) 293, 41-46 
+
+    @see: Bánzer, C.: "Correlaciones Numéricas P.V.T.", Universidad del
+    Zulia, 1996. 
+
+    @see: McCain, W.D., Jr.: "The Properties of Petroleum Fluids", 2nd
+    ed. Tulsa, OK: PennWell Books, 1990. 
+        
+        Based on 51 bottomhole samples from UAE reservoirs.
+        
+ ])
+
+add_parameter("yg", "Sgg", 0.789, 1.29)
+add_parameter("yo", "Sg_do", 0.8236, 0.886)
+add_parameter("rs", "SCF_STB")
+add_parameter("rsb", "SCF_STB", 181, 2266)
+add_parameter("t", "Rankine",
+              "Quantity<Fahrenheit>(190)", "Quantity<Fahrenheit>(275)")
+add_parameter("p", "psia")
+add_parameter("pb", "psia", 590, 4640)
+add_parameter("co", "psia_1")
+
+end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("BoGlaso", "OilFormationVolumeFactor", "RB_STB",
+                  1.087, 2.588)
+add_doc(%Q[     GLASO CORRELATION, CALCULATION OF OIL FORMATION VOLUME FACTOR  
+                  
+    @see: Glaso, O.: "Generalized Pressure-Volume-Temperature
+    Correlations," Journal of Petroleum Technology, 1980 
+
+    @see: Bánzer, C.: "Correlaciones Numéricas P.V.T.", Universidad
+    del Zulia, 1996. 
+
+    @see: McCain, W.D., Jr.: "The Properties of Petroleum Fluids", 2nd
+    ed. Tulsa, OK: PennWell Books, 1990. 
+        
+    Based on 26 samples from the North Sea (collected from wells in
+    the region 56 to 62°N) and 19 samples from the Middle East,
+    Algeria, and several areas in the U.S.  
+        
+ ])
+
+add_parameter("yg", "Sgg", 0.650, 1.276)
+add_parameter("yo", "Sg_do", "Quantity<Api>(48.1)", "Quantity<Api>(22.3)")
+add_parameter("rs", "SCF_STB", 90, 2637)
+add_parameter("rsb", "SCF_STB")
+add_parameter("t", "Fahrenheit", 80, 280)
+add_parameter("p", "psia")
+add_parameter("pb", "psia", 150, 7127)
+add_parameter("co", "psia_1")
+
+end_correlation()
