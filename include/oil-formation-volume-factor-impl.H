@@ -309,6 +309,81 @@ BoHanafy::impl(const Quantity<SCF_STB> & rs,
    return Quantity<RB_STB>(bo);  
 }
 
+inline Quantity<RB_STB>
+BoKartoatmodjo::impl(const Quantity<Sgg> & yg,
+		     const Quantity<Sg_do> & yo,
+		     const Quantity<SCF_STB> & rs,
+		     const Quantity<SCF_STB> & rsb,
+		     const Quantity<Fahrenheit> & t,
+		     const Quantity<Fahrenheit> & tsep,
+		     const Quantity<psia> & p,
+		     const Quantity<psia> & pb,
+		     const Quantity<psia> & psep,
+		     const Quantity<psia_1> & co) const
+{
+  const Quantity<Api> api(yo);
+
+  const double c =
+    1 + 0.1595*pow(api, .4078)*pow(tsep, -0.2466)*log10(psep/114.7);
+       
+  const double ygcorr = c*yg.get_value();
+
+  const double raw_p = p.get_value();
+  const double raw_pb = pb.get_value();
+
+  double bo = 0;
+  
+  if (raw_p < raw_pb) // Saturated oil
+    {
+      const double f =
+	pow(rs, 0.755)*pow(ygcorr, 0.25)*pow(yo, -1.5) + 0.45*t.get_value();
+      bo = 0.98496 + 0.0001 * pow(f, 1.5);
+    }
+  else // Undersaturated oil
+    {
+      const double fb =
+	pow(rsb, 0.755)*pow(ygcorr, 0.25)*pow(yo, -1.5) + 0.45*t.get_value();
+      const double bob = 0.98496 + 0.0001 * pow(fb, 1.5);
+      bo = bob * exp(co.get_value() * (raw_pb - raw_p));
+    }
+
+  return Quantity<RB_STB>(bo);
+}
+
+inline Quantity<RB_STB>
+BoLasater::impl(const Quantity<Sgg> & yg,
+		const Quantity<Sg_do> & yo,
+		const Quantity<SCF_STB> & rs,
+		const Quantity<SCF_STB> & rsb,
+		const Quantity<Fahrenheit> & t,
+		const Quantity<psia> & p,
+		const Quantity<psia> & pb,
+		const Quantity<psia_1> & co) const
+{
+  const double raw_p = p.get_value();
+  const double raw_pb = pb.get_value();
+  const double raw_yg = yg.get_value();
+  const double raw_yo = yo.get_value();
+  const double raw_t = t.get_value();
+
+  double bo = 0;  
+  if (raw_p < raw_pb) // Saturated oil
+    {
+      const double raw_rs = rs.get_value();
+      bo = 0.972 + 0.000147*pow(raw_rs*sqrt(raw_yg/raw_yo) + 1.25*raw_t, 1.175);
+    }
+  else // Undersaturated oil
+    {
+      const double raw_rsb = rsb.get_value();
+      const double bob =
+	0.972 + 0.000147*pow(raw_rsb*sqrt(raw_yg/raw_yo) + 1.25*raw_t, 1.175);
+            
+      bo = bob * exp(co.get_value()*(raw_pb - raw_p));
+    }
+
+  return Quantity<RB_STB>(bo);
+}
+
 
 
 # endif // OIL_FORMATION_VOLUME_FACTOR_IMPL_H

@@ -721,3 +721,27 @@ def BoHanafyCorrelation(Rs, Rsb, P, Pb, Co):
         Bo = Bob * exp(Co * (Pb - P))
     BoHanafy = Bo
     return BoHanafy
+
+def BoKartoatmodjoCorrelation(Yg, Yo, Rs, Rsb, T, Tsep, P, Pb, Psep, Co):
+    API = 141.5 / Yo - 131.5
+    c = 1 + 0.1595 * (API ** 0.4078) * (Tsep ** -0.2466) * log10(Psep / 114.7)
+    Ygcorr = c * Yg
+    if P < Pb: # Saturated oil
+        F = (Rs ** 0.755) * (Ygcorr ** 0.25) * (Yo ** -1.5) + 0.45 * T
+        Bo = 0.98496 + 0.0001 * F ** 1.5
+    else: # Undersaturated oil
+        Fb = (Rsb ** 0.755) * (Ygcorr ** 0.25) * (Yo ** -1.5) + 0.45 * T
+        Bob = 0.98496 + 0.0001 * Fb ** 1.5
+        Bo = Bob * exp(Co * (Pb - P))
+        
+    BoKartoatmodjoSchmidt = Bo
+    return BoKartoatmodjoSchmidt
+
+def BoLasaterCorrelation(Yg, Yo, Rs, Rsb, T, P, Pb, Co):
+    if P < Pb: # Saturated oil
+        Bo = 0.972 + 0.000147 * (Rs * (Yg / Yo) ** 0.5 + 1.25 * T) ** 1.175 
+    else: # Undersaturated oil
+        Bob = 0.972 + 0.000147 * (Rsb * (Yg / Yo) ** 0.5 + 1.25 * T) ** 1.175 
+        Bo = Bob * exp(Co * (Pb - P))
+    BoLasater = Bo
+    return BoLasater

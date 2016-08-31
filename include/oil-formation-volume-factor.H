@@ -552,4 +552,176 @@ public:
   }
 };
 
+/** BoKartoatmodjo
+
+     KARTOATMODJO & SCHMIDT CORRELATION, CALCULATION OF OIL
+    FORMATION VOLUME FACTOR
+
+    @see: R.S. Kartoatmodjo and Z. Schmidt. "New Correlations For
+    Crude Oil Physical Properties", SPE 23556, 1991.
+
+    Based on a set of 5392 data points, which represent 740 different
+    crude oil samples.
+
+    The data bank was collected from PVT reports and literature. The
+    first major source was from South East Asia, mainly
+    Indonesia. The second source was North America, including the
+    offshore area. The rest came from the Middle East and Latin America.
+
+*/
+class BoKartoatmodjo : public OilFormationVolumeFactor
+{
+  Correlation_Singleton(BoKartoatmodjo);
+
+  BoKartoatmodjo()
+    : OilFormationVolumeFactor("BoKartoatmodjo", RB_STB::get_instance(), 1.007,
+                               2.144)
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.4824, 1.668);
+    add_parameter("yo", Sg_do::get_instance(), Quantity<Api>(59),
+                  Quantity<Api>(14.4));
+    add_parameter("rs", SCF_STB::get_instance(), 0, 2890);
+    add_parameter("rsb", SCF_STB::get_instance());
+    add_parameter("t", Fahrenheit::get_instance(), 75, 320);
+    add_parameter("tsep", Fahrenheit::get_instance(), 38, 294);
+    add_parameter("p", psia::get_instance());
+    add_parameter("pb", psia::get_instance(), 14.7, 6054.7);
+    add_parameter("psep", psia::get_instance(), 14.7, 1414.7);
+    add_parameter("co", psia_1::get_instance());
+  }
+
+public:
+  inline Quantity<RB_STB> impl(
+    const Quantity<Sgg>& yg, const Quantity<Sg_do>& yo,
+    const Quantity<SCF_STB>& rs, const Quantity<SCF_STB>& rsb,
+    const Quantity<Fahrenheit>& t, const Quantity<Fahrenheit>& tsep,
+    const Quantity<psia>& p, const Quantity<psia>& pb,
+    const Quantity<psia>& psep, const Quantity<psia_1>& co) const;
+
+  Quantity<RB_STB> operator()(
+    const Quantity<Sgg>& yg, const Quantity<Sg_do>& yo,
+    const Quantity<SCF_STB>& rs, const Quantity<SCF_STB>& rsb,
+    const Quantity<Fahrenheit>& t, const Quantity<Fahrenheit>& tsep,
+    const Quantity<psia>& p, const Quantity<psia>& pb,
+    const Quantity<psia>& psep, const Quantity<psia_1>& co) const
+  {
+    return compute({ yg, yo, rs, rsb, t, tsep, p, pb, psep, co });
+  }
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity>& __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto& yg = it.get_curr();
+    it.next();
+    const auto& yo = it.get_curr();
+    it.next();
+    const auto& rs = it.get_curr();
+    it.next();
+    const auto& rsb = it.get_curr();
+    it.next();
+    const auto& t = it.get_curr();
+    it.next();
+    const auto& tsep = it.get_curr();
+    it.next();
+    const auto& p = it.get_curr();
+    it.next();
+    const auto& pb = it.get_curr();
+    it.next();
+    const auto& psep = it.get_curr();
+    it.next();
+    const auto& co = it.get_curr();
+
+    return impl(yg, yo, rs, rsb, t, tsep, p, pb, psep, co);
+  }
+};
+
+/** BoLasater
+
+     LASATER CORRELATION (STANDING CORRELATION APPLIED FOR
+    LASATER), CALCULATION OF OIL FORMATION VOLUME FACTOR
+
+    @see: Lasater, J.A.: "Bubble Point Pressure Correlation", Trans
+    AIME (1958) 213, 379-381
+
+    @see: Standing, M.B.: "A Pressure-Volume-Temperature Correlation
+    for Mixtures of California Oil and Gases", American Petroleum
+    Institute, 47-275 API, 1947.
+
+    @see: Beggs, H.D. "Oil System Correlations", Petroleum Engineering
+    Handbook, H.C. SPE, Richardson, TX (1987). Cap 22. Pag 22-6.
+
+    @see: McCain, W.D., Jr.: "The Properties of Petroleum Fluids", 2nd
+    ed. Tulsa, OK: PennWell Books, 1990.
+
+    Lasater correlation is based on data obtained from Canada, Western
+    and Mid-Continental United States, and South America.
+
+    Standing correlation for formation volumes of bubble point liquids
+    is based on data collected from 22 different Californian
+    crude-oil-natural-gas mixtures (Western United States).
+
+*/
+class BoLasater : public OilFormationVolumeFactor
+{
+  Correlation_Singleton(BoLasater);
+
+  BoLasater()
+    : OilFormationVolumeFactor("BoLasater", RB_STB::get_instance())
+  {
+    add_parameter("yg", Sgg::get_instance());
+    add_parameter("yo", Sg_do::get_instance(), Quantity<Api>(51.1),
+                  Quantity<Api>(17.9));
+    add_parameter("rs", SCF_STB::get_instance());
+    add_parameter("rsb", SCF_STB::get_instance(), 3, 2905);
+    add_parameter("t", Fahrenheit::get_instance(), 82, 272);
+    add_parameter("p", psia::get_instance());
+    add_parameter("pb", psia::get_instance(), 48, 5780);
+    add_parameter("co", psia_1::get_instance());
+  }
+
+public:
+  inline Quantity<RB_STB> impl(
+    const Quantity<Sgg>& yg, const Quantity<Sg_do>& yo,
+    const Quantity<SCF_STB>& rs, const Quantity<SCF_STB>& rsb,
+    const Quantity<Fahrenheit>& t, const Quantity<psia>& p,
+    const Quantity<psia>& pb, const Quantity<psia_1>& co) const;
+
+  Quantity<RB_STB> operator()(const Quantity<Sgg>& yg,
+                              const Quantity<Sg_do>& yo,
+                              const Quantity<SCF_STB>& rs,
+                              const Quantity<SCF_STB>& rsb,
+                              const Quantity<Fahrenheit>& t,
+                              const Quantity<psia>& p, const Quantity<psia>& pb,
+                              const Quantity<psia_1>& co) const
+  {
+    return compute({ yg, yo, rs, rsb, t, p, pb, co });
+  }
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity>& __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto& yg = it.get_curr();
+    it.next();
+    const auto& yo = it.get_curr();
+    it.next();
+    const auto& rs = it.get_curr();
+    it.next();
+    const auto& rsb = it.get_curr();
+    it.next();
+    const auto& t = it.get_curr();
+    it.next();
+    const auto& p = it.get_curr();
+    it.next();
+    const auto& pb = it.get_curr();
+    it.next();
+    const auto& co = it.get_curr();
+
+    return impl(yg, yo, rs, rsb, t, p, pb, co);
+  }
+};
+
 #endif // OIL_FORMATION_VOLUME_FACTOR_H

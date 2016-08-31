@@ -218,3 +218,75 @@ add_parameter("pb", "psia", 36, 5003)
 add_parameter("co", "psia_1", 1.032e-6, 4.35e-6)
 
 end_correlation()
+
+################################################################
+
+## verificada con python
+begin_correlation("BoKartoatmodjo", "OilFormationVolumeFactor", "RB_STB",
+                  1.007, 2.144)
+add_doc(%Q[     KARTOATMODJO & SCHMIDT CORRELATION, CALCULATION OF OIL
+    FORMATION VOLUME FACTOR  
+                          
+    @see: R.S. Kartoatmodjo and Z. Schmidt. "New Correlations For
+    Crude Oil Physical Properties", SPE 23556, 1991. 
+        
+    Based on a set of 5392 data points, which represent 740 different
+    crude oil samples.  
+
+    The data bank was collected from PVT reports and literature. The
+    first major source was from South East Asia, mainly
+    Indonesia. The second source was North America, including the
+    offshore area. The rest came from the Middle East and Latin America. 
+ ])
+
+add_parameter("yg", "Sgg", 0.4824, 1.668)
+add_parameter("yo", "Sg_do", "Quantity<Api>(59)", "Quantity<Api>(14.4)")
+add_parameter("rs", "SCF_STB", 0, 2890)
+add_parameter("rsb", "SCF_STB")
+add_parameter("t", "Fahrenheit", 75, 320)
+add_parameter("tsep", "Fahrenheit", 38, 294)
+add_parameter("p", "psia")
+add_parameter("pb", "psia", 14.7, 6054.7)
+add_parameter("psep", "psia", 14.7, 1414.7)
+add_parameter("co", "psia_1")
+
+end_correlation()
+
+################################################################
+
+## verificada con python
+begin_correlation("BoLasater", "OilFormationVolumeFactor", "RB_STB")
+add_doc(%Q[     LASATER CORRELATION (STANDING CORRELATION APPLIED FOR
+    LASATER), CALCULATION OF OIL FORMATION VOLUME FACTOR
+                
+    @see: Lasater, J.A.: "Bubble Point Pressure Correlation", Trans
+    AIME (1958) 213, 379-381 
+
+    @see: Standing, M.B.: "A Pressure-Volume-Temperature Correlation
+    for Mixtures of California Oil and Gases", American Petroleum
+    Institute, 47-275 API, 1947. 
+
+    @see: Beggs, H.D. "Oil System Correlations", Petroleum Engineering
+    Handbook, H.C. SPE, Richardson, TX (1987). Cap 22. Pag 22-6.  
+
+    @see: McCain, W.D., Jr.: "The Properties of Petroleum Fluids", 2nd
+    ed. Tulsa, OK: PennWell Books, 1990. 
+ 
+    Lasater correlation is based on data obtained from Canada, Western
+    and Mid-Continental United States, and South America. 
+
+    Standing correlation for formation volumes of bubble point liquids
+    is based on data collected from 22 different Californian
+    crude-oil-natural-gas mixtures (Western United States). 
+ ])
+
+add_parameter("yg", "Sgg")
+add_parameter("yo", "Sg_do", "Quantity<Api>(51.1)", "Quantity<Api>(17.9)")
+add_parameter("rs", "SCF_STB")
+add_parameter("rsb", "SCF_STB", 3, 2905)
+add_parameter("t", "Fahrenheit", 82, 272)
+add_parameter("p", "psia")
+add_parameter("pb", "psia", 48, 5780)
+add_parameter("co", "psia_1")
+
+end_correlation()

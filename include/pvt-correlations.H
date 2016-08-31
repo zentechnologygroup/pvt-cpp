@@ -58,6 +58,8 @@ struct CorrelationInstantiater
     BoDoklaOsman::get_instance();
     BoGlaso::get_instance();
     BoHanafy::get_instance();
+    BoKartoatmodjo::get_instance();
+    BoLasater::get_instance();
   }
 };
 

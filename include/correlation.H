@@ -237,20 +237,26 @@ public:
 
   string to_string() const
   {
-    auto prows = preconditions.map<DynList<string>>([] (const auto & c)
+    size_t i = 1;
+    auto prows = preconditions.map<DynList<string>>([&i] (const auto & c)
       {
 	DynList<string> ret = { "    " };
 	ret.append(c.to_list_string());
+	ret.append(std::to_string(i++));
 	return ret;
       });
+
+    prows.insert(rep<string>(6, ""));
+    prows.insert({ "    ", "name", "unit", "min", "max", "number" });
+    auto mat = format_string(prows);
 
     ostringstream s;
     s << correlation_name() << endl
       << "  Return type = " << unit.symbol << endl
       << "  Min result  = " << min_val << endl
       << "  Max result  = " << max_val << endl
-      << "  Parameters (" << prows.size() << "):" << endl 
-      << ::to_string(format_string(prows));
+      << "  Parameters (" << get_num_pars() << "):" << endl
+      << ::to_string(mat);
 
     return s.str();
   }
