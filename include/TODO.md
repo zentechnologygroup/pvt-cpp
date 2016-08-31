@@ -8,3 +8,6 @@
 ## 3. eliminar correlations de Imakefile
 - Created at   2016-08-30 17:39:36 -0400
 
+## 4. dry de bod versus rs y rsb
+- Created at   2016-08-31 11:44:19 -0400
+

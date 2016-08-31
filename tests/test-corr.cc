@@ -360,7 +360,8 @@ void test(int argc, char *argv[])
    map<VtlQuantity>([] (auto p) { return VtlQuantity(*p.first, p.second); });
 
   if (python.getValue())
-    cout << correlation_ptr->python_call(pars_list) << endl
+    cout << endl
+	 << correlation_ptr->python_call(pars_list) << endl
 	 << endl;
 
     if (ignore.getValue())

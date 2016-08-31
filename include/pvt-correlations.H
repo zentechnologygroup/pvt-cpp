@@ -60,6 +60,10 @@ struct CorrelationInstantiater
     BoHanafy::get_instance();
     BoKartoatmodjo::get_instance();
     BoLasater::get_instance();
+    BoPetroskyFarshad::get_instance();
+    BoStanding::get_instance();
+    BoTotalCFP::get_instance();
+    BoVasquezBeggs::get_instance();
   }
 };
 

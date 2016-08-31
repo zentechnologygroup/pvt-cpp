@@ -290,3 +290,129 @@ add_parameter("pb", "psia", 48, 5780)
 add_parameter("co", "psia_1")
 
 end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("BoPetroskyFarshad", "OilFormationVolumeFactor", "RB_STB",
+                 1.1178, 1.6229)
+add_doc(%Q[     PETROSKY & FARSHAD CORRELATION, CALCULATION OF OIL
+    FORMATION VOLUME FACTOR
+
+    @see: G.E. Petrosky Jr. and
+    F.F. Farshad. "Pressure-Volume-Temperature Correlations for
+    Gulf of Mexico Crude Oils," SPE 26644, 1993 
+        
+    Based on 81 laboratory PVT analyses. Fluid samples were obtained
+    from reservoirs located offshore Texas and Louisiana.  
+
+    Producing areas from Galveston Island, eastward, through Main Pass
+    are represented.         
+
+    Many Gulf of Mexico crudes can be characterized as naphthenic or
+    biodegraded oils. 
+ ])
+
+add_parameter("yg", "Sgg", 0.5781, 0.8519)
+add_parameter("yo", "Sg_do", "Quantity<Api>(45)", "Quantity<Api>(16.3)")
+add_parameter("rs", "SCF_STB", 217, 1406)
+add_parameter("rsb", "SCF_STB")
+add_parameter("t", "Fahrenheit", 114, 288)
+add_parameter("p", "psia")
+add_parameter("pb", "psia", 1574, 6523)
+add_parameter("co", "psia_1")
+
+end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("BoStanding", "OilFormationVolumeFactor", "RB_STB",
+                 1.024, 2.15)
+add_doc(%Q[     STANDING CORRELATION, CALCULATION OF OIL FORMATION VOLUME FACTOR  
+             
+    @see: M.B. Standing. "A Pressure-Volume-Temperature Correlation for
+    Mixtures of California Oil and Gases" Drill. & Prod. Prac.,Beal C.
+    The Viscosity-Temperature Chart 0361-39 Nat. Bur . Stds Circular C461-1947 
+
+    @see: Al-Shammasi, A.A.: "A Review of Bubblepoint Pressure and Oil
+    Formation Volume Factor Correlations", SPE 71302, 2001. 
+
+    @see: McCain, W.D., Jr.: "The Properties of Petroleum Fluids", 2nd
+    ed. Tulsa, OK: PennWell Books, 1990. 
+
+    Based on 105 experimentally determined bubble point pressures from
+    22 different Californian crude-oil-natural-gas mixtures. 
+        
+ ])
+
+add_parameter("yg", "Sgg", 0.59, 0.95)
+add_parameter("yo", "Sg_do", "Quantity<Api>(63.8)", "Quantity<Api>(16.5)")
+add_parameter("rs", "SCF_STB", 20, 1425)
+add_parameter("rsb", "SCF_STB")
+add_parameter("t", "Fahrenheit", 100, 258)
+add_parameter("p", "psia")
+add_parameter("pb", "psia")
+add_parameter("co", "psia_1")
+
+end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("BoTotalCFP", "OilFormationVolumeFactor", "RB_STB")
+add_doc(%Q[     TOTAL CFP CORRELATION, CALCULATION OF OIL FORMATION VOLUME FACTOR
+             
+    @see: TOTAL Compaigne Francaise des Petroles: "Proyectos de
+    Inyección de Fluidos - Correlaciones PVT para Crudos del Oriente de
+    Venezuela", S.A., MENEVEN. Septiembre de 1996 
+
+    @see: Bánzer, C.: "Correlaciones Numéricas P.V.T.", Universidad
+    del Zulia, 1996.         
+ ])
+
+add_parameter("yg", "Sgg")
+add_parameter("api", "Api")
+add_parameter("rs", "SCF_STB")
+add_parameter("rsb", "SCF_STB")
+add_parameter("t", "Fahrenheit")
+add_parameter("p", "psia")
+add_parameter("pb", "psia")
+add_parameter("co", "psia_1")
+
+end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("BoVasquezBeggs", "OilFormationVolumeFactor", "RB_STB",
+                  1.028, 2.226)
+add_doc(%Q[     VASQUEZ & BEGGS CORRELATION, CALCULATION OF OIL
+    FORMATION VOLUME FACTOR 
+
+    @see: M.E. Vasquez and H.D. Beggs. "Correlations for Fluid
+    Physical Property Prediction," JPT 968-70, June 1980 
+
+    @see: Al-Shammasi, A.A.: "A Review of Bubblepoint Pressure and Oil
+    Formation Volume Factor Correlations", SPE 71302, 2001. 
+
+    @see: C. Bánzer. "Correlaciones Numéricas P.V.T.", Universidad del
+    Zulia, 1996. 
+ ])
+
+add_parameter("yg", "Sgg", 0.511, 1.35)
+add_parameter("api", "Api", 15.3, 59.3)
+add_parameter("rs", "SCF_STB", 0, 2199)
+add_parameter("rsb", "SCF_STB")
+add_parameter("t", "Fahrenheit", 75, 294)
+add_parameter("tsep", "Fahrenheit", 76, 150)
+add_parameter("p", "psia")
+add_parameter("pb", "psia")
+add_parameter("psep", "psia", 60, 565)
+add_parameter("co", "psia_1")
+
+end_correlation()

@@ -745,3 +745,50 @@ def BoLasaterCorrelation(Yg, Yo, Rs, Rsb, T, P, Pb, Co):
         Bo = Bob * exp(Co * (Pb - P))
     BoLasater = Bo
     return BoLasater
+
+def BoPetroskyFarshadCorrelation(Yg, Yo, Rs, Rsb, T, P, Pb, Co):
+    if P < Pb: # Saturated oil
+        F = (Rs ** 0.3738 * ((Yg ** 0.2914) / (Yo ** 0.6265)) + 0.24626 * T ** 0.5371)
+        Bo = 1.0113 + 7.2046 * 10 ** -5 * F ** 3.0936
+    else:  # Undersaturated oil
+        Fb = (Rsb ** 0.3738 * ((Yg ** 0.2914) / (Yo ** 0.6265)) + 0.24626 * T ** 0.5371)
+        Bob = 1.0113 + 7.2046 * 10 ** -5 * Fb ** 3.0936
+        Bo = Bob * exp(Co * (Pb - P))
+    BoPetroskyFarshad = Bo
+    return BoPetroskyFarshad
+
+def BoStandingCorrelation(Yg, Yo, Rs, Rsb, T, P, Pb, Co):
+    if P < Pb: # Saturated oil
+        Bo = 0.972 + 0.000147 * (Rs * (Yg / Yo) ** 0.5 + 1.25 * T) ** 1.175 
+    else: # Undersaturated oil
+        Bob = 0.972 + 0.000147 * (Rsb * (Yg / Yo) ** 0.5 + 1.25 * T) ** 1.175 
+        Bo = Bob * exp(Co * (Pb - P))
+    BoStanding = Bo
+    return BoStanding
+
+def BoTotalCFPCorrelation(Yg, API, Rs, Rsb, T, P, Pb, Co):
+    if P < Pb: # Saturated oil
+        Bo = 1.022 + 4.857 * 10 ** -4 * Rs - 2.009 * 10 ** -6 * (T - 60) * (API / Yg) + 17.569 * 10 ** -9 * Rs * (T - 60) * (API / Yg)
+    else: # Undersaturated oil
+        Bob = 1.022 + 4.857 * 10 ** -4 * Rsb - 2.009 * 10 ** -6 * (T - 60) * (API / Yg) + 17.569 * 10 ** -9 * Rsb * (T - 60) * (API / Yg)
+        Bo = Bob * exp(Co * (Pb - P))
+    BoTotalCFP = Bo
+    return BoTotalCFP
+
+def BoVasquezBeggsCorrelation(Yg, API, Rs, Rsb, T, Tsep, P, Pb, Psep, Co):
+    if API <= 30:
+        c1 = 4.677 * 10 ** -4
+        c2 = 1.751 * 10 ** -5
+        c3 = -1.811 * 10 ** -8
+    else:
+        c1 = 4.67 * 10 ** -4
+        c2 = 1.1 * 10 ** -5
+        c3 = 1.337 * 10 ** -9
+    Ygs = Yg * (1. + 5.912 * (10 ** -5) * (API) * (Tsep) * log10(Psep/114.7))
+    if P < Pb: # Saturated oil
+        Bo = 1 + c1 * Rs + c2 * (T - 60) * (API / Ygs) + c3 * Rs * (T - 60) * (API / Ygs)
+    else: # Undersaturated oil
+        Bob = 1 + c1 * Rsb + c2 * (T - 60) * (API / Ygs) + c3 * Rsb * (T - 60) * (API / Ygs)
+        Bo = Bob * exp(Co * (Pb - P))
+    BoVasquezBeggs = Bo
+    return BoVasquezBeggs
