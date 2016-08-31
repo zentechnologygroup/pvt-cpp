@@ -287,6 +287,27 @@ BoGlaso::impl(const Quantity<Sgg> & yg,
 }
 
 
+inline Quantity<RB_STB>
+BoHanafy::impl(const Quantity<SCF_STB> & rs,
+	       const Quantity<SCF_STB> & rsb,
+	       const Quantity<psia> & p,
+	       const Quantity<psia> & pb,
+	       const Quantity<psia_1> & co) const
+{
+  const double raw_p = p.get_value();
+  const double raw_pb = pb.get_value();
+
+  double bo = 0;
+  if (raw_p < raw_pb) // Saturated oil  
+    bo = 0.0006*rs.get_value() + 1.079;
+  else // Undersaturated oil
+    {  
+      const double bob = 0.0006*rsb.get_value() + 1.079;
+      bo = bob * exp(co.get_value()*(raw_pb - raw_p));
+    }
+
+   return Quantity<RB_STB>(bo);  
+}
 
 
 

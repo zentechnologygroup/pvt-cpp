@@ -712,3 +712,12 @@ def BoGlasoCorrelation(Yg, Yo, Rs, Rsb, T, P, Pb, Co):
     BoGlaso = Bo
         
     return BoGlaso
+
+def BoHanafyCorrelation(Rs, Rsb, P, Pb, Co):
+    if P < Pb: # Saturated oil  
+        Bo = 0.0006 * Rs + 1.079
+    else: # Undersaturated oil
+        Bob = 0.0006 * Rsb + 1.079
+        Bo = Bob * exp(Co * (Pb - P))
+    BoHanafy = Bo
+    return BoHanafy

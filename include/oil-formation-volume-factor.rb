@@ -191,3 +191,30 @@ add_parameter("pb", "psia", 150, 7127)
 add_parameter("co", "psia_1")
 
 end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("BoHanafy", "OilFormationVolumeFactor", "RB_STB",
+                  1.032, 4.35)
+add_doc(%Q[     HANAFY CORRELATION, CALCULATION OF OIL FORMATION VOLUME FACTOR 
+                    
+    @see: H.H. Hanafy, S.M. Macary, Y.M. ElNady, A.A. Bayomi and
+    M.H. El Batanony. "A New Approach for Predicting the Crude Oil
+    Properties," SPE 37439, 1997   
+        
+    Based on experimental PVT data of 324 fluid samples taken from 176
+    wells located in 75 fields. This data represents 15 productive
+    zones of 123 reservoirs distributed along three different regions
+    of Egypt, including the Gulf of Suez, Western Desert, and Sinai. 
+        
+ ])
+
+add_parameter("rs", "SCF_STB", 7, 4272)
+add_parameter("rsb", "SCF_STB")
+add_parameter("p", "psia")
+add_parameter("pb", "psia", 36, 5003)
+add_parameter("co", "psia_1", 1.032e-6, 4.35e-6)
+
+end_correlation()

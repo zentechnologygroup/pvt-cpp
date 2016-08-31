@@ -489,4 +489,67 @@ public:
   }
 };
 
+/** BoHanafy
+
+     HANAFY CORRELATION, CALCULATION OF OIL FORMATION VOLUME FACTOR
+
+    @see: H.H. Hanafy, S.M. Macary, Y.M. ElNady, A.A. Bayomi and
+    M.H. El Batanony. "A New Approach for Predicting the Crude Oil
+    Properties," SPE 37439, 1997
+
+    Based on experimental PVT data of 324 fluid samples taken from 176
+    wells located in 75 fields. This data represents 15 productive
+    zones of 123 reservoirs distributed along three different regions
+    of Egypt, including the Gulf of Suez, Western Desert, and Sinai.
+
+
+*/
+class BoHanafy : public OilFormationVolumeFactor
+{
+  Correlation_Singleton(BoHanafy);
+
+  BoHanafy()
+    : OilFormationVolumeFactor("BoHanafy", RB_STB::get_instance(), 1.032, 4.35)
+  {
+    add_parameter("rs", SCF_STB::get_instance(), 7, 4272);
+    add_parameter("rsb", SCF_STB::get_instance());
+    add_parameter("p", psia::get_instance());
+    add_parameter("pb", psia::get_instance(), 36, 5003);
+    add_parameter("co", psia_1::get_instance(), 1.032e-06, 4.35e-06);
+  }
+
+public:
+  inline Quantity<RB_STB> impl(const Quantity<SCF_STB>& rs,
+                               const Quantity<SCF_STB>& rsb,
+                               const Quantity<psia>& p,
+                               const Quantity<psia>& pb,
+                               const Quantity<psia_1>& co) const;
+
+  Quantity<RB_STB> operator()(const Quantity<SCF_STB>& rs,
+                              const Quantity<SCF_STB>& rsb,
+                              const Quantity<psia>& p, const Quantity<psia>& pb,
+                              const Quantity<psia_1>& co) const
+  {
+    return compute({ rs, rsb, p, pb, co });
+  }
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity>& __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto& rs = it.get_curr();
+    it.next();
+    const auto& rsb = it.get_curr();
+    it.next();
+    const auto& p = it.get_curr();
+    it.next();
+    const auto& pb = it.get_curr();
+    it.next();
+    const auto& co = it.get_curr();
+
+    return impl(rs, rsb, p, pb, co);
+  }
+};
+
 #endif // OIL_FORMATION_VOLUME_FACTOR_H
