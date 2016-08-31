@@ -419,6 +419,7 @@ end_correlation()
 
 ################################################################
 
+## verificada con python
 begin_correlation("BoCegarra", "OilFormationVolumeFactor", "RB_STB")
 add_doc(%Q[     CEGARRA CORRELATION (STANDING CORRELATION APPLIED FOR
     CEGARRA), CALCULATION OF OIL FORMATION VOLUME FACTOR 
@@ -459,6 +460,37 @@ add_parameter("rsb", "SCF_STB")
 add_parameter("t", "Fahrenheit", 117, 354)
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 735, 7303)
+add_parameter("co", "psia_1")
+
+end_correlation()
+
+################################################################
+
+begin_correlation("BoPerezML", "OilFormationVolumeFactor", "RB_STB",
+                  1.032, 1.183)
+add_doc(%Q[     PEREZ ET AL. CORRELATION (EZEKWE-QUERIN-HUMPHREY
+    CORRELATION USED BY PEREZ ET AL.), CALCULATION OF OIL FORMATION VOLUME
+    FACTOR  
+
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los
+    Teques, Octubre de 2001 
+
+    @note: The correlation could not be verified because the original
+    reference is not available. Date: August 22 2016. 
+
+    @note: <param API for C++> :param Yo: Oil specific gravity [ratio
+    water=1]       
+ ])
+
+add_parameter("yg", "Sgg", 0.571, 0.981)
+add_parameter("yo", "Sg_do", "Quantity<Api>(12.9)", "Quantity<Api>(6.4)")
+add_parameter("rsb", "SCF_STB", 38, 121)
+add_parameter("t", "Fahrenheit", 112, 300)
+add_parameter("p", "psia")
+add_parameter("pb", "psia", 405, 1335)
 add_parameter("co", "psia_1")
 
 end_correlation()

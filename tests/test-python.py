@@ -792,3 +792,25 @@ def BoVasquezBeggsCorrelation(Yg, API, Rs, Rsb, T, Tsep, P, Pb, Psep, Co):
         Bo = Bob * exp(Co * (Pb - P))
     BoVasquezBeggs = Bo
     return BoVasquezBeggs
+
+def BoCegarraCorrelation(Yg, Yo, Rs, Rsb, T, P, Pb, Co):
+    if P < Pb: # Saturated oil
+        Bo = 0.972 + 0.000147 * (Rs * (Yg / Yo) ** 0.5 + 1.25 * T) ** 1.175 
+    else: # Undersaturated oil
+        Bob = 0.972 + 0.000147 * (Rsb * (Yg / Yo) ** 0.5 + 1.25 * T) ** 1.175 
+        Bo = Bob * exp(Co * (Pb - P))
+    BoCegarra = Bo
+    return BoCegarra
+
+
+def BoPerezMLCorrelation(Yg, Yo, Rsb, T, P, Pb, Co):
+    C = (10 ** (-4)) * (((Rsb) * ((Yg/Yo) ** 0.5)) + (1.25 * T))
+    Bob = 0.974322 + (4.35048 * C) - (2.85869 * (C ** 2))
+    if P < Pb: # Saturated oil
+        Bo = Bob * ((1) - ((8.801 + (0.1547 * T)) * (1e-3) * (1 - (P/Pb))))
+    else: # Undersaturated oil
+        Bo = Bob * exp(Co * (Pb - P))
+    BoPerezML = Bo
+    return BoPerezML
+    
+

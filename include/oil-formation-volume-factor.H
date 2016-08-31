@@ -1136,4 +1136,83 @@ public:
   }
 };
 
+/** BoPerezML
+
+     PEREZ ET AL. CORRELATION (EZEKWE-QUERIN-HUMPHREY
+    CORRELATION USED BY PEREZ ET AL.), CALCULATION OF OIL FORMATION VOLUME
+    FACTOR
+
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los
+    Teques, Octubre de 2001
+
+    @note: The correlation could not be verified because the original
+    reference is not available. Date: August 22 2016.
+
+    @note: <param API for C++> :param Yo: Oil specific gravity [ratio
+    water=1]
+
+*/
+class BoPerezML : public OilFormationVolumeFactor
+{
+  Correlation_Singleton(BoPerezML);
+
+  BoPerezML()
+    : OilFormationVolumeFactor("BoPerezML", RB_STB::get_instance(), 1.032,
+                               1.183)
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.571, 0.981);
+    add_parameter("yo", Sg_do::get_instance(), Quantity<Api>(12.9),
+                  Quantity<Api>(6.4));
+    add_parameter("rsb", SCF_STB::get_instance(), 38, 121);
+    add_parameter("t", Fahrenheit::get_instance(), 112, 300);
+    add_parameter("p", psia::get_instance());
+    add_parameter("pb", psia::get_instance(), 405, 1335);
+    add_parameter("co", psia_1::get_instance());
+  }
+
+public:
+  inline Quantity<RB_STB> impl(const Quantity<Sgg>& yg,
+                               const Quantity<Sg_do>& yo,
+                               const Quantity<SCF_STB>& rsb,
+                               const Quantity<Fahrenheit>& t,
+                               const Quantity<psia>& p,
+                               const Quantity<psia>& pb,
+                               const Quantity<psia_1>& co) const;
+
+  Quantity<RB_STB> operator()(const Quantity<Sgg>& yg,
+                              const Quantity<Sg_do>& yo,
+                              const Quantity<SCF_STB>& rsb,
+                              const Quantity<Fahrenheit>& t,
+                              const Quantity<psia>& p, const Quantity<psia>& pb,
+                              const Quantity<psia_1>& co) const
+  {
+    return compute({ yg, yo, rsb, t, p, pb, co });
+  }
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity>& __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto& yg = it.get_curr();
+    it.next();
+    const auto& yo = it.get_curr();
+    it.next();
+    const auto& rsb = it.get_curr();
+    it.next();
+    const auto& t = it.get_curr();
+    it.next();
+    const auto& p = it.get_curr();
+    it.next();
+    const auto& pb = it.get_curr();
+    it.next();
+    const auto& co = it.get_curr();
+
+    return impl(yg, yo, rsb, t, p, pb, co);
+  }
+};
+
 #endif // OIL_FORMATION_VOLUME_FACTOR_H
