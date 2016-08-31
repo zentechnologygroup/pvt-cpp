@@ -543,6 +543,37 @@ BoVasquezBeggs::impl(const Quantity<Sgg> & yg,
   return Quantity<RB_STB>(bo);
 }
 
+inline Quantity<RB_STB>
+BoCegarra::impl(const Quantity<Sgg> & yg,
+		const Quantity<Sg_do> & yo,
+		const Quantity<SCF_STB> & rs,
+		const Quantity<SCF_STB> & rsb,
+		const Quantity<Fahrenheit> & t,
+		const Quantity<psia> & p,
+		const Quantity<psia> & pb,
+		const Quantity<psia_1> & co) const
+{
+  const double raw_p = p.get_value();
+  const double raw_pb = pb.get_value();
+  const double raw_t = t.get_value();
+  const double yg_yo = yg.get_value()/yo.get_value();
+
+  double bo = 0;  
+  if (raw_p < raw_pb) // Saturated oil
+    {
+      const double raw_rs = rs.get_value();
+      bo = 0.972 + 0.000147 * pow(raw_rs * sqrt(yg_yo) + 1.25*raw_t, 1.175);
+    }
+  else // Undersaturated oil
+    {
+      const double raw_rsb = rsb.get_value();
+      const double bob =
+	0.972 + 0.000147 * pow(raw_rsb * sqrt(yg_yo) + 1.25*raw_t, 1.175);
+      bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
+    }
+
+  return Quantity<RB_STB>(bo);
+}
 
 
 

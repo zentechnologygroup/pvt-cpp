@@ -416,3 +416,49 @@ add_parameter("psep", "psia", 60, 565)
 add_parameter("co", "psia_1")
 
 end_correlation()
+
+################################################################
+
+begin_correlation("BoCegarra", "OilFormationVolumeFactor", "RB_STB")
+add_doc(%Q[     CEGARRA CORRELATION (STANDING CORRELATION APPLIED FOR
+    CEGARRA), CALCULATION OF OIL FORMATION VOLUME FACTOR 
+
+    @see: Cegarra, L., 2007: "Correlación para el cálculo de la
+    presión de burbuja de los yacimientos de crudo liviano y mediano
+    del Oriente de Venezuela". Trabajo especial de grado. Universidad
+    del Zulia
+
+    @see: Standing, M.B.: "A Pressure-Volume-Temperature Correlation
+    for Mixtures of California Oil and Gases" Drill. &
+    Prod. Prac.,Beal C. The Viscosity-Temperature Chart 0361-39
+    Nat. Bur . Stds Circular C461-1947 
+
+    @see: McCain, W.D., Jr.: "The Properties of Petroleum Fluids", 2nd
+    ed. Tulsa, OK: PennWell Books, 1990. 
+
+    Based on 375 consistent PVT analyses. The data bank was compiled
+    from 8394 fields of eastern Venezuela subdivided into 5192 fields
+    of light oil and 3202 fields of medium oil.  
+
+    The correlation takes the functional form of Standing correlation,
+    which is based on 105 experimental data of 22 different
+    crude-oil-natural-gas mixtures from California (USA). 
+
+    @note: The isothermal compressibility of crude oils (Co) used in
+    this equation is obtained from the Vasquez & Beggs correlation. 
+
+    @note: The correlation's development ranges could not be verified
+    because the original reference is not available. Date: August 22
+    2016.  
+ ])
+
+add_parameter("yg", "Sgg", 0.654, 1.337)
+add_parameter("yo", "Sg_do", "Quantity<Api>(41.8)", "Quantity<Api>(22)")
+add_parameter("rs", "SCF_STB", 135, 4290)
+add_parameter("rsb", "SCF_STB")
+add_parameter("t", "Fahrenheit", 117, 354)
+add_parameter("p", "psia")
+add_parameter("pb", "psia", 735, 7303)
+add_parameter("co", "psia_1")
+
+end_correlation()
