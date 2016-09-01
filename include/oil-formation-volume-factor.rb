@@ -495,3 +495,102 @@ add_parameter("pb", "psia", 405, 1335)
 add_parameter("co", "psia_1")
 
 end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("BoVelardeMcCain", "OilFormationVolumeFactor", "RB_STB",
+                  1.040, 2.082)
+add_doc(%Q[     VELARDE, BLASINGAME & McCAIN CORRELATION, CALCULATION
+    OF OIL FORMATION VOLUME FACTOR 
+        
+    @see: J. Velarde, T.A. Blasingame and W.D. McCain,
+    Jr. "Correlation of Black Oil Properties at Pressures Below Bubble
+    Point Pressure: A New Approach," The Petroleum Society 97-93, 1997 
+
+    @see: McCain, W.D., Jr.: "The Properties of Petroleum Fluids", 2nd
+    ed. Tulsa, OK: PennWell Books, 1990. 
+
+    Based on 195 PVT reports, including 2097 data sets.
+ ])
+
+add_parameter("yg", "Sgg", 0.561, 1.101)
+add_parameter("yo", "Sg_do", "Quantity<Api>(53.4)", "Quantity<Api>(11.6)")
+add_parameter("rs", "SCF_STB")
+add_parameter("rsb", "SCF_STB", 102, 1808)
+add_parameter("t", "Fahrenheit", 70, 307)
+add_parameter("p", "psia")
+add_parameter("pb", "psia", 106, 5312)
+add_parameter("co", "psia_1")
+
+end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("BoMillanArcia", "OilFormationVolumeFactor", "RB_STB",
+                  1.014, 1.248)
+add_doc(%Q[     MILLÁN-ARCIA CORRELATION, CALCULATION OF OIL FORMATION
+    VOLUME FACTOR
+
+    Venezuelan heavy crudes were correlated.
+        
+    @see: E.A. Millán-Arcia, 1984: Correlaciones para estimar el
+    comportamiento PVT de crudos pesados venezolanos. I Jornadas
+    Técnicas Corpoven 
+
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los Teques,
+    Octubre de 2001 
+ ])
+
+add_parameter("yg", "Sgg")
+add_parameter("api", "Api", 9, 20.2)
+add_parameter("rs", "SCF_STB", 53, 459)
+add_parameter("rsb", "SCF_STB")
+add_parameter("t", "Fahrenheit", 87, 195)
+add_parameter("p", "psia")
+add_parameter("pb", "psia", 222.0, 3432.7)
+add_parameter("co", "psia_1")
+
+end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("BoManucciRosales", "OilFormationVolumeFactor", "RB_STB",
+                  1.050, 2.400)
+add_doc(%Q[     MANUCCI-ROSALES CORRELATION, CALCULATION OF OIL
+    FORMATION VOLUME FACTOR 
+
+    Crude oils of eastern Venezuela were correlated, by using differential
+    separation data from laboratory PVT analysis. 
+                
+    @see: J.E. Manucci, E.E. Rosales, 1968: "Correlaciones de presión
+    de burbujeo y factor volumétrico del petróleo para crudos el
+    oriente de Venezuela". Corporación Venezolana del Petróleo, II
+    Jornadas técnicas de petróleo, marzo 1968 
+
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los
+    Teques, Octubre de 2001 
+
+ ])
+
+add_parameter("yg", "Sgg")
+add_parameter("api", "Api", 14, 40)
+add_parameter("rs", "SCF_STB", 180, 2500)
+add_parameter("rsb", "SCF_STB")
+add_parameter("t", "Fahrenheit", 165, 304)
+add_parameter("p", "psia")
+add_parameter("pb", "psia", 1230, 5035)
+add_parameter("co", "psia_1")
+
+end_correlation()

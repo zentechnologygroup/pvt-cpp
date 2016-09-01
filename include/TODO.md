@@ -11,3 +11,6 @@
 ## 4. dry de bod versus rs y rsb
 - Created at   2016-08-31 11:44:19 -0400
 
+## 5. preguntar iteración BoVelardeMcCain
+- Created at   2016-09-01 08:33:30 -0400
+

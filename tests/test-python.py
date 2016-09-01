@@ -812,5 +812,51 @@ def BoPerezMLCorrelation(Yg, Yo, Rsb, T, P, Pb, Co):
         Bo = Bob * exp(Co * (Pb - P))
     BoPerezML = Bo
     return BoPerezML
-    
 
+def BoVelardeMcCainCorrelation(Yg, API, Rs, Rsb, T, P, Pb, Co):
+    pwater = 62.4 # The specific weight of water is 62.4 lb/ft³ or lb/scf
+    psto = pwater * Yo
+    A = 0 
+    B = 52.8 - 0.01 * Rsb 
+    while (fabs(A - B) > 0.00001):
+        A = B
+        ppo = A
+        pa = -49.893 + 85.0149 * Yg - 3.70373 * Yg * ppo + 0.047981 * Yg * ppo ** 2 + 2.98914 * ppo- 0.035688 * ppo ** 2
+        ppof = (Rs * Yg + 4600 * Yo) / (73.71 + Rs * Yg / pa)
+        B = ppof     
+        
+    ppo = ppof
+        
+    if P < Pb: # Saturated oil
+        pbs = ppo + (0.167 + 16.181 * (10 ** (-0.0425 * ppo))) * (P / 1000) - 0.01 * (0.299 + 263 * (10 ** (-0.0603 * ppo))) * (P / 1000) ** 2
+        poR = pbs - (0.00302 + 1.505 * pbs ** -0.951) * (T - 60) ** 0.938 + (0.0233 * (10 ** (-0.0161 * pbs))) * (T - 60) ** 0.475
+        Bo = (psto + 0.01357 * Rs * Yg) / (poR)
+            
+    else: # Undersaturated oil
+        ppob = ppo
+        pbsb = ppob + (0.167 + 16.181 * (10 ** (-0.0425 * ppob))) * (Pb / 1000) - 0.01 * (0.299 + 263 * (10 ** (-0.0603 * ppob))) * (Pb / 1000) ** 2
+        poRb = pbsb - (0.00302 + 1.505 * pbsb ** -0.951) * (T - 60) ** 0.938 + (0.0233 * (10 ** (-0.0161 * pbsb))) * (T - 60) ** 0.475
+        Bob = (psto + 0.01357 * Rsb * Yg) / (poRb)
+        Bo = Bob * exp(Co * (Pb - P))
+    BoVelarde = Bo
+    return BoVelarde
+
+def BoMillanArciaCorrelation(Yg, API, Rs, Rsb, T, P, Pb, Co):
+    Bob = 1.3537 * (Rsb ** 0.1505) * (Pb ** (-0.1239)) * exp(-0.00405 * API)
+    if P < Pb: # Saturated oil
+        Bo = Bob * (0.9419 + (0.0608 * (1.0*P/Pb)))
+    else: # Undersaturated oil
+        Bo = Bob * exp(Co * (Pb - P))
+    BoMillanArcia = Bo
+    return BoMillanArcia
+
+def BoManucciRosalesCorrelation(API, Rs, Rsb, T, P, Pb, Co):
+    if P < Pb: # Saturated oil
+        X = (3.27 * 1e-4 * T) + (0.00321 * API)
+        Bo = 0.2378 * (Rs ** 0.221) * (10 ** X)
+    else: # Undersaturated oil
+        X = (3.27 * 1e-4 * T) + (0.00321 * API)
+        Bob = 0.2378 * (Rsb ** 0.221) * (10 ** X)
+        Bo = Bob * exp(Co * (Pb - P))
+    BoManucciRosales = Bo
+    return BoManucciRosales

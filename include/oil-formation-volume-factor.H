@@ -1215,4 +1215,240 @@ public:
   }
 };
 
+/** BoVelardeMcCain
+
+     VELARDE, BLASINGAME & McCAIN CORRELATION, CALCULATION
+    OF OIL FORMATION VOLUME FACTOR
+
+    @see: J. Velarde, T.A. Blasingame and W.D. McCain,
+    Jr. "Correlation of Black Oil Properties at Pressures Below Bubble
+    Point Pressure: A New Approach," The Petroleum Society 97-93, 1997
+
+    @see: McCain, W.D., Jr.: "The Properties of Petroleum Fluids", 2nd
+    ed. Tulsa, OK: PennWell Books, 1990.
+
+    Based on 195 PVT reports, including 2097 data sets.
+
+*/
+class BoVelardeMcCain : public OilFormationVolumeFactor
+{
+  Correlation_Singleton(BoVelardeMcCain);
+
+  BoVelardeMcCain()
+    : OilFormationVolumeFactor("BoVelardeMcCain", RB_STB::get_instance(), 1.04,
+                               2.082)
+  {
+    add_parameter("yg", Sgg::get_instance(), 0.561, 1.101);
+    add_parameter("yo", Sg_do::get_instance(), Quantity<Api>(53.4),
+                  Quantity<Api>(11.6));
+    add_parameter("rs", SCF_STB::get_instance());
+    add_parameter("rsb", SCF_STB::get_instance(), 102, 1808);
+    add_parameter("t", Fahrenheit::get_instance(), 70, 307);
+    add_parameter("p", psia::get_instance());
+    add_parameter("pb", psia::get_instance(), 106, 5312);
+    add_parameter("co", psia_1::get_instance());
+  }
+
+public:
+  inline Quantity<RB_STB> impl(
+    const Quantity<Sgg>& yg, const Quantity<Sg_do>& yo,
+    const Quantity<SCF_STB>& rs, const Quantity<SCF_STB>& rsb,
+    const Quantity<Fahrenheit>& t, const Quantity<psia>& p,
+    const Quantity<psia>& pb, const Quantity<psia_1>& co) const;
+
+  Quantity<RB_STB> operator()(const Quantity<Sgg>& yg,
+                              const Quantity<Sg_do>& yo,
+                              const Quantity<SCF_STB>& rs,
+                              const Quantity<SCF_STB>& rsb,
+                              const Quantity<Fahrenheit>& t,
+                              const Quantity<psia>& p, const Quantity<psia>& pb,
+                              const Quantity<psia_1>& co) const
+  {
+    return compute({ yg, yo, rs, rsb, t, p, pb, co });
+  }
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity>& __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto& yg = it.get_curr();
+    it.next();
+    const auto& yo = it.get_curr();
+    it.next();
+    const auto& rs = it.get_curr();
+    it.next();
+    const auto& rsb = it.get_curr();
+    it.next();
+    const auto& t = it.get_curr();
+    it.next();
+    const auto& p = it.get_curr();
+    it.next();
+    const auto& pb = it.get_curr();
+    it.next();
+    const auto& co = it.get_curr();
+
+    return impl(yg, yo, rs, rsb, t, p, pb, co);
+  }
+};
+
+/** BoMillanArcia
+
+     MILLÁN-ARCIA CORRELATION, CALCULATION OF OIL FORMATION
+    VOLUME FACTOR
+
+    Venezuelan heavy crudes were correlated.
+
+    @see: E.A. Millán-Arcia, 1984: Correlaciones para estimar el
+    comportamiento PVT de crudos pesados venezolanos. I Jornadas
+    Técnicas Corpoven
+
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los Teques,
+    Octubre de 2001
+
+*/
+class BoMillanArcia : public OilFormationVolumeFactor
+{
+  Correlation_Singleton(BoMillanArcia);
+
+  BoMillanArcia()
+    : OilFormationVolumeFactor("BoMillanArcia", RB_STB::get_instance(), 1.014,
+                               1.248)
+  {
+    add_parameter("yg", Sgg::get_instance());
+    add_parameter("api", Api::get_instance(), 9, 20.2);
+    add_parameter("rs", SCF_STB::get_instance(), 53, 459);
+    add_parameter("rsb", SCF_STB::get_instance());
+    add_parameter("t", Fahrenheit::get_instance(), 87, 195);
+    add_parameter("p", psia::get_instance());
+    add_parameter("pb", psia::get_instance(), 222.0, 3432.7);
+    add_parameter("co", psia_1::get_instance());
+  }
+
+public:
+  inline Quantity<RB_STB> impl(
+    const Quantity<Sgg>& yg, const Quantity<Api>& api,
+    const Quantity<SCF_STB>& rs, const Quantity<SCF_STB>& rsb,
+    const Quantity<Fahrenheit>& t, const Quantity<psia>& p,
+    const Quantity<psia>& pb, const Quantity<psia_1>& co) const;
+
+  Quantity<RB_STB> operator()(const Quantity<Sgg>& yg, const Quantity<Api>& api,
+                              const Quantity<SCF_STB>& rs,
+                              const Quantity<SCF_STB>& rsb,
+                              const Quantity<Fahrenheit>& t,
+                              const Quantity<psia>& p, const Quantity<psia>& pb,
+                              const Quantity<psia_1>& co) const
+  {
+    return compute({ yg, api, rs, rsb, t, p, pb, co });
+  }
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity>& __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto& yg = it.get_curr();
+    it.next();
+    const auto& api = it.get_curr();
+    it.next();
+    const auto& rs = it.get_curr();
+    it.next();
+    const auto& rsb = it.get_curr();
+    it.next();
+    const auto& t = it.get_curr();
+    it.next();
+    const auto& p = it.get_curr();
+    it.next();
+    const auto& pb = it.get_curr();
+    it.next();
+    const auto& co = it.get_curr();
+
+    return impl(yg, api, rs, rsb, t, p, pb, co);
+  }
+};
+
+/** BoManucciRosales
+
+     MANUCCI-ROSALES CORRELATION, CALCULATION OF OIL
+    FORMATION VOLUME FACTOR
+
+    Crude oils of eastern Venezuela were correlated, by using differential
+    separation data from laboratory PVT analysis.
+
+    @see: J.E. Manucci, E.E. Rosales, 1968: "Correlaciones de presión
+    de burbujeo y factor volumétrico del petróleo para crudos el
+    oriente de Venezuela". Corporación Venezolana del Petróleo, II
+    Jornadas técnicas de petróleo, marzo 1968
+
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los
+    Teques, Octubre de 2001
+
+
+*/
+class BoManucciRosales : public OilFormationVolumeFactor
+{
+  Correlation_Singleton(BoManucciRosales);
+
+  BoManucciRosales()
+    : OilFormationVolumeFactor("BoManucciRosales", RB_STB::get_instance(), 1.05,
+                               2.4)
+  {
+    add_parameter("yg", Sgg::get_instance());
+    add_parameter("api", Api::get_instance(), 14, 40);
+    add_parameter("rs", SCF_STB::get_instance(), 180, 2500);
+    add_parameter("rsb", SCF_STB::get_instance());
+    add_parameter("t", Fahrenheit::get_instance(), 165, 304);
+    add_parameter("p", psia::get_instance());
+    add_parameter("pb", psia::get_instance(), 1230, 5035);
+    add_parameter("co", psia_1::get_instance());
+  }
+
+public:
+  inline Quantity<RB_STB> impl(
+    const Quantity<Sgg>& yg, const Quantity<Api>& api,
+    const Quantity<SCF_STB>& rs, const Quantity<SCF_STB>& rsb,
+    const Quantity<Fahrenheit>& t, const Quantity<psia>& p,
+    const Quantity<psia>& pb, const Quantity<psia_1>& co) const;
+
+  Quantity<RB_STB> operator()(const Quantity<Sgg>& yg, const Quantity<Api>& api,
+                              const Quantity<SCF_STB>& rs,
+                              const Quantity<SCF_STB>& rsb,
+                              const Quantity<Fahrenheit>& t,
+                              const Quantity<psia>& p, const Quantity<psia>& pb,
+                              const Quantity<psia_1>& co) const
+  {
+    return compute({ yg, api, rs, rsb, t, p, pb, co });
+  }
+
+  virtual VtlQuantity compute(const DynList<VtlQuantity>& __pars) const
+  {
+    auto pars = verify_preconditions(__pars);
+
+    auto it = pars.get_it();
+    const auto& yg = it.get_curr();
+    it.next();
+    const auto& api = it.get_curr();
+    it.next();
+    const auto& rs = it.get_curr();
+    it.next();
+    const auto& rsb = it.get_curr();
+    it.next();
+    const auto& t = it.get_curr();
+    it.next();
+    const auto& p = it.get_curr();
+    it.next();
+    const auto& pb = it.get_curr();
+    it.next();
+    const auto& co = it.get_curr();
+
+    return impl(yg, api, rs, rsb, t, p, pb, co);
+  }
+};
+
 #endif // OIL_FORMATION_VOLUME_FACTOR_H

@@ -2,3 +2,4 @@ dirimir qué hacer con parámetro rsb en OilFormationVolumeFactor,2016-08-29 09:
 homologar unidad psia^-1 (Coefficient of isothermal compressibility),2016-08-29 10:02:02 -0400,,
 eliminar correlations de Imakefile,2016-08-30 17:39:36 -0400,,
 dry de bod versus rs y rsb,2016-08-31 11:44:19 -0400,,
+preguntar iteración BoVelardeMcCain,2016-09-01 08:33:30 -0400,,

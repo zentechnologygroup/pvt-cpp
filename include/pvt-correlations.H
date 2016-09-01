@@ -66,6 +66,9 @@ struct CorrelationInstantiater
     BoVasquezBeggs::get_instance();
     BoCegarra::get_instance();
     BoPerezML::get_instance();
+    BoVelardeMcCain::get_instance();
+    BoMillanArcia::get_instance();
+    BoManucciRosales::get_instance();
   }
 };
 
