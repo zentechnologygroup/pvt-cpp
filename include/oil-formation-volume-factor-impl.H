@@ -589,7 +589,7 @@ BoPerezML::impl(const Quantity<Sgg> & yg,
   const double raw_t = t.get_value();
   const double yg_yo = yg.get_value()/yo.get_value();
 
-  const double c = 1e-4 *(raw_rsb*sqrt(yg_yo) + 1.25*raw_t);
+  const double c = 1e-4 * (raw_rsb*sqrt(yg_yo) + 1.25*raw_t);
   const double bob = 0.974322 + 4.35048*c - 2.85869*c*c;        
 
   const double raw_p = p.get_value();
@@ -597,7 +597,7 @@ BoPerezML::impl(const Quantity<Sgg> & yg,
 
   double bo = 0;  
   if (raw_p < raw_pb) // Saturated oil
-    bo = bob * (1 - (8.801 + 0.1547*raw_t) * 1e-3*(1 - raw_p/raw_pb));
+    bo = bob * (1 - (8.801 + 0.1547*raw_t) * 1e-3 * (1 - raw_p/raw_pb));
   else // Undersaturated oil
     bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
 

@@ -807,7 +807,7 @@ def BoPerezMLCorrelation(Yg, Yo, Rsb, T, P, Pb, Co):
     C = (10 ** (-4)) * (((Rsb) * ((Yg/Yo) ** 0.5)) + (1.25 * T))
     Bob = 0.974322 + (4.35048 * C) - (2.85869 * (C ** 2))
     if P < Pb: # Saturated oil
-        Bo = Bob * ((1) - ((8.801 + (0.1547 * T)) * (1e-3) * (1 - (P/Pb))))
+        Bo = Bob * ((1) - ((8.801 + (0.1547 * T)) * (1e-3) * (1 - (1.0*P/Pb))))
     else: # Undersaturated oil
         Bo = Bob * exp(Co * (Pb - P))
     BoPerezML = Bo

@@ -466,6 +466,7 @@ end_correlation()
 
 ################################################################
 
+## verificada con python
 begin_correlation("BoPerezML", "OilFormationVolumeFactor", "RB_STB",
                   1.032, 1.183)
 add_doc(%Q[     PEREZ ET AL. CORRELATION (EZEKWE-QUERIN-HUMPHREY
