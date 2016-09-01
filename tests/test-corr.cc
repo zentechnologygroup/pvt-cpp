@@ -2,8 +2,10 @@
 # include <tclap/CmdLine.h>
 
 # include <ah-stl-utils.H>
+# include <ahSort.H>
 # include <ah-comb.H>
 # include <ahFunctional.H>
+# include <tpl_array.H>
 
 # include <pvt-correlations.H>
 
@@ -176,37 +178,70 @@ T find_extremes(const Correlation * const corr_ptr, size_t n, bool verbose)
 		   make_pair(finder.max_val, finder.max_pars));
 } 
 
+struct ArgUnit
+{
+  size_t i;
+  string symbol;
+
+  ArgUnit & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> i >> symbol))
+      throw TCLAP::ArgParseException(str + " is not a pair i unit");
+
+    return *this;
+  }
+  
+  ostream& print(ostream &os) const
+  {
+    return os << i << " " << symbol;
+  }
+};
+
+struct RangeDesc
+{
+  size_t i = 0; // par number
+  double min = 0, max = 0;
+  size_t n = 1; // num of steps
+
+  RangeDesc & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> i >> min >> max >> n))
+      throw TCLAP::ArgParseException(str + " is not a trio of form i min max n");
+
+    return *this;
+  }
+
+  friend ostream & operator << (ostream & os, const RangeDesc & d)
+  {
+    return os << d.i << " " << d.min<< " " << d.max << " " << d.n;
+  }
+  
+  ostream& print(ostream &os) const
+  {
+    return os << *this;
+  }
+};
+
+
+namespace TCLAP
+{
+  template<> struct ArgTraits<ArgUnit> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<RangeDesc> { typedef StringLike ValueCategory; };
+}
+
 void test(int argc, char *argv[])
 {
   CmdLine cmd(argv[0], ' ', "0");
 
-  auto __units =
-    to_vector(Unit::units().map<string>([] (auto u) { return u->symbol; }));
-  ValuesConstraint<string> units = __units;
-  ValueArg<string> p1 = { "", "1", "unit for parameter 1", false, "", &units };
-  ValueArg<string> p2 = { "", "2", "unit for parameter 2", false, "", &units };
-  ValueArg<string> p3 = { "", "3", "unit for parameter 3", false, "", &units };
-  ValueArg<string> p4 = { "", "4", "unit for parameter 4", false, "", &units };
-  ValueArg<string> p5 = { "", "5", "unit for parameter 5", false, "", &units };
-  ValueArg<string> p6 = { "", "6", "unit for parameter 6", false, "", &units };
-  ValueArg<string> p7 = { "", "7", "unit for parameter 7", false, "", &units };
-  ValueArg<string> p8 = { "", "8", "unit for parameter 8", false, "", &units };
-  ValueArg<string> p9 = { "", "9", "unit for parameter 9", false, "", &units };
-  ValueArg<string> p10 = { "", "10", "unit for parameter 10", false, "",
-			   &units };
-  cmd.add(p1);
-  cmd.add(p2);
-  cmd.add(p3);
-  cmd.add(p4);
-  cmd.add(p5);
-  cmd.add(p6);
-  cmd.add(p7);
-  cmd.add(p8);
-  cmd.add(p9);
-  cmd.add(p10);
+  MultiArg<ArgUnit> arg_unit = { "u", "unit",
+				 "unit of form \"par-num unit-symbol\"",
+				 false, "unit for a parameter number", cmd };
 
-  DynList<ValueArg<string>*> unit_ptrs =
-    { &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10 };
+  MultiArg<RangeDesc> range = { "r", "range",
+				"range for parameter of form \"i min max n\"",
+				false, "range for parameter number", cmd };
 
   vector<string> correlations;
   auto correlation_list = Correlation::list();
@@ -214,48 +249,36 @@ void test(int argc, char *argv[])
 			    { correlations.push_back(p->name); });
   ValuesConstraint<string> allowed = correlations;
   ValueArg<string> correlation = { "C", "correlation", "correlation name",
-				   false, "", &allowed};
-  cmd.add(correlation);
+				   false, "", &allowed, cmd};
 
-  SwitchArg print = { "p", "print", "print correlation information", false };
-  cmd.add(print);
+  SwitchArg print = { "p", "print", "print correlation information", cmd };
 
-  SwitchArg mat = { "f", "mattrix", "generate matrix", false };
-  cmd.add(mat);
+  SwitchArg mat = { "f", "mattrix", "generate matrix", cmd };
 
-  SwitchArg csv = { "c", "csv", "generate csv", false };
-  cmd.add(csv);
+  SwitchArg csv = { "c", "csv", "generate csv", cmd };
 
   ValueArg<size_t> n = { "n", "num-steps",
 			 "number of steps by parameter", false, 10,
-			 "number of samples" };
-  cmd.add(n);
+			 "number of samples", cmd };
 
   UnlabeledMultiArg<double> pars = { "pars", "correlation parameter values",
-				     false, "values" };
-  cmd.add(pars);
+				     false, "values", cmd };
 
-  SwitchArg extremes = { "x", "extremes", "compute extremes", false };
-  cmd.add(extremes);
+  SwitchArg extremes = { "x", "extremes", "compute extremes", cmd };
 
-  SwitchArg verbose = { "v", "verbose", "verbose mode", false };
-  cmd.add(verbose);
+  SwitchArg verbose = { "v", "verbose", "verbose mode", cmd };
 
-  SwitchArg ignore = { "i", "ignore-exception", "ignore exception", false };
-  cmd.add(ignore);
+  SwitchArg ignore = { "i", "ignore-exception", "ignore exception", cmd };
 
-  SwitchArg python = { "y", "print-python-call", "print python call", false };
-  cmd.add(python);
+  SwitchArg python = { "y", "print-python-call", "print python call", cmd };
 
-  SwitchArg list_corr = { "l", "list", "list correlations", false };
-  cmd.add(list_corr);
+  SwitchArg list_corr = { "l", "list", "list correlations", cmd };
 
-  SwitchArg list_Corr = { "L", "List", "detailed list of correlations", false };
-  cmd.add(list_Corr);
+  SwitchArg list_Corr = { "L", "List", "detailed list of correlations", cmd };
 
-  ValueArg<string> describe = { "D", "describe-correlation", 
-				"describe correlation", false, "", &allowed};
-  cmd.add(describe);
+  ValueArg<string> describe = { "D", "describe-correlation",
+				"describe correlation", false, "",
+				&allowed, cmd};
 
   cmd.parse(argc, argv);
 
@@ -323,6 +346,52 @@ void test(int argc, char *argv[])
       return;
     }
 
+  if (csv.getValue() or mat.getValue())
+    {
+      for (const auto & r : range.getValue())
+	cout << "Range " << r << endl;
+      Array<CorrelationPar> preconditions = correlation_ptr->get_preconditions();
+      DynList<RangeDesc> ranges;
+      const size_t num_pars = preconditions.size();
+      for (const auto & r : range.getValue())
+	{
+	  if (r.i > num_pars)
+	    {
+	      cout << "In range specification: parameter " << r.i
+		   << " is greater than number of parameters " << num_pars
+		   << endl;
+	      abort();
+	    }
+	  if (r.min >= r.max)
+	    {
+	      cout << "In range specification of parameter " << r.i
+		   << ": min value " << r.min
+		   << " is greater or equal tnan max value " << r.max << endl;
+	      abort();
+	    }
+	  const auto & par_min = preconditions(r.i - 1).min_val;
+	  if (r.min < par_min.get_value())
+	    {
+	      cout << "In range specification of parameter " << r.i
+		   << ": min value " << r.min
+		   << " is lesser that min value " << par_min
+		   << " allowed for the parameter" << endl;
+	      abort();
+	    }
+	  const auto & par_max = preconditions(r.i - 1).max_val;
+	  if (r.max < par_max.get_value())
+	    {
+	      cout << "In range specification of parameter " << r.i
+		   << ": maz value " << r.min
+		   << " is greater that maz value " << par_max
+		   << " allowed for the parameter" << endl;
+	      abort();
+	    }
+	}
+      exit(0); // TMP
+      // generar rangos
+    }
+
   if (csv.getValue())
     {
       mat_csv(correlation_ptr, n.getValue());
@@ -334,6 +403,7 @@ void test(int argc, char *argv[])
       full_mat(correlation_ptr, n.getValue(), ignore.getValue());
       return;
     }
+    }
 
   if (pars.getValue().size() != correlation_ptr->get_num_pars())
     {
@@ -342,21 +412,30 @@ void test(int argc, char *argv[])
 	   << pars.getValue().size() << " were passed" << endl;
       abort();
     }
+  
+  Array<const Unit*> params = correlation_ptr->get_par_types(); 
+  for (const auto & p : arg_unit.getValue())
+    {
+      if (p.i > params.size())
+	{
+	  cout << "In specification of unit " << p.symbol 
+	       << " : parameter number " << p.i
+	       << " is greater than number of passed parameter" << endl;
+	  abort();
+	}
 
-  int i = 0;
-  auto par_types = zip(correlation_ptr->get_par_types(), unit_ptrs).
-    map<const Unit * const >([&i] (auto p)
-      {
-	i++;
-	if (not p.second->isSet())
-	  return p.first;
-	const Unit * const unit_ptr =
-	  Unit::search_by_symbol(p.second->getValue());
-	return unit_ptr;
-      });
+      auto unit_ptr = Unit::search_by_symbol(p.symbol);
+      if (unit_ptr == nullptr)
+	{
+	  cout << "In specification of unit for parameter number " << p.i
+	       << " : symbol " << p.symbol << " does not match with any unit"
+	       << endl;
+	  abort();
+	}
+      params(p.i - 1) = unit_ptr;
+    }
 
-  auto pars_list =
-    zip(par_types, to_DynList(pars.getValue())).
+  auto pars_list = zip(params, to_DynList(pars.getValue())).
    map<VtlQuantity>([] (auto p) { return VtlQuantity(*p.first, p.second); });
 
   if (python.getValue())
