@@ -67,6 +67,19 @@ struct RangeDesc
   }
 };
 
+DynList<DynList<double>> generate_samples(const DynList<RangeDesc> & l)
+{
+  return l.map<DynList<double>>([] (const auto & r)
+    {
+      DynList<double> ret;
+      const double step = (r.max - r.min)/r.n;
+      double v = r.min;
+      for (size_t i = 0; i < r.n; ++i, v += step)
+	ret.append(v);
+      return ret;
+    });  
+}
+
 DynList<DynList<double>>
 generate_samples(const Correlation * const corr_ptr, size_t n)
 {
