@@ -80,7 +80,7 @@ Declare_Conversion(CP, Paxs, v)  { return 0.001 * v ; }
 Declare_Conversion(lb_ftxh, Paxs, v) { return 0.0004133789006 * v; } 
 Declare_Conversion(Poise, Paxs, v)  { return 0.1 * v ; }
 
-// to Pa*s
+// to Poise
 Declare_Conversion(kg_mxs, lb_ftxh, v)  { return 2419.0881500000 * v ; }
 Declare_Conversion(lb_ftxs, lb_ftxh, v)  { return 3599.9997618938 * v ; }
 Declare_Conversion(g_mxs, lb_ftxh, v)  { return 241.9088150000 * v ; }
