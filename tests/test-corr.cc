@@ -17,7 +17,7 @@ generate_pars_values(const Correlation * const corr_ptr, size_t n)
   return
     corr_ptr->get_preconditions().map<DynList<double>>([n] (const auto & par)
       {
-	const double s = (par.max_val.get_value() - par.min_val.get_value())/n;
+	const double s = (par.max_val.get_value()-par.min_val.get_value())/(n-1);
 	DynList<double> ret;
 	double v = par.min_val.get_value();
 	for (size_t i = 0; i < n; v += s, ++i)
@@ -46,7 +46,7 @@ struct RangeDesc
   size_t i = 0; // par number
   double min = 0, max = 0;
   size_t n = 1; // num of steps
-
+  const Unit * unit_ptr = nullptr;
   RangeDesc & operator = (const string & str)
   {
     istringstream iss(str);
@@ -72,10 +72,11 @@ DynList<DynList<double>> generate_pars_values(const DynList<RangeDesc> & l)
   return l.map<DynList<double>>([] (const auto & r)
     {
       DynList<double> ret;
-      const double step = (r.max - r.min)/r.n;
+      const double step = (r.max - r.min) / (r.n - 1);
       double v = r.min;
       for (size_t i = 0; i < r.n; ++i, v += step)
 	ret.append(v);
+
       return ret;
     });  
 }
@@ -328,6 +329,11 @@ struct ArgUnit
 
     return *this;
   }
+
+  friend ostream& operator << (ostream &os, const ArgUnit & a) 
+  {
+    return os << a.i << " " << a.symbol;
+  }
   
   ostream& print(ostream &os) const
   {
@@ -466,8 +472,25 @@ void test(int argc, char *argv[])
 	  });
 
       const size_t num_pars = correlation_ptr->get_num_pars();
-      for (const auto & r : range.getValue())
+
+          // Review if there is change of units
+      for (const auto & a : arg_unit.getValue())
 	{
+	  cout << "a = " << a << endl;
+	  if (a.i > num_pars)
+	    {
+	      cout << "In unit specification of parameter " << a.i
+		   << " : the correlation has " << num_pars << endl;
+	      abort();								
+	    }
+	  ranges(a.i - 1).unit_ptr = Unit::search_by_symbol(a.symbol);
+	  cout << a.i << " th parameter unit is " << ranges(a.i-1).unit_ptr->symbol
+	       << endl;
+	}
+
+      for (auto r : range.getValue())
+	{
+	  cout << "    " << r << endl;
 	  if (r.i > num_pars)
 	    {
 	      cout << "In range specification: parameter " << r.i
@@ -475,6 +498,23 @@ void test(int argc, char *argv[])
 		   << endl;
 	      abort();
 	    }
+
+	  auto & range = ranges(r.i - 1);
+	  cout << "Range(" << i << ") = " << range << " "
+	       << (range.unit_ptr ? "non nullptr" : "nullptr") << endl;
+	  if (range.unit_ptr)
+	    {
+	      auto par_unit =
+		correlation_ptr->get_preconditions().nth(r.i - 1).unit;
+	      auto convert_fct = search_conversion(*r.unit_ptr, par_unit);
+	      cout << "Conversion " << r.min << " " << r.unit_ptr->symbol
+		   << " to " << (*convert_fct)(r.min) << par_unit.symbol << endl
+		   << "Conversion " << r.max << " " << r.unit_ptr->symbol
+		   << " to " << (*convert_fct)(r.max) << par_unit.symbol << endl;
+	      r.min = (*convert_fct)(r.min);
+	      r.max = (*convert_fct)(r.max);
+	    }
+
 	  if (r.min > r.max)
 	    {
 	      cout << "In range specification of parameter " << r.i
@@ -482,7 +522,6 @@ void test(int argc, char *argv[])
 		   << " is greater or equal than max value " << r.max << endl;
 	      abort();
 	    }
-	  auto & range = ranges(r.i - 1);
 	  const auto & min = range.min;
 	  if (r.min < min)
 	    {
@@ -553,7 +592,7 @@ void test(int argc, char *argv[])
     }
 
   auto pars_list = zip(params, to_DynList(pars.getValue())).
-   map<VtlQuantity>([] (auto p) { return VtlQuantity(*p.first, p.second); });
+    map<VtlQuantity>([] (auto p) { return VtlQuantity(*p.first, p.second); });
 
   if (python.getValue())
     cout << endl

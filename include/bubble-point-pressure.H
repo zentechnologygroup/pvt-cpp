@@ -24,7 +24,8 @@ class PbAlMarhoun : public BubblePointPressure
     add_parameter("yg", Sgg::get_instance(), 0.752, 1.367);
     add_parameter("yo", Sg_do::get_instance(), 0.803521, 0.937707);
     add_parameter("rsb", SCF_STB::get_instance(), 26, 1602);
-    add_parameter("t", Fahrenheit::get_instance(), 74, 240);
+    add_parameter("t", Rankine::get_instance(),
+		  Quantity<Fahrenheit>(74), Quantity<Fahrenheit>(240));
   }
 
   Quantity<psia> impl(const Quantity<Sgg> & yg,     // gas specific gravity 

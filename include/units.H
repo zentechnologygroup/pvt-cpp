@@ -343,6 +343,14 @@ inline bool exist_conversion(const Unit & src, const Unit & tgt)
   return search_conversion(src, tgt) != nullptr;
 }
 
+inline double unit_convert(const Unit & src_unit,
+			   double val,
+			   const Unit & tgt_unit)
+{
+  auto fct = search_conversion(src_unit, tgt_unit);
+  return (*fct)(val);
+}
+
 inline double unit_convert_name_to_name(const string & src_name,
 					double val,
 					const string & tgt_name)
