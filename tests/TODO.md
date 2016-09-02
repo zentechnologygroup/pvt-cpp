@@ -31,33 +31,12 @@
 ## 10. verificar rigurosamente orden y unidades de correlaciones
 - Created at   2016-08-24 14:34:13 -0400
 
-## 11. Poner parametro en test-corr que indique intervalo para un parámetros
-- Created at   2016-08-25 15:46:17 -0400
-
-## 12. foldl_perm
-- Created at   2016-08-25 21:59:08 -0400
-
-## 13. modificar RsGlaso para que use la raíz de la eq 2do grado
-- Created at   2016-08-26 12:14:58 -0400
-
-## 14. modificar RsGlaso para que use la raíz de la eq 2do gradop
+## 11. modificar RsGlaso para que use la raíz de la eq 2do gradop
 - Created at   2016-08-26 12:31:48 -0400
 
-## 15. indicar error al equipo en radio P/Pb para algunos códigos python
-- Created at   2016-08-29 09:13:46 -0400
-
-## 16. Revisar salida de correlación : no se ve el tipo
-- Created at   2016-08-29 14:57:20 -0400
-
-## 17. opción que permita fijar parámetros y rango a la vez
-- Created at   2016-08-29 16:41:28 -0400
-
-## 18. test que valide que las unidades sean las mismas para familias de correlaciones
+## 12. test que valide que las unidades sean las mismas para familias de correlaciones
 - Created at   2016-08-29 16:41:53 -0400
 
-## 19. especificación de unidad en más de 10 parámetros
-- Created at   2016-08-30 09:39:15 -0400
-
-## 20. enumerar parámetros en la salida de correlación y poner título
-- Created at   2016-08-30 18:11:57 -0400
+## 13. Revisar los test oginales de unidades
+- Created at   2016-09-02 11:07:32 -0400
 

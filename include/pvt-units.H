@@ -10,5 +10,6 @@
 # include <GOR-GLR-volume-ratio-unit.H>
 # include <FVF-volume-ratio-unit.H>
 # include <gas-especific-gravity-unit.H>
+# include <dynamic-viscosity-unit.H>
 
 # endif // PVT_UNITS_H

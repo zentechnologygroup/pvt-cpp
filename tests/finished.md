@@ -106,3 +106,63 @@
 - Comment      
 - Finished     
 
+## 19. modificar RsGlaso para que use la raíz de la eq 2do grado
+- Created at   2016-08-26 12:14:58 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 20. opciones de cambio de unidades y rangos deben afectar a -f y -c
+- Created at   2016-09-02 10:26:56 -0400
+- Completed at 2016-09-02 10:29:27 -0400
+- Comment      
+- Finished     
+
+## 21. eliminar opción -D y poner una más simple que use la misma flag -C
+- Created at   2016-09-01 21:20:59 -0400
+- Completed at 2016-09-02 10:38:28 -0400
+- Comment      
+- Finished     
+
+## 22. enumerar parámetros en la salida de correlación y poner título
+- Created at   2016-08-30 18:11:57 -0400
+- Completed at 2016-09-01 21:21:16 -0400
+- Comment      
+- Finished     
+
+## 23. especificación de unidad en más de 10 parámetros
+- Created at   2016-08-30 09:39:15 -0400
+- Completed at 2016-09-01 21:21:21 -0400
+- Comment      
+- Finished     
+
+## 24. opción que permita fijar parámetros y rango a la vez
+- Created at   2016-08-29 16:41:28 -0400
+- Completed at 2016-09-02 10:39:08 -0400
+- Comment      
+- Finished     
+
+## 25. indicar error al equipo en radio P/Pb para algunos códigos python
+- Created at   2016-08-29 09:13:46 -0400
+- Completed at 2016-09-02 10:39:28 -0400
+- Comment      
+- Finished     
+
+## 26. Revisar salida de correlación : no se ve el tipo
+- Created at   2016-08-29 14:57:20 -0400
+- Completed at 2016-09-01 21:21:33 -0400
+- Comment      
+- Finished     
+
+## 27. foldl_perm
+- Created at   2016-08-25 21:59:08 -0400
+- Completed at 2016-09-01 21:21:48 -0400
+- Comment      
+- Finished     
+
+## 28. Poner parametro en test-corr que indique intervalo para un parámetros
+- Created at   2016-08-25 15:46:17 -0400
+- Completed at 2016-09-02 10:40:07 -0400
+- Comment      
+- Finished     
+

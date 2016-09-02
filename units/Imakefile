@@ -29,10 +29,10 @@ ALEPHW = $(shell echo $$ALEPHW)
 
 EXTRACT_CV = $(TOP)/bin/extract-cv
 
-dynunits.cc: test-dynunit.cc $(TOP)/lib/lib-vars.cc
+dynunits.cc: test-dynunit.cc $(TOP)/lib/pvt.cc
 	$(RM) -f $@;					\	@@\
 	$(CPP) $(CXXFLAGS) test-dynunit.cc > $*.tmp;	\	@@\
-	cat $(TOP)/lib/lib-vars.cc > $@;		\	@@\
+	cat $(TOP)/lib/pvt.cc > $@;		\	@@\
 	cat test-dynunit.cc >> $@;			\	@@\
 	$(EXTRACT_CV) $*.tmp >> $@;			\	@@\
 	$(RM) $*.tmp

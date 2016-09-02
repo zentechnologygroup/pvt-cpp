@@ -67,7 +67,7 @@ struct RangeDesc
   }
 };
 
-DynList<DynList<double>> generate_samples(const DynList<RangeDesc> & l)
+DynList<DynList<double>> generate_pars_values(const DynList<RangeDesc> & l)
 {
   return l.map<DynList<double>>([] (const auto & r)
     {
@@ -134,6 +134,73 @@ void full_mat(const Correlation * const corr_ptr, size_t n,
   cout << to_string(format_string(mat)) << endl;
 }
 
+void full_mat(const Correlation * const corr_ptr, const DynList<RangeDesc> & l,
+	      bool ignore_exception)
+{  
+  auto header = corr_ptr->get_preconditions().map<string>([] (const auto & pre)
+    {
+      ostringstream s;
+      s << pre.name << " (" << pre.unit.symbol << ")";
+      return s.str();
+    });
+  header.append(corr_ptr->name + " (" + corr_ptr->unit.symbol + ")");
+
+  auto samples = generate_pars_values(l);
+  auto lens = fold_perm<DynList<size_t>>
+    (header.map<size_t>([] (const auto & t) { return t.size(); }), samples,
+     [corr_ptr, ignore_exception]
+     (const DynList<size_t> & acu, const DynList<double> & sample)
+    {
+      string ret;
+      try
+	{
+	  ret = to_string(corr_ptr->compute_and_check(sample));
+	}
+      catch (exception & e)
+	{
+	  if (ignore_exception)
+	    ret = "NA";
+	  else
+	    throw;
+	}
+      auto row = sample.map<string>([] (auto v) { return to_string(v); });
+      row.append(ret);
+
+      return zip(acu, row).map<size_t>([] (auto p)
+        { return max(p.first, p.second.size()); });
+    });
+
+  // here lens contains the maximums size of each column
+
+  zip(lens, header).for_each([] (auto p)
+    {
+      cout << string(p.first - p.second.size(), ' ') << p.second << " ";
+    });
+  cout << endl;
+  for_each_perm(samples, [corr_ptr, ignore_exception, &lens]
+		(const DynList<double> & sample)
+    {
+      string result;
+      try
+	{
+	  result = to_string(corr_ptr->compute_and_check(sample));
+	}
+      catch (exception & e)
+	{
+	  result = "NA";
+	}
+      auto row = sample.map<string>([] (auto v) { return to_string(v); });
+      row.append(result);
+      auto line = zip(lens, row).template map<string>([] (auto p)
+	{
+	  const string blanks(p.first - p.second.size(), ' ');
+	  return blanks + p.second + " ";
+	});
+      line.for_each([] (const auto & s) { cout << s; });
+      cout << endl;
+    });
+}
+
 void mat_csv(const Correlation * const corr_ptr, size_t n)
 {
       // csv header
@@ -155,6 +222,36 @@ void mat_csv(const Correlation * const corr_ptr, size_t n)
       catch (...)
 	{
 	  cout << endl;
+	}
+      return true;
+    });
+}
+
+void mat_csv(const Correlation * const corr_ptr, const DynList<RangeDesc> & l,
+	     bool ignore_exception)
+{
+      // csv header
+  corr_ptr->get_preconditions().for_each([] (auto pre)
+    {
+      cout << pre.name << " (" << pre.unit.symbol << "), ";
+    });
+  cout << corr_ptr->name << " (" << corr_ptr->unit.name << ")" << endl;
+
+  auto pars = generate_pars_values(l);
+  traverse_perm(pars, [corr_ptr, ignore_exception] (const auto & s)
+    {
+      try
+	{
+	  s.for_each([] (auto v) { cout << v << ", "; });
+	  auto r = corr_ptr->compute_and_check(s);
+	  cout << r << endl;
+	}
+      catch (...)
+	{
+	  if (ignore_exception)
+	    cout << endl;
+	  else
+	    throw;
 	}
       return true;
     });
@@ -290,10 +387,6 @@ void test(int argc, char *argv[])
 
   SwitchArg list_Corr = { "L", "List", "detailed list of correlations", cmd };
 
-  ValueArg<string> describe = { "D", "describe-correlation",
-				"describe correlation", false, "",
-				&allowed, cmd};
-
   cmd.parse(argc, argv);
 
   if (list_corr.getValue())
@@ -310,14 +403,6 @@ void test(int argc, char *argv[])
     {
       cout << "Available correlations:" << endl;
       correlation_list.for_each([] (auto p) { cout << *p << endl; });
-      exit(0);
-    }
-
-  if (describe.isSet())
-    {
-      auto ptr = Correlation::search_by_name(describe.getValue());
-      cout << *ptr << endl
-	   << endl;
       exit(0);
     }
 
@@ -343,8 +428,14 @@ void test(int argc, char *argv[])
     }
 
   if (print.getValue())
-    cout << *correlation_ptr << endl
-	 << endl;
+    {
+      cout << *correlation_ptr << endl
+	   << endl;
+      if (pars.getValue().size() == 0 and (not csv.getValue() and
+					   not mat.getValue() and
+					   not extremes.getValue()))
+	exit(0);
+    }
 
   if (extremes.getValue())
     {
@@ -384,11 +475,11 @@ void test(int argc, char *argv[])
 		   << endl;
 	      abort();
 	    }
-	  if (r.min >= r.max)
+	  if (r.min > r.max)
 	    {
 	      cout << "In range specification of parameter " << r.i
 		   << ": min value " << r.min
-		   << " is greater or equal tnan max value " << r.max << endl;
+		   << " is greater or equal than max value " << r.max << endl;
 	      abort();
 	    }
 	  auto & range = ranges(r.i - 1);
@@ -415,19 +506,18 @@ void test(int argc, char *argv[])
 	  range.max = r.max;
 	  range.n = r.n;	  
 	}
-      ranges.for_each([] (const auto & r) { cout << r << endl; });
-      exit(0); // TMP
-      // generar rangos
 
       if (csv.getValue())
 	{
-	  mat_csv(correlation_ptr, n.getValue());
+	  //mat_csv(correlation_ptr, n.getValue());
+	  mat_csv(correlation_ptr, ranges.keys(), ignore.getValue());
 	  return;
 	}
 
       if (mat.getValue())
 	{
-	  full_mat(correlation_ptr, n.getValue(), ignore.getValue());
+	  //full_mat(correlation_ptr, n.getValue(), ignore.getValue());
+	  full_mat(correlation_ptr, ranges.keys(), ignore.getValue());
 	  return;
 	}
     }

@@ -11,7 +11,7 @@ Declare_Physical_Quantity(DinamicViscosity, "U",
                 move parallel to each other with different speeds.)DESC");
 
 Declare_Unit(kg_mxs, "kg/m*s",
-         " Dinamic Viscosity measured as kilogram divided into meter per second.",
+         "Dinamic Viscosity measured as kilogram divided into meter per second.",
          DinamicViscosity, 0, 10000000);
 
 Declare_Unit(lb_ftxs, "lb/ft*s",
