@@ -1,0 +1,92 @@
+
+
+# ifndef DINAMIC_VISCOSITY_UNIT_H
+# define DINAMIC_VISCOSITY_UNIT_H
+
+# include <units.H>
+
+
+Declare_Physical_Quantity(Dinamic_Viscosity, "U",
+              "The viscosity of a fluid is a measure of its resistance
+               to gradual deformation by shear stress or tensile stress.
+               The dynamic (shear) viscosity of a fluid expresses its 
+               resistance to shearing flows, where adjacent layers
+                move parallel to each other with different speeds.");
+
+Declare_Unit(kg_mxs, "kg/m*s",
+         " Dinamic Viscosity measured as kilogram divided into meter per second.",
+         dinamicViscosity, 0, 10000000);
+
+Declare_Unit(lb_ftxs, "lb/ft*s",
+         "Dinamic Viscosity measured as pound divided into feet per second.",
+          dinamicViscosity, 0, 6719689.75);
+
+Declare_Unit(g_mxs, "g/m*s",
+         "Dinamic Viscosity measured as gram divided into meter per second.",
+          dinamicViscosity, 0, 100000000);
+
+Declare_Unit(CP, "cP",
+         "Dinamic Viscosity measured as centipoise.",
+
+          dinamicViscosity, 0, 10000000000);
+
+Declare_Unit(Paxs, "Pa*s",
+         "Dinamic Viscosity measured as Pascal per second.",
+          dinamicViscosity, 0, 10000000);
+
+Declare_Unit(lb_ftxh, "lb/ft*h",
+         "Dinamic Viscosity measured as pound divided into feet per hour.",
+          dinamicViscosity, 0, 24190881500);
+
+// Dinamic Viscosity Conversions
+  
+// To Kg/m*s
+Declare_Conversion(lb_ftxs, kg_mxs, v) { return 1.4881639439 * v; }
+Declare_Conversion(g_mxs, kg_mxs, v)  { return 0.1 * v; }
+Declare_Conversion(CP, kg_mxs, v)  { return 0.001 * v; }
+Declare_Conversion(Paxs, kg_mxs, v)  { return  v; }
+Declare_Conversion(lb_ftxh, kg_mxs, v)   { return 0.0004133789 * v; }
+
+// to lb/ft*s 
+Declare_Conversion(kg_mxs, lb_ftxs, v)  { return 0.6719689750 * v ; }
+Declare_Conversion(g_mxs, lb_ftxs, v)  { return 0.0671968975 * v ; }
+Declare_Conversion(CP, lb_ftxs, v)  { return 0.000671968975 * v ; }
+Declare_Conversion(Paxs, lb_ftxs, v)  { return 0.6719689750 * v ; }
+Declare_Conversion(lb_ftxh, lb_ftxs, v) { return 0.0002777778 * v; }
+
+
+// to g/m*s
+Declare_Conversion(kg_mxs, g_mxs, v)  { return 10 * v ; }
+Declare_Conversion(lb_ftxs, g_mxs, v)  { return 14.8816394388 * v ; }
+Declare_Conversion(CP, g_mxs, v)  { return 0.01 * v ; }
+Declare_Conversion(Paxs, g_mxs, v)  { return 10 * v ; }
+Declare_Conversion(lb_ftxh, g_mxs, v) { return 0.0041337890 * v; }
+
+// to cP
+Declare_Conversion(kg_mxs, CP, v)  { return 1000 * v ; }
+Declare_Conversion(lb_ftxs, CP, v)  { return 1488.1639438785 * v ; }
+Declare_Conversion(g_mxs, CP, v)  { return 100 * v ; }
+Declare_Conversion(Paxs, CP, v)  { return 1000 * v ; }
+Declare_Conversion(lb_ftxh, CP, v) { return 0.4133789006 * v; } 
+
+
+// to Pa*s
+Declare_Conversion(kg_mxs, Paxs, v)  { return  v ; }
+Declare_Conversion(lb_ftxs, Paxs, v)  { return 1.4881639438785 * v ; }
+Declare_Conversion(g_mxs, Paxs, v)  { return 0.1 * v ; }
+Declare_Conversion(CP, Paxs, v)  { return 0.001 * v ; }
+Declare_Conversion(lb_ftxh, Paxs, v) { return 0.0004133789006 * v; } 
+
+
+// to Pa*s
+Declare_Conversion(kg_mxs, lb_ftxh, v)  { return 2419.0881500000 * v ; }
+Declare_Conversion(lb_ftxs, lb_ftxh, v)  { return 3599.9997618938 * v ; }
+Declare_Conversion(g_mxs, lb_ftxh, v)  { return 241.9088150000 * v ; }
+Declare_Conversion(CP, lb_ftxh, v)  { return 2.4190881500 * v ; }
+Declare_Conversion(Paxs, lb_ftxh, v) { return 2419.0881500000 * v; } 
+
+
+
+
+# endif // DINAMIC_VISCOSITY_UNIT_H 
+
