@@ -40,6 +40,33 @@ struct Samples_Fct
   }
 };
 
+// Define a range of values for a correlation parameter
+struct RangeDesc
+{
+  size_t i = 0; // par number
+  double min = 0, max = 0;
+  size_t n = 1; // num of steps
+
+  RangeDesc & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> i >> min >> max >> n))
+      throw TCLAP::ArgParseException(str + " is not a trio of form i min max n");
+
+    return *this;
+  }
+
+  friend ostream & operator << (ostream & os, const RangeDesc & d)
+  {
+    return os << d.i << " " << d.min<< " " << d.max << " " << d.n;
+  }
+  
+  ostream& print(ostream &os) const
+  {
+    return os << *this;
+  }
+};
+
 DynList<DynList<double>>
 generate_samples(const Correlation * const corr_ptr, size_t n)
 {
@@ -198,32 +225,6 @@ struct ArgUnit
   }
 };
 
-struct RangeDesc
-{
-  size_t i = 0; // par number
-  double min = 0, max = 0;
-  size_t n = 1; // num of steps
-
-  RangeDesc & operator = (const string & str)
-  {
-    istringstream iss(str);
-    if (not (iss >> i >> min >> max >> n))
-      throw TCLAP::ArgParseException(str + " is not a trio of form i min max n");
-
-    return *this;
-  }
-
-  friend ostream & operator << (ostream & os, const RangeDesc & d)
-  {
-    return os << d.i << " " << d.min<< " " << d.max << " " << d.n;
-  }
-  
-  ostream& print(ostream &os) const
-  {
-    return os << *this;
-  }
-};
-
 
 namespace TCLAP
 {
@@ -348,11 +349,19 @@ void test(int argc, char *argv[])
 
   if (csv.getValue() or mat.getValue())
     {
-      for (const auto & r : range.getValue())
-	cout << "Range " << r << endl;
-      Array<CorrelationPar> preconditions = correlation_ptr->get_preconditions();
-      DynList<RangeDesc> ranges;
-      const size_t num_pars = preconditions.size();
+      size_t i = 0;
+      Array<RangeDesc> ranges = correlation_ptr->get_preconditions().
+	map<RangeDesc>([&i, &n] (const auto & p)
+          {
+	    RangeDesc r;
+	    r.i = i++;
+	    r.min = p.min_val.get_value();
+	    r.max = p.max_val.get_value();
+	    r.n = n.getValue();
+	    return r;
+	  });
+
+      const size_t num_pars = correlation_ptr->get_num_pars();
       for (const auto & r : range.getValue())
 	{
 	  if (r.i > num_pars)
@@ -369,40 +378,45 @@ void test(int argc, char *argv[])
 		   << " is greater or equal tnan max value " << r.max << endl;
 	      abort();
 	    }
-	  const auto & par_min = preconditions(r.i - 1).min_val;
-	  if (r.min < par_min.get_value())
+	  auto & range = ranges(r.i - 1);
+	  const auto & min = range.min;
+	  if (r.min < min)
 	    {
 	      cout << "In range specification of parameter " << r.i
 		   << ": min value " << r.min
-		   << " is lesser that min value " << par_min
+		   << " is lesser that min value " << min
 		   << " allowed for the parameter" << endl;
 	      abort();
 	    }
-	  const auto & par_max = preconditions(r.i - 1).max_val;
-	  if (r.max < par_max.get_value())
+	  const auto & max = range.max;
+	  if (r.max > max)
 	    {
 	      cout << "In range specification of parameter " << r.i
-		   << ": maz value " << r.min
-		   << " is greater that maz value " << par_max
+		   << ": max value " << r.max
+		   << " is greater that max value " << max
 		   << " allowed for the parameter" << endl;
 	      abort();
 	    }
+	  range.i = r.i - 1;
+	  range.min = r.min;
+	  range.max = r.max;
+	  range.n = r.n;	  
 	}
+      ranges.for_each([] (const auto & r) { cout << r << endl; });
       exit(0); // TMP
       // generar rangos
-    }
 
-  if (csv.getValue())
-    {
-      mat_csv(correlation_ptr, n.getValue());
-      return;
-    }
+      if (csv.getValue())
+	{
+	  mat_csv(correlation_ptr, n.getValue());
+	  return;
+	}
 
-  if (mat.getValue())
-    {
-      full_mat(correlation_ptr, n.getValue(), ignore.getValue());
-      return;
-    }
+      if (mat.getValue())
+	{
+	  full_mat(correlation_ptr, n.getValue(), ignore.getValue());
+	  return;
+	}
     }
 
   if (pars.getValue().size() != correlation_ptr->get_num_pars())
