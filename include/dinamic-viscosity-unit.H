@@ -1,10 +1,8 @@
 
-
 # ifndef DINAMIC_VISCOSITY_UNIT_H
 # define DINAMIC_VISCOSITY_UNIT_H
 
 # include <units.H>
-
 
 Declare_Physical_Quantity(Dinamic_Viscosity, "U",
                 R"DESC(The viscosity of a fluid is a measure of its resistance
@@ -60,7 +58,6 @@ Declare_Conversion(Paxs, lb_ftxs, v)  { return 0.6719689750 * v ; }
 Declare_Conversion(lb_ftxh, lb_ftxs, v) { return 0.0002777778 * v; }
 Declare_Conversion(Poise, lb_ftxs, v)  { return 0.0671968975 * v ; }
 
-
 // to g/m*s
 Declare_Conversion(kg_mxs, g_mxs, v)  { return 10 * v ; }
 Declare_Conversion(lb_ftxs, g_mxs, v)  { return 14.8816394388 * v ; }
@@ -77,7 +74,6 @@ Declare_Conversion(Paxs, CP, v)  { return 1000 * v ; }
 Declare_Conversion(lb_ftxh, CP, v) { return 0.4133789006 * v; } 
 Declare_Conversion(Poise, CP, v)  { return 100 * v ; }
 
-
 // to Pa*s
 Declare_Conversion(kg_mxs, Paxs, v)  { return  v ; }
 Declare_Conversion(lb_ftxs, Paxs, v)  { return 1.4881639438785 * v ; }
@@ -86,7 +82,6 @@ Declare_Conversion(CP, Paxs, v)  { return 0.001 * v ; }
 Declare_Conversion(lb_ftxh, Paxs, v) { return 0.0004133789006 * v; } 
 Declare_Conversion(Poise, Paxs, v)  { return 0.1 * v ; }
 
-
 // to Pa*s
 Declare_Conversion(kg_mxs, lb_ftxh, v)  { return 2419.0881500000 * v ; }
 Declare_Conversion(lb_ftxs, lb_ftxh, v)  { return 3599.9997618938 * v ; }
@@ -94,9 +89,6 @@ Declare_Conversion(g_mxs, lb_ftxh, v)  { return 241.9088150000 * v ; }
 Declare_Conversion(CP, lb_ftxh, v)  { return 2.4190881500 * v ; }
 Declare_Conversion(Paxs, lb_ftxh, v) { return 2419.0881500000 * v; } 
 Declare_Conversion(Poise, lb_ftxh, v)  { return 241.9088150000 * v ; }
-
-
-
 
 # endif // DINAMIC_VISCOSITY_UNIT_H 
 
