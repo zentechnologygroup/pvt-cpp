@@ -40,3 +40,6 @@
 ## 13. Revisar los test oginales de unidades
 - Created at   2016-09-02 11:07:32 -0400
 
+## 14. generación de test optimizada
+- Created at   2016-09-02 11:19:53 -0400
+

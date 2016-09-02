@@ -11,3 +11,4 @@ verificar rigurosamente orden y unidades de correlaciones,2016-08-24 14:34:13 -0
 modificar RsGlaso para que use la raíz de la eq 2do gradop,2016-08-26 12:31:48 -0400,,
 test que valide que las unidades sean las mismas para familias de correlaciones,2016-08-29 16:41:53 -0400,,
 Revisar los test oginales de unidades,2016-09-02 11:07:32 -0400,,
+generación de test optimizada,2016-09-02 11:19:53 -0400,,
