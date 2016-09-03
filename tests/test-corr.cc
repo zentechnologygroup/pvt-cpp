@@ -506,10 +506,10 @@ void test(int argc, char *argv[])
 	    {
 	      auto par_unit =
 		correlation_ptr->get_preconditions().nth(r.i - 1).unit;
-	      auto convert_fct = search_conversion(*r.unit_ptr, par_unit);
-	      cout << "Conversion " << r.min << " " << r.unit_ptr->symbol
+	      auto convert_fct = search_conversion(*range.unit_ptr, par_unit);
+	      cout << "Conversion " << r.min << " " << range.unit_ptr->symbol
 		   << " to " << (*convert_fct)(r.min) << par_unit.symbol << endl
-		   << "Conversion " << r.max << " " << r.unit_ptr->symbol
+		   << "Conversion " << r.max << " " << range.unit_ptr->symbol
 		   << " to " << (*convert_fct)(r.max) << par_unit.symbol << endl;
 	      r.min = (*convert_fct)(r.min);
 	      r.max = (*convert_fct)(r.max);
