@@ -73,8 +73,14 @@ DynList<DynList<double>> generate_pars_values(const DynList<RangeDesc> & l)
     {
       DynList<double> ret;
       const double step = (r.max - r.min) / (r.n - 1);
+      if (step == 0)
+	{
+	  ret.append(r.min);
+	  return ret;
+	}
+      
       double v = r.min;
-      for (size_t i = 0; i < r.n; ++i, v += step)
+      for (size_t i = 0; i < r.n and v <= r.max; ++i, v += step)
 	ret.append(v);
 
       return ret;
@@ -476,41 +482,48 @@ void test(int argc, char *argv[])
           // Review if there is change of units
       for (const auto & a : arg_unit.getValue())
 	{
-	  cout << "a = " << a << endl;
 	  if (a.i > num_pars)
 	    {
 	      cout << "In unit specification of parameter " << a.i
 		   << " : the correlation has " << num_pars << endl;
 	      abort();								
 	    }
-	  ranges(a.i - 1).unit_ptr = Unit::search_by_symbol(a.symbol);
-	  cout << a.i << " th parameter unit is " << ranges(a.i-1).unit_ptr->symbol
-	       << endl;
+	  auto ptr = Unit::search_by_symbol(a.symbol);
+	  if (not ptr)
+	    {
+	      cout << "Unit symbol " << a.symbol << " not found" << endl;
+	      abort();
+	    }
+	  ranges(a.i - 1).unit_ptr = ptr;
 	}
 
       for (auto r : range.getValue())
 	{
-	  cout << "    " << r << endl;
-	  if (r.i > num_pars)
+	  if (r.i == 0 or r.i > num_pars)
 	    {
 	      cout << "In range specification: parameter " << r.i
-		   << " is greater than number of parameters " << num_pars
-		   << endl;
+		   << " is not inside of [1, "<< num_pars << "]" << endl;
+	      abort();
+	    }
+	  if (r.n == 0)
+	    {
+	      cout << "In range specification: parameter " << r.i
+		   << ": number of steps must be greter than zero" << endl;
 	      abort();
 	    }
 
 	  auto & range = ranges(r.i - 1);
-	  cout << "Range(" << i << ") = " << range << " "
-	       << (range.unit_ptr ? "non nullptr" : "nullptr") << endl;
 	  if (range.unit_ptr)
 	    {
 	      auto par_unit =
 		correlation_ptr->get_preconditions().nth(r.i - 1).unit;
 	      auto convert_fct = search_conversion(*range.unit_ptr, par_unit);
-	      cout << "Conversion " << r.min << " " << range.unit_ptr->symbol
-		   << " to " << (*convert_fct)(r.min) << par_unit.symbol << endl
-		   << "Conversion " << r.max << " " << range.unit_ptr->symbol
-		   << " to " << (*convert_fct)(r.max) << par_unit.symbol << endl;
+	      if (not convert_fct)
+		{
+		  cout << "Conversion from " << range.unit_ptr->symbol
+		       << " to " << par_unit.symbol << " not found" << endl;
+		  abort();
+		}
 	      r.min = (*convert_fct)(r.min);
 	      r.max = (*convert_fct)(r.max);
 	    }

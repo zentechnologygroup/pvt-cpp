@@ -5,9 +5,11 @@
 # include <solution-gas-oil-relation.H>
 # include <solution-gas-oil-relation-1.H>
 # include <oil-formation-volume-factor.H>
+# include <oil-compressibility.H>
 
 # include <solution-gas-oil-relation-1-impl.H>
 # include <oil-formation-volume-factor-impl.H>
+# include <oil-compressibility-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -69,6 +71,10 @@ struct CorrelationInstantiater
     BoVelardeMcCain::get_instance();
     BoMillanArcia::get_instance();
     BoManucciRosales::get_instance();
+
+    CoMcCainEtAl::get_instance();
+    CoDeGhetto::get_instance();
+    CoHanafy::get_instance();
   }
 };
 

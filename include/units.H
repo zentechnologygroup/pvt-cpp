@@ -573,6 +573,8 @@ public:
 
   double get_value() const noexcept { return value; }
 
+  double raw() const noexcept { return get_value(); }
+
       /// Return the stringfied value (the unit symbol is concatenated)
   string to_string() const
   {
@@ -605,6 +607,11 @@ inline double exp(const BaseQuantity & q)
 inline double log10(const BaseQuantity & q)
 {
   return log10(q.get_value());
+}
+
+inline double log(const BaseQuantity & q)
+{
+  return log(q.get_value());
 }
 
 class VtlQuantity; // forward declaration
@@ -1263,3 +1270,4 @@ inline pair<bool, DynList<string>> check_conversions(const PhysicalQuantity & pq
 }
 
 # endif // UNITS_H
+

@@ -860,3 +860,31 @@ def BoManucciRosalesCorrelation(API, Rs, Rsb, T, P, Pb, Co):
         Bo = Bob * exp(Co * (Pb - P))
     BoManucciRosales = Bo
     return BoManucciRosales
+
+def CoMcCainEtAlCorrelation (API, Rsb, T, P, Pb):
+    Co = exp(-7.573 - 1.450 * log(P) - 0.383 * log(Pb) + 1.402 * log(T) + 0.256 * log(API) + 0.449 * log(Rsb))
+    return Co
+
+
+def CoDeGhettoCorrelation(Yg, API, Rsb, T, Tsep, P, Pb, Psep):
+    c = 1 + 0.5912 * API * Tsep * log10(Psep / 114.7) * 10 ** -4
+    YgCorr = c * Yg # Gas specific gravity correction (considering a separator pressure of 114.7 psia)
+    if P < Pb: # Saturated oil - McCain et al. correlation
+        Co = CoMcCainEtAlCorrelation(API, Rsb, T, P, Pb)
+    else: # Undersaturated oil 
+        if API <= 10:  # Extra-heavy oil  
+            Co = (-889.6 + 3.1374 * Rsb + 20 * T - 627.3 * YgCorr - 81.4476 * API) / (P * 10 ** 5)
+        else:
+            Co = (-2841.8 + 2.9646 * Rsb + 25.5439 * T - 1230.5 * YgCorr + 41.91 * API) / (P * 10 ** 5)
+    CoDeGhetto = Co
+    return CoDeGhetto
+        
+def CoHanafyCorrelation(API, Rsb, T, P, Pb):
+    if P < Pb: # Saturated oil - McCain et al. correlation
+        Co = CoMcCainEtAlCorrelation(API, Rsb, T, P, Pb)
+    else: # Undersaturated oil    
+        Bob = 0.0006 * Rsb + 1.079 # Bubble point oil volume factor
+        pob = (2.366 - (1.358/Bob))**-1 # Bubble point oil density
+        Co = exp((2.582/pob)-0.990) * 10 **-6
+    CoHanafy = Co     
+    return CoHanafy

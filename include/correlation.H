@@ -345,7 +345,8 @@ public:
     if (result.get_value()  < min_val or result.get_value() > max_val)
       {
 	ostringstream s;
-	s << "Correlation return value " << result.get_value() << " "
+	s << "In correlation " << name << " " << subtype_name << " " << type_name
+	  << " : return value " << result.get_value() << " "
 	  << result.unit.symbol << " is out of range ["
 	  << min_val << ", " << max_val << "]" << endl
 	  << "Error was detected while converting from " << result
@@ -444,7 +445,8 @@ private:
 Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
 Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation);
 Declare_Correlation_Subtype(OilFormationVolumeFactor, OilCorrelation);
-
+Declare_Correlation_Subtype(UndersaturatedOilViscosity, OilCorrelation);
+Declare_Correlation_Subtype(OilCompressibility, OilCorrelation);
   
 
 # endif // CORRELATION_H
