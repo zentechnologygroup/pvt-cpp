@@ -614,6 +614,11 @@ inline double log(const BaseQuantity & q)
   return log(q.get_value());
 }
 
+inline double sqrt(const BaseQuantity & q)
+{
+  return sqrt(q.get_value());
+}
+
 class VtlQuantity; // forward declaration
 
 /** Quantity 
@@ -719,6 +724,12 @@ public:
   {
     using T = typename Combine_Units<UnitName, U>::type;
     return Quantity<T>(value * rhs.get_value());
+  }
+
+  // division between same units remove the unit and returns double
+  double operator / (const Quantity & rhs) const
+  {
+    return value / rhs.get_value();
   }
 
   template <class U>

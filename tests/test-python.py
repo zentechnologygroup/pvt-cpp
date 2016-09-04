@@ -888,3 +888,48 @@ def CoHanafyCorrelation(API, Rsb, T, P, Pb):
         Co = exp((2.582/pob)-0.990) * 10 **-6
     CoHanafy = Co     
     return CoHanafy
+
+def CoKartoatmodjoSchmidtCorrelation(Yg, API, Rsb, T, Tsep, P, Pb, Psep):
+    if P < Pb: # Saturated oil - McCain et al. correlation
+        Co = CoMcCainEtAlCorrelation(API, Rsb, T, P, Pb)
+    else: # Undersaturated oil          
+        c = 1 + 0.1595 * (API ** 0.4078) * (Tsep ** -0.2466) * log10(Psep / 114.7)
+        YgCorr = c * Yg # Gas specific gravity correction (considering the standardized separator pressure: Psep=100 psig)
+        Co = 6.8257 * (10 ** -6) * (Rsb ** 0.5002) * P * (T ** 0.76606) * (YgCorr ** 0.35505)
+    CoKartoatmodjoSchmidt = Co
+    return CoKartoatmodjoSchmidt
+
+def CoPetroskyFarshadCorrelation(Yg, API, Rsb, T, P, Pb):
+    if P < Pb: # Saturated oil - McCain et al. correlation
+        Co = CoMcCainEtAlCorrelation(API, Rsb, T, P, Pb)
+    else: # Undersaturated oil   
+        Co = (1.705 * 10 ** -7) * (Rsb ** 0.69357) * (Yg ** 0.1885) * (API ** 0.3272) * (T ** 0.6729) * (P ** -0.5906)
+    CoPetroskyFarshad = Co
+    return CoPetroskyFarshad
+
+def CoVasquezBeggsCorrelation(Yg, API, Rsb, T, Tsep, P, Pb, Psep):
+    if P < Pb: # Saturated oil - McCain et al. correlation
+        Co = CoMcCainEtAlCorrelation(API, Rsb, T, P, Pb)
+    else: # Undersaturated oil    
+        Ygs = Yg * (1. + 5.912 * (10 ** -5) * (API) * (Tsep) * log10(Psep/114.7))
+        Co = (-1433 + 5 * Rsb + 17.2 * T - 1180 * Ygs + 12.61 * API)/ (P * 10 ** 5)
+    CoVasquezBeggs = Co
+    return CoVasquezBeggs
+
+def CoPerezMLCorrelation(Yg, API, Rsb, T, P, Pb):
+    if P < Pb: # Saturated oil - McCain et al. correlation
+        Co = CoMcCainEtAlCorrelation(API, Rsb, T, P, Pb)
+    else: # Undersaturated oil
+        Cob = 2.856 * (1e-7) * (Rsb ** 0.69357) * (Yg ** 0.1885) * (API ** 0.3272) * (T ** 0.6729) * (Pb ** (-0.5906))   
+        Co = Cob * ((P/Pb) ** 0.5)
+    CoPerezML = Co
+    return CoPerezML
+
+def CoMillanArciaCorrelation(API, Rsb, T, P, Pb):
+    if P < Pb: # Saturated oil - McCain et al. correlation
+        Co = CoMcCainEtAlCorrelation(API, Rsb, T, P, Pb)
+    else: # Undersaturated oil
+        Cob = 2.075883 * (1e-6) * (API ** 0.5307) * (T ** -0.1143)  * exp((2.0523 * 1e-4 * Pb) + (4.0568 * 1e-4 * Rsb))   
+        Co = 0.8557 * Cob * exp((-0.00143) * (P/Pb))
+    CoMillanArcia = Co
+    return CoMillanArcia

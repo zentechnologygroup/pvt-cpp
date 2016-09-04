@@ -43,3 +43,6 @@
 ## 14. generación de test optimizada
 - Created at   2016-09-02 11:19:53 -0400
 
+## 15. calcular extremos dados los rangos
+- Created at   2016-09-04 12:45:33 -0400
+

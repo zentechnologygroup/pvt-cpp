@@ -1,2 +1,4 @@
 - BoDindorukChristman es demasiado compleja como para indagar
   manualmente los caminos de ejecución . Quizá aquí klee sería de interés
+
+Verificar fórmula de CoKartoatmodjoSchmidt la cual da valores muy altos

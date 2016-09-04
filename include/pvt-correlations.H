@@ -75,6 +75,11 @@ struct CorrelationInstantiater
     CoMcCainEtAl::get_instance();
     CoDeGhetto::get_instance();
     CoHanafy::get_instance();
+    CoKartoatmodjoSchmidt::get_instance();
+    CoPetroskyFarshad::get_instance();
+    CoVasquezBeggs::get_instance();
+    CoPerezML::get_instance();
+    CoMillanArcia::get_instance();
   }
 };
 
