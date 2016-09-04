@@ -166,3 +166,9 @@
 - Comment      
 - Finished     
 
+## 29. calcular min/max generale
+- Created at    para todos los parámetros
+- Completed at 2016-09-04 15:38:11 -0400
+- Comment      
+- Finished     
+

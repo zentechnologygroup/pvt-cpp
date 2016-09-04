@@ -26,3 +26,4 @@ indicar error al equipo en radio P/Pb para algunos códigos python,2016-08-29 09
 Revisar salida de correlación : no se ve el tipo,2016-08-29 14:57:20 -0400,2016-09-01 21:21:33 -0400,,2016-09-02 10:39:46 -0400
 foldl_perm,2016-08-25 21:59:08 -0400,2016-09-01 21:21:48 -0400,,2016-09-02 10:39:57 -0400
 Poner parametro en test-corr que indique intervalo para un parámetros,2016-08-25 15:46:17 -0400,2016-09-02 10:40:07 -0400,,2016-09-02 10:40:18 -0400
+calcular min/max generale, para todos los parámetros,2016-09-04 15:38:11 -0400,,2016-09-04 17:41:35 -0400

@@ -320,6 +320,16 @@ T find_extremes(const Correlation * const corr_ptr, size_t n, bool verbose)
 
   return make_pair(make_pair(finder.min_val, finder.min_pars),
 		   make_pair(finder.max_val, finder.max_pars));
+}
+
+T find_extremes(const Correlation * const corr_ptr,
+		const DynList<RangeDesc> & ranges, bool verbose)
+{
+  Find_Extremes finder = { corr_ptr, verbose };
+  traverse_perm(generate_pars_values(ranges), finder);
+
+  return make_pair(make_pair(finder.min_val, finder.min_pars),
+		   make_pair(finder.max_val, finder.max_pars));
 } 
 
 struct ArgUnit
@@ -449,21 +459,7 @@ void test(int argc, char *argv[])
 	exit(0);
     }
 
-  if (extremes.getValue())
-    {
-      auto vals =
-	find_extremes(correlation_ptr, n.getValue(), verbose.getValue());
-      cout << "min at " << correlation_ptr->call_string(vals.first.second)
-	   << " = " << vals.first.first << " " << correlation_ptr->unit.symbol
-	   <<endl
-	   << "max at " << correlation_ptr->call_string(vals.second.second)
-	   << " = " << vals.second.first << " " << correlation_ptr->unit.symbol
-	   << endl
-	   << endl;
-      return;
-    }
-
-  if (csv.getValue() or mat.getValue())
+  if (csv.getValue() or mat.getValue() or extremes.getValue())
     {
       size_t i = 0;
       Array<RangeDesc> ranges = correlation_ptr->get_preconditions().
@@ -572,6 +568,21 @@ void test(int argc, char *argv[])
 	  full_mat(correlation_ptr, ranges.keys(), ignore.getValue());
 	  return;
 	}
+      
+      if (extremes.getValue())
+	{
+	  auto vals =
+	    find_extremes(correlation_ptr, ranges.keys(), verbose.getValue());
+	  cout << "min at " << correlation_ptr->call_string(vals.first.second)
+	       << " = " << vals.first.first << " " << correlation_ptr->unit.symbol
+	       <<endl
+	       << "max at " << correlation_ptr->call_string(vals.second.second)
+	       << " = " << vals.second.first << " " << correlation_ptr->unit.symbol
+	       << endl
+	       << endl;
+	  return;
+	}
+
     }
 
   if (pars.getValue().size() != correlation_ptr->get_num_pars())
