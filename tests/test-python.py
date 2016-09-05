@@ -942,3 +942,41 @@ def PoBradleyCorrelation (Yg, Rs, Bo, Yo, P, Pb, Co):
         pob = (350*Yo + 0.0764*Yg*Rs)/(5.615*Bob)
         po = pob * exp(Co * (P - Pb))
     return po
+
+def UodBealCorrelation (API, T):
+    a = 10 ** (0.43 + (8.33 / API))
+    b = 0.32 + ((1.8 * 10 ** 7) / (API ** 4.53))
+    c = 360.0 / (T + 200.0)
+    uod = b * (c ** a)
+    uodBeal = uod
+    return uodBeal 
+
+def UodBeggsRobinsonCorrelation( API, T):
+    z = 3.0324 - 0.02023 * API
+    y = 10 ** z
+    X = y * T ** -1.163
+    uod = 10 ** X - 1
+    uodBeggsRobinson = uod
+    return uodBeggsRobinson
+
+ def UodEgbogahNgCorrelation(API, T):
+     a = 1.8653 - 0.025086 * API - 0.5644 * log10 (T)
+     b = 10 ** a
+     c = 10 ** b
+     uod = c - 1
+     uodEgbogahNg = uod
+     return uodEgbogahNg
+
+ def UodGlaso(API, T):
+     c = 3.141 * (10 ** 10) * (T ** -3.444)
+     d = (10.313 * log10 (T)) - 36.447
+     uod = c * (log10(API) ** d)
+     uodGlaso = uod
+     return uodGlaso
+    
+def UodKartoatmodjoSchmidtCorrelation(API, T):
+    a = (5.7526 * log10(T)) - 26.9718
+    uod = 16e8 * (T ** -2.8177) * (log10(API)) ** a
+    uodKartoatmodjoSchmidt = uod
+    return uodKartoatmodjoSchmidt
+    
