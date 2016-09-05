@@ -218,62 +218,74 @@ test_random_conversions(const PhysicalQuantity & pq, bool verbose,
   return ret;
 }
 
+struct Epsilon
+{
+  string symbol;
+  double epsilon;
+
+  Epsilon & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> symbol >> epsilon))
+      throw TCLAP::ArgParseException(str + " is not a pair unit-symbol epsilon");
+
+    return *this;
+  }
+
+  friend ostream& operator << (ostream &os, const Epsilon & a) 
+  {
+    return os << a.symbol << " " << a.epsilon;
+  }
+  
+  ostream& print(ostream &os) const
+  {
+    return os << *this;
+  }
+};
+
+namespace TCLAP
+{
+  template<> struct ArgTraits<Epsilon> { typedef StringLike ValueCategory; };
+}
+
 int main(int argc, char *argv[])
 {
   CmdLine cmd(argv[0], ' ', "0");
 
   ValueArg<size_t> nsamples = { "n", "num-samples",
 				"number of random samples", false,
-				3, "number of samples" };
-  cmd.add(nsamples);
+				3, "number of samples", cmd };
 
   ValueArg<double> m = { "m", "max", "maximum range of a unit", false, 1000,
-			 "maximum range of a unit" };
-  cmd.add(m);
+			 "maximum range of a unit", cmd };
 
   unsigned long dft_seed = time(nullptr);
   ValueArg<unsigned long> seed = { "s", "seed",
 				   "seed for random number generator",
-				   false, dft_seed, "random seed" };
-  cmd.add(seed);
+				   false, dft_seed, "random seed", cmd };
 
-  SwitchArg csv("c", "csv", "output in csv format", false);
-  cmd.add(csv);
+  SwitchArg csv("c", "csv", "output in csv format", cmd, false);
 
-  ValueArg<double> epsilon("e", "epsilon",
+  ValueArg<double> epsilon("E", "Epsilon",
 			   "precision threshold for numeric comparaisons",
-			   false, 1e-20, "precision threshold");
-  cmd.add(epsilon);
+			   false, 1e-4, "precision threshold", cmd);
 
-  auto ul = Unit::units();
-  DynList<pair<const Unit * const, shared_ptr<ValueArg<double>>>> epsilons;
-  for (auto it = ul.get_it(); it.has_curr(); it.next())
-    {
-      auto u = it.get_curr();
-      auto p = new ValueArg<double>("", "e-" + u->symbol,
-				    "epsilon for " + u->symbol,
-				    false, u->get_epsilon(),
-				    "epsilon for " + u->symbol);
-      cmd.add(p);
-      epsilons.append(make_pair(u, shared_ptr<ValueArg<double>>(p)));
-    }
+  MultiArg<Epsilon> epsilons("e", "epsilon",
+			    "epsilon of form \"unit-symbol epsilon\"",
+			    false, "epsilon threshold", cmd);
 
   vector<string> pq;
   PhysicalQuantity::quantities().for_each([&pq] (auto p)
 					  { pq.push_back(p->name); });
   ValuesConstraint<string> allowed(pq);
   ValueArg<string> pm = { "P", "physical-quantity", "name of physical quantity",
-			  true, "", &allowed };
-  cmd.add(pm);
+			  true, "", &allowed, cmd };
 
-  SwitchArg extremes = { "x", "extremes", "test units extremes", false};
-  cmd.add(extremes);
+  SwitchArg extremes = { "x", "extremes", "test units extremes", cmd, false};
 
-  SwitchArg print = { "p", "print", "print units", false };
-  cmd.add(print);
+  SwitchArg print = { "p", "print", "print units", cmd, false };
 
-  SwitchArg ver = { "v", "verbose", "verbose mode", false };
-  cmd.add(ver);
+  SwitchArg ver = { "v", "verbose", "verbose mode", cmd, false };
 
   cmd.parse(argc, argv);
 
@@ -298,10 +310,24 @@ int main(int argc, char *argv[])
       abort();
     }
 
-  for (auto it = epsilons.get_it(); it.has_curr(); it.next())
+  for (auto ep : epsilons.getValue())
     {
-      auto p = it.get_curr();
-      p.first->set_epsilon(p.second->getValue());
+      auto unit_ptr = Unit::search_by_symbol(ep.symbol);
+      if (unit_ptr == nullptr)
+	{
+	  cout << "In epsilon specification: unit symbol " << ep.symbol
+	       << " not found" << endl;
+	  abort();
+	}
+
+      if (ep.epsilon <= 0 or ep.epsilon >= 1)
+	{
+	  cout << "In epsilon specification of unit" << unit_ptr->name
+	       << " (" << ep.symbol << "): value " << ep.epsilon
+	       << " is not inside the range (0, 1)" << endl;
+	  abort();
+	}
+      unit_ptr->set_epsilon(ep.epsilon);
     }
 
   if (print.getValue())

@@ -933,3 +933,12 @@ def CoMillanArciaCorrelation(API, Rsb, T, P, Pb):
         Co = 0.8557 * Cob * exp((-0.00143) * (P/Pb))
     CoMillanArcia = Co
     return CoMillanArcia
+
+def PoBradleyCorrelation (Yg, Rs, Bo, Yo, P, Pb, Co):
+    if P < Pb:
+        po = (350*Yo + 0.0764*Yg*Rs)/(5.615*Bo)
+    else:
+        Bob = Bo/exp(Co * (Pb - P))
+        pob = (350*Yo + 0.0764*Yg*Rs)/(5.615*Bob)
+        po = pob * exp(Co * (P - Pb))
+    return po

@@ -6,10 +6,12 @@
 # include <solution-gas-oil-relation-1.H>
 # include <oil-formation-volume-factor.H>
 # include <oil-compressibility.H>
+# include <oil-density.H>
 
 # include <solution-gas-oil-relation-1-impl.H>
 # include <oil-formation-volume-factor-impl.H>
 # include <oil-compressibility-impl.H>
+# include <oil-density-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -80,6 +82,8 @@ struct CorrelationInstantiater
     CoVasquezBeggs::get_instance();
     CoPerezML::get_instance();
     CoMillanArcia::get_instance();
+
+    PoBradley::get_instance();
   }
 };
 

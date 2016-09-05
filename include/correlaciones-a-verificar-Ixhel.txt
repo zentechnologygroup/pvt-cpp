@@ -7,3 +7,7 @@ La correlación de McCain es usada por todas las demás correlaciones de
 oil-compressiblility. Sin embargo, a veces hay contradicciones en los
 rangos que que le pasan a McCain desde otra correlación cuando p <
 pb. Revisar si eso es coherente.
+
+La correlación OilDensity debe tener un nombre asociado al autor, de
+modo que no haya colisión de nonbre con el subtipo de correlación. Por
+ahora se llamará poBradley 

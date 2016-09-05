@@ -447,6 +447,8 @@ Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation);
 Declare_Correlation_Subtype(OilFormationVolumeFactor, OilCorrelation);
 Declare_Correlation_Subtype(UndersaturatedOilViscosity, OilCorrelation);
 Declare_Correlation_Subtype(OilCompressibility, OilCorrelation);
+Declare_Correlation_Subtype(OilDensity, OilCorrelation);
+Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation);
   
 
 # endif // CORRELATION_H
