@@ -81,12 +81,12 @@ Declare_Conversion(lb_ftxh, Paxs, v) { return 0.0004133789006 * v; }
 Declare_Conversion(Poise, Paxs, v)  { return 0.1 * v ; }
 
 // to Poise
-Declare_Conversion(kg_mxs, lb_ftxh, v)  { return 2419.0881500000 * v ; }
-Declare_Conversion(lb_ftxs, lb_ftxh, v)  { return 3599.9997618938 * v ; }
-Declare_Conversion(g_mxs, lb_ftxh, v)  { return 241.9088150000 * v ; }
-Declare_Conversion(CP, lb_ftxh, v)  { return 2.4190881500 * v ; }
-Declare_Conversion(Paxs, lb_ftxh, v) { return 2419.0881500000 * v; } 
-Declare_Conversion(Poise, lb_ftxh, v)  { return 241.9088150000 * v ; }
+Declare_Conversion(kg_mxs, Poise, v)  { return 10 * v ; }
+Declare_Conversion(lb_ftxs, Poise, v)  { return 14.8816394388 * v ; }
+Declare_Conversion(CP, Poise, v)  { return 0.01 * v ; }
+Declare_Conversion(Paxs, Poise, v)  { return 10 * v ; }
+Declare_Conversion(lb_ftxh, Poise, v) { return 0.0041337890 * v; }
+Declare_Conversion(g_mxs, Poise, v) { return  v; }
 
 # endif // DINAMIC_VISCOSITY_UNIT_H 
 
