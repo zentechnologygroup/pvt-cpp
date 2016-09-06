@@ -8,7 +8,7 @@ Declare_Physical_Quantity(DinamicViscosity, "U",
                to gradual deformation by shear stress or tensile stress.
                The dynamic (shear) viscosity of a fluid expresses its 
                resistance to shearing flows, where adjacent layers
-                move parallel to each other with different speeds.)DESC");
+               move parallel to each other with different speeds.)DESC");
 
 Declare_Unit(kg_mxs, "kg/m*s",
          "Dinamic Viscosity measured as kilogram divided into meter per second.",

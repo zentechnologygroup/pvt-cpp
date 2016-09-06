@@ -120,3 +120,27 @@ add_doc(%Q[      KARTOATMODJO & SCHMIDT CORRELATION, CALCULATION OF
 add_parameter("api", "Api",  14.4 , 59)
 add_parameter("t", "Fahrenheit", 80, 320)
 end_correlation()
+
+################################################################
+
+begin_correlation("UodSattarinEtAl", "DeadOilViscosity", "CP", 2, 570)
+add_doc(%Q[     SATTARIN ET AL. CORRELATION, CALCULATION OF DEAD OIL VISCOSITY
+
+    Based on 438 data points from Iranian off and on-shore dead
+    crude oil samples, collected in Crude Oil Evaluation
+    department at RIPI. Standard test method of ASTM D-445 was
+    used for kinematic viscosity measurements. 
+
+    Data were divided into two major groups, depending on the API
+    gravity. The first group included 85 Iranian heavy crude oil
+    (17<=°API<28) data-points and the second one contained 353 Iranian
+    light crude oil (28<=°API<45) data-points. 
+
+    @see: Sattarin et al. New Viscosity Correlations for Dead Crude
+    Oils. Petroleum & Coal ISSN 1335-3055. 2007.         
+
+ ])
+
+add_parameter("api", "Api", 17, 45)
+add_parameter("t", "Kelvin", "Quantity<Celsius>(10)", "Quantity<Celsius>(40)")
+end_correlation()

@@ -92,6 +92,7 @@ struct CorrelationInstantiater
     UodEgbogahNg::get_instance();
     UodGlaso::get_instance();
     UodKartoatmodjoSchmidt::get_instance();
+    UodSattarinEtAl::get_instance();
   }
 };
 

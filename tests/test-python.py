@@ -980,3 +980,16 @@ def UodKartoatmodjoSchmidtCorrelation(API, T):
     uodKartoatmodjoSchmidt = uod
     return uodKartoatmodjoSchmidt
     
+def UodSattarinEtAlCorrelation(API, T):
+    if API >= 28:
+        a = (0.00735 * (T ** 2)) - (4.3175 * T) + 641.3572
+        b = -(1.51 * T) + 568.84
+        d = exp(b / API)        
+        uod = a * d / API
+    else:
+        a = (-5.9836 * 1e7 * (T ** 2)) + (3.511 * 1e10 * T) - (5.2145 * 1e12)
+        b = (0.00418 * (T ** 2)) - (2.50406 * T) + 368.78706
+        uod = a * (API ** b)
+    uodSattarin = uod
+    return uodSattarin
+    
