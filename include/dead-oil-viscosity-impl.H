@@ -68,12 +68,15 @@ inline Quantity<CP>
 UodSattarinEtAl::impl(const Quantity<Api> & api,
 		      const Quantity<Kelvin> & t) const
 {
+  const Quantity<Rankine> taux = t;
   const double raw_api = api.raw();
   double a = 0, b = 0, uod = 0;
   if (raw_api < 28)
     {
-      a = -5.9836e7*pow(t, 2) + 3.511e10*t.raw() - 5.2145e12;
-      b = 0.00418*pow(t, 2) - 2.50406*t.raw() + 368.78706;
+      // a = -5.8936e7*pow(t, 2) + 3.511e10*t.raw() - 5.2145e12;
+      // b = 0.00418*pow(t, 2) - 2.50406*t.raw() + 368.78706;
+      a = -5.8936e7*pow(taux, 2) + 3.511e10*taux.raw() - 5.2145e12;
+      b = 0.00418*pow(taux, 2) - 2.50406*taux.raw() + 368.78706;
       uod = a*pow(api, b);
     }
   else
