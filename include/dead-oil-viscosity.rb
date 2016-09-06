@@ -144,3 +144,77 @@ add_doc(%Q[     SATTARIN ET AL. CORRELATION, CALCULATION OF DEAD OIL VISCOSITY
 add_parameter("api", "Api", 17, 45)
 add_parameter("t", "Kelvin", "Quantity<Celsius>(10)", "Quantity<Celsius>(40)")
 end_correlation()
+
+################################################################
+
+## verificada con python
+begin_correlation("UodNaseri", "DeadOilViscosity", "CP", 0.75, 54)
+add_doc(%Q[     NASERI ET AL. CORRELATION, CALCULATION OF DEAD OIL VISCOSITY
+        
+    Based on PVT experimental data of 472 series of Iranian oil
+    reservoirs. About 250 series of PVT and viscosity data have been used
+    in developing a new empirical correlation.   
+
+    Validity and accuracy of the proposed correlations (dead oil
+    viscosity, saturated and undersaturated viscosity) have been
+    checked by their application to 222 samples. 
+
+    @see: Naseri et al. A Correlation Approach for Prediction of Crude
+    Oil Viscosities. Journal of Petroleum Science and Engineering 47
+    (2005) 163-174. Science Direct. 
+
+ ])
+
+add_parameter("api", "Api", 17, 44)
+add_parameter("t", "Fahrenheit", 105, 295)
+end_correlation()
+
+################################################################
+
+## verificada con python
+begin_correlation("UodPetroskyFarshad", "DeadOilViscosity", "CP", 0.725, 10.249)
+add_doc(%Q[     PETROSKY & FARSHAD CORRELATION, CALCULATION OF DEAD OIL VISCOSITY
+        
+    Based on a set of 118 data points from 126 laboratory PVT analyses
+    of Gulf of Mexico crude oils. 
+
+    Fluid samples were obtained from reservoirs located offshore Texas
+    and Louisiana. Producing areas from Galveston Island, eastward,
+    through Main Pass are represented. 
+
+    @see: Petrosky, G.E. Jr., and Farshad F.F.: Viscosity Correlations
+    for Gulf of Mexico Crude Oils. Production Operation Symposium,
+    Oklahoma City, 1995. Society of Petroleum Engineers paper - SPE
+    29468. 
+
+ ])
+
+add_parameter("api", "Api",  25.4, 46.1)
+add_parameter("t", "Fahrenheit", 114, 288)
+end_correlation()
+
+################################################################
+
+## verificada con python
+begin_correlation("UodDeGhettoEtAl", "DeadOilViscosity", "CP",  7.7, 1386.9)
+add_doc(%Q[     DE GHETTO ET AL. CORRELATION FOR EXTRA-HEAVY AND HEAVY
+    OILS (MODIFIED EGBOGAH-JACK CORRELATION), CALCULATION OF DEAD OIL
+    VISCOSITY 
+
+    Based on 1200 measured data points of 63 heavy and extra-heavy oil
+    samples obtained from the Mediterranean Basin, Africa and the
+    Persian Gulf. 
+
+    Oil samples have been divided in two different API gravity
+    classes: extra-heavy oils for °API<=10, heavy oils for
+    10<°API<=22.3. 
+ 
+    @see: De Ghetto, G., Paone, F., and Villa, M.:
+    "Pressure-Volume-Temperature Correlations for Heavy and Extra
+    Heavy Oils", Canada, 1995. SPE 30316.  
+
+ ])
+
+add_parameter("api", "Api", 6, 22.3)
+add_parameter("t", "Fahrenheit", 131.4, 250.7)
+end_correlation()

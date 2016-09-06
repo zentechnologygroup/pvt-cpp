@@ -111,7 +111,7 @@ void full_mat(const Correlation * const corr_ptr, size_t n,
 	    }
 	  catch (exception & e)
 	    {
-	      ret = "NA";
+	      ret = to_string(corr_ptr->compute(sample));
 	    }
 	  return ret;
 	}

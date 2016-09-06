@@ -993,3 +993,25 @@ def UodSattarinEtAlCorrelation(API, T):
     uodSattarin = uod
     return uodSattarin
     
+def UodNaseriCorrelation(API, T):
+    a = log10 (API)
+    b = log10 (T)
+    c = 11.2699 - 4.2699 * a - 2.052 * b
+    uod = 10 ** c
+    uodNaseri = uod
+    return uodNaseri
+    
+def UodPetroskyFarshadCorrelation(API, T):
+    X = (4.59388 * log10 (T)) - 22.82792
+    uod = (2.3511e7) * (T ** -2.10255) * (log10 (API)) ** X 
+    uodPetroskyFarshad = uod
+    return uodPetroskyFarshad
+
+def UodDeGhettoEtAlCorrelation(API, T):
+    if API <= 10: # Extra-heavy oil
+        a = 10 ** (1.90296 - 0.012619 * API - 0.61748 * log10(T) )
+    else:
+        a = 10 ** (2.06492 - 0.0179 * API - 0.70226 * log10(T) )
+    uod = (10 ** a) - 1 
+    uodDeGhetto = uod 
+    return uodDeGhetto

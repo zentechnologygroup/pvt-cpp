@@ -93,6 +93,9 @@ struct CorrelationInstantiater
     UodGlaso::get_instance();
     UodKartoatmodjoSchmidt::get_instance();
     UodSattarinEtAl::get_instance();
+    UodNaseri::get_instance();
+    UodPetroskyFarshad::get_instance();
+    UodDeGhettoEtAl::get_instance();
   }
 };
 

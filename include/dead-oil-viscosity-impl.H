@@ -75,9 +75,6 @@ UodSattarinEtAl::impl(const Quantity<Api> & api,
       a = -5.9836e7*pow(t, 2) + 3.511e10*t.raw() - 5.2145e12;
       b = 0.00418*pow(t, 2) - 2.50406*t.raw() + 368.78706;
       uod = a*pow(api, b);
-      cout << "a = " << a << endl
-	   << "b = " << b << endl
-	   << "uod = " << uod << endl;
     }
   else
     {
@@ -89,5 +86,41 @@ UodSattarinEtAl::impl(const Quantity<Api> & api,
   return Quantity<CP>(uod); 
 }
 
+inline Quantity<CP>
+UodNaseri::impl(const Quantity<Api> & api,
+		const Quantity<Fahrenheit> & t) const
+{
+  const double a = log10(api);
+  const double b = log10(t);
+  const double c = 11.2699 - 4.2699*a - 2.052*b;
+  const double uod = pow(10, c);
+
+  return Quantity<CP>(uod); 
+}
+
+inline Quantity<CP>
+UodPetroskyFarshad::impl(const Quantity<Api> & api,
+			 const Quantity<Fahrenheit> & t) const
+{
+  const double x = 4.59388*log10(t) - 22.82792;
+  const double uod = 2.3511e7 * pow(t, -2.10255) * pow(log10(api), x);
+
+  return Quantity<CP>(uod);
+}
+
+inline Quantity<CP>
+UodDeGhettoEtAl::impl(const Quantity<Api> & api,
+		      const Quantity<Fahrenheit> & t) const
+{
+  double a = 0;
+  if (api <=10) // Extra-heavy oil
+    a = pow(10, 1.90296 - 0.012619*api.raw() - 0.61748*log10(t));
+  else
+    a = pow(10, 2.06492 - 0.0179*api.raw() - 0.70226*log10(t));
+        
+  const double uod = pow(10, a) - 1;
+
+  return Quantity<CP>(uod);
+}
 
 # endif // DEAD_OIL_VISCOSITY_IMPL_H

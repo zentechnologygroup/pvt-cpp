@@ -11,3 +11,9 @@ pb. Revisar si eso es coherente.
 La correlación OilDensity debe tener un nombre asociado al autor, de
 modo que no haya colisión de nonbre con el subtipo de correlación. Por
 ahora se llamará poBradley 
+
+UodPetroskyFarshadCorrelation en python está mal. Concretamente el
+término (2.3511 * 10e7)
+
+El rango de salida para uodDeGhettoEtAl está extraño 7.7 - 1386.9 (muy
+alto). Creo que debería ser 0.725, 10.249 según tabla 1 en anexo 
