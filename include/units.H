@@ -594,9 +594,19 @@ inline double pow(const BaseQuantity & q, const double e)
   return pow(q.get_value(), e);
 }
 
-inline double pow(const double b, const BaseQuantity & e)
+inline double pow(const long double b, const BaseQuantity & e)
 {
   return pow(b, e.get_value());
+}
+
+inline double powl(const BaseQuantity & q, const long double e)
+{
+  return powl(q.get_value(), e);
+}
+
+inline double powl(const double b, const BaseQuantity & e)
+{
+  return powl(b, e.get_value());
 }
 
 inline double exp(const BaseQuantity & q)
@@ -604,9 +614,19 @@ inline double exp(const BaseQuantity & q)
   return exp(q.get_value());
 }
 
+inline double expl(const BaseQuantity & q)
+{
+  return expl(q.get_value());
+}
+
 inline double log10(const BaseQuantity & q)
 {
   return log10(q.get_value());
+}
+
+inline double log10l(const BaseQuantity & q)
+{
+  return log10l(q.get_value());
 }
 
 inline double log(const BaseQuantity & q)
@@ -614,9 +634,19 @@ inline double log(const BaseQuantity & q)
   return log(q.get_value());
 }
 
+inline double logl(const BaseQuantity & q)
+{
+  return logl(q.get_value());
+}
+
 inline double sqrt(const BaseQuantity & q)
 {
   return sqrt(q.get_value());
+}
+
+inline double sqrtl(const BaseQuantity & q)
+{
+  return sqrtl(q.get_value());
 }
 
 class VtlQuantity; // forward declaration

@@ -8,12 +8,14 @@
 # include <oil-compressibility.H>
 # include <oil-density.H>
 # include <dead-oil-viscosity.H>
+# include <saturated-oil-viscosity.H>
 
 # include <solution-gas-oil-relation-1-impl.H>
 # include <oil-formation-volume-factor-impl.H>
 # include <oil-compressibility-impl.H>
 # include <oil-density-impl.H>
 # include <dead-oil-viscosity-impl.H>
+# include <saturated-oil-viscosity-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -96,6 +98,9 @@ struct CorrelationInstantiater
     UodNaseri::get_instance();
     UodPetroskyFarshad::get_instance();
     UodDeGhettoEtAl::get_instance();
+    UodPerezML::get_instance();
+
+    UobBeggsRobinson::get_instance();
   }
 };
 

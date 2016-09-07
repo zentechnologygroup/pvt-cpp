@@ -142,7 +142,7 @@ add_doc(%Q[     SATTARIN ET AL. CORRELATION, CALCULATION OF DEAD OIL VISCOSITY
  ])
 
 add_parameter("api", "Api", 17, 45)
-add_parameter("t", "Kelvin", "Quantity<Celsius>(10)", "Quantity<Celsius>(40)")
+add_parameter("t", "Kelvin", "Quantity<Celsius>(9.85)", "Quantity<Celsius>(40)")
 end_correlation()
 
 ################################################################
@@ -217,4 +217,23 @@ add_doc(%Q[     DE GHETTO ET AL. CORRELATION FOR EXTRA-HEAVY AND HEAVY
 
 add_parameter("api", "Api", 6, 22.3)
 add_parameter("t", "Fahrenheit", 131.4, 250.7)
+end_correlation()
+
+################################################################
+
+## verificada con python
+begin_correlation("UodPerezML", "DeadOilViscosity", "CP")
+add_doc(%Q[     PEREZ ET AL. CORRELATION (MODIFIED BEGGS & ROBINSON
+    CORRELATION), CALCULATION OF DEAD OIL VISCOSITY 
+                      
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los Teques,
+    Octubre de 2001 
+
+ ])
+
+add_parameter("api", "Api", 6.4, 12.9)
+add_parameter("t", "Fahrenheit", 112, 300)
 end_correlation()
