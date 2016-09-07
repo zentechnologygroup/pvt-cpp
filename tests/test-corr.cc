@@ -626,12 +626,12 @@ void test(int argc, char *argv[])
     if (ignore.getValue())
       {
 	auto ret = correlation_ptr->compute(pars_list);
-	cout << correlation_ptr->call_string(pars_list) << ") = " << ret << endl;
+	cout << correlation_ptr->call_string(pars_list) << " = " << ret << endl;
       }
     else
       {
 	auto ret = correlation_ptr->compute_and_check(pars_list);
-	cout << correlation_ptr->call_string(pars_list) << ") = " << ret << endl;
+	cout << correlation_ptr->call_string(pars_list) << " = " << ret << endl;
       }
 
   cout << endl;

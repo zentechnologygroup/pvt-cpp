@@ -987,7 +987,7 @@ def UodSattarinEtAlCorrelation(API, T):
         d = exp(b / API)        
         uod = a * d / API
     else:
-        a = (-5.9836 * 1e7 * (T ** 2)) + (3.511 * 1e10 * T) - (5.2145 * 1e12)
+        a = (-5.8936 * 1e7 * (T ** 2)) + (3.511 * 1e10 * T) - (5.2145 * 1e12)
         b = (0.00418 * (T ** 2)) - (2.50406 * T) + 368.78706
         uod = a * (API ** b)
     uodSattarin = uod
@@ -1015,3 +1015,17 @@ def UodDeGhettoEtAlCorrelation(API, T):
     uod = (10 ** a) - 1 
     uodDeGhetto = uod 
     return uodDeGhetto
+
+def UodPerezMLCorrelation(API, T):
+    Z = 1.6288 - 0.01537 * API
+    X = (10 ** Z) * (T ** (-0.4479))
+    uod = (10 ** X) - 1
+    uodPerezML = uod
+    return uodPerezML
+
+def UobBeggsRobinsonCorrelation (uod, Rs):
+    A = 10.715 * (Rs + 100) ** -0.515
+    B = 5.44 * (Rs + 150) ** -0.338
+    uob = A * uod**B
+    uobBeggsRobinson = uob
+    return uobBeggsRobinson
