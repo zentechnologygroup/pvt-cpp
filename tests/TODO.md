@@ -46,3 +46,11 @@
 ## 15. calcular extremos dados los rangos
 - Created at   2016-09-04 12:45:33 -0400
 
+## 16. Manejar referencias con script ruby
+- Created at   2016-09-07 15:14:23 -0400
+
+## 17. cambiar formato ruby de correlación para que inclya desc
+- Created at    ref
+- Completed at  db
+- Comment       node y eq
+

@@ -649,6 +649,16 @@ inline double sqrtl(const BaseQuantity & q)
   return sqrtl(q.get_value());
 }
 
+inline double cbrt(const BaseQuantity & q)
+{
+  return cbrt(q.get_value());
+}
+
+inline double cbrtl(const BaseQuantity & q)
+{
+  return cbrtl(q.get_value());
+}
+
 class VtlQuantity; // forward declaration
 
 /** Quantity 

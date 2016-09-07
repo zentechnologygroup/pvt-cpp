@@ -101,6 +101,11 @@ struct CorrelationInstantiater
     UodPerezML::get_instance();
 
     UobBeggsRobinson::get_instance();
+    UobChewConnally::get_instance();
+    UobKhan::get_instance();
+    UobKartoatmodjoSchmidt::get_instance();
+    UobPetroskyFarshad::get_instance();
+    UobPerezML::get_instance();
   }
 };
 

@@ -1029,3 +1029,44 @@ def UobBeggsRobinsonCorrelation (uod, Rs):
     uob = A * uod**B
     uobBeggsRobinson = uob
     return uobBeggsRobinson
+
+def UobChewConnallyCorrelation (uod, Rs):
+    A = 10 ** (Rs*(2.2e-7 * Rs - 7.4e-4))
+    b = 0.68/(10 ** (8.62e-5 * Rs)) + 0.25/(10 ** (1.1e-3 * Rs)) + 0.062/(10 ** (3.74e-3 * Rs))  
+    uob = A * (uod ** b)
+    uobChewConnally = uob
+    return uobChewConnally
+
+def UobKhanCorrelation (Rs, API, Yg, T, P, Pb):
+    Yo = 141.5/(API + 131.5) # Relative oil density
+    Tr = (T + 459.67)/459.67 # Relative Temperature
+        
+    a = (0.09 * (Yg) **0.5)
+    b = (Rs) ** (1.0/3)  
+    c = Tr ** 4.5
+    d = (1-Yo) ** 3
+        
+    uoBubble = a / (b*c*d) # Bubble Point Oil Viscosity [cp] 
+    
+    uob = uoBubble*(1.0*P/Pb)**-0.14 * exp(-2.5e-4*(P-Pb)) # Oil Viscosity Below the Bubble Point [cp]
+    uobKhan = uob
+        
+    return uobKhan 
+
+def UobKartoatmodjoSchmidtCorrelation (uod, Rs):
+    y = 10 ** (-0.00081*Rs)
+    a = (0.2001 + 0.8428 * 10 ** (-0.000845 * Rs)) 
+    b = uod ** (0.43 + 0.5165 * y)
+    F = a * b
+    uob = -0.06821 + (0.9824 * F) + (0.0004034 * (F ** 2))
+    uobKartoatmodjoSchmidt = uob
+    return uobKartoatmodjoSchmidt 
+    
+
+def UobPetroskyFarshadCorrelation(uod, Rs):
+    A = (0.1651) + (0.6165 * (10 **(-6.0866e-4 * Rs)))
+    B = (0.5131) + (0.5109 * (10 ** (-1.1831e-3 * Rs)))   
+    uob = A * (uod ** B)
+    uobPetroskyFarshad = uob
+    return uobPetroskyFarshad
+    
