@@ -65,7 +65,7 @@ add_doc(%Q[     KHAN ET AL. CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY
 
  ])
 
-add_parameter("rs", "SCF_STB", 24, 1901)
+add_parameter("rsb", "SCF_STB", 24, 1901)
 add_parameter("api", "Api", 14.3, 44.6)
 add_parameter("yg", "Sgg", 0.752, 1.367)
 add_parameter("t", "Fahrenheit", 75, 240)

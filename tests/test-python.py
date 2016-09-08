@@ -1093,3 +1093,19 @@ def UobDeGhettoEtAlCorrelation (uod, Rs, API):
         uob = -0.6311 + 1.078 * F + 0.003653 * F**2            
     uobDeGhettoEtAl = uob
     return uobDeGhettoEtAl
+
+def UoaKartoatmodjoSchmidtCorrelation(uoBubble, P, Pb):
+    uoa = 1.00081 * uoBubble + 0.001127 * (P - Pb) * ((-0.006517) * (uoBubble ** 1.8148) + 0.038 * uoBubble ** 1.59)
+    uoaKartoatmodjoSchmidt = uoa
+    return uoaKartoatmodjoSchmidt
+
+def UoaDeGhettoEtAlCorrelation (uoBubble, P, Pb, uod, API):
+    if API <= 10: # Extra-heavy oil
+        n = (10 ** -2.19) * (uod ** 1.055) * (Pb ** 0.3132)
+        d = 10 ** (0.0099 * API)
+        uoa = uoBubble - ((1 - (P/Pb)) * (n/d))
+    else:
+        uoa = 0.9886 * uoBubble + 0.002763 * (P - Pb) * (-0.01153 * (uoBubble ** 1.7933) + 0.0316 * (uoBubble ** 1.5939))
+    uoaDeGhettoEtAl = uoa
+    return uoaDeGhettoEtAl  
+    
