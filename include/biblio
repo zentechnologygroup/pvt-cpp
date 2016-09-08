@@ -1,0 +1,237 @@
+
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'optparse'
+
+class CorrelationGen
+
+  class Parameter
+
+    attr_reader :name, :unit
+
+    def initialize(name, unit, min = nil, max = nil)
+      @name = name
+      @unit = unit
+      @min = min
+      @max = max
+    end
+
+    def make
+      s = "add_parameter(\"#{@name}\", #{@unit}::get_instance()"
+      s += ", #{@min}" if @min
+      s += ", #{@max}" if @max
+      s += ");\n"
+    end
+  end
+
+  def initialize(name, subtype, unit, min = nil, max = nil)
+      @name = name
+      @subtype = subtype
+      @unit = unit
+      @min = min
+      @max = max
+      @pars = []
+  end
+
+  attr_reader :name
+
+  def add_doc(str)
+    @doc = str
+  end
+
+  def add_parameter(name, unit, min = nil, max = nil)
+    @pars << Parameter.new(name, unit, min, max)
+  end
+
+  def impl_type() "Quantity<#{@unit}>" end
+
+  def gen_pars
+    s = "("
+    @pars.each do |par|
+      s += "const Quantity<#{par.unit}> & #{par.name}"
+      s += ",\n" unless par == @pars.last
+    end
+    s += ") const"
+  end  
+
+  def gen_impl_declaration
+    s = "public:\n"\
+        "\n"
+    s += "inline " + impl_type + " impl"
+    s += gen_pars
+  end
+
+  def pars_list
+    s = ""
+    @pars.each do |par|
+      s += "#{par.name}"
+      s += "," unless par == @pars.last
+    end
+    s
+  end
+
+  def gen_compute
+    s = "virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) "\
+        "const\n"\
+        "{\n"\
+        "  auto pars = verify_preconditions(__pars);\n"\
+        "\n"\
+        "  auto it = pars.get_it();\n"
+    @pars.each do |par|
+      s += "  const auto & #{par.name} = it.get_curr();"
+      s += "it.next();\n" unless par == @pars.last
+    end
+    s += "\n"\
+         "\n"
+    s += "  return impl(#{pars_list});\n"\
+         "}\n"
+  end
+
+  def gen_class
+    s = "/** #{@name}\n\n"
+    s += @doc if @doc
+    s += "\n"\
+         "*/\n"
+    s += "class #{@name} : public #{@subtype}\n" \
+         "{\n"\
+         "Correlation_Singleton(#{@name});\n"\
+         "\n"\
+         "#{@name}()\n"\
+         "  : #{@subtype}(\"#{@name}\", #{@unit}::get_instance()"
+    s += ", #{@min}" if @min
+    s += ", #{@max}" if @max
+    s += ")\n"\
+         "{\n"
+    @pars.each { |par| s += par.make }
+    s += "}\n"\
+         "\n"
+    s += "#{gen_impl_declaration};\n"\
+         "\n"
+    s += "#{impl_type} operator () #{gen_pars}\n"\
+         "{\n"\
+         "  return compute({#{pars_list}});\n"\
+         "}\n"\
+         "\n"
+    s += gen_compute
+         
+    s += "};\n"
+  end
+
+  def gen_impl
+    "\n"\
+    "inline #{impl_type}\n"\
+    "#{@name}::impl#{gen_pars}\n"\
+    "{\n"\
+    "    // put here the implementation\n"\
+    "}\n"
+  end
+
+  def gen
+    gen_class + gen_impl
+  end
+end
+
+$corr_list = []
+$curr_corr = nil
+def begin_correlation(name, subtype, unit, min = nil, max = nil)
+  $curr_corr = CorrelationGen.new(name, subtype, unit, min, max)
+end
+
+def add_parameter(name, unit, min = nil, max = nil)
+  $curr_corr.add_parameter(name, unit, min, max)
+end
+
+def add_doc(str)
+  $curr_corr.add_doc(str)
+end
+
+def end_correlation
+  $corr_list << $curr_corr
+end
+
+def gen_impl_declarations
+  s = ""
+  $corr_list.each do |corr|
+    s += corr.gen_impl + "\n\n"
+  end
+  s
+end
+
+def gen_correlations
+  s = ""
+  $corr_list.each do |corr|
+    s += corr.gen_class + "\n\n"
+  end
+  s
+end
+
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-f NAME', '--file NAME', 
+          'file name with correlations') do |file_name|
+    options[:file_name] = file_name
+  end
+
+  opts.on('-H', '--header', 'generate header with c++ correlations') do
+    options[:header] = true
+  end
+
+  opts.on('-C NAME', '--c++ NAME',
+          'generate c++ correlation implementation') do |corr_name|
+    options[:corr_name] = corr_name
+  end    
+  
+end
+
+options_parser.parse!
+
+file = options[:file_name]
+
+raise 'correlations file not specified' if file.nil?
+
+load file
+
+header = options[:header]
+if header
+  
+  guard_name = file.gsub '-', '_'
+  guard_name.gsub! '.', '_'
+  guard_name.gsub! 'rb', 'H'
+  guard_name.upcase!
+
+  puts "# ifndef #{guard_name}"
+  puts "# define #{guard_name}"
+  puts 
+  puts "# include <correlation.H>"
+  puts
+  puts "#{gen_correlations}"
+  puts 
+  puts " # endif // #{guard_name}"
+  
+  exit
+end
+
+#require 'enumerable'
+
+require 'open3'
+
+corr_name = options[:corr_name]
+if corr_name
+  corr = $corr_list.find { |c| c.name.upcase == corr_name.upcase }
+  raise "correlation #{corr_name} not found" unless corr
+  # File.open('tmp', "w+").write("#{corr.gen_impl}")
+  # stdout, stderr, exit_status = Open3.capture3('cat tmp')
+  # puts stdout
+  # puts stderr
+  # puts exit_status
+  puts "#{corr.gen_impl}"
+  exit
+end
+
+puts "#{gen_impl_declarations}"
+
+
+
+

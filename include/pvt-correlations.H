@@ -106,6 +106,8 @@ struct CorrelationInstantiater
     UobKartoatmodjoSchmidt::get_instance();
     UobPetroskyFarshad::get_instance();
     UobPerezML::get_instance();
+    UobGilFonseca::get_instance();
+    UobDeGhettoEtAl::get_instance();
   }
 };
 

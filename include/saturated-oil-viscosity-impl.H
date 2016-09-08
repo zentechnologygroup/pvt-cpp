@@ -97,6 +97,42 @@ UobPerezML::impl(const Quantity<CP> & uod,
   return Quantity<CP>(uob);
 }
 
+inline Quantity<CP>
+UobGilFonseca::impl(const Quantity<CP> & uod,
+		    const Quantity<SCF_STB> & rs) const
+{
+  const double raw_rs = rs.raw();
+  const double a = 0.76922 + 0.2244*pow(10, -0.0139 * raw_rs);
+  const double b = 0.10563 + 0.89405*pow(10, -0.00057 * raw_rs);
+        
+  const double uob = a*pow(uod, b);
 
+  return Quantity<CP>(uob);
+}
+
+inline Quantity<CP>
+UobDeGhettoEtAl::impl(const Quantity<CP> & uod,
+		      const Quantity<SCF_STB> & rs,
+		      const Quantity<Api> & api) const
+{
+  const double raw_rs = rs.raw();
+  const double y = pow(10, -0.00081*raw_rs);
+
+  double uob = 0;
+  if (api <= 10) // Extra-heavy oil
+    {
+      const double f =
+	(-0.0335 + 1.0785*pow(10, -0.000845*raw_rs)) * pow(uod, 0.5798 + 0.3432*y);
+      uob = 2.3945 + 0.8927*f + 0.001567*f*f;
+    }
+  else
+    {      
+      const double f =
+	(0.2478 + 0.6114*pow(10, -0.000845*raw_rs)) * pow(uod, 0.4731 + 0.5158*y);
+      uob = -0.6311 + 1.078*f + 0.003653*f*f;
+    }
+
+  return Quantity<CP>(uob);
+}
 
 # endif // DEAD_OIL_VISCOSITY_IMPL_H

@@ -1070,3 +1070,26 @@ def UobPetroskyFarshadCorrelation(uod, Rs):
     uobPetroskyFarshad = uob
     return uobPetroskyFarshad
     
+def UobPerezMLCorrelation(uod, Rs):
+    B = (0.5704) + (0.4296 * (10 ** ((-0.00180) * Rs)))
+    uob = (uod ** B)
+    uobPerezML = uob
+    return uobPerezML
+
+def UobGilFonsecaCorrelation(uod, Rs):
+    A = 0.76922 + (0.2244 * 10 ** ((-0.0139) * Rs))
+    B = 0.10563 + (0.89405 * 10 ** ((-0.00057) * Rs))
+    uob = A * (uod ** B)
+    uobGilFonseca = uob
+    return uobGilFonseca
+
+def UobDeGhettoEtAlCorrelation (uod, Rs, API):
+    y = 10**(-0.00081 * Rs)
+    if API <= 10: # Extra-heavy oil
+        F = (-0.0335 + 1.0785 * 10**(-0.000845 * Rs)) * uod**(0.5798 + 0.3432 * y)
+        uob = 2.3945 + 0.8927 * F + 0.001567 * F**2
+    else:
+        F = (0.2478 + 0.6114 * 10**(-0.000845 * Rs)) * uod**(0.4731 + 0.5158 * y)
+        uob = -0.6311 + 1.078 * F + 0.003653 * F**2            
+    uobDeGhettoEtAl = uob
+    return uobDeGhettoEtAl

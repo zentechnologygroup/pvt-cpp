@@ -131,6 +131,7 @@ end_correlation()
 
 ################################################################
 
+## verificada con python
 begin_correlation("UobPerezML", "SaturatedOilViscosity", "CP")
 add_doc(%Q[    PÉREZ ET AL. CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY
                               
@@ -144,5 +145,52 @@ add_doc(%Q[    PÉREZ ET AL. CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY
 
 add_parameter("uod", "CP")
 add_parameter("rs", "SCF_STB", 38, 121)
+end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("UobGilFonseca", "SaturatedOilViscosity", "CP")
+add_doc(%Q[    GIL-FONSECA CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY  
+         
+    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
+    generación de correlaciones PVT para crudos extrapesados
+    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
+    Modelaje de Procesos de Recuperación de Crudos Pesados. Los Teques,
+    Octubre de 2001  
+
+ ])
+
+add_parameter("uod", "CP")
+add_parameter("rs", "SCF_STB", )
+end_correlation()
+
+
+################################################################
+
+## verificada con python
+begin_correlation("UobDeGhettoEtAl", "SaturatedOilViscosity", "CP", 2.1, 295.9)
+add_doc(%Q[    DE GHETTO ET AL. CORRELATION FOR EXTRA-HEAVY AND HEAVY
+    OILS (MODIFIED KARTOATMODJO CORRELATION), CALCULATION OF SATURATED OIL
+    VISCOSITY 
+                              
+    Based on 1200 measured data points of 63 heavy and extra-heavy oil
+    samples obtained from the Mediterranean Basin, Africa and the Persian
+    Gulf.  
+
+    Oil samples have been divided in two different API gravity
+    classes: extra-heavy oils for °API<=10, heavy oils for
+    10<°API<=22.3. 
+
+    @see: De Ghetto, G., Paone, F., and Villa, M.:
+    "Pressure-Volume-Temperature Correlations for Heavy and Extra
+    Heavy Oils", Canada, 1995. SPE 30316. 
+
+ ])
+
+add_parameter("uod", "CP", 7.7, 1386.9)
+add_parameter("rs", "SCF_STB", 17.21, 640.25)
+add_parameter("api", "Api", 6, 22.3)
 end_correlation()
 
