@@ -80,6 +80,14 @@ Declare_Conversion(CP, Paxs, v)  { return 0.001 * v ; }
 Declare_Conversion(lb_ftxh, Paxs, v) { return 0.0004133789006 * v; } 
 Declare_Conversion(Poise, Paxs, v)  { return 0.1 * v ; }
 
+// to lb/ft*h
+Declare_Conversion(kg_mxs, lb_ftxh, v)  { return 2419.08815 * v ; }
+Declare_Conversion(lb_ftxs, lb_ftxh, v)  { return 3599.9997618938 * v ; }
+Declare_Conversion(CP, lb_ftxh, v)  { return 2.41908815 * v ; }
+Declare_Conversion(Paxs, lb_ftxh, v)  { return 2419.08815 * v ; }
+Declare_Conversion(Poise, lb_ftxh, v) { return 241.908815 * v; }
+Declare_Conversion(g_mxs, lb_ftxh, v) { return 241.908815 * v; }
+
 // to Poise
 Declare_Conversion(kg_mxs, Poise, v)  { return 10 * v ; }
 Declare_Conversion(lb_ftxs, Poise, v)  { return 14.8816394388 * v ; }

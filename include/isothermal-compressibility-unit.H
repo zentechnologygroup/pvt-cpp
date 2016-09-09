@@ -1,52 +1,45 @@
 
 
-# ifndef PRESSURE_UNIT_H
-# define PRESSURE_UNIT_H
+# ifndef ISOTHERMAL_COMPRESSIBILIY_UNIT_H
+# define ISOTHERMAL_COMPRESSIBILIY_UNIT_H
 
 # include <units.H>
 
-Declare_Physical_Quantity(Pressure, "P",
-			  R"DESC(Pressure is the force applied perpendicular
-			  to the surface of an object per unit area over which
-			  that force is distributed)DESC");
+Declare_Physical_Quantity(IsothermalCompressility, "C",
+			  R"DESC(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)DESC");
 
-Declare_Unit(Bar, "bar",
+
+Declare_Unit(Bar_1, "bar-1",
 	     R"DESC(A bar is a metric measurement unit of pressure. One bar
              is equivalent to ten newtons (N) per square centimeter (cm2))DESC",
-	     Pressure, 0, 2068.43);
+	     IsothermalCompressility, 0, 2068.43);
 
-Declare_Unit(Pascal, "Pa",
+Declare_Unit(Pascal_1, "Pa-1",
 	     R"DESC(The pascal is the SI derived unit of pressure used to quantify 
                     internal pressure, stress, Young's modulus and
                     ultimate tensile strength. It is defined as one newton
                     per square metre.)DESC", Pressure, 0, 206843405.31);
 
-Declare_Unit(kPascal, "kPa",
+Declare_Unit(kPascal_1, "kPa-1",
          "a kPascal is a common multiple unit of the pascal 1 kPa = 1000 Pa,",
-          Pressure, 0, 206843.41);
+          IsothermalCompressility, 0, 206843.41);
 
-Declare_Unit(psia, "psia",
+Declare_Unit(psi_1, "psi-1",
 	     R"DESC(Pounds per square inch absolute (psia) is used to make
 	            it clear that the pressure is relative to a vacuum rather than
 	            the ambient atmospheric pressure. Since atmospheric pressure 
-	            at sea level is around 14.7 psi)DESC", Pressure,
+	            at sea level is around 14.7 psi)DESC", IsothermalCompressility,
 	     0, 29985.3);
 
-Declare_Unit(psig, "psig",
-	     R"DESC(Pound-force per square inch is a unit of pressure or of
-                    stress based on avoirdupois units. It is the pressure
-                    resulting from a force of one pound-force applied to an
-                    area of one square inch)DESC", Pressure,
-	     -14.69594877551, 30000);
 
-Declare_Unit(Atmosphere, "atm",
+Declare_Unit(Atmosphere_1, "atm-1",
 	     R"DESC(Pound-force per square inch is a unit of pressure or of
                     stress based on avoirdupois units. It is the pressure
                     resulting from a force of one pound-force applied to 
-                    an area of one square inch)DESC", Pressure, 0, 2041.39);
+                    an area of one square inch)DESC", IsothermalCompressility, 0, 2041.39);
 
-// pressure conversions
-// To atmophere (atm)
+// IsothermalCompressilityconversions  
+// To atmophere_1 (atm-1)
 Declare_Conversion(Bar, Atmosphere, v) { return v * 0.986923267; }
 Declare_Conversion(Pascal, Atmosphere, v)  { return v * 9.86923267e-6; }
 Declare_Conversion(kPascal, Atmosphere, v)  { return v * 9.86923267e-3; }
@@ -88,8 +81,7 @@ Declare_Conversion(Bar, psig, v) { return v * 14.503773773 - 14.695948775; }
 Declare_Conversion(Pascal, psig, v) { return v * 1.4503773773e-4 - 14.695948775; }
 Declare_Conversion(kPascal, psig, v) { return v * 1.4503773773e-1 - 14.695948775; }
   
-
-# endif // PRESSURE_UNIT_H
+# endif // ISOTHERMAL_COMPRESSIBILIY_UNIT_H
 
 
 
