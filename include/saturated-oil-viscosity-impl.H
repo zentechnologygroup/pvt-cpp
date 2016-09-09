@@ -30,7 +30,7 @@ UobChewConnally::impl(const Quantity<CP> & uod,
 }
 
 inline Quantity<CP>
-UobKhan::impl(const Quantity<SCF_STB> & rs,
+UobKhan::impl(const Quantity<SCF_STB> & rsb,
 	      const Quantity<Api> & api,
 	      const Quantity<Sgg> & yg,
 	      const Quantity<Fahrenheit> & t,
@@ -42,7 +42,7 @@ UobKhan::impl(const Quantity<SCF_STB> & rs,
   const double tr = (t.raw() + 459.67)/459.67; // Relative Temperature
         
   const double a = 0.09*sqrt(yg);
-  const double b = cbrt(rs);
+  const double b = cbrt(rsb);
   const double c = pow(tr, 4.5);
   const double d = pow(1 - yo.raw(), 3); // yo.raw() for avoiding out of range
         
@@ -135,4 +135,4 @@ UobDeGhettoEtAl::impl(const Quantity<CP> & uod,
   return Quantity<CP>(uob);
 }
 
-# endif // DEAD_OIL_VISCOSITY_IMPL_H
+# endif // SATURATED_OIL_VISCOSITY_IMPL_H

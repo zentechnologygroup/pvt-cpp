@@ -9,6 +9,7 @@
 # include <oil-density.H>
 # include <dead-oil-viscosity.H>
 # include <saturated-oil-viscosity.H>
+# include <undersaturated-oil-viscosity.H>
 
 # include <solution-gas-oil-relation-1-impl.H>
 # include <oil-formation-volume-factor-impl.H>
@@ -16,6 +17,7 @@
 # include <oil-density-impl.H>
 # include <dead-oil-viscosity-impl.H>
 # include <saturated-oil-viscosity-impl.H>
+# include <undersaturated-oil-viscosity-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -108,6 +110,15 @@ struct CorrelationInstantiater
     UobPerezML::get_instance();
     UobGilFonseca::get_instance();
     UobDeGhettoEtAl::get_instance();
+
+    UoaKartoatmodjoSchmidt::get_instance();
+    UoaDeGhettoEtAl::get_instance();
+    UoaBeal::get_instance();
+    UoaVasquezBeggs::get_instance();
+    UoaKhan::get_instance();
+    UoaPetroskyFarshad::get_instance();
+    UoaAbedini::get_instance();
+    UoaPerezML::get_instance();
   }
 };
 
