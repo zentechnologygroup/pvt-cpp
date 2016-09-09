@@ -4,6 +4,6 @@
 
 require 'optparse'
 
-class BibliographicalRef
+class TechnicalNote
   
 end
