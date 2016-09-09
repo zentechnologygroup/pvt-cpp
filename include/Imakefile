@@ -19,6 +19,12 @@ CORRS = solution-gas-oil-relation-1.rb oil-formation-volume-factor.rb oil-compre
 
 HCORRS = $(CORRS:.rb=.H)
 
+BIBLIO = $(TOP)/bin/biblio
+
+biblios.H: refs.bib biblio
+	$(RM) $*.H; 	\	@@\
+	$(BIBLIO) -H | clang-format -style=Mozilla > $@
+
 depend:: $(HCORRS)
 
 all:: $(HCORRS)

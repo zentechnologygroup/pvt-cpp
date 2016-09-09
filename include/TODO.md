@@ -19,3 +19,6 @@
 - Created at   2016-09-01 08:33:30 -0400
 - Completed at 2016-09-08 11:09:52 -0400
 
+## 6. opcion generar referencias en gen-corr
+- Created at   2016-09-09 16:07:40 -0400
+

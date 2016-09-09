@@ -1,9 +1,0 @@
-
-#!/usr/bin/env ruby
-# -*- coding: iso-8859-1 -*-
-
-require 'optparse'
-
-class BibliographicalRef
-  
-end

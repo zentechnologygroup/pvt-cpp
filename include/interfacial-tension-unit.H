@@ -23,11 +23,11 @@ Declare_Unit(mN_m, "N/m",
 	     R"DESC(nterfacial or surface tension measured in milinewton per meter)DESC",
 	     InterfacialTension, 0 , 1000000);
 
-Declare_Unit(gram-force_cm, "gram-force/cm",
+Declare_Unit(gram_force_cm, "gram-force/cm",
 	     R"DESC(nterfacial or surface tension measured in gram force per centimeter)DESC",
 	     InterfacialTension, 0 , 1019.716213);
 
-Declare_Unit(pound-force_inch, "pound-force/inch",
+Declare_Unit(pound_force_inch, "pound-force/inch",
 	     R"DESC(nterfacial or surface tension measured in pound force per inch)DESC",
 	     InterfacialTension, 0 , 5.710147098);
 
@@ -35,14 +35,14 @@ Declare_Unit(pound-force_inch, "pound-force/inch",
 // To dynes per centimeter
 Declare_Conversion(N_m, dynes_cm, v) { return 1000 * v ; }
 Declare_Conversion(mN_m, dynes_cm, v) { return v ; }
-Declare_Conversion(gram-force_cm, dynes_cm, v) { return 980.6649999788 * v ; }
-Declare_Conversion(pound-force_inch, v) { return 175126.8369864 * v ; }
+Declare_Conversion(gram_force_cm, dynes_cm, v) { return 980.6649999788 * v ; }
+Declare_Conversion(pound_force_inch, dynes_cm, v) { return 175126.8369864 * v ; }
 
 // To Newtons per meters
 Declare_Conversion(dynes_cm, N_m, v) { return 0.001 * v  ; }
 Declare_Conversion(mN_m, N_m, v) { return  0.001 * v  ; }
-Declare_Conversion(gram-force_cm, N_m, v) { return  0.9806649999786 * v  ; }
-Declare_Conversion(pound-force_inch, N_m, v) { return  0175.1268369864 * v  ; }
+Declare_Conversion(gram_force_cm, N_m, v) { return  0.9806649999786 * v  ; }
+Declare_Conversion(pound_force_inch, N_m, v) { return  0175.1268369864 * v  ; }
 
 // To milinewtons per meters
 Declare_Conversion(dynes_cm, mN_m, v) { return  v  ; }

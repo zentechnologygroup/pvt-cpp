@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'optparse'
+require 'bibtex'
+
+def generate_header
+  puts %Q[  
+# ifndef BIBLIOS_H
+# define BIBLIOS_H
+
+# include <biblio.H>
+
+]
+  $bib_db.each do |b|
+    tag = b.id
+    tag.gsub!(':', '_')
+    tag.gsub!('-', '_')
+    entry = b.to_s.gsub("\n", "\\n")
+    puts "extern BibEntry #{tag}(\"#{b.id}\", \"#{entry}\");"
+    puts 
+  end
+  puts "\n"\
+       "# endif // BIBLIOS_H"
+end
+
+def generate_source
+  puts %Q[
+# include <biblios.H>
+
+]
+  $bib_db.each do |b|
+    tag = b.id
+    tag.gsub!(':', '_')
+    tag.gsub!('-', '_')
+    entry = b.to_s.gsub("\n", "\\n")
+    puts "BibEntry #{tag}(\"#{b.id}\", \"#{entry}\");"
+    puts 
+  end
+end
+
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-f NAME', '--file NAME', 
+          'file name with correlations') do |file_name|
+    options[:file_name] = file_name
+  end
+
+  opts.on('-H', 'generate C++ header with bibliographic entries') do
+    options[:header] = true
+  end
+
+
+  opts.on('-C', 'generate C++ source with bibliographic entries') do
+    options[:source] = true
+  end    
+end
+
+options_parser.parse!
+
+file_name = options[:file_name]
+raise "file name not specified (-f option)" unless file_name
+
+$bib_db = BibTeX.open('refs.bib')
+
+header = options[:header]
+source = options[:source]
+
+raise "Options -H and -C are excluding" if header && source
+
+if header
+  generate_header
+end
+
+if source
+  generate_source  
+end

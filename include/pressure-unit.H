@@ -32,6 +32,8 @@ Declare_Unit(psia, "psia",
 	            at sea level is around 14.7 psi)DESC", Pressure,
 	     0, 29985.3);
 
+Declare_Unit(psia_1, "psia^-1", "Inverse of psia", Pressure, 1e-6, 1e7);
+
 Declare_Unit(psig, "psig",
 	     R"DESC(Pound-force per square inch is a unit of pressure or of
                     stress based on avoirdupois units. It is the pressure
