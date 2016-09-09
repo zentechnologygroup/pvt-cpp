@@ -1103,9 +1103,45 @@ def UoaDeGhettoEtAlCorrelation (uoBubble, P, Pb, uod, API):
     if API <= 10: # Extra-heavy oil
         n = (10 ** -2.19) * (uod ** 1.055) * (Pb ** 0.3132)
         d = 10 ** (0.0099 * API)
-        uoa = uoBubble - ((1 - (P/Pb)) * (n/d))
+        uoa = uoBubble - ((1 - (1.0*P/Pb)) * (n/d))
     else:
         uoa = 0.9886 * uoBubble + 0.002763 * (P - Pb) * (-0.01153 * (uoBubble ** 1.7933) + 0.0316 * (uoBubble ** 1.5939))
     uoaDeGhettoEtAl = uoa
     return uoaDeGhettoEtAl  
+
+def UoaBealCorrelation(uoBubble, P, Pb):
+    uoa = uoBubble + (0.001 * (P - Pb)) * ((0.024 * uoBubble ** 1.6) + (0.038 * uoBubble ** 0.56)) 
+    uoaBeal = uoa
+    return uoaBeal
+
+def UoaVasquezBeggsCorrelation(uoBubble, P, Pb):
+    C1 = 2.6
+    C2 = 1.187
+    C3 = -11.513
+    C4 = -8.98e-5
+    m = C1 * (P ** C2) * exp (C3 + C4 * P) 
+    uoa = uoBubble * (1.0*P/Pb) ** m
+    uoaVasquezBeggs = uoa
+    return uoaVasquezBeggs
+
+def UoaKhanCorrelation(uoBubble, P, Pb):
+    uoa = uoBubble * exp((9.6e-5) * (P - Pb))
+    uoaKhan = uoa
+    return uoaKhan
+
+def UoaPetroskyFarshadCorrelation(uoBubble, P, Pb):
+    A = -1.0146 + 1.3322 * log10(uoBubble) - 0.4876 * (log10(uoBubble)) ** 2 - 1.15036 * (log10(uoBubble)) ** 3
+    uoa = uoBubble + (1.3449e-3) * (P-Pb) * 10 ** A    
+    uoaPetroskyFarshad = uoa
+    return uoaPetroskyFarshad
+
+def UoaAbediniCorrelation(uoBubble, P, Pb):
+    uoa = uoBubble + 0.001 * (P - Pb) * ((0.05601 * uoBubble ** 1.45198) + (0.47557 * uoBubble ** 0.35997) + (-0.2257 * uoBubble ** 0.86389) + (-0.29598 * Pb ** -0.41866) + (-0.07734 * Pb ** -0.29981) + (-0.42436 * Pb ** -0.1946) + (-1.64149 * Pb ** -0.31339))
+    uoaAbedini = uoa
+    return uoaAbedini
+
+def UoaPerezMLCorrelation(uob, P, Pb):
+    uoa = uob * (1 + (3.181 * 1e-4 * (P - Pb)))
+    uoaPerezML = uoa
+    return uoaPerezML
     

@@ -112,6 +112,13 @@ struct CorrelationInstantiater
     UobDeGhettoEtAl::get_instance();
 
     UoaKartoatmodjoSchmidt::get_instance();
+    UoaDeGhettoEtAl::get_instance();
+    UoaBeal::get_instance();
+    UoaVasquezBeggs::get_instance();
+    UoaKhan::get_instance();
+    UoaPetroskyFarshad::get_instance();
+    UoaAbedini::get_instance();
+    UoaPerezML::get_instance();
   }
 };
 
