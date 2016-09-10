@@ -25,7 +25,7 @@ add_doc(%Q[     BEAL CORRELATION, CALCULATION OF DEAD OIL VISCOSITY
     equation is presented by Standing. 
 
  ])
-
+add_db("Based on 98 samples of gas-free crude oil measured at temperatures above 100 degF and 655 samples measured at 100 degF obtained from 492 different oil fields, of which 358 are in the United States")
 add_parameter("api", "Api", 10.1, 52.5)
 add_parameter("t", "Fahrenheit", 100, 220)
 end_correlation()

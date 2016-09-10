@@ -33,12 +33,26 @@ class CorrelationGen
       @min = min
       @max = max
       @pars = []
+      @notes = []
+      @refs = []
   end
 
   attr_reader :name
 
   def add_doc(str)
     @doc = str
+  end
+
+  def add_db(db)
+    @db = db
+  end
+
+  def add_note(note)
+    @notes << note
+  end
+
+  def add_ref(tag)
+    @refs << tag
   end
 
   def add_eq(eq)
@@ -116,6 +130,7 @@ class CorrelationGen
     s += ")\n"\
          "{\n"
     @pars.each { |par| s += par.make }
+    s += "add_db(\"#{@db}\");\n" if @db
     s += "}\n"\
          "\n"
     s += "#{gen_impl_declaration};\n"\
@@ -160,6 +175,18 @@ end
 
 def add_eq(eq)
   $curr_corr.add_eq(eq)
+end
+
+def add_db(db)
+  $curr_corr.add_db(db)
+end
+
+def add_note(note)
+  $curr_corr.add_note(note)
+end
+
+def add_ref(tag)
+  $curr_corr.add(tag)
 end
 
 def end_correlation

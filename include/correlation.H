@@ -90,6 +90,13 @@ public:
 
   void add_db(const string & __db) { db = __db; }
 
+  void add_note(const string & note) { notes.append(note); }
+
+  void add_ref(const string & tag)
+  {
+    refs.append(BibEntry::find(tag));
+  }
+
   const DynList<CorrelationPar> & get_preconditions() const noexcept
   {
     return preconditions;
@@ -265,6 +272,24 @@ public:
       << "  Max result  = " << max_val << endl
       << "  Parameters (" << get_num_pars() << "):" << endl
       << ::to_string(mat);
+
+    return s.str();
+  }
+
+  string full_desc() const
+  {
+    ostringstream s;
+    s << to_string() << endl
+      << "DATA BANK:" << endl
+      << db << endl
+      << endl;
+
+    notes.for_each([&s] (const auto & note) { s << "    " << note << endl; });
+
+    s << endl
+      << "References:" << endl;
+
+    refs.for_each([&s] (const auto & ref) { s << "    " << ref << endl; });
 
     return s.str();
   }
