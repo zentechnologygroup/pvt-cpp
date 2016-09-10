@@ -25,7 +25,8 @@ DEPLIBS	= $(TOP)/lib/libpvt.a
 
 LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
 
-TESTSRCS = test-all-units-1.cc test-conversion.cc test-corr.cc test-seq.cc
+TESTSRCS = test-all-units-1.cc test-conversion.cc test-corr.cc test-seq.cc \
+	test-biblio.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
@@ -42,5 +43,8 @@ NormalProgramTarget(test-all-units-1,test-all-units-1.o,$(DEPLIBS),$(LOCAL_LIBRA
 
 AllTarget(test-seq)
 NormalProgramTarget(test-seq,test-seq.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(test-biblio)
+NormalProgramTarget(test-biblio,test-biblio.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()

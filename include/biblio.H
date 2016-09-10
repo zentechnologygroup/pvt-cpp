@@ -2,6 +2,7 @@
 # ifndef BIBLIO_H
 # define BIBLIO_H
 
+# include <istream>
 # include <string>
 
 # include <htlist.H>
@@ -29,9 +30,13 @@ public:
 
   const string & get_entry() const noexcept { return entry; }
 
-  DynList<const BibEntry *> entries() const
+  static DynList<const BibEntry *> entries() { return tbl.values(); }
+
+  const string to_string() const { return entry; }
+
+  friend ostream & operator << (ostream & out, const BibEntry & b)
   {
-    return tbl.values();
+    return out << b.to_string();
   }
 };
 

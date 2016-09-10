@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 # -*- coding: iso-8859-1 -*-
 
+require 'fileutils'
 require 'optparse'
+require 'calculus.rb'
 
 class CorrelationGen
 
@@ -39,6 +41,10 @@ class CorrelationGen
     @doc = str
   end
 
+  def add_eq(eq)
+    @eq = eq
+  end
+
   def add_parameter(name, unit, min = nil, max = nil)
     @pars << Parameter.new(name, unit, min, max)
   end
@@ -68,6 +74,13 @@ class CorrelationGen
       s += "," unless par == @pars.last
     end
     s
+  end
+
+  def gen_eq
+    raise "Correlation #{@name} has not defined a equation" unless @eq
+    file_name = Calculus::Expression.new(@eq, :parse => false).to_png
+    raise "Failed to generate eq for #{@name}" unless file_name
+    FileUtils.mv(file_name, "#{name}.png")
   end
 
   def gen_compute
@@ -145,6 +158,10 @@ def add_doc(str)
   $curr_corr.add_doc(str)
 end
 
+def add_eq(eq)
+  $curr_corr.add_eq(eq)
+end
+
 def end_correlation
   $corr_list << $curr_corr
 end
@@ -180,7 +197,12 @@ options_parser = OptionParser.new do |opts|
   opts.on('-C NAME', '--c++ NAME',
           'generate c++ correlation implementation') do |corr_name|
     options[:corr_name] = corr_name
-  end    
+  end
+
+  opts.on('-e NAME', '--eq NAME',
+          'generate equation (if defined) for correlation NAME') do |corr_name|
+    options[:eq] = corr_name
+  end
   
 end
 
@@ -216,10 +238,15 @@ end
 
 require 'open3'
 
-corr_name = options[:corr_name]
-if corr_name
+def search_corr(corr_name)
   corr = $corr_list.find { |c| c.name.upcase == corr_name.upcase }
   raise "correlation #{corr_name} not found" unless corr
+  corr
+end
+
+corr_name = options[:corr_name]
+if corr_name
+  corr = search_corr(corr_name)
   # File.open('tmp', "w+").write("#{corr.gen_impl}")
   # stdout, stderr, exit_status = Open3.capture3('cat tmp')
   # puts stdout
@@ -228,6 +255,14 @@ if corr_name
   puts "#{corr.gen_impl}"
   exit
 end
+
+eq = options[:eq]
+if eq
+  corr = search_corr(eq)
+  corr.gen_eq
+  exit
+end
+
 
 puts "#{gen_impl_declarations}"
 

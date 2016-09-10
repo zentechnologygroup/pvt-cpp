@@ -16,8 +16,7 @@ def generate_header
     tag = b.id
     tag.gsub!(':', '_')
     tag.gsub!('-', '_')
-    entry = b.to_s.gsub("\n", "\\n")
-    puts "extern BibEntry #{tag}(\"#{b.id}\", \"#{entry}\");"
+    puts "extern BibEntry #{tag};"
     puts 
   end
   puts "\n"\
@@ -62,7 +61,7 @@ options_parser.parse!
 file_name = options[:file_name]
 raise "file name not specified (-f option)" unless file_name
 
-$bib_db = BibTeX.open('refs.bib')
+$bib_db = BibTeX.open(file_name)
 
 header = options[:header]
 source = options[:source]
@@ -76,3 +75,4 @@ end
 if source
   generate_source  
 end
+

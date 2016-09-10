@@ -21,13 +21,13 @@ HCORRS = $(CORRS:.rb=.H)
 
 BIBLIO = $(TOP)/bin/biblio
 
-biblios.H: refs.bib biblio
+biblios.H: refs.bib
 	$(RM) $*.H; 	\	@@\
-	$(BIBLIO) -H | clang-format -style=Mozilla > $@
+	$(BIBLIO) -H -f refs.bib | clang-format -style=Mozilla > $@
 
 depend:: $(HCORRS)
 
-all:: $(HCORRS)
+all:: $(HCORRS) biblios.H
 
 clean::
-	$(RM) $(HCORRS)
+	$(RM) $(HCORRS) biblios.H

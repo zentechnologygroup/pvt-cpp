@@ -12,6 +12,7 @@
 # include <traits.hpp>
 # include <utils.H>
 # include <pvt-units.H>
+# include <biblio.H>
 
 struct CorrelationPar
 {
@@ -72,6 +73,9 @@ struct Correlation
   const Unit & unit;
   const double min_val;
   const double max_val;
+  string db;
+  DynList<string> notes;
+  DynList<const BibEntry *> refs;
 
 private:
 
@@ -81,6 +85,10 @@ private:
   static DynMapTree<string, const Correlation * const> tbl;
   
 public:
+
+  const string & get_db() const noexcept { return db; }
+
+  void add_db(const string & __db) { db = __db; }
 
   const DynList<CorrelationPar> & get_preconditions() const noexcept
   {

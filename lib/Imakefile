@@ -20,11 +20,12 @@ BIBLIO = $(TOP)/bin/biblio
 
 biblios.cc: ../include/refs.bib 
 	$(RM) $*.cc; 	\	@@\
-	$(BIBLIO) -C | clang-format -style=Mozilla > $@
+	$(BIBLIO) -C -f ../include/refs.bib | clang-format -style=Mozilla > $@
 
 pvt.cc: biblios.cc units-vars.cc correlations-vars.cc ../include/pvt-correlations.H ../include/correlation.H ../include/bubble-point-pressure.H ../include/units.H ../include/pvt-units.H ../include/solution-gas-oil-relation.H ../include/solution-gas-oil-relation-1.H ../include/solution-gas-oil-relation-1-impl.H ../include/oil-formation-volume-factor.H ../include/oil-formation-volume-factor-impl.H ../include/oil-compressibility.H ../include/oil-compressibility-impl.H ../include/oil-density.H ../include/oil-density-impl.H ../include/dead-oil-viscosity.H ../include/dead-oil-viscosity-impl.H ../include/saturated-oil-viscosity.H ../include/saturated-oil-viscosity-impl.H ../include/undersaturated-oil-viscosity.H ../include/undersaturated-oil-viscosity-impl.H 
 	$(RM) -f $@;					\	@@\
-	cat biblios.cc >> $@;			\	@@\
+	cat biblio-vars.cc >> $@;			\	@@\
+	cat biblios.cc >> $@;				\	@@\
 	$(CPP) $(CXXFLAGS) units-vars.cc > $*.tmp;	\	@@\
 	cat units-vars.cc >> $@;			\	@@\
 	$(EXTRACT_CV) $*.tmp >> $@;			\	@@\
@@ -34,7 +35,7 @@ pvt.cc: biblios.cc units-vars.cc correlations-vars.cc ../include/pvt-correlation
 pvt.o: pvt.cc 
 
 clean::
-	$(RM) -f pvt.cc
+	$(RM) -f pvt.cc biblios.cc
 
 NormalLibraryObjectRule()
 NormalLibraryTarget(pvt,$(OBJS))

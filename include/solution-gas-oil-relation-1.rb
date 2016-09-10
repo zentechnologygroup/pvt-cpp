@@ -36,6 +36,7 @@ add_doc(%Q[    TOTAL CFP CORRELATION, CALCULATION OF SOLUTION GOR
 
     @see: C. Bánzer. "Correlaciones Numéricas P.V.T.", Universidad del Zulia, 1996.
     ])
+add_eq("R_s = \\gamma_g \\cdot \\left[ \\frac{P}{C_1} \\cdot 10 ^ {\\left( C_2 \\cdot \\gamma_{API} - C_3 \\cdot T \\right) }  \\right] ^ {C_4}")
 add_parameter("yg", "Sgg")
 add_parameter("pb", "psia")
 add_parameter("p", "psia")
