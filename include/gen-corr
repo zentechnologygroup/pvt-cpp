@@ -4,6 +4,7 @@
 require 'fileutils'
 require 'optparse'
 require 'calculus.rb'
+require 'bibtex'
 
 class CorrelationGen
 
@@ -131,6 +132,9 @@ class CorrelationGen
          "{\n"
     @pars.each { |par| s += par.make }
     s += "add_db(\"#{@db}\");\n" if @db
+    @refs.each do |ref|
+      s += "add_ref(\"#{ref}\");\n"
+    end
     s += "}\n"\
          "\n"
     s += "#{gen_impl_declaration};\n"\
@@ -186,7 +190,7 @@ def add_note(note)
 end
 
 def add_ref(tag)
-  $curr_corr.add(tag)
+  $curr_corr.add_ref(tag)
 end
 
 def end_correlation

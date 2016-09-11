@@ -4,6 +4,10 @@
 require 'optparse'
 require 'bibtex'
 
+def tag(str)
+  str.gsub(':', '_').gsub('-', '_')
+end
+
 def generate_header
   puts %Q[  
 # ifndef BIBLIOS_H
@@ -13,10 +17,7 @@ def generate_header
 
 ]
   $bib_db.each do |b|
-    tag = b.id
-    tag.gsub!(':', '_')
-    tag.gsub!('-', '_')
-    puts "extern BibEntry #{tag};"
+    puts "extern BibEntry #{tag(b.id)};"
     puts 
   end
   puts "\n"\
@@ -29,9 +30,7 @@ def generate_source
 
 ]
   $bib_db.each do |b|
-    tag = b.id
-    tag.gsub!(':', '_')
-    tag.gsub!('-', '_')
+    tag = tag(b.id)
     entry = b.to_s.gsub("\n", "\\n")
     puts "BibEntry #{tag}(\"#{b.id}\", \"#{entry}\");"
     puts 

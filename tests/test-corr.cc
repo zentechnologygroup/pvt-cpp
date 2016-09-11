@@ -386,6 +386,8 @@ void test(int argc, char *argv[])
 
   SwitchArg print = { "p", "print", "print correlation information", cmd };
 
+  SwitchArg print_full = { "P", "Print", "print correlation information", cmd };
+
   SwitchArg mat = { "f", "mattrix", "generate matrix", cmd };
 
   SwitchArg csv = { "c", "csv", "generate csv", cmd };
@@ -447,6 +449,13 @@ void test(int argc, char *argv[])
       cout << "Error: correlation name " << correlation.getValue()
 	   << " not found" << endl;
       abort();
+    }
+
+  if (print_full.getValue())
+    {
+      cout << correlation_ptr->full_desc() << endl
+	   << endl;
+	exit(0);
     }
 
   if (print.getValue())

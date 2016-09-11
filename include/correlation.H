@@ -280,16 +280,17 @@ public:
   {
     ostringstream s;
     s << to_string() << endl
-      << "DATA BANK:" << endl
-      << db << endl
+      << "  DATA BANK:" << endl
+      << align_text_to_left(db, 60, 4) << endl
       << endl;
 
     notes.for_each([&s] (const auto & note) { s << "    " << note << endl; });
 
     s << endl
-      << "References:" << endl;
+      << "  References:" << endl;
 
-    refs.for_each([&s] (const auto & ref) { s << "    " << ref << endl; });
+    refs.for_each([&s] (const auto & ref)
+		  { s << shift_lines_to_left(ref->to_string(), 4) << endl; });
 
     return s.str();
   }
