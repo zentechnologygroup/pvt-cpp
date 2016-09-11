@@ -4,7 +4,6 @@
 require 'fileutils'
 require 'optparse'
 require 'calculus.rb'
-require 'bibtex'
 
 class CorrelationGen
 
@@ -34,8 +33,10 @@ class CorrelationGen
       @min = min
       @max = max
       @pars = []
+      @db = []
       @notes = []
       @refs = []
+      @eq = []
   end
 
   attr_reader :name
@@ -45,7 +46,7 @@ class CorrelationGen
   end
 
   def add_db(db)
-    @db = db
+    @db << db
   end
 
   def add_note(note)
@@ -57,7 +58,7 @@ class CorrelationGen
   end
 
   def add_eq(eq)
-    @eq = eq
+    @eq << eq
   end
 
   def add_parameter(name, unit, min = nil, max = nil)
@@ -91,11 +92,25 @@ class CorrelationGen
     s
   end
 
-  def gen_eq
-    raise "Correlation #{@name} has not defined a equation" unless @eq
-    file_name = Calculus::Expression.new(@eq, :parse => false).to_png
-    raise "Failed to generate eq for #{@name}" unless file_name
-    FileUtils.mv(file_name, "#{name}.png")
+  def gen_eq(dir = '.')
+    fail "Correlation #{@name} has not defined an equation" unless @eq.empty?
+    @eq.each_with_index do |eq, i|
+      file_name = Calculus::Expression.new(eq, :parse => false).to_png      
+      fail "Failed to generate eq for #{@name}" unless file_name
+      tgt_name = "#{dir}/#{name}-#{i}.png"
+      FileUtils.mv(file_name, tgt_name)
+    end
+  end
+
+  def make_eq(dir = '.')
+    return if @eq.empty?
+    @eq.each_with_index do |eq, i|
+      file_name = Calculus::Expression.new(eq, :parse => false).to_png
+      fail "Failed to generate eq for #{@name}" unless file_name
+      tgt_name = "#{dir}/#{name}-#{i}.png"
+      FileUtils.mv(file_name, tgt_name)
+      puts "Generated #{tgt_name}"
+    end
   end
 
   def gen_compute
@@ -131,10 +146,9 @@ class CorrelationGen
     s += ")\n"\
          "{\n"
     @pars.each { |par| s += par.make }
-    s += "add_db(\"#{@db}\");\n" if @db
-    @refs.each do |ref|
-      s += "add_ref(\"#{ref}\");\n"
-    end
+    @db.each { |db| s += "add_db(\"#{db}\");\n" }
+    @notes.each { |note| s += "add_note(\"#{note}\");\n" }
+    @refs.each { |ref| s += "add_ref(\"#{ref}\");\n" }
     s += "}\n"\
          "\n"
     s += "#{gen_impl_declaration};\n"\
@@ -189,8 +203,8 @@ def add_note(note)
   $curr_corr.add_note(note)
 end
 
-def add_ref(tag)
-  $curr_corr.add_ref(tag)
+def add_eq(eq)
+  $curr_corr.add_eq(eq)
 end
 
 def end_correlation
@@ -234,20 +248,42 @@ options_parser = OptionParser.new do |opts|
           'generate equation (if defined) for correlation NAME') do |corr_name|
     options[:eq] = corr_name
   end
+
+  opts.on('-E', '--equations', 'generate all equations') do
+    options[:equations] = true
+  end
+
+  opts.on('-d NAME', '--dir NAME',
+          'Target directory where equations will be generated') do |dir|
+    options[:dir] = dir
+  end
   
 end
 
 options_parser.parse!
 
 file = options[:file_name]
+$eq_dir = options[:dir] || '.'
 
-raise 'correlations file not specified' if file.nil?
+fail 'correlations file not specified' if file.nil?
+
+require 'bibtex'
+$biblio = options[:biblio] || "../include/refs.bib"
+$bib_db = BibTeX.open($biblio)
+
+def add_ref(tag)
+  fail "Tag #{tag} no found in database #{$biblio}" unless $bib_db.has_key? tag
+  $curr_corr.add_ref(tag)
+end
 
 load file
 
-header = options[:header]
-if header
-  
+if options[:equations]
+  $corr_list.each { |corr| corr.make_eq($eq_dir) }
+  exit
+end
+
+if options[:header]  
   guard_name = file.gsub '-', '_'
   guard_name.gsub! '.', '_'
   guard_name.gsub! 'rb', 'H'
@@ -265,13 +301,11 @@ if header
   exit
 end
 
-#require 'enumerable'
-
 require 'open3'
 
 def search_corr(corr_name)
   corr = $corr_list.find { |c| c.name.upcase == corr_name.upcase }
-  raise "correlation #{corr_name} not found" unless corr
+  fail "correlation #{corr_name} not found" unless corr
   corr
 end
 
@@ -288,9 +322,10 @@ if corr_name
 end
 
 eq = options[:eq]
+dir = options[:dir]
 if eq
   corr = search_corr(eq)
-  corr.gen_eq
+  corr.gen_eq(dir)
   exit
 end
 

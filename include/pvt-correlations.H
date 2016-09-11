@@ -3,7 +3,6 @@
 
 # include <bubble-point-pressure.H>
 # include <solution-gas-oil-relation.H>
-# include <solution-gas-oil-relation-1.H>
 # include <oil-formation-volume-factor.H>
 # include <oil-compressibility.H>
 # include <oil-density.H>
@@ -11,7 +10,8 @@
 # include <saturated-oil-viscosity.H>
 # include <undersaturated-oil-viscosity.H>
 
-# include <solution-gas-oil-relation-1-impl.H>
+# include <bubble-point-pressure-impl.H>
+# include <solution-gas-oil-relation-impl.H>
 # include <oil-formation-volume-factor-impl.H>
 # include <oil-compressibility-impl.H>
 # include <oil-density-impl.H>

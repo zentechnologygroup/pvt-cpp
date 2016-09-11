@@ -73,7 +73,7 @@ struct Correlation
   const Unit & unit;
   const double min_val;
   const double max_val;
-  string db;
+  DynList<string> db;
   DynList<string> notes;
   DynList<const BibEntry *> refs;
 
@@ -86,9 +86,7 @@ private:
   
 public:
 
-  const string & get_db() const noexcept { return db; }
-
-  void add_db(const string & __db) { db = __db; }
+  void add_db(const string & __db) { db.append(__db); }
 
   void add_note(const string & note) { notes.append(note); }
 
@@ -270,27 +268,36 @@ public:
       << "  Return type = " << unit.symbol << endl
       << "  Min result  = " << min_val << endl
       << "  Max result  = " << max_val << endl
+      << endl
       << "  Parameters (" << get_num_pars() << "):" << endl
       << ::to_string(mat);
 
     return s.str();
   }
 
-  string full_desc() const
+  string full_desc(size_t width = 60, size_t left_margin = 4) const
   {
     ostringstream s;
     s << to_string() << endl
       << "  DATA BANK:" << endl
-      << align_text_to_left(db, 60, 4) << endl
+      << endl;
+    for (auto it = db.get_it(); it.has_curr(); it.next())
+      s << align_text_to_left(it.get_curr(), width, left_margin) << endl
+	<< endl;
+
+    s << "  Notes:" << endl
       << endl;
 
-    notes.for_each([&s] (const auto & note) { s << "    " << note << endl; });
+    for (auto it = notes.get_it(); it.has_curr(); it.next())
+      s << align_text_to_left(it.get_curr(), width, left_margin) << endl
+	<< endl;
 
-    s << endl
-      << "  References:" << endl;
+    s << "  References:" << endl
+      << endl;
 
-    refs.for_each([&s] (const auto & ref)
-		  { s << shift_lines_to_left(ref->to_string(), 4) << endl; });
+    for (auto it = refs.get_it(); it.has_curr(); it.next())
+      s << shift_lines_to_left(it.get_curr()->to_string(), left_margin) << endl
+	<< endl;
 
     return s.str();
   }

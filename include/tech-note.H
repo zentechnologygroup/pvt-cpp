@@ -10,8 +10,9 @@ using namespace Aleph;
 
 class TechnicalNote
 {
-  const string db;
-  DynList<string> notes;
+  const string db;       // data bank
+  DynList<string> notes; // notes
+  const string eq; // latex equation
 
 };
 

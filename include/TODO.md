@@ -7,17 +7,18 @@
 - Created at   2016-08-30 17:39:36 -0400
 - Completed at 2016-09-08 11:09:48 -0400
 
-## 3. dry de bod versus rs y rsb
-- Created at   2016-08-31 11:44:19 -0400
-- Completed at 2016-09-08 11:09:49 -0400
-
-## 4. preguntar iteración BoVelardeMcCain
+## 3. preguntar iteración BoVelardeMcCain
 - Created at   2016-09-01 08:33:30 -0400
 - Completed at 2016-09-08 11:09:52 -0400
 
-## 5. opcion generar referencias en gen-corr
+## 4. opcion generar referencias en gen-corr
 - Created at   2016-09-09 16:07:40 -0400
+- Completed at 2016-09-10 21:15:43 -0400
 
-## 6. Validar referencias bibtex en gen-corr
+## 5. Validar referencias bibtex en gen-corr
 - Created at   2016-09-10 19:09:45 -0400
+- Completed at 2016-09-10 21:15:46 -0400
+
+## 6. pueden haber varias ecuaciones
+- Created at   2016-09-11 11:57:12 -0400
 

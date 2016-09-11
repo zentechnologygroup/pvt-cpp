@@ -10,3 +10,9 @@
 - Comment      
 - Finished     
 
+## 3. dry de bod versus rs y rsb
+- Created at   2016-08-31 11:44:19 -0400
+- Completed at 2016-09-08 11:09:49 -0400
+- Comment      
+- Finished     
+
