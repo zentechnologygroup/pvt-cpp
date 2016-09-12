@@ -332,7 +332,7 @@ int main(int argc, char *argv[])
 
   if (print.getValue())
     {
-      cout << *ptr << endl;
+      cout << ptr->to_string(60) << endl;
       ptr->units().for_each([] (auto u)
 			    {
 			      cout << *u << endl

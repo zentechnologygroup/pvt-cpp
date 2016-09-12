@@ -36,7 +36,8 @@ struct UnitItem
     ostringstream s;
     s << margin << "UnitItem name = " << name << endl
       << margin << "Symbol        = " << symbol << endl
-      << align_text_to_left(description, width, left_margin);
+      << margin << "Description   = "
+      << align_text_to_left_except_first(description, width, 16);
     return s.str();
   }
 
