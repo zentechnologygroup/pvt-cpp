@@ -4,6 +4,8 @@
 # include <memory>
 # include <sstream>
 # include <string>
+
+# include <ah-string-utils.H>
 # include <tpl_dynMapTree.H>
 
 struct UnitItem
@@ -25,6 +27,16 @@ struct UnitItem
     s << "UnitItem name = " << name << endl
       << "Symbol        = " << symbol << endl
       << "Description   = " << description;
+    return s.str();
+  }
+
+  string to_string(size_t width, size_t left_margin = 0) const
+  {
+    const string margin(left_margin, ' ');
+    ostringstream s;
+    s << margin << "UnitItem name = " << name << endl
+      << margin << "Symbol        = " << symbol << endl
+      << align_text_to_left(description, width, left_margin);
     return s.str();
   }
 

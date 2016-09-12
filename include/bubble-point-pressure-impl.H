@@ -368,5 +368,37 @@ PbManucciRosales::impl(const Quantity<Sgg> & yg,
   return Quantity<psia>(pb);
 }
 
+inline Quantity<psia>
+PbGlaso::impl(const Quantity<Sgg> & yg,
+	      const Quantity<SCF_STB> & rsb,
+	      const Quantity<Api> & api,
+	      const Quantity<Fahrenheit> & t,
+	      const Quantity<Mole_Percent> & n2_concentration,
+	      const Quantity<Mole_Percent> & co2_concentration,
+	      const Quantity<Mole_Percent> & h2s_concentration) const
+{
+  const double x = pow(rsb.raw()/yg.raw(), 0.816)*pow(t, 0.172)/pow(api, 0.989);
+
+  const double log10x = log10(x);
+  const double pbhc = pow(10, 1.7669 + 1.7447*log10x - 0.30218*log10x*log10x);
+
+      // Effects of nonhydrocarbons on bubble point pressure
+  const double n2effect = 1 + ((-2.65e-4*api.raw() + 5.5e-3)*t.raw() +
+			       (0.0931*api.raw() - 0.8295)) *
+    n2_concentration.raw() +
+    (1.954e-11*pow(api, 4.699)*t.raw() + 0.027*api.raw() - 2.366) *
+    n2_concentration.raw()*n2_concentration.raw();
+
+  const double co2effect = 1 - 693.8*co2_concentration.raw() * pow(t, -1.553);
+  
+  const double h2seffect = 1 -
+    (0.9035 + 0.0015*api.raw()) * h2s_concentration.raw() +
+    0.019*(45 - api.raw())*h2s_concentration.raw()*h2s_concentration.raw();
+  
+  const double pb = pbhc * n2effect * co2effect * h2seffect;
+
+  return Quantity<psia>(pb);
+}
+
 
 # endif // BUBBLE_POINT_PRESSURE_IMPL_H

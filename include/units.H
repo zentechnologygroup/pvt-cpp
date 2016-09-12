@@ -132,6 +132,21 @@ public:
     return s.str();
   }
 
+  string to_string(size_t width, size_t left_margin = 0) const
+  {
+    const string margin = string(left_margin, ' ');
+    ostringstream s;
+    s << margin << "Unit name         = " << name << endl
+      << margin << "symbol            = " << symbol << endl
+      << align_text_to_left(description, width, left_margin)
+      << margin << "physical quantity = " << physical_quantity.name << endl
+      << margin << "min               = " << min_val << endl
+      << margin << "max               = " << max_val << endl
+      << margin << "epsilon           = " << epsilon
+      << "( " << 100*epsilon << " %)";
+    return s.str();
+  }
+
   friend ostream & operator << (ostream & out, const Unit & unit)
   {
     return out << unit.to_string();

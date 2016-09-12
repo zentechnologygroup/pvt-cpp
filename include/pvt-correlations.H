@@ -41,6 +41,7 @@ struct CorrelationInstantiater
     PbPerezML::get_instance();
     PbMillanArcia::get_instance();
     PbManucciRosales::get_instance();
+    PbGlaso::get_instance();
 
     RsAlShammasi::get_instance();
     RsAlMarhoun::get_instance();

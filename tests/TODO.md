@@ -52,5 +52,11 @@
 ## 17. cambiar formato ruby de correlación para que inclya desc
 - Created at    ref
 - Completed at  db
-- Comment       node y eq
+- Comment       note hidden_note y eq
+
+## 18. poner en test-conversion flag para descripcion
+- Created at   2016-09-12 09:44:10 -0400
+
+## 19. corregir margen en formateo de descripcion para unudad fisica y unidad
+- Created at   2016-09-12 09:44:36 -0400
 

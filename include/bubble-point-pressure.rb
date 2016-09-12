@@ -176,3 +176,17 @@ add_parameter("api", "Api", 14, 40)
 add_parameter("t", "Fahrenheit", 165, 304)
 add_db("Crude oils of eastern Venezuela were correlated, by using differential separation data from laboratory PVT analysis.")
 end_correlation()
+
+################################################################
+
+begin_correlation("PbGlaso", "BubblePointPressure", "psia", 150, 7127)
+add_parameter("yg", "Sgg", 0.650, 1.276)
+add_parameter("rsb", "SCF_STB", 90, 2637)
+add_parameter("api", "Api", 22.3, 48.1)
+add_parameter("t", "Fahrenheit", 80, 280)
+add_parameter("n2_concentration", "Mole_Percent", 0, 26)
+add_parameter("co2_concentration","Mole_Percent", 0, 26)
+add_parameter("h2s_concentration", "Mole_Percent", 0, 50)
+add_db("Based on 26 samples from the North Sea (collected from wells in the region 56 to 62°N) and 19 samples from the Middle East, Algeria, and several areas in the U.S.")
+add_db("The equation was derived from laboratory data, exclusively sampling North Sea oils. However, the author claims that the correlation should be valid for all types of gas/oil mixtures after correcting for non-hydrocarbons in the surface gases and paraffinicity of the oil.")
+end_correlation()
