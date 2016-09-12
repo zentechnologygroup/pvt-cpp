@@ -263,7 +263,7 @@ end
 options_parser.parse!
 
 file = options[:file_name]
-$eq_dir = options[:dir] || '.'
+$eq_dir = options[:dir] || '../eqs'
 
 fail 'correlations file not specified' if file.nil?
 

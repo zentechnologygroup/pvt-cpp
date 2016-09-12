@@ -422,6 +422,8 @@ inline Correlation::~Correlation() {}
 									\
   inline type_name::~type_name() {}
 
+Declare_Correlation_Type(OilFunction)
+
 Declare_Correlation_Type(OilCorrelation);
 
 Declare_Correlation_Type(GasCorrelation);
@@ -483,14 +485,17 @@ decltype(auto) call_compute(Func&& f, const DynList<T>& pars)
   									\
 private:
 
+    // correlations & functions assocated to oil
 Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
 Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation);
 Declare_Correlation_Subtype(OilFormationVolumeFactor, OilCorrelation);
 Declare_Correlation_Subtype(SaturatedOilViscosity, OilCorrelation);
 Declare_Correlation_Subtype(UndersaturatedOilViscosity, OilCorrelation);
 Declare_Correlation_Subtype(OilCompressibility, OilCorrelation);
-Declare_Correlation_Subtype(OilDensity, OilCorrelation);
+Declare_Correlation_Subtype(OilDensity, OilFunction);
 Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation);
 Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation);  
 
+
+Declare_Correlation_Subtype(GasPressurePseudoCritical, GasCorrelation);
 # endif // CORRELATION_H

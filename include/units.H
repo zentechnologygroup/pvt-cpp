@@ -138,7 +138,9 @@ public:
     ostringstream s;
     s << margin << "Unit name         = " << name << endl
       << margin << "symbol            = " << symbol << endl
-      << align_text_to_left(description, width, left_margin)
+      << margin << "description       = "
+      << align_text_to_left_except_first(description, width, left_margin + 20)
+      << endl
       << margin << "physical quantity = " << physical_quantity.name << endl
       << margin << "min               = " << min_val << endl
       << margin << "max               = " << max_val << endl

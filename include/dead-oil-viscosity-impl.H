@@ -72,8 +72,10 @@ UodSattarinEtAl::impl(const Quantity<Api> & api,
   double a = 0, b = 0, uod = 0;
   if (raw_api < 28)
     {
-      a = -5.8936e7*pow(t, 2) + 3.511e10*t.raw() - 5.2145e12;
-      b = 0.00418*pow(t, 2) - 2.50406*t.raw() + 368.78706;
+      //a = -5.8936e7*pow(t, 2) + 3.511e10*t.raw() - 5.2145e12;
+      a = -5.893604166667e7*pow(t, 2) + 3.51100078125001e10*t.raw() -
+	5.21451314506928e12;
+      b = 0.00418025*pow(t, 2) - 2.504062075*t.raw() + 368.787057006;
       uod = a*pow(api, b);
     }
   else

@@ -1153,5 +1153,21 @@ def PbGlasoCorrelation(Yg, Rsb, API, T, n2Concentration, co2Concentration, h2sCo
     co2Effect = 1 - 693.8 * co2Concentration * T **-1.553
     h2sEffect = 1 - (0.9035 + 0.0015 * API) * h2sConcentration + 0.019 * (45 - API) *  h2sConcentration **2
     Pb = PbHC * n2Effect * co2Effect * h2sEffect
-    PbGlaso = Pb
+    PbGlaso = Pbd
     return PbGlaso
+
+def SgoBakerSwerdloffCorrelation(T,API,P):
+    sgo68 = 39 - 0.2571*API
+    sgo100 = 37.5 - 0.2571*API    
+    if T <= 68:
+        sgoT = sgo68
+    elif T>= 100:
+        sgoT = sgo100
+    else:
+        sgoT = sgo68 - (T-68)*(sgo68-sgo100)/32 # Linear interpolation between the values obtained at 68 and 100 °F
+    # Effect of dissolved gas on the dead oil interfacial tension
+    C = 1 - 0.024 * P**0.45
+    sgoP = C*sgoT # Interfacial tension at any pressure
+    sgo= sgoP    
+    sgoBakerSwerdloff = sgo
+    return sgoBakerSwerdloff
