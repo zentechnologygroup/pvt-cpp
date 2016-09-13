@@ -40,7 +40,6 @@ PscMKay::impl(const Quantity<psia> & pschc,
 inline Quantity<psia>
 AdjustedPscWichertAziz::impl(const Quantity<psia> & pscm,
 			     const Quantity<Fahrenheit> & tscm,
-			     const Quantity<MolePercent> & n2_concentration,
 			     const Quantity<MolePercent> & co2_concentration,
 			     const Quantity<MolePercent> & h2s_concentration)
   const
@@ -61,15 +60,25 @@ AdjustedPscWichertAziz::impl(const Quantity<psia> & pscm,
 
 
 inline Quantity<psia>
-PscBrownKOA::impl(const Quantity<Sgg> & yghc,
-		  const Quantity<MolePercent> & n2_concentration,
-		  const Quantity<MolePercent> & co2_concentration,
-		  const Quantity<MolePercent> & h2s_concentration) const
+PscHCStanding::impl(const Quantity<Sgg> & yghc,
+		    const Quantity<MolePercent> &,
+		    const Quantity<MolePercent> &,
+		    const Quantity<MolePercent> &) const
 {
   const double raw_yghc = yghc.raw();
-  const pschc = 677 + 15*raw_yghc - 37.5*raw_yghc*raw_yghc;
+  const double pschc = 677 + 15*raw_yghc - 37.5*raw_yghc*raw_yghc;
   return Quantity<psia>(pschc);
 }
+
+inline Quantity<psia>
+PscHcSutton::impl(const Quantity<Sgg> & yghc,
+		  const Quantity<MolePercent> &,
+		  const Quantity<MolePercent> &) const
+{
+  const double pschc = 756.8 - 131.0 * yghc.raw() - 3.6 * pow(yghc, 2);
+  return Quantity<psia>(pschc);
+}
+
 
 
 

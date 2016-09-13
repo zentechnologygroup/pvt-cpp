@@ -35,6 +35,7 @@ class CorrelationGen
       @pars = []
       @db = []
       @notes = []
+      @internal_notes = []
       @refs = []
       @eq = []
   end
@@ -55,6 +56,10 @@ class CorrelationGen
 
   def add_note(note)
     @notes << note
+  end
+
+  def add_internal_note(note)
+    @internal_notes << note
   end
 
   def add_ref(tag)
@@ -137,6 +142,7 @@ class CorrelationGen
   def gen_class
     s = "/** #{@name}\n\n"
     s += @doc if @doc
+    @internal_notes.each { |note| s += "#{note.ljust(60)}\n\n" }
     s += "\n"\
          "*/\n"
     s += "class #{@name} : public #{@subtype}\n" \
@@ -210,6 +216,14 @@ end
 
 def add_note(note)
   $curr_corr.add_note(note)
+end
+
+def add_internal_note(note)
+  $curr_corr.add_internal_note(note)
+end
+
+def add_hidden_note(note)
+  $curr_corr.add_internal_note(note)
 end
 
 def add_eq(eq)

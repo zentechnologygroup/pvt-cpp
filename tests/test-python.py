@@ -1171,3 +1171,33 @@ def SgoBakerSwerdloffCorrelation(T,API,P):
     sgo= sgoP    
     sgoBakerSwerdloff = sgo
     return sgoBakerSwerdloff
+
+def YgHCWichertAzizCorrelation(Yg, n2Concentration, co2Concentration, h2sConcentration):
+        YgHC = (Yg - 0.967 * n2Concentration - 1.52 * co2Concentration - 1.18 * h2sConcentration)/(1 - n2Concentration - co2Concentration - h2sConcentration) # Yg is the gravity of the whole mixture and YgHC is the gravity of the hydrocarbon portion
+        YgHCWichertAziz = YgHC
+        return YgHCWichertAziz
+
+def PscMKayCorrelation(PscHC, n2Concentration, co2Concentration, h2sConcentration):
+    PscM = (1 - n2Concentration - co2Concentration - h2sConcentration) * PscHC + 493 * n2Concentration + 1071 * co2Concentration + 1306 * h2sConcentration # Pseudocritical pressure of the whole gas mixture
+    PscMKay = PscM
+    return PscMKay
+
+def AdjustedPscWichertAzizCorrelation(PscM, TscM, co2Concentration, h2sConcentration):
+    A = co2Concentration + h2sConcentration
+    B = h2sConcentration
+    E = 120 * (A ** 0.9 - A ** 1.6) + 15 * (B ** 0.5 - B ** 4) 
+    n = PscM * (TscM - E)
+    d = TscM + B * (1 - B) * E
+    AdjustedPsc = n/d
+    AdjustedPscWichertAziz = AdjustedPsc
+    return AdjustedPscWichertAziz
+
+def PscHCBrownKOACorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    PscHC = 677 + 15 * YgHC - 37.5 * (YgHC ** 2) # Pseudocritical pressure of the hydrocarbon portion
+    PscBrownKOA = PscHC
+    return PscBrownKOA
+
+def PscHcSuttonCorrelation(YgHC, n2Concentration, co2Concentration):
+    PscHC = 756.8 - 131.0 * YgHC - 3.6 * (YgHC ** 2) # Pseudocritical pressure of the hydrocarbon portion
+    PscHCSutton = PscHC
+    return PscHCSutton

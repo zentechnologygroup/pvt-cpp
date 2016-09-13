@@ -130,7 +130,8 @@ struct CorrelationInstantiater
     YgHCWichertAziz::get_instance();
     PscMKay::get_instance();
     AdjustedPscWichertAziz::get_instance();
-    PscBrownKOA::get_instance();
+    PscHCStanding::get_instance();
+    PscHcSutton::get_instance();
   }
 };
 
