@@ -73,6 +73,7 @@ struct Correlation
   const Unit & unit;
   const double min_val;
   const double max_val;
+  string title;
   DynList<string> db;
   DynList<string> notes;
   DynList<const BibEntry *> refs;
@@ -85,6 +86,8 @@ private:
   static DynMapTree<string, const Correlation * const> tbl;
   
 public:
+
+  void set_title(const string & __title) { title = __title; }
 
   void add_db(const string & __db) { db.append(__db); }
 
@@ -278,6 +281,9 @@ public:
   string full_desc(size_t width = 60, size_t left_margin = 4) const
   {
     ostringstream s;
+    if (not title.empty())
+      s << align_text_to_left(title, 60) << endl
+	<< endl;
     s << to_string() << endl
       << "  DATA BANK:" << endl
       << endl;
@@ -285,15 +291,17 @@ public:
       s << align_text_to_left(it.get_curr(), width, left_margin) << endl
 	<< endl;
 
-    s << "  Notes:" << endl
-      << endl;
+    if (not notes.is_empty())
+      s << "  Notes:" << endl
+	<< endl;
 
     for (auto it = notes.get_it(); it.has_curr(); it.next())
       s << align_text_to_left(it.get_curr(), width, left_margin) << endl
 	<< endl;
 
-    s << "  References:" << endl
-      << endl;
+    if (not refs.is_empty())
+      s << "  References:" << endl
+	<< endl;
 
     for (auto it = refs.get_it(); it.has_curr(); it.next())
       s << shift_lines_to_left(it.get_curr()->to_string(), left_margin) << endl

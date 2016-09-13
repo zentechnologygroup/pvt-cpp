@@ -1,6 +1,7 @@
 # coding: utf-8
 
 begin_correlation("PbAlMarhoun", "BubblePointPressure", "psia", 130, 3573)
+add_title("AL-MARHOUN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg",  0.752, 1.367)
 add_parameter("yo", "Sg_do", 0.803521, 0.937707)
 add_parameter("rsb", "SCF_STB", 26, 1602)

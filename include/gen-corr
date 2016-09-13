@@ -46,7 +46,7 @@ class CorrelationGen
   end
 
   def add_title(title)
-    @title = title
+    @tile = title
   end
 
   def add_db(db)
@@ -149,6 +149,7 @@ class CorrelationGen
     s += ", #{@max}" if @max
     s += ")\n"\
          "{\n"
+    s += "set_title(\"#{@title}\");" if @title
     @pars.each { |par| s += par.make }
     @db.each { |db| s += "add_db(\"#{db}\");\n" }
     @notes.each { |note| s += "add_note(\"#{note}\");\n" }
@@ -193,6 +194,10 @@ end
 
 def add_doc(str)
   $curr_corr.add_doc(str)
+end
+
+def add_title(title)
+  $curr_corr.add_title(title)
 end
 
 def add_eq(eq)
