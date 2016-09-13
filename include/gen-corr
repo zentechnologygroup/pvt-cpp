@@ -46,7 +46,7 @@ class CorrelationGen
   end
 
   def add_title(title)
-    @tile = title
+    @title = title
   end
 
   def add_db(db)

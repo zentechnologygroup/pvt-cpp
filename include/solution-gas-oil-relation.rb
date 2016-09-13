@@ -1,6 +1,7 @@
 # coding: utf-8
 
 begin_correlation("RsAlShammasi", "SolutionGasOilRelation", "SCF_STB")
+add_title("AL-SHAMMASI CORRELATION, CALCULATION OF SOLUTION GOR")
 add_parameter("yg", "Sgg", 0.51, 3.44)
 add_parameter("pb", "psia", 31.7, 7127)
 add_parameter("p", "psia", "Quantity<Atmosphere>(1)")
@@ -13,6 +14,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("RsAlMarhoun", "SolutionGasOilRelation", "SCF_STB")
+add_title("AL-MARHOUN CORRELATION, CALCULATION OF SOLUTION GOR")
 add_parameter("yg", "Sgg", 0.752, 1.367)
 add_parameter("pb", "psia", 130, 3573)
 add_parameter("p", "psia", 20, 3573)
@@ -27,6 +29,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("RsDeGhetto", "SolutionGasOilRelation", "SCF_STB")
+add_title("DE GHETTO CORRELATION FOR EXTRA-HEAVY (MODIFIED STANDING CORRELATION) AND HEAVY (MODIFIED VASQUEZ-BEGGS CORRELATION) OILS, CALCULATION OF SOLUTION GOR")
 add_parameter("yg", "Sgg", 0.623, 1.517)
 add_parameter("pb", "psia", 208.6, 4021.96)
 add_parameter("p", "psia", 1038.49, 7411.54)
@@ -44,6 +47,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("RsDindorukChristman", "SolutionGasOilRelation", "SCF_STB")
+add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF SOLUTION GOR")
 add_parameter("yg", "Sgg", 0.6017, 1.027)
 add_parameter("pb", "psia", 926, 12230)
 add_parameter("p", "psia")
@@ -55,6 +59,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("RsDoklaOsman", "SolutionGasOilRelation", "SCF_STB")
+add_title("DOKLA & OSMAN CORRELATION, CALCULATION OF SOLUTION GOR")
 add_parameter("yg", "Sgg", 0.798, 1.29)
 add_parameter("pb", "psia", 590, 4640)
 add_parameter("p", "psia")
@@ -68,6 +73,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("RsGlaso", "SolutionGasOilRelation", "SCF_STB")
+add_title("GLASO CORRELATION, CALCULATION OF SOLUTION GOR")
 add_parameter("yg", "Sgg", 0.65, 1.276)
 add_parameter("pb", "psia", 150, 7127)
 add_parameter("p", "psia")
@@ -81,6 +87,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("RsHanafy", "SolutionGasOilRelation", "SCF_STB")
+add_title("HANAFY CORRELATION, CALCULATION OF SOLUTION GOR")
 add_parameter("pb", "psia", 36, 5003)
 add_parameter("p", "psia")
 add_parameter("rsb", "SCF_STB", 97, 4272)
@@ -90,6 +97,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("RsKartoatmodjoSchmidt", "SolutionGasOilRelation", "SCF_STB")
+add_title("KARTOATMODJO & SCHMIDT CORRELATION, CALCULATION OF SOLUTION GOR")
 add_parameter("yg", "Sgg", 0.28, 1.668)
 add_parameter("pb", "psia", 14.7, 6054.7)
 add_parameter("p", "psia")
@@ -105,6 +113,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("RsLasater", "SolutionGasOilRelation", "SCF_STB")
+add_title("LASATER CORRELATION, CALCULATION OF SOLUTION GOR")
 add_parameter("yg", "Sgg", 0.574, 1.223)
 add_parameter("pb", "psia", 48, 5780)
 add_parameter("p", "psia")
@@ -119,6 +128,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("RsPetroskyFarshad", "SolutionGasOilRelation", "SCF_STB")
+add_title("PETROSKY & FARSHAD CORRELATION, CALCULATION OF SOLUTION GOR")
 add_parameter("yg", "Sgg", 0.5781, 0.8519)
 add_parameter("pb", "psia", 1574, 6523)
 add_parameter("p", "psia")
@@ -134,40 +144,22 @@ end_correlation()
 
 ## verificada con python
 begin_correlation("RsStanding", "SolutionGasOilRelation", "SCF_STB")
-add_doc(%Q[    STANDING CORRELATION, CALCULATION OF SOLUTION GOR
-
-    Based on 105 experimentally determined bubble point pressures
-    from 22 different Californian crude-oil-natural-gas mixtures. 
-              
-    @see: M.B. Standing. "A Pressure-Volume-Temperature
-    Correlation for Mixtures of California Oil and Gases , " Drill. &
-    Prod. Prac.,Beal C. The Viscosity-Temperature Chart 0361-39
-    Nat. Bur. Stds Circular C461-1947"  
-
-    @see: C. Bánzer. "Correlaciones Numéricas P.V.T.", Universidad
-    del Zulia, 1996. ])
+add_title("STANDING CORRELATION, CALCULATION OF SOLUTION GOR")
 add_parameter("yg", "Sgg", 0.59, 0.95)
 add_parameter("pb", "psia", 130, 700)
 add_parameter("p", "psia")
 add_parameter("api", "Api", 16.5, 63.8)
 add_parameter("t", "Fahrenheit", 100, 258)
 add_parameter("rsb", "SCF_STB", 20, 1425)
+add_db("Based on 105 experimentally determined bubble point pressures from 22 different Californian crude-oil-natural-gas mixtures.")
+add_ref("banzer:1996")
 end_correlation()
 
 ################################################################        
 
 ## verificada con python
 begin_correlation("RsTotalCFP", "SolutionGasOilRelation", "SCF_STB")
-add_doc(%Q[    TOTAL CFP CORRELATION, CALCULATION OF SOLUTION GOR
- 
-    Based on 336 PVT analyses of crude oil from eastern Venezuela.
-        
-    @see: TOTAL Compagnie Francaise Des Petroles CFP: " Proyectos de
-    Inyeccion de Fluidos Correlaciones PVT para Crudos del Oriente de
-    Venezuela" S.A. MENEVEN Sep. 1983. 
-
-    @see: C. Bánzer. "Correlaciones Numéricas P.V.T.", Universidad del Zulia, 1996.
-    ])
+add_title("TOTAL CFP CORRELATION, CALCULATION OF SOLUTION GOR")
 add_eq("R_s = \\gamma_g \\cdot \\left[ \\frac{P}{C_1} \\cdot 10 ^ {\\left( C_2 \\cdot \\gamma_{API} - C_3 \\cdot T \\right) }  \\right] ^ {C_4}")
 add_parameter("yg", "Sgg")
 add_parameter("pb", "psia")
@@ -175,34 +167,18 @@ add_parameter("p", "psia")
 add_parameter("api", "Api", 0, 45)
 add_parameter("t", "Fahrenheit")
 add_parameter("rsb", "SCF_STB")
+add_db("Based on 336 PVT analyses of crude oil from eastern Venezuela.")
+add_ref("banzer:1996")
 end_correlation()
 
 ################################################################
 
 ## verificada con python
 begin_correlation("RsVasquezBeggs", "SolutionGasOilRelation", "SCF_STB")
-add_doc(%Q[    VASQUEZ & BEGGS CORRELATION, CALCULATION OF SOLUTION GOR
-
-    Based on more than 600 laboratory PVT analyses from fields all
-    over the world.
-
-    The equation for solution GOR was obtained by regression analysis
-    using 5008 measured data points.
-
-    @see: M.E. Vasquez and H.D. Beggs. "Correlations for Fluid
-    Physical Property Prediction," JPT 968-70, June 1980.
-
-    @see: Al-Shammasi, A.A.: "A Review of Bubblepoint Pressure and Oil
-    Formation Volume Factor Correlations", SPE 71302, 2001.
-
-    @see: C. Bánzer. "Correlaciones Numéricas P.V.T.", Universidad del
-    Zulia, 1996.
-
-    @note: The gas gravity is corrected if it resulted from a
-    first-stage separation at a pressure other than 100 psig
-    (approximately 114.7 psia). 
-  ])
-
+add_title("VASQUEZ & BEGGS CORRELATION, CALCULATION OF SOLUTION GOR")
+add_db("Based on more than 600 laboratory PVT analyses from fields all over the world.")
+add_db("The equation for solution GOR was obtained by regression analysis using 5008 measured data points.")
+add_note("The gas gravity is corrected if it resulted from a first-stage separation at a pressure other than 100 psig (approximately 114.7 psia).")
 add_parameter("yg", "Sgg", 0.511, 1.35)
 add_parameter("pb", "psia", 15, 6055)
 add_parameter("p", "psia")
@@ -217,16 +193,8 @@ end_correlation()
 
 ## verificada con python
 begin_correlation("RsVelarde", "SolutionGasOilRelation", "SCF_STB")
-add_doc(%Q[    VELARDE CORRELATION, CALCULATION OF SOLUTION GOR
-
-    Based on 195 PVT reports, including 2097 data sets.
-                     
-     @see: J. Velarde, T.A. Blasingame and W.D. McCain, Jr. 
-    "Correlation of Black Oil Properties at Pressures below
-     Bubble Point Pressure - A New Approach," 
-    The Petroleum Society 97-93, 1997.
-  ])
-
+add_title("VELARDE CORRELATION, CALCULATION OF SOLUTION GO")
+add_db("Based on 195 PVT reports, including 2097 data sets.")
 add_parameter("yg", "Sgg", 0.561, 1.101)
 add_parameter("pb", "psig", "Quantity<psia>(106)", "Quantity<psia>(5312)")
 add_parameter("p", "psig")
@@ -240,26 +208,8 @@ end_correlation()
 
 ## verificada con python
 begin_correlation("RsCegarra", "SolutionGasOilRelation", "SCF_STB")
-add_doc(%Q[    CEGARRA CORRELATION (MODIFIED STANDING CORRELATION),
-    CALCULATION OF SOLUTION GOR 
-
-    Based on 375 consistent PVT analyses. The data bank was compiled
-    from 8394 fields of eastern Venezuela subdivided into 5192 fields
-    of light oil and 3202 fields of medium oil. The correlation takes
-    the functional form of Standing. 
-
-    @see: Cegarra, L., 2007: "Correlación para el cálculo de la
-    presión de burbuja de los yacimientos de crudo liviano y mediano
-    del Oriente de Venezuela". Trabajo especial de grado. Universidad
-    del Zulia  
-
-
-@see: M.B. Standing. "A Pressure-Volume-Temperature Correlation for
-    Mixtures of California Oil and Gases , " Drill. & Prod. Prac.,Beal
-    C. The Viscosity-Temperature Chart 0361-39 Nat. Bur . Stds
-    Circular C461-1947"     
-  ])
-
+add_title("CEGARRA CORRELATION (MODIFIED STANDING CORRELATION), CALCULATION OF SOLUTION GOR")
+add_db("Based on 375 consistent PVT analyses. The data bank was compiled from 8394 fields of eastern Venezuela subdivided into 5192 fields of light oil and 3202 fields of medium oil. The correlation takes the functional form of Standing.")
 add_parameter("yg", "Sgg", 0.654, 1.337)
 add_parameter("pb", "psia", 735, 7303)
 add_parameter("p", "psia")
@@ -272,17 +222,7 @@ end_correlation()
 
 ## verificada con python
 begin_correlation("RsPerezML", "SolutionGasOilRelation", "SCF_STB")
-add_doc(%Q[    PEREZ ET AL. CORRELATION (MODIFIED MILLÁN-ARCIA
-    CORRELATION), CALCULATION OF SOLUTION GOR 
-                     
-      
-    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
-    generación de correlaciones PVT para crudos extrapesados
-    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
-    Modelaje de Procesos de Recuperación de Crudos Pesados. Los Teques,
-    Octubre de 2001 
-  ])
-
+add_title("PEREZ ET AL. CORRELATION (MODIFIED MILLÁN-ARCIA CORRELATION), CALCULATION OF SOLUTION GOR")
 add_parameter("yg", "Sgg")
 add_parameter("pb", "psia", 405, 1335)
 add_parameter("p", "psia")
@@ -324,23 +264,8 @@ end_correlation()
 
 ## verificada con python
 begin_correlation("RsManucciRosales", "SolutionGasOilRelation", "SCF_STB")
-add_doc(%Q[    MANUCCI-ROSALES CORRELATION, CALCULATION OF SOLUTION GOR 
-
-    Crude oils of eastern Venezuela were correlated, by using
-    differential separation data from laboratory PVT analysis. 
-        
-    @see: J.E. Manucci, E.E. Rosales, 1968: "Correlaciones de presión
-    de burbujeo y factor volumétrico del petróleo para crudos el
-    oriente de Venezuela". Corporación Venezolana del Petróleo, II
-    Jornadas técnicas de petróleo, marzo 1968 
-
-    @see: C.A. Heny, V.L. Pérez, M.E. Lago, 2001: Evaluación y
-    generación de correlaciones PVT para crudos extrapesados
-    venezolanos. Informe Técnico INT-8713,2001. Proyecto: Estudio y
-    Modelaje de Procesos de Recuperación de Crudos Pesados. Los Teques,
-    Octubre de 2001 
-  ])
-
+add_title("MANUCCI-ROSALES CORRELATION, CALCULATION OF SOLUTION GOR")
+add_db("Crude oils of eastern Venezuela were correlated, by using differential separation data from laboratory PVT analysis.")
 add_parameter("yg", "Sgg")
 add_parameter("pb", "psia", 1230, 5035)
 add_parameter("p", "psia")

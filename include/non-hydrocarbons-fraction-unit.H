@@ -8,26 +8,26 @@
 Declare_Physical_Quantity(NonHydrocarbonsFraction, "fvi",
 			  R"DESC(volume fraction of a non-hydrocarbon component)DESC");
 
-Declare_Unit(Mole_Fraction, "MoleFraction",
+Declare_Unit(MoleFraction, "MoleFraction",
 	     R"DESC(volume fraction of a non-hydrocarbon component 
 	     base on a division mole by mole)DESC",
 	     NonHydrocarbonsFraction, 0 , 1);
 
 
-Declare_Unit(Volume_Fraction, "VolumeFraction",
+Declare_Unit(VolumeFraction, "VolumeFraction",
 	     R"DESC(volume fraction of a non-hydrocarbon component 
 	     base on a division volume by volume)DESC",
 	     NonHydrocarbonsFraction, 0, 1);
 
 
 
-Declare_Unit(Mole_Percent, "MolePercent",
+Declare_Unit(MolePercent, "MolePercent",
 	     R"DESC(Mole percentage of a non-hydrocarbon component 
 	     base on a division mole by mole)DESC",
 	     NonHydrocarbonsFraction, 0 , 100);
 
 
-Declare_Unit(Volume_Percent, "VolumePercent",
+Declare_Unit(VolumePercent, "VolumePercent",
 	     R"DESC(volume percentage of a non-hydrocarbon component 
 	     base on a division volume by volume)DESC",
 	     NonHydrocarbonsFraction, 0, 100);
@@ -37,24 +37,24 @@ Declare_Unit(Volume_Percent, "VolumePercent",
 
 
 // To Mole_Fraction
-Declare_Conversion(Volume_Fraction, Mole_Fraction, v) { return v ; }
-Declare_Conversion(Mole_Percent, Mole_Fraction, v) { return v / 100 ; }
-Declare_Conversion(Volume_Percent, Mole_Fraction, v) { return v / 100 ; }
+Declare_Conversion(VolumeFraction, MoleFraction, v) { return v ; }
+Declare_Conversion(MolePercent, MoleFraction, v) { return v / 100 ; }
+Declare_Conversion(VolumePercent, MoleFraction, v) { return v / 100 ; }
 
 // To Volume_Fraction
-Declare_Conversion(Mole_Fraction, Volume_Fraction, v) { return v ; }
-Declare_Conversion(Mole_Percent, Volume_Fraction, v) { return v / 100 ; }
-Declare_Conversion(Volume_Percent, Volume_Fraction, v) { return v / 100 ; }
+Declare_Conversion(MoleFraction, VolumeFraction, v) { return v ; }
+Declare_Conversion(MolePercent, VolumeFraction, v) { return v / 100 ; }
+Declare_Conversion(VolumePercent, VolumeFraction, v) { return v / 100 ; }
 
 // To Mole_Percent
-Declare_Conversion(Mole_Fraction, Mole_Percent, v) { return 100 * v ; }
-Declare_Conversion(Volume_Fraction, Mole_Percent, v) { return 100 * v ; }
-Declare_Conversion(Volume_Percent, Mole_Percent, v) { return  v ; }
+Declare_Conversion(MoleFraction, MolePercent, v) { return 100 * v ; }
+Declare_Conversion(VolumeFraction, MolePercent, v) { return 100 * v ; }
+Declare_Conversion(VolumePercent, MolePercent, v) { return  v ; }
 
 // To Volume_Percent
-Declare_Conversion(Mole_Fraction, Volume_Percent, v) { return 100 * v ; }
-Declare_Conversion(Volume_Fraction, Volume_Percent, v) { return 100 *  v ; }
-Declare_Conversion(Mole_Percent, Volume_Percent, v) { return v ; }
+Declare_Conversion(MoleFraction, VolumePercent, v) { return 100 * v ; }
+Declare_Conversion(VolumeFraction, VolumePercent, v) { return 100 *  v ; }
+Declare_Conversion(MolePercent, VolumePercent, v) { return v ; }
 
 
 

@@ -10,6 +10,7 @@
 # include <saturated-oil-viscosity.H>
 # include <undersaturated-oil-viscosity.H>
 # include <oil-interfacial-tension.H>
+# include <gas-pseudocritical-pressure.H>
 
 # include <bubble-point-pressure-impl.H>
 # include <solution-gas-oil-relation-impl.H>
@@ -20,6 +21,7 @@
 # include <saturated-oil-viscosity-impl.H>
 # include <undersaturated-oil-viscosity-impl.H>
 # include <oil-interfacial-tension-impl.H>
+# include <gas-pseudocritical-pressure-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -124,6 +126,11 @@ struct CorrelationInstantiater
     UoaPerezML::get_instance();
 
     SgoBakerSwerdloff::get_instance();
+
+    YgHCWichertAziz::get_instance();
+    PscMKay::get_instance();
+    AdjustedPscWichertAziz::get_instance();
+    PscBrownKOA::get_instance();
   }
 };
 

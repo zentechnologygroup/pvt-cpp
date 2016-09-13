@@ -16,6 +16,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbAlShammasi", "BubblePointPressure", "psia", 31.7, 7127)
+add_title("AL-SHAMMASI CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.51, 3.44)
 add_parameter("yo", "Sg_do", 0.724898, 1.02909)
 add_parameter("rsb", "SCF_STB", 6, 3298.6)
@@ -26,6 +27,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbDeGhetto", "BubblePointPressure", "psia", 208.86, 4021.96)
+add_title("DE GHETTO CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS (MODIFIED STANDING CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.623, 1.517)
 add_parameter("rsb", "SCF_STB", 17.21, 640.25)
 add_parameter("api", "Api", 6, 22.3)
@@ -37,6 +39,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbDindorukChristman", "BubblePointPressure", "psia", 926, 12230)
+add_title(" DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.623, 1.517)
 add_parameter("rsb", "SCF_STB", 133, 3050)
 add_parameter("api", "Api", 14.7, 40)
@@ -47,6 +50,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbDoklaOsman", "BubblePointPressure", "psia", 590, 4640)
+add_title("DOKLA & OSMAN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.798, 1.290)
 add_parameter("rsb", "SCF_STB", 181, 2266)
 add_parameter("yo", "Sg_do", 0.8236, 0.886)
@@ -57,6 +61,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbHanafy", "BubblePointPressure", "psia", 590, 4640)
+add_title("HANAFY CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("rsb", "SCF_STB", 36, 5003)
 add_db("Based on experimental PVT data of 324 fluid samples taken from 176 wells located in 75 fields. This data represents 15 productive zones of 123 reservoirs distributed along three different regions of Egypt, including the Gulf of Suez, Western Desert, and Sinai.")
 end_correlation()
@@ -65,6 +70,7 @@ end_correlation()
 
 begin_correlation("PbKartoatmodjoSchmidt", "BubblePointPressure", "psia",
                   14.7, 6054.7)
+add_title("KARTOATMODJO & SCHMIDT CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.5, 1.668)
 add_parameter("rsb", "SCF_STB", 0, 2890)
 add_parameter("api", "Api", 14.4, 59)
@@ -78,6 +84,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbLasater", "BubblePointPressure", "psia", 48, 5780)
+add_title("LASATER CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.574, 1.223)
 add_parameter("rsb", "SCF_STB", 3, 2905)
 add_parameter("api", "Api", 17.9, 51.1)
@@ -89,6 +96,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbPetroskyFarshad", "BubblePointPressure", "psia", 1574, 6523)
+add_title("PETROSKY & FARSHAD CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.5781, 0.8519)
 add_parameter("rsb", "SCF_STB", 217, 1406)
 add_parameter("api", "Api", 16.3, 45)
@@ -100,6 +108,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbStanding", "BubblePointPressure", "psia", 130, 7000)
+add_title("STANDING CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.59, 0.95)
 add_parameter("rsb", "SCF_STB", 20, 1425)
 add_parameter("api", "Api", 16.5, 63.8)
@@ -110,6 +119,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbTotalCFP", "BubblePointPressure", "psia")
+add_title("TOTAL CFP CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg")
 add_parameter("rsb", "SCF_STB")
 add_parameter("api", "Api", "Api::get_instance().min_val", 45)
@@ -120,6 +130,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbVasquezBeggs", "BubblePointPressure", "psia", 50, 5250)
+add_title("VASQUEZ & BEGGS CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.56, 1.18)
 add_parameter("rsb", "SCF_STB", 20, 2070)
 add_parameter("api", "Api", 16, 58)
@@ -132,6 +143,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbVelarde", "BubblePointPressure", "psia", 70, 6700)
+add_title("VELARDE CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.556, 1.367)
 add_parameter("rsb", "SCF_STB", 10, 1870)
 add_parameter("api", "Api", 12, 55)
@@ -142,6 +154,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbCegarra", "BubblePointPressure", "psia", 735, 7303)
+add_title("STANDING CORRELATION MODIFIED BY CEGARRA, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.654, 1.337)
 add_parameter("rsb", "SCF_STB", 135, 4290)
 add_parameter("api", "Api", 22, 41.9)
@@ -152,6 +165,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbPerezML", "BubblePointPressure", "psia", 405, 1335)
+add_title("TOTAL CFP CORRELATION MODIFIED BY PEREZ ET AL, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.571, 0.981)
 add_parameter("rsb", "SCF_STB", 38, 121)
 add_parameter("api", "Api", 6.4, 12.9)
@@ -162,6 +176,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbMillanArcia", "BubblePointPressure", "psia", 222, 3432.7)
+add_title("MILLÁN-ARCIA CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg")
 add_parameter("rsb", "SCF_STB", 53, 459)
 add_parameter("api", "Api", 9, 20.2)
@@ -172,6 +187,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbManucciRosales", "BubblePointPressure", "psia", 1230, 5035)
+add_title("MANUCCI-ROSALES CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg")
 add_parameter("rsb", "SCF_STB", 180, 2500)
 add_parameter("api", "Api", 14, 40)
@@ -182,13 +198,14 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbGlaso", "BubblePointPressure", "psia", 150, 7127)
+add_title("GLASO CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.650, 1.276)
 add_parameter("rsb", "SCF_STB", 90, 2637)
 add_parameter("api", "Api", 22.3, 48.1)
 add_parameter("t", "Fahrenheit", 80, 280)
-add_parameter("n2_concentration", "Mole_Percent", 0, 26)
-add_parameter("co2_concentration","Mole_Percent", 0, 26)
-add_parameter("h2s_concentration", "Mole_Percent", 0, 50)
+add_parameter("n2_concentration", "MolePercent", 0, 26)
+add_parameter("co2_concentration","MolePercent", 0, 26)
+add_parameter("h2s_concentration", "MolePercent", 0, 50)
 add_db("Based on 26 samples from the North Sea (collected from wells in the region 56 to 62°N) and 19 samples from the Middle East, Algeria, and several areas in the U.S.")
 add_db("The equation was derived from laboratory data, exclusively sampling North Sea oils. However, the author claims that the correlation should be valid for all types of gas/oil mixtures after correcting for non-hydrocarbons in the surface gases and paraffinicity of the oil.")
 end_correlation()

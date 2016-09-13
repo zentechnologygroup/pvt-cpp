@@ -212,6 +212,11 @@ protected:
     : Correlation(type_name, subtype_name, name, result_unit,
 		  result_unit.min_val, result_unit.max_val) {}
 
+  Correlation(const string & type_name, const string & subtype_name,
+	      const string & name, const Unit & result_unit, double min_val)
+    : Correlation(type_name, subtype_name, name, result_unit,
+		  min_val, result_unit.max_val) {}
+
   virtual ~Correlation() = 0; // Correlation is abstract
 
   void add_parameter(const string & name, const Unit & unit,
@@ -284,9 +289,11 @@ public:
     if (not title.empty())
       s << align_text_to_left(title, 60) << endl
 	<< endl;
-    s << to_string() << endl
-      << "  DATA BANK:" << endl
-      << endl;
+    s << to_string() << endl;
+
+    if (not db.is_empty())
+      s << "  DATA BANK:" << endl
+	<< endl;
     for (auto it = db.get_it(); it.has_curr(); it.next())
       s << align_text_to_left(it.get_curr(), width, left_margin) << endl
 	<< endl;
@@ -424,6 +431,11 @@ inline Correlation::~Correlation() {}
 	      const double min_val, const double max_val)		\
       : Correlation(#type_name, subtype_name, name, result_unit,	\
 		    min_val, max_val) {}				\
+									\
+    type_name(const string & subtype_name, const string & name,		\
+	      const Unit & result_unit, const double min_val)		\
+      : Correlation(#type_name, subtype_name, name, result_unit,	\
+		    min_val) {}						\
     virtual ~type_name() = 0;						\
     using Correlation::add_parameter;					\
   };									\
@@ -444,6 +456,10 @@ Declare_Correlation_Type(WaterCorrelation);
     subtype_name(const string & name, const Unit & result_unit,	\
 		 const double min_val, const double max_val)	\
       : type_name(#subtype_name, name, result_unit, min_val, max_val) {} \
+									\
+    subtype_name(const string & name, const Unit & result_unit,	\
+		 const double min_val)				\
+      : type_name(#subtype_name, name, result_unit, min_val) {} \
 									\
     subtype_name(const string & name, const Unit & unit)		\
       : type_name(#subtype_name, name, unit, unit.min_val, unit.max_val) {} \
