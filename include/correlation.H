@@ -427,15 +427,9 @@ inline Correlation::~Correlation() {}
   struct type_name : public Correlation		\
   {						\
     type_name(const string & subtype_name, const string & name,		\
-	      const Unit & result_unit,					\
-	      const double min_val, const double max_val)		\
+	      const Unit & result_unit, double min_val, double max_val)	\
       : Correlation(#type_name, subtype_name, name, result_unit,	\
 		    min_val, max_val) {}				\
-									\
-    type_name(const string & subtype_name, const string & name,		\
-	      const Unit & result_unit, const double min_val)		\
-      : Correlation(#type_name, subtype_name, name, result_unit,	\
-		    min_val) {}						\
     virtual ~type_name() = 0;						\
     using Correlation::add_parameter;					\
   };									\
@@ -454,12 +448,11 @@ Declare_Correlation_Type(WaterCorrelation);
   struct subtype_name : public type_name			\
   {								\
     subtype_name(const string & name, const Unit & result_unit,	\
-		 const double min_val, const double max_val)	\
+		 double min_val, double max_val)	\
       : type_name(#subtype_name, name, result_unit, min_val, max_val) {} \
 									\
-    subtype_name(const string & name, const Unit & result_unit,	\
-		 const double min_val)				\
-      : type_name(#subtype_name, name, result_unit, min_val) {} \
+    subtype_name(const string & name, const Unit & unit, double min_val) \
+      : type_name(#subtype_name, name, unit, min_val, unit.max_val) {} \
 									\
     subtype_name(const string & name, const Unit & unit)		\
       : type_name(#subtype_name, name, unit, unit.min_val, unit.max_val) {} \
@@ -521,5 +514,5 @@ Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation);
 Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation);  
 
 
-Declare_Correlation_Subtype(GasPressurePseudoCritical, GasCorrelation);
+Declare_Correlation_Subtype(GasPseudoCriticalPressure, GasCorrelation);
 # endif // CORRELATION_H

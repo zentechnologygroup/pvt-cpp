@@ -19,3 +19,6 @@
 - Created at   2016-09-10 19:09:45 -0400
 - Completed at 2016-09-10 21:15:46 -0400
 
+## 6. sustituid const double por double
+- Created at   2016-09-13 13:47:34 -0400
+
