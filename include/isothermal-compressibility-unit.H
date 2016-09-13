@@ -6,80 +6,48 @@
 # include <units.H>
 
 Declare_Physical_Quantity(IsothermalCompressility, "C",
-			  R"DESC(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)DESC");
+			  R"DESC(Isothermal compressibility is the 
+			  change in volume of a oil system as the pressure 
+			  changes while temperature remains constant. )DESC");
 
 
-Declare_Unit(Bar_1, "bar-1",
-	     R"DESC(A bar is a metric measurement unit of pressure. One bar
-             is equivalent to ten newtons (N) per square centimeter (cm2))DESC",
-	     IsothermalCompressility, 0, 2068.43);
+Declare_Unit(Bar_1, "bar_1",
+	     R"DESC(Isothermal compressibility mesuared in 1/bar)DESC",
+	     IsothermalCompressility, 0, 14.503773773 );
 
-Declare_Unit(Pascal_1, "Pa-1",
-	     R"DESC(The pascal is the SI derived unit of pressure used to quantify 
-                    internal pressure, stress, Young's modulus and
-                    ultimate tensile strength. It is defined as one newton
-                    per square metre.)DESC", Pressure, 0, 206843405.31);
+Declare_Unit(Pascal_1, "Pa_1",
+	     R"DESC(Isothermal compressibility mesuared in 1/Pascal)DESC", IsothermalCompressility, 0, 1.4503773773e-4);
 
-Declare_Unit(kPascal_1, "kPa-1",
-         "a kPascal is a common multiple unit of the pascal 1 kPa = 1000 Pa,",
-          IsothermalCompressility, 0, 206843.41);
-
-Declare_Unit(psi_1, "psi-1",
-	     R"DESC(Pounds per square inch absolute (psia) is used to make
-	            it clear that the pressure is relative to a vacuum rather than
-	            the ambient atmospheric pressure. Since atmospheric pressure 
-	            at sea level is around 14.7 psi)DESC", IsothermalCompressility,
-	     0, 29985.3);
+Declare_Unit(psi_1, "psi_1",
+	     R"DESC(Isothermal compressibility mesuared in 1/psi)DESC", IsothermalCompressility,
+	     0, 1);
 
 
-Declare_Unit(Atmosphere_1, "atm-1",
-	     R"DESC(Pound-force per square inch is a unit of pressure or of
-                    stress based on avoirdupois units. It is the pressure
-                    resulting from a force of one pound-force applied to 
-                    an area of one square inch)DESC", IsothermalCompressility, 0, 2041.39);
+Declare_Unit(Atmosphere_1, "atm_1",
+	     R"DESC(Isothermal compressibility mesuared in 1/Atmosphere)DESC", IsothermalCompressility, 0, 14.9659487755);
 
 // IsothermalCompressilityconversions  
-// To atmophere_1 (atm-1)
-Declare_Conversion(Bar, Atmosphere, v) { return v * 0.986923267; }
-Declare_Conversion(Pascal, Atmosphere, v)  { return v * 9.86923267e-6; }
-Declare_Conversion(kPascal, Atmosphere, v)  { return v * 9.86923267e-3; }
-Declare_Conversion(psia, Atmosphere, v)  { return  v  / 14.69594877551; }
-Declare_Conversion(psig, Atmosphere, v)  { return (v + 14.69594877551) / 14.69594877551; }
+// To bar-1
+Declare_Conversion(Pascal_1, Bar_1, v) { return 100000 * v ; }
+Declare_Conversion(psi_1, Bar_1, v) { return 14.503773773 * v ; }
+Declare_Conversion(Atmosphere_1, Bar_1, v) { return 0.986923266716 * v ; }
 
-// to Bar 
-Declare_Conversion(Atmosphere, Bar, v)  { return v * 1.0132499658; }
-Declare_Conversion(Pascal, Bar, v)  { return v * 1.0e-5; }
-Declare_Conversion(kPascal, Bar, v)  { return v * 1.0e-2; }
-Declare_Conversion(psia, Bar, v)  { return v * 0.0689478018; }
-Declare_Conversion(psig, Bar, v) { return (v + 14.695948775) * 0.0689478018; }
+// to Pa-1
+Declare_Conversion(Bar_1, Pascal_1, v) { return 0.00001 * v ; }
+Declare_Conversion(psi_1, Pascal_1, v) { return 1.4503773773e-4 * v ; }
+Declare_Conversion(Atmosphere_1, Pascal_1, v) { return 9.86923266716e-6 * v ; }
 
-// To Pascal
-Declare_Conversion(Atmosphere, Pascal, v) { return v * 101324.99658; }
-Declare_Conversion(Bar, Pascal, v) { return  v * 100000.0; }
-Declare_Conversion(psia, Pascal, v) { return  v * 6894.757293178308 ; }
-Declare_Conversion(psig, Pascal, v) { return (v + 14.695948775) * 6894.757293178308; }
-Declare_Conversion(kPascal, Pascal, v) { return v * 1000; }
 
-// To kPascal
-Declare_Conversion(Atmosphere, kPascal, v) { return v * 101.32499658; }
-Declare_Conversion(Bar, kPascal, v) { return  v * 100.0000; }
-Declare_Conversion(psia, kPascal, v) { return  v * 6.894757293178308; }
-Declare_Conversion(psig, kPascal, v) { return (v + 14.695948775) * 6.894757293178308 ; }
-Declare_Conversion(Pascal, kPascal, v) { return v / 1000; }
+// To psi-1
+Declare_Conversion(Bar_1, psi_1, v) { return 6.89475729317e-2 * v ; }
+Declare_Conversion(Pascal_1, psi_1, v) { return 6894.75729317 * v ; }
+Declare_Conversion(Atmosphere_1, psi_1, v) { return 6.80459639099e-2 * v ; }
 
-// To Absolute Pound Force per Square Inch (psia)
-Declare_Conversion(Atmosphere, psia, v) { return v * 14.695948775; }
-Declare_Conversion(Bar, psia, v) { return v * 14.503773773; }
-Declare_Conversion(Pascal, psia, v) { return v * 1.4503773773e-4; }
-Declare_Conversion(kPascal, psia, v) { return v * 1.4503773773e-1; }
-Declare_Conversion(psig, psia, v) { return v + 14.695948775; }
+// To atm-1
+Declare_Conversion(Bar_1, Atmosphere_1, v) { return 1.01325 * v ; }
+Declare_Conversion(Pascal_1, Atmosphere_1, v) { return 101325 * v ; }
+Declare_Conversion(psi_1, Atmosphere_1, v) { return 14.9659487755 * v ; }
 
-// To Pound Force per Square Inch (psig)
-Declare_Conversion(psia, psig, v) { return v - 14.695948775; }
-Declare_Conversion(Atmosphere, psig, v) { return v * 14.695948775 - 14.695948775; }
-Declare_Conversion(Bar, psig, v) { return v * 14.503773773 - 14.695948775; }
-Declare_Conversion(Pascal, psig, v) { return v * 1.4503773773e-4 - 14.695948775; }
-Declare_Conversion(kPascal, psig, v) { return v * 1.4503773773e-1 - 14.695948775; }
   
 # endif // ISOTHERMAL_COMPRESSIBILIY_UNIT_H
 
