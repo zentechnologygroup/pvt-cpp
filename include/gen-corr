@@ -45,6 +45,10 @@ class CorrelationGen
     @doc = str
   end
 
+  def add_title(title)
+    @title = title
+  end
+
   def add_db(db)
     @db << db
   end
