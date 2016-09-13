@@ -60,3 +60,12 @@
 ## 19. corregir margen en formateo de descripcion para unudad fisica y unidad
 - Created at   2016-09-12 09:44:36 -0400
 
+## 20. revisar valor de epsilon en reporte de unidad
+- Created at   2016-09-12 15:48:20 -0400
+
+## 21. revisar valor de epsilon en reporte de unidad
+- Created at   2016-09-12 15:49:09 -0400
+
+## 22. poner campo title encorrelaciones y actualizar
+- Created at   2016-09-12 18:02:10 -0400
+

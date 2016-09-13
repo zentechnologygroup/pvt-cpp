@@ -8,6 +8,7 @@ add_parameter("t", "Rankine",
               "Quantity<Fahrenheit>(74)", "Quantity<Fahrenheit>(240)")
 add_db("Based on 69 bottomhole fluid samples from 69 Middle East oil reservoirs")
 add_ref("alMarhoun:1988")
+add_eq("P_b = 5.38088 \\cdot {10}^{-3} \\cdot {R_s}^{0.715082} \\cdot {\\gamma_g}^{-1.877840} \\cdot {\\gamma_0}^{3.143700} \\cdot T^{1.326570}")
 end_correlation()
 
 

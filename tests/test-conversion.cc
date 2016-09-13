@@ -12,18 +12,32 @@ void test(int argc, char *argv[])
   Unit::units().for_each([&units] (auto u) { units.push_back(u->symbol); });
   ValuesConstraint<string> allowed(units);
   ValueArg<string> unit = { "u", "unit-symbol", "symbol of unit",
-			    true, "", &allowed };
-  cmd.add(unit);
+			    false, "", &allowed, cmd };
 
-  ValueArg<double> sample("s", "sample", "sample", true, 0, "sample");
-  cmd.add(sample);
+  MultiArg<string> unit_desc = { "U", "Unit-symbol", "describe unit",
+				 false, &allowed, cmd };
 
-  SwitchArg v("v", "verbose", "verbose mode", false);
-  cmd.add(v);
+  ValueArg<double> sample("s", "sample", "sample", false, 0, "sample", cmd);
+
+  SwitchArg v("v", "verbose", "verbose mode", cmd, false);
 
   cmd.parse(argc, argv);
 
   auto verbose = v.getValue();
+
+  if (unit_desc.isSet())
+    {
+      for (const auto & s : unit_desc.getValue())
+	cout << Unit::search_by_symbol(s)->to_string(50, 2) << endl
+	     << endl;
+      exit(0);
+    }
+
+  if (not unit.isSet() and not sample.isSet())
+    {
+      cout << "Flags -u and -s must be set" << endl;
+      abort();
+    }
 
   auto unit_ptr = Unit::search_by_symbol(unit.getValue());
   if (unit_ptr == nullptr)

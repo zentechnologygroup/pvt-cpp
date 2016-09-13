@@ -19,6 +19,3 @@
 - Created at   2016-09-10 19:09:45 -0400
 - Completed at 2016-09-10 21:15:46 -0400
 
-## 6. pueden haber varias ecuaciones
-- Created at   2016-09-11 11:57:12 -0400
-
