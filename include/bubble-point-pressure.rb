@@ -22,6 +22,7 @@ add_parameter("yo", "Sg_do", 0.724898, 1.02909)
 add_parameter("rsb", "SCF_STB", 6, 3298.6)
 add_parameter("t", "Fahrenheit", 74, 341.6)
 add_db("Based on a total of 1709 data sets (1661 data sets from 13 different published literature papers and 48 data sets originated from Kuwait reservoirs from unpublished sources")
+add_ref("alShammasi:1999")
 end_correlation()
 
 ################################################################

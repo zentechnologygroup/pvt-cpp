@@ -1216,3 +1216,34 @@ def CondensatePscHCStandingCorrelation(YgHC, n2Concentration, co2Concentration, 
     PscHC = 706 - 51.7 * YgHC - 11.1 * (YgHC ** 2) # Pseudocritical pressure of the hydrocarbon portion
     PscBrownKOA = PscHC
     return PscBrownKOA
+
+def UgCarrKBCorrelation(T, P, Tsc, Psc, Yg, n2Concentration, co2Concentration, h2sConcentration):
+    Tsr = T/Tsc
+    Psr = P/Psc
+    Ugs = (1.709e-5 - 2.062e-6 * Yg) * (T - 460) + 8.188e-3 - (6.15e-3 * log10(Yg))
+    Cco2 = co2Concentration * 1e-3 * (9.08 * log10(Yg) + 6.24)
+    Cn2 = n2Concentration * 1e-3 * (8.48 * log10(Yg) + 9.59)
+    Ch2s = h2sConcentration * 1e-3 * (8.49 * log10(Yg) + 3.73)
+    Ugsc = Ugs + Cco2 + Ch2s + Cn2
+    A0 = -2.46211820e0
+    A1 = 2.97054714e0
+    A2 = -2.86264054e-1
+    A3 = 8.05420522e-3
+    A4 = 2.80860949e0
+    A5 = -3.49803305e0
+    A6 = 3.60373020e-1
+    A7 = -1.04432413e-2
+    A8 = -7.93385684e-1
+    A9 = 1.39643306e0
+    A10 = -1.49144925e-1
+    A11 = 4.41015512e-3
+    A12 = 8.39387178e-2
+    A13 = -1.86408848e-1
+    A14 = 2.03367881e-2
+    A15 = -6.09579263e-4
+    X = A0 + (A1 * Psr) + (A2 * (Psr ** 2)) + (A3 * (Psr ** 3)) + (Tsr * (A4 + (A5 * Psr) + (A6 * (Psr ** 2)) + (A7 * (Psr ** 3)))) + ((Tsr ** 2) * (A8 + (A9 * Psr) + (A10 * (Psr ** 2)) + (A11 * (Psr ** 3)))) + ((Tsr ** 3) * (A12 + (A13 * Psr) + (A14 * (Psr ** 2)) + (A15 * (Psr ** 3)))) - log(Tsr)
+    UgUgsc = exp(X)
+    Ug = Ugsc * UgUgsc
+    UgCarrKB = Ug
+    return UgCarrKB
+    
