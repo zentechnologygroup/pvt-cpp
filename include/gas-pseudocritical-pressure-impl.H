@@ -79,7 +79,37 @@ PscHcSutton::impl(const Quantity<Sgg> & yghc,
   return Quantity<psia>(pschc);
 }
 
+inline Quantity<psia>
+PscHCGuoGhalambor::impl(const Quantity<Sgg> & yghc,
+			const Quantity<MolePercent> & n2_concentration,
+			const Quantity<MolePercent> & co2_concentration,
+			const Quantity<MolePercent> & h2s_concentration) const
+{
+  if (n2_concentration.raw() + co2_concentration.raw() +
+      h2s_concentration.raw() > 7)
+    {
+      ostringstream s;
+      s << "Precondition Total content of inorganic compounds "
+	<< "(n2_concentration + co2_concentration + h2s_concentration <= 7";
+      throw domain_error(s.str());
+    }
 
+  const double pschc = 709.604 - 58.718*yghc.raw();
+
+  return Quantity<psia>(pschc);
+}
+
+inline Quantity<psia>
+PscAhmed::impl(const Quantity<Sgg> & yghc,
+	       const Quantity<MolePercent> & n2_concentration,
+	       const Quantity<MolePercent> & co2_concentration,
+	       const Quantity<MolePercent> & h2s_concentration) const
+{
+  const double psc = 678 - 50*(yghc.raw() - 0.5) - 206.7*n2_concentration.raw() +
+    440*co2_concentration.raw() + 606.7*h2s_concentration.raw();
+
+  return Quantity<psia>(psc);
+}
 
 
 # endif // GAS_PSEUDOCRITICAL_PRESSURE_IMPL_H

@@ -1201,3 +1201,14 @@ def PscHcSuttonCorrelation(YgHC, n2Concentration, co2Concentration):
     PscHC = 756.8 - 131.0 * YgHC - 3.6 * (YgHC ** 2) # Pseudocritical pressure of the hydrocarbon portion
     PscHCSutton = PscHC
     return PscHCSutton
+
+def PscHCGuoGhalamborCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    PscHC = 709.604 - 58.718 * YgHC # Pseudocritical pressure of the hydrocarbon portion
+    PscHCGuoGhalambor = PscHC
+    return PscHCGuoGhalambor
+
+def PscAhmedCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    Psc = 678 - 50 * (YgHC - 0.5) - 206.7 * n2Concentration + 440.0 * co2Concentration + 606.7 * h2sConcentration
+    PscAhmed = Psc
+    return PscAhmed
+

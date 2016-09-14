@@ -132,6 +132,8 @@ struct CorrelationInstantiater
     AdjustedPscWichertAziz::get_instance();
     PscHCStanding::get_instance();
     PscHcSutton::get_instance();
+    PscHCGuoGhalambor::get_instance();
+    PscAhmed::get_instance();
   }
 };
 
