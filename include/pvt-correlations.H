@@ -11,6 +11,7 @@
 # include <undersaturated-oil-viscosity.H>
 # include <oil-interfacial-tension.H>
 # include <gas-pseudocritical-pressure.H>
+# include <gas-condensated-pseudocritical-pressure.H>
 
 # include <bubble-point-pressure-impl.H>
 # include <solution-gas-oil-relation-impl.H>
@@ -22,6 +23,7 @@
 # include <undersaturated-oil-viscosity-impl.H>
 # include <oil-interfacial-tension-impl.H>
 # include <gas-pseudocritical-pressure-impl.H>
+# include <gas-condensated-pseudocritical-pressure-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -134,6 +136,8 @@ struct CorrelationInstantiater
     PscHcSutton::get_instance();
     PscHCGuoGhalambor::get_instance();
     PscAhmed::get_instance();
+
+    CondensatePscHCStanding::get_instance();
   }
 };
 

@@ -1212,3 +1212,7 @@ def PscAhmedCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentratio
     PscAhmed = Psc
     return PscAhmed
 
+def CondensatePscHCStandingCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    PscHC = 706 - 51.7 * YgHC - 11.1 * (YgHC ** 2) # Pseudocritical pressure of the hydrocarbon portion
+    PscBrownKOA = PscHC
+    return PscBrownKOA

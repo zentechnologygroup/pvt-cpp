@@ -515,4 +515,5 @@ Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation);
 
 
 Declare_Correlation_Subtype(GasPseudoCriticalPressure, GasCorrelation);
+Declare_Correlation_Subtype(GasCondensatePseudoCriticalPressure, GasCorrelation);
 # endif // CORRELATION_H
