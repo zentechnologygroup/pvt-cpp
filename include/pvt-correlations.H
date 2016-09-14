@@ -138,6 +138,7 @@ struct CorrelationInstantiater
     PscAhmed::get_instance();
 
     CondensatePscHCStanding::get_instance();
+    CondensatePscHCElsharkawyEtAl::get_instance();
   }
 };
 
