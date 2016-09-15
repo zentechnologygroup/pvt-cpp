@@ -12,7 +12,7 @@
 # include <oil-interfacial-tension.H>
 # include <non-hydrocarborns-corrections.H>
 # include <gas-pseudocritical-pressure.H>
-//# include <gas-condensated-pseudocritical-pressure.H>
+# include <gas-condensated-pseudocritical-pressure.H>
 # include <gas-viscosity.H>
 
 # include <bubble-point-pressure-impl.H>
@@ -26,7 +26,7 @@
 # include <oil-interfacial-tension-impl.H>
 # include <non-hydrocarborns-corrections-impl.H>
 # include <gas-pseudocritical-pressure-impl.H>
-//# include <gas-condensated-pseudocritical-pressure-impl.H>
+# include <gas-condensated-pseudocritical-pressure-impl.H>
 # include <gas-viscosity-impl.H>
 
 struct CorrelationInstantiater
@@ -141,10 +141,12 @@ struct CorrelationInstantiater
     PscHCGuoGhalambor::get_instance();
     PscAhmed::get_instance();
 
-    // CondensatePscHCStanding::get_instance();
-    // CondensatePscHCElsharkawyEtAl::get_instance();
+    CondensatePscHCStanding::get_instance();
+    CondensatePscHCElsharkawyEtAl::get_instance();
 
     UgCarrKB::get_instance();
+    UgLeeGE::get_instance();
+    UgDeanStiel::get_instance();
   }
 };
 

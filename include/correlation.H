@@ -520,4 +520,5 @@ Declare_Correlation_Subtype(GasPseudoCriticalPressure, GasCorrelation);
 Declare_Correlation_Subtype(GasCondensatePseudoCriticalPressure, GasCorrelation);
 Declare_Correlation_Subtype(GasViscosity, GasCorrelation);
 Declare_Correlation_Subtype(GasDensity, GasFunction)
+Declare_Correlation_Subtype(GasVolumeFactor, GasFunction);
 # endif // CORRELATION_H

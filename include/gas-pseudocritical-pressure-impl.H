@@ -25,18 +25,16 @@ PscHcSutton::impl(const Quantity<Sgg> & yghc,
 
 inline Quantity<psia>
 PscHCGuoGhalambor::impl(const Quantity<Sgg> & yghc,
-			const Quantity<MolePercent> & n2_concentration,
-			const Quantity<MolePercent> & co2_concentration,
-			const Quantity<MolePercent> & h2s_concentration) const
+			const Quantity<MolePercent> &,
+			const Quantity<MolePercent> &) const
 {
-  if (n2_concentration.raw() + co2_concentration.raw() +
-      h2s_concentration.raw() > 7)
-    {
-      ostringstream s;
-      s << "Precondition Total content of inorganic compounds "
-	<< "(n2_concentration + co2_concentration + h2s_concentration <= 7";
-      throw domain_error(s.str());
-    }
+  // if (n2_concentration.raw() + h2s_concentration.raw() > 7)
+  //   {
+  //     ostringstream s;
+  //     s << "Precondition Total content of inorganic compounds "
+  // 	<< "(n2_concentration + co2_concentration + h2s_concentration <= 7";
+  //     throw domain_error(s.str());
+  //   }
 
   const double pschc = 709.604 - 58.718*yghc.raw();
 

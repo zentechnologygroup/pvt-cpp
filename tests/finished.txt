@@ -27,3 +27,9 @@ Revisar salida de correlación : no se ve el tipo,2016-08-29 14:57:20 -0400,2016
 foldl_perm,2016-08-25 21:59:08 -0400,2016-09-01 21:21:48 -0400,,2016-09-02 10:39:57 -0400
 Poner parametro en test-corr que indique intervalo para un parámetros,2016-08-25 15:46:17 -0400,2016-09-02 10:40:07 -0400,,2016-09-02 10:40:18 -0400
 calcular min/max generale, para todos los parámetros,2016-09-04 15:38:11 -0400,,2016-09-04 17:41:35 -0400
+poner campo title encorrelaciones y actualizar,2016-09-12 18:02:10 -0400,2016-09-13 15:33:30 -0400,,2016-09-15 15:35:01 -0400
+revisar valor de epsilon en reporte de unidad,2016-09-12 15:48:20 -0400,,,2016-09-15 15:35:05 -0400
+cambiar formato ruby de correlación para que inclya desc, ref, db, note hidden_note y eq,2016-09-15 15:36:00 -0400
+corregir margen en formateo de descripcion para unudad fisica y unidad,2016-09-12 09:44:36 -0400,2016-09-13 15:33:37 -0400,,2016-09-15 15:36:16 -0400
+calcular extremos dados los rangos,2016-09-04 12:45:33 -0400,2016-09-15 15:35:40 -0400,,2016-09-15 15:36:27 -0400
+Manejar referencias con script ruby,2016-09-07 15:14:23 -0400,2016-09-15 15:35:47 -0400,,2016-09-15 15:36:37 -0400

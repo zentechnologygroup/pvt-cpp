@@ -19,6 +19,6 @@ begin_correlation("CondensatePscHCElsharkawyEtAl",
                   "GasCondensatePseudoCriticalPressure", "psia")
 add_parameter("yghc", "Sgg")
 add_title("Based on compositional analysis of 1200 compositions of gas condensates collected worldwide.")
-add_note("he original reference is not available. The correlation was verified by using a secondary reference: Elsharkawy & Elkamel (2000). Date: September 13 2016.")
+add_note("The original reference is not available. The correlation was verified by using a secondary reference: Elsharkawy & Elkamel (2000). Date: September 13 2016.")
 
 end_correlation()

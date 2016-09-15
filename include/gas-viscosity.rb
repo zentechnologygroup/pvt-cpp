@@ -13,9 +13,22 @@ end_correlation()
 
 ################################################################
 
-# begin_correlation("UgLeeGE", "GasViscosity", "CP")
-# add_parameter("t", "Fahrenheit", 100, 340)
-# add_parameter("p", "psia", 100, 8000)
-# add_parameter("yg", "Sgg")
-# add_parameter("Z")
-# end_correlation()
+begin_correlation("UgLeeGE", "GasViscosity", "CP")
+add_parameter("t", "Rankine",
+              "Quantity<Fahrenheit>(100)", "Quantity<Fahrenheit>(340)")
+add_parameter("p", "psia", 100, 8000)
+add_parameter("yg", "Sgg")
+add_parameter("z", "ZFactor")
+end_correlation()
+
+################################################################
+
+begin_correlation("UgDeanStiel", "GasViscosity", "CP")
+add_author("Dean & Stiel")
+add_parameter("t", "Rankine")
+add_parameter("p", "psia")
+add_parameter("tsc", "Rankine")
+add_parameter("psc", "psia")
+add_parameter("yg", "Sgg")
+add_parameter("z", "ZFactor")
+end_correlation()

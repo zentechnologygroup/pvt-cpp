@@ -24,6 +24,8 @@ add_title("SUTTON CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE NAT
 add_db("Based on 264 samples of natural gases with high molecular weight, rich in heptanes, with minor amounts of nitrogen and carbon dioxide, and without hydrogen sulfide.")
 add_db("These 264 compositions were obtained from a data bank of 275 PVT reports and 634 compositions in total. The producing areas represented by this data bank are: Gulf of Mexico, Lousiana, Texas, and others.")
 add_note("The ranges for Yg, n2Concentration, and co2Concentration, are presented as the ranges of data covered by the total number of PVT reports. The range for Psc was taken from the graph of the variation of pseudocritical pressure with gas gravity, presented by Sutton.")
+add_note("Sutton's correlation was developed based on samples of gases with no hydrogen sulfide content.")
+add_note("Nonhydrocarbon adjustment methods are applied to calculated pseudo-critical properties of gases to account for the presence of nitrogen, carbon dioxide, and hydrogen sulfide.")
 end_correlation()
 
 ################################################################
@@ -31,7 +33,6 @@ end_correlation()
 begin_correlation("PscHCGuoGhalambor", "GasPseudoCriticalPressure", "psia")
 add_parameter("yghc", "Sgg")
 add_parameter("n2_concentration", "MolePercent", 0, 5)
-add_parameter("co2_concentration", "MolePercent")
 add_parameter("h2s_concentration", "MolePercent", 0, 3)
 add_title("GUO & GHALAMBOR CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE NATURAL GAS HYDROCARBON PORTION")
 add_note("The book is available at: https://books.google.co.ve/books?id=KXmjAQAAQBAJ&pg=PA13&hl=es&source=gbs_toc_r&cad=4#v=onepage&q&f=false")

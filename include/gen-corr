@@ -212,6 +212,10 @@ def add_title(title)
   $curr_corr.add_title(title)
 end
 
+def add_author(name)
+  $curr_corr.add_author(name)
+end
+
 def add_eq(eq)
   $curr_corr.add_eq(eq)
 end

@@ -61,6 +61,55 @@ UgCarrKB::impl(const Quantity<Rankine> & t,
   return Quantity<CP>(ug);
 }
 
+inline Quantity<CP>
+UgLeeGE::impl(const Quantity<Rankine> & t,
+	      const Quantity<psia> & p,
+	      const Quantity<Sgg> & yg,
+	      const Quantity<ZFactor> & z) const
+{
+  const double mg = 28.96*yg.raw(); // gas molecular weight [lb/lbmol]
+            
+  const double k = ((9.4 + 0.02*mg) * pow(t, 1.5) )/(209 + 19*mg + t.raw());
+  const double x = 3.5 + 986/t.raw() + 0.01*mg;
+  const double y = 2.4 - 0.2*x;
+            
+  const double pg = 1.4935e-3*p.raw()*mg/(z.raw()*t.raw()); // gas density [g/cm3]
+            
+  const double ug = 1e-4*k*exp(x*pow(pg, y));
+
+  return Quantity<CP>(ug);
+}
+
+inline Quantity<CP>
+UgDeanStiel::impl(const Quantity<Rankine> & t,
+		  const Quantity<psia> & p,
+		  const Quantity<Rankine> & tsc,
+		  const Quantity<psia> & psc,
+		  const Quantity<Sgg> & yg,
+		  const Quantity<ZFactor> & z) const
+{
+  const double tsr = t.raw()/tsc.raw();
+  const double psr = p.raw()/psc.raw();
+            
+  const double mg = 28.96*yg.raw(); // gas molecular weight [lb/lbmol]
+
+      // viscosity parameter
+  const double em = 5.4402*pow(tsc, 1.0/6.0) / (pow(mg, 0.5)*pow(psc, 2.0/3.0));
+            
+  const double pgr = 0.27*psr/(z.raw()*tsr); // pgr: relative gas density
+
+  double ugs = 0;
+  if (tsr <= 1.5)
+    ugs = 34e-5*pow(tsr, 8.0/9.0) / em; 
+  else 
+    ugs = 166.8e-5 * pow(0.1338*tsr - 0.0932, 5.0/9.0) / em;
+
+  const double ug = ugs + (10.8e-5*(exp(1.439*pgr) -
+				    exp(-1.111*pow(pgr, 1.888))))/em;
+
+  return Quantity<CP>(ug);
+}
+
 
 
 

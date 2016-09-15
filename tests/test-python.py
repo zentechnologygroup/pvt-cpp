@@ -1247,3 +1247,26 @@ def UgCarrKBCorrelation(T, P, Tsc, Psc, Yg, n2Concentration, co2Concentration, h
     UgCarrKB = Ug
     return UgCarrKB
     
+def UgLeeGECorrelation(Tr, P, Yg, Z):
+    Mg = 28.96 * Yg # Peso molecular del gas [lb/lbmol]
+    k = ((9.4 + 0.02 * Mg) * (Tr ** 1.5))/(209 + (19 * Mg) + Tr)
+    x = 3.5 + (986/Tr) + (0.01 * Mg)
+    y = 2.4 - 0.2 * x
+    pg = 1.4935e-3 * P * Mg/(Z * Tr) # densidad del gas [g/cm3]
+    Ug = 1e-4 * k * exp(x * (pg ** y))
+    UgLeeGE = Ug
+    return UgLeeGE
+    
+def UgDeanStielCorrelation(Tr, P, Tsc, Psc, Yg, Z):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    Mg = 28.96 * Yg # Peso molecular del gas [lb/lbmol]
+    Em = 5.4402 * ((Tsc) ** (1./6.))/(((Mg) ** 0.5) * ((Psc) ** (2./3.))) # Em: Parametro de viscosidad
+    pgr = 0.27 * Psr/(Z * Tsr) # pgr: densidad relativa del gas
+    if Tsr <= 1.5:
+        Ugs = 34e-5 * ((Tsr) ** (8./9.))/Em # Viscosidad del gas a presion atmosferica y temperatura de evaluacion
+    elif Tsr > 1.5:
+        Ugs = 166.8e-5 * ((0.1338 * Tsr - 0.0932) ** (5./9.))/Em
+    Ug = Ugs + (10.8e-5 * (exp(1.439 * pgr) - exp(-1.111 * (pgr ** 1.888))))/Em
+    UgDeanStiel = Ug  
+    return UgDeanStiel
