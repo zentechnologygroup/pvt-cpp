@@ -28,7 +28,7 @@ class CorrelationGen
 
   def initialize(name, subtype, unit, min = nil, max = nil)
     @name = name
-    @corr_name = "Not defined"
+    @author = "Not defined"
     @subtype = subtype
     @unit = unit
     @min = min
@@ -51,8 +51,8 @@ class CorrelationGen
     @title = title
   end
 
-  def add_name(name)
-    @corr_name = name
+  def add_author(name)
+    @author = name
   end
 
   def add_db(db)
@@ -160,6 +160,7 @@ class CorrelationGen
     s += ", #{@max}" if @max
     s += ")\n"\
          "{\n"
+    s += "set_author(\"#{@author}\");"
     s += "set_title(\"#{@title}\");" if @title
     @pars.each { |par| s += par.make }
     @db.each { |db| s += "add_db(\"#{db}\");\n" }

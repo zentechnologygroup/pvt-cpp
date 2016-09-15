@@ -69,7 +69,8 @@ struct Correlation
 {
   const string type_name;
   const string subtype_name;
-  string name;
+  const string name;
+  string author;
   const Unit & unit;
   const double min_val;
   const double max_val;
@@ -87,7 +88,7 @@ private:
   
 public:
 
-  void set_name(const string & __name) { name = __name; }
+  void set_author(const string & __author) { author = __author; }
 
   void set_title(const string & __title) { title = __title; }
 
@@ -124,7 +125,7 @@ public:
   virtual string correlation_name() const
   {
     ostringstream s;
-    s << name << endl
+    s << author << endl
       << type_name << " : " << subtype_name << " : "
       << demangle(typeid(*this).name());
     return s.str();
