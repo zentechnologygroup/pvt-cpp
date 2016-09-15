@@ -22,3 +22,9 @@
 ## 6. sustituid const double por double
 - Created at   2016-09-13 13:47:34 -0400
 
+## 7. generar json
+- Created at   2016-09-15 12:02:30 -0400
+
+## 8. generar json
+- Created at   2016-09-15 12:22:47 -0400
+

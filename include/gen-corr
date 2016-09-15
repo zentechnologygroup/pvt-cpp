@@ -27,17 +27,18 @@ class CorrelationGen
   end
 
   def initialize(name, subtype, unit, min = nil, max = nil)
-      @name = name
-      @subtype = subtype
-      @unit = unit
-      @min = min
-      @max = max
-      @pars = []
-      @db = []
-      @notes = []
-      @internal_notes = []
-      @refs = []
-      @eq = []
+    @name = name
+    @corr_name = "Not defined"
+    @subtype = subtype
+    @unit = unit
+    @min = min
+    @max = max
+    @pars = []
+    @db = []
+    @notes = []
+    @internal_notes = []
+    @refs = []
+    @eq = []
   end
 
   attr_reader :name
@@ -48,6 +49,10 @@ class CorrelationGen
 
   def add_title(title)
     @title = title
+  end
+
+  def add_name(name)
+    @corr_name = name
   end
 
   def add_db(db)

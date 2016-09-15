@@ -69,7 +69,7 @@ struct Correlation
 {
   const string type_name;
   const string subtype_name;
-  const string name;
+  string name;
   const Unit & unit;
   const double min_val;
   const double max_val;
@@ -86,6 +86,8 @@ private:
   static DynMapTree<string, const Correlation * const> tbl;
   
 public:
+
+  void set_name(const string & __name) { name = __name; }
 
   void set_title(const string & __title) { title = __title; }
 
@@ -122,7 +124,8 @@ public:
   virtual string correlation_name() const
   {
     ostringstream s;
-    s << type_name << " : " << subtype_name << " : "
+    s << name << endl
+      << type_name << " : " << subtype_name << " : "
       << demangle(typeid(*this).name());
     return s.str();
   }

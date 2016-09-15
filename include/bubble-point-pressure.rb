@@ -40,7 +40,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbDindorukChristman", "BubblePointPressure", "psia", 926, 12230)
-add_title(" DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
+add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.623, 1.517)
 add_parameter("rsb", "SCF_STB", 133, 3050)
 add_parameter("api", "Api", 14.7, 40)
