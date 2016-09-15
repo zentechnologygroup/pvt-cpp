@@ -12,9 +12,6 @@ r = b.find_all { |e| e.author.downcase.include? term }
 exit unless r
 
 r.each do |e|
-  puts %Q[#{e.id} 
-#{e.authors} 
-#{e.title}
-]
+  puts e.to_s
   puts
 end

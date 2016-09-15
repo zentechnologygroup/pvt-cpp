@@ -437,11 +437,9 @@ inline Correlation::~Correlation() {}
   inline type_name::~type_name() {}
 
 Declare_Correlation_Type(OilFunction)
-
 Declare_Correlation_Type(OilCorrelation);
-
 Declare_Correlation_Type(GasCorrelation);
-
+Declare_Correlation_Type(GasFunction);
 Declare_Correlation_Type(WaterCorrelation);
 
 # define Declare_Correlation_Subtype(subtype_name, type_name)	\
@@ -517,4 +515,5 @@ Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation);
 Declare_Correlation_Subtype(GasPseudoCriticalPressure, GasCorrelation);
 Declare_Correlation_Subtype(GasCondensatePseudoCriticalPressure, GasCorrelation);
 Declare_Correlation_Subtype(GasViscosity, GasCorrelation);
+Declare_Correlation_Subtype(GasDensity, GasFunction)
 # endif // CORRELATION_H

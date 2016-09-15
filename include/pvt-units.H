@@ -13,5 +13,6 @@
 # include <dynamic-viscosity-unit.H>
 # include <non-hydrocarbons-fraction-unit.H>
 # include <interfacial-tension-unit.H>
+# include <z-unit.H>
 
 # endif // PVT_UNITS_H
