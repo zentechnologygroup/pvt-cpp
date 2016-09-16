@@ -3,7 +3,7 @@
 
 int main()
 {
-  Correlation::to_jsons();
+  Correlation::to_json();
   
   return 0;
 }

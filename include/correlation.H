@@ -21,8 +21,6 @@ struct CorrelationPar
   const VtlQuantity min_val;
   const VtlQuantity max_val;
 
-  string to_json() const;
-
   DynList<string> to_list_string() const
   {
     return { name, unit.symbol, min_val.to_string(), max_val.to_string() };
@@ -90,9 +88,7 @@ private:
   
 public:
 
-  static string to_jsons();
-
-  string to_json() const;
+  static string to_json();
 
   void set_author(const string & __author) { author = __author; }
 
