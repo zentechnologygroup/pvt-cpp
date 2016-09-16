@@ -104,6 +104,6 @@ string Correlation::to_json()
   json j;
   j["Physical properties"] = to_vector(jl);
 
-  return j.dump(4);
+  return j.dump(2);
 }
 
