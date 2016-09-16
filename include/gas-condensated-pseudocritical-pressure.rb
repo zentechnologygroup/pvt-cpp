@@ -1,7 +1,7 @@
 # coding: utf-8
 
-begin_correlation("CondensatePscHCStanding",
-                  "GasCondensatePseudoCriticalPressure", "psia", 620, 675)
+begin_correlation("CondensatedPscHCStanding",
+                  "GasCondensatedPseudoCriticalPressure", "psia", 620, 675)
 add_parameter("yghc", "Sgg", 0.58, 1.3)
 add_parameter("n2_concentration", "MolePercent", 0, 5)
 add_parameter("co2_concentration", "MolePercent", 0, 2)
@@ -16,8 +16,8 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("CondensatePscHCElsharkawyEtAl",
-                  "GasCondensatePseudoCriticalPressure", "psia")
+begin_correlation("CondensatedPscHCElsharkawyEtAl",
+                  "GasCondensatedPseudoCriticalPressure", "psia")
 add_parameter("yghc", "Sgg")
 add_db("Based on compositional analysis of 1200 compositions of gas condensates collected worldwide.")
 add_title("ELSHARKAWY ET AL. CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE CONDENSATE GAS HYDROCARBON PORTION")

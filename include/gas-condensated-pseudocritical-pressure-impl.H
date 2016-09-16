@@ -4,10 +4,10 @@
 # include <gas-condensated-pseudocritical-pressure.H>
 
 inline Quantity<psia>
-CondensatePscHCStanding::impl(const Quantity<Sgg> & yghc,
-			      const Quantity<MolePercent> &,
-			      const Quantity<MolePercent> &,
-			      const Quantity<MolePercent> &) const
+CondensatedPscHCStanding::impl(const Quantity<Sgg> & yghc,
+			       const Quantity<MolePercent> &,
+			       const Quantity<MolePercent> &,
+			       const Quantity<MolePercent> &) const
 {
   const double pschc = 706 - 51.7*yghc.raw() - 11.1*yghc.raw()*yghc.raw();
   return Quantity<psia>(pschc);
@@ -15,7 +15,7 @@ CondensatePscHCStanding::impl(const Quantity<Sgg> & yghc,
 
 
 inline Quantity<psia>
-CondensatePscHCElsharkawyEtAl::impl(const Quantity<Sgg> & yghc) const
+CondensatedPscHCElsharkawyEtAl::impl(const Quantity<Sgg> & yghc) const
 {
   const double pschc = 787.06 - 147.34*yghc.raw() - 7.916*yghc.raw()*yghc.raw();
   return Quantity<psia>(pschc);

@@ -1270,3 +1270,35 @@ def UgDeanStielCorrelation(Tr, P, Tsc, Psc, Yg, Z):
     Ug = Ugs + (10.8e-5 * (exp(1.439 * pgr) - exp(-1.111 * (pgr ** 1.888))))/Em
     UgDeanStiel = Ug  
     return UgDeanStiel
+
+
+def ZFactorSaremCorrelation(Tr, P, Tsc, Psc):
+    Tsr = Tr/Tsc
+    Psr = P/Psc
+    if (Tsr < 1.05) or (Tsr > 2.95) or (Psr < 0.1) or (Psr > 14.9):
+        Z = None
+    else: 
+        x = ((2 * Psr) - 15)/14.8
+        y = ((2 * Tsr) - 4)/1.9
+        # Especificacion de los polinomios de Legendre en funcion de Psr y Tsr implicitos en x y y
+        P0x = 0.7071068
+        P1x = 1.224745 * x
+        P2x = 0.7905695 * ((3 * (x ** 2)) - 1)
+        P3x = 0.9354145 * ((5 * (x ** 3)) - (3 * x))
+        P4x = 0.265165 * ((35 * (x ** 4)) - (30 * (x ** 2)) + 3)
+        P5x = 0.293151 * ((63 * (x ** 5)) - (70 * (x ** 3)) + (15 * x))
+        P0y = 0.7071068
+        P1y = 1.224745 * y
+        P2y = 0.7905695 * ((3 * (y ** 2)) - 1)
+        P3y = 0.9354145 * ((5 * (y ** 3)) - (3 * y))
+        P4y = 0.265165 * ((35 * (y ** 4)) - (30 * (y ** 2)) + 3)
+        P5y = 0.293151 * ((63 * (y ** 5)) - (70 * (y ** 3)) + (15 * y))
+        Z = (2.1433504) * P0x * P0y + (0.0831762) * P0x * P1y + (-0.0214670) * P0x * P2y + (-0.0008714) * P0x * P3y + (0.0042846)* P0x * P4y + (-0.0016595) * P0x * P5y \
+        + (0.3312352) * P1x * P0y + (-0.1340361) * P1x * P1y + (0.0668810) * P1x * P2y + (-0.0271743) * P1x * P3y + (0.0088512) * P1x * P4y + (-0.002152) * P1x * P5y \
+        + (0.1057287) * P2x * P0y + (-0.0503937) * P2x * P1y + (0.0050925) * P2x * P2y + (0.0105513) * P2x * P3y + (-0.0073182) * P2x * P4y + (0.0026960) * P2x * P5y \
+        + (0.0521840) * P3x * P0y + (0.0443121) * P3x * P1y + (-0.0193294) * P3x * P2y + (0.0058973) * P3x * P3y + (0.0015367) * P3x * P4y + (-0.0028327) * P3x * P5y \
+        + (0.0197040) * P4x * P0y + (-0.0263834) * P4x * P1y + (0.019262) * P4x * P2y + (-0.0115354) * P4x * P3y + (0.0042910) * P4x * P4y + (-0.0081303) * P4x * P5y \
+        + (0.0053096) * P5x * P0y + (0.0089178) * P5x * P1y + (-0.0108948) * P5x * P2y + (0.0095594) * P5x * P3y + (-0.0060114) * P5x * P4y + (0.0031175) * P5x * P5y
+    ZFactorSarem = Z 
+    return ZFactorSarem
+    

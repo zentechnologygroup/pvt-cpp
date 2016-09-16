@@ -73,6 +73,7 @@ struct Correlation
   mutable DynList<string> db;
   mutable DynList<string> notes;
   mutable DynList<const BibEntry*> refs;
+  mutable bool hidden = false; // indicates whether correlation is or not hidden
 
 private:
 
@@ -82,6 +83,8 @@ private:
   static DynMapTree<string, const Correlation * const> tbl;
   
 public:
+
+  void set_hidden() { hidden = true; }
 
   static string to_json();
 
@@ -514,8 +517,9 @@ Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation);
 
 
 Declare_Correlation_Subtype(GasPseudoCriticalPressure, GasCorrelation);
-Declare_Correlation_Subtype(GasCondensatePseudoCriticalPressure, GasCorrelation);
+Declare_Correlation_Subtype(GasCondensatedPseudoCriticalPressure, GasCorrelation);
 Declare_Correlation_Subtype(GasViscosity, GasCorrelation);
 Declare_Correlation_Subtype(GasDensity, GasFunction)
 Declare_Correlation_Subtype(GasVolumeFactor, GasFunction);
+Declare_Correlation_Subtype(GasCompressibility, GasCorrelation);
 # endif // CORRELATION_H

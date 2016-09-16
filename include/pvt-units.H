@@ -11,7 +11,7 @@
 # include <FVF-volume-ratio-unit.H>
 # include <gas-especific-gravity-unit.H>
 # include <dynamic-viscosity-unit.H>
-# include <non-hydrocarbons-fraction-unit.H>
+# include <non-hydrocarborns-fraction-unit.H>
 # include <interfacial-tension-unit.H>
 # include <z-unit.H>
 

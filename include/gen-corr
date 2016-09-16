@@ -43,6 +43,10 @@ class CorrelationGen
 
   attr_reader :name
 
+  def set_hidden
+    @hidden = true;
+  end
+
   def add_doc(str)
     @doc = str
   end
@@ -162,6 +166,7 @@ class CorrelationGen
          "{\n"
     s += "set_author(\"#{@author}\");"
     s += "set_title(\"#{@title}\");" if @title
+    s += "set_hidden();" if @hidden
     @pars.each { |par| s += par.make }
     @db.each { |db| s += "add_db(\"#{db}\");\n" }
     @notes.each { |note| s += "add_note(\"#{note}\");\n" }
@@ -198,6 +203,10 @@ $corr_list = []
 $curr_corr = nil
 def begin_correlation(name, subtype, unit, min = nil, max = nil)
   $curr_corr = CorrelationGen.new(name, subtype, unit, min, max)
+end
+
+def set_hidden
+  $curr_corr.set_hidden
 end
 
 def add_parameter(name, unit, min = nil, max = nil)
@@ -362,8 +371,24 @@ if eq
   exit
 end
 
+guard_name = File.basename file, '.rb'
+header_name = guard_name + ".H"
+guard_name += "_impl_H"
+guard_name.gsub! '-', '_'
+guard_name.gsub! '.', '_'
+guard_name.upcase!
 
+puts "# ifndef #{guard_name}"
+puts "# define #{guard_name}"
+puts 
+puts "# include <#{header_name}>"
+puts
 puts "#{gen_impl_declarations}"
+puts 
+puts " # endif // #{guard_name}"
+
+
+
 
 
 

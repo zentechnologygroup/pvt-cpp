@@ -1,5 +1,3 @@
-
-
 # ifndef NON_HYDROCARBONS_FRACTION_UNIT_H
 # define NON_HYDROCARBONS_FRACTION_UNIT_H
 
@@ -13,29 +11,22 @@ Declare_Unit(MoleFraction, "MoleFraction",
 	     base on a division mole by mole)DESC",
 	     NonHydrocarbonsFraction, 0 , 1);
 
-
 Declare_Unit(VolumeFraction, "VolumeFraction",
 	     R"DESC(volume fraction of a non-hydrocarbon component 
 	     base on a division volume by volume)DESC",
 	     NonHydrocarbonsFraction, 0, 1);
-
-
 
 Declare_Unit(MolePercent, "MolePercent",
 	     R"DESC(Mole percentage of a non-hydrocarbon component 
 	     base on a division mole by mole)DESC",
 	     NonHydrocarbonsFraction, 0 , 100);
 
-
 Declare_Unit(VolumePercent, "VolumePercent",
 	     R"DESC(volume percentage of a non-hydrocarbon component 
 	     base on a division volume by volume)DESC",
 	     NonHydrocarbonsFraction, 0, 100);
 
-
 // isothermal compresibility conversions
-
-
 // To Mole_Fraction
 Declare_Conversion(VolumeFraction, MoleFraction, v) { return v ; }
 Declare_Conversion(MolePercent, MoleFraction, v) { return v / 100 ; }
@@ -56,8 +47,4 @@ Declare_Conversion(MoleFraction, VolumePercent, v) { return 100 * v ; }
 Declare_Conversion(VolumeFraction, VolumePercent, v) { return 100 *  v ; }
 Declare_Conversion(MolePercent, VolumePercent, v) { return v ; }
 
-
-
 # endif // NON_HYDROCARBONS_FRACTION_UNIT_H
-
-
