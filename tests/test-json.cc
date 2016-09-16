@@ -3,7 +3,7 @@
 
 int main()
 {
-  Correlation::to_json();
+  cout << Correlation::to_json() << endl;
   
   return 0;
 }

@@ -43,12 +43,7 @@ struct CorrelationPar
   void verify(const BaseQuantity & q) const
   {
     ostringstream s;
-    // if (&q.unit != &unit)
-    //   {
-    // 	s << "Unit " << q.unit.name << " is different from " << unit.name;
-    // 	throw domain_error(s.str());	
-    //   }
-
+  
     if (q.get_value() < min_val)
       {
 	s << "Value " << q.get_value() << " is lesser than the minimum value "

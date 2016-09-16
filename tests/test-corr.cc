@@ -392,6 +392,8 @@ void test(int argc, char *argv[])
 
   SwitchArg csv = { "c", "csv", "generate csv", cmd };
 
+  SwitchArg json = { "j", "json", "output in json", cmd };
+
   ValueArg<size_t> n = { "n", "num-steps",
 			 "number of steps by parameter", false, 10,
 			 "number of samples", cmd };
@@ -415,6 +417,12 @@ void test(int argc, char *argv[])
 
   if (list_corr.getValue())
     {
+      if (json.getValue())
+	{
+	  cout << Correlation::to_json() << endl;
+	  exit(0);
+	}
+      
       auto l = correlation_list.map<DynList<string>>([] (auto p)
         {
 	  return DynList<string>({p->name, p->subtype_name, p->type_name});
