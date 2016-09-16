@@ -208,3 +208,33 @@
 - Comment      
 - Finished     
 
+## 36. poner NA en salida cuando haya error
+- Created at   2016-08-24 10:30:32 -0400
+- Completed at 2016-08-30 10:49:35 -0400
+- Comment      
+- Finished     
+
+## 37. modificar RsGlaso para que use la raíz de la eq 2do gradop
+- Created at   2016-08-26 12:31:48 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 38. test que valide que las unidades sean las mismas para familias de correlaciones
+- Created at   2016-08-29 16:41:53 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 39. validar suma de conccrenaciones no debe ser igual o mayor a 100
+- Created at   2016-09-13 16:54:38 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 40. opción que genere matrix aún con excepciones
+- Created at   2016-08-22 19:03:55 -0400
+- Completed at 2016-09-16 11:44:13 -0400
+- Comment      
+- Finished     
+

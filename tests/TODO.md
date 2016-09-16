@@ -21,34 +21,18 @@
 ## 7. Cambiar referencia contsnate a Unit por un puntero constante
 - Created at   2016-08-20 13:37:31 -0400
 
-## 8. opción que genere matrix aún con excepciones
-- Created at   2016-08-22 19:03:55 -0400
-
-## 9. poner NA en salida cuando haya error
-- Created at   2016-08-24 10:30:32 -0400
-- Completed at 2016-08-30 10:49:35 -0400
-
-## 10. verificar rigurosamente orden y unidades de correlaciones
+## 8. verificar rigurosamente orden y unidades de correlaciones
 - Created at   2016-08-24 14:34:13 -0400
 
-## 11. modificar RsGlaso para que use la raíz de la eq 2do gradop
-- Created at   2016-08-26 12:31:48 -0400
-
-## 12. test que valide que las unidades sean las mismas para familias de correlaciones
-- Created at   2016-08-29 16:41:53 -0400
-
-## 13. Revisar los test oginales de unidades
+## 9. Revisar los test oginales de unidades
 - Created at   2016-09-02 11:07:32 -0400
 
-## 14. generación de test optimizada
+## 10. generación de test optimizada
 - Created at   2016-09-02 11:19:53 -0400
 
-## 15. poner en test-conversion flag para descripcion
+## 11. poner en test-conversion flag para descripcion
 - Created at   2016-09-12 09:44:10 -0400
 
-## 16. revisar valor de epsilon en reporte de unidad
+## 12. revisar valor de epsilon en reporte de unidad
 - Created at   2016-09-12 15:49:09 -0400
-
-## 17. validar suma de conccrenaciones no debe ser igual o mayor a 100
-- Created at   2016-09-13 16:54:38 -0400
 
