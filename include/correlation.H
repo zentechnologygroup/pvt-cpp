@@ -21,6 +21,8 @@ struct CorrelationPar
   const VtlQuantity min_val;
   const VtlQuantity max_val;
 
+  string to_json() const;
+
   DynList<string> to_list_string() const
   {
     return { name, unit.symbol, min_val.to_string(), max_val.to_string() };
@@ -70,14 +72,14 @@ struct Correlation
   const string type_name;
   const string subtype_name;
   const string name;
-  string author;
+  mutable string author;
   const Unit & unit;
   const double min_val;
   const double max_val;
-  string title;
-  DynList<string> db;
-  DynList<string> notes;
-  DynList<const BibEntry *> refs;
+  mutable string title;
+  mutable DynList<string> db;
+  mutable DynList<string> notes;
+  mutable DynList<const BibEntry*> refs;
 
 private:
 
@@ -87,6 +89,10 @@ private:
   static DynMapTree<string, const Correlation * const> tbl;
   
 public:
+
+  static string to_jsons();
+
+  string to_json() const;
 
   void set_author(const string & __author) { author = __author; }
 

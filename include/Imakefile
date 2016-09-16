@@ -15,7 +15,8 @@ CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 	$(RM) $*.H; 	\	@@\
 	./gen-corr -f $*.rb -H | clang-format -style=Mozilla > $@
 
-CORRS = solution-gas-oil-relation.rb oil-formation-volume-factor.rb oil-compressibility.rb oil-density.rb dead-oil-viscosity.rb saturated-oil-viscosity.rb undersaturated-oil-viscosity.rb bubble-point-pressure.rb oil-interfacial-tension.rb non-hydrocarborns-corrections.rb gas-pseudocritical-pressure.rb gas-viscosity.rb gas-condensated-pseudocritical-pressure.rb gas-density.rb gas-volume-factor.rb
+CORRS = solution-gas-oil-relation.rb oil-formation-volume-factor.rb oil-compressibility.rb oil-density.rb dead-oil-viscosity.rb saturated-oil-viscosity.rb undersaturated-oil-viscosity.rb bubble-point-pressure.rb oil-interfacial-tension.rb non-hydrocarborns-corrections.rb gas-pseudocritical-pressure.rb gas-viscosity.rb gas-condensated-pseudocritical-pressure.rb gas-density.rb
+#gas-volume-factor.rb
 
 HCORRS = $(CORRS:.rb=.H)
 

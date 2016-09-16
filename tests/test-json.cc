@@ -3,6 +3,7 @@
 
 int main()
 {
+  Correlation::to_jsons();
   
   return 0;
 }
