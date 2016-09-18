@@ -1273,8 +1273,8 @@ def UgDeanStielCorrelation(Tr, P, Tsc, Psc, Yg, Z):
 
 
 def ZFactorSaremCorrelation(Tr, P, Tsc, Psc):
-    Tsr = Tr/Tsc
-    Psr = P/Psc
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
     if (Tsr < 1.05) or (Tsr > 2.95) or (Psr < 0.1) or (Psr > 14.9):
         Z = None
     else: 

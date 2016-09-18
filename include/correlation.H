@@ -128,6 +128,8 @@ public:
     s << author << endl
       << type_name << " : " << subtype_name << " : "
       << demangle(typeid(*this).name());
+    if (hidden)
+      s << " (WARNING: hidden correlation)";
     return s.str();
   }
 

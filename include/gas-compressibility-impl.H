@@ -75,5 +75,53 @@ ZFactorSarem::impl(const Quantity<Rankine> & t,
 }
 
 
+inline Quantity<ZFactor>
+ZFactorHallYarborough::impl(const Quantity<Rankine> & t,
+			    const Quantity<psia> & p,
+			    const Quantity<Rankine> & tsc,
+			    const Quantity<psia> & psc) const
+{
+  const double tsr = t.raw()/tsc.raw();
+  if (tsr < 1.2 or tsr > 3)
+    {
+      ostringstream s;
+      s << "Ratio t/tsc = " << t << " / " << tsc << " = " << tsr
+	<< " is not inside the range [1.2, 3]";
+      throw domain_error(s.str());
+    }
+
+  const double psr = p.raw()/psc.raw();
+  if (psr < 0.1 or psr > 24)
+    {
+      ostringstream s;
+      s << "Ratio p/psc = " << p << " / " << psc << " = " << psr
+	<< " is not inside the range [0.1, 24]";
+      throw domain_error(s.str());
+    }
+
+  const double tsr_1 = 1/tsr;
+  const double a = 0.06125 * tsr_1 * exp((-1.2) * ((1 - tsr_1 ) ** 2))
+            B = 14.76 * (1/Tsr) - 9.76 * ((1/Tsr) ** 2) + 4.58 * ((1/Tsr) ** 3)
+            C = 90.7 * (1/Tsr) - 242.2 * ((1/Tsr) ** 2) + 42.4 * ((1/Tsr) ** 3)
+            D = 2.18 + 2.82 * (1/Tsr)
+            
+            # pr: Densidad reducida definida por el autor del metodo
+            epsilon = 1.0e-10
+            pr = 0
+            prprev = 0.00001
+            
+            # iteracion por metodo Newton-Raphson
+            while (fabs(prprev - pr)) > epsilon:
+                pr = prprev
+                F = -(A * Psr) + ((pr + (pr ** 2) + (pr ** 3) - (pr ** 4))/((1 - pr) ** 3)) - B * (pr ** 2) + C * (pr ** D) 
+                dFdpr = (1 + (4 * pr) + ((4 * pr) ** 2) - ((4 * pr) ** 3) + ((4 * pr) ** 4))/(((1 - pr) ** 4)) - 2 * B * pr + C * D * (pr ** (D-1))
+                prf = pr - F/dFdpr
+                prprev = prf
+            
+            pr = prf
+            
+            Z = (0.06125 * Psr * (1/Tsr) * exp((-1.2) * ((1 - (1/Tsr)) ** 2)))/pr 
+}
+
 
 # endif // GAS_COMPRESSIBILITY_IMPL_H
