@@ -100,27 +100,48 @@ ZFactorHallYarborough::impl(const Quantity<Rankine> & t,
     }
 
   const double tsr_1 = 1/tsr;
-  const double a = 0.06125 * tsr_1 * exp((-1.2) * ((1 - tsr_1 ) ** 2))
-            B = 14.76 * (1/Tsr) - 9.76 * ((1/Tsr) ** 2) + 4.58 * ((1/Tsr) ** 3)
-            C = 90.7 * (1/Tsr) - 242.2 * ((1/Tsr) ** 2) + 42.4 * ((1/Tsr) ** 3)
-            D = 2.18 + 2.82 * (1/Tsr)
+  const double tsr_1_2 = tsr_1*tsr_1;
+  const double tsr_1_3 = tsr_1_2*tsr_1;
+  const double tsr_1_1 = 1 - tsr_1;
+  const double a = 0.06125*tsr_1*exp(-1.2*tsr_1_1*tsr_1_1);
+  const double b = 14.76*tsr_1 - 9.76*tsr_1_2 + 4.58*tsr_1_3;
+  const double c = 90.7*tsr_1 - 242.2*tsr_1_2 + 42.4*tsr_1_3;
+  const double d = 2.18 + 2.82*tsr_1;
+
+  // pr: Densidad reducida definida por el autor del metodo
+  constexpr double epsilon = 1.0e-10;
+  double pr = 0, prf = 0;
+  double prprev = 0.00001;
             
-            # pr: Densidad reducida definida por el autor del metodo
-            epsilon = 1.0e-10
-            pr = 0
-            prprev = 0.00001
+  // iteracion por metodo Newton-Raphson
+  while (fabs(prprev - pr) > epsilon)
+    {
+      pr = prprev;
+      const double pr2 = pr*pr;
+      const double pr3 = pr2*pr;
+      const double pr4 = pr3*pr;
+      
+      const double f = -a*psr + (pr + pr2 + pr3 - pr4)/pow(1 - pr, 3) - b*pr2 +
+	c*pow(pr, d);
+
+      const double pr_x_4 = 4*pr;
+      const double pr_x_4_2 = pr_x_4*pr_x_4;
+      const double pr_x_4_3 = pr_x_4_2*pr_x_4;
+      const double pr_x_4_4 = pr_x_4_3*pr_x_4;
+
+      const double dfdpr = (1 + pr_x_4 + pr_x_4_2 - pr_x_4_3 + pr_x_4_4) /
+	pow(1 - pr, 4) - 2 * b*pr + c*d* pow(pr, d-1);
+
+      prf = pr - f/dfdpr;
+
+      prprev = prf;
+    }       
+
+  pr = prf;
             
-            # iteracion por metodo Newton-Raphson
-            while (fabs(prprev - pr)) > epsilon:
-                pr = prprev
-                F = -(A * Psr) + ((pr + (pr ** 2) + (pr ** 3) - (pr ** 4))/((1 - pr) ** 3)) - B * (pr ** 2) + C * (pr ** D) 
-                dFdpr = (1 + (4 * pr) + ((4 * pr) ** 2) - ((4 * pr) ** 3) + ((4 * pr) ** 4))/(((1 - pr) ** 4)) - 2 * B * pr + C * D * (pr ** (D-1))
-                prf = pr - F/dFdpr
-                prprev = prf
-            
-            pr = prf
-            
-            Z = (0.06125 * Psr * (1/Tsr) * exp((-1.2) * ((1 - (1/Tsr)) ** 2)))/pr 
+  const double z = (0.06125*psr * tsr_1_1 * exp(-1.2 * tsr_1_1*tsr_1_1)) / pr;
+
+  return Quantity<ZFactor>(z);  
 }
 
 

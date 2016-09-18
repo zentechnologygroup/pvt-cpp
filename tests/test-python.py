@@ -1302,3 +1302,26 @@ def ZFactorSaremCorrelation(Tr, P, Tsc, Psc):
     ZFactorSarem = Z 
     return ZFactorSarem
     
+def ZFactorHallYarboroughCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    A = 0.06125 * (1/Tsr) * exp((-1.2) * ((1 - (1/Tsr)) ** 2))
+    B = 14.76 * (1/Tsr) - 9.76 * ((1/Tsr) ** 2) + 4.58 * ((1/Tsr) ** 3)
+    C = 90.7 * (1/Tsr) - 242.2 * ((1/Tsr) ** 2) + 42.4 * ((1/Tsr) ** 3)
+    D = 2.18 + 2.82 * (1/Tsr)
+    epsilon = 1.0e-10
+    pr = 0
+    prprev = 0.00001
+    # iteracion por metodo Newton-Raphson
+    while (fabs(prprev - pr)) > epsilon:
+        pr = prprev
+        F = -(A * Psr) + ((pr + (pr ** 2) + (pr ** 3) - (pr ** 4))/((1 - pr) ** 3)) - B * (pr ** 2) + C * (pr ** D) 
+        dFdpr = (1 + (4 * pr) + ((4 * pr) ** 2) - ((4 * pr) ** 3) + ((4 * pr) ** 4))/(((1 - pr) ** 4)) - 2 * B * pr + C * D * (pr ** (D-1))
+        prf = pr - F/dFdpr
+        prprev = prf
+    
+    pr = prf
+    Z = (0.06125 * Psr * (1/Tsr) * exp((-1.2) * ((1 - (1/Tsr)) ** 2)))/pr 
+    ZFactorHallYarborough = Z
+    return ZFactorHallYarborough
+    
