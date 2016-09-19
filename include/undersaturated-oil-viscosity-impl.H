@@ -122,5 +122,29 @@ UoaPerezML::impl(const Quantity<CP> & uob,
   return Quantity<CP>(uoa);
 }
 
+inline Quantity<CP>
+UoaDindorukChristman::impl(const Quantity<CP> & uob,
+			   const Quantity<psia> & p,
+			   const Quantity<psia> & pb,
+			   const Quantity<SCF_STB> & rs) const
+{
+  constexpr double a1 = 0.776644115;
+  constexpr double a2 = 0.987658646;
+  constexpr double a3 = -0.190564677;
+  constexpr double a4 = 0.009147711;
+  constexpr double a5 = -0.000019111;
+  constexpr double a6 = 0.000063340;
+
+  const double p_pb = p.raw() - pb.raw();
+  
+  const double a = a1 + a2*log10(uob) + a3*log10(rs) + a4*uob.raw()*log10(rs) +
+    a5*p_pb;
+        
+  const double uoa = uob.raw() + a6*p_pb*pow(10, a);
+        
+  return Quantity<CP>(uoa);
+}
+
+
 
 # endif // UNDERSATURATED_OIL_VISCOSITY_IMPL_H

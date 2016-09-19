@@ -98,3 +98,14 @@ add_parameter("uob", "CP")
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 405, 1335)
 end_correlation()
+
+################################################################
+
+begin_correlation("UoaDindorukChristman", "UndersaturatedOilViscosity", "CP",
+                  0.211, 10.6)
+add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF UNDERSATURATED OIL VISCOSITY")
+add_parameter("uob", "CP", 0.161, 8.7)
+add_parameter("p", "psia", 202, 10140)
+add_parameter("pb", "psia", 926, 12230)
+add_parameter("rs", "SCF_STB")
+end_correlation()

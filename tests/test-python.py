@@ -1311,3 +1311,48 @@ def ZFactorDranchukPRCorrelation(Tr, P, Tsc, Psc):
     Z = Zf   
     ZFactorDranchukPR = Z
     return ZFactorDranchukPR
+
+
+def UodDindorukChristmanCorrelation(API, T, Pb, Rsb):
+    a1 = 14.505357625
+    a2 = -44.868655416
+    a3 = 9.36579e9
+    a4 = -4.194017808
+    a5 = -3.1461171e-9
+    a6 = 1.517652716
+    a7 = 0.010433654
+    a8 = -0.000776880
+    A = a1 * log10(T) + a2
+    uod = (a3 * T**a4 * (log10(API))**A) / (a5 * Pb**a6 + a7 * Rsb**a8)
+    uodDindorukChristman = uod
+    return uodDindorukChristman
+
+def UobDindorukChristmanCorrelation(uod, Rs):
+    a1 = 1.0
+    a2 = 4.740729e-4
+    a3 = -1.023451e-2
+    a4 = 6.600358e-1
+    a5 = 1.075080e-3
+    a6 = 1.0
+    a7 = -2.191172e-5
+    a8 = -1.660981e-2
+    a9 = 4.233179e-1
+    a10 = -2.273945e-4
+    A = (a1/exp(a2 * Rs)) + (a3 * Rs**a4/exp(a5 * Rs))
+    B = (a6/exp(a7 * Rs)) + (a8 * Rs**a9/exp(a10 * Rs))
+    uob = A * uod**B
+    uobDindorukChristman = uob
+    return uobDindorukChristman
+    
+def UoaDindorukChristmanCorrelation(uoBubble, P, Pb, Rs):
+    a1 = 0.776644115
+    a2 = 0.987658646
+    a3 = -0.190564677
+    a4 = 0.009147711
+    a5 = -0.000019111
+    a6 = 0.000063340
+    A = a1 + a2 * log10(uoBubble) + a3 * log10(Rs) + a4 * uoBubble * log10(Rs) + a5 * (P - Pb)
+    uoa = uoBubble + a6 * (P - Pb) * 10**A
+    uoaDindorukChristman = uoa
+    return uoaDindorukChristman
+

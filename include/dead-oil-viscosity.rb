@@ -35,10 +35,10 @@ end_correlation()
 ################################################################
 
 ## verificada con python
-begin_correlation("UodGlaso", "DeadOilViscosity", "CP", 0.3, 39.1)
+begin_correlation("UodGlaso", "DeadOilViscosity", "CP", 0.2, 80)
 add_title("GLASO CORRELATION, CALCULATION OF DEAD OIL VISCOSITY")
-add_db("Based on 26 samples from the North Sea (collected from wells in the region 56 to 62°N). The relation between dead oil viscosity, API gravity, and temperature, was developed specifically for North Sea oils (for oils with a paraffinicity characterization factor of 11.9), which have a factor almost equal to California oils, as well as for oil samples from fields in various regions of the world.")
-add_ref("banzer:1996")
+add_db("Based on 26 samples from the North Sea (collected from wells in the region 56 to 62°N).")
+add_db("The relation between dead oil viscosity, API gravity, and temperature, was developed specifically for North Sea oils (for oils with a paraffinicity characterization factor of 11.9), which have a factor almost equal to California oils, as well as for oil samples from fields in various regions of the world.")
 add_parameter("api", "Api", 20, 48)
 add_parameter("t", "Fahrenheit", 50, 300)
 end_correlation()
@@ -106,3 +106,15 @@ add_title("PEREZ ET AL. CORRELATION (MODIFIED BEGGS & ROBINSON CORRELATION), CAL
 add_parameter("api", "Api", 6.4, 12.9)
 add_parameter("t", "Fahrenheit", 112, 300)
 end_correlation()
+
+################################################################
+
+begin_correlation("UodDindorukChristman", "DeadOilViscosity", "CP", 0.896, 62.63)
+add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF DEAD OIL VISCOSITY")
+add_parameter("api", "Api", 17.4, 40)
+add_parameter("t", "Fahrenheit", 121, 276)
+add_parameter("pb", "psia", 926, 12230)
+add_parameter("rsb", "SCF_STB", 133, 3050)
+add_db("Based on more than 90 PVT reports from the Gulf of Mexico.")
+end_correlation()
+

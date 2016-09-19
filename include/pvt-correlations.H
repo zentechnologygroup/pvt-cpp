@@ -114,6 +114,7 @@ struct CorrelationInstantiater
     UodPetroskyFarshad::get_instance();
     UodDeGhettoEtAl::get_instance();
     UodPerezML::get_instance();
+    UodDindorukChristman::get_instance();
 
     UobBeggsRobinson::get_instance();
     UobChewConnally::get_instance();
@@ -123,6 +124,7 @@ struct CorrelationInstantiater
     UobPerezML::get_instance();
     UobGilFonseca::get_instance();
     UobDeGhettoEtAl::get_instance();
+    UobDindorukChristman::get_instance();
 
     UoaKartoatmodjoSchmidt::get_instance();
     UoaDeGhettoEtAl::get_instance();
@@ -132,6 +134,7 @@ struct CorrelationInstantiater
     UoaPetroskyFarshad::get_instance();
     UoaAbedini::get_instance();
     UoaPerezML::get_instance();
+    UoaDindorukChristman::get_instance();
 
     SgoBakerSwerdloff::get_instance();
 

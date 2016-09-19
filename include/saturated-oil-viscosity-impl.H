@@ -135,4 +135,29 @@ UobDeGhettoEtAl::impl(const Quantity<CP> & uod,
   return Quantity<CP>(uob);
 }
 
+inline Quantity<CP>
+UobDindorukChristman::impl(const Quantity<CP> & uod,
+			   const Quantity<SCF_STB> & rs) const
+{
+  constexpr double a1 = 1.0;
+  constexpr double a2 = 4.740729e-4;
+  constexpr double a3 = -1.023451e-2;
+  constexpr double a4 = 6.600358e-1;
+  constexpr double a5 = 1.075080e-3;
+  constexpr double a6 = 1.0;
+  constexpr double a7 = -2.191172e-5;
+  constexpr double a8 = -1.660981e-2;
+  constexpr double a9 = 4.233179e-1;
+  constexpr double a10 = -2.273945e-4;
+        
+  const double a = a1/exp(a2*rs.raw()) + a3*pow(rs, a4)/exp(a5*rs.raw());
+        
+  const double b = a6/exp(a7*rs.raw()) + a8*pow(rs, a9)/exp(a10*rs.raw());
+        
+  const double uob = a * pow(uod, b);
+
+  return Quantity<CP>(uob);
+}
+
+
 # endif // SATURATED_OIL_VISCOSITY_IMPL_H
