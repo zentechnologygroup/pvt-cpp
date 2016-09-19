@@ -189,6 +189,65 @@ ZFactorDranchukPR::impl(const Quantity<Rankine> & t,
   return Quantity<ZFactor>(zf);
 }
 
+inline Quantity<ZFactor>
+ZFactorDranchukAK::impl(const Quantity<Rankine> & t,
+			const Quantity<psia> & p,
+			const Quantity<Rankine> & tsc,
+			const Quantity<psia> & psc) const
+{
+  const double tsr = t.raw()/tsc.raw();
+  check_range("ZFactorDranchukAK", "t/tsc", tsr, 1, 3);
+
+  const double psr = p.raw()/psc.raw();
+  check_range("ZFactorDranchukAK", "p/psc", psr, 0.2, 30);
+        
+  constexpr double a1 = 0.3265;
+  constexpr double a2 = -1.07;
+  constexpr double a3 = -0.5339;
+  constexpr double a4 = 0.01569;
+  constexpr double a5 = -0.05165;
+  constexpr double a6 = 0.5475;
+  constexpr double a7 = -0.7361;
+  constexpr double a8 = 0.1844;
+  constexpr double a9 = 0.1056;
+  constexpr double a10 = 0.6134;
+  constexpr double a11 = 0.721;
+            
+  // pr: Densidad reducida definida por el autor del metodo
+  constexpr epsilon = 1.0e-8;
+  double z = 0.5;
+  double zprev = 0.6;
+  double zf;
+
+  const double tsr2 = tsr*tsr;
+  const double tsr3 = tsr2*tsr;
+  const double tsr4 = tsr3*tsr;
+  const double tsr5 = tsr4*tsr;
+
+  while (fabs(zprev - z) > epsilon)
+    {
+      z = zprev;
+      const double pr = 0.27*psr/(z * tsr);
+
+      const double pr2 = pr*pr;
+      const double pr3 = pr2*pr;
+      const double pr4 = pr3*pr;
+      const double pr5 = pr4*pr;
+
+      const double f = z - (1 + (a1 + a2/tsr + a3/tsr3 + a4/tsr4 + a5/tsr5)*pr +
+			    (a6 + a7/tsr + a8/tsr2)*pr2 -
+			    a9*(a7/tsr + a8/tsr2)*pr5 +
+			    a10*(1 + a11*pr2)*(pr2/tsr3)*exp(-a11*pr2));
+
+      const double dfdz = 1 + ((a1 + a2/tsr + a3/tsr3 + a4/tsr4 + a5/tsr5)*(pr/z)) + (2 * (a6 + a7/tsr + a8/tsr2) * (pr2/z)) - (5*a9 * (a7/tsr + a8/tsr2) * pr5/z) + (((2 * a10 * pr2)/(z * tsr3)) * (1 + (a11 * pr2) - ((a11 * pr2) ** 2)) * exp (-a11 * pr2))      
+                zf = z - f/dfdz
+                zprev = zf
+                
+            z = zf   
+        
+        ZFactorDranchukAK = Z
+       
+}
 
 
 # endif // GAS_COMPRESSIBILITY_IMPL_H

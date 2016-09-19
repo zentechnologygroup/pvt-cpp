@@ -12,7 +12,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("PscMKay", "GasPseudoCriticalPressure", "psia")
+begin_correlation("PscMKayMixingRule", "GasPseudoCriticalPressure", "psia")
 add_title("KAY'S MIXING RULE, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE WHOLE GAS MIXTURE")
 add_note("The value of the pseudocritical pressure of the gas hydrocarbon portion (PscHC) is adjusted for nonhydrocarbon content on the basis of Kay's mixing rule.")
 add_parameter("pschc", "psia")
@@ -23,7 +23,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("AdjustedPscWichertAziz", "GasPseudoCriticalPressure", "psia")
+begin_correlation("AdjustedPscMWichertAziz", "GasPseudoCriticalPressure", "psia")
 add_title("WICHERT & AZIZ CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE WHOLE GAS MIXTURE")
 add_note("The pseudocritical pressure is adjusted by using the Wichert & Aziz correlation when the gas contains significant fractions of acid gases, specifically carbon dioxide (CO2) and hydrogen sulfide (H2S).")
 add_note("The original reference is not available. The correlation was verified by using a secondary reference: Standing (1977). Date: September 12 2016.")

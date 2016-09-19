@@ -19,10 +19,10 @@ YgHCWichertAziz::impl(const Quantity<Sgg> & yg,
 }
 
 inline Quantity<psia>
-PscMKay::impl(const Quantity<psia> & pschc,
-	      const Quantity<MolePercent> & n2_concentration,
-	      const Quantity<MolePercent> & co2_concentration,
-	      const Quantity<MolePercent> & h2s_concentration) const
+PscMKayMixingRule::impl(const Quantity<psia> & pschc,
+			const Quantity<MolePercent> & n2_concentration,
+			const Quantity<MolePercent> & co2_concentration,
+			const Quantity<MolePercent> & h2s_concentration) const
 {
   const double n2 = n2_concentration.raw();
   const double co2 = co2_concentration.raw();
@@ -36,10 +36,10 @@ PscMKay::impl(const Quantity<psia> & pschc,
 
 
 inline Quantity<psia>
-AdjustedPscWichertAziz::impl(const Quantity<psia> & pscm,
-			     const Quantity<Fahrenheit> & tscm,
-			     const Quantity<MolePercent> & co2_concentration,
-			     const Quantity<MolePercent> & h2s_concentration)
+AdjustedPscMWichertAziz::impl(const Quantity<psia> & pscm,
+			      const Quantity<Fahrenheit> & tscm,
+			      const Quantity<MolePercent> & co2_concentration,
+			      const Quantity<MolePercent> & h2s_concentration)
   const
 {
   const double a = co2_concentration.raw() + h2s_concentration.raw();

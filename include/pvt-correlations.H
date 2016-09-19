@@ -12,7 +12,6 @@
 # include <oil-interfacial-tension.H>
 # include <non-hydrocarborns-corrections.H>
 # include <gas-pseudocritical-pressure.H>
-# include <gas-condensated-pseudocritical-pressure.H>
 # include <gas-viscosity.H>
 # include <gas-compressibility.H>
 
@@ -27,7 +26,6 @@
 # include <oil-interfacial-tension-impl.H>
 # include <non-hydrocarborns-corrections-impl.H>
 # include <gas-pseudocritical-pressure-impl.H>
-# include <gas-condensated-pseudocritical-pressure-impl.H>
 # include <gas-viscosity-impl.H>
 # include <gas-compressibility-impl.H>
 
@@ -139,15 +137,14 @@ struct CorrelationInstantiater
     SgoBakerSwerdloff::get_instance();
 
     YgHCWichertAziz::get_instance();
-    PscMKay::get_instance();
-    AdjustedPscWichertAziz::get_instance();
+    PscMKayMixingRule::get_instance();
+    AdjustedPscMWichertAziz::get_instance();
     PscHCStanding::get_instance();
     PscHcSutton::get_instance();
     PscHCGuoGhalambor::get_instance();
     PscAhmed::get_instance();
-
-    CondensatedPscHCStanding::get_instance();
-    CondensatedPscHCElsharkawyEtAl::get_instance();
+    PscHCElsharkawyEtAlHeavierFractions::get_instance();
+    PscHCStandingHeavierFractions::get_instance();
 
     UgCarrKB::get_instance();
     UgLeeGE::get_instance();
