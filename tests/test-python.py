@@ -1,4 +1,4 @@
-from math import exp, log10, floor, log
+from math import exp, log10, floor, log, fabs
 
 def PbAlMarhounCorrelation(Yg, Yo, Rsb, T):        
     Pb = (5.38088 * 10 ** -3) * (Rsb ** 0.715082) * (Yg ** -1.87784) * (Yo ** 3.1437) * (T ** 1.32657)
@@ -62,59 +62,17 @@ def PbDoklaOsmanCorrelation(Yg, Rsb, API, T):
         
     return PbDoklayOsman
 
-    def PbGlasoCorrelation(Yg, Rsb, API, T, n2Concentration, co2Concentration, h2sConcentration):
-        """ GLASO CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE  
-        
-        DATA BANK:
-        Based on 26 samples from the North Sea (collected from wells in the region 56 to 62°N) and 19 samples from the Middle East, Algeria, and several areas in the U.S.
-        
-        :see: Oistein Glaso. "Generalized Pressure-Volume-Temperature Correlations," Journal of Petroleum Technology , 1980.
-        
-        :precondition: T: 80 - 280 [°F]
-        :precondition: API: 22.3 - 48.1 [°API]
-        :precondition: Yg: 0.650 - 1.276 [ratio air=1]
-        :precondition: Rs: 90 - 2637 [scf/STB]
-        :precondition: n2Concentration: 0 - 26 [mol percent]
-        :precondition: co2Concentration: 0 - 26 [mol percent]
-        :precondition: h2sConcentration: 0 - 50 [mol percent]
-        :precondition: Pb: 150 - 7127 [psig]
-        
-        :type Yg: number
-        :param Yg: Gas specific gravity [ratio air=1]
-        :type Rsb: number
-        :param Rsb: Solution GOR at Pb [scf/STB]
-        :type API: number
-        :param API: API oil gravity [°API]
-        :type T: number
-        :param T: Temperature [°F]
-        :type n2Concentration: number
-        :param n2Concentration: molar fraction of nitrogen in the gas [gas mol/mixture mol]
-        :type co2Concentration: number
-        :param co2Concentration: molar fraction of carbon dioxide in the gas [gas mol/mixture mol]
-        :type h2sConcentration: number
-        :param h2sConcentration: molar fraction of hydrogen sulfide in the gas [gas mol/mixture mol]
-        
-        :return: Pb = Bubble point pressure [psia]
-        """
-        
-        X = (Rsb / Yg) ** 0.816 * T ** 0.172 / API ** 0.989
-        
-        PbHC = 10 ** (1.7669 + (1.7447 * log10(X)) - (0.30218 * (log10(X)) ** 2))
-        
-        # Effects of nonhydrocarbons on bubble point pressure
-        n2Effect = 1 + ((-2.65 * 10 **-4 * API + 5.5 * 10 **-3) * T + (0.0931 * API - 0.8295)) * n2Concentration + ((1.954 * 10 **-11 * API **4.699) * T + (0.027 * API - 2.366)) * n2Concentration **2
-        co2Effect = 1 - 693.8 * co2Concentration * T **-1.553
-        h2sEffect = 1 - (0.9035 + 0.0015 * API) * h2sConcentration + 0.019 * (45 - API) *  h2sConcentration **2
-  
-        Pb = PbHC * n2Effect * co2Effect * h2sEffect
-        
-        if Pb < 0:
-            
-            Pb = 0
-        
-        PbGlaso = Pb
-        
-        return PbGlaso
+def PbGlasoCorrelation(Yg, Rsb, API, T, n2Concentration, co2Concentration, h2sConcentration):
+    X = (Rsb / Yg) ** 0.816 * T ** 0.172 / API ** 0.989
+    PbHC = 10 ** (1.7669 + (1.7447 * log10(X)) - (0.30218 * (log10(X)) ** 2))
+    n2Effect = 1 + ((-2.65 * 10 **-4 * API + 5.5 * 10 **-3) * T + (0.0931 * API - 0.8295)) * n2Concentration + ((1.954 * 10 **-11 * API **4.699) * T + (0.027 * API - 2.366)) * n2Concentration **2
+    co2Effect = 1 - 693.8 * co2Concentration * T **-1.553
+    h2sEffect = 1 - (0.9035 + 0.0015 * API) * h2sConcentration + 0.019 * (45 - API) *  h2sConcentration **2
+    Pb = PbHC * n2Effect * co2Effect * h2sEffect
+    if Pb < 0:
+        Pb = 0
+    PbGlaso = Pb
+    return PbGlaso
 
 def PbHanafyCorrelation(Rsb):
     # Total flash gas-oil ratio
@@ -1325,3 +1283,31 @@ def ZFactorHallYarboroughCorrelation(Tr, P, Tsc, Psc):
     ZFactorHallYarborough = Z
     return ZFactorHallYarborough
     
+
+def ZFactorDranchukPRCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    A1 = 0.31506237
+    A2 = -1.0467099
+    A3 = -0.57832729
+    A4 = 0.53530771
+    A5 = -0.61232032
+    A6 = -0.10488813
+    A7 = 0.68157001
+    A8 = 0.68446549
+    
+    epsilon = 1.0e-8
+    Z = 0.5
+    Zprev = 0.6
+    
+    while fabs(Zprev - Z) > epsilon:
+        Z = Zprev
+        pr = 0.27 * Psr/(Z * Tsr)
+        F = Z - (1 + (A1 + (A2/Tsr) + (A3/(Tsr **3))) * pr + ((A4 + (A5/Tsr)) * (pr ** 2)) + ((A5 * A6 * (pr ** 5))/Tsr) + A7 * (1 + A8 * (pr ** 2)) * ((pr ** 2)/(Tsr ** 3)) * exp(-A8 * (pr ** 2)))
+        dFdZ = 1 + (A1 + (A2/Tsr) + (A3/(Tsr ** 3))) * (pr/Z) + 2 * (A4 + (A5/Tsr)) * (pr ** 2)/Z + ((5 * A5 * A6 * (pr **5))/(Z * Tsr)) + ((2 * A7 * (pr ** 2))/(Z * (Tsr ** 3))) * (1 + A8 * (pr ** 2) - ((A8 * (pr ** 2)) ** 2)) * exp(-A8 * (pr ** 2))
+        Zf = Z - F/dFdZ
+        Zprev = Zf
+                
+    Z = Zf   
+    ZFactorDranchukPR = Z
+    return ZFactorDranchukPR

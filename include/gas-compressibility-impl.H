@@ -3,6 +3,17 @@
 
 # include <gas-compressibility.H>
 
+static void check_range(const string & caller, const string & op_msg,
+			double val, double min, double max)
+{
+  if (not (val < min or val >max))
+    return;
+
+  ostringstream s;
+  s << "In " << caller << ": ratio " << op_msg << " = " << val
+    << " is not inside the interval [" << min << ", " << max << "]";
+  throw domain_error(s.str());
+}
 
 inline Quantity<ZFactor>
 ZFactorSarem::impl(const Quantity<Rankine> & t,
@@ -11,22 +22,10 @@ ZFactorSarem::impl(const Quantity<Rankine> & t,
 		   const Quantity<psia> & psc) const
 {
   const double tsr = t.raw()/tsc.raw();
-  if (tsr < 1.05 or tsr > 2.95)
-    {
-      ostringstream s;
-      s << "Ratio t/tsc = " << t << " / " << tsc << " = " << tsr
-	<< " is not inside the range [1.05, 2.95]";
-      throw domain_error(s.str());
-    }
+  check_range("ZFactorSarem::impl", "t/tsc", tsr, 1.05, 2.95);
 
   const double psr = p.raw()/psc.raw();
-  if (psr < 0.1 or psr > 14.9)
-    {
-      ostringstream s;
-      s << "Ratio p/psc = " << p << " / " << psc << " = " << psr
-	<< " is not inside the range [0.1, 14.9]";
-      throw domain_error(s.str());
-    }
+  check_range("ZFactorSarem::impl", "p/psc", psr, 0.1, 14.9);
 
   const double x = (2*psr - 15)/14.8;
   const double y = (2*tsr - 4)/1.9;
@@ -82,22 +81,10 @@ ZFactorHallYarborough::impl(const Quantity<Rankine> & t,
 			    const Quantity<psia> & psc) const
 {
   const double tsr = t.raw()/tsc.raw();
-  if (tsr < 1.2 or tsr > 3)
-    {
-      ostringstream s;
-      s << "Ratio t/tsc = " << t << " / " << tsc << " = " << tsr
-	<< " is not inside the range [1.2, 3]";
-      throw domain_error(s.str());
-    }
+  check_range("ZFactorHallYarborough", "t/tsc", tsr, 1.2, 3);
 
   const double psr = p.raw()/psc.raw();
-  if (psr < 0.1 or psr > 24)
-    {
-      ostringstream s;
-      s << "Ratio p/psc = " << p << " / " << psc << " = " << psr
-	<< " is not inside the range [0.1, 24]";
-      throw domain_error(s.str());
-    }
+  check_range("ZFactorHallYarborough", "p/psc", psr, 0.1, 24);
 
   const double tsr_1 = 1/tsr;
   const double tsr_1_2 = tsr_1*tsr_1;
@@ -130,7 +117,7 @@ ZFactorHallYarborough::impl(const Quantity<Rankine> & t,
       const double pr_x_4_4 = pr_x_4_3*pr_x_4;
 
       const double dfdpr = (1 + pr_x_4 + pr_x_4_2 - pr_x_4_3 + pr_x_4_4) /
-	pow(1 - pr, 4) - 2 * b*pr + c*d* pow(pr, d-1);
+	pow(1 - pr, 4) - 2*b*pr + c*d*pow(pr, d-1);
 
       prf = pr - f/dfdpr;
 
@@ -139,10 +126,69 @@ ZFactorHallYarborough::impl(const Quantity<Rankine> & t,
 
   pr = prf;
             
-  const double z = (0.06125*psr * tsr_1_1 * exp(-1.2 * tsr_1_1*tsr_1_1)) / pr;
+  const double z = (0.06125 * psr * tsr_1 * exp(-1.2 * tsr_1_1*tsr_1_1)) / pr;
 
   return Quantity<ZFactor>(z);  
 }
+
+inline Quantity<ZFactor>
+ZFactorDranchukPR::impl(const Quantity<Rankine> & t,
+			const Quantity<psia> & p,
+			const Quantity<Rankine> & tsc,
+			const Quantity<psia> & psc) const
+{
+  const double tsr = t.raw()/tsc.raw();
+  check_range("ZFactorDranchukPR", "t/tsc", tsr, 1.05, 3);
+
+  const double psr = p.raw()/psc.raw();
+  check_range("ZFactorDranchukPR", "p/psc", psr, 0.2, 30);
+
+  constexpr double a1 = 0.31506237;
+  constexpr double a2 = -1.0467099;
+  constexpr double a3 = -0.57832729;
+  constexpr double a4 = 0.53530771;
+  constexpr double a5 = -0.61232032;
+  constexpr double a6 = -0.10488813;
+  constexpr double a7 = 0.68157001;
+  constexpr double a8 = 0.68446549;
+
+  const double tsr2 = tsr*tsr;
+  const double tsr3 = tsr2*tsr;
+
+      // pr: Densidad reducida definida por el autor del metodo
+  constexpr double epsilon = 1.0e-8;
+  double z = 0.5;
+  double zprev = 0.6;
+  double zf = 0;
+            
+      // iteracion por metodo Newton-Raphson
+  while (fabs(zprev - z) > epsilon)
+    {
+      z = zprev;
+      const double pr = 0.27*psr/(z * tsr);
+
+      const double pr2 = pr*pr;
+      const double pr3 = pr2*pr;
+      const double pr4 = pr3*pr;
+      const double pr5 = pr4*pr;
+            
+      const double f = z - (1 + (a1 + a2/tsr + a3/tsr3)*pr + (a4 + a5/tsr)*pr2 +
+			    ((a5*a6*pr5)/tsr) +
+			    a7*(1 + a8*pr2) * (pr2/tsr3) * exp(-a8*pr2));
+
+      const double a8_x_pr2 = a8 * pr2;
+      const double a8_x_pr2_2 = a8_x_pr2*a8_x_pr2;
+      const double dfdz = 1 + (a1 + a2/tsr + a3/tsr3)*(pr/z) +
+	2*(a4 + a5/tsr)*pr2/z + (5*a5*a6*pr5)/(z * tsr) +
+	(2*a7*pr2)/(z * tsr3)*(1 + a8_x_pr2 - a8_x_pr2_2)*exp(-a8_x_pr2);
+
+      zf = z - f/dfdz;
+      zprev = zf;
+    }
+
+  return Quantity<ZFactor>(zf);
+}
+
 
 
 # endif // GAS_COMPRESSIBILITY_IMPL_H

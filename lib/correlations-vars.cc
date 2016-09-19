@@ -42,6 +42,7 @@ static json to_json(const Correlation & c)
   j["subtype"] = c.subtype_name;
   j["type"] = c.type_name;
   j["name"] = c.name;
+  j["hidden"] = c.hidden;
 
   auto jpars = c.get_preconditions().map<json>([] (const auto & par)
 					       { return ::to_json(par); });

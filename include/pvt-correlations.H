@@ -151,6 +151,8 @@ struct CorrelationInstantiater
     UgDeanStiel::get_instance();
 
     ZFactorSarem::get_instance();
+    ZFactorHallYarborough::get_instance();
+    ZFactorDranchukPR::get_instance();
   }
 };
 
