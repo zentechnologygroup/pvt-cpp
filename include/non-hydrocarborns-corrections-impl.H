@@ -5,9 +5,9 @@
 
 inline Quantity<Sgg>
 YgHCWichertAziz::impl(const Quantity<Sgg> & yg,
-		      const Quantity<MolePercent> & n2_concentration,
-		      const Quantity<MolePercent> & co2_concentration,
-		      const Quantity<MolePercent> & h2s_concentration) const
+		      const Quantity<MoleFraction> & n2_concentration,
+		      const Quantity<MoleFraction> & co2_concentration,
+		      const Quantity<MoleFraction> & h2s_concentration) const
 {
   const double n2 = n2_concentration.raw();
   const double co2 = co2_concentration.raw();
@@ -20,9 +20,9 @@ YgHCWichertAziz::impl(const Quantity<Sgg> & yg,
 
 inline Quantity<psia>
 PscMKayMixingRule::impl(const Quantity<psia> & pschc,
-			const Quantity<MolePercent> & n2_concentration,
-			const Quantity<MolePercent> & co2_concentration,
-			const Quantity<MolePercent> & h2s_concentration) const
+			const Quantity<MoleFraction> & n2_concentration,
+			const Quantity<MoleFraction> & co2_concentration,
+			const Quantity<MoleFraction> & h2s_concentration) const
 {
   const double n2 = n2_concentration.raw();
   const double co2 = co2_concentration.raw();
@@ -38,8 +38,8 @@ PscMKayMixingRule::impl(const Quantity<psia> & pschc,
 inline Quantity<psia>
 AdjustedPscMWichertAziz::impl(const Quantity<psia> & pscm,
 			      const Quantity<Fahrenheit> & tscm,
-			      const Quantity<MolePercent> & co2_concentration,
-			      const Quantity<MolePercent> & h2s_concentration)
+			      const Quantity<MoleFraction> & co2_concentration,
+			      const Quantity<MoleFraction> & h2s_concentration)
   const
 {
   const double a = co2_concentration.raw() + h2s_concentration.raw();
@@ -55,6 +55,21 @@ AdjustedPscMWichertAziz::impl(const Quantity<psia> & pscm,
   return Quantity<psia>(adjusted_psc);
 }
 
+
+inline Quantity<psia>
+TscMKayMixingRule::impl(const Quantity<psia> & tschc,
+			const Quantity<MoleFraction> & n2_concentration,
+			const Quantity<MoleFraction> & co2_concentration,
+			const Quantity<MoleFraction> & h2s_concentration) const
+{
+  const double n2 = n2_concentration.raw();
+  const double co2 = co2_concentration.raw();
+  const double h2s = h2s_concentration.raw();
+  const double tscm = (1 - n2 - co2 - h2s)*tschc.raw() + 227*n2 + 548*co2 +
+    672*h2s;
+
+  return Quantity<psia>(tscm);
+}
 
 
 

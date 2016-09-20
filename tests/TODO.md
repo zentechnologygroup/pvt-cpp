@@ -39,3 +39,6 @@
 ## 13. generar llamada a correlaion con funcion para usar desde interprrete
 - Created at   2016-09-20 17:05:44 -0400
 
+## 14. verificar todo en nonhydrocarbons gas-pseudo-cirtical-pressure especialmente MolePercent versus MoleFraction
+- Created at   2016-09-20 18:02:56 -0400
+

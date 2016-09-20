@@ -139,6 +139,8 @@ struct CorrelationInstantiater
     YgHCWichertAziz::get_instance();
     PscMKayMixingRule::get_instance();
     AdjustedPscMWichertAziz::get_instance();
+    TscMKayMixingRule::get_instance();
+
     PscHCStanding::get_instance();
     PscHcSutton::get_instance();
     PscHCGuoGhalambor::get_instance();
@@ -157,6 +159,7 @@ struct CorrelationInstantiater
     ZFactorGopal::get_instance();
     ZFactorBrillBeggs::get_instance();
     ZFactorPapay::get_instance();
+    
   }
 };
 

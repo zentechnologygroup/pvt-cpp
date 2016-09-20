@@ -1441,3 +1441,10 @@ def ZFactorPapayCorrelation(Tr, P, Tsc, Psc):
     ZFactorPapay = Z 
     return ZFactorPapay
 
+def TscMKayMixingRuleCorrelation(TscHC, n2Concentration, co2Concentration, h2sConcentration):
+    TscM = (1 - n2Concentration - co2Concentration - h2sConcentration) * TscHC + 227 * n2Concentration + 548 * co2Concentration + 672 * h2sConcentration # Pseudocritical temperature of the whole gas mixture
+    TscMKay = TscM
+    return TscMKay
+
+
+    
