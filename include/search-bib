@@ -7,7 +7,7 @@ b = BibTeX.open('refs.bib')
 
 term = ARGV.shift
 
-r = b.find_all { |e| e.author.downcase.include? term }
+r = b.find_all { |e| e.author.downcase.include? term.downcase }
 
 exit unless r
 

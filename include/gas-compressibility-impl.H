@@ -321,18 +321,44 @@ ZFactorBrillBeggs::impl(const Quantity<Rankine> & t,
 
   const double a = 1.39*sqrt(tsr - 0.92) - 0.36*tsr - 0.10;
 
-  const double b = (0.62 - 0.23*tsr)*psr + ((0.066/(tsr - 0.86)) - 0.037) * (Psr ** 2) + (0.32/(10 ** (9 * (Tsr - 1)))) * (Psr ** 6)
-            C = 0.132 - 0.32 * log10(Tsr)
-            D = 10 ** (0.3106 - 0.49 * Tsr + 0.1824 * (Tsr ** 2))
+  const double psr2 = psr*psr;
+  const double b = (0.62 - 0.23*tsr)*psr +
+    (0.066/(tsr - 0.86) - 0.037)*psr2 + (0.32/pow(10, 9*(tsr - 1)))*pow(psr, 6);
+
+  const double c = 0.132 - 0.32*log10(tsr);
+
+  const double tsr2 = tsr*tsr;
+  const double d = pow(10, 0.3106 - 0.49 * tsr + 0.1824 * tsr2);
             
-            mathDomain = B  #Se define el dominio matematico de la funcion de Z, sensible al argumento B de la funcion exponencial         
-                     
-            if mathDomain > 700:
-                Z = A + ((0)) + C * (Psr ** D) #el cero se corresponde con numeros muy altos en el denominador i.e >1e+300
-    
-            else:
-                Z = A + ((1 - A)/exp(B)) + C * (Psr ** D)
-            
+  double z = 0;
+  if (b > 700)
+    z = a + c*pow(psr, d);
+  else
+    z = a + ((1 - a)/exp(b)) + c*pow(psr, d);
+
+  return Quantity<ZFactor>(z);
 }
+
+inline Quantity<ZFactor>
+ZFactorPapay::impl(const Quantity<Rankine> & t,
+		   const Quantity<psia> & p,
+		   const Quantity<Rankine> & tsc,
+		   const Quantity<psia> & psc) const
+{
+  const double tsr = t.raw()/tsc.raw();
+  check_range("ZFactorPapay", "t/tsc", tsr, 1.2, 3);
+
+  const double psr = p.raw()/psc.raw();
+  check_range("ZFactorPapay", "p/psc", psr, 0.2, 15);
+
+  const double psr2 = psr*psr;
+  const double z = 1 - 3.52*psr/pow(10, 0.9813*tsr) +
+    0.274*psr2/pow(10, 0.8157*tsr);
+
+  return Quantity<ZFactor>(z);
+}
+
+
+
 
 # endif // GAS_COMPRESSIBILITY_IMPL_H

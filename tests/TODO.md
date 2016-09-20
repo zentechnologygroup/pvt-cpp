@@ -36,3 +36,6 @@
 ## 12. revisar valor de epsilon en reporte de unidad
 - Created at   2016-09-12 15:49:09 -0400
 
+## 13. generar llamada a correlaion con funcion para usar desde interprrete
+- Created at   2016-09-20 17:05:44 -0400
+

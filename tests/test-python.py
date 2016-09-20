@@ -1384,3 +1384,60 @@ def ZFactorDranchukAKCorrelation(Tr, P, Tsc, Psc):
     ZFactorDranchukAK = Z
     return ZFactorDranchukAK
     
+def ZFactorGopalCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    if 0.2 < Psr <= 1.2:
+        if 1.05 < Tsr <= 1.2:
+            Z = Psr * ((1.6643 * Tsr) - 2.2114) - 0.3647 * Tsr + 1.4385
+        elif 1.2 < Tsr <= 1.4:
+            Z = Psr * ((0.0522 * Tsr) - 0.8511) - 0.0364 * Tsr + 1.0490
+        elif 1.4 < Tsr <= 2.0:
+            Z = Psr * ((0.1391 * Tsr) - 0.2988) + 0.0007 * Tsr + 0.9969
+        elif 2.0 < Tsr <= 3.0:
+            Z = Psr * ((0.0295 * Tsr) - 0.0825) + 0.0009 * Tsr + 0.9967
+    elif 1.2 < Psr <= 2.8:
+        if 1.05 < Tsr <= 1.2:
+            Z = Psr * ((-1.3570 * Tsr) + 1.4942) + 4.6315 * Tsr - 4.7009
+        elif 1.2 < Tsr <= 1.4:
+            Z = Psr * ((0.1717 * Tsr) - 0.3232) + 0.5869 * Tsr + 0.1229   
+        elif 1.4 < Tsr <= 2.0:
+            Z = Psr * ((0.0984 * Tsr) - 0.2053) + 0.0621 * Tsr + 0.8580
+        elif 2.0 < Tsr <= 3.0:
+            Z = Psr * ((0.0211 * Tsr) - 0.0527) + 0.0127 * Tsr + 0.9549
+    elif 2.8 < Psr <= 5.4:
+        if 1.05 < Tsr <= 1.2:
+            Z = Psr * ((-0.3278 * Tsr) + 0.4752) + 1.8223 * Tsr - 1.9036
+        elif 1.2 < Tsr <= 1.4:
+            Z = Psr * ((-0.2521 * Tsr) + 0.3871) + 1.6087 * Tsr - 1.6635
+        elif 1.4 < Tsr <= 2.0:
+            Z = Psr * ((-0.0284 * Tsr) + 0.0625) + 1.4714 * Tsr - 0.0011
+        elif 2.0 < Tsr <= 3.0:
+            Z = Psr * ((0.0041 * Tsr) + 0.0039) + 0.0607 * Tsr + 0.7927
+    elif 5.4 < Psr <= 15: # para cualquier Tsr entre 1.05 y 3.0
+        Z = Psr * ((0.711 + (3.66 * Tsr) + 0.0039) ** -1.4667) - (1.637 /(0.319 * Tsr + 0.522)) + 2.071
+        ZFactorGopal = Z
+        return ZFactorGopal
+
+def ZFactorBrillBeggsCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    A = 1.39 * ((Tsr - 0.92) ** 0.5) - 0.36 * Tsr - 0.10
+    B = (0.62 - 0.23 * Tsr) * Psr + ((0.066/(Tsr - 0.86)) - 0.037) * (Psr ** 2) + (0.32/(10 ** (9 * (Tsr - 1)))) * (Psr ** 6)
+    C = 0.132 - 0.32 * log10(Tsr)
+    D = 10 ** (0.3106 - 0.49 * Tsr + 0.1824 * (Tsr ** 2))
+    mathDomain = B  #Se define el dominio matematico de la funcion de Z, sensible al argumento B de la funcion exponencial         
+    if mathDomain > 700:
+        Z = A + ((0)) + C * (Psr ** D) #el cero se corresponde con numeros muy altos en el denominador i.e >1e+300
+    else:
+        Z = A + ((1 - A)/exp(B)) + C * (Psr ** D)
+    ZFactorBrillBeggs = Z
+    return ZFactorBrillBeggs
+
+def ZFactorPapayCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    Z = 1 - (3.52 * Psr/(10 ** (0.9813 * Tsr))) + ((0.274 * (Psr ** 2))/(10 ** (0.8157 * Tsr)))
+    ZFactorPapay = Z 
+    return ZFactorPapay
+
