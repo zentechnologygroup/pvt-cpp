@@ -239,8 +239,15 @@ ZFactorDranchukAK::impl(const Quantity<Rankine> & t,
 			    a9*(a7/tsr + a8/tsr2)*pr5 +
 			    a10*(1 + a11*pr2)*(pr2/tsr3)*exp(-a11*pr2));
 
-      const double dfdz = 1 + ((a1 + a2/tsr + a3/tsr3 + a4/tsr4 + a5/tsr5)*(pr/z)) + (2 * (a6 + a7/tsr + a8/tsr2) * (pr2/z)) - (5*a9 * (a7/tsr + a8/tsr2) * pr5/z) + (((2 * a10 * pr2)/(z * tsr3)) * (1 + (a11 * pr2) - ((a11 * pr2) ** 2)) * exp (-a11 * pr2))      
-                zf = z - f/dfdz
+      const double a11_x_pr2 = a11*pr2;
+      const double a11_x_pr2_2 = a11_x_pr2*a11_x_pr2;
+
+      const double dfdz = 1 +
+	((a1 + a2/tsr + a3/tsr3 + a4/tsr4 + a5/tsr5)*(pr/z)) +
+	(2*(a6 + a7/tsr + a8/tsr2)*(pr2/z)) - (5*a9*(a7/tsr + a8/tsr2)*pr5/z) +
+	(((2*a10*pr2)/(z*tsr3)) * (1 + a11_x_pr2 - a11_x_pr2_2*exp(-a11_x_pr2));
+
+	 zf = z - f/dfdz
                 zprev = zf
                 
             z = zf   
