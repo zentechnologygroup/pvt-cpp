@@ -266,14 +266,14 @@ ZFactorGopal::impl(const Quantity<Rankine> & t,
   check_range("ZFactorGopal", "p/psc", psr, 0.2, 15);
 
   double z = 0;
-  if (psr > 0.2 and Psr <= 1.2)
+  if (psr > 0.2 and psr <= 1.2)
     {
       if (tsr > 1.05 and tsr <= 1.2)
-	z = psr*(1.6643*Tsr - 2.2114) - 0.3647*tsr + 1.4385;
+	z = psr*(1.6643*tsr - 2.2114) - 0.3647*tsr + 1.4385;
       else if (tsr > 1.2 and tsr <= 1.4)
-	z = psr*(0.0522*Tsr - 0.8511) - 0.0364*tsr + 1.0490;
-      else if (tsr > 1.4 and Tsr <= 2.0)
-	z = psr*(0.1391*Tsr - 0.2988) + 0.0007*tsr + 0.9969;
+	z = psr*(0.0522*tsr - 0.8511) - 0.0364*tsr + 1.0490;
+      else if (tsr > 1.4 and tsr <= 2.0)
+	z = psr*(0.1391*tsr - 0.2988) + 0.0007*tsr + 0.9969;
       else // 2.0 < Tsr <= 3.0
 	z = psr*(0.0295*tsr - 0.0825) + 0.0009*tsr + 0.9967;
     }
@@ -305,6 +305,59 @@ ZFactorGopal::impl(const Quantity<Rankine> & t,
                             
   return Quantity<ZFactor>(z);
 }
+
+
+inline Quantity<ZFactor>
+ZFactorBrillBeggs::impl(const Quantity<Rankine> & t,
+			const Quantity<psia> & p,
+			const Quantity<Rankine> & tsc,
+			const Quantity<psia> & psc) const
+{
+  const double tsr = t.raw()/tsc.raw();
+  check_range("ZFactorBrillBeggs", "t/tsc", tsr, 1.2, 2.4);
+
+  const double psr = p.raw()/psc.raw();
+  check_range("ZFactorBrillBeggs", "p/psc", psr, 0, 13);
+
+  const double a = 1.39*sqrt(tsr - 0.92) - 0.36*tsr - 0.10;
+
+  const double psr2 = psr*psr;
+  const double b = (0.62 - 0.23*tsr)*psr +
+    (0.066/(tsr - 0.86) - 0.037)*psr2 + (0.32/pow(10, 9*(tsr - 1)))*pow(psr, 6);
+
+  const double c = 0.132 - 0.32*log10(tsr);
+
+  const double tsr2 = tsr*tsr;
+  const double d = pow(10, 0.3106 - 0.49 * tsr + 0.1824 * tsr2);
+            
+  double z = 0;
+  if (b > 700)
+    z = a + c*pow(psr, d);
+  else
+    z = a + ((1 - a)/exp(b)) + c*pow(psr, d);
+
+  return Quantity<ZFactor>(z);
+}
+
+inline Quantity<ZFactor>
+ZFactorPapay::impl(const Quantity<Rankine> & t,
+		   const Quantity<psia> & p,
+		   const Quantity<Rankine> & tsc,
+		   const Quantity<psia> & psc) const
+{
+  const double tsr = t.raw()/tsc.raw();
+  check_range("ZFactorPapay", "t/tsc", tsr, 1.2, 3);
+
+  const double psr = p.raw()/psc.raw();
+  check_range("ZFactorPapay", "p/psc", psr, 0.2, 15);
+
+  const double psr2 = psr*psr;
+  const double z = 1 - 3.52*psr/pow(10, 0.9813*tsr) +
+    0.274*psr2/pow(10, 0.8157*tsr);
+
+  return Quantity<ZFactor>(z);
+}
+
 
 
 
