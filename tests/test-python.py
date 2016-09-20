@@ -1356,3 +1356,32 @@ def UoaDindorukChristmanCorrelation(uoBubble, P, Pb, Rs):
     uoaDindorukChristman = uoa
     return uoaDindorukChristman
 
+
+def ZFactorDranchukAKCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    A1 = 0.3265
+    A2 = -1.07
+    A3 = -0.5339
+    A4 = 0.01569
+    A5 = -0.05165
+    A6 = 0.5475
+    A7 = -0.7361
+    A8 = 0.1844
+    A9 = 0.1056
+    A10 = 0.6134
+    A11 = 0.721
+    epsilon = 1.0e-8
+    Z = 0.5
+    Zprev = 0.6
+    while fabs(Zprev - Z) > epsilon:
+        Z = Zprev
+        pr = 0.27 * Psr/(Z * Tsr)
+        F = Z - (1 + (A1 + (A2/Tsr) + (A3/(Tsr **3)) + (A4/(Tsr ** 4)) + (A5/(Tsr ** 5))) * pr + (A6 + (A7/Tsr) + (A8/(Tsr ** 2))) * (pr ** 2) - A9 * ((A7/Tsr) + (A8/(Tsr ** 2))) * (pr ** 5) + A10 * (1 + A11 * (pr ** 2)) * ((pr ** 2)/(Tsr ** 3)) * exp(-A11 * (pr ** 2)))
+        dFdZ = 1 + ((A1 + (A2/Tsr) + (A3/(Tsr ** 3)) + (A4/(Tsr ** 4)) + (A5/(Tsr ** 5))) * (pr/Z)) + (2 * (A6 + (A7/Tsr) + (A8/(Tsr ** 2))) * ((pr ** 2)/Z)) - ((5 * A9) * ((A7/Tsr) + (A8/(Tsr ** 2))) * ((pr ** 5)/Z)) + (((2 * A10 * (pr ** 2))/(Z * (Tsr ** 3))) * (1 + (A11 * (pr ** 2)) - ((A11 * (pr ** 2)) ** 2)) * exp (-A11 * (pr ** 2)))      
+        Zf = Z - F/dFdZ
+        Zprev = Zf
+    Z = Zf   
+    ZFactorDranchukAK = Z
+    return ZFactorDranchukAK
+    
