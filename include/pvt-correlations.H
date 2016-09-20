@@ -153,6 +153,8 @@ struct CorrelationInstantiater
     ZFactorSarem::get_instance();
     ZFactorHallYarborough::get_instance();
     ZFactorDranchukPR::get_instance();
+    ZFactorDranchukAK::get_instance();
+    ZFactorGopal::get_instance();
   }
 };
 

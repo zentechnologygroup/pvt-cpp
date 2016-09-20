@@ -91,7 +91,7 @@ class CorrelationGen
       s += "const Quantity<#{par.unit}> & #{par.name}"
       s += ",\n" unless par == @pars.last
     end
-    s += ") const"
+    s += ")"
   end  
 
   def gen_impl_declaration
@@ -99,6 +99,7 @@ class CorrelationGen
         "\n"
     s += "inline " + impl_type + " impl"
     s += gen_pars
+    s += " const"
   end
 
   def pars_list
@@ -175,20 +176,30 @@ class CorrelationGen
          "\n"
     s += "#{gen_impl_declaration};\n"\
          "\n"
-    s += "#{impl_type} operator () #{gen_pars}\n"\
+    s += "#{impl_type} operator () #{gen_pars} const\n"\
          "{\n"\
          "  return compute({#{pars_list}});\n"\
          "}\n"\
          "\n"
     s += gen_compute
          
-    s += "};\n"
+    s += "};\n"\
+         "\n"\
+         "inline #{impl_type} #{@name}__fct #{gen_pars}\n"\
+         "{\n"\
+         "  return #{@name}::get_instance()("
+    @pars.each do |par|
+      s += par.name
+      s += ',' if par != @pars.last
+    end
+    s += ");\n"\
+         "}\n"
   end
 
   def gen_impl
     "\n"\
     "inline #{impl_type}\n"\
-    "#{@name}::impl#{gen_pars}\n"\
+    "#{@name}::impl#{gen_pars} const\n"\
     "{\n"\
     "    // put here the implementation\n"\
     "}\n"

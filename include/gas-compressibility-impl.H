@@ -214,7 +214,7 @@ ZFactorDranchukAK::impl(const Quantity<Rankine> & t,
   constexpr double a11 = 0.721;
             
   // pr: Densidad reducida definida por el autor del metodo
-  constexpr epsilon = 1.0e-8;
+  constexpr double epsilon = 1.0e-8;
   double z = 0.5;
   double zprev = 0.6;
   double zf;
@@ -228,7 +228,6 @@ ZFactorDranchukAK::impl(const Quantity<Rankine> & t,
     {
       z = zprev;
       const double pr = 0.27*psr/(z * tsr);
-
       const double pr2 = pr*pr;
       const double pr3 = pr2*pr;
       const double pr4 = pr3*pr;
@@ -245,16 +244,95 @@ ZFactorDranchukAK::impl(const Quantity<Rankine> & t,
       const double dfdz = 1 +
 	((a1 + a2/tsr + a3/tsr3 + a4/tsr4 + a5/tsr5)*(pr/z)) +
 	(2*(a6 + a7/tsr + a8/tsr2)*(pr2/z)) - (5*a9*(a7/tsr + a8/tsr2)*pr5/z) +
-	(((2*a10*pr2)/(z*tsr3)) * (1 + a11_x_pr2 - a11_x_pr2_2*exp(-a11_x_pr2));
+	(((2*a10*pr2)/(z* tsr3))*(1 + a11_x_pr2 - a11_x_pr2_2)*exp(-a11_x_pr2));
 
-	 zf = z - f/dfdz
-                zprev = zf
-                
-            z = zf   
-        
-        ZFactorDranchukAK = Z
-       
+      zf = z - f/dfdz;
+      zprev = zf;
+    }     
+
+  return Quantity<ZFactor>(zf);
 }
 
+inline Quantity<ZFactor>
+ZFactorGopal::impl(const Quantity<Rankine> & t,
+		   const Quantity<psia> & p,
+		   const Quantity<Rankine> & tsc,
+		   const Quantity<psia> & psc) const
+{
+  const double tsr = t.raw()/tsc.raw();
+  check_range("ZFactorGopal", "t/tsc", tsr, 1.05, 3);
+
+  const double psr = p.raw()/psc.raw();
+  check_range("ZFactorGopal", "p/psc", psr, 0.2, 15);
+
+  double z = 0;
+  if (psr > 0.2 and psr <= 1.2)
+    {
+      if (tsr > 1.05 and tsr <= 1.2)
+	z = psr*(1.6643*tsr - 2.2114) - 0.3647*tsr + 1.4385;
+      else if (tsr > 1.2 and tsr <= 1.4)
+	z = psr*(0.0522*tsr - 0.8511) - 0.0364*tsr + 1.0490;
+      else if (tsr > 1.4 and tsr <= 2.0)
+	z = psr*(0.1391*tsr - 0.2988) + 0.0007*tsr + 0.9969;
+      else // 2.0 < Tsr <= 3.0
+	z = psr*(0.0295*tsr - 0.0825) + 0.0009*tsr + 0.9967;
+    }
+  else if (psr > 1.2 and psr <= 2.8)
+    {
+      if (tsr > 1.05 and tsr <= 1.2)
+	z = psr*(-1.3570*tsr + 1.4942) + 4.6315*tsr - 4.7009;
+      else if (tsr > 1.2 and tsr <= 1.4)
+	z = psr*(0.1717*tsr - 0.3232) + 0.5869*tsr + 0.1229;
+      else if (tsr > 1.4 and tsr <= 2.0)
+	z = psr*(0.0984*tsr - 0.2053) + 0.0621*tsr + 0.8580;
+      else // 2.0 < Tsr <= 3.0
+	z = psr*(0.0211*tsr - 0.0527) + 0.0127*tsr + 0.9549;
+    }
+  else if (psr > 2.8 and psr <= 5.4)
+    {
+      if (tsr > 1.05 and tsr <= 1.2)
+	z = psr*(-0.3278*tsr + 0.4752) + 1.8223*tsr - 1.9036;
+      else if (tsr > 1.2 and tsr <= 1.4)
+	z = psr*(-0.2521*tsr + 0.3871) + 1.6087*tsr - 1.6635;
+      else if (tsr > 1.4 and tsr <= 2.0)
+	z = psr*(-0.0284*tsr + 0.0625) + 1.4714*tsr - 0.0011;
+      else // 2.0 < Tsr <= 3.0:
+	z = psr*(0.0041*tsr + 0.0039) + 0.0607*tsr + 0.7927;
+    }
+  else // 5.4 < psr <= 15
+    z = psr*pow(0.711 + 3.66*tsr + 0.0039, -1.4667) -
+      1.637/(0.319*tsr + 0.522) + 2.071;
+                            
+  return Quantity<ZFactor>(z);
+}
+
+
+inline Quantity<ZFactor>
+ZFactorBrillBeggs::impl(const Quantity<Rankine> & t,
+			const Quantity<psia> & p,
+			const Quantity<Rankine> & tsc,
+			const Quantity<psia> & psc) const
+{
+  const double tsr = t.raw()/tsc.raw();
+  check_range("ZFactorBrillBeggs", "t/tsc", tsr, 1.2, 2.4);
+
+  const double psr = p.raw()/psc.raw();
+  check_range("ZFactorBrillBeggs", "p/psc", psr, 0, 13);
+
+  const double a = 1.39*sqrt(tsr - 0.92) - 0.36*tsr - 0.10;
+
+  const double b = (0.62 - 0.23*tsr)*psr + ((0.066/(tsr - 0.86)) - 0.037) * (Psr ** 2) + (0.32/(10 ** (9 * (Tsr - 1)))) * (Psr ** 6)
+            C = 0.132 - 0.32 * log10(Tsr)
+            D = 10 ** (0.3106 - 0.49 * Tsr + 0.1824 * (Tsr ** 2))
+            
+            mathDomain = B  #Se define el dominio matematico de la funcion de Z, sensible al argumento B de la funcion exponencial         
+                     
+            if mathDomain > 700:
+                Z = A + ((0)) + C * (Psr ** D) #el cero se corresponde con numeros muy altos en el denominador i.e >1e+300
+    
+            else:
+                Z = A + ((1 - A)/exp(B)) + C * (Psr ** D)
+            
+}
 
 # endif // GAS_COMPRESSIBILITY_IMPL_H
