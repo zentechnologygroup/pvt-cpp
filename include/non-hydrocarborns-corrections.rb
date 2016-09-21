@@ -51,3 +51,21 @@ add_parameter("n2_concentration", "MoleFraction")
 add_parameter("co2_concentration", "MoleFraction")
 add_parameter("h2s_concentration", "MoleFraction")
 end_correlation()
+
+################################################################
+
+begin_correlation("AdjustedTscMWichertAziz", "GasPseudoCriticalTemperature",
+                  "psia")
+add_title("WICHERT & AZIZ CORRELATION, CALCULATION OF PSEUDOCRITICAL TEMPERATURE OF THE WHOLE GAS MIXTURE")
+add_note("The pseudocritical temperature is adjusted by using the Wichert & Aziz correlation when the gas contains significant fractions of acid gases, specifically carbon dioxide (CO2) and hydrogen sulfide (H2S).")
+add_ref("wichert:1972")
+add_ref("standing:1977")
+add_parameter("tscm", "Rankine",
+              "Quantity<Fahrenheit>(40)", "Quantity<Fahrenheit>(300)")
+add_parameter("co2_concentration", "MoleFraction",
+             "Quantity<MolePercent>(0)", "Quantity<MolePercent>(54.4)")
+add_parameter("h2s_concentration", "MoleFraction",
+              "Quantity<MolePercent>(0)", "Quantity<MolePercent>(73.8)")
+add_note("The original reference is not available. The correlation was verified by using a secondary reference: Standing (1977). Date: September 12 2016.")
+add_note("The development ranges were taken from PetroWiki (http://petrowiki.org/Real_gases).")
+end_correlation()

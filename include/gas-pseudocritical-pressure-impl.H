@@ -5,9 +5,9 @@
 
 inline Quantity<psia>
 PscHCStanding::impl(const Quantity<Sgg> & yghc,
-		    const Quantity<MolePercent> &,
-		    const Quantity<MolePercent> &,
-		    const Quantity<MolePercent> &) const
+		    const Quantity<MoleFraction> &,
+		    const Quantity<MoleFraction> &,
+		    const Quantity<MoleFraction> &) const
 {
   const double raw_yghc = yghc.raw();
   const double pschc = 677 + 15*raw_yghc - 37.5*raw_yghc*raw_yghc;
@@ -16,8 +16,8 @@ PscHCStanding::impl(const Quantity<Sgg> & yghc,
 
 inline Quantity<psia>
 PscHcSutton::impl(const Quantity<Sgg> & yghc,
-		  const Quantity<MolePercent> &,
-		  const Quantity<MolePercent> &) const
+		  const Quantity<MoleFraction> &,
+		  const Quantity<MoleFraction> &) const
 {
   const double pschc = 756.8 - 131.0 * yghc.raw() - 3.6 * pow(yghc, 2);
   return Quantity<psia>(pschc);
@@ -25,8 +25,8 @@ PscHcSutton::impl(const Quantity<Sgg> & yghc,
 
 inline Quantity<psia>
 PscHCGuoGhalambor::impl(const Quantity<Sgg> & yghc,
-			const Quantity<MolePercent> &,
-			const Quantity<MolePercent> &) const
+			const Quantity<MoleFraction> &,
+			const Quantity<MoleFraction> &) const
 {
   // if (n2_concentration.raw() + h2s_concentration.raw() > 7)
   //   {
@@ -43,9 +43,9 @@ PscHCGuoGhalambor::impl(const Quantity<Sgg> & yghc,
 
 inline Quantity<psia>
 PscAhmed::impl(const Quantity<Sgg> & yghc,
-	       const Quantity<MolePercent> & n2_concentration,
-	       const Quantity<MolePercent> & co2_concentration,
-	       const Quantity<MolePercent> & h2s_concentration) const
+	       const Quantity<MoleFraction> & n2_concentration,
+	       const Quantity<MoleFraction> & co2_concentration,
+	       const Quantity<MoleFraction> & h2s_concentration) const
 {
   const double psc = 678 - 50*(yghc.raw() - 0.5) - 206.7*n2_concentration.raw() +
     440*co2_concentration.raw() + 606.7*h2s_concentration.raw();
@@ -55,9 +55,9 @@ PscAhmed::impl(const Quantity<Sgg> & yghc,
 
 inline Quantity<psia>
 PscHCStandingHeavierFractions::impl (const Quantity<Sgg> & yghc, 
-				     const Quantity<MolePercent> &,
-				     const Quantity<MolePercent> &,
-				     const Quantity<MolePercent> &) const
+				     const Quantity<MoleFraction> &,
+				     const Quantity<MoleFraction> &,
+				     const Quantity<MoleFraction> &) const
 { 
   const double pschc = 706 - 51.7*yghc.raw() - 11.1*yghc.raw()*yghc.raw();
   return Quantity<psia>(pschc);

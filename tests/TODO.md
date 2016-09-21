@@ -42,3 +42,6 @@
 ## 14. verificar todo en nonhydrocarbons gas-pseudo-cirtical-pressure especialmente MolePercent versus MoleFraction
 - Created at   2016-09-20 18:02:56 -0400
 
+## 15. producir lib so
+- Created at   2016-09-21 09:04:47 -0400
+

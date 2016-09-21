@@ -71,6 +71,19 @@ TscMKayMixingRule::impl(const Quantity<psia> & tschc,
   return Quantity<psia>(tscm);
 }
 
+inline Quantity<psia>
+AdjustedTscMWichertAziz::impl(const Quantity<Rankine> & tscm,
+			      const Quantity<MoleFraction> & co2_concentration,
+			      const Quantity<MoleFraction> & h2s_concentration)
+  const
+{
+  const double a = co2_concentration.raw() + h2s_concentration.raw();
+  const double b = h2s_concentration.raw();
+        
+  const double e = 120 * (pow(a,  0.9) - pow(a, 1.6)) + 15 * (B ** 0.5 - B ** 4) 
+        
+        AdjustedTscM = TscM - E
+}
 
 
 # endif // NON_HYDROCARBORNS_CORRECTIONS_IMPL_H
