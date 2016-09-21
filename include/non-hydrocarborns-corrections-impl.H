@@ -79,10 +79,14 @@ AdjustedTscMWichertAziz::impl(const Quantity<Rankine> & tscm,
 {
   const double a = co2_concentration.raw() + h2s_concentration.raw();
   const double b = h2s_concentration.raw();
-        
-  const double e = 120 * (pow(a,  0.9) - pow(a, 1.6)) + 15 * (B ** 0.5 - B ** 4) 
-        
-        AdjustedTscM = TscM - E
+  const double b4 = b*b*b*b;
+  
+
+  const double e = 120*(pow(a,  0.9) - pow(a, 1.6)) + 15*(sqrt(b) - b4);
+
+  const double ret = tscm.raw() - e;
+
+  return Quantity<psia>(ret);
 }
 
 

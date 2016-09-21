@@ -45,3 +45,6 @@
 ## 15. producir lib so
 - Created at   2016-09-21 09:04:47 -0400
 
+## 16. corregir sutton et al en presion
+- Created at   2016-09-21 16:21:49 -0400
+

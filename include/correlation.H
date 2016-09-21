@@ -230,7 +230,7 @@ protected:
   {
     auto min_aux = VtlQuantity(unit, min);
     auto max_aux = VtlQuantity(unit, max);
-    if (min_aux >= max_aux)
+    if (min_aux > max_aux)
       {
 	ostringstream s;
 	s << "minimum value " << min_aux << " is greater than maximum value "
@@ -524,4 +524,5 @@ Declare_Correlation_Subtype(GasDensity, GasFunction)
 Declare_Correlation_Subtype(GasVolumeFactor, GasFunction);
 Declare_Correlation_Subtype(GasCompressibility, GasCorrelation);
 Declare_Correlation_Subtype(GasPseudoCriticalTemperature, GasCorrelation);
+
 # endif // CORRELATION_H

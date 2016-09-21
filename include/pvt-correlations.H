@@ -14,6 +14,7 @@
 # include <gas-pseudocritical-pressure.H>
 # include <gas-viscosity.H>
 # include <gas-compressibility.H>
+# include <gas-pseudocritical-temp.H>
 
 # include <bubble-point-pressure-impl.H>
 # include <solution-gas-oil-relation-impl.H>
@@ -28,6 +29,7 @@
 # include <gas-pseudocritical-pressure-impl.H>
 # include <gas-viscosity-impl.H>
 # include <gas-compressibility-impl.H>
+# include <gas-pseudocritical-temp-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -140,6 +142,7 @@ struct CorrelationInstantiater
     PscMKayMixingRule::get_instance();
     AdjustedPscMWichertAziz::get_instance();
     TscMKayMixingRule::get_instance();
+    AdjustedTscMWichertAziz::get_instance();
 
     PscHCStanding::get_instance();
     PscHcSutton::get_instance();
@@ -159,7 +162,11 @@ struct CorrelationInstantiater
     ZFactorGopal::get_instance();
     ZFactorBrillBeggs::get_instance();
     ZFactorPapay::get_instance();
-    
+
+    TscHCStanding::get_instance();
+    TscHCStandingHeavierFractions::get_instance();
+    TscHCSutton::get_instance();
+    TpcHCElsharkawyEtAl::get_instance();
   }
 };
 

@@ -1446,5 +1446,31 @@ def TscMKayMixingRuleCorrelation(TscHC, n2Concentration, co2Concentration, h2sCo
     TscMKay = TscM
     return TscMKay
 
-
+def AdjustedTscMWichertAzizCorrelation(TscM, co2Concentration, h2sConcentration):
+    A = co2Concentration + h2sConcentration
+    B = h2sConcentration
+    E = 120 * (A ** 0.9 - A ** 1.6) + 15 * (B ** 0.5 - B ** 4) 
+    AdjustedTscM = TscM - E
+    AdjustedTscMWichertAziz = AdjustedTscM
+    return AdjustedTscMWichertAziz
     
+
+def TscHCStandingCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    TscHC = 168 + 325 * YgHC - 12.5 * (YgHC ** 2) # Pseudocritical temperature of the hydrocarbon portion
+    TscHCStanding = TscHC
+    return TscHCStanding    
+
+def TscHCStandingHeavierFractionsCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    TscHC = 187 + 330 * YgHC - 71.5 * (YgHC ** 2) # Pseudocritical temperature of the hydrocarbon portion
+    TscHCStanding = TscHC
+    return TscHCStanding
+
+def TscHCSuttonCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    TscHC = 169.2 + 349.5 * YgHC - 74.0 * (YgHC ** 2) # Pseudocritical temperature of the hydrocarbon portion
+    TscHCSutton = TscHC
+    return TscHCSutton
+
+def TpcHCElsharkawyEtAlCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    TpcHC = 149.18 + (358.14 * YgHC) - (66.976 * (YgHC ** 2)) # Pseudocritical temperature of the hydrocarbon portion
+    TpcHCElsharkawy = TpcHC
+    return TpcHCElsharkawy
