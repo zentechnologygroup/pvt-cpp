@@ -93,9 +93,19 @@ CgHallYarborough::impl(const Quantity<Rankine> & t,
       pr = prprev;
 
       const double pr2 = pr*pr;
+      const double pr3 = pr*pr;
+      const double pr4 = pr3*pr;
 
-                    F = -(A * Ppr) + (pr + (pr ** 2) + (pr ** 3) - (pr ** 4))/((1 - pr) ** 3) - B * (pr ** 2) + C * (pr ** D) 
-                    dFdpr = ((1 + (4 * pr) + (4 * pr) ** 2 - (4 * pr) ** 3 + (4 * pr) ** 4)/((1 - pr) ** 4)) - 2 * B * pr + C * D * (pr ** (D-1))
+      const double f = -a*ppr + (pr + pr2 + pr3 - pr4)/pow(1 - pr, 3) - b*pr2 +
+	c*pow(pr, d);
+
+      const double pr_x_4 = 4*pr;
+      const double pr_x_4_2 = pr_x_4*pr_x_4;
+      const double pr_x_4_3 = pr_x_4_2*pr_x_4;
+      const double pr_x_4_4 = pr_x_4_3*pr_x_4;
+      
+      const double dfdpr = (1 + pr_x_4 + pr_x_4_2 - pr_x_4_3 + pr_x_4_4) /
+	pow(1 - pr, 4) - 2*b*pr + c*d* (pr ** (D-1))
                     prf = pr - F/dFdpr
                     prprev = prf
   }

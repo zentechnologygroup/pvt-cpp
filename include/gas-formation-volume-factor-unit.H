@@ -51,7 +51,7 @@ Declare_Unit(RB_MSCF, "RB/Mscf",
        
 // To "rcf/scf"  
 Declare_Conversion(RM3_SM3, RCF_SCF, v) { return  v ; }                   
-Declare_Conversion(RCF_MSCF, RCF_SCF, v) { return  0.001 * v  ; }                 
+Declare_Conversion(RCF_MSCF, RCF_SCF, v) { return  0.001 * v  ; }
 Declare_Conversion(RB_SCF, RCF_SCF, v) { return  5.61458333333 * v ; }    
 Declare_Conversion(RB_MSCF, RCF_SCF, v) { return 0.00561458333333 * v ; } 
 
@@ -69,7 +69,7 @@ Declare_Conversion(RB_MSCF, RCF_MSCF, v) { return  5.61458333333 * v ; }
 
 // To "RB/scf"
 Declare_Conversion(RCF_SCF, RB_SCF, v) { return  0.178107606679 * v ; }    
-Declare_Conversion(RM3_SM3, RB_SCF, v) { return 5.61458402106 v ; }        
+Declare_Conversion(RM3_SM3, RB_SCF, v) { return 5.61458402106 * v ; }        
 Declare_Conversion(RCF_MSCF, RB_SCF, v) { return  0.00561458333333 * v ; } 
 Declare_Conversion(RB_MSCF, RB_SCF, v) { return  0.001 * v ; }             
 
