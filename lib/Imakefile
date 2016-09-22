@@ -45,7 +45,9 @@ pvt.cc: biblios.cc units-vars.cc correlations-vars.cc 				\
 	../include/gas-viscosity.H ../include/gas-viscosity.H 			\
 	../include/gas-compressibility.H ../include/gas-compressibility-impl.H 	\
 	../include/gas-pseudocritical-temp.H 					\
-	../include/gas-pseudocritical-temp-impl.H
+	../include/gas-pseudocritical-temp-impl.H				\
+	../include/gas-isothermal-compressibility.H				\
+	../include/gas-isothermal-compressibility-impl.H
 	$(RM) -f $@;					\	@@\
 	cat biblio-vars.cc >> $@;			\	@@\
 	cat biblios.cc >> $@;				\	@@\

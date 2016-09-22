@@ -1474,3 +1474,31 @@ def TpcHCElsharkawyEtAlCorrelation(YgHC, n2Concentration, co2Concentration, h2sC
     TpcHC = 149.18 + (358.14 * YgHC) - (66.976 * (YgHC ** 2)) # Pseudocritical temperature of the hydrocarbon portion
     TpcHCElsharkawy = TpcHC
     return TpcHCElsharkawy
+
+def CgSaremCorrelation(Tr, P, Tpc, Ppc, Z):
+    Tpr = 1.0*Tr/Tpc
+    Ppr = 1.0*P/Ppc
+    x = (2 * Ppr - 15)/14.8
+    y = (2 * Tpr - 4)/1.9
+    P0x = 0.0
+    P1x = 0.16551
+    P2x = 0.641002 * x
+    P3x = 0.379221 * ((5 * (x ** 2)) - 1)
+    P4x = 0.716652 * ((7 * (x ** 3)) - (3 * x))
+    P5x = 0.594225 * ((21 * (x ** 4)) - (14 * (x ** 2)) + 1)
+    P0y = 0.7071068
+    P1y = 1.224745 * y
+    P2y = 0.7905695 * ((3 * (y ** 2)) - 1)
+    P3y = 0.9354145 * ((5 * (y ** 3)) - (3 * y))
+    P4y = 0.265165 * ((35 * (y ** 4)) - (30 * (y ** 2)) + 3)
+    P5y = 0.293151 * ((63 * (y ** 5)) - (70 * (y ** 3)) + (15 * y))
+    dZdPpr = (2.1433504) * P0x * P0y + (0.0831762) * P0x * P1y + (-0.0214670) * P0x * P2y + (-0.0008714) * P0x * P3y + (0.0042846)* P0x * P4y + (-0.0016595) * P0x * P5y \
+    + (0.3312352) * P1x * P0y + (-0.1340361) * P1x * P1y + (0.0668810) * P1x * P2y + (-0.0271743) * P1x * P3y + (0.0088512) * P1x * P4y + (-0.002152) * P1x * P5y \
+    + (0.1057287) * P2x * P0y + (-0.0503937) * P2x * P1y + (0.0050925) * P2x * P2y + (0.0105513) * P2x * P3y + (-0.0073182) * P2x * P4y + (0.0026960) * P2x * P5y \
+    + (0.0521840) * P3x * P0y + (0.0443121) * P3x * P1y + (-0.0193294) * P3x * P2y + (0.0058973) * P3x * P3y + (0.0015367) * P3x * P4y + (-0.0028327) * P3x * P5y \
+    + (0.0197040) * P4x * P0y + (-0.0263834) * P4x * P1y + (0.019262) * P4x * P2y + (-0.0115354) * P4x * P3y + (0.0042910) * P4x * P4y + (-0.0081303) * P4x * P5y \
+    + (0.0053096) * P5x * P0y + (0.0089178) * P5x * P1y + (-0.0108948) * P5x * P2y + (0.0095594) * P5x * P3y + (-0.0060114) * P5x * P4y + (0.0031175) * P5x * P5y
+    Cgr = (1/Ppr) - (1/Z) * dZdPpr
+    Cg =  Cgr/Ppc
+    CgSarem = Cg
+    return CgSarem
