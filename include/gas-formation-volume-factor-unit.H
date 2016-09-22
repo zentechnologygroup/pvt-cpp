@@ -31,20 +31,20 @@ Declare_Unit(RCF_MSCF, "rcf/Mscf",
         R"DESC(Gas Formation Volume Factor, gas volume 
         relationship measured as reservoir
        cubic feet into thousand standard cubic feet)DESC",
-       GasFVF, 0, 10);
+       GasFVF, 0, 10000);
 
 Declare_Unit(RB_SCF, "RB/scf",
         R"DESC(Gas Formation Volume Factor, gas volume 
         relationship measured as reservoir
         barrels into standard cubic feet)DESC",
-        GasFVF, 0, 10);
+        GasFVF, 0, 1.7810766679);
 
 
 Declare_Unit(RB_MSCF, "RB/Mscf",
         R"DESC(Gas Formation Volume Factor, gas volume 
         relationship measured as reservoir
         barrels into thousand standard cubic feet)DESC",
-        GasFVF, 0, 10);
+        GasFVF, 0, 1781.0766679);
 
 
 // The The formation volume factor conversions 
