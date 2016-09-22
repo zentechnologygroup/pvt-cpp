@@ -14,5 +14,6 @@
 # include <non-hydrocarborns-fraction-unit.H>
 # include <interfacial-tension-unit.H>
 # include <z-unit.H>
+# include <gas-formation-volume-factor-unit.H>
 
 # endif // PVT_UNITS_H

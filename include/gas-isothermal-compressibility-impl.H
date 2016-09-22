@@ -85,7 +85,7 @@ CgHallYarborough::impl(const Quantity<Rankine> & t,
   const double d = 2.18 + 2.82*tpr_1;
                 
   constexpr double epsilon = 1.0e-8;
-  double pr = 0;
+  double pr = 0, prf = 0;
   double prprev = 0.01;
                 
   while (fabs(prprev - pr) > epsilon)
@@ -105,21 +105,31 @@ CgHallYarborough::impl(const Quantity<Rankine> & t,
       const double pr_x_4_4 = pr_x_4_3*pr_x_4;
       
       const double dfdpr = (1 + pr_x_4 + pr_x_4_2 - pr_x_4_3 + pr_x_4_4) /
-	pow(1 - pr, 4) - 2*b*pr + c*d* (pr ** (D-1))
-                    prf = pr - F/dFdpr
-                    prprev = prf
+	pow(1 - pr, 4) - 2*b*pr + c*d* pow(pr, d-1);
+      const double prf = pr - f/dfdpr;
+      prprev = prf;
   }
                 
-                pr = prf
+  pr = prf;
+
+  const double pr2 = pr*pr;
+  const double pr3 = pr*pr;
+  const double pr4 = pr3*pr;
+
+  const double pr_x_4 = 4*pr;
+
+  const double one_pr_4 = pow(1 - pr, 4);
+
+  const double dprdppr = a*one_pr_4 / (1 + pr_x_4 + 4*pr2 - 4*pr3 + pr4 -
+				       one_pr_4*(2*b*pr - (c*d*pow(pr, d - 1))));
                 
-                dprdPpr = A * (((1-pr) ** 4)/(1 + (4 * pr) + 4 * (pr ** 2) - 4 * (pr ** 3) + (pr ** 4) - ((1-pr) ** 4) * ((2 * B * pr ) - (C *D * (pr ** (D-1))))))
+  const double dzdppr = a/pr - (a*ppr/pr2)*dprdppr;
                 
-                dZdPpr = (A/pr) - (A * Ppr/(pr ** 2)) * dprdPpr
-                
-                Cgr = (1/Ppr) - (1/Z) * dZdPpr
+  const double cgr = 1/ppr - (1/z.raw())*dzdppr;
             
-                Cg =  Cgr/Ppc
-        
+  const double cg = cgr/ppc.raw();
+
+  return Quantity<psia_1>(cg);
 }
 
 
