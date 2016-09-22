@@ -76,21 +76,21 @@ add_parameter("h2s_concentration", "MoleFraction",
               "Quantity<MolePercent>(0)", "Quantity<MolePercent>(2)")
 add_title("STANDING CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE WET OR \\\"CONDENSATE\\\" GAS HYDROCARBON PORTION")
 add_author("Standing")
-add_db("Based on laboratory generated gases in equilibrium with crude oil at high pressures (1000 to 8000 psia).")
-add_db("Standing recommends using the \\\"California\\\" curves for surface gases.")
+add_db("Based on laboratory generated gases in equilibrium with crude oil at high pressures (1000 to 8000 psia). Their high gravities come from relatively large quantities of heptanes and heavier compounds.")
+add_db("Standing recommends using the \\\"condensate\\\" curves in calculations that involve gases in equilibrium with crude oil condensate in petroleum reservoirs.")
 add_note("Brown et al. (1948) presented the graphical correlation. Standing (1977) expressed it in a mathematical form.")
 add_note("The values of the development ranges are taken from the graphs presented by Standing (1977) and Ahmed (1989).")
-add_note("Brown et al.'s reference is not available. The correlation was verified by using these references: Standing (1977), Ahmed (1989), and Bánzer (1996). Date: September 9 2016.")
+add_internal_note("Brown et al.'s reference is not available. The correlation was verified by using these references: Standing (1977), Ahmed (1989), and Bánzer (1996). Date: September 9 2016.")
 end_correlation()
 
 ################################################################
 
-begin_correlation("PscHCElsharkawyEtAlHeavierFractions",
+begin_correlation("PscHCElsharkawyEtAl",
                   "GasPseudoCriticalPressure", "psia")
-add_parameter("yghc", "Sgg")
-add_db("Based on compositional analysis of 1200 compositions of gas condensates collected worldwide.")
+add_parameter("yghc", "Sgg", 0.61, 1.89)
 add_title("ELSHARKAWY ET AL. CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE CONDENSATE GAS HYDROCARBON PORTION")
+add_db("Based on compositional analysis of 1200 compositions of gas condensates collected worldwide.")
+add_ref("elsharkawy:2000:1")
 add_author("Elsharkawy et al")
-add_note("The original reference is not available. The correlation was verified by using a secondary reference: Elsharkawy & Elkamel (2000). Date: September 13 2016.")
-
+add_internal_note("The correlation was verified by using the original reference and a secondary one: Elsharkawy & Elkamel (2000). Date: September 22 2016.")
 end_correlation()
