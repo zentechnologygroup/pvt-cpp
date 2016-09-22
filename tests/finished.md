@@ -172,3 +172,69 @@
 - Comment      
 - Finished     
 
+## 30. poner campo title encorrelaciones y actualizar
+- Created at   2016-09-12 18:02:10 -0400
+- Completed at 2016-09-13 15:33:30 -0400
+- Comment      
+- Finished     
+
+## 31. revisar valor de epsilon en reporte de unidad
+- Created at   2016-09-12 15:48:20 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 32. cambiar formato ruby de correlación para que inclya desc
+- Created at    ref
+- Completed at  db
+- Comment       note hidden_note y eq
+- Finished      note hidden_note y eq
+
+## 33. corregir margen en formateo de descripcion para unudad fisica y unidad
+- Created at   2016-09-12 09:44:36 -0400
+- Completed at 2016-09-13 15:33:37 -0400
+- Comment      
+- Finished     
+
+## 34. calcular extremos dados los rangos
+- Created at   2016-09-04 12:45:33 -0400
+- Completed at 2016-09-15 15:35:40 -0400
+- Comment      
+- Finished     
+
+## 35. Manejar referencias con script ruby
+- Created at   2016-09-07 15:14:23 -0400
+- Completed at 2016-09-15 15:35:47 -0400
+- Comment      
+- Finished     
+
+## 36. poner NA en salida cuando haya error
+- Created at   2016-08-24 10:30:32 -0400
+- Completed at 2016-08-30 10:49:35 -0400
+- Comment      
+- Finished     
+
+## 37. modificar RsGlaso para que use la raíz de la eq 2do gradop
+- Created at   2016-08-26 12:31:48 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 38. test que valide que las unidades sean las mismas para familias de correlaciones
+- Created at   2016-08-29 16:41:53 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 39. validar suma de conccrenaciones no debe ser igual o mayor a 100
+- Created at   2016-09-13 16:54:38 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 40. opción que genere matrix aún con excepciones
+- Created at   2016-08-22 19:03:55 -0400
+- Completed at 2016-09-16 11:44:13 -0400
+- Comment      
+- Finished     
+

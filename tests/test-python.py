@@ -1,4 +1,4 @@
-from math import exp, log10, floor, log
+from math import exp, log10, floor, log, fabs
 
 def PbAlMarhounCorrelation(Yg, Yo, Rsb, T):        
     Pb = (5.38088 * 10 ** -3) * (Rsb ** 0.715082) * (Yg ** -1.87784) * (Yo ** 3.1437) * (T ** 1.32657)
@@ -62,59 +62,17 @@ def PbDoklaOsmanCorrelation(Yg, Rsb, API, T):
         
     return PbDoklayOsman
 
-    def PbGlasoCorrelation(Yg, Rsb, API, T, n2Concentration, co2Concentration, h2sConcentration):
-        """ GLASO CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE  
-        
-        DATA BANK:
-        Based on 26 samples from the North Sea (collected from wells in the region 56 to 62°N) and 19 samples from the Middle East, Algeria, and several areas in the U.S.
-        
-        :see: Oistein Glaso. "Generalized Pressure-Volume-Temperature Correlations," Journal of Petroleum Technology , 1980.
-        
-        :precondition: T: 80 - 280 [°F]
-        :precondition: API: 22.3 - 48.1 [°API]
-        :precondition: Yg: 0.650 - 1.276 [ratio air=1]
-        :precondition: Rs: 90 - 2637 [scf/STB]
-        :precondition: n2Concentration: 0 - 26 [mol percent]
-        :precondition: co2Concentration: 0 - 26 [mol percent]
-        :precondition: h2sConcentration: 0 - 50 [mol percent]
-        :precondition: Pb: 150 - 7127 [psig]
-        
-        :type Yg: number
-        :param Yg: Gas specific gravity [ratio air=1]
-        :type Rsb: number
-        :param Rsb: Solution GOR at Pb [scf/STB]
-        :type API: number
-        :param API: API oil gravity [°API]
-        :type T: number
-        :param T: Temperature [°F]
-        :type n2Concentration: number
-        :param n2Concentration: molar fraction of nitrogen in the gas [gas mol/mixture mol]
-        :type co2Concentration: number
-        :param co2Concentration: molar fraction of carbon dioxide in the gas [gas mol/mixture mol]
-        :type h2sConcentration: number
-        :param h2sConcentration: molar fraction of hydrogen sulfide in the gas [gas mol/mixture mol]
-        
-        :return: Pb = Bubble point pressure [psia]
-        """
-        
-        X = (Rsb / Yg) ** 0.816 * T ** 0.172 / API ** 0.989
-        
-        PbHC = 10 ** (1.7669 + (1.7447 * log10(X)) - (0.30218 * (log10(X)) ** 2))
-        
-        # Effects of nonhydrocarbons on bubble point pressure
-        n2Effect = 1 + ((-2.65 * 10 **-4 * API + 5.5 * 10 **-3) * T + (0.0931 * API - 0.8295)) * n2Concentration + ((1.954 * 10 **-11 * API **4.699) * T + (0.027 * API - 2.366)) * n2Concentration **2
-        co2Effect = 1 - 693.8 * co2Concentration * T **-1.553
-        h2sEffect = 1 - (0.9035 + 0.0015 * API) * h2sConcentration + 0.019 * (45 - API) *  h2sConcentration **2
-  
-        Pb = PbHC * n2Effect * co2Effect * h2sEffect
-        
-        if Pb < 0:
-            
-            Pb = 0
-        
-        PbGlaso = Pb
-        
-        return PbGlaso
+def PbGlasoCorrelation(Yg, Rsb, API, T, n2Concentration, co2Concentration, h2sConcentration):
+    X = (Rsb / Yg) ** 0.816 * T ** 0.172 / API ** 0.989
+    PbHC = 10 ** (1.7669 + (1.7447 * log10(X)) - (0.30218 * (log10(X)) ** 2))
+    n2Effect = 1 + ((-2.65 * 10 **-4 * API + 5.5 * 10 **-3) * T + (0.0931 * API - 0.8295)) * n2Concentration + ((1.954 * 10 **-11 * API **4.699) * T + (0.027 * API - 2.366)) * n2Concentration **2
+    co2Effect = 1 - 693.8 * co2Concentration * T **-1.553
+    h2sEffect = 1 - (0.9035 + 0.0015 * API) * h2sConcentration + 0.019 * (45 - API) *  h2sConcentration **2
+    Pb = PbHC * n2Effect * co2Effect * h2sEffect
+    if Pb < 0:
+        Pb = 0
+    PbGlaso = Pb
+    return PbGlaso
 
 def PbHanafyCorrelation(Rsb):
     # Total flash gas-oil ratio
@@ -1171,3 +1129,348 @@ def SgoBakerSwerdloffCorrelation(T,API,P):
     sgo= sgoP    
     sgoBakerSwerdloff = sgo
     return sgoBakerSwerdloff
+
+def YgHCWichertAzizCorrelation(Yg, n2Concentration, co2Concentration, h2sConcentration):
+        YgHC = (Yg - 0.967 * n2Concentration - 1.52 * co2Concentration - 1.18 * h2sConcentration)/(1 - n2Concentration - co2Concentration - h2sConcentration) # Yg is the gravity of the whole mixture and YgHC is the gravity of the hydrocarbon portion
+        YgHCWichertAziz = YgHC
+        return YgHCWichertAziz
+
+def PscMKayCorrelation(PscHC, n2Concentration, co2Concentration, h2sConcentration):
+    PscM = (1 - n2Concentration - co2Concentration - h2sConcentration) * PscHC + 493 * n2Concentration + 1071 * co2Concentration + 1306 * h2sConcentration # Pseudocritical pressure of the whole gas mixture
+    PscMKay = PscM
+    return PscMKay
+
+def AdjustedPscWichertAzizCorrelation(PscM, TscM, co2Concentration, h2sConcentration):
+    A = co2Concentration + h2sConcentration
+    B = h2sConcentration
+    E = 120 * (A ** 0.9 - A ** 1.6) + 15 * (B ** 0.5 - B ** 4) 
+    n = PscM * (TscM - E)
+    d = TscM + B * (1 - B) * E
+    AdjustedPsc = n/d
+    AdjustedPscWichertAziz = AdjustedPsc
+    return AdjustedPscWichertAziz
+
+def PscHCBrownKOACorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    PscHC = 677 + 15 * YgHC - 37.5 * (YgHC ** 2) # Pseudocritical pressure of the hydrocarbon portion
+    PscBrownKOA = PscHC
+    return PscBrownKOA
+
+def PscHcSuttonCorrelation(YgHC, n2Concentration, co2Concentration):
+    PscHC = 756.8 - 131.0 * YgHC - 3.6 * (YgHC ** 2) # Pseudocritical pressure of the hydrocarbon portion
+    PscHCSutton = PscHC
+    return PscHCSutton
+
+def PscHCGuoGhalamborCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    PscHC = 709.604 - 58.718 * YgHC # Pseudocritical pressure of the hydrocarbon portion
+    PscHCGuoGhalambor = PscHC
+    return PscHCGuoGhalambor
+
+def PscAhmedCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    Psc = 678 - 50 * (YgHC - 0.5) - 206.7 * n2Concentration + 440.0 * co2Concentration + 606.7 * h2sConcentration
+    PscAhmed = Psc
+    return PscAhmed
+
+def CondensatePscHCStandingCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    PscHC = 706 - 51.7 * YgHC - 11.1 * (YgHC ** 2) # Pseudocritical pressure of the hydrocarbon portion
+    PscBrownKOA = PscHC
+    return PscBrownKOA
+
+def UgCarrKBCorrelation(T, P, Tsc, Psc, Yg, n2Concentration, co2Concentration, h2sConcentration):
+    Tsr = T/Tsc
+    Psr = P/Psc
+    Ugs = (1.709e-5 - 2.062e-6 * Yg) * (T - 460) + 8.188e-3 - (6.15e-3 * log10(Yg))
+    Cco2 = co2Concentration * 1e-3 * (9.08 * log10(Yg) + 6.24)
+    Cn2 = n2Concentration * 1e-3 * (8.48 * log10(Yg) + 9.59)
+    Ch2s = h2sConcentration * 1e-3 * (8.49 * log10(Yg) + 3.73)
+    Ugsc = Ugs + Cco2 + Ch2s + Cn2
+    A0 = -2.46211820e0
+    A1 = 2.97054714e0
+    A2 = -2.86264054e-1
+    A3 = 8.05420522e-3
+    A4 = 2.80860949e0
+    A5 = -3.49803305e0
+    A6 = 3.60373020e-1
+    A7 = -1.04432413e-2
+    A8 = -7.93385684e-1
+    A9 = 1.39643306e0
+    A10 = -1.49144925e-1
+    A11 = 4.41015512e-3
+    A12 = 8.39387178e-2
+    A13 = -1.86408848e-1
+    A14 = 2.03367881e-2
+    A15 = -6.09579263e-4
+    X = A0 + (A1 * Psr) + (A2 * (Psr ** 2)) + (A3 * (Psr ** 3)) + (Tsr * (A4 + (A5 * Psr) + (A6 * (Psr ** 2)) + (A7 * (Psr ** 3)))) + ((Tsr ** 2) * (A8 + (A9 * Psr) + (A10 * (Psr ** 2)) + (A11 * (Psr ** 3)))) + ((Tsr ** 3) * (A12 + (A13 * Psr) + (A14 * (Psr ** 2)) + (A15 * (Psr ** 3)))) - log(Tsr)
+    UgUgsc = exp(X)
+    Ug = Ugsc * UgUgsc
+    UgCarrKB = Ug
+    return UgCarrKB
+    
+def UgLeeGECorrelation(Tr, P, Yg, Z):
+    Mg = 28.96 * Yg # Peso molecular del gas [lb/lbmol]
+    k = ((9.4 + 0.02 * Mg) * (Tr ** 1.5))/(209 + (19 * Mg) + Tr)
+    x = 3.5 + (986/Tr) + (0.01 * Mg)
+    y = 2.4 - 0.2 * x
+    pg = 1.4935e-3 * P * Mg/(Z * Tr) # densidad del gas [g/cm3]
+    Ug = 1e-4 * k * exp(x * (pg ** y))
+    UgLeeGE = Ug
+    return UgLeeGE
+    
+def UgDeanStielCorrelation(Tr, P, Tsc, Psc, Yg, Z):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    Mg = 28.96 * Yg # Peso molecular del gas [lb/lbmol]
+    Em = 5.4402 * ((Tsc) ** (1./6.))/(((Mg) ** 0.5) * ((Psc) ** (2./3.))) # Em: Parametro de viscosidad
+    pgr = 0.27 * Psr/(Z * Tsr) # pgr: densidad relativa del gas
+    if Tsr <= 1.5:
+        Ugs = 34e-5 * ((Tsr) ** (8./9.))/Em # Viscosidad del gas a presion atmosferica y temperatura de evaluacion
+    elif Tsr > 1.5:
+        Ugs = 166.8e-5 * ((0.1338 * Tsr - 0.0932) ** (5./9.))/Em
+    Ug = Ugs + (10.8e-5 * (exp(1.439 * pgr) - exp(-1.111 * (pgr ** 1.888))))/Em
+    UgDeanStiel = Ug  
+    return UgDeanStiel
+
+
+def ZFactorSaremCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    if (Tsr < 1.05) or (Tsr > 2.95) or (Psr < 0.1) or (Psr > 14.9):
+        Z = None
+    else: 
+        x = ((2 * Psr) - 15)/14.8
+        y = ((2 * Tsr) - 4)/1.9
+        # Especificacion de los polinomios de Legendre en funcion de Psr y Tsr implicitos en x y y
+        P0x = 0.7071068
+        P1x = 1.224745 * x
+        P2x = 0.7905695 * ((3 * (x ** 2)) - 1)
+        P3x = 0.9354145 * ((5 * (x ** 3)) - (3 * x))
+        P4x = 0.265165 * ((35 * (x ** 4)) - (30 * (x ** 2)) + 3)
+        P5x = 0.293151 * ((63 * (x ** 5)) - (70 * (x ** 3)) + (15 * x))
+        P0y = 0.7071068
+        P1y = 1.224745 * y
+        P2y = 0.7905695 * ((3 * (y ** 2)) - 1)
+        P3y = 0.9354145 * ((5 * (y ** 3)) - (3 * y))
+        P4y = 0.265165 * ((35 * (y ** 4)) - (30 * (y ** 2)) + 3)
+        P5y = 0.293151 * ((63 * (y ** 5)) - (70 * (y ** 3)) + (15 * y))
+        Z = (2.1433504) * P0x * P0y + (0.0831762) * P0x * P1y + (-0.0214670) * P0x * P2y + (-0.0008714) * P0x * P3y + (0.0042846)* P0x * P4y + (-0.0016595) * P0x * P5y \
+        + (0.3312352) * P1x * P0y + (-0.1340361) * P1x * P1y + (0.0668810) * P1x * P2y + (-0.0271743) * P1x * P3y + (0.0088512) * P1x * P4y + (-0.002152) * P1x * P5y \
+        + (0.1057287) * P2x * P0y + (-0.0503937) * P2x * P1y + (0.0050925) * P2x * P2y + (0.0105513) * P2x * P3y + (-0.0073182) * P2x * P4y + (0.0026960) * P2x * P5y \
+        + (0.0521840) * P3x * P0y + (0.0443121) * P3x * P1y + (-0.0193294) * P3x * P2y + (0.0058973) * P3x * P3y + (0.0015367) * P3x * P4y + (-0.0028327) * P3x * P5y \
+        + (0.0197040) * P4x * P0y + (-0.0263834) * P4x * P1y + (0.019262) * P4x * P2y + (-0.0115354) * P4x * P3y + (0.0042910) * P4x * P4y + (-0.0081303) * P4x * P5y \
+        + (0.0053096) * P5x * P0y + (0.0089178) * P5x * P1y + (-0.0108948) * P5x * P2y + (0.0095594) * P5x * P3y + (-0.0060114) * P5x * P4y + (0.0031175) * P5x * P5y
+    ZFactorSarem = Z 
+    return ZFactorSarem
+    
+def ZFactorHallYarboroughCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    A = 0.06125 * (1/Tsr) * exp((-1.2) * ((1 - (1/Tsr)) ** 2))
+    B = 14.76 * (1/Tsr) - 9.76 * ((1/Tsr) ** 2) + 4.58 * ((1/Tsr) ** 3)
+    C = 90.7 * (1/Tsr) - 242.2 * ((1/Tsr) ** 2) + 42.4 * ((1/Tsr) ** 3)
+    D = 2.18 + 2.82 * (1/Tsr)
+    epsilon = 1.0e-10
+    pr = 0
+    prprev = 0.00001
+    # iteracion por metodo Newton-Raphson
+    while (fabs(prprev - pr)) > epsilon:
+        pr = prprev
+        F = -(A * Psr) + ((pr + (pr ** 2) + (pr ** 3) - (pr ** 4))/((1 - pr) ** 3)) - B * (pr ** 2) + C * (pr ** D) 
+        dFdpr = (1 + (4 * pr) + ((4 * pr) ** 2) - ((4 * pr) ** 3) + ((4 * pr) ** 4))/(((1 - pr) ** 4)) - 2 * B * pr + C * D * (pr ** (D-1))
+        prf = pr - F/dFdpr
+        prprev = prf
+    
+    pr = prf
+    Z = (0.06125 * Psr * (1/Tsr) * exp((-1.2) * ((1 - (1/Tsr)) ** 2)))/pr 
+    ZFactorHallYarborough = Z
+    return ZFactorHallYarborough
+    
+
+def ZFactorDranchukPRCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    A1 = 0.31506237
+    A2 = -1.0467099
+    A3 = -0.57832729
+    A4 = 0.53530771
+    A5 = -0.61232032
+    A6 = -0.10488813
+    A7 = 0.68157001
+    A8 = 0.68446549
+    
+    epsilon = 1.0e-8
+    Z = 0.5
+    Zprev = 0.6
+    
+    while fabs(Zprev - Z) > epsilon:
+        Z = Zprev
+        pr = 0.27 * Psr/(Z * Tsr)
+        F = Z - (1 + (A1 + (A2/Tsr) + (A3/(Tsr **3))) * pr + ((A4 + (A5/Tsr)) * (pr ** 2)) + ((A5 * A6 * (pr ** 5))/Tsr) + A7 * (1 + A8 * (pr ** 2)) * ((pr ** 2)/(Tsr ** 3)) * exp(-A8 * (pr ** 2)))
+        dFdZ = 1 + (A1 + (A2/Tsr) + (A3/(Tsr ** 3))) * (pr/Z) + 2 * (A4 + (A5/Tsr)) * (pr ** 2)/Z + ((5 * A5 * A6 * (pr **5))/(Z * Tsr)) + ((2 * A7 * (pr ** 2))/(Z * (Tsr ** 3))) * (1 + A8 * (pr ** 2) - ((A8 * (pr ** 2)) ** 2)) * exp(-A8 * (pr ** 2))
+        Zf = Z - F/dFdZ
+        Zprev = Zf
+                
+    Z = Zf   
+    ZFactorDranchukPR = Z
+    return ZFactorDranchukPR
+
+
+def UodDindorukChristmanCorrelation(API, T, Pb, Rsb):
+    a1 = 14.505357625
+    a2 = -44.868655416
+    a3 = 9.36579e9
+    a4 = -4.194017808
+    a5 = -3.1461171e-9
+    a6 = 1.517652716
+    a7 = 0.010433654
+    a8 = -0.000776880
+    A = a1 * log10(T) + a2
+    uod = (a3 * T**a4 * (log10(API))**A) / (a5 * Pb**a6 + a7 * Rsb**a8)
+    uodDindorukChristman = uod
+    return uodDindorukChristman
+
+def UobDindorukChristmanCorrelation(uod, Rs):
+    a1 = 1.0
+    a2 = 4.740729e-4
+    a3 = -1.023451e-2
+    a4 = 6.600358e-1
+    a5 = 1.075080e-3
+    a6 = 1.0
+    a7 = -2.191172e-5
+    a8 = -1.660981e-2
+    a9 = 4.233179e-1
+    a10 = -2.273945e-4
+    A = (a1/exp(a2 * Rs)) + (a3 * Rs**a4/exp(a5 * Rs))
+    B = (a6/exp(a7 * Rs)) + (a8 * Rs**a9/exp(a10 * Rs))
+    uob = A * uod**B
+    uobDindorukChristman = uob
+    return uobDindorukChristman
+    
+def UoaDindorukChristmanCorrelation(uoBubble, P, Pb, Rs):
+    a1 = 0.776644115
+    a2 = 0.987658646
+    a3 = -0.190564677
+    a4 = 0.009147711
+    a5 = -0.000019111
+    a6 = 0.000063340
+    A = a1 + a2 * log10(uoBubble) + a3 * log10(Rs) + a4 * uoBubble * log10(Rs) + a5 * (P - Pb)
+    uoa = uoBubble + a6 * (P - Pb) * 10**A
+    uoaDindorukChristman = uoa
+    return uoaDindorukChristman
+
+def ZFactorDranchukAKCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    A1 = 0.3265
+    A2 = -1.07
+    A3 = -0.5339
+    A4 = 0.01569
+    A5 = -0.05165
+    A6 = 0.5475
+    A7 = -0.7361
+    A8 = 0.1844
+    A9 = 0.1056
+    A10 = 0.6134
+    A11 = 0.721
+    epsilon = 1.0e-8
+    Z = 0.5
+    Zprev = 0.6
+    while fabs(Zprev - Z) > epsilon:
+        Z = Zprev
+        pr = 0.27 * Psr/(Z * Tsr)
+        F = Z - (1 + (A1 + (A2/Tsr) + (A3/(Tsr **3)) + (A4/(Tsr ** 4)) + (A5/(Tsr ** 5))) * pr + (A6 + (A7/Tsr) + (A8/(Tsr ** 2))) * (pr ** 2) - A9 * ((A7/Tsr) + (A8/(Tsr ** 2))) * (pr ** 5) + A10 * (1 + A11 * (pr ** 2)) * ((pr ** 2)/(Tsr ** 3)) * exp(-A11 * (pr ** 2)))
+        dFdZ = 1 + ((A1 + (A2/Tsr) + (A3/(Tsr ** 3)) + (A4/(Tsr ** 4)) + (A5/(Tsr ** 5))) * (pr/Z)) + (2 * (A6 + (A7/Tsr) + (A8/(Tsr ** 2))) * ((pr ** 2)/Z)) - ((5 * A9) * ((A7/Tsr) + (A8/(Tsr ** 2))) * ((pr ** 5)/Z)) + (((2 * A10 * (pr ** 2))/(Z * (Tsr ** 3))) * (1 + (A11 * (pr ** 2)) - ((A11 * (pr ** 2)) ** 2)) * exp (-A11 * (pr ** 2)))      
+        Zf = Z - F/dFdZ
+        Zprev = Zf
+    Z = Zf   
+    ZFactorDranchukAK = Z
+    return ZFactorDranchukAK
+    
+def ZFactorGopalCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    if 0.2 < Psr <= 1.2:
+        if 1.05 < Tsr <= 1.2:
+            Z = Psr * ((1.6643 * Tsr) - 2.2114) - 0.3647 * Tsr + 1.4385
+        elif 1.2 < Tsr <= 1.4:
+            Z = Psr * ((0.0522 * Tsr) - 0.8511) - 0.0364 * Tsr + 1.0490
+        elif 1.4 < Tsr <= 2.0:
+            Z = Psr * ((0.1391 * Tsr) - 0.2988) + 0.0007 * Tsr + 0.9969
+        elif 2.0 < Tsr <= 3.0:
+            Z = Psr * ((0.0295 * Tsr) - 0.0825) + 0.0009 * Tsr + 0.9967
+    elif 1.2 < Psr <= 2.8:
+        if 1.05 < Tsr <= 1.2:
+            Z = Psr * ((-1.3570 * Tsr) + 1.4942) + 4.6315 * Tsr - 4.7009
+        elif 1.2 < Tsr <= 1.4:
+            Z = Psr * ((0.1717 * Tsr) - 0.3232) + 0.5869 * Tsr + 0.1229   
+        elif 1.4 < Tsr <= 2.0:
+            Z = Psr * ((0.0984 * Tsr) - 0.2053) + 0.0621 * Tsr + 0.8580
+        elif 2.0 < Tsr <= 3.0:
+            Z = Psr * ((0.0211 * Tsr) - 0.0527) + 0.0127 * Tsr + 0.9549
+    elif 2.8 < Psr <= 5.4:
+        if 1.05 < Tsr <= 1.2:
+            Z = Psr * ((-0.3278 * Tsr) + 0.4752) + 1.8223 * Tsr - 1.9036
+        elif 1.2 < Tsr <= 1.4:
+            Z = Psr * ((-0.2521 * Tsr) + 0.3871) + 1.6087 * Tsr - 1.6635
+        elif 1.4 < Tsr <= 2.0:
+            Z = Psr * ((-0.0284 * Tsr) + 0.0625) + 1.4714 * Tsr - 0.0011
+        elif 2.0 < Tsr <= 3.0:
+            Z = Psr * ((0.0041 * Tsr) + 0.0039) + 0.0607 * Tsr + 0.7927
+    elif 5.4 < Psr <= 15: # para cualquier Tsr entre 1.05 y 3.0
+        Z = Psr * ((0.711 + (3.66 * Tsr) + 0.0039) ** -1.4667) - (1.637 /(0.319 * Tsr + 0.522)) + 2.071
+        ZFactorGopal = Z
+        return ZFactorGopal
+
+def ZFactorBrillBeggsCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    A = 1.39 * ((Tsr - 0.92) ** 0.5) - 0.36 * Tsr - 0.10
+    B = (0.62 - 0.23 * Tsr) * Psr + ((0.066/(Tsr - 0.86)) - 0.037) * (Psr ** 2) + (0.32/(10 ** (9 * (Tsr - 1)))) * (Psr ** 6)
+    C = 0.132 - 0.32 * log10(Tsr)
+    D = 10 ** (0.3106 - 0.49 * Tsr + 0.1824 * (Tsr ** 2))
+    mathDomain = B  #Se define el dominio matematico de la funcion de Z, sensible al argumento B de la funcion exponencial         
+    if mathDomain > 700:
+        Z = A + ((0)) + C * (Psr ** D) #el cero se corresponde con numeros muy altos en el denominador i.e >1e+300
+    else:
+        Z = A + ((1 - A)/exp(B)) + C * (Psr ** D)
+    ZFactorBrillBeggs = Z
+    return ZFactorBrillBeggs
+
+def ZFactorPapayCorrelation(Tr, P, Tsc, Psc):
+    Tsr = 1.0*Tr/Tsc
+    Psr = 1.0*P/Psc
+    Z = 1 - (3.52 * Psr/(10 ** (0.9813 * Tsr))) + ((0.274 * (Psr ** 2))/(10 ** (0.8157 * Tsr)))
+    ZFactorPapay = Z 
+    return ZFactorPapay
+
+def TscMKayMixingRuleCorrelation(TscHC, n2Concentration, co2Concentration, h2sConcentration):
+    TscM = (1 - n2Concentration - co2Concentration - h2sConcentration) * TscHC + 227 * n2Concentration + 548 * co2Concentration + 672 * h2sConcentration # Pseudocritical temperature of the whole gas mixture
+    TscMKay = TscM
+    return TscMKay
+
+def AdjustedTscMWichertAzizCorrelation(TscM, co2Concentration, h2sConcentration):
+    A = co2Concentration + h2sConcentration
+    B = h2sConcentration
+    E = 120 * (A ** 0.9 - A ** 1.6) + 15 * (B ** 0.5 - B ** 4) 
+    AdjustedTscM = TscM - E
+    AdjustedTscMWichertAziz = AdjustedTscM
+    return AdjustedTscMWichertAziz
+    
+
+def TscHCStandingCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    TscHC = 168 + 325 * YgHC - 12.5 * (YgHC ** 2) # Pseudocritical temperature of the hydrocarbon portion
+    TscHCStanding = TscHC
+    return TscHCStanding    
+
+def TscHCStandingHeavierFractionsCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    TscHC = 187 + 330 * YgHC - 71.5 * (YgHC ** 2) # Pseudocritical temperature of the hydrocarbon portion
+    TscHCStanding = TscHC
+    return TscHCStanding
+
+def TscHCSuttonCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    TscHC = 169.2 + 349.5 * YgHC - 74.0 * (YgHC ** 2) # Pseudocritical temperature of the hydrocarbon portion
+    TscHCSutton = TscHC
+    return TscHCSutton
+
+def TpcHCElsharkawyEtAlCorrelation(YgHC, n2Concentration, co2Concentration, h2sConcentration):
+    TpcHC = 149.18 + (358.14 * YgHC) - (66.976 * (YgHC ** 2)) # Pseudocritical temperature of the hydrocarbon portion
+    TpcHCElsharkawy = TpcHC
+    return TpcHCElsharkawy

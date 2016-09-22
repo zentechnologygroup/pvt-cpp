@@ -137,5 +137,28 @@ UodPerezML::impl(const Quantity<Api> & api,
   return Quantity<CP>(uod);
 }
 
+inline Quantity<CP>
+UodDindorukChristman::impl(const Quantity<Api> & api,
+			   const Quantity<Fahrenheit> & t,
+			   const Quantity<psia> & pb,
+			   const Quantity<SCF_STB> & rsb) const
+{
+  constexpr double a1 = 14.505357625;
+  constexpr double a2 = -44.868655416;
+  constexpr double a3 = 9.36579e9;
+  constexpr double a4 = -4.194017808;
+  constexpr double a5 = -3.1461171e-9;
+  constexpr double a6 = 1.517652716;
+  constexpr double a7 = 0.010433654;
+  constexpr double a8 = -0.000776880;
+        
+  const double a = a1 * log10(t) + a2;
+        
+  const double uod = (a3*pow(t, a4)*pow(log10(api), a)) /
+    (a5*pow(pb, a6) + a7*pow(rsb, a8));
+
+  return Quantity<CP>(uod);        
+}
+
 
 # endif // DEAD_OIL_VISCOSITY_IMPL_H

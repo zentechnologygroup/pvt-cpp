@@ -1,6 +1,2 @@
-homologar unidad psia^-1 (Coefficient of isothermal compressibility),2016-08-29 10:02:02 -0400,2016-09-08 11:09:29 -0400,
-eliminar correlations de Imakefile,2016-08-30 17:39:36 -0400,2016-09-08 11:09:48 -0400,
 preguntar iteración BoVelardeMcCain,2016-09-01 08:33:30 -0400,2016-09-08 11:09:52 -0400,
-opcion generar referencias en gen-corr,2016-09-09 16:07:40 -0400,2016-09-10 21:15:43 -0400,
-Validar referencias bibtex en gen-corr,2016-09-10 19:09:45 -0400,2016-09-10 21:15:46 -0400,
-sustituid const double por double,2016-09-13 13:47:34 -0400,,
+corregir nombre carbons (debe ser carborn),2016-09-16 11:46:16 -0400,,

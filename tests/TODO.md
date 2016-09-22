@@ -21,51 +21,30 @@
 ## 7. Cambiar referencia contsnate a Unit por un puntero constante
 - Created at   2016-08-20 13:37:31 -0400
 
-## 8. opción que genere matrix aún con excepciones
-- Created at   2016-08-22 19:03:55 -0400
-
-## 9. poner NA en salida cuando haya error
-- Created at   2016-08-24 10:30:32 -0400
-- Completed at 2016-08-30 10:49:35 -0400
-
-## 10. verificar rigurosamente orden y unidades de correlaciones
+## 8. verificar rigurosamente orden y unidades de correlaciones
 - Created at   2016-08-24 14:34:13 -0400
 
-## 11. modificar RsGlaso para que use la raíz de la eq 2do gradop
-- Created at   2016-08-26 12:31:48 -0400
-
-## 12. test que valide que las unidades sean las mismas para familias de correlaciones
-- Created at   2016-08-29 16:41:53 -0400
-
-## 13. Revisar los test oginales de unidades
+## 9. Revisar los test oginales de unidades
 - Created at   2016-09-02 11:07:32 -0400
 
-## 14. generación de test optimizada
+## 10. generación de test optimizada
 - Created at   2016-09-02 11:19:53 -0400
 
-## 15. calcular extremos dados los rangos
-- Created at   2016-09-04 12:45:33 -0400
-
-## 16. Manejar referencias con script ruby
-- Created at   2016-09-07 15:14:23 -0400
-
-## 17. cambiar formato ruby de correlación para que inclya desc
-- Created at    ref
-- Completed at  db
-- Comment       note hidden_note y eq
-
-## 18. poner en test-conversion flag para descripcion
+## 11. poner en test-conversion flag para descripcion
 - Created at   2016-09-12 09:44:10 -0400
 
-## 19. corregir margen en formateo de descripcion para unudad fisica y unidad
-- Created at   2016-09-12 09:44:36 -0400
-
-## 20. revisar valor de epsilon en reporte de unidad
-- Created at   2016-09-12 15:48:20 -0400
-
-## 21. revisar valor de epsilon en reporte de unidad
+## 12. revisar valor de epsilon en reporte de unidad
 - Created at   2016-09-12 15:49:09 -0400
 
-## 22. poner campo title encorrelaciones y actualizar
-- Created at   2016-09-12 18:02:10 -0400
+## 13. generar llamada a correlaion con funcion para usar desde interprrete
+- Created at   2016-09-20 17:05:44 -0400
+
+## 14. verificar todo en nonhydrocarbons gas-pseudo-cirtical-pressure especialmente MolePercent versus MoleFraction
+- Created at   2016-09-20 18:02:56 -0400
+
+## 15. producir lib so
+- Created at   2016-09-21 09:04:47 -0400
+
+## 16. corregir sutton et al en presion
+- Created at   2016-09-21 16:21:49 -0400
 

@@ -43,12 +43,7 @@ struct CorrelationPar
   void verify(const BaseQuantity & q) const
   {
     ostringstream s;
-    // if (&q.unit != &unit)
-    //   {
-    // 	s << "Unit " << q.unit.name << " is different from " << unit.name;
-    // 	throw domain_error(s.str());	
-    //   }
-
+  
     if (q.get_value() < min_val)
       {
 	s << "Value " << q.get_value() << " is lesser than the minimum value "
@@ -70,13 +65,15 @@ struct Correlation
   const string type_name;
   const string subtype_name;
   const string name;
+  mutable string author;
   const Unit & unit;
   const double min_val;
   const double max_val;
-  string title;
-  DynList<string> db;
-  DynList<string> notes;
-  DynList<const BibEntry *> refs;
+  mutable string title;
+  mutable DynList<string> db;
+  mutable DynList<string> notes;
+  mutable DynList<const BibEntry*> refs;
+  mutable bool hidden = false; // indicates whether correlation is or not hidden
 
 private:
 
@@ -86,6 +83,12 @@ private:
   static DynMapTree<string, const Correlation * const> tbl;
   
 public:
+
+  void set_hidden() { hidden = true; }
+
+  static string to_json();
+
+  void set_author(const string & __author) { author = __author; }
 
   void set_title(const string & __title) { title = __title; }
 
@@ -122,8 +125,11 @@ public:
   virtual string correlation_name() const
   {
     ostringstream s;
-    s << type_name << " : " << subtype_name << " : "
+    s << author << endl
+      << type_name << " : " << subtype_name << " : "
       << demangle(typeid(*this).name());
+    if (hidden)
+      s << " (WARNING: hidden correlation)";
     return s.str();
   }
 
@@ -224,7 +230,7 @@ protected:
   {
     auto min_aux = VtlQuantity(unit, min);
     auto max_aux = VtlQuantity(unit, max);
-    if (min_aux >= max_aux)
+    if (min_aux > max_aux)
       {
 	ostringstream s;
 	s << "minimum value " << min_aux << " is greater than maximum value "
@@ -437,11 +443,9 @@ inline Correlation::~Correlation() {}
   inline type_name::~type_name() {}
 
 Declare_Correlation_Type(OilFunction)
-
 Declare_Correlation_Type(OilCorrelation);
-
 Declare_Correlation_Type(GasCorrelation);
-
+Declare_Correlation_Type(GasFunction);
 Declare_Correlation_Type(WaterCorrelation);
 
 # define Declare_Correlation_Subtype(subtype_name, type_name)	\
@@ -515,4 +519,10 @@ Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation);
 
 
 Declare_Correlation_Subtype(GasPseudoCriticalPressure, GasCorrelation);
+Declare_Correlation_Subtype(GasViscosity, GasCorrelation);
+Declare_Correlation_Subtype(GasDensity, GasFunction)
+Declare_Correlation_Subtype(GasVolumeFactor, GasFunction);
+Declare_Correlation_Subtype(GasCompressibility, GasCorrelation);
+Declare_Correlation_Subtype(GasPseudoCriticalTemperature, GasCorrelation);
+
 # endif // CORRELATION_H

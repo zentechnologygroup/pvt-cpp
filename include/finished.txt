@@ -2,3 +2,10 @@ opcion all-tests que ejecute todos los test para todas la magnitude,2016-08-14 1
 dirimir qué hacer con parámetro rsb en OilFormationVolumeFactor,2016-08-29 09:54:22 -0400,2016-09-08 11:09:46 -0400,,2016-09-10 19:18:45 -0400
 dry de bod versus rs y rsb,2016-08-31 11:44:19 -0400,2016-09-08 11:09:49 -0400,,2016-09-10 21:15:55 -0400
 pueden haber varias ecuaciones,2016-09-11 11:57:12 -0400,2016-09-12 18:14:15 -0400,,2016-09-12 18:14:19 -0400
+generar json,2016-09-15 12:22:47 -0400,,,2016-09-15 15:37:13 -0400
+Validar referencias bibtex en gen-corr,2016-09-10 19:09:45 -0400,2016-09-10 21:15:46 -0400,,2016-09-16 11:44:41 -0400
+opcion generar referencias en gen-corr,2016-09-09 16:07:40 -0400,2016-09-10 21:15:43 -0400,,2016-09-16 11:44:48 -0400
+homologar unidad psia^-1 (Coefficient of isothermal compressibility),2016-08-29 10:02:02 -0400,2016-09-08 11:09:29 -0400,,2016-09-16 11:44:59 -0400
+eliminar correlations de Imakefile,2016-08-30 17:39:36 -0400,2016-09-08 11:09:48 -0400,,2016-09-16 11:45:08 -0400
+sustituid const double por double,2016-09-13 13:47:34 -0400,,,2016-09-16 11:45:16 -0400
+generar json,2016-09-15 12:02:30 -0400,2016-09-16 11:44:33 -0400,,2016-09-16 11:45:26 -0400

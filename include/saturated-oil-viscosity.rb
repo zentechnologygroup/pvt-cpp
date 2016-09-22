@@ -94,3 +94,11 @@ add_parameter("rs", "SCF_STB", 17.21, 640.25)
 add_parameter("api", "Api", 6, 22.3)
 end_correlation()
 
+################################################################
+
+begin_correlation("UobDindorukChristman", "SaturatedOilViscosity", "CP", 0.161, 8.7)
+add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
+add_db("Based on more than 90 PVT reports from the Gulf of Mexico.")
+add_parameter("uod", "CP", 0.896, 62.63)
+add_parameter("rs", "SCF_STB")
+end_correlation()

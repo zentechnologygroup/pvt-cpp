@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'bibtex'
+
+b = BibTeX.open('refs.bib')
+
+term = ARGV.shift
+
+r = b.find_all { |e| e.author.downcase.include? term.downcase }
+
+exit unless r
+
+r.each do |e|
+  puts e.to_s
+  puts
+end

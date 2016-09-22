@@ -10,7 +10,11 @@
 # include <saturated-oil-viscosity.H>
 # include <undersaturated-oil-viscosity.H>
 # include <oil-interfacial-tension.H>
+# include <non-hydrocarborns-corrections.H>
 # include <gas-pseudocritical-pressure.H>
+# include <gas-viscosity.H>
+# include <gas-compressibility.H>
+# include <gas-pseudocritical-temp.H>
 
 # include <bubble-point-pressure-impl.H>
 # include <solution-gas-oil-relation-impl.H>
@@ -21,7 +25,11 @@
 # include <saturated-oil-viscosity-impl.H>
 # include <undersaturated-oil-viscosity-impl.H>
 # include <oil-interfacial-tension-impl.H>
+# include <non-hydrocarborns-corrections-impl.H>
 # include <gas-pseudocritical-pressure-impl.H>
+# include <gas-viscosity-impl.H>
+# include <gas-compressibility-impl.H>
+# include <gas-pseudocritical-temp-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -106,6 +114,7 @@ struct CorrelationInstantiater
     UodPetroskyFarshad::get_instance();
     UodDeGhettoEtAl::get_instance();
     UodPerezML::get_instance();
+    UodDindorukChristman::get_instance();
 
     UobBeggsRobinson::get_instance();
     UobChewConnally::get_instance();
@@ -115,6 +124,7 @@ struct CorrelationInstantiater
     UobPerezML::get_instance();
     UobGilFonseca::get_instance();
     UobDeGhettoEtAl::get_instance();
+    UobDindorukChristman::get_instance();
 
     UoaKartoatmodjoSchmidt::get_instance();
     UoaDeGhettoEtAl::get_instance();
@@ -124,14 +134,41 @@ struct CorrelationInstantiater
     UoaPetroskyFarshad::get_instance();
     UoaAbedini::get_instance();
     UoaPerezML::get_instance();
+    UoaDindorukChristman::get_instance();
 
     SgoBakerSwerdloff::get_instance();
 
     YgHCWichertAziz::get_instance();
-    PscMKay::get_instance();
-    AdjustedPscWichertAziz::get_instance();
-    PscBrownKOA::get_instance();
+    PscMKayMixingRule::get_instance();
+    AdjustedPscMWichertAziz::get_instance();
+    TscMKayMixingRule::get_instance();
+    AdjustedTscMWichertAziz::get_instance();
+
+    PscHCStanding::get_instance();
+    PscHcSutton::get_instance();
+    PscHCGuoGhalambor::get_instance();
+    PscAhmed::get_instance();
+    PscHCElsharkawyEtAlHeavierFractions::get_instance();
+    PscHCStandingHeavierFractions::get_instance();
+
+    UgCarrKB::get_instance();
+    UgLeeGE::get_instance();
+    UgDeanStiel::get_instance();
+
+    ZFactorSarem::get_instance();
+    ZFactorHallYarborough::get_instance();
+    ZFactorDranchukPR::get_instance();
+    ZFactorDranchukAK::get_instance();
+    ZFactorGopal::get_instance();
+    ZFactorBrillBeggs::get_instance();
+    ZFactorPapay::get_instance();
+
+    TscHCStanding::get_instance();
+    TscHCStandingHeavierFractions::get_instance();
+    TscHCSutton::get_instance();
+    TpcHCElsharkawyEtAl::get_instance();
   }
 };
 
 # endif // PVT_CORRELATIONS_H
+

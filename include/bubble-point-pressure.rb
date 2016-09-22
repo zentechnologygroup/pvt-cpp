@@ -2,6 +2,7 @@
 
 begin_correlation("PbAlMarhoun", "BubblePointPressure", "psia", 130, 3573)
 add_title("AL-MARHOUN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
+add_author("Al-Marhoun")
 add_parameter("yg", "Sgg",  0.752, 1.367)
 add_parameter("yo", "Sg_do", 0.803521, 0.937707)
 add_parameter("rsb", "SCF_STB", 26, 1602)
@@ -22,6 +23,7 @@ add_parameter("yo", "Sg_do", 0.724898, 1.02909)
 add_parameter("rsb", "SCF_STB", 6, 3298.6)
 add_parameter("t", "Fahrenheit", 74, 341.6)
 add_db("Based on a total of 1709 data sets (1661 data sets from 13 different published literature papers and 48 data sets originated from Kuwait reservoirs from unpublished sources")
+add_ref("alShammasi:1999")
 end_correlation()
 
 ################################################################
@@ -39,7 +41,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbDindorukChristman", "BubblePointPressure", "psia", 926, 12230)
-add_title(" DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
+add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", 0.623, 1.517)
 add_parameter("rsb", "SCF_STB", 133, 3050)
 add_parameter("api", "Api", 14.7, 40)

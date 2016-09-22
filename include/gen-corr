@@ -27,19 +27,25 @@ class CorrelationGen
   end
 
   def initialize(name, subtype, unit, min = nil, max = nil)
-      @name = name
-      @subtype = subtype
-      @unit = unit
-      @min = min
-      @max = max
-      @pars = []
-      @db = []
-      @notes = []
-      @refs = []
-      @eq = []
+    @name = name
+    @author = "Not defined"
+    @subtype = subtype
+    @unit = unit
+    @min = min
+    @max = max
+    @pars = []
+    @db = []
+    @notes = []
+    @internal_notes = []
+    @refs = []
+    @eq = []
   end
 
   attr_reader :name
+
+  def set_hidden
+    @hidden = true;
+  end
 
   def add_doc(str)
     @doc = str
@@ -49,12 +55,20 @@ class CorrelationGen
     @title = title
   end
 
+  def add_author(name)
+    @author = name
+  end
+
   def add_db(db)
     @db << db
   end
 
   def add_note(note)
     @notes << note
+  end
+
+  def add_internal_note(note)
+    @internal_notes << note
   end
 
   def add_ref(tag)
@@ -77,7 +91,7 @@ class CorrelationGen
       s += "const Quantity<#{par.unit}> & #{par.name}"
       s += ",\n" unless par == @pars.last
     end
-    s += ") const"
+    s += ")"
   end  
 
   def gen_impl_declaration
@@ -85,6 +99,7 @@ class CorrelationGen
         "\n"
     s += "inline " + impl_type + " impl"
     s += gen_pars
+    s += " const"
   end
 
   def pars_list
@@ -137,6 +152,7 @@ class CorrelationGen
   def gen_class
     s = "/** #{@name}\n\n"
     s += @doc if @doc
+    @internal_notes.each { |note| s += "#{note.ljust(60)}\n\n" }
     s += "\n"\
          "*/\n"
     s += "class #{@name} : public #{@subtype}\n" \
@@ -149,7 +165,9 @@ class CorrelationGen
     s += ", #{@max}" if @max
     s += ")\n"\
          "{\n"
+    s += "set_author(\"#{@author}\");"
     s += "set_title(\"#{@title}\");" if @title
+    s += "set_hidden();" if @hidden
     @pars.each { |par| s += par.make }
     @db.each { |db| s += "add_db(\"#{db}\");\n" }
     @notes.each { |note| s += "add_note(\"#{note}\");\n" }
@@ -158,20 +176,30 @@ class CorrelationGen
          "\n"
     s += "#{gen_impl_declaration};\n"\
          "\n"
-    s += "#{impl_type} operator () #{gen_pars}\n"\
+    s += "#{impl_type} operator () #{gen_pars} const\n"\
          "{\n"\
          "  return compute({#{pars_list}});\n"\
          "}\n"\
          "\n"
     s += gen_compute
          
-    s += "};\n"
+    s += "};\n"\
+         "\n"\
+         "inline #{impl_type} #{@name}__fct #{gen_pars}\n"\
+         "{\n"\
+         "  return #{@name}::get_instance()("
+    @pars.each do |par|
+      s += par.name
+      s += ',' if par != @pars.last
+    end
+    s += ");\n"\
+         "}\n"
   end
 
   def gen_impl
     "\n"\
     "inline #{impl_type}\n"\
-    "#{@name}::impl#{gen_pars}\n"\
+    "#{@name}::impl#{gen_pars} const\n"\
     "{\n"\
     "    // put here the implementation\n"\
     "}\n"
@@ -188,6 +216,10 @@ def begin_correlation(name, subtype, unit, min = nil, max = nil)
   $curr_corr = CorrelationGen.new(name, subtype, unit, min, max)
 end
 
+def set_hidden
+  $curr_corr.set_hidden
+end
+
 def add_parameter(name, unit, min = nil, max = nil)
   $curr_corr.add_parameter(name, unit, min, max)
 end
@@ -200,6 +232,10 @@ def add_title(title)
   $curr_corr.add_title(title)
 end
 
+def add_author(name)
+  $curr_corr.add_author(name)
+end
+
 def add_eq(eq)
   $curr_corr.add_eq(eq)
 end
@@ -210,6 +246,14 @@ end
 
 def add_note(note)
   $curr_corr.add_note(note)
+end
+
+def add_internal_note(note)
+  $curr_corr.add_internal_note(note)
+end
+
+def add_hidden_note(note)
+  $curr_corr.add_internal_note(note)
 end
 
 def add_eq(eq)
@@ -338,8 +382,24 @@ if eq
   exit
 end
 
+guard_name = File.basename file, '.rb'
+header_name = guard_name + ".H"
+guard_name += "_impl_H"
+guard_name.gsub! '-', '_'
+guard_name.gsub! '.', '_'
+guard_name.upcase!
 
+puts "# ifndef #{guard_name}"
+puts "# define #{guard_name}"
+puts 
+puts "# include <#{header_name}>"
+puts
 puts "#{gen_impl_declarations}"
+puts 
+puts " # endif // #{guard_name}"
+
+
+
 
 
 
