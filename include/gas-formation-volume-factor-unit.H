@@ -50,31 +50,31 @@ Declare_Unit(RB_MSCF, "RB/Mscf",
 // The The formation volume factor conversions 
        
 // To "rcf/scf"  
-Declare_Conversion(RM3_SM3, RCF_SCF, v) { return  v ; }                   ya
-Declare_Conversion(RCF_MSCF, RCF_SCF, v) { return  v / 1000 ; }           ya      
-Declare_Conversion(RB_SCF, RCF_SCF, v) { return  5.61458333333 * v ; }    ya
-Declare_Conversion(RB_MSCF, RCF_SCF, v) { return 0.00561458333333 * v ; } ya
+Declare_Conversion(RM3_SM3, RCF_SCF, v) { return  v ; }                  // ya
+Declare_Conversion(RCF_MSCF, RCF_SCF, v) { return  v / 1000 ; }           //ya      
+Declare_Conversion(RB_SCF, RCF_SCF, v) { return  5.61458333333 * v ; }    //ya
+Declare_Conversion(RB_MSCF, RCF_SCF, v) { return 0.00561458333333 * v ; } // ya
 
 // To "rm3/sm3"
-Declare_Conversion(RCF_SCF, RM3_SM3, v) { return  v ; }                   ya 
+Declare_Conversion(RCF_SCF, RM3_SM3, v) { return  v ; }                   //ya 
 Declare_Conversion(RCF_MSCF, RM3_SM3, v) { return  v ; }
 Declare_Conversion(RB_SCF, RM3_SM3, v) { return  v ; }
 Declare_Conversion(RB_MSCF, RM3_SM3, v) { return  v ; }
 
 // To "rcf/Mscf"
-Declare_Conversion(RCF_SCF, RCF_MSCF, v) { return  1000 * v ; }          ya
+Declare_Conversion(RCF_SCF, RCF_MSCF, v) { return  1000 * v ; }          //ya
 Declare_Conversion(RM3_SM3, RCF_MSCF, v) { return  v ; }
 Declare_Conversion(RB_SCF, RCF_MSCF, v) { return  v ; }
 Declare_Conversion(RB_MSCF, RCF_MSCF, v) { return  v ; }
 
 // To "RB/scf"
-Declare_Conversion(RCF_SCF, RB_SCF, v) { return  0.178107606679 * v ; }  ya
+Declare_Conversion(RCF_SCF, RB_SCF, v) { return  0.178107606679 * v ; }  //ya
 Declare_Conversion(RM3_SM3, RB_SCF, v) { return  v ; }
 Declare_Conversion(RCF_MSCF, RB_SCF, v) { return  v ; }
 Declare_Conversion(RB_MSCF, RB_SCF, v) { return  v ; }
 
 // To "RB/Mscf"
-Declare_Conversion(RCF_SCF, RB_MSCF, v) { return  178.107606679 * v ; }  ya
+Declare_Conversion(RCF_SCF, RB_MSCF, v) { return  178.107606679 * v ; }  //ya
 Declare_Conversion(RM3_SM3, RB_MSCF, v) { return  v ; }
 Declare_Conversion(RCF_MSCF, RB_MSCF, v) { return  v ; }
 Declare_Conversion(RB_SCF, RB_MSCF, v) { return  v ; }
