@@ -63,7 +63,7 @@ Declare_Conversion(RB_MSCF, RM3_SM3, v) { return  v ; }
 
 // To "rcf/Mscf"
 Declare_Conversion(RCF_SCF, RCF_MSCF, v) { return  1000 * v ; }          // ya
-Declare_Conversion(RM3_SM3, RCF_MSCF, v) { return  v ; }
+Declare_Conversion(RM3_SM3, RCF_MSCF, v) { return 1000 * v ; }            // ya
 Declare_Conversion(RB_SCF, RCF_MSCF, v) { return  v ; }
 Declare_Conversion(RB_MSCF, RCF_MSCF, v) { return  v ; }
 
