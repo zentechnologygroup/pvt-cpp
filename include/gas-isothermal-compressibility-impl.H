@@ -78,7 +78,7 @@ CgHallYarborough::impl(const Quantity<Rankine> & t,
   const double tpr_1_2 = tpr_1*tpr_1;
   const double tpr_1_3 = tpr_1_2*tpr_1;
 
-  const double a = 0.06125*tpr_1 * exp(-1.2*tpr_1_2*tpr_1_2);
+  const double a = 0.06125*tpr_1 * exp(-1.2*pow(1 - tpr_1, 2));
 
   const double b = 14.76*tpr_1 - 9.76*tpr_1_2 + 4.58*tpr_1_3;
   const  double c = 90.7*tpr_1 - 242.2*tpr_1_2 + 42.4*tpr_1_3;
@@ -106,7 +106,7 @@ CgHallYarborough::impl(const Quantity<Rankine> & t,
       
       const double dfdpr = (1 + pr_x_4 + pr_x_4_2 - pr_x_4_3 + pr_x_4_4) /
 	pow(1 - pr, 4) - 2*b*pr + c*d* pow(pr, d-1);
-      const double prf = pr - f/dfdpr;
+      prf = pr - f/dfdpr;
       prprev = prf;
   }
                 
@@ -127,6 +127,146 @@ CgHallYarborough::impl(const Quantity<Rankine> & t,
                 
   const double cgr = 1/ppr - (1/z.raw())*dzdppr;
             
+  const double cg = cgr/ppc.raw();
+
+  return Quantity<psia_1>(cg);
+}
+
+inline Quantity<psia_1>
+CgMattarBA::impl(const Quantity<Rankine> & t,
+		 const Quantity<psia> & p,
+		 const Quantity<Rankine> & tpc,
+		 const Quantity<psia> & ppc,
+		 const Quantity<ZFactor> & z) const
+{
+  const double tpr = t.raw()/tpc.raw();
+  check_range("CgMattarBA", "t/tsc", tpr, 1.05, 3);
+
+  const double ppr = p.raw()/ppc.raw();
+  check_range("CgMattarBA", "p/psc", ppr, 0.2, 30);
+
+  constexpr double a1 = 0.31506237;
+  constexpr double a2 = -1.0467099;
+  constexpr double a3 = -0.57832729;
+  constexpr double a4 = 0.53530771;
+  constexpr double a5 = -0.61232032;
+  constexpr double a6 = -0.10488813;
+  constexpr double a7 = 0.68157001;
+  constexpr double a8 = 0.68446549;
+                
+  const double pr = 0.27*ppr/(z.raw() * tpr);
+  const double pr2 = pr*pr;
+  const double pr3 = pr2*pr;
+  const double pr4 = pr3*pr;
+
+  const double tpr2 = tpr*tpr;
+  const double tpr3 = tpr2*tpr;
+
+  const double a8_x_pr2 = a8*pr2;
+  const double a8_x_pr2_2 = a8_x_pr2*a8_x_pr2;
+
+
+  const double dzdpr = a1 + a2/tpr + a3/tpr3 + 2*(a4 + a5/tpr)*pr
+    + 5*a5*a6*pr4/tpr +
+    (2*a7*pr/tpr3)*(1 + a8_x_pr2 - a8_x_pr2_2)*exp(-a8_x_pr2);
+
+  const double z2 = z.raw()*z.raw();
+  const double cgr = 1/ppr - (0.27/(z2*tpr))*(dzdpr/(1 + ((pr/z.raw()) * dzdpr)));
+                
+  const double cg =  cgr/ppc.raw();
+
+  return Quantity<psia_1>(cg);
+}
+
+
+inline Quantity<psia_1>
+CgGopal::impl(const Quantity<Rankine> & t,
+	      const Quantity<psia> & p,
+	      const Quantity<Rankine> & tpc,
+	      const Quantity<psia> & ppc,
+	      const Quantity<ZFactor> & z) const
+{
+  const double tpr = t.raw()/tpc.raw();
+  check_range("CgMattarBA", "t/tsc", tpr, 1.05, 3);
+
+  const double ppr = p.raw()/ppc.raw();
+  check_range("CgMattarBA", "p/psc", ppr, 0.2, 15);
+
+  double dzdppr = 0;
+  if (0.2 < ppr and ppr <= 1.2)
+    {
+      if (1.05 < tpr and tpr <= 1.2)
+	dzdppr = 1.6643 * tpr - 2.2114;
+      else if (1.2 < tpr and tpr <= 1.4)
+	dzdppr = 0.0522 * tpr - 0.8511;
+      else if (1.4 < tpr and tpr <= 2.0)
+	dzdppr = 0.1391 * tpr - 0.2988;
+      else // 2.0 < Tpr <= 3.0
+	dzdppr = 0.0295 * tpr - 0.0825;
+    }                   
+  else if (1.2 < ppr and ppr <= 2.8)
+    {
+      if (1.05 < tpr and tpr <= 1.2)
+	dzdppr = -1.3570 * tpr + 1.4942;
+      else if (1.2 < tpr and tpr <= 1.4)
+	dzdppr = 0.1717 * tpr - 0.3232;
+      else if (1.4 < tpr and tpr <= 2.0)
+	dzdppr = 0.0984 * tpr - 0.2053;            
+      else // 2.0 < Tpr <= 3.0
+	dzdppr = 0.0211 * tpr - 0.0527;
+    }
+  else if (2.8 < ppr and ppr <= 5.4)
+    {
+      if (1.05 < tpr and tpr <= 1.2)
+	dzdppr = -0.3278 * tpr + 0.4752;
+      else if (1.2 < tpr and tpr <= 1.4)
+	dzdppr = -0.2521 * tpr + 0.3871;
+      else if (1.4 < tpr and tpr <= 2.0)
+	dzdppr = -0.0284 * tpr + 0.0625;
+      else // 2.0 < Tpr <= 3.0
+	dzdppr = 0.0041 * tpr + 0.0039;
+    }
+  else // 5.4 < Ppr <= 15
+    dzdppr = pow(0.711 + 3.66 * tpr, -1.4667);
+                
+  const double cgr = (1/ppr) - (1/z.raw()) * dzdppr;
+                
+  const double cg = cgr/ppc.raw();
+
+  return Quantity<psia_1>(cg);
+}
+
+
+inline Quantity<psia_1>
+CgBrillBeggs::impl(const Quantity<Rankine> & t,
+		   const Quantity<psia> & p,
+		   const Quantity<Rankine> & tpc,
+		   const Quantity<psia> & ppc,
+		   const Quantity<ZFactor> & z) const
+{
+  const double tpr = t.raw()/tpc.raw();
+  check_range("CgMattarBA", "t/tsc", tpr, 1.2, 2.4);
+
+  const double ppr = p.raw()/ppc.raw();
+  check_range("CgMattarBA", "p/psc", ppr, 0, 13);
+
+  const double a = 1.39 * sqrt(tpr - 0.92) - 0.36*tpr - 0.101;
+  const double b = (0.62 - 0.23*tpr)*ppr + 
+    (0.066/(tpr - 0.86) - 0.037)*ppr*ppr +
+    (0.32/pow(10, 9*(tpr - 1)))*pow(ppr, 6);
+
+  const double c = 0.132 - 0.32*log10(tpr);
+  const double d = pow(10, 0.3106 - 0.49*tpr + 0.1824*tpr*tpr);
+
+  double dzdppr = c*d*pow(ppr, d - 1);
+
+  if (b <= 690)
+    dzdppr -= (1 - a)/(((0.62 - 0.23*tpr) +
+			(((0.132/(tpr - 0.86)) - 0.074) * ppr) + 
+			((1.92/   pow(10, 9*(tpr - 1))) * pow(ppr, 5)))*exp(b));
+
+  const double cgr = (1/ppr) - ((1/z.raw()) * dzdppr);
+                
   const double cg = cgr/ppc.raw();
 
   return Quantity<psia_1>(cg);

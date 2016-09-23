@@ -171,6 +171,10 @@ struct CorrelationInstantiater
     TpcHCElsharkawyEtAl::get_instance();
 
     CgSarem::get_instance();
+    CgHallYarborough::get_instance();
+    CgMattarBA::get_instance();
+    CgGopal::get_instance();
+    CgBrillBeggs::get_instance();
   }
 };
 

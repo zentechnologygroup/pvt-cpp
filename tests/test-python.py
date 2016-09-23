@@ -1502,3 +1502,117 @@ def CgSaremCorrelation(Tr, P, Tpc, Ppc, Z):
     Cg =  Cgr/Ppc
     CgSarem = Cg
     return CgSarem
+
+def CgHallYarboroughCorrelation(Tr, P, Tpc, Ppc, Z):
+    Tpr = 1.0*Tr/Tpc
+    Ppr = 1.0*P/Ppc
+    A = 0.06125 * (1/Tpr) * exp((-1.2) * ((1 - (1/Tpr)) ** 2))
+    B = 14.76 * (1/Tpr) - 9.76 * ((1/Tpr) ** 2) + 4.58 * ((1/Tpr) ** 3)
+    C = 90.7 * (1/Tpr) - 242.2 * ((1/Tpr) ** 2) + 42.4 * ((1/Tpr) ** 3)
+    D = 2.18 + 2.82 * (1/Tpr)
+    epsilon = 1.0e-8
+    pr = 0
+    prprev = 0.01
+    while fabs(prprev - pr) > epsilon:
+        pr = prprev
+        F = -(A * Ppr) + (pr + (pr ** 2) + (pr ** 3) - (pr ** 4))/((1 - pr) ** 3) - B * (pr ** 2) + C * (pr ** D) 
+        dFdpr = ((1 + (4 * pr) + (4 * pr) ** 2 - (4 * pr) ** 3 + (4 * pr) ** 4)/((1 - pr) ** 4)) - 2 * B * pr + C * D * (pr ** (D-1))
+        prf = pr - F/dFdpr
+        prprev = prf
+    
+    pr = prf
+    dprdPpr = A * (((1-pr) ** 4)/(1 + (4 * pr) + 4 * (pr ** 2) - 4 * (pr ** 3) + (pr ** 4) - ((1-pr) ** 4) * ((2 * B * pr ) - (C *D * (pr ** (D-1))))))
+    dZdPpr = (A/pr) - (A * Ppr/(pr ** 2)) * dprdPpr
+    Cgr = (1/Ppr) - (1/Z) * dZdPpr
+    Cg =  Cgr/Ppc
+    CgHallYarborough = Cg
+    return CgHallYarborough
+
+def CgMattarBACorrelation(Tr, P, Tpc, Ppc, Z):
+    Tpr = 1.0*Tr/Tpc
+    Ppr = 1.0*P/Ppc
+    A1 = 0.31506237
+    A2 = -1.0467099
+    A3 = -0.57832729
+    A4 = 0.53530771
+    A5 = -0.61232032
+    A6 = -0.10488813
+    A7 = 0.68157001
+    A8 = 0.68446549
+    pr = 0.27 * Ppr/(Z * Tpr)
+    dZdpr = A1 + (A2/Tpr) + (A3/(Tpr ** 3)) + 2 * (A4 + (A5/Tpr)) * pr + 5 * A5 * A6 * ((pr ** 4)/Tpr) + ((2 * A7 * pr)/(Tpr **3)) * (1 + A8 * (pr ** 2) - (A8 * (pr ** 2)) ** 2) * exp(-A8 * (pr ** 2))
+    Cgr = (1/Ppr) - (0.27/((Z ** 2) * Tpr)) * (dZdpr/(1 + ((pr/Z) * dZdpr)))
+    Cg =  Cgr/Ppc
+    CgMattarBA = Cg
+    return CgMattarBA
+
+
+def CgGopalCorrelation(Tr, P, Tpc, Ppc, Z):
+    Tpr = 1.0*Tr/Tpc
+    Ppr = 1.0*P/Ppc
+    if 0.2 < Ppr <= 1.2:
+        if 1.05 < Tpr <= 1.2:
+            dZdPpr = 1.6643 * Tpr - 2.2114
+        elif 1.2 < Tpr <= 1.4:
+            dZdPpr = 0.0522 * Tpr - 0.8511
+        elif 1.4 < Tpr <= 2.0:
+            dZdPpr = 0.1391 * Tpr - 0.2988
+        elif 2.0 < Tpr <= 3.0:
+            dZdPpr = 0.0295 * Tpr - 0.0825
+    elif 1.2 < Ppr <= 2.8:
+        if 1.05 < Tpr <= 1.2:
+            dZdPpr = -1.3570 * Tpr + 1.4942            
+        elif 1.2 < Tpr <= 1.4:
+            dZdPpr = 0.1717 * Tpr - 0.3232 
+        elif 1.4 < Tpr <= 2.0:
+            dZdPpr = 0.0984 * Tpr - 0.2053            
+        elif 2.0 < Tpr <= 3.0:
+            dZdPpr = 0.0211 * Tpr - 0.0527            
+    elif 2.8 < Ppr <= 5.4:
+        if 1.05 < Tpr <= 1.2:
+            dZdPpr = -0.3278 * Tpr + 0.4752            
+        elif 1.2 < Tpr <= 1.4:
+            dZdPpr = -0.2521 * Tpr + 0.3871            
+        elif 1.4 < Tpr <= 2.0:
+            dZdPpr = -0.0284 * Tpr + 0.0625
+        elif 2.0 < Tpr <= 3.0:
+            dZdPpr = 0.0041 * Tpr + 0.0039           
+    elif 5.4 < Ppr <= 15: # para cualquier Tpr entre 1.05 y 3.0
+        dZdPpr = (0.711 + 3.66 * Tpr) ** (-1.4667)
+    
+    Cgr = (1/Ppr) - (1/Z) * dZdPpr
+    Cg =  Cgr/Ppc
+    CgGopal = Cg
+    return CgGopal       
+
+def CgBrillBeggsCorrelation(Tr, P, Tpc, Ppc, Z):
+    Tpr = 1.0*Tr/Tpc
+    Ppr = 1.0*P/Ppc
+            
+            if (Tpr < 1.2) or (Tpr > 2.4) or (Ppr < 0) or (Ppr > 13):
+            
+                Cg = None
+                
+            else:
+            
+                A = (1.39 * ((Tpr - 0.92) ** 0.5)) - (0.36 * Tpr) - 0.101
+                B = ((0.62 - 0.23 * Tpr) * Ppr) + (((0.066/(Tpr - 0.86)) - 0.037) * (Ppr ** 2)) + ((0.32/(10 ** (9 * (Tpr - 1)))) * (Ppr ** 6))
+                C = 0.132 - (0.32 * log10(Tpr))
+                D = 10 ** (0.3106 - (0.49 * Tpr) + (0.1824 * (Tpr ** 2)))
+                
+                mathDomain = B  #Se define el dominio matematico de la funcion de dZdPpr, sensible al argumento B de la funcion exponencial         
+                
+                if mathDomain > 690:
+                    dZdPpr = (0) + (C * D * (Ppr ** (D - 1))) #el cero se corresponde con numeros muy altos en la expresion de la izquierda de la derivada de Z respecto a Ppr i.e >1e+300
+                    
+                else:
+                    
+                    dZdPpr = -((1-A)/(((0.62 - (0.23 * Tpr)) + (((0.132/(Tpr - 0.86)) - 0.074) * Ppr) + ((1.92/(10 ** (9 * (Tpr - 1)))) * (Ppr ** 5))) * exp(B))) + (C * D * (Ppr ** (D - 1)))
+                
+                Cgr = (1/Ppr) - ((1/Z) * dZdPpr)
+                
+                Cg = Cgr/Ppc                
+                   
+        CgBrillBeggs = Cg
+        
+        return CgBrillBeggs 
