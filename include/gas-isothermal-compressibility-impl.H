@@ -171,7 +171,8 @@ CgMattarBA::impl(const Quantity<Rankine> & t,
     (2*a7*pr/tpr3)*(1 + a8_x_pr2 - a8_x_pr2_2)*exp(-a8_x_pr2);
 
   const double z2 = z.raw()*z.raw();
-  const double cgr = 1/ppr - (0.27/(z2*tpr))*(dzdpr/(1 + ((pr/z.raw()) * dzdpr)));
+  const double cgr = 1/ppr - (0.27/(z2*tpr))*(dzdpr/
+					      (1 + ((pr/z.raw()) * dzdpr)));
                 
   const double cg =  cgr/ppc.raw();
 
@@ -271,6 +272,31 @@ CgBrillBeggs::impl(const Quantity<Rankine> & t,
 
   return Quantity<psia_1>(cg);
 }
+
+
+inline Quantity<psia_1>
+CgPapay::impl(const Quantity<Rankine> & t,
+	      const Quantity<psia> & p,
+	      const Quantity<Rankine> & tpc,
+	      const Quantity<psia> & ppc,
+	      const Quantity<ZFactor> & z) const
+{
+  const double tpr = t.raw()/tpc.raw();
+  check_range("CgPapay", "t/tsc", tpr, 1.2, 3);
+
+  const double ppr = p.raw()/ppc.raw();
+  check_range("CgPapay", "p/psc", ppr, 0.2, 15);
+
+  const double dzdppr = -3.52/pow(10, 0.9813*tpr) +
+    0.548*ppr/pow(10, 0.8157*tpr);
+
+  const double cgr = 1/ppr - 1/z.raw()*dzdppr;
+                
+  const double cg = cgr/ppc.raw();
+
+  return Quantity<psia_1>(cg);
+}
+
 
 
 # endif

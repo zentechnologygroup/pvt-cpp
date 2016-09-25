@@ -1,4 +1,6 @@
 
+# include <atomic>
+
 # include <ahSort.H>
 # include <ah-stl-utils.H>
 # include <pvt-correlations.H>
@@ -26,6 +28,7 @@ static json to_json(const CorrelationPar & p)
   return j;
 }
 
+static atomic<size_t> id_count = { 0 };
 
 static json to_json(const Correlation & c) 
 {
@@ -43,6 +46,7 @@ static json to_json(const Correlation & c)
   j["type"] = c.type_name;
   j["name"] = c.name;
   j["hidden"] = c.hidden;
+  j["id"] = id_count++;
 
   auto jpars = c.get_preconditions().map<json>([] (const auto & par)
 					       { return ::to_json(par); });
@@ -55,7 +59,8 @@ static json to_json(const Correlation & c)
 
 string Correlation::to_json()
 {
-  DynMapTree<string, DynMapTree<string, DynList<const Correlation * const>>> tree;
+  DynMapTree<string, DynMapTree<string, DynList<const Correlation * const>>>
+    tree;
 
   for (auto it = tbl.get_it(); it.has_curr(); it.next())
     {
@@ -101,9 +106,11 @@ string Correlation::to_json()
       j["Physical property"] = properties;
       jl.append(j);
     }
-	
+
+  auto properties = to_vector(jl);
   json j;
-  j["Physical properties"] = to_vector(jl);
+  j["Physical properties"] = properties;
+  j["total physical properties"] = properties.size();
 
   return j.dump(2);
 }

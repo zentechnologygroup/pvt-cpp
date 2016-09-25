@@ -1588,31 +1588,24 @@ def CgGopalCorrelation(Tr, P, Tpc, Ppc, Z):
 def CgBrillBeggsCorrelation(Tr, P, Tpc, Ppc, Z):
     Tpr = 1.0*Tr/Tpc
     Ppr = 1.0*P/Ppc
-            
-            if (Tpr < 1.2) or (Tpr > 2.4) or (Ppr < 0) or (Ppr > 13):
-            
-                Cg = None
+    A = (1.39 * ((Tpr - 0.92) ** 0.5)) - (0.36 * Tpr) - 0.101
+    B = ((0.62 - 0.23 * Tpr) * Ppr) + (((0.066/(Tpr - 0.86)) - 0.037) * (Ppr ** 2)) + ((0.32/(10 ** (9 * (Tpr - 1)))) * (Ppr ** 6))
+    C = 0.132 - (0.32 * log10(Tpr))
+    D = 10 ** (0.3106 - (0.49 * Tpr) + (0.1824 * (Tpr ** 2)))
                 
-            else:
-            
-                A = (1.39 * ((Tpr - 0.92) ** 0.5)) - (0.36 * Tpr) - 0.101
-                B = ((0.62 - 0.23 * Tpr) * Ppr) + (((0.066/(Tpr - 0.86)) - 0.037) * (Ppr ** 2)) + ((0.32/(10 ** (9 * (Tpr - 1)))) * (Ppr ** 6))
-                C = 0.132 - (0.32 * log10(Tpr))
-                D = 10 ** (0.3106 - (0.49 * Tpr) + (0.1824 * (Tpr ** 2)))
-                
-                mathDomain = B  #Se define el dominio matematico de la funcion de dZdPpr, sensible al argumento B de la funcion exponencial         
-                
-                if mathDomain > 690:
-                    dZdPpr = (0) + (C * D * (Ppr ** (D - 1))) #el cero se corresponde con numeros muy altos en la expresion de la izquierda de la derivada de Z respecto a Ppr i.e >1e+300
-                    
-                else:
-                    
-                    dZdPpr = -((1-A)/(((0.62 - (0.23 * Tpr)) + (((0.132/(Tpr - 0.86)) - 0.074) * Ppr) + ((1.92/(10 ** (9 * (Tpr - 1)))) * (Ppr ** 5))) * exp(B))) + (C * D * (Ppr ** (D - 1)))
-                
-                Cgr = (1/Ppr) - ((1/Z) * dZdPpr)
-                
-                Cg = Cgr/Ppc                
-                   
-        CgBrillBeggs = Cg
-        
-        return CgBrillBeggs 
+    mathDomain = B  #Se define el dominio matematico de la funcion de dZdPpr, sensible al argumento B de la funcion exponencial         
+    dZdPpr = -((1-A)/(((0.62 - (0.23 * Tpr)) + (((0.132/(Tpr - 0.86)) - 0.074) * Ppr) + ((1.92/(10 ** (9 * (Tpr - 1)))) * (Ppr ** 5))) * exp(B))) + (C * D * (Ppr ** (D - 1)))
+    Cgr = (1/Ppr) - ((1/Z) * dZdPpr)
+    Cg = Cgr/Ppc                
+    CgBrillBeggs = Cg
+    return CgBrillBeggs 
+
+def CgPapayCorrelation(Tr, P, Tpc, Ppc, Z):
+    Tpr = 1.0*Tr/Tpc
+    Ppr = 1.0*P/Ppc
+    dZdPpr = -(3.52/(10 ** (0.9813 * Tpr))) + (0.548 * Ppr/(10 ** (0.8157 * Tpr)))
+    Cgr = (1/Ppr) - (1/Z) * dZdPpr
+    Cg =  Cgr/Ppc
+    CgPapay = Cg
+    return CgPapay 
+

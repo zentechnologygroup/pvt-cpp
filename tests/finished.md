@@ -238,3 +238,15 @@
 - Comment      
 - Finished     
 
+## 41. la auditoria debe hacerse sobre los nombres
+- Created at    símbolos y extremos
+- Completed at 2016-08-14 19:42:44 -0400
+- Comment      
+- Finished     
+
+## 42. verificar todo en nonhydrocarbons gas-pseudo-cirtical-pressure especialmente MolePercent versus MoleFraction
+- Created at   2016-09-20 18:02:56 -0400
+- Completed at 2016-09-25 12:10:00 -0400
+- Comment      
+- Finished     
+

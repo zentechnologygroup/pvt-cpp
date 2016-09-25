@@ -47,3 +47,14 @@ add_parameter("tpc", "Rankine")
 add_parameter("ppc", "psia")
 add_parameter("z", "ZFactor")
 end_correlation()
+
+################################################################
+
+begin_correlation("CgPapay", "GasIsothermalCompressibility", "psia_1") 
+add_parameter("t", "Rankine")
+add_parameter("p", "psia")
+add_parameter("tpc", "Rankine")
+add_parameter("ppc", "psia")
+add_parameter("z", "ZFactor")
+end_correlation()
+
