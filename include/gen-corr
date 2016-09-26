@@ -94,7 +94,7 @@ class CorrelationGen
     s += ")"
   end
 
-  def gen_double_pars
+  def gen_doubles
     s = "("
     @pars.each do |par|
       s += "double #{par.name}"
@@ -158,6 +158,14 @@ class CorrelationGen
          "}\n"
   end
 
+  def extern_sign
+    "#{impl_type} #{@name}__correlation__fct #{gen_pars}"
+  end
+
+  def extern_sign_doubles
+    "doubleb #{@name}__correlation__valid__fct #{gen_doubles}"
+  end
+
   def gen_class
     s = "/** #{@name}\n\n"
     s += @doc if @doc
@@ -194,14 +202,28 @@ class CorrelationGen
          
     s += "};\n"\
          "\n"\
-         "inline #{impl_type} #{@name}__fct #{gen_pars}\n"\
+         "extern #{extern_sign};\n"\
+         "extern #{extern_sign_doubles};\n"\
+  end
+
+  def gen_extern_calls
+    s = "#{extern_sign}\n"\
+        "{\n"\
+        "  return #{@name}::get_instance()("
+    @pars.each do |par|
+      s += par.name
+      s += ',' if par != @pars.last
+    end
+    s += ");\n"\
+         "}\n"\
+         "#{extern_sign_doubles}\n"\
          "{\n"\
          "  return #{@name}::get_instance()("
     @pars.each do |par|
       s += par.name
       s += ',' if par != @pars.last
     end
-    s += ");\n"\
+    s += ").raw();\n"\
          "}\n"
   end
 

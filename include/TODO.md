@@ -7,3 +7,6 @@
 - Created at   2016-09-16 11:46:16 -0400
 - Completed at 2016-09-25 10:00:06 -0400
 
+## 3. nueva flag en gen-corr para generar llamadas externas
+- Created at   2016-09-26 19:34:30 -0400
+
