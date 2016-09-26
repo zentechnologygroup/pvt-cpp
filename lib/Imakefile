@@ -6,6 +6,8 @@ INCLUDES = -I../include -I$(ALEPHW)
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
 FLAGS = -std=c++14 $(WARN) -O0 -g
 
+OPT = -std=c++14 $(WARN) -Ofast 
+
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
@@ -49,7 +51,9 @@ pvt.cc: biblios.cc units-vars.cc correlations-vars.cc 				\
 	../include/gas-isothermal-compressibility.H				\
 	../include/gas-isothermal-compressibility-impl.H			\
 	../include/gas-volume-factor.H						\
-	../include/gas-volume-factor-impl.H
+	../include/gas-volume-factor-impl.H					\
+	../include/water-density.H						\
+	../include/water-density-impl.H
 	$(RM) -f $@;					\	@@\
 	cat biblio-vars.cc >> $@;			\	@@\
 	cat biblios.cc >> $@;				\	@@\
@@ -59,10 +63,16 @@ pvt.cc: biblios.cc units-vars.cc correlations-vars.cc 				\
 	cat correlations-vars.cc >> $@;		\	@@\
 	$(RM) $*.tmp
 
-pvt.o: pvt.cc 
+pvt.o: pvt.cc
 
 clean::
-	$(RM) -f pvt.cc biblios.cc
+	$(RM) -f pvt.cc biblios.cc libpvt.so libpvt.a
+
+libpvt.so: pvt.cc
+	$(RM) -f $@;		\	@@\
+	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) -fpic pvt.cc -o aux.o;	\ 	@@\
+	gcc -shared -o libpvt.so aux.o; \	@@\
+	$(RM) -f aux.o
 
 NormalLibraryObjectRule()
 NormalLibraryTarget(pvt,$(OBJS))

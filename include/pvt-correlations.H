@@ -17,6 +17,7 @@
 # include <gas-pseudocritical-temp.H>
 # include <gas-isothermal-compressibility.H>
 # include <gas-volume-factor.H>
+# include <water-density.H>
 
 # include <bubble-point-pressure-impl.H>
 # include <solution-gas-oil-relation-impl.H>
@@ -34,6 +35,7 @@
 # include <gas-pseudocritical-temp-impl.H>
 # include <gas-isothermal-compressibility-impl.H>
 # include <gas-volume-factor-impl.H>
+# include <water-density-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -180,6 +182,10 @@ struct CorrelationInstantiater
     CgPapay::get_instance();
 
     Bg::get_instance();
+
+    PwSpiveyMN::get_instance();
+    PwSpiveyMNGasFree::get_instance();
+    PwMcCain::get_instance();
   }
 };
 
