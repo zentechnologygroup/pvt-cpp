@@ -92,7 +92,16 @@ class CorrelationGen
       s += ",\n" unless par == @pars.last
     end
     s += ")"
-  end  
+  end
+
+  def gen_double_pars
+    s = "("
+    @pars.each do |par|
+      s += "double #{par.name}"
+      s += ",\n" unless par == @pars.last
+    end
+    s += ")"
+  end
 
   def gen_impl_declaration
     s = "public:\n"\
