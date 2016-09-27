@@ -73,10 +73,10 @@ add_title("ELSHARKAWY ET AL. CORRELATION, CALCULATION OF PSEUDOCRITICAL TEMPERAT
 add_db("Based on compositional analysis of 1200 compositions of gas condensates collected worldwide.")
 add_ref('elsharkawy:2000:1')
 add_ref('elsharkawy:2000:2')
-add_parameter('yghc', 'Sgg')
+add_parameter("yghc", "Sgg", 0.61, 1.89)
 add_parameter('n2_concentration', 'MoleFraction')
 add_parameter('co2_concentration', 'MoleFraction')
 add_parameter('h2s_concentration', 'MoleFraction')
-add_note("The original reference is not available. The correlation was verified by using a secondary reference: Elsharkawy & Elkamel (2000). Date: September 15 2016.")
+add_internal_note("The correlation was verified by using the original reference and a secondary one: Elsharkawy & Elkamel (2000). Date: September 22 2016.")
 end_correlation()
 

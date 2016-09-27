@@ -92,7 +92,16 @@ class CorrelationGen
       s += ",\n" unless par == @pars.last
     end
     s += ")"
-  end  
+  end
+
+  def gen_doubles
+    s = "("
+    @pars.each do |par|
+      s += "double #{par.name}"
+      s += ",\n" unless par == @pars.last
+    end
+    s += ")"
+  end
 
   def gen_impl_declaration
     s = "public:\n"\
@@ -149,6 +158,14 @@ class CorrelationGen
          "}\n"
   end
 
+  def extern_sign
+    "#{impl_type} #{@name}__correlation__fct #{gen_pars}"
+  end
+
+  def extern_sign_doubles
+    "double #{@name}__correlation__valid__fct #{gen_doubles}"
+  end
+
   def gen_class
     s = "/** #{@name}\n\n"
     s += @doc if @doc
@@ -185,14 +202,29 @@ class CorrelationGen
          
     s += "};\n"\
          "\n"\
-         "inline #{impl_type} #{@name}__fct #{gen_pars}\n"\
+         "extern #{extern_sign};\n"\
+         "extern #{extern_sign_doubles};\n"\
+  end
+
+  def gen_extern_calls
+    s = "#{extern_sign}\n"\
+        "{\n"\
+        "  return #{@name}::get_instance()("
+    @pars.each do |par|
+      s += par.name
+      s += ',' if par != @pars.last
+    end
+    s += ");\n"\
+         "}\n"\
+         "\n"\
+         "#{extern_sign_doubles}\n"\
          "{\n"\
          "  return #{@name}::get_instance()("
     @pars.each do |par|
       s += par.name
       s += ',' if par != @pars.last
     end
-    s += ");\n"\
+    s += ").raw();\n"\
          "}\n"
   end
 
@@ -272,6 +304,14 @@ def gen_impl_declarations
   s
 end
 
+def gen_extern_impl
+  s = ""
+  $corr_list.each do |corr|
+    s += corr.gen_extern_calls + "\n\n"
+  end
+  s
+end
+
 def gen_correlations
   s = ""
   $corr_list.each do |corr|
@@ -304,6 +344,10 @@ options_parser = OptionParser.new do |opts|
 
   opts.on('-E', '--equations', 'generate all equations') do
     options[:equations] = true
+  end
+
+  opts.on('-X', '--extern-calls', 'generate extern calls') do
+    options[:extern] = true
   end
 
   opts.on('-d NAME', '--dir NAME',
@@ -347,10 +391,20 @@ if options[:header]
   puts 
   puts "# include <correlation.H>"
   puts
-  puts "#{gen_correlations}"
-  puts 
-  puts " # endif // #{guard_name}"
-  
+  puts "#{gen_correlations}\n"\
+       "\n"\
+       " # endif // #{guard_name}"  
+  exit
+end
+
+if options[:extern]
+  guard_name = File.basename file, '.rb'
+  header_name = guard_name + ".H"
+  guard_name += "_calls_H"
+  guard_name.gsub! '-', '_'
+  guard_name.gsub! '.', '_'
+  guard_name.upcase!
+  puts "#{gen_extern_impl}\n"
   exit
 end
 
@@ -370,7 +424,9 @@ if corr_name
   # puts stdout
   # puts stderr
   # puts exit_status
-  puts "#{corr.gen_impl}"
+  puts "#{corr.gen_impl}\n"\
+       "\n"\
+       "#{corr.gen_extern_calls}\n"
   exit
 end
 
@@ -394,13 +450,9 @@ puts "# define #{guard_name}"
 puts 
 puts "# include <#{header_name}>"
 puts
-puts "#{gen_impl_declarations}"
-puts 
-puts " # endif // #{guard_name}"
-
-
-
-
-
-
+puts "#{gen_impl_declarations}\n"\
+     "\n"\
+     "#{gen_extern_impl}\n"\
+     "\n"\
+     " # endif // #{guard_name}"
 

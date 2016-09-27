@@ -74,13 +74,17 @@ struct Correlation
   mutable DynList<string> notes;
   mutable DynList<const BibEntry*> refs;
   mutable bool hidden = false; // indicates whether correlation is or not hidden
+  mutable long id = -1;
 
 private:
 
   DynList<CorrelationPar> preconditions;
   size_t n = 0;
 
+  static size_t counter;
   static DynMapTree<string, const Correlation * const> tbl;
+
+  static Array<const Correlation * const> correlations_tbl;
   
 public:
 
@@ -211,6 +215,8 @@ protected:
       }
 
     tbl.insert(name, this);
+    correlations_tbl.append(this);
+    id = counter++;
   }
 
   Correlation(const string & type_name, const string & subtype_name,
@@ -506,7 +512,7 @@ decltype(auto) call_compute(Func&& f, const DynList<T>& pars)
   									\
 private:
 
-    // correlations & functions assocated to oil
+    // correlations & functions associated to oil
 Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
 Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation);
 Declare_Correlation_Subtype(OilFormationVolumeFactor, OilCorrelation);
@@ -518,11 +524,18 @@ Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation);
 Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation);  
 
 
+    // correlations & functions associated to gas
 Declare_Correlation_Subtype(GasPseudoCriticalPressure, GasCorrelation);
+Declare_Correlation_Subtype(GasPseudoCriticalPressureC7, GasCorrelation);
 Declare_Correlation_Subtype(GasViscosity, GasCorrelation);
 Declare_Correlation_Subtype(GasDensity, GasFunction)
 Declare_Correlation_Subtype(GasVolumeFactor, GasFunction);
 Declare_Correlation_Subtype(GasCompressibility, GasCorrelation);
 Declare_Correlation_Subtype(GasPseudoCriticalTemperature, GasCorrelation);
+Declare_Correlation_Subtype(GasIsothermalCompressibility, GasCorrelation);
+
+
+    // correlations & functions associated to water
+Declare_Correlation_Subtype(WaterDensity, WaterCorrelation);
 
 # endif // CORRELATION_H

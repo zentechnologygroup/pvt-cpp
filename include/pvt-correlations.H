@@ -11,10 +11,14 @@
 # include <undersaturated-oil-viscosity.H>
 # include <oil-interfacial-tension.H>
 # include <non-hydrocarborns-corrections.H>
+# include <gas-density.H>
 # include <gas-pseudocritical-pressure.H>
 # include <gas-viscosity.H>
 # include <gas-compressibility.H>
 # include <gas-pseudocritical-temp.H>
+# include <gas-isothermal-compressibility.H>
+# include <gas-volume-factor.H>
+# include <water-density.H>
 
 # include <bubble-point-pressure-impl.H>
 # include <solution-gas-oil-relation-impl.H>
@@ -26,10 +30,14 @@
 # include <undersaturated-oil-viscosity-impl.H>
 # include <oil-interfacial-tension-impl.H>
 # include <non-hydrocarborns-corrections-impl.H>
+# include <gas-density-impl.H>
 # include <gas-pseudocritical-pressure-impl.H>
 # include <gas-viscosity-impl.H>
 # include <gas-compressibility-impl.H>
 # include <gas-pseudocritical-temp-impl.H>
+# include <gas-isothermal-compressibility-impl.H>
+# include <gas-volume-factor-impl.H>
+# include <water-density-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -148,12 +156,14 @@ struct CorrelationInstantiater
     PscHcSutton::get_instance();
     PscHCGuoGhalambor::get_instance();
     PscAhmed::get_instance();
-    PscHCElsharkawyEtAlHeavierFractions::get_instance();
+    PscHCElsharkawyEtAl::get_instance();
     PscHCStandingHeavierFractions::get_instance();
 
     UgCarrKB::get_instance();
     UgLeeGE::get_instance();
     UgDeanStiel::get_instance();
+
+    Pg::get_instance();
 
     ZFactorSarem::get_instance();
     ZFactorHallYarborough::get_instance();
@@ -167,8 +177,25 @@ struct CorrelationInstantiater
     TscHCStandingHeavierFractions::get_instance();
     TscHCSutton::get_instance();
     TpcHCElsharkawyEtAl::get_instance();
+
+    CgSarem::get_instance();
+    CgHallYarborough::get_instance();
+    CgMattarBA::get_instance();
+    CgGopal::get_instance();
+    CgBrillBeggs::get_instance();
+    CgPapay::get_instance();
+
+    Bg::get_instance();
+
+    PwSpiveyMN::get_instance();
+    PwSpiveyMNGasFree::get_instance();
+    PwMcCain::get_instance();
   }
 };
 
 # endif // PVT_CORRELATIONS_H
+
+
+
+
 
