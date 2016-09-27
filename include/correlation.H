@@ -84,7 +84,7 @@ private:
   static size_t counter;
   static DynMapTree<string, const Correlation * const> tbl;
 
-  static Array<const Correlation * const> correlations_tbl;
+  static Array<const Correlation * > correlations_tbl;
   
 public:
 
@@ -192,6 +192,13 @@ public:
   }
 
   static DynList<const Correlation * const> list() { return tbl.values(); }
+
+  static const Array<const Correlation*> & array() noexcept
+  {
+    return correlations_tbl;
+  }
+
+  static size_t num_correlations() noexcept { return correlations_tbl.size(); }
 
   static const Correlation * search_by_name(const string & name)
   {
@@ -433,7 +440,38 @@ public:
 };
 
 inline Correlation::~Correlation() {}
-//inline double Correlation::compute(const DynList<double> &) { return 0; }
+
+class CorrelationInvoker
+{
+  const Correlation * correlation_ptr = nullptr;
+  har * json_buffer = nullptr;
+  const size_t buf_sz = 0;
+  DynList<double> pars;
+
+public:
+
+  CorrelationInvoker(long id, char buf[], size_t sz)
+    : correlation_ptr(Correlation::array()[id]), json_buffer(buf), buf_sz(sz) {}
+
+  void push(double val) { pars.append(val); }
+
+  long call();
+};
+
+/// returns a proxy id for future invocation of correlation with id
+extern long open_correlation_call(long id, char buf[], size_t sz);
+
+/// pushes parameter val to the correlation proxy id. Return 1 if
+/// everything is ok; 0 otherwise 
+extern long push_correlation_call(long proxy_id, double val);
+
+/// performs the call and puts in the buffer specified in
+/// `open_correlation_call()` the json containing the result. Returns
+/// 1 if everything is ok; 0 otherwise
+extern long exec_correlation_call(long proxy_id);
+
+/// free the proxy 
+extern long free_correlation_call(long proxy_id);
 
 # define Declare_Correlation_Type(type_name)	\
   struct type_name : public Correlation		\

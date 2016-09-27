@@ -13,3 +13,6 @@
 ## 4. tabla de correlaciones y protocolo de llamada con manejo de errores
 - Created at   2016-09-27 11:02:41 -0400
 
+## 5. en compute de correlation poner un doble itrdor en lugar del zip
+- Created at   2016-09-27 16:16:49 -0400
+

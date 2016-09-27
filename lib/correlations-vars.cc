@@ -1,6 +1,4 @@
 
-# include <atomic>
-
 # include <ahSort.H>
 # include <ah-stl-utils.H>
 # include <pvt-correlations.H>
@@ -12,7 +10,7 @@ using json = nlohmann::json;
   
 size_t Correlation::counter = 0;
 DynMapTree<string, const Correlation * const> Correlation::tbl;
-Array<const Correlation* const> Correlation::correlations_tbl;
+Array<const Correlation*> Correlation::correlations_tbl;
 
 CorrelationInstantiater __correlations; 
 
@@ -29,7 +27,6 @@ static json to_json(const CorrelationPar & p)
   return j;
 }
 
-static atomic<size_t> id_count = { 0 };
 
 static json to_json(const Correlation & c) 
 {
@@ -47,7 +44,7 @@ static json to_json(const Correlation & c)
   j["type"] = c.type_name;
   j["name"] = c.name;
   j["hidden"] = c.hidden;
-  j["id"] = id_count++;
+  j["id"] = c.id;
 
   auto jpars = c.get_preconditions().map<json>([] (const auto & par)
 					       { return ::to_json(par); });
@@ -116,3 +113,66 @@ string Correlation::to_json()
   return j.dump(2);
 }
 
+long open_correlation_call(long id, char buf[], size_t sz)
+{
+  try
+    {
+      return (long) new CorrelationInvoker(id, buf, sz);
+    }
+  catch (...)
+    {
+      return 0;
+    }
+}
+
+long push_correlation_call(long proxy_id, double val)
+{
+  try
+    {
+      CorrelationInvoker * ptr = (CorrelationInvoker*) proxy_id;
+      ptr->push(val);
+      return true;
+    }
+  catch (...)
+    {
+      return false;
+    }
+}
+
+long CorrelationInvoker::call()
+{
+  bool status = true;
+  json j;
+  try
+    {
+      double result = correlation_ptr->compute(pars);
+      j["status"] = "success";
+      j["result"] = result;
+      j["msg"] = "";
+    }
+  catch (exception & e)
+    {
+      j["status"] = "failure";
+      j["result"] = 0;
+      j["msg"] = e.what();
+      status = false;
+    }
+
+  string str = j.dump();
+
+  strncpy(json_buffer, str.data(), buf_sz);
+
+  return status;
+}
+
+long exec_correlation_call(long proxy_id)
+{
+  CorrelationInvoker * ptr = (CorrelationInvoker*) proxy_id;
+  return ptr->call();
+}
+
+long free_correlation_call(long proxy_id)
+{
+  delete (CorrelationInvoker*) proxy_id;
+  return true;
+}
