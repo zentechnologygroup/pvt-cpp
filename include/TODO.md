@@ -10,3 +10,6 @@
 ## 3. nueva flag en gen-corr para generar llamadas externas
 - Created at   2016-09-26 19:34:30 -0400
 
+## 4. tabla de correlaciones y protocolo de llamada con manejo de errores
+- Created at   2016-09-27 11:02:41 -0400
+

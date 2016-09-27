@@ -13,4 +13,5 @@ add_note("Mathews et al. (1942) presented the graphical correlation. Standing (1
 add_note("Mathews et al.'s reference is not available. The correlation was verified by using these references: Standing (1977) and Bánzer (1996). Date: September 20 2016.")
 add_note("The values of the development ranges are taken from the graphs presented by Standing (1977).")
 add_note("The data bank information is presented by Bánzer (1996)")
-add_parameter("yc7plus", 
+#add_parameter("yc7plus",
+end_correlation()

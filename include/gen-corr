@@ -163,7 +163,7 @@ class CorrelationGen
   end
 
   def extern_sign_doubles
-    "doubleb #{@name}__correlation__valid__fct #{gen_doubles}"
+    "double #{@name}__correlation__valid__fct #{gen_doubles}"
   end
 
   def gen_class
@@ -346,7 +346,7 @@ options_parser = OptionParser.new do |opts|
     options[:equations] = true
   end
 
-  opts.on('-X', '--extern', 'generate call') do
+  opts.on('-X', '--extern-calls', 'generate extern calls') do
     options[:extern] = true
   end
 
@@ -397,6 +397,17 @@ if options[:header]
   exit
 end
 
+if options[:extern]
+  guard_name = File.basename file, '.rb'
+  header_name = guard_name + ".H"
+  guard_name += "_calls_H"
+  guard_name.gsub! '-', '_'
+  guard_name.gsub! '.', '_'
+  guard_name.upcase!
+  puts "#{gen_extern_impl}\n"
+  exit
+end
+
 require 'open3'
 
 def search_corr(corr_name)
@@ -444,10 +455,4 @@ puts "#{gen_impl_declarations}\n"\
      "#{gen_extern_impl}\n"\
      "\n"\
      " # endif // #{guard_name}"
-
-
-
-
-
-
 

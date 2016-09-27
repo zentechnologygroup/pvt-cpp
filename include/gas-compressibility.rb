@@ -1,3 +1,4 @@
+# coding: utf-8
 
 begin_correlation("ZFactorSarem", "GasCompressibility", "ZFactor")
 add_title("SAREM FIT METHOD, CALCULATION OF THE GAS COMPRESSIBILITY FACTOR")
@@ -64,7 +65,7 @@ add_db("This method is a result of fitting the Starling-Carnahan equation of sta
 add_db("The equation is solved by using the Newton-Raphson iteration method.")
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 23 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
-_internal_note("The lower limit for Ppr (when Tpr's range is from 0.7 to 1.0) was taken from the development ranges of the correlation presented by Standing & Katz (1942).")
+add_internal_note("The lower limit for Ppr (when Tpr's range is from 0.7 to 1.0) was taken from the development ranges of the correlation presented by Standing & Katz (1942).")
 end_correlation()
 
 ################################################################

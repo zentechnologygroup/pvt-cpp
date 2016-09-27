@@ -10,8 +10,9 @@
 using namespace Aleph;
 using json = nlohmann::json;
   
-
+size_t Correlation::counter = 0;
 DynMapTree<string, const Correlation * const> Correlation::tbl;
+Array<const Correlation* const> Correlation::correlations_tbl;
 
 CorrelationInstantiater __correlations; 
 

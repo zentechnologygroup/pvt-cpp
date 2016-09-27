@@ -11,6 +11,8 @@ OPT = -std=c++14 $(WARN) -Ofast
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
+.SUFFIXES: .rb .H .cc
+
 LIBSRCS = units-vars.cc correlations-vars.cc
 
 SRCS = $(LIBSRCS)
@@ -20,11 +22,23 @@ EXTRACT_CV = $(TOP)/bin/extract-cv
 
 BIBLIO = $(TOP)/bin/biblio
 
+DIR=../include/
+
+CORRS=$(shell ls $(DIR)*.rb)
+
+CALLS =	$(CORRS:.rb=.cc)
+HCORR =	$(CORRS:.rb=.H)
+IMPLS = 
+
+test:
+	echo $(CORRS)
+
 biblios.cc: ../include/refs.bib 
 	$(RM) $*.cc; 	\	@@\
 	$(BIBLIO) -C -f ../include/refs.bib | clang-format -style=Mozilla > $@
 
-pvt.cc: biblios.cc units-vars.cc correlations-vars.cc 				\
+pvt.cc: $(CALLS)								\
+	biblios.cc units-vars.cc correlations-vars.cc 				\
 	../include/pvt-correlations.H ../include/correlation.H 			\
 	../include/units.H ../include/pvt-units.H 				\
 	../include/solution-gas-oil-relation.H 					\
@@ -61,12 +75,13 @@ pvt.cc: biblios.cc units-vars.cc correlations-vars.cc 				\
 	cat units-vars.cc >> $@;			\	@@\
 	$(EXTRACT_CV) $*.tmp >> $@;			\	@@\
 	cat correlations-vars.cc >> $@;		\	@@\
+	cat $(CALLS) >> $@;				\	@@\
 	$(RM) $*.tmp
 
 pvt.o: pvt.cc
 
 clean::
-	$(RM) -f pvt.cc biblios.cc libpvt.so libpvt.a
+	$(RM) -f pvt.cc biblios.cc libpvt.so libpvt.a $(CALLS)
 
 libpvt.so: pvt.cc
 	$(RM) -f $@;		\	@@\

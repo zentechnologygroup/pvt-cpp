@@ -74,13 +74,17 @@ struct Correlation
   mutable DynList<string> notes;
   mutable DynList<const BibEntry*> refs;
   mutable bool hidden = false; // indicates whether correlation is or not hidden
+  mutable long id = -1;
 
 private:
 
   DynList<CorrelationPar> preconditions;
   size_t n = 0;
 
+  static size_t counter;
   static DynMapTree<string, const Correlation * const> tbl;
+
+  static Array<const Correlation * const> correlations_tbl;
   
 public:
 
@@ -211,6 +215,8 @@ protected:
       }
 
     tbl.insert(name, this);
+    correlations_tbl.append(this);
+    id = counter++;
   }
 
   Correlation(const string & type_name, const string & subtype_name,
