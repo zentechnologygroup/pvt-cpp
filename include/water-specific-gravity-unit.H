@@ -27,9 +27,9 @@ Declare_Unit(Pwl_lb_ft3, "pwl_lb/ft3",
          in normal conditions denoted as pound per cubic feet)DESC",
 	     WaterSpecicGravity, 62.366389027, 75);
 
-Declare_Unit(Sgw_Percent, "sgwPercent",
+Declare_Unit(Disolved_Salt_Percent, "disolvedSaltPercent",
 	     R"DESC(Unit used to measure salinity of a brine
-	     in normal conditions in percentage of disolved solid)DESC",
+	     in normal conditions in percentage of disolved salt)DESC",
 	     WaterSpecicGravity, 0, 26.28319558586105);
 
 Declare_Unit(Sgw_sg, "swsg",
@@ -37,26 +37,26 @@ Declare_Unit(Sgw_sg, "swsg",
          the ratio of the density of a brine to the density of a
          pure water;)DESC", WaterSpecicGravity, 1, 1.2025708265317492);
 
-Declare_Unit(Sgw_PPM, "swppm",
+Declare_Unit(Disolved_Salt_PPM, "disolvedSaltPPM",
 	     R"DESC(Total solid disolved in a brine
 	     measure in Part Per Million PPM)DESC",
 	     WaterSpecicGravity, 0, 262831.9558586105);
 
 //To Water Specific Gravity in lb/ft3
-Declare_Conversion(Sgw_Percent, Pwl_lb_ft3, v)
+Declare_Conversion(Disolved_Salt_Percent, Pwl_lb_ft3, v)
   { return 62.366389027 + 0.438603*v +  0.00160074*v*v ;}
 
-Declare_Conversion(Sgw_PPM, Pwl_lb_ft3, v)
+Declare_Conversion(Disolved_Salt_PPM, Pwl_lb_ft3, v)
 { return 62.366389027 + 0.438603*(v/10000) +  0.00160074*(v/10000)*(v/10000) ; }
 
 Declare_Conversion(Sgw_sg, Pwl_lb_ft3, v) { return v * 62.366389027; }
 
 
 //To Water Specific Gravity Fraction
-Declare_Conversion(Sgw_Percent, Sgw_sg, v)
+Declare_Conversion(Disolved_Salt_Percent, Sgw_sg, v)
   { return (62.368 + 0.438603*v +  0.00160074*v*v) / 62.366389027 ;  }
 
-Declare_Conversion(Sgw_PPM, Sgw_sg, v)
+Declare_Conversion(Disolved_Salt_PPM, Sgw_sg, v)
 {
   return (62.366389027 + 0.438603*(v/10000) + 0.00160074*(v/10000)*(v/10000)) /
     62.366389027;
@@ -66,29 +66,29 @@ Declare_Conversion(Pwl_lb_ft3, Sgw_sg, v) { return  v / 62.366389027;  }
 
 
 //To Water Salinity in PPM
-Declare_Conversion(Pwl_lb_ft3, Sgw_PPM, v)
+Declare_Conversion(Pwl_lb_ft3, Disolved_Salt_PPM, v)
 {
   return (-0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027-v))) /
     (0.00320148) * 10000 ;
 }
 
-Declare_Conversion(Sgw_sg, Sgw_PPM, v)
+Declare_Conversion(Sgw_sg, Disolved_Salt_PPM, v)
 {
   double n = -0.4386 +
     sqrt(0.19236995999999998 - 0.00640296*(62.366389027 -v*62.366389027));
   return n / (0.00320148) * 10000 ;
 }
 
-Declare_Conversion( Sgw_Percent, Sgw_PPM, v) { return  v * 10000  ; }    
+Declare_Conversion( Disolved_Salt_Percent, Disolved_Salt_PPM, v) { return  v * 10000  ; }    
 
 //To Water SalinityPercent
-Declare_Conversion(Pwl_lb_ft3, Sgw_Percent, v)
+Declare_Conversion(Pwl_lb_ft3, Disolved_Salt_Percent, v)
 {
   double n = -0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027 - v));
   return n / (0.00320148);
 }
 
-Declare_Conversion(Sgw_sg, Sgw_Percent, v)
+Declare_Conversion(Sgw_sg, Disolved_Salt_Percent, v)
 {
   double n = -0.4386 +
     sqrt(0.19236995999999998 - 0.00640296*(62.366389027-v*62.366389027));
@@ -96,6 +96,6 @@ Declare_Conversion(Sgw_sg, Sgw_Percent, v)
   return n / (0.00320148);
 }
 
-Declare_Conversion(Sgw_PPM, Sgw_Percent, v) { return v/10000; }
+Declare_Conversion(Disolved_Salt_PPM, Disolved_Salt_Percent, v) { return v/10000; }
 
 # endif // WATER_SPECIFIC_GRAVITY_UNIT_H
