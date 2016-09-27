@@ -216,6 +216,7 @@ class CorrelationGen
     end
     s += ");\n"\
          "}\n"\
+         "\n"\
          "#{extern_sign_doubles}\n"\
          "{\n"\
          "  return #{@name}::get_instance()("
@@ -303,6 +304,14 @@ def gen_impl_declarations
   s
 end
 
+def gen_extern_impl
+  s = ""
+  $corr_list.each do |corr|
+    s += corr.gen_extern_calls + "\n\n"
+  end
+  s
+end
+
 def gen_correlations
   s = ""
   $corr_list.each do |corr|
@@ -335,6 +344,10 @@ options_parser = OptionParser.new do |opts|
 
   opts.on('-E', '--equations', 'generate all equations') do
     options[:equations] = true
+  end
+
+  opts.on('-X', '--extern', 'generate call') do
+    options[:extern] = true
   end
 
   opts.on('-d NAME', '--dir NAME',
@@ -378,10 +391,9 @@ if options[:header]
   puts 
   puts "# include <correlation.H>"
   puts
-  puts "#{gen_correlations}"
-  puts 
-  puts " # endif // #{guard_name}"
-  
+  puts "#{gen_correlations}\n"\
+       "\n"\
+       " # endif // #{guard_name}"  
   exit
 end
 
@@ -401,7 +413,9 @@ if corr_name
   # puts stdout
   # puts stderr
   # puts exit_status
-  puts "#{corr.gen_impl}"
+  puts "#{corr.gen_impl}\n"\
+       "\n"\
+       "#{corr.gen_extern_calls}\n"
   exit
 end
 
@@ -425,9 +439,11 @@ puts "# define #{guard_name}"
 puts 
 puts "# include <#{header_name}>"
 puts
-puts "#{gen_impl_declarations}"
-puts 
-puts " # endif // #{guard_name}"
+puts "#{gen_impl_declarations}\n"\
+     "\n"\
+     "#{gen_extern_impl}\n"\
+     "\n"\
+     " # endif // #{guard_name}"
 
 
 
