@@ -45,7 +45,7 @@ add_ref("takacs:1989")
 add_ref("banzer:1996")
 add_db("This method is a result of fitting the Benedict-Webb-Rubin (BWR) equation of state for the Z-factor. 1500 data points from the original Standing-Katz chart were used.")
 add_db("The equation is solved by using the Newton-Raphson iteration method.")
-add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 23 2016.")
+add_internal_note("The correlation was verified by using the original reference and a secondary one: Bánzer (1996). Date: September 28 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
 end_correlation()
 
