@@ -79,7 +79,7 @@ Declare_Conversion(Sgw_sg, Disolved_Salt_PPM, v)
   return n / (0.00320148) * 10000 ;
 }
 
-Declare_Conversion( Disolved_Salt_Percent, Disolved_Salt_PPM, v) { return  v * 10000  ; }    
+Declare_Conversion(Disolved_Salt_Percent, Disolved_Salt_PPM, v) { return  v * 10000  ; }    
 
 //To Water SalinityPercent
 Declare_Conversion(Pwl_lb_ft3, Disolved_Salt_Percent, v)

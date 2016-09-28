@@ -56,6 +56,8 @@ pvt.cc: $(CALLS)								\
 	../include/bubble-point-pressure-impl.H 				\
 	../include/oil-interfacial-tension.H 					\
 	../include/oil-interfacial-tension-impl.H 				\
+	../include/pseudo-reduced-ratios.H 					\
+	../include/pseudo-reduced-ratios-impl.H 				\
 	../include/gas-pseudocritical-pressure.H 				\
 	../include/gas-pseudocritical-pressure-impl.H 				\
 	../include/gas-viscosity.H ../include/gas-viscosity.H 			\

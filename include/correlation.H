@@ -571,9 +571,10 @@ Declare_Correlation_Subtype(GasVolumeFactor, GasFunction);
 Declare_Correlation_Subtype(GasCompressibility, GasCorrelation);
 Declare_Correlation_Subtype(GasPseudoCriticalTemperature, GasCorrelation);
 Declare_Correlation_Subtype(GasIsothermalCompressibility, GasCorrelation);
-
+Declare_Correlation_Subtype(GasPseudoReducedRatio, GasFunction);
 
     // correlations & functions associated to water
 Declare_Correlation_Subtype(WaterDensity, WaterCorrelation);
+Declare_Correlation_Subtype(WaterViscosity, WaterCorrelation);
 
 # endif // CORRELATION_H

@@ -47,6 +47,9 @@ Declare_Unit(Atmosphere, "atm",
                     resulting from a force of one pound-force applied to 
                     an area of one square inch)DESC", Pressure, 0, 2041.39);
 
+Declare_Unit(PseudoReducedPressure, "Ppr", "Ratio between two pressures",
+	     Pressure, 1e-6, 1e6);
+
 // pressure conversions
 // To atmophere (atm)
 Declare_Conversion(Bar, Atmosphere, v) { return v * 0.986923267; }

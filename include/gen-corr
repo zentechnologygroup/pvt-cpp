@@ -452,7 +452,5 @@ puts "# include <#{header_name}>"
 puts
 puts "#{gen_impl_declarations}\n"\
      "\n"\
-     "#{gen_extern_impl}\n"\
-     "\n"\
      " # endif // #{guard_name}"
 

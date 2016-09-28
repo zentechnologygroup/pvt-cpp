@@ -5,19 +5,11 @@
 # include <correlation-utils.H>
 
 inline Quantity<ZFactor>
-ZFactorSarem::impl(const Quantity<Rankine> & t,
-		   const Quantity<psia> & p,
-		   const Quantity<Rankine> & tsc,
-		   const Quantity<psia> & psc) const
+ZFactorSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,
+		   const Quantity<PseudoReducedPressure> & ppr) const
 {
-  const double tsr = t.raw()/tsc.raw();
-  check_range("ZFactorSarem::impl", "t/tsc", tsr, 1.05, 2.95);
-
-  const double psr = p.raw()/psc.raw();
-  check_range("ZFactorSarem::impl", "p/psc", psr, 0.1, 14.9);
-
-  const double x = (2*psr - 15)/14.8;
-  const double y = (2*tsr - 4)/1.9;
+  const double x = (2*ppr.raw() - 15)/14.8;
+  const double y = (2*tpr.raw() - 4)/1.9;
 
   const double x2 = x*x;
   const double x3 = x2*x;
@@ -29,8 +21,8 @@ ZFactorSarem::impl(const Quantity<Rankine> & t,
   const double y4 = y3*y;
   const double y5 = y4*y;
             
-  // Especificacion de los polinomios de Legendre en funcion de Psr y
-  // Tsr implicitos en x y y  
+  // Especificacion de los polinomios de Legendre en funcion de Ppr y
+  // Tpr implicitos en x y y  
 
   constexpr double p0x = 0.7071068;
   const double p1x = 1.224745*x;
@@ -64,25 +56,17 @@ ZFactorSarem::impl(const Quantity<Rankine> & t,
 
 
 inline Quantity<ZFactor>
-ZFactorHallYarborough::impl(const Quantity<Rankine> & t,
-			    const Quantity<psia> & p,
-			    const Quantity<Rankine> & tsc,
-			    const Quantity<psia> & psc) const
+ZFactorHallYarborough::impl(const Quantity<PseudoReducedTemperature> & tpr,
+			    const Quantity<PseudoReducedPressure> & ppr) const
 {
-  const double tsr = t.raw()/tsc.raw();
-  check_range("ZFactorHallYarborough", "t/tsc", tsr, 1.2, 3);
-
-  const double psr = p.raw()/psc.raw();
-  check_range("ZFactorHallYarborough", "p/psc", psr, 0.1, 24);
-
-  const double tsr_1 = 1/tsr;
-  const double tsr_1_2 = tsr_1*tsr_1;
-  const double tsr_1_3 = tsr_1_2*tsr_1;
-  const double tsr_1_1 = 1 - tsr_1;
-  const double a = 0.06125*tsr_1*exp(-1.2*tsr_1_1*tsr_1_1);
-  const double b = 14.76*tsr_1 - 9.76*tsr_1_2 + 4.58*tsr_1_3;
-  const double c = 90.7*tsr_1 - 242.2*tsr_1_2 + 42.4*tsr_1_3;
-  const double d = 2.18 + 2.82*tsr_1;
+  const double tpr_1 = 1/tpr.raw();
+  const double tpr_1_2 = tpr_1*tpr_1;
+  const double tpr_1_3 = tpr_1_2*tpr_1;
+  const double tpr_1_1 = 1 - tpr_1;
+  const double a = 0.06125*tpr_1*exp(-1.2*tpr_1_1*tpr_1_1);
+  const double b = 14.76*tpr_1 - 9.76*tpr_1_2 + 4.58*tpr_1_3;
+  const double c = 90.7*tpr_1 - 242.2*tpr_1_2 + 42.4*tpr_1_3;
+  const double d = 2.18 + 2.82*tpr_1;
 
   // pr: Densidad reducida definida por el autor del metodo
   constexpr double epsilon = 1.0e-10;
@@ -97,8 +81,8 @@ ZFactorHallYarborough::impl(const Quantity<Rankine> & t,
       const double pr3 = pr2*pr;
       const double pr4 = pr3*pr;
       
-      const double f = -a*psr + (pr + pr2 + pr3 - pr4)/pow(1 - pr, 3) - b*pr2 +
-	c*pow(pr, d);
+      const double f = -a*ppr.raw() + (pr + pr2 + pr3 - pr4)/pow(1 - pr, 3) -
+	b*pr2 + c*pow(pr, d);
 
       const double pr_x_4 = 4*pr;
       const double pr_x_4_2 = pr_x_4*pr_x_4;
@@ -115,23 +99,15 @@ ZFactorHallYarborough::impl(const Quantity<Rankine> & t,
 
   pr = prf;
             
-  const double z = (0.06125 * psr * tsr_1 * exp(-1.2 * tsr_1_1*tsr_1_1)) / pr;
+  const double z = (0.06125*ppr.raw()*tpr_1*exp(-1.2 * tpr_1_1*tpr_1_1)) / pr;
 
   return Quantity<ZFactor>(z);  
 }
 
 inline Quantity<ZFactor>
-ZFactorDranchukPR::impl(const Quantity<Rankine> & t,
-			const Quantity<psia> & p,
-			const Quantity<Rankine> & tsc,
-			const Quantity<psia> & psc) const
+ZFactorDranchukPR::impl(const Quantity<PseudoReducedTemperature> & tpr,
+			const Quantity<PseudoReducedPressure> & ppr) const
 {
-  const double tsr = t.raw()/tsc.raw();
-  check_range("ZFactorDranchukPR", "t/tsc", tsr, 1.05, 3);
-
-  const double psr = p.raw()/psc.raw();
-  check_range("ZFactorDranchukPR", "p/psc", psr, 0.2, 30);
-
   constexpr double a1 = 0.31506237;
   constexpr double a2 = -1.0467099;
   constexpr double a3 = -0.57832729;
@@ -141,8 +117,8 @@ ZFactorDranchukPR::impl(const Quantity<Rankine> & t,
   constexpr double a7 = 0.68157001;
   constexpr double a8 = 0.68446549;
 
-  const double tsr2 = tsr*tsr;
-  const double tsr3 = tsr2*tsr;
+  const double tpr2 = tpr.raw()*tpr.raw();
+  const double tpr3 = tpr2*tpr.raw();
 
       // pr: Densidad reducida definida por el autor del metodo
   constexpr double epsilon = 1.0e-8;
@@ -154,22 +130,22 @@ ZFactorDranchukPR::impl(const Quantity<Rankine> & t,
   while (fabs(zprev - z) > epsilon)
     {
       z = zprev;
-      const double pr = 0.27*psr/(z * tsr);
+      const double pr = 0.27*ppr.raw()/(z * tpr.raw());
 
       const double pr2 = pr*pr;
       const double pr3 = pr2*pr;
       const double pr4 = pr3*pr;
       const double pr5 = pr4*pr;
             
-      const double f = z - (1 + (a1 + a2/tsr + a3/tsr3)*pr + (a4 + a5/tsr)*pr2 +
-			    ((a5*a6*pr5)/tsr) +
-			    a7*(1 + a8*pr2) * (pr2/tsr3) * exp(-a8*pr2));
+      const double f = z - (1 + (a1 + a2/tpr.raw() + a3/tpr3)*pr +
+			    (a4 + a5/tpr.raw())*pr2 + ((a5*a6*pr5)/tpr.raw()) +
+			    a7*(1 + a8*pr2) * (pr2/tpr3) * exp(-a8*pr2));
 
       const double a8_x_pr2 = a8 * pr2;
       const double a8_x_pr2_2 = a8_x_pr2*a8_x_pr2;
-      const double dfdz = 1 + (a1 + a2/tsr + a3/tsr3)*(pr/z) +
-	2*(a4 + a5/tsr)*pr2/z + (5*a5*a6*pr5)/(z * tsr) +
-	(2*a7*pr2)/(z * tsr3)*(1 + a8_x_pr2 - a8_x_pr2_2)*exp(-a8_x_pr2);
+      const double dfdz = 1 + (a1 + a2/tpr.raw() + a3/tpr3)*(pr/z) +
+	2*(a4 + a5/tpr.raw())*pr2/z + (5*a5*a6*pr5)/(z * tpr.raw()) +
+	(2*a7*pr2)/(z * tpr3)*(1 + a8_x_pr2 - a8_x_pr2_2)*exp(-a8_x_pr2);
 
       zf = z - f/dfdz;
       zprev = zf;
@@ -179,17 +155,9 @@ ZFactorDranchukPR::impl(const Quantity<Rankine> & t,
 }
 
 inline Quantity<ZFactor>
-ZFactorDranchukAK::impl(const Quantity<Rankine> & t,
-			const Quantity<psia> & p,
-			const Quantity<Rankine> & tsc,
-			const Quantity<psia> & psc) const
+ZFactorDranchukAK::impl(const Quantity<PseudoReducedTemperature> & tpr,
+			const Quantity<PseudoReducedPressure> & ppr) const
 {
-  const double tsr = t.raw()/tsc.raw();
-  check_range("ZFactorDranchukAK", "t/tsc", tsr, 1, 3);
-
-  const double psr = p.raw()/psc.raw();
-  check_range("ZFactorDranchukAK", "p/psc", psr, 0.2, 30);
-        
   constexpr double a1 = 0.3265;
   constexpr double a2 = -1.07;
   constexpr double a3 = -0.5339;
@@ -208,32 +176,34 @@ ZFactorDranchukAK::impl(const Quantity<Rankine> & t,
   double zprev = 0.6;
   double zf;
 
-  const double tsr2 = tsr*tsr;
-  const double tsr3 = tsr2*tsr;
-  const double tsr4 = tsr3*tsr;
-  const double tsr5 = tsr4*tsr;
+  const double tpr2 = tpr.raw()*tpr.raw();
+  const double tpr3 = tpr2*tpr.raw();
+  const double tpr4 = tpr3*tpr.raw();
+  const double tpr5 = tpr4*tpr.raw();
 
   while (fabs(zprev - z) > epsilon)
     {
       z = zprev;
-      const double pr = 0.27*psr/(z * tsr);
+      const double pr = 0.27*ppr.raw()/(z * tpr.raw());
       const double pr2 = pr*pr;
       const double pr3 = pr2*pr;
       const double pr4 = pr3*pr;
       const double pr5 = pr4*pr;
 
-      const double f = z - (1 + (a1 + a2/tsr + a3/tsr3 + a4/tsr4 + a5/tsr5)*pr +
-			    (a6 + a7/tsr + a8/tsr2)*pr2 -
-			    a9*(a7/tsr + a8/tsr2)*pr5 +
-			    a10*(1 + a11*pr2)*(pr2/tsr3)*exp(-a11*pr2));
+      const double f = z - (1 + (a1 + a2/tpr.raw() + a3/tpr3 + a4/tpr4 +
+				 a5/tpr5)*pr +
+			    (a6 + a7/tpr.raw() + a8/tpr2)*pr2 -
+			    a9*(a7/tpr.raw() + a8/tpr2)*pr5 +
+			    a10*(1 + a11*pr2)*(pr2/tpr3)*exp(-a11*pr2));
 
       const double a11_x_pr2 = a11*pr2;
       const double a11_x_pr2_2 = a11_x_pr2*a11_x_pr2;
 
       const double dfdz = 1 +
-	((a1 + a2/tsr + a3/tsr3 + a4/tsr4 + a5/tsr5)*(pr/z)) +
-	(2*(a6 + a7/tsr + a8/tsr2)*(pr2/z)) - (5*a9*(a7/tsr + a8/tsr2)*pr5/z) +
-	(((2*a10*pr2)/(z* tsr3))*(1 + a11_x_pr2 - a11_x_pr2_2)*exp(-a11_x_pr2));
+	((a1 + a2/tpr.raw() + a3/tpr3 + a4/tpr4 + a5/tpr5)*(pr/z)) +
+	(2*(a6 + a7/tpr.raw() + a8/tpr2)*(pr2/z)) -
+	(5*a9*(a7/tpr.raw() + a8/tpr2)*pr5/z) +
+	(((2*a10*pr2)/(z* tpr3))*(1 + a11_x_pr2 - a11_x_pr2_2)*exp(-a11_x_pr2));
 
       zf = z - f/dfdz;
       zprev = zf;
@@ -243,106 +213,83 @@ ZFactorDranchukAK::impl(const Quantity<Rankine> & t,
 }
 
 inline Quantity<ZFactor>
-ZFactorGopal::impl(const Quantity<Rankine> & t,
-		   const Quantity<psia> & p,
-		   const Quantity<Rankine> & tsc,
-		   const Quantity<psia> & psc) const
+ZFactorGopal::impl(const Quantity<PseudoReducedTemperature> & tpr,
+		   const Quantity<PseudoReducedPressure> & ppr) const
 {
-  const double tsr = t.raw()/tsc.raw();
-  check_range("ZFactorGopal", "t/tsc", tsr, 1.05, 3);
-
-  const double psr = p.raw()/psc.raw();
-  check_range("ZFactorGopal", "p/psc", psr, 0.2, 15);
-
   double z = 0;
-  if (psr > 0.2 and psr <= 1.2)
+  if (ppr > 0.2 and ppr <= 1.2)
     {
-      if (tsr > 1.05 and tsr <= 1.2)
-	z = psr*(1.6643*tsr - 2.2114) - 0.3647*tsr + 1.4385;
-      else if (tsr > 1.2 and tsr <= 1.4)
-	z = psr*(0.0522*tsr - 0.8511) - 0.0364*tsr + 1.0490;
-      else if (tsr > 1.4 and tsr <= 2.0)
-	z = psr*(0.1391*tsr - 0.2988) + 0.0007*tsr + 0.9969;
-      else // 2.0 < Tsr <= 3.0
-	z = psr*(0.0295*tsr - 0.0825) + 0.0009*tsr + 0.9967;
+      if (tpr > 1.05 and tpr <= 1.2)
+	z = ppr.raw()*(1.6643*tpr.raw() - 2.2114) - 0.3647*tpr.raw() + 1.4385;
+      else if (tpr > 1.2 and tpr <= 1.4)
+	z = ppr.raw()*(0.0522*tpr.raw() - 0.8511) - 0.0364*tpr.raw() + 1.0490;
+      else if (tpr > 1.4 and tpr <= 2.0)
+	z = ppr.raw()*(0.1391*tpr.raw() - 0.2988) + 0.0007*tpr.raw() + 0.9969;
+      else // 2.0 < Tpr <= 3.0
+	z = ppr.raw()*(0.0295*tpr.raw() - 0.0825) + 0.0009*tpr.raw() + 0.9967;
     }
-  else if (psr > 1.2 and psr <= 2.8)
+  else if (ppr > 1.2 and ppr <= 2.8)
     {
-      if (tsr > 1.05 and tsr <= 1.2)
-	z = psr*(-1.3570*tsr + 1.4942) + 4.6315*tsr - 4.7009;
-      else if (tsr > 1.2 and tsr <= 1.4)
-	z = psr*(0.1717*tsr - 0.3232) + 0.5869*tsr + 0.1229;
-      else if (tsr > 1.4 and tsr <= 2.0)
-	z = psr*(0.0984*tsr - 0.2053) + 0.0621*tsr + 0.8580;
-      else // 2.0 < Tsr <= 3.0
-	z = psr*(0.0211*tsr - 0.0527) + 0.0127*tsr + 0.9549;
+      if (tpr > 1.05 and tpr <= 1.2)
+	z = ppr.raw()*(-1.3570*tpr.raw() + 1.4942) + 4.6315*tpr.raw() - 4.7009;
+      else if (tpr > 1.2 and tpr <= 1.4)
+	z = ppr.raw()*(0.1717*tpr.raw() - 0.3232) + 0.5869*tpr.raw() + 0.1229;
+      else if (tpr > 1.4 and tpr <= 2.0)
+	z = ppr.raw()*(0.0984*tpr.raw() - 0.2053) + 0.0621*tpr.raw() + 0.8580;
+      else // 2.0 < Tpr <= 3.0
+	z = ppr.raw()*(0.0211*tpr.raw() - 0.0527) + 0.0127*tpr.raw() + 0.9549;
     }
-  else if (psr > 2.8 and psr <= 5.4)
+  else if (ppr > 2.8 and ppr <= 5.4)
     {
-      if (tsr > 1.05 and tsr <= 1.2)
-	z = psr*(-0.3278*tsr + 0.4752) + 1.8223*tsr - 1.9036;
-      else if (tsr > 1.2 and tsr <= 1.4)
-	z = psr*(-0.2521*tsr + 0.3871) + 1.6087*tsr - 1.6635;
-      else if (tsr > 1.4 and tsr <= 2.0)
-	z = psr*(-0.0284*tsr + 0.0625) + 1.4714*tsr - 0.0011;
-      else // 2.0 < Tsr <= 3.0:
-	z = psr*(0.0041*tsr + 0.0039) + 0.0607*tsr + 0.7927;
+      if (tpr > 1.05 and tpr <= 1.2)
+	z = ppr.raw()*(-0.3278*tpr.raw() + 0.4752) + 1.8223*tpr.raw() - 1.9036;
+      else if (tpr > 1.2 and tpr <= 1.4)
+	z = ppr.raw()*(-0.2521*tpr.raw() + 0.3871) + 1.6087*tpr.raw() - 1.6635;
+      else if (tpr > 1.4 and tpr <= 2.0)
+	z = ppr.raw()*(-0.0284*tpr.raw() + 0.0625) + 1.4714*tpr.raw() - 0.0011;
+      else // 2.0 < Tpr <= 3.0:
+	z = ppr.raw()*(0.0041*tpr.raw() + 0.0039) + 0.0607*tpr.raw() + 0.7927;
     }
-  else // 5.4 < psr <= 15
-    z = psr*pow(0.711 + 3.66*tsr + 0.0039, -1.4667) -
-      1.637/(0.319*tsr + 0.522) + 2.071;
+  else // 5.4 < ppr <= 15
+    z = ppr.raw()*pow(0.711 + 3.66*tpr.raw() + 0.0039, -1.4667) -
+      1.637/(0.319*tpr.raw() + 0.522) + 2.071;
                             
   return Quantity<ZFactor>(z);
 }
 
 
 inline Quantity<ZFactor>
-ZFactorBrillBeggs::impl(const Quantity<Rankine> & t,
-			const Quantity<psia> & p,
-			const Quantity<Rankine> & tsc,
-			const Quantity<psia> & psc) const
+ZFactorBrillBeggs::impl(const Quantity<PseudoReducedTemperature> & tpr,
+			const Quantity<PseudoReducedPressure> & ppr) const
 {
-  const double tsr = t.raw()/tsc.raw();
-  check_range("ZFactorBrillBeggs", "t/tsc", tsr, 1.2, 2.4);
+  const double a = 1.39*sqrt(tpr.raw() - 0.92) - 0.36*tpr.raw() - 0.10;
 
-  const double psr = p.raw()/psc.raw();
-  check_range("ZFactorBrillBeggs", "p/psc", psr, 0, 13);
+  const double ppr2 = ppr.raw()*ppr.raw();
+  const double b = (0.62 - 0.23*tpr.raw())*ppr.raw() +
+    (0.066/(tpr.raw() - 0.86) - 0.037)*ppr2 +
+    (0.32/pow(10, 9*(tpr.raw() - 1)))*pow(ppr, 6);
 
-  const double a = 1.39*sqrt(tsr - 0.92) - 0.36*tsr - 0.10;
+  const double c = 0.132 - 0.32*log10(tpr);
 
-  const double psr2 = psr*psr;
-  const double b = (0.62 - 0.23*tsr)*psr +
-    (0.066/(tsr - 0.86) - 0.037)*psr2 + (0.32/pow(10, 9*(tsr - 1)))*pow(psr, 6);
-
-  const double c = 0.132 - 0.32*log10(tsr);
-
-  const double tsr2 = tsr*tsr;
-  const double d = pow(10, 0.3106 - 0.49 * tsr + 0.1824 * tsr2);
+  const double tpr2 = tpr.raw()*tpr.raw();
+  const double d = pow(10, 0.3106 - 0.49 * tpr.raw() + 0.1824 * tpr2);
             
   double z = 0;
   if (b > 700)
-    z = a + c*pow(psr, d);
+    z = a + c*pow(ppr.raw(), d);
   else
-    z = a + ((1 - a)/exp(b)) + c*pow(psr, d);
+    z = a + ((1 - a)/exp(b)) + c*pow(ppr.raw(), d);
 
   return Quantity<ZFactor>(z);
 }
 
 inline Quantity<ZFactor>
-ZFactorPapay::impl(const Quantity<Rankine> & t,
-		   const Quantity<psia> & p,
-		   const Quantity<Rankine> & tsc,
-		   const Quantity<psia> & psc) const
+ZFactorPapay::impl(const Quantity<PseudoReducedTemperature> & tpr,
+		   const Quantity<PseudoReducedPressure> & ppr) const
 {
-  const double tsr = t.raw()/tsc.raw();
-  check_range("ZFactorPapay", "t/tsc", tsr, 1.2, 3);
-
-  const double psr = p.raw()/psc.raw();
-  check_range("ZFactorPapay", "p/psc", psr, 0.2, 15);
-
-  const double psr2 = psr*psr;
-  const double z = 1 - 3.52*psr/pow(10, 0.9813*tsr) +
-    0.274*psr2/pow(10, 0.8157*tsr);
+  const double ppr2 = ppr.raw()*ppr.raw();
+  const double z = 1 - 3.52*ppr.raw()/pow(10, 0.9813*tpr.raw()) +
+    0.274*ppr2/pow(10, 0.8157*tpr.raw());
 
   return Quantity<ZFactor>(z);
 }

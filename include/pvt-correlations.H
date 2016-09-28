@@ -11,6 +11,7 @@
 # include <undersaturated-oil-viscosity.H>
 # include <oil-interfacial-tension.H>
 # include <non-hydrocarborns-corrections.H>
+# include <pseudo-reduced-ratios.H>
 # include <gas-density.H>
 # include <gas-pseudocritical-pressure.H>
 # include <gas-viscosity.H>
@@ -30,6 +31,7 @@
 # include <undersaturated-oil-viscosity-impl.H>
 # include <oil-interfacial-tension-impl.H>
 # include <non-hydrocarborns-corrections-impl.H>
+# include <pseudo-reduced-ratios-impl.H>
 # include <gas-density-impl.H>
 # include <gas-pseudocritical-pressure-impl.H>
 # include <gas-viscosity-impl.H>
@@ -164,6 +166,9 @@ struct CorrelationInstantiater
     UgDeanStiel::get_instance();
 
     Pg::get_instance();
+
+    Tpr::get_instance();
+    Ppr::get_instance();
 
     ZFactorSarem::get_instance();
     ZFactorHallYarborough::get_instance();
