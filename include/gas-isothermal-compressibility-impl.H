@@ -5,17 +5,13 @@
 # include <correlation-utils.H>
 
 inline Quantity<psia_1>
-CgSarem::impl(const Quantity<Rankine> & t,
-	      const Quantity<psia> & p,
-	      const Quantity<Rankine> & tpc,
+CgSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,
+	      const Quantity<PseudoReducedPressure> & ppr,
 	      const Quantity<psia> & ppc,
 	      const Quantity<ZFactor> & z) const
 {
-  const double tsr = t.raw()/tpc.raw();
-  check_range("CgSarem", "t/tsc", tsr, 1.05, 2.95);
-
-  const double psr = p.raw()/ppc.raw();
-  check_range("CgSarem", "p/psc", psr, 0.1, 14.9);
+  const double tsr = tpr.raw();
+  const double psr = psr.raw();
 
   const double x = (2*psr - 15)/14.8;
   const double y = (2*tsr - 4)/1.9;
@@ -62,17 +58,13 @@ CgSarem::impl(const Quantity<Rankine> & t,
 }
 
 inline Quantity<psia_1>
-CgHallYarborough::impl(const Quantity<Rankine> & t,
-		       const Quantity<psia> & p,
-		       const Quantity<Rankine> & tpc,
+CgHallYarborough::impl(const Quantity<PseudoReducedTemperature> & tpr,
+		       const Quantity<PseudoReducedPressure> & ppr
 		       const Quantity<psia> & ppc,
 		       const Quantity<ZFactor> & z) const
 {
-  const double tpr = t.raw()/tpc.raw();
-  check_range("CgSarem", "t/tsc", tpr, 1.2, 3);
-
-  const double ppr = p.raw()/ppc.raw();
-  check_range("CgSarem", "p/psc", ppr, 0.1, 24);
+  const double tpr = tpr.raw();
+  const double ppr = ppr.raw();
 
   const double tpr_1 = 1/tpr;
   const double tpr_1_2 = tpr_1*tpr_1;
@@ -96,16 +88,12 @@ CgHallYarborough::impl(const Quantity<Rankine> & t,
       const double pr3 = pr*pr;
       const double pr4 = pr3*pr;
 
-      const double f = -a*ppr + (pr + pr2 + pr3 - pr4)/pow(1 - pr, 3) - b*pr2 +
-	c*pow(pr, d);
+      const double f = -a*ppr.raw() + (pr + pr2 + pr3 - pr4)/pow(1 - pr, 3)
+	- b*pr2 + c*pow(pr, d);
 
-      const double pr_x_4 = 4*pr;
-      const double pr_x_4_2 = pr_x_4*pr_x_4;
-      const double pr_x_4_3 = pr_x_4_2*pr_x_4;
-      const double pr_x_4_4 = pr_x_4_3*pr_x_4;
-      
-      const double dfdpr = (1 + pr_x_4 + pr_x_4_2 - pr_x_4_3 + pr_x_4_4) /
-	pow(1 - pr, 4) - 2*b*pr + c*d* pow(pr, d-1);
+      const double dfdpr= (1 + 4*pr + 4*pr2 - 4*pr3 + pr4) /
+	pow(1 - pr, 4) - 2*b*pr + c*d*pow(pr, d-1);
+
       prf = pr - f/dfdpr;
       prprev = prf;
   }
@@ -133,17 +121,13 @@ CgHallYarborough::impl(const Quantity<Rankine> & t,
 }
 
 inline Quantity<psia_1>
-CgMattarBA::impl(const Quantity<Rankine> & t,
-		 const Quantity<psia> & p,
-		 const Quantity<Rankine> & tpc,
+CgMattarBA::impl(const Quantity<PseudoReducedTemperature> & tpr,
+		 const Quantity<PseudoReducedPressure> & ppr
 		 const Quantity<psia> & ppc,
 		 const Quantity<ZFactor> & z) const
 {
-  const double tpr = t.raw()/tpc.raw();
-  check_range("CgMattarBA", "t/tsc", tpr, 1.05, 3);
-
-  const double ppr = p.raw()/ppc.raw();
-  check_range("CgMattarBA", "p/psc", ppr, 0.2, 30);
+  const double tpr = tpr.raw();
+  const double ppr = ppr.raw();
 
   constexpr double a1 = 0.31506237;
   constexpr double a2 = -1.0467099;
@@ -181,22 +165,18 @@ CgMattarBA::impl(const Quantity<Rankine> & t,
 
 
 inline Quantity<psia_1>
-CgGopal::impl(const Quantity<Rankine> & t,
-	      const Quantity<psia> & p,
-	      const Quantity<Rankine> & tpc,
+CgGopal::impl(const Quantity<PseudoReducedTemperature> & tpr,
+	      const Quantity<PseudoReducedPressure> & ppr
 	      const Quantity<psia> & ppc,
 	      const Quantity<ZFactor> & z) const
 {
-  const double tpr = t.raw()/tpc.raw();
-  check_range("CgMattarBA", "t/tsc", tpr, 1.05, 3);
-
-  const double ppr = p.raw()/ppc.raw();
-  check_range("CgMattarBA", "p/psc", ppr, 0.2, 15);
+  const double tpr = tpr.raw();
+  const double ppr = ppr.raw();
 
   double dzdppr = 0;
-  if (0.2 < ppr and ppr <= 1.2)
+  if (0.2 <= ppr and ppr <= 1.2)
     {
-      if (1.05 < tpr and tpr <= 1.2)
+      if (1.05 <= tpr and tpr <= 1.2)
 	dzdppr = 1.6643 * tpr - 2.2114;
       else if (1.2 < tpr and tpr <= 1.4)
 	dzdppr = 0.0522 * tpr - 0.8511;
@@ -207,7 +187,7 @@ CgGopal::impl(const Quantity<Rankine> & t,
     }                   
   else if (1.2 < ppr and ppr <= 2.8)
     {
-      if (1.05 < tpr and tpr <= 1.2)
+      if (1.05 <= tpr and tpr <= 1.2)
 	dzdppr = -1.3570 * tpr + 1.4942;
       else if (1.2 < tpr and tpr <= 1.4)
 	dzdppr = 0.1717 * tpr - 0.3232;
@@ -218,7 +198,7 @@ CgGopal::impl(const Quantity<Rankine> & t,
     }
   else if (2.8 < ppr and ppr <= 5.4)
     {
-      if (1.05 < tpr and tpr <= 1.2)
+      if (1.05 <= tpr and tpr <= 1.2)
 	dzdppr = -0.3278 * tpr + 0.4752;
       else if (1.2 < tpr and tpr <= 1.4)
 	dzdppr = -0.2521 * tpr + 0.3871;
@@ -239,19 +219,15 @@ CgGopal::impl(const Quantity<Rankine> & t,
 
 
 inline Quantity<psia_1>
-CgBrillBeggs::impl(const Quantity<Rankine> & t,
-		   const Quantity<psia> & p,
-		   const Quantity<Rankine> & tpc,
+CgBrillBeggs::impl(const Quantity<PseudoReducedTemperature> & tpr,
+		   const Quantity<PseudoReducedPressure> & ppr
 		   const Quantity<psia> & ppc,
 		   const Quantity<ZFactor> & z) const
 {
-  const double tpr = t.raw()/tpc.raw();
-  check_range("CgMattarBA", "t/tsc", tpr, 1.2, 2.4);
+  const double tpr = tpr.raw();
+  const double ppr = ppr.raw();
 
-  const double ppr = p.raw()/ppc.raw();
-  check_range("CgMattarBA", "p/psc", ppr, 0, 13);
-
-  const double a = 1.39 * sqrt(tpr - 0.92) - 0.36*tpr - 0.101;
+  const double a = 1.39 * sqrt(tpr - 0.92) - 0.36*tpr - 0.1;
   const double b = (0.62 - 0.23*tpr)*ppr + 
     (0.066/(tpr - 0.86) - 0.037)*ppr*ppr +
     (0.32/pow(10, 9*(tpr - 1)))*pow(ppr, 6);
@@ -262,7 +238,10 @@ CgBrillBeggs::impl(const Quantity<Rankine> & t,
   double dzdppr = c*d*pow(ppr, d - 1);
 
   if (b <= 690)
-    dzdppr -= (1 - a)/(((0.62 - 0.23*tpr) +
+    // The fraction at the left side of the partial derivative of the
+    // Z-factor equation with respect to Ppr becomes zero with very
+    // high numbers in the denominator (i.e. exp(B) > 4e+299) 
+    dzdppr += (1 - a)/(((0.62 - 0.23*tpr) +
 			(((0.132/(tpr - 0.86)) - 0.074) * ppr) + 
 			((1.92/   pow(10, 9*(tpr - 1))) * pow(ppr, 5)))*exp(b));
 
@@ -275,15 +254,12 @@ CgBrillBeggs::impl(const Quantity<Rankine> & t,
 
 
 inline Quantity<psia_1>
-CgPapay::impl(const Quantity<Rankine> & t,
-	      const Quantity<psia> & p,
-	      const Quantity<Rankine> & tpc,
+CgPapay::impl(const Quantity<PseudoReducedTemperature> & tpr,
+	      const Quantity<PseudoReducedPressure> & ppr
 	      const Quantity<psia> & ppc,
 	      const Quantity<ZFactor> & z) const
 {
-  const double tpr = t.raw()/tpc.raw();
-  check_range("CgPapay", "t/tsc", tpr, 1.2, 3);
-
+  const double tpr = tpr.raw();
   const double ppr = p.raw()/ppc.raw();
   check_range("CgPapay", "p/psc", ppr, 0.2, 15);
 

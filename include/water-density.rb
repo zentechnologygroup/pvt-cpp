@@ -4,7 +4,7 @@ add_parameter("t", "Celsius",
               "Quantity<Fahrenheit>(32)", "Quantity<Fahrenheit>(530)")
 add_parameter("pr", "Pascal", "Quantity<psia>(14.5)", "Quantity<psia>(29000)")
 add_parameter("s", "Disolved_Salt_PPM", "Quantity<Disolved_Salt_Percent>(0)",
-              "Quantity<Disolved_Salt_Percent>(26")
+              "Quantity<Disolved_Salt_Percent>(26)")
 end_correlation()
 
 ################################################################

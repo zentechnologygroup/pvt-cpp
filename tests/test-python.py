@@ -1260,31 +1260,33 @@ def ZFactorSaremCorrelation(Tr, P, Tsc, Psc):
     ZFactorSarem = Z 
     return ZFactorSarem
     
-def ZFactorHallYarboroughCorrelation(Tr, P, Tsc, Psc):
-    Tsr = 1.0*Tr/Tsc
-    Psr = 1.0*P/Psc
-    A = 0.06125 * (1/Tsr) * exp((-1.2) * ((1 - (1/Tsr)) ** 2))
-    B = 14.76 * (1/Tsr) - 9.76 * ((1/Tsr) ** 2) + 4.58 * ((1/Tsr) ** 3)
-    C = 90.7 * (1/Tsr) - 242.2 * ((1/Tsr) ** 2) + 42.4 * ((1/Tsr) ** 3)
-    D = 2.18 + 2.82 * (1/Tsr)
-    epsilon = 1.0e-10
-    pr = 0
-    prprev = 0.00001
-    # iteracion por metodo Newton-Raphson
-    while (fabs(prprev - pr)) > epsilon:
-        pr = prprev
-        F = -(A * Psr) + ((pr + (pr ** 2) + (pr ** 3) - (pr ** 4))/((1 - pr) ** 3)) - B * (pr ** 2) + C * (pr ** D) 
-        dFdpr = (1 + (4 * pr) + ((4 * pr) ** 2) - ((4 * pr) ** 3) + ((4 * pr) ** 4))/(((1 - pr) ** 4)) - 2 * B * pr + C * D * (pr ** (D-1))
-        prf = pr - F/dFdpr
-        prprev = prf
-    
-    pr = prf
-    Z = (0.06125 * Psr * (1/Tsr) * exp((-1.2) * ((1 - (1/Tsr)) ** 2)))/pr 
+def ZFactorHallYarboroughCorrelation(Tpr, Ppr):
+    if (Tpr < 1.2) or (Tpr > 3) or (Ppr < 0.1) or (Ppr > 24):
+        Z = None
+    else:
+        # <- Delete for C++ 
+        t = 1.0/Tpr
+        A = 0.06125 * t * exp(-1.2 * ((1 - t) ** 2))
+        B = 14.76 * t - 9.76 * (t ** 2) + 4.58 * (t ** 3)
+        C = 90.7 * t - 242.2 * (t ** 2) + 42.4 * (t ** 3)
+        D = 2.18 + 2.82 * t
+        epsilon = 1.0e-8
+        pr = 0 # pr: Reduced density defined by the authors of the method
+        prprev = 0.00001
+        # Newton-Raphson method
+        while (fabs(prprev - pr)) > epsilon:
+            pr = prprev
+            F = - A * Ppr + ((pr + (pr ** 2) + (pr ** 3) - (pr ** 4))/((1 - pr) ** 3)) - B * (pr ** 2) + C * (pr ** D) 
+            dFdpr= (1 + (4 * pr) + (4 * pr ** 2) - (4 * pr ** 3) + (pr ** 4))/((1 - pr) ** 4) - 2 * B * pr + C * D * (pr ** (D-1))
+            prf = pr - F/dFdpr
+            prprev = prf
+        pr = prf
+        Z = (0.06125 * Ppr * t * exp(-1.2 * (1 - t) ** 2))/pr
     ZFactorHallYarborough = Z
     return ZFactorHallYarborough
     
 
-def ZFactorDranchukPRCorrelation(Tr, P, Tsc, Psc):
+def ZFactorDranchukPRCorrelation(Tpr, Ppr):
     Tsr = 1.0*Tr/Tsc
     Psr = 1.0*P/Psc
     A1 = 0.31506237

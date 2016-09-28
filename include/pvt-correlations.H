@@ -20,6 +20,7 @@
 # include <gas-isothermal-compressibility.H>
 # include <gas-volume-factor.H>
 # include <water-density.H>
+# include <water-density.H>
 
 # include <bubble-point-pressure-impl.H>
 # include <solution-gas-oil-relation-impl.H>
@@ -40,6 +41,7 @@
 # include <gas-isothermal-compressibility-impl.H>
 # include <gas-volume-factor-impl.H>
 # include <water-density-impl.H>
+# include <water-viscosity-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -195,6 +197,8 @@ struct CorrelationInstantiater
     PwSpiveyMN::get_instance();
     PwSpiveyMNGasFree::get_instance();
     PwMcCain::get_instance();
+
+    UwMaoDuan::get_instance();
   }
 };
 
