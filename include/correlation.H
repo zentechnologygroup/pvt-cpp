@@ -444,7 +444,7 @@ inline Correlation::~Correlation() {}
 class CorrelationInvoker
 {
   const Correlation * correlation_ptr = nullptr;
-  har * json_buffer = nullptr;
+  char * json_buffer = nullptr;
   const size_t buf_sz = 0;
   DynList<double> pars;
 
