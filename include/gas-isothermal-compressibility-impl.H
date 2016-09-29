@@ -11,7 +11,7 @@ CgSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,
 	      const Quantity<ZFactor> & z) const
 {
   const double tsr = tpr.raw();
-  const double psr = psr.raw();
+  const double psr = ppr.raw();
 
   const double x = (2*psr - 15)/14.8;
   const double y = (2*tsr - 4)/1.9;
@@ -58,13 +58,13 @@ CgSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,
 }
 
 inline Quantity<psia_1>
-CgHallYarborough::impl(const Quantity<PseudoReducedTemperature> & tpr,
-		       const Quantity<PseudoReducedPressure> & ppr
+CgHallYarborough::impl(const Quantity<PseudoReducedTemperature> & __tpr,
+		       const Quantity<PseudoReducedPressure> & __ppr,
 		       const Quantity<psia> & ppc,
 		       const Quantity<ZFactor> & z) const
 {
-  const double tpr = tpr.raw();
-  const double ppr = ppr.raw();
+  const double tpr = __tpr.raw();
+  const double ppr = __ppr.raw();
 
   const double tpr_1 = 1/tpr;
   const double tpr_1_2 = tpr_1*tpr_1;
@@ -88,7 +88,7 @@ CgHallYarborough::impl(const Quantity<PseudoReducedTemperature> & tpr,
       const double pr3 = pr*pr;
       const double pr4 = pr3*pr;
 
-      const double f = -a*ppr.raw() + (pr + pr2 + pr3 - pr4)/pow(1 - pr, 3)
+      const double f = -a*ppr + (pr + pr2 + pr3 - pr4)/pow(1 - pr, 3)
 	- b*pr2 + c*pow(pr, d);
 
       const double dfdpr= (1 + 4*pr + 4*pr2 - 4*pr3 + pr4) /
@@ -121,13 +121,13 @@ CgHallYarborough::impl(const Quantity<PseudoReducedTemperature> & tpr,
 }
 
 inline Quantity<psia_1>
-CgMattarBA::impl(const Quantity<PseudoReducedTemperature> & tpr,
-		 const Quantity<PseudoReducedPressure> & ppr
+CgMattarBA::impl(const Quantity<PseudoReducedTemperature> & __tpr,
+		 const Quantity<PseudoReducedPressure> & __ppr,
 		 const Quantity<psia> & ppc,
 		 const Quantity<ZFactor> & z) const
 {
-  const double tpr = tpr.raw();
-  const double ppr = ppr.raw();
+  const double tpr = __tpr.raw();
+  const double ppr = __ppr.raw();
 
   constexpr double a1 = 0.31506237;
   constexpr double a2 = -1.0467099;
@@ -165,13 +165,13 @@ CgMattarBA::impl(const Quantity<PseudoReducedTemperature> & tpr,
 
 
 inline Quantity<psia_1>
-CgGopal::impl(const Quantity<PseudoReducedTemperature> & tpr,
-	      const Quantity<PseudoReducedPressure> & ppr
+CgGopal::impl(const Quantity<PseudoReducedTemperature> & __tpr,
+	      const Quantity<PseudoReducedPressure> & __ppr,
 	      const Quantity<psia> & ppc,
 	      const Quantity<ZFactor> & z) const
 {
-  const double tpr = tpr.raw();
-  const double ppr = ppr.raw();
+  const double tpr = __tpr.raw();
+  const double ppr = __ppr.raw();
 
   double dzdppr = 0;
   if (0.2 <= ppr and ppr <= 1.2)
@@ -219,13 +219,13 @@ CgGopal::impl(const Quantity<PseudoReducedTemperature> & tpr,
 
 
 inline Quantity<psia_1>
-CgBrillBeggs::impl(const Quantity<PseudoReducedTemperature> & tpr,
-		   const Quantity<PseudoReducedPressure> & ppr
+CgBrillBeggs::impl(const Quantity<PseudoReducedTemperature> & __tpr,
+		   const Quantity<PseudoReducedPressure> & __ppr,
 		   const Quantity<psia> & ppc,
 		   const Quantity<ZFactor> & z) const
 {
-  const double tpr = tpr.raw();
-  const double ppr = ppr.raw();
+  const double tpr = __tpr.raw();
+  const double ppr = __ppr.raw();
 
   const double a = 1.39 * sqrt(tpr - 0.92) - 0.36*tpr - 0.1;
   const double b = (0.62 - 0.23*tpr)*ppr + 
@@ -254,14 +254,13 @@ CgBrillBeggs::impl(const Quantity<PseudoReducedTemperature> & tpr,
 
 
 inline Quantity<psia_1>
-CgPapay::impl(const Quantity<PseudoReducedTemperature> & tpr,
-	      const Quantity<PseudoReducedPressure> & ppr
+CgPapay::impl(const Quantity<PseudoReducedTemperature> & __tpr,
+	      const Quantity<PseudoReducedPressure> & __ppr,
 	      const Quantity<psia> & ppc,
 	      const Quantity<ZFactor> & z) const
 {
-  const double tpr = tpr.raw();
-  const double ppr = p.raw()/ppc.raw();
-  check_range("CgPapay", "p/psc", ppr, 0.2, 15);
+  const double tpr = __tpr.raw();
+  const double ppr = __ppr.raw();
 
   const double dzdppr = -3.52/pow(10, 0.9813*tpr) +
     0.548*ppr/pow(10, 0.8157*tpr);
