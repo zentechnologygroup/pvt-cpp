@@ -16,3 +16,6 @@
 ## 5. en compute de correlation poner un doble itrdor en lugar del zip
 - Created at   2016-09-27 16:16:49 -0400
 
+## 6. manejag mPascal en water-density.rb
+- Created at   2016-09-29 10:17:52 -0400
+

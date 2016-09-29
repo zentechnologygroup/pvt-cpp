@@ -27,7 +27,7 @@ DIR=../include/
 CORRS=$(shell ls $(DIR)*.rb)
 
 CALLS =	$(CORRS:.rb=.cc)
-HCORR =	$(CORRS:.rb=.H)
+HCORR =	$(CORRS:.rb=.H) $(shell ls $(DIR)*-unit.H)
 IMPLS = 
 
 test:
@@ -37,7 +37,8 @@ biblios.cc: ../include/refs.bib
 	$(RM) $*.cc; 	\	@@\
 	$(BIBLIO) -C -f ../include/refs.bib | clang-format -style=Mozilla > $@
 
-pvt.cc: $(CALLS)								\
+pvt.cc: $(CALLS) $(HCORR)							\
+	../include/units.H 							\
 	biblios.cc units-vars.cc correlations-vars.cc 				\
 	../include/pvt-correlations.H ../include/correlation.H 			\
 	../include/units.H ../include/pvt-units.H 				\

@@ -199,6 +199,7 @@ struct CorrelationInstantiater
     PwMcCain::get_instance();
 
     UwMaoDuan::get_instance();
+    UwVanWingen::get_instance();
   }
 };
 

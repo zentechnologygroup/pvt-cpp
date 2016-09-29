@@ -3,3 +3,4 @@ corregir nombre carbons (debe ser carborn),2016-09-16 11:46:16 -0400,2016-09-25 
 nueva flag en gen-corr para generar llamadas externas,2016-09-26 19:34:30 -0400,,
 tabla de correlaciones y protocolo de llamada con manejo de errores,2016-09-27 11:02:41 -0400,,
 en compute de correlation poner un doble itrdor en lugar del zip,2016-09-27 16:16:49 -0400,,
+manejag mPascal en water-density.rb,2016-09-29 10:17:52 -0400,,

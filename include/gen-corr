@@ -425,8 +425,7 @@ if corr_name
   # puts stderr
   # puts exit_status
   puts "#{corr.gen_impl}\n"\
-       "\n"\
-       "#{corr.gen_extern_calls}\n"
+       "\n"
   exit
 end
 
