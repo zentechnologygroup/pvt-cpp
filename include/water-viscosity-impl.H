@@ -70,5 +70,21 @@ UwVanWingen::impl(const Quantity<Fahrenheit> & t) const
 }
 
 
+inline Quantity<CP>
+UwMatthewsRussel::impl(const Quantity<Fahrenheit> & t,
+		       const Quantity<psia> & p,
+		       const Quantity<Disolved_Salt_Percent> & s) const
+{
+  const double s2 = s.raw()*s.raw();
+  const double a = -0.04518 + 0.009313*s.raw() - 0.000393*s2;
+  const double b = 70.634 + 0.09576*s2;
+  const double uwat = a + b/t.raw();
+        
+  // calculo de la viscosidad del agua corregida por presion
+  const double uw = uwat*(1 + 3.5e-12*p.raw()*p.raw()*(t.raw() - 40));
+
+  return Quantity<CP>(uw);
+}
+
 
 # endif // WATER_VISCOSITY_IMPL_H

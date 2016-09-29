@@ -200,12 +200,9 @@ struct CorrelationInstantiater
 
     UwMaoDuan::get_instance();
     UwVanWingen::get_instance();
+    UwMatthewsRussel::get_instance();
   }
 };
 
 # endif // PVT_CORRELATIONS_H
-
-
-
-
 

@@ -1704,8 +1704,17 @@ def UwMaoDuanCorrelation(T, P, S):
     return UwMaoDuan
 
 
-def UwVanWingen(T):
+def UwVanWingenCorrelation(T):
     Uw = exp(1.003 - (1.479e-2 * T) + (1.982e-5 * (T ** 2)))
     UwVanWingen = Uw
     return UwVanWingen
         
+
+def UwMatthewsRusselCorrelation(T, P, S):
+    A = -0.04518 + (0.009313 * S) - (0.000393 * (S ** 2))
+    B = 70.634 + (0.09576 * (S ** 2))
+    Uwat = A + (B/T)
+    Uw = Uwat * (1 + (3.5e-12 * (P ** 2) * (T - 40)))
+    UwMatthewsRussel = Uw
+    return UwMatthewsRussel
+

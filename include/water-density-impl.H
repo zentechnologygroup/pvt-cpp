@@ -201,6 +201,22 @@ PwMcCain::impl(const Quantity<Disolved_Salt_PPM> & s,
   return Quantity<Lb_ft3>(pw);
 }
 
+inline Quantity<CP>
+UwMcCain::impl(const Quantity<Fahrenheit> & t,
+	       const Quantity<psia> & p,
+	       const Quantity<Disolved_Salt_Percent> & s) const
+{
+  const double s2 = s.raw()*s.raw();
+  const double s3 = s2*s.raw();
+  const double s4 = s3*s.raw();
+
+  const double a = 109.574 - 8.40564*s.raw() + 0.313314*s2 + 8.72213e-3*s3;
+  const double b = -1.12166 + 2.63951e-2*s.raw() - 6.79461e-4*s2 - 5.47119e-5*(S ** 3)) + (1.55586e-6 * (S ** 4))
+        Uwat = A * (T ** B)
+        
+        Uw = Uwat * (0.9994 + (4.0295e-5 * P) + (3.1062e-9 * (P ** 2)))
+        
+}
 
 
 # endif // WATER_DENSITY_IMPL_H
