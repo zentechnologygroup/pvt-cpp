@@ -28,3 +28,6 @@
 ## 9. recibir una data experimental y seleccionar las correlaciones que aplican
 - Created at   2016-09-30 10:15:28 -0400
 
+## 10. script que compile todo
+- Created at   2016-09-30 15:55:07 -0400
+
