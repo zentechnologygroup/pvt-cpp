@@ -19,3 +19,12 @@
 ## 6. manejag mPascal en water-density.rb
 - Created at   2016-09-29 10:17:52 -0400
 
+## 7. buscar manera de inhabilitar validaciones en correlaciones
+- Created at   2016-09-30 09:38:48 -0400
+
+## 8. hacer regresión
+- Created at   2016-09-30 10:15:00 -0400
+
+## 9. recibir una data experimental y seleccionar las correlaciones que aplican
+- Created at   2016-09-30 10:15:28 -0400
+

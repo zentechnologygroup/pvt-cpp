@@ -27,8 +27,7 @@ DIR=../include/
 CORRS=$(shell ls $(DIR)*.rb)
 
 CALLS =	$(CORRS:.rb=.cc)
-HCORR =	$(CORRS:.rb=.H) $(shell ls $(DIR)*-unit.H)
-IMPLS = 
+HCORR =	$(CORRS:.rb=.H) $(shell ls $(DIR)*-unit.H) $(shell ls $(DIR)*-impl.H)
 
 test:
 	echo $(CORRS)
@@ -70,7 +69,8 @@ pvt.cc: $(CALLS) $(HCORR)							\
 	../include/gas-volume-factor.H						\
 	../include/gas-volume-factor-impl.H					\
 	../include/water-density.H						\
-	../include/water-density-impl.H
+	../include/water-density-impl.H						\
+	../include/water-viscosity-impl.H
 	$(RM) -f $@;					\	@@\
 	cat biblio-vars.cc >> $@;			\	@@\
 	cat biblios.cc >> $@;				\	@@\

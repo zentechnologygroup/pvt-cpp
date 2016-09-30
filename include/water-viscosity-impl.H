@@ -87,4 +87,41 @@ UwMatthewsRussel::impl(const Quantity<Fahrenheit> & t,
 }
 
 
+inline Quantity<CP>
+UwMcCain::impl(const Quantity<Fahrenheit> & t,
+	       const Quantity<psia> & p,
+	       const Quantity<Disolved_Salt_Percent> & s) const
+{
+  const double s2 = s.raw()*s.raw();
+  const double s3 = s2*s.raw();
+  const double s4 = s3*s.raw();
+
+  const double a = 109.574 - 8.40564*s.raw() + 0.313314*s2 + 8.72213e-3*s3;
+  const double b = -1.12166 + 2.63951e-2*s.raw() - 6.79461e-4*s2 -
+    5.47119e-5*s3 + 1.55586e-6*s4;
+  
+  const double uwat = a * pow(t, b);
+        
+  const double uw =
+    uwat * (0.9994 + 4.0295e-5*p.raw() + 3.1062e-9*p.raw()*p.raw());
+
+  return Quantity<CP>(uw);
+}
+
+
+inline Quantity<CP>
+UwMcCoy::impl(const Quantity<Fahrenheit> & t,
+	      const Quantity<Disolved_Salt_Percent> & s) const
+{
+  const double uwp =
+    0.02414 * pow(10, (247.8/(((0.555555556 * t.raw()) + 255.37) - 140)));
+
+  const double uw = uwp * (1 - 1.87e-3*sqrt(s) + 2.18e-4*pow(s, 2.5) +
+			   ((sqrt(t) - 1.35e-2*t.raw()) *
+			    (2.76e-3*s.raw() - 3.44e-4*pow(s, 1.5))));
+
+  return Quantity<CP>(uw);
+}
+
+
 # endif // WATER_VISCOSITY_IMPL_H

@@ -201,6 +201,9 @@ struct CorrelationInstantiater
     UwMaoDuan::get_instance();
     UwVanWingen::get_instance();
     UwMatthewsRussel::get_instance();
+    UwMcCain::get_instance();
+    UwMcCoy::get_instance();
+     
   }
 };
 

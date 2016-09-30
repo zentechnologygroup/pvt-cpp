@@ -1718,3 +1718,16 @@ def UwMatthewsRusselCorrelation(T, P, S):
     UwMatthewsRussel = Uw
     return UwMatthewsRussel
 
+def UwMcCainCorrelation(T, P, S):
+    A = 109.574 - (8.40564 * S) + (0.313314 * (S ** 2)) + (8.72213e-3 * (S ** 3))
+    B = -1.12166 + (2.63951e-2 * S) - (6.79461e-4 * (S ** 2)) - (5.47119e-5 * (S ** 3)) + (1.55586e-6 * (S ** 4))
+    Uwat = A * (T ** B)
+    Uw = Uwat * (0.9994 + (4.0295e-5 * P) + (3.1062e-9 * (P ** 2)))
+    UwMcCain = Uw
+    return UwMcCain
+
+def UwMcCoyCorrelation(T, S):
+    Uwp = 0.02414 * (10 ** (247.8/(((0.555555556 * T) + 255.37) - 140)))
+    Uw =  Uwp * (1 - (1.87e-3 * (S ** 0.5)) + (2.18e-4 * (S ** 2.5)) + (((T ** 0.5) - (1.35e-2 * T)) * ((2.76e-3 * S) - (3.44e-4 * (S ** 1.5)))))
+    UwMcCoy = Uw
+    return UwMcCoy

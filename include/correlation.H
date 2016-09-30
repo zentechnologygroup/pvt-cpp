@@ -21,6 +21,18 @@ struct CorrelationPar
   const VtlQuantity min_val;
   const VtlQuantity max_val;
 
+private:
+
+  bool check_active = true;
+
+public:
+
+  void set_active() noexcept { check_active = true; }
+
+  void set_inactive() noexcept { check_active = false; }
+
+  bool is_active() const noexcept { return check_active; }
+
   DynList<string> to_list_string() const
   {
     return { name, unit.symbol, min_val.to_string(), max_val.to_string() };
@@ -42,6 +54,9 @@ struct CorrelationPar
 
   void verify(const BaseQuantity & q) const
   {
+    if (not check_active)
+      return;
+    
     ostringstream s;
   
     if (q.get_value() < min_val)
@@ -103,6 +118,28 @@ public:
   void add_ref(const string & tag)
   {
     refs.append(BibEntry::find(tag));
+  }
+
+  void inactive_preconditions()
+  {
+    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+      it.get_curr().set_inactive();
+  }
+
+  void active_preconditions()
+  {
+    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+      it.get_curr().set_active();
+  }
+
+  void active_precondition(size_t i)
+  {
+    preconditions.nth(i).set_active();
+  }
+
+  void inactive_precondition(size_t i)
+  {
+    preconditions.nth(i).set_inactive();
   }
 
   const DynList<CorrelationPar> & get_preconditions() const noexcept
@@ -576,5 +613,6 @@ Declare_Correlation_Subtype(GasPseudoReducedRatio, GasFunction);
     // correlations & functions associated to water
 Declare_Correlation_Subtype(WaterDensity, WaterCorrelation);
 Declare_Correlation_Subtype(WaterViscosity, WaterCorrelation);
+Declare_Correlation_Subtype(WaterVolumefactor, WaterCorrelation);
 
 # endif // CORRELATION_H

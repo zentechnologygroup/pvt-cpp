@@ -27,3 +27,10 @@ add_parameter("t", "Fahrenheit", 100, 400)
 add_parameter("p", "psia", 14.7, 10000)
 add_parameter("s", "Disolved_Salt_Percent", 0, 26)
 end_correlation()
+
+################################################################
+
+begin_correlation("UwMcCoy", "WaterDensity", "CP")
+add_parameter("t", "Fahrenheit")
+add_parameter("s", "Disolved_Salt_Percent")
+end_correlation()
