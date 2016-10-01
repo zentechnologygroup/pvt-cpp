@@ -8,3 +8,7 @@ buscar manera de inhabilitar validaciones en correlaciones,2016-09-30 09:38:48 -
 hacer regresión,2016-09-30 10:15:00 -0400,,
 recibir una data experimental y seleccionar las correlaciones que aplican,2016-09-30 10:15:28 -0400,,
 script que compile todo,2016-09-30 15:55:07 -0400,,
+método estático que retorne los tipos de correlacion,2016-10-01 16:54:55 -0400,,
+método estático que retorne los subtipos de correlación dado un tipo,2016-10-01 16:55:18 -0400,,
+método estático que retorne las correlaciones dado un subtipo,2016-10-01 16:55:54 -0400,,
+método estático que retorne las correlaciones dado un tipo,2016-10-01 16:56:23 -0400,,

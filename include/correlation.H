@@ -243,6 +243,21 @@ public:
     return ptr != nullptr ? ptr->second : nullptr;
   }
 
+  static DynList<const Correlation*> type_list()
+  {
+
+  }
+
+  static DynList<const Correlation*> subtype_list(const string & type_name)
+  {
+
+  }
+
+  static DynList<const Correlation*> list(const string & subtype_name)
+  {
+
+  }
+
 protected:
 
   Correlation(const string & type_name, const string & subtype_name,

@@ -37,7 +37,8 @@ BwSpiveyMN::impl(const Quantity<Celsius> & t,
   // Coeficientes para la densidad de la salmuera libre de gas a la
   // presion de referencia 70Mpa 
   const double d1 = -1.1149e-4*t100_2 + 1.7105e-4*t100 + -4.3766e-4;
-  const double d2 = -8.878e-4*t100_2 + -1.388e-4*t100 + -2.96318e-3;
+  const double d2 = (-8.878e-4*t100_2 + -1.388e-4*t100 + -2.96318e-3) /
+    (0.51103*t100 + 1);
   const double d3 = (2.1466e-3*t100_2 + 1.2427e-2*t100 + 4.2648e-2) /
     (-8.1009e-2*t100_2 + 0.525417*t100 + 1);
   const double d4 = 2.356e-4*t100_2 + -3.636e-4*t100 + -2.278e-4;
@@ -99,10 +100,11 @@ BwSpiveyMN::impl(const Quantity<Celsius> & t,
     // Coeficientes de compresibilidad de la salmuera libre de gas
   constexpr double estd = e;
 
-  const double & f1std = f1;
-  const double & f2std = f2;
-  const double & f3std = f3;
-        
+  const double f1std = (-0.617*tstd100_2 + -0.747*tstd100 + -0.4339) /
+    (10.26*tstd100 + 1);
+  const double f2std = (9.917*tstd100 + 5.1128) / (3.892*tstd100 + 1);
+  const double f3std = (0.0365*tstd100_2 + -0.0369*tstd100);
+
   const double ewstd = epwstd + estd*m;
   const double fwstd = fpwstd + f1std*m_3_2 + f2std*m + f3std * sqrtm;
         
@@ -183,6 +185,73 @@ BwSpiveyMN::impl(const Quantity<Celsius> & t,
             
   return Quantity<RB_STB>(bw);
 }
+
+inline Quantity<RB_STB>
+BwMcCain::impl(const Quantity<Fahrenheit> & t,
+	       const Quantity<psia> & p) const
+{
+  const double t2 = t.raw()*t.raw();
+  const double p2 = p.raw()*p.raw();
+
+  // Cambio de volumen por efecto de la temperatura
+  const double dvwt = -1.0001e-2 + 1.33391e-4*t.raw() + 5.50654e-7*t2;
+
+  // Cambio de volumen por efecto de la presión
+  const double dvwp = -1.95301e-9*p.raw()*t.raw() - 1.72834e-13*p2*t.raw() -
+    3.58922e-7*p.raw() - 2.25341e-10*p2;
+        
+  const double bw = (1 + dvwp) * (1 + dvwt);
+
+  return Quantity<RB_STB>(bw);
+}
+
+
+inline Quantity<RB_STB>
+BwMcCoy::impl(const Quantity<Fahrenheit> & t,
+	      const Quantity<psia> & p,
+	      const Quantity<psia> & pb,
+	      const Quantity<Disolved_Salt_Percent> & s,
+	      const Quantity<psia_1> & cw) const
+{
+  const double t2 = t.raw()*t.raw();
+  const double p2 = p.raw()*p.raw();
+  
+  const double a = 0.9911 + 6.35e-5*t.raw() + 8.5e-7*t2;
+  const double b = -1.093e-6 - 3.497e-9*t.raw() + 4.57e-12*t2;
+  const double c = -5e-11 + 6.429e-13*t.raw() - 1.43e-15*t2;
+
+  const double t60 = t.raw() - 60;
+  const double t60_2 = t60*t60;
+  double bw = 0;
+  if (p < pb) // agua saturada con gas
+    {
+      const double bpw = a + b*p.raw() + c*p2; // solubilidad del gas
+					       // en agua pura 
+
+      // correccion por salinidad
+      bw = bpw * (1 + (s.raw() * (5.1e-8*p.raw() +
+				  (5.47e-6 - 1.95e-10*p.raw())*t60 -
+				  (3.23e-8 - 8.5e-13*p.raw()*t60))));
+    }
+  else // agua subsaturada
+    {
+      const double pb2 = pb.raw()*pb.raw();
+      const double bpwb = a + b*pb.raw() + c*pb2; // solubilidad del
+						  // gas en agua pura
+						  // en el punto de
+						  // burbuja Pb 
+      const double bwb = bpwb *
+	(1 + (s.raw()*(5.1e-8*pb.raw() + (5.47e-6 - 1.95e-10*pb.raw())*t60) -
+	      (3.23e-8 - 8.5e-13*pb.raw()*t60_2)));
+
+
+      bw = bwb * exp(cw * (pb.raw() - p.raw()));
+    }
+
+  return Quantity<RB_STB>(bw);
+}
+
+
 
 
 

@@ -207,6 +207,8 @@ struct CorrelationInstantiater
     UwMcCoy::get_instance();
 
     BwSpiveyMN::get_instance();
+    BwMcCain::get_instance();
+    BwMcCoy::get_instance();
   }
 };
 

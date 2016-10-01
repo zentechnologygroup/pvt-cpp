@@ -31,3 +31,15 @@
 ## 10. script que compile todo
 - Created at   2016-09-30 15:55:07 -0400
 
+## 11. método estático que retorne los tipos de correlacion
+- Created at   2016-10-01 16:54:55 -0400
+
+## 12. método estático que retorne los subtipos de correlación dado un tipo
+- Created at   2016-10-01 16:55:18 -0400
+
+## 13. método estático que retorne las correlaciones dado un subtipo
+- Created at   2016-10-01 16:55:54 -0400
+
+## 14. método estático que retorne las correlaciones dado un tipo
+- Created at   2016-10-01 16:56:23 -0400
+

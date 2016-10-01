@@ -36,41 +36,11 @@ biblios.cc: ../include/refs.bib
 	$(RM) $*.cc; 	\	@@\
 	$(BIBLIO) -C -f ../include/refs.bib | clang-format -style=Mozilla > $@
 
-pvt.cc: $(CALLS) $(HCORR)							\
-	../include/units.H 							\
-	biblios.cc units-vars.cc correlations-vars.cc 				\
-	../include/pvt-correlations.H ../include/correlation.H 			\
-	../include/units.H ../include/pvt-units.H 				\
-	../include/solution-gas-oil-relation.H 					\
-	../include/solution-gas-oil-relation-impl.H 				\
-	../include/oil-formation-volume-factor.H 				\
-	../include/oil-formation-volume-factor-impl.H 				\
-	../include/oil-compressibility.H ../include/oil-compressibility-impl.H 	\
-	../include/oil-density.H ../include/oil-density-impl.H 			\
-	../include/dead-oil-viscosity.H ../include/dead-oil-viscosity-impl.H 	\
-	../include/saturated-oil-viscosity.H 					\
-	../include/saturated-oil-viscosity-impl.H 				\
-	../include/undersaturated-oil-viscosity.H 				\
-	../include/undersaturated-oil-viscosity-impl.H 				\
-	../include/bubble-point-pressure.H 					\
-	../include/bubble-point-pressure-impl.H 				\
-	../include/oil-interfacial-tension.H 					\
-	../include/oil-interfacial-tension-impl.H 				\
-	../include/pseudo-reduced-ratios.H 					\
-	../include/pseudo-reduced-ratios-impl.H 				\
-	../include/gas-pseudocritical-pressure.H 				\
-	../include/gas-pseudocritical-pressure-impl.H 				\
-	../include/gas-viscosity.H ../include/gas-viscosity.H 			\
-	../include/gas-compressibility.H ../include/gas-compressibility-impl.H 	\
-	../include/gas-pseudocritical-temp.H 					\
-	../include/gas-pseudocritical-temp-impl.H				\
-	../include/gas-isothermal-compressibility.H				\
-	../include/gas-isothermal-compressibility-impl.H			\
-	../include/gas-volume-factor.H						\
-	../include/gas-volume-factor-impl.H					\
-	../include/water-density.H						\
-	../include/water-density-impl.H						\
-	../include/water-viscosity-impl.H
+pvt.cc: $(CALLS) $(HCORR) 					\
+	../include/units.H 					\
+	biblios.cc units-vars.cc correlations-vars.cc 		\
+	../include/pvt-correlations.H ../include/correlation.H 	\
+	../include/units.H ../include/pvt-units.H
 	$(RM) -f $@;					\	@@\
 	cat biblio-vars.cc >> $@;			\	@@\
 	cat biblios.cc >> $@;				\	@@\
@@ -84,11 +54,11 @@ pvt.cc: $(CALLS) $(HCORR)							\
 pvt.o: pvt.cc
 
 clean::
-	$(RM) -f pvt.cc biblios.cc libpvt.so libpvt.a $(CALLS)
+	$(RM) -f pvt.cc biblios.cc libpvt.so libpvt.a 
 
 libpvt.so: pvt.cc
 	$(RM) -f $@;		\	@@\
-	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) -fpic pvt.cc -o aux.o;	\ 	@@\
+	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) -fpic pvt.cc -o aux.o;	\	@@\
 	gcc -shared -o libpvt.so aux.o; \	@@\
 	$(RM) -f aux.o
 
