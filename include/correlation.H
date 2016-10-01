@@ -243,19 +243,39 @@ public:
     return ptr != nullptr ? ptr->second : nullptr;
   }
 
-  static DynList<const Correlation*> type_list()
+  static DynList<string> type_list()
   {
+    DynSetTree<string> s;
+    for (auto it = tbl.get_it(); it.has_curr(); it.next())
+      s.insert(it.get_curr().second->type_name);
 
+    return s.keys();
   }
 
-  static DynList<const Correlation*> subtype_list(const string & type_name)
+  static DynList<string> subtype_list(const string & type_name)
   {
+    DynSetTree<string> s;
+    for (auto it = tbl.get_it(); it.has_curr(); it.next())
+      {
+	auto p = it.get_curr();
+	if (p.second->type_name == type_name)
+	  s.insert(p.second->subtype_name);
+      }
 
+    return s.keys();
   }
 
   static DynList<const Correlation*> list(const string & subtype_name)
   {
+    DynSetTree<const Correlation*> s;
+    for (auto it = tbl.get_it(); it.has_curr(); it.next())
+      {
+	auto p = it.get_curr();
+	if (p.second->subtype_name == subtype_name)
+	  s.insert(p.second);
+      }
 
+    return s.keys();
   }
 
 protected:
