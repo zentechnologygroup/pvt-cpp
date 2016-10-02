@@ -43,7 +43,12 @@ void MainWindow::build_corr_entries(const string &corr_name)
 {
   auto frame = ui->parameters_area;
 
-  pars_vals.for_each([] (auto ptr) { delete ptr; });
+  pars_vals.for_each([] (auto ptr)
+    {
+      ptr->setParent(nullptr);
+      delete ptr;
+    });
+
   pars_vals.empty();
   auto correlation = Correlation::search_by_name(corr_name);
   auto pars = correlation->get_preconditions();
