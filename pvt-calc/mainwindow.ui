@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>805</width>
-    <height>523</height>
+    <height>531</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,18 +30,18 @@
       <x>9</x>
       <y>10</y>
       <width>225</width>
-      <height>451</height>
+      <height>291</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="parameters_area_2">
+    <layout class="QVBoxLayout" name="parameters_area">
+     <item>
+      <widget class="QComboBox" name="corr_type_combo"/>
+     </item>
      <item>
       <widget class="QComboBox" name="corr_subtype_combo"/>
      </item>
      <item>
       <widget class="QComboBox" name="corr_combo"/>
-     </item>
-     <item>
-      <widget class="QComboBox" name="corr_type_combo"/>
      </item>
      <item>
       <spacer name="verticalSpacer_2">
@@ -56,84 +56,74 @@
        </property>
       </spacer>
      </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="exec_push_button">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>440</y>
+      <width>80</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>execute</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>310</y>
+      <width>223</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QScrollArea" name="parameters_area">
-       <property name="widgetResizable">
-        <bool>true</bool>
+      <widget class="QLabel" name="result">
+       <property name="text">
+        <string>Result = </string>
        </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>221</width>
-          <height>105</height>
-         </rect>
-        </property>
-       </widget>
       </widget>
      </item>
      <item>
-      <spacer name="verticalSpacer">
+      <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Vertical</enum>
+        <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>20</width>
-         <height>40</height>
+         <width>40</width>
+         <height>20</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QPushButton" name="pushButton">
-         <property name="text">
-          <string>execute</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="result">
-         <property name="text">
-          <string>Result</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QComboBox" name="result_unit_combo"/>
-       </item>
-      </layout>
+      <widget class="QComboBox" name="result_unit_combo"/>
      </item>
     </layout>
+   </widget>
+   <widget class="QLabel" name="status">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>345</y>
+      <width>221</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Status:</string>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

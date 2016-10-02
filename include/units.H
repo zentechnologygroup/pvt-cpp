@@ -31,7 +31,7 @@ class PhysicalQuantity : public UnitItem
   static UnitItemTable tbl;
 
   DynList<const Unit * const> unit_list;
-
+  
 protected:
 
   PhysicalQuantity(const string & name,
@@ -89,6 +89,7 @@ public:
     void operator = (const __name&) = delete;			\
   };
 
+
 /** Unit base class
 
  */
@@ -105,6 +106,8 @@ class Unit : public UnitItem
     s << "epsilon ratio " << ratio << " is not inside (0, " << ratio << ")";
     throw domain_error(s.str());
   }
+
+  static const Unit null_unit;
 
 public:
 
@@ -168,9 +171,12 @@ public:
   static DynList<const Unit* const> units() { return unit_tbl.keys(); }
 
   /// return all the units associated to this (including this)
-  const DynList<const Unit* const> & sibling_units() const
+  const DynList<const Unit* const> sibling_units() const
   {
-    return physical_quantity.units();
+    return physical_quantity.units().filter([this] (auto ptru)
+					    {
+					      return ptru != this;
+					    });
   }
 
   /** Search the unit associated to a name
@@ -212,7 +218,7 @@ protected:
     : UnitItem(name, symbol, desc), physical_quantity(phy_q),
       min_val(min), max_val(max)
   {
-    if (min_val >= max_val)
+    if (min_val > max_val)
       {
 	ostringstream s;
 	s << "Unit constructor: minimum value " << min_val
@@ -226,6 +232,8 @@ protected:
     unit_tbl.insert(this);
     const_cast<PhysicalQuantity&>(physical_quantity).unit_list.append(this);
   }
+
+  double default_value() const noexcept { return (min_val + max_val)/2; }
 };
 
 using Unit_Convert_Fct_Ptr = double (*)(double);
@@ -471,7 +479,6 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
   extern UnitConverter<__name, __name> __uc__##__name##__to__##__name;	\
   template <> inline double unit_convert<__name, __name>(double val)	\
   { return val; }
-
 
 # define Declare_Conversion(Unit1, Unit2, val)		    \
   extern UnitConverter<Unit1, Unit2> __uc__##Unit1##__to__##Unit2;	\

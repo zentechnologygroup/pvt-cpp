@@ -11,7 +11,7 @@ void MainWindow::set_substype_combo(const string &type_name)
 
   ui->corr_subtype_combo->clear();
   for (auto it = subtypes.get_it(); it.has_curr(); it.next())
-    ui->corr_subtype_combo->addItem(QString::fromStdString(it.get_curr()));
+    ui->corr_subtype_combo->addItem(it.get_curr().c_str());
 
   auto first = subtypes.get_first();
   set_corr_combo(first);
@@ -23,41 +23,95 @@ void MainWindow::set_corr_combo(const string &subtype_name)
 
   ui->corr_combo->clear();
   for (auto it = correlations.get_it(); it.has_curr(); it.next())
-    {
-      auto ptr = it.get_curr();
-      ui->corr_combo->addItem(QString::fromStdString(ptr->name));
-    }
+    ui->corr_combo->addItem(it.get_curr()->name.c_str());
 
   auto correlation = correlations.get_first();
   auto text = correlation->full_desc(40);
   set_tech_note(text);
   build_corr_entries(correlation->name);
+  computed = false;
 }
 
 void MainWindow::set_tech_note(const string &note)
 {
-  ui->tech_note->setText(QString::fromStdString(note));
+  ui->tech_note->setText(note.c_str());
 }
 
 void MainWindow::build_corr_entries(const string &corr_name)
 {
   auto frame = ui->parameters_area;
 
-  pars_vals.for_each([] (auto ptr)
+  for (auto it = pars_vals.get_it(); it.has_curr(); it.next())
     {
-      ptr->setParent(nullptr);
-      delete ptr;
-    });
+      auto t = it.get_curr();
+      auto lyt = get<0>(t);
+      auto name = get<1>(t);
+      auto spin_box = get<2>(t);
+      auto units_combo = get<3>(t);
+
+      units_combo->setParent(nullptr);
+      spin_box->setParent(nullptr);
+      units_combo->setParent(nullptr);
+
+      delete units_combo;
+      delete spin_box;
+      delete name;
+      delete lyt;
+    }
 
   pars_vals.empty();
   auto correlation = Correlation::search_by_name(corr_name);
   auto pars = correlation->get_preconditions();
+
+
   for (auto it = pars.get_it(); it.has_curr(); it.next())
     {
-      const auto & par = it.get_curr();
-      QLineEdit * edt = new QLineEdit(this);
-      pars_vals.append(edt);
+      const CorrelationPar & par = it.get_curr();
+      auto par_name = QString::fromStdString(par.name);
+
+      QHBoxLayout * lyt = new QHBoxLayout;
+
+      QLabel * name = new QLabel(par_name + " = ", this);
+
+      QDoubleSpinBox * spin_box = new QDoubleSpinBox(this);
+      spin_box->setDecimals(10);
+      spin_box->setMinimum(par.min_val.raw());
+      spin_box->setMaximum(par.max_val.raw());
+
+      QComboBox * units_combo = new QComboBox(this);
+      units_combo->addItem(par.min_val.unit.symbol.c_str());
+      par.unit.sibling_units().for_each([units_combo] (auto ptr)
+      {
+        units_combo->addItem(ptr->symbol.c_str());
+      });
+
+      lyt->addWidget(name);
+      lyt->addWidget(spin_box);
+      lyt->addWidget(units_combo);
+      frame->addLayout(lyt);
+      pars_vals.append(make_tuple(lyt, name, spin_box, units_combo));
     }
+
+  auto result_combo = ui->result_unit_combo;
+  result_combo->clear();
+  result_combo->addItem(correlation->unit.symbol.c_str());
+  correlation->unit.sibling_units().for_each([result_combo] (auto ptr)
+  {
+    result_combo->addItem(ptr->symbol.c_str());
+  });
+
+  reset_status();
+}
+
+void MainWindow::set_exception(const string &msg)
+{
+  const string str = "Status: " + msg;
+  ui->status->setText(str.c_str());
+}
+
+void MainWindow::reset_status()
+{
+  ui->status->setText("Status:");
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -68,7 +122,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   types = Correlation::type_list();
   for (auto it = types.get_it(); it.has_curr(); it.next())
-    ui->corr_type_combo->addItem(QString::fromStdString(it.get_curr()));
+    ui->corr_type_combo->addItem(it.get_curr().c_str());
 
   set_substype_combo(types.get_first());
 }
@@ -95,5 +149,39 @@ void MainWindow::on_corr_combo_activated(const QString &arg1)
 {
   auto corr_name = arg1.toStdString();
   auto correlation = Correlation::search_by_name(corr_name);
+  build_corr_entries(corr_name);
   set_tech_note(correlation->full_desc());
+}
+
+void MainWindow::on_exec_push_button_clicked()
+{
+  auto corr_name = ui->corr_combo->currentText().toStdString();
+  auto correlation = Correlation::search_by_name(corr_name);
+
+  DynList<VtlQuantity> pars;
+  for (auto it = pars_vals.get_it(); it.has_curr(); it.next())
+    {
+      auto par = it.get_curr();
+      auto val = get<2>(par)->value();
+      auto symbol = get<3>(par)->currentText().toStdString();
+      VtlQuantity v = { val, symbol };
+      pars.append(v);
+    }
+
+  try
+  {
+    auto r = correlation->compute_and_check(pars);
+    result.first = r.raw();
+    result.second = &r.unit;
+    const string str = string("Result = ") + to_string(result.first);
+    ui->result->setText(str.c_str());
+    ui->result->show();
+    computed = true;
+    reset_status();
+  }
+  catch (exception & e)
+  {
+    set_exception(e.what());
+    computed = false;
+  }
 }
