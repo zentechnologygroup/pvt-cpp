@@ -17,7 +17,7 @@ class MainWindow : public QMainWindow
 {
   Q_OBJECT
 
-  using Par = tuple<QHBoxLayout*, QLabel*, QDoubleSpinBox*, QComboBox*>;
+  using Par = tuple<QHBoxLayout*, QLabel*, QDoubleSpinBox*, QComboBox*, string>;
 
   DynList<string> types;
   DynList<string> subtypes;
