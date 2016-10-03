@@ -63,6 +63,7 @@ void MainWindow::build_corr_entries(const string &corr_name)
   auto correlation = Correlation::search_by_name(corr_name);
   auto pars = correlation->get_preconditions();
 
+  size_t i = 0;
   for (auto it = pars.get_it(); it.has_curr(); it.next())
     {
       const CorrelationPar & par = it.get_curr();
@@ -97,7 +98,8 @@ void MainWindow::build_corr_entries(const string &corr_name)
       lyt->addWidget(spin_box);
       lyt->addWidget(units_combo);
       frame->addLayout(lyt);
-      pars_vals.append(make_tuple(lyt, name, spin_box, units_combo, unit_symbol));
+      pars_vals.append(make_tuple(lyt, name, spin_box, units_combo,
+                                  unit_symbol, i));
     }
 
   auto result_combo = ui->result_unit_combo;
@@ -263,9 +265,16 @@ void MainWindow::par_unit_changed(const QString &arg1)
   double new_val = conversion_fct(old_val);
   double new_max = conversion_fct(old_max);
 
+  double step_size = (new_max - new_min)/20;
   spin_box->setMinimum(new_min);
   spin_box->setValue(new_val);
-  spin_box->setMaximum(new_max);
+  spin_box->setMaximum(new_max);  
+
+  cout << "max = " << new_max << endl
+       << "min = " << new_min << endl
+       << "step = " << step_size << endl;
+
+  spin_box->setSingleStep(step_size);
 
   get<4>(*ptr) = new_unit_symbol;
 }
