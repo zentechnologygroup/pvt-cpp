@@ -173,6 +173,10 @@ void MainWindow::on_exec_push_button_clicked()
     auto r = correlation->compute_and_check(pars);
     result.first = r.raw();
     result.second = &r.unit;
+    auto combo_unit =
+      Unit::search_by_symbol(ui->corr_combo->currentText().toStdString());
+//    if (combo_unit != r.unit)
+//      result.fir
     const string str = string("Result = ") + to_string(result.first);
     ui->result->setText(str.c_str());
     ui->result->show();
