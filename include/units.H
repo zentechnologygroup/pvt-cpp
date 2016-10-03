@@ -372,7 +372,14 @@ inline bool exist_conversion(const string & src_symbol,
 			     const string & tgt_symbol)
 {
   const Unit * src_unit = Unit::search_by_symbol(src_symbol);
-  if (
+  if (src_unit == nullptr)
+    return false;
+
+  const Unit * tgt_unit = Unit::search_by_symbol(tgt_symbol);
+  if (tgt_unit == nullptr)
+    return false;
+  
+  return exist_conversion(*src_unit, *tgt_unit);
 }
 
 inline double unit_convert(const Unit & src_unit,

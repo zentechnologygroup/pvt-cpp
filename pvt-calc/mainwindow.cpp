@@ -222,6 +222,9 @@ void MainWindow::par_unit_changed(const QString &arg1)
 {
   cout << "Unit CHANGE" << endl;
   QObject * owner = sender();
+
+  auto i =
+      pars_vals.find_index([owner] (auto t) { return get<3>(t) == owner; });
   auto ptr =
       pars_vals.find_ptr([owner] (auto t) { return get<3>(t) == owner; });
   if (ptr == nullptr)
@@ -233,7 +236,7 @@ void MainWindow::par_unit_changed(const QString &arg1)
   QComboBox * unit_combo = get<3>(*ptr);
   auto unit_symbol = unit_combo->currentText().toStdString();
 
-  if (not )
+  if (not exist_conversion())
 
   QDoubleSpinBox * spin_box = get<2>(*ptr);
 
