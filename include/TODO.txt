@@ -12,3 +12,4 @@ método estático que retorne los tipos de correlacion,2016-10-01 16:54:55 -0400
 método estático que retorne los subtipos de correlación dado un tipo,2016-10-01 16:55:18 -0400,,
 método estático que retorne las correlaciones dado un subtipo,2016-10-01 16:55:54 -0400,,
 método estático que retorne las correlaciones dado un tipo,2016-10-01 16:56:23 -0400,,
+corregir psia_1: no debe estar asociada a unidad de presión,2016-10-02 21:35:35 -0400,,

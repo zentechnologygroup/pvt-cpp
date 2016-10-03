@@ -174,9 +174,9 @@ void MainWindow::on_exec_push_button_clicked()
     result.first = r.raw();
     result.second = &r.unit;
     auto combo_unit =
-      Unit::search_by_symbol(ui->corr_combo->currentText().toStdString());
-//    if (combo_unit != r.unit)
-//      result.fir
+      Unit::search_by_symbol(ui->result_unit_combo->currentText().toStdString());
+    if (combo_unit != result.second)
+      result.first = unit_convert(*result.second, result.first, *combo_unit);
     const string str = string("Result = ") + to_string(result.first);
     ui->result->setText(str.c_str());
     ui->result->show();

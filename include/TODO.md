@@ -43,3 +43,6 @@
 ## 14. método estático que retorne las correlaciones dado un tipo
 - Created at   2016-10-01 16:56:23 -0400
 
+## 15. corregir psia_1: no debe estar asociada a unidad de presión
+- Created at   2016-10-02 21:35:35 -0400
+
