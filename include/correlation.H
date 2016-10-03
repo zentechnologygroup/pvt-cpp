@@ -27,6 +27,11 @@ private:
 
 public:
 
+  double step_size(size_t n) const noexcept
+  {
+    return (max_val.raw() - min_val.raw()) / n;
+  }
+
   void set_active() noexcept { check_active = true; }
 
   void set_inactive() noexcept { check_active = false; }

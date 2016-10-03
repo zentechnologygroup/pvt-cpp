@@ -76,6 +76,10 @@ void MainWindow::build_corr_entries(const string &corr_name)
       spin_box->setDecimals(10);
       spin_box->setMinimum(par.min_val.raw());
       spin_box->setMaximum(par.max_val.raw());
+      spin_box->setSingleStep(par.step_size(20));
+
+      connect(spin_box, SIGNAL(valueChanged(double)),
+              this, SLOT(par_val_changed(double)));
 
       const string unit_symbol = par.unit.symbol;
 
@@ -134,50 +138,10 @@ void MainWindow::set_result_unit()
   show_result();
 }
 
-MainWindow::MainWindow(QWidget *parent) :
-  QMainWindow(parent),
-  ui(new Ui::MainWindow)
-{
-  ui->setupUi(this);
-
-  types = Correlation::type_list();
-  for (auto it = types.get_it(); it.has_curr(); it.next())
-    ui->corr_type_combo->addItem(it.get_curr().c_str());
-
-  set_substype_combo(types.get_first());
-}
-
-MainWindow::~MainWindow()
-{
-  delete ui;
-}
-
-
-void MainWindow::on_corr_type_combo_activated(const QString &arg1)
-{
-  auto type_name = arg1.toStdString();
-  set_substype_combo(type_name);
-}
-
-void MainWindow::on_corr_subtype_combo_activated(const QString &arg1)
-{
-  auto subtype_name = arg1.toStdString();
-  set_corr_combo(subtype_name);
-}
-
-void MainWindow::on_corr_combo_activated(const QString &arg1)
-{
-  auto corr_name = arg1.toStdString();
-  auto correlation = Correlation::search_by_name(corr_name);
-  build_corr_entries(corr_name);
-  set_tech_note(correlation->full_desc());
-}
-
-void MainWindow::on_exec_push_button_clicked()
+void MainWindow::compute()
 {
   auto corr_name = ui->corr_combo->currentText().toStdString();
   auto correlation = Correlation::search_by_name(corr_name);
-
   DynList<VtlQuantity> pars;
   for (auto it = pars_vals.get_it(); it.has_curr(); it.next())
     {
@@ -200,8 +164,52 @@ void MainWindow::on_exec_push_button_clicked()
   catch (exception & e)
   {
     set_exception(e.what());
-    computed = false;
+    computed = true;
   }
+}
+
+MainWindow::MainWindow(QWidget *parent) :
+  QMainWindow(parent),
+  ui(new Ui::MainWindow)
+{
+  ui->setupUi(this);
+
+  types = Correlation::type_list();
+  for (auto it = types.get_it(); it.has_curr(); it.next())
+    ui->corr_type_combo->addItem(it.get_curr().c_str());
+
+  set_substype_combo(types.get_first());
+}
+
+MainWindow::~MainWindow()
+{
+  delete ui;
+}
+
+void MainWindow::on_corr_type_combo_activated(const QString &arg1)
+{
+  auto type_name = arg1.toStdString();
+  set_substype_combo(type_name);
+}
+
+void MainWindow::on_corr_subtype_combo_activated(const QString &arg1)
+{
+  auto subtype_name = arg1.toStdString();
+  set_corr_combo(subtype_name);
+}
+
+void MainWindow::on_corr_combo_activated(const QString &arg1)
+{
+  auto corr_name = arg1.toStdString();
+  auto correlation = Correlation::search_by_name(corr_name);
+  build_corr_entries(corr_name);
+  set_tech_note(correlation->full_desc());  
+  ui->result->setText("Result = --");
+}
+
+void MainWindow::on_exec_push_button_clicked()
+{
+  compute();
 }
 
 void MainWindow::on_result_unit_combo_activated(const QString &arg1)
@@ -221,7 +229,6 @@ void MainWindow::on_result_unit_combo_activated(const QString &arg1)
 
 void MainWindow::par_unit_changed(const QString &arg1)
 {
-  cout << "Unit CHANGE" << endl;
   QObject * owner = sender();
 
   auto ptr =
@@ -236,7 +243,9 @@ void MainWindow::par_unit_changed(const QString &arg1)
   const auto old_unit_symbol = get<4>(*ptr);
   const auto new_unit_symbol = unit_combo->currentText().toStdString();
 
-  if (not exist_conversion(old_unit_symbol, new_unit_symbol))
+  auto conversion_fct =
+      search_conversion_fct(old_unit_symbol, new_unit_symbol);
+  if (conversion_fct == nullptr)
     {
       ostringstream s;
       s << "Not found unit conversion from " << old_unit_symbol << " to "
@@ -250,10 +259,29 @@ void MainWindow::par_unit_changed(const QString &arg1)
   double old_val = spin_box->value();
   double old_max = spin_box->maximum();
 
-  //spin_box->setMinimum();
+  double new_min = conversion_fct(old_min);
+  double new_val = conversion_fct(old_val);
+  double new_max = conversion_fct(old_max);
 
-  if (ptr)
-    cout << get<1>(*ptr)->text().toStdString() << endl;
-  else
-    cout << "Not Found" << endl;
+  spin_box->setMinimum(new_min);
+  spin_box->setValue(new_val);
+  spin_box->setMaximum(new_max);
+
+  get<4>(*ptr) = new_unit_symbol;
+}
+
+void MainWindow::par_val_changed(double val)
+{
+  QObject * owner = sender();
+
+  auto ptr =
+      pars_vals.find_ptr([owner] (auto t) { return get<2>(t) == owner; });
+  if (ptr == nullptr)
+    {
+      set_exception("Panic: widget not found");
+      return;
+    }
+
+  if (computed)
+    compute();
 }

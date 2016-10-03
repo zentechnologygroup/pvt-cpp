@@ -382,6 +382,20 @@ inline bool exist_conversion(const string & src_symbol,
   return exist_conversion(*src_unit, *tgt_unit);
 }
 
+inline Unit_Convert_Fct_Ptr search_conversion_fct(const string & src_symbol,
+						  const string & tgt_symbol)
+{
+  const Unit * src_unit = Unit::search_by_symbol(src_symbol);
+  if (src_unit == nullptr)
+    return nullptr;
+
+  const Unit * tgt_unit = Unit::search_by_symbol(tgt_symbol);
+  if (tgt_unit == nullptr)
+    return nullptr;
+
+  return search_conversion(*src_unit, *tgt_unit);
+}
+
 inline double unit_convert(const Unit & src_unit,
 			   double val,
 			   const Unit & tgt_unit)

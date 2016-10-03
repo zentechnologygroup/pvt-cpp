@@ -35,6 +35,7 @@ class MainWindow : public QMainWindow
   void reset_status();
   void show_result();
   void set_result_unit();
+  void compute();
 
 public:
   explicit MainWindow(QWidget *parent = 0);
@@ -53,6 +54,8 @@ private slots:
   void on_result_unit_combo_activated(const QString &arg1);
 
   void par_unit_changed(const QString &arg1);
+
+  void par_val_changed(double val);
 
 private:
   Ui::MainWindow *ui;
