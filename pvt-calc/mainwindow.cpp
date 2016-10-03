@@ -76,7 +76,7 @@ void MainWindow::build_corr_entries(const string &corr_name)
       QDoubleSpinBox * spin_box = new QDoubleSpinBox(this);
       spin_box->setDecimals(10);
       spin_box->setMinimum(par.min_val.raw());
-      spin_box->setMaximum(par.max_val.raw());
+      spin_box->setMaximum(par.max_val.raw());      
 
       QComboBox * units_combo = new QComboBox(this);
       units_combo->addItem(par.min_val.unit.symbol.c_str());
@@ -84,6 +84,9 @@ void MainWindow::build_corr_entries(const string &corr_name)
       {
         units_combo->addItem(ptr->symbol.c_str());
       });
+
+      connect(units_combo, SIGNAL(activated(QString)),
+              this, SLOT(par_unit_changed(QString)));
 
       lyt->addWidget(name);
       lyt->addWidget(spin_box);
@@ -112,6 +115,22 @@ void MainWindow::set_exception(const string &msg)
 void MainWindow::reset_status()
 {
   ui->status->setText("Status:");
+}
+
+void MainWindow::show_result()
+{
+  const string str = string("Result = ") + to_string(result.first);
+  ui->result->setText(str.c_str());
+  ui->result->show();
+}
+
+void MainWindow::set_result_unit()
+{
+  auto combo_unit =
+      Unit::search_by_symbol(ui->result_unit_combo->currentText().toStdString());
+  if (combo_unit != result.second)
+    result.first = unit_convert(*result.second, result.first, *combo_unit);
+  show_result();
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -173,13 +192,7 @@ void MainWindow::on_exec_push_button_clicked()
     auto r = correlation->compute_and_check(pars);
     result.first = r.raw();
     result.second = &r.unit;
-    auto combo_unit =
-      Unit::search_by_symbol(ui->result_unit_combo->currentText().toStdString());
-    if (combo_unit != result.second)
-      result.first = unit_convert(*result.second, result.first, *combo_unit);
-    const string str = string("Result = ") + to_string(result.first);
-    ui->result->setText(str.c_str());
-    ui->result->show();
+    set_result_unit();
     computed = true;
     reset_status();
   }
@@ -188,4 +201,50 @@ void MainWindow::on_exec_push_button_clicked()
     set_exception(e.what());
     computed = false;
   }
+}
+
+void MainWindow::on_result_unit_combo_activated(const QString &arg1)
+{
+  if (not computed)
+    return;
+
+  try
+  {
+    set_result_unit();
+  }
+  catch (exception & e)
+  {
+    set_exception(e.what());
+  }
+}
+
+void MainWindow::par_unit_changed(const QString &arg1)
+{
+  cout << "Unit CHANGE" << endl;
+  QObject * owner = sender();
+  auto ptr =
+      pars_vals.find_ptr([owner] (auto t) { return get<3>(t) == owner; });
+  if (ptr == nullptr)
+    {
+      set_exception("Warning: unit not found");
+      return;
+    }
+
+  QComboBox * unit_combo = get<3>(*ptr);
+  auto unit_symbol = unit_combo->currentText().toStdString();
+
+  if (not )
+
+  QDoubleSpinBox * spin_box = get<2>(*ptr);
+
+  double old_min = spin_box->minimum();
+  double old_val = spin_box->value();
+  double old_max = spin_box->maximum();
+
+  spin_box->setMinimum();
+
+  if (ptr)
+    cout << get<1>(*ptr)->text().toStdString() << endl;
+  else
+    cout << "Not Found" << endl;
 }

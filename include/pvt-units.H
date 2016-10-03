@@ -4,6 +4,9 @@
 
 # include <temperature-unit.H>
 # include <pressure-unit.H>
+# include <compressibility-unit.H>
+# include <pseudo-reduced-pressure-unit.H>
+# include <pseudo-reduced-temp-unit.H>
 # include <density-unit.H>
 # include <crude-oil-specific-gravity-unit.H>
 # include <water-specific-gravity-unit.H>

@@ -1,5 +1,4 @@
 
-
 # ifndef PRESSURE_UNIT_H
 # define PRESSURE_UNIT_H
 
@@ -36,8 +35,6 @@ Declare_Unit(psia, "psia",
 	            at sea level is around 14.7 psi)DESC", Pressure,
 	     0, 29985.3);
 
-Declare_Unit(psia_1, "psia^-1", "Inverse of psia", Pressure, 1e-6, 1e7);
-
 Declare_Unit(psig, "psig",
 	     R"DESC(Pound-force per square inch is a unit of pressure or of
                     stress based on avoirdupois units. It is the pressure
@@ -51,8 +48,6 @@ Declare_Unit(Atmosphere, "atm",
                     resulting from a force of one pound-force applied to 
                     an area of one square inch)DESC", Pressure, 0, 2041.39);
 
-Declare_Unit(PseudoReducedPressure, "Ppr", "Ratio between two pressures",
-	     Pressure, 1e-6, 1e6);
 
 // pressure conversions
 

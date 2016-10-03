@@ -368,11 +368,25 @@ inline bool exist_conversion(const Unit & src, const Unit & tgt)
   return search_conversion(src, tgt) != nullptr;
 }
 
+inline bool exist_conversion(const string & src_symbol,
+			     const string & tgt_symbol)
+{
+  const Unit * src_unit = Unit::search_by_symbol(src_symbol);
+  if (
+}
+
 inline double unit_convert(const Unit & src_unit,
 			   double val,
 			   const Unit & tgt_unit)
 {
   auto fct = search_conversion(src_unit, tgt_unit);
+  if (fct == nullptr)
+    {
+      ostringstream s;
+      s << "Conversion from unit name " << src_unit.name << " to unit name "
+	<< tgt_unit.name << " has not been registered";
+      throw domain_error(s.str());
+    }
   return (*fct)(val);
 }
 

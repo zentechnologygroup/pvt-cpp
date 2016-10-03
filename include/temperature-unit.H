@@ -19,9 +19,6 @@ Declare_Unit(Fahrenheit, "degF",
 Declare_Unit(Rankine, "degR", "Absolute scale of temperature", Temperature,
 	     0, 1209.67);
 
-Declare_Unit(PseudoReducedTemperature, "Tpr", "Ratio between two temperatures",
-	     Temperature, 1e-6, 1e6);
-
 // To Fahrenheit 
 Declare_Conversion(Kelvin, Fahrenheit, t) { return 1.8 * t - 459.67; }
 Declare_Conversion(Celsius, Fahrenheit, t) { return 1.8 * t + 32; }

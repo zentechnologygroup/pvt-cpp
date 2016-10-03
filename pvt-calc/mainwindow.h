@@ -33,6 +33,8 @@ class MainWindow : public QMainWindow
   void build_corr_entries(const string & corr_name);
   void set_exception(const string & msg);
   void reset_status();
+  void show_result();
+  void set_result_unit();
 
 public:
   explicit MainWindow(QWidget *parent = 0);
@@ -47,6 +49,10 @@ private slots:
   void on_corr_combo_activated(const QString &arg1);
 
   void on_exec_push_button_clicked();
+
+  void on_result_unit_combo_activated(const QString &arg1);
+
+  void par_unit_changed(const QString &arg1);
 
 private:
   Ui::MainWindow *ui;
