@@ -63,7 +63,6 @@ void MainWindow::build_corr_entries(const string &corr_name)
   auto correlation = Correlation::search_by_name(corr_name);
   auto pars = correlation->get_preconditions();
 
-
   for (auto it = pars.get_it(); it.has_curr(); it.next())
     {
       const CorrelationPar & par = it.get_curr();
@@ -76,10 +75,12 @@ void MainWindow::build_corr_entries(const string &corr_name)
       QDoubleSpinBox * spin_box = new QDoubleSpinBox(this);
       spin_box->setDecimals(10);
       spin_box->setMinimum(par.min_val.raw());
-      spin_box->setMaximum(par.max_val.raw());      
+      spin_box->setMaximum(par.max_val.raw());
+
+      const string unit_symbol = par.unit.symbol;
 
       QComboBox * units_combo = new QComboBox(this);
-      units_combo->addItem(par.min_val.unit.symbol.c_str());
+      units_combo->addItem(unit_symbol.c_str());
       par.unit.sibling_units().for_each([units_combo] (auto ptr)
       {
         units_combo->addItem(ptr->symbol.c_str());
@@ -92,7 +93,7 @@ void MainWindow::build_corr_entries(const string &corr_name)
       lyt->addWidget(spin_box);
       lyt->addWidget(units_combo);
       frame->addLayout(lyt);
-      pars_vals.append(make_tuple(lyt, name, spin_box, units_combo));
+      pars_vals.append(make_tuple(lyt, name, spin_box, units_combo, unit_symbol));
     }
 
   auto result_combo = ui->result_unit_combo;
@@ -222,6 +223,7 @@ void MainWindow::par_unit_changed(const QString &arg1)
 {
   cout << "Unit CHANGE" << endl;
   QObject * owner = sender();
+
   auto ptr =
       pars_vals.find_ptr([owner] (auto t) { return get<3>(t) == owner; });
   if (ptr == nullptr)
@@ -231,9 +233,16 @@ void MainWindow::par_unit_changed(const QString &arg1)
     }
 
   QComboBox * unit_combo = get<3>(*ptr);
-  auto unit_symbol = unit_combo->currentText().toStdString();
+  const auto old_unit_symbol = get<4>(*ptr);
+  const auto new_unit_symbol = unit_combo->currentText().toStdString();
 
-  if (not )
+  if (not exist_conversion(old_unit_symbol, new_unit_symbol))
+    {
+      ostringstream s;
+      s << "Not found unit conversion from " << old_unit_symbol << " to "
+        << new_unit_symbol;
+      throw domain_error(s.str());
+    }
 
   QDoubleSpinBox * spin_box = get<2>(*ptr);
 
@@ -241,7 +250,7 @@ void MainWindow::par_unit_changed(const QString &arg1)
   double old_val = spin_box->value();
   double old_max = spin_box->maximum();
 
-  spin_box->setMinimum();
+  //spin_box->setMinimum();
 
   if (ptr)
     cout << get<1>(*ptr)->text().toStdString() << endl;
