@@ -23,6 +23,7 @@
 # include <water-density.H>
 # include <water-volume-factor.H>
 # include <water-interfacial-tension.H>
+# include <water-isothermal-compressibility.H>
 
 # include <bubble-point-pressure-impl.H>
 # include <solution-gas-oil-relation-impl.H>
@@ -46,6 +47,7 @@
 # include <water-viscosity-impl.H>
 # include <water-volume-factor-impl.H>
 # include <water-interfacial-tension-impl.H>
+# include <water-isothermal-compressibility-impl.H>
 
 struct CorrelationInstantiater
 {
@@ -213,6 +215,8 @@ struct CorrelationInstantiater
     BwMcCoy::get_instance();
 
     SgwJenningsNewman::get_instance();
+
+    CwSpiveyMN::get_instance();
   }
 };
 
