@@ -9,6 +9,7 @@ add_parameter("yo", "Sg_do", "Quantity<Api>(63.7)", "Quantity<Api>(6)")
 add_parameter("t", "Fahrenheit", 74, 341.6)
 add_parameter("rsb", "SCF_STB", 6, 3298.6)
 add_db("Based on a total of 1709 data sets (1661 data sets from 13 different published literature papers and 48 data sets originated from Kuwait reservoirs from unpublished sources).")
+add_author("Al Shammasi")
 end_correlation()
 
 ################################################################
@@ -24,6 +25,7 @@ add_parameter("t", "Rankine",
 add_parameter("rsb", "SCF_STB", 26, 1602)
 add_db("Based on 69 bottomhole fluid samples from 69 Middle East oil reservoirs.")
 add_ref("alMarhoun:1988")
+add_author("Al Marhoun")
 end_correlation()
 
 ################################################################
@@ -42,6 +44,7 @@ add_db("DE GHETTO CORRELATION FOR EXTRA-HEAVY (MODIFIED STANDING CORRELATION) AN
 add_db("Based on 1200 measured data points of 63 heavy and extra-heavy oil samples obtained from the Mediterranean Basin, Africa and the Persian Gulf.")
 add_db("Oil samples have been divided in two different API gravity classes: extra-heavy oils for API<=10, heavy oils for 10<API<=22.3.")
 add_note("De Ghetto uses Yg as the average specific gravity of total surface gases, while the original correlation (Standing) uses it as the gravity of dissolved gas. Since Standing doesn't specify if Yg is the gravity of total surface gases or of the separator, it is assumed that the data is from a one stage separation with average gas gravity.")
+add_author("De Ghetto et al.")
 end_correlation()
 
 ################################################################
@@ -54,6 +57,7 @@ add_parameter("p", "psia")
 add_parameter("api", "Api", 14.7, 40)
 add_parameter("t", "Fahrenheit", 117, 276)
 add_parameter("rsb", "SCF_STB", 133, 3050)
+add_author("Dindoruk & Christman")
 end_correlation()
 
 ################################################################
@@ -68,6 +72,7 @@ add_parameter("t", "Rankine",
               "Quantity<Fahrenheit>(190)", "Quantity<Fahrenheit>(275)")
 add_parameter("rsb", "SCF_STB", 181, 2266)
 add_db("Based on 51 bottomhole samples from UAE reservoirs.")
+add_author("Dokla & Osman")
 end_correlation()
 
 ################################################################
@@ -82,6 +87,7 @@ add_parameter("t", "Fahrenheit", 80, 280)
 add_parameter("rsb", "SCF_STB", 90, 2637)
 add_db("Based on 26 samples from the North Sea (collected from wells in the region 56 to 62°N) and 19 samples from the Middle East, Algeria, and several areas in the U.S. cg")
 add_ref("banzer:1996")
+add_author("Glaso")
 end_correlation()
 
 ################################################################
@@ -92,6 +98,7 @@ add_parameter("pb", "psia", 36, 5003)
 add_parameter("p", "psia")
 add_parameter("rsb", "SCF_STB", 97, 4272)
 add_db("Based on experimental PVT data of 324 fluid samples taken from 176 wells located in 75 fields. This data represents 15 productive zones of 123 reservoirs distributed along three different regions of Egypt, including the Gulf of Suez, Western Desert, and Sinai.")
+add_author("Hanafy")
 end_correlation()
 
 ################################################################
@@ -108,6 +115,7 @@ add_parameter("psep", "psia", 14.7, 1414.7);
 add_parameter("rsb", "SCF_STB", 0, 2890)
 add_db("Based on a set of 5392 data points, which represent 740 different crude oil samples.")
 add_db("The data bank was collected from PVT reports and literature. The first major source was from South East Asia, mainly Indonesia. The second source was North America, including the offshore area. The rest came from the Middle East and Latin America.")
+add_author("Kartoatmodjo & Schmidt")
 end_correlation()
 
 ################################################################
@@ -123,6 +131,7 @@ add_parameter("t", "Rankine",
 add_parameter("rsb", "SCF_STB", 3, 2905)
 add_db("Based on 158 experimentally measured bubble point pressures of 137 independent systems.")
 add_db("The data were obtained from Canada, Western and Mid-Continental United States, and South America.")
+add_author("Lasater")
 end_correlation()
 
 ################################################################
@@ -137,6 +146,7 @@ add_parameter("t", "Fahrenheit", 114, 288)
 add_parameter("rsb", "SCF_STB", 217, 1406)
 add_db("Based on 81 laboratory PVT analyses.")
 add_db("Fluid samples were obtained from reservoirs located offshore Texas and Louisiana. Producing areas from Galveston Island, eastward, through Main Pass are represented.")
+add_author("Petrosky & Farshad")
 end_correlation()
 
 
@@ -153,6 +163,7 @@ add_parameter("t", "Fahrenheit", 100, 258)
 add_parameter("rsb", "SCF_STB", 20, 1425)
 add_db("Based on 105 experimentally determined bubble point pressures from 22 different Californian crude-oil-natural-gas mixtures.")
 add_ref("banzer:1996")
+add_author("Standing")
 end_correlation()
 
 ################################################################        
@@ -169,6 +180,7 @@ add_parameter("t", "Fahrenheit")
 add_parameter("rsb", "SCF_STB")
 add_db("Based on 336 PVT analyses of crude oil from eastern Venezuela.")
 add_ref("banzer:1996")
+add_author("Total CFP")
 end_correlation()
 
 ################################################################
@@ -187,6 +199,7 @@ add_parameter("t", "Fahrenheit", 75, 294)
 add_parameter("tsep", "Fahrenheit", 76, 150)
 add_parameter("psep", "psia", 60, 595) 
 add_parameter("rsb", "SCF_STB", 0, 2199)
+add_author("Vasquez & Beggs")
 end_correlation()
 
 ################################################################<
@@ -201,6 +214,7 @@ add_parameter("p", "psig")
 add_parameter("api", "Api", 11.6, 53.4)
 add_parameter("t", "Fahrenheit", 70, 307)
 add_parameter("rsb", "SCF_STB", 102, 1808)
+add_author("Velarde")
 end_correlation()
 
 
@@ -216,6 +230,7 @@ add_parameter("p", "psia")
 add_parameter("api", "Api", 22, 41.9)
 add_parameter("t", "Fahrenheit", 117, 354)
 add_parameter("rsb", "SCF_STB", 135, 4290)
+add_author("Cegarra")
 end_correlation()
 
 ################################################################
@@ -229,6 +244,7 @@ add_parameter("p", "psia")
 add_parameter("api", "Api", 6.4, 12.9)
 add_parameter("t", "Fahrenheit", 112, 300)
 add_parameter("rsb", "SCF_STB", 38, 121)
+add_author("Pérez et al.")
 end_correlation()
 
 
@@ -257,6 +273,7 @@ add_parameter("p", "psia")
 add_parameter("api", "Api", 9, 20.2)
 add_parameter("t", "Fahrenheit", 87, 195)
 add_parameter("rsb", "SCF_STB", 53, 459)
+add_author("Millán Arcia")
 end_correlation()
 
 
@@ -272,4 +289,5 @@ add_parameter("p", "psia")
 add_parameter("api", "Api", 14, 40)
 add_parameter("t", "Fahrenheit", 165, 304)
 add_parameter("rsb", "SCF_STB", 180, 2500)
+add_author("Manucci Rosales")
 end_correlation()

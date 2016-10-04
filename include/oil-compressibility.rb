@@ -24,6 +24,7 @@ add_parameter("t", "Rankine",
               "Quantity<Fahrenheit>(78)", "Quantity<Fahrenheit>(330)")
 add_parameter("p", "psia", 500, 5300)
 add_parameter("pb", "psia", 763, 5300)
+add_author("McCain et al.")
 end_correlation()
 
 ################################################################        
@@ -55,6 +56,7 @@ add_parameter("tsep", "Fahrenheit", 59, 177.8)
 add_parameter("p", "psia", 1038.49, 7411.54)
 add_parameter("pb", "psia", 208.86, 4021.96)
 add_parameter("psep", "psia", 14.5, 752.2)
+add_author("De Ghetto")
 end_correlation()
 
 ################################################################        
@@ -81,6 +83,7 @@ add_parameter("rsb", "SCF_STB", 7, 4272)
 add_parameter("t", "Fahrenheit", 107, 327)
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 36, 5003)
+add_author("Hanafy")
 end_correlation()
 
 
@@ -112,6 +115,7 @@ add_parameter("tsep", "Fahrenheit", 38, 294)
 add_parameter("p", "psia", 24.7, 4764.7)
 add_parameter("pb", "psia", 24.7, 6014.7)
 add_parameter("psep", "psia", 14.7, 1414.7)
+add_author("Kartoatmodjo & Schmidt")
 end_correlation()
 
 ################################################################
@@ -141,6 +145,7 @@ add_parameter("rsb", "SCF_STB", 217, 1406)
 add_parameter("t", "Fahrenheit", 114, 288)
 add_parameter("p", "psia", 1700, 10692)
 add_parameter("pb", "psia", 1574, 6523)
+add_author("Petrosky & Farshad")
 end_correlation()
 
 ################################################################
@@ -169,6 +174,7 @@ add_parameter("tsep", "Fahrenheit", 76, 150)
 add_parameter("p", "psia", 141, 9515)
 add_parameter("pb", "psia")
 add_parameter("psep", "psia", 60, 565)
+add_author("Vasquez & Beggs")
 end_correlation()
 
 ################################################################
@@ -191,6 +197,7 @@ add_parameter("rsb", "SCF_STB", 38, 121)
 add_parameter("t", "Fahrenheit", 112, 300)
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 405, 1335)
+add_author("Pérez et al.")
 end_correlation()
 
 ################################################################
@@ -217,4 +224,5 @@ add_parameter("rsb", "SCF_STB", 53, 459)
 add_parameter("t", "Fahrenheit", 87, 195)
 add_parameter("p", "psia",)
 add_parameter("pb", "psia", 222.0, 3432.7)
+add_author("Millán Arcia")
 end_correlation()

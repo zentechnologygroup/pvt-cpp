@@ -8,6 +8,7 @@ add_title("BEGGS & ROBINSON CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY"
 add_db("Based on 2073 live oil observations. Beggs and Robinson developed correlations for dead and live oil viscosities with samples obtained from 600 oil systems.")
 add_parameter("uod", "CP")
 add_parameter("rs", "SCF_STB", 20, 2070)
+add_author("Beggs & Robinson")
 end_correlation()
 
 ################################################################        
@@ -20,6 +21,7 @@ add_ref("banzer:1996")
 add_note("Chew & Connally presented the graphical correlation and the general form of the equation. The values of A and b of the equation are presented by Bánzer (1996) and Ahmed (2010).")
 add_parameter("uod", "CP", 0.377, 100)
 add_parameter("rs", "SCF_STB", 0, 1600)
+add_author("Chew & Connally")
 end_correlation()
 
 ################################################################
@@ -34,6 +36,7 @@ add_parameter("yg", "Sgg", 0.752, 1.367)
 add_parameter("t", "Fahrenheit", 75, 240)
 add_parameter("p" , "psia", 75, 240)
 add_parameter("pb" , "psia", 107, 4315)
+add_author("Khan")
 end_correlation()
 
 ################################################################
@@ -47,6 +50,7 @@ add_db("The first major source was from South East Asia, mainly Indonesia. The s
 add_db("Depending on the API gravity, the samples can cover three different classes of crude oils: heavy oils for 10<°API<=22.3, medium oils for 22.3<°API<=31.1, and light oils for °API>31.1.")
 add_parameter("uod", "CP", 0.506, 682.0)
 add_parameter("rs", "SCF_STB", 0, 2890)
+add_author("Kartoatmodjo & Schmidt")
 end_correlation()
 
 ################################################################
@@ -59,6 +63,7 @@ add_db("Based on a set of 864 data points from 126 laboratory PVT analyses of Gu
 add_db("Fluid samples were obtained from reservoirs located offshore Texas and Louisiana. Producing areas from Galveston Island, eastward, through Main Pass are represented.")
 add_parameter("uod", "CP", 0.725, 11.69)
 add_parameter("rs", "SCF_STB", 21, 1885)
+add_author("Petrosky & Farshad")
 end_correlation()
 
 
@@ -69,6 +74,7 @@ begin_correlation("UobPerezML", "SaturatedOilViscosity", "CP")
 add_title("PÉREZ ET AL. CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
 add_parameter("uod", "CP")
 add_parameter("rs", "SCF_STB", 38, 121)
+add_author("Pérez et al.")
 end_correlation()
 
 
@@ -79,6 +85,7 @@ begin_correlation("UobGilFonseca", "SaturatedOilViscosity", "CP")
 add_title("GIL-FONSECA CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
 add_parameter("uod", "CP")
 add_parameter("rs", "SCF_STB", )
+add_author("Gil Fonseca")
 end_correlation()
 
 
@@ -92,6 +99,7 @@ add_db("Oil samples have been divided in two different API gravity classes: extr
 add_parameter("uod", "CP", 7.7, 1386.9)
 add_parameter("rs", "SCF_STB", 17.21, 640.25)
 add_parameter("api", "Api", 6, 22.3)
+add_author("De Ghetto et al.")
 end_correlation()
 
 ################################################################
@@ -101,4 +109,5 @@ add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF SATURATED OIL VISCOS
 add_db("Based on more than 90 PVT reports from the Gulf of Mexico.")
 add_parameter("uod", "CP", 0.896, 62.63)
 add_parameter("rs", "SCF_STB")
+add_author("Dindoruk & Christman")
 end_correlation()

@@ -5,6 +5,7 @@ add_parameter("ppr", "PseudoReducedPressure")
 add_parameter("ppc", "psia")
 add_parameter("z", "ZFactor")
 add_ref('sarem:1961')
+add_author("Sarem")
 end_correlation()
 
 ################################################################
@@ -14,6 +15,7 @@ add_parameter("__tpr", "PseudoReducedTemperature")
 add_parameter("__ppr", "PseudoReducedPressure")
 add_parameter("ppc", "psia")
 add_parameter("z", "ZFactor")
+add_author("Hall & Yarborough")
 end_correlation()
 
 ################################################################
@@ -23,6 +25,7 @@ add_parameter("__tpr", "PseudoReducedTemperature")
 add_parameter("__ppr", "PseudoReducedPressure")
 add_parameter("ppc", "psia")
 add_parameter("z", "ZFactor")
+add_author("Mattar et al.")
 end_correlation()
 
 ################################################################
@@ -32,6 +35,7 @@ add_parameter("__tpr", "PseudoReducedTemperature")
 add_parameter("__ppr", "PseudoReducedPressure")
 add_parameter("ppc", "psia")
 add_parameter("z", "ZFactor")
+add_author("Gopal")
 end_correlation()
 
 ################################################################
@@ -41,6 +45,7 @@ add_parameter("__tpr", "PseudoReducedTemperature")
 add_parameter("__ppr", "PseudoReducedPressure")
 add_parameter("ppc", "psia")
 add_parameter("z", "ZFactor")
+add_author("Brill & Beggs")
 end_correlation()
 
 ################################################################
@@ -50,5 +55,6 @@ add_parameter("__tpr", "PseudoReducedTemperature")
 add_parameter("__ppr", "PseudoReducedPressure")
 add_parameter("ppc", "psia")
 add_parameter("z", "ZFactor")
+add_author("Papay")
 end_correlation()
 

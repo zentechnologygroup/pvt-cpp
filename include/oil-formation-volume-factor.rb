@@ -16,7 +16,7 @@ add_parameter("t", "Rankine",
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 130, 3573)
 add_parameter("co", "psia_1")
-
+add_author("Al Marhoun")
 end_correlation()
 
 ################################################################
@@ -36,7 +36,7 @@ add_parameter("t", "Fahrenheit", 74, 341.6)
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 31.7, 7127)
 add_parameter("co", "psia_1")
-
+add_author("Al Shammasi")
 end_correlation()
 
 ###############################################################
@@ -57,7 +57,7 @@ add_parameter("p", "psia", 1038.49, 7411.54)
 add_parameter("pb", "psia", 208.86, 4021.96)
 add_parameter("psep", "psia", 14.5, 752.2)
 add_parameter("co", "psia_1", 1.057, 1.362)
-
+add_author("De Guetto et al.")
 end_correlation()
 
 
@@ -76,7 +76,7 @@ add_parameter("tsep", "Fahrenheit")
 add_parameter("p", "psia")
 add_parameter("pb", "psia")
 add_parameter("co", "psia_1")
-
+add_author("Dindoruk & Christman")
 end_correlation()
 
 ################################################################
@@ -96,7 +96,7 @@ add_parameter("t", "Rankine",
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 590, 4640)
 add_parameter("co", "psia_1")
-
+add_author("Dokla & Osman")
 end_correlation()
 
 
@@ -116,7 +116,7 @@ add_parameter("t", "Fahrenheit", 80, 280)
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 150, 7127)
 add_parameter("co", "psia_1")
-
+add_author("Glaso")
 end_correlation()
 
 
@@ -132,7 +132,7 @@ add_parameter("rsb", "SCF_STB")
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 36, 5003)
 add_parameter("co", "psia_1", 1.032e-6, 4.35e-6)
-
+add_author("Hanafy")
 end_correlation()
 
 ################################################################
@@ -153,7 +153,7 @@ add_parameter("p", "psia")
 add_parameter("pb", "psia", 14.7, 6054.7)
 add_parameter("psep", "psia", 14.7, 1414.7)
 add_parameter("co", "psia_1")
-
+add_author("Kartoatmodjo & Schmidt")
 end_correlation()
 
 ################################################################
@@ -171,7 +171,7 @@ add_parameter("t", "Fahrenheit", 82, 272)
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 48, 5780)
 add_parameter("co", "psia_1")
-
+add_author("Lasater")
 end_correlation()
 
 ################################################################
@@ -191,7 +191,7 @@ add_parameter("t", "Fahrenheit", 114, 288)
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 1574, 6523)
 add_parameter("co", "psia_1")
-
+add_author("Petrosky & Farshad")
 end_correlation()
 
 
@@ -210,7 +210,7 @@ add_parameter("t", "Fahrenheit", 100, 258)
 add_parameter("p", "psia")
 add_parameter("pb", "psia")
 add_parameter("co", "psia_1")
-
+add_author("Standing")
 end_correlation()
 
 
@@ -228,7 +228,7 @@ add_parameter("t", "Fahrenheit")
 add_parameter("p", "psia")
 add_parameter("pb", "psia")
 add_parameter("co", "psia_1")
-
+add_author("Total CFP")
 end_correlation()
 
 
@@ -249,7 +249,7 @@ add_parameter("p", "psia")
 add_parameter("pb", "psia")
 add_parameter("psep", "psia", 60, 565)
 add_parameter("co", "psia_1")
-
+add_author("Vasquez & Beggs")
 end_correlation()
 
 ################################################################
@@ -269,7 +269,7 @@ add_parameter("t", "Fahrenheit", 117, 354)
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 735, 7303)
 add_parameter("co", "psia_1")
-
+add_author("Cegarra")
 end_correlation()
 
 ################################################################
@@ -286,6 +286,7 @@ add_parameter("t", "Fahrenheit", 112, 300)
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 405, 1335)
 add_parameter("co", "psia_1")
+add_author("Pérez et al.")
 end_correlation()
 
 ################################################################
@@ -303,6 +304,7 @@ add_parameter("t", "Fahrenheit", 70, 307)
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 106, 5312)
 add_parameter("co", "psia_1")
+add_author("Velarde et al.")
 end_correlation()
 
 ################################################################
@@ -320,7 +322,7 @@ add_parameter("t", "Fahrenheit", 87, 195)
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 222.0, 3432.7)
 add_parameter("co", "psia_1")
-
+add_author("Millán Arcia")
 end_correlation()
 
 
@@ -339,5 +341,5 @@ add_parameter("t", "Fahrenheit", 165, 304)
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 1230, 5035)
 add_parameter("co", "psia_1")
-
+add_author("Manucci Rosales")
 end_correlation()

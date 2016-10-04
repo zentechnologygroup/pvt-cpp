@@ -16,6 +16,7 @@ add_parameter("yo", "Sg_do")
 add_parameter("p", "psia")
 add_parameter("pb", "psia")
 add_parameter("co", "psia_1")
+add_author("Bradley")
 end_correlation()
 
 ################################################################        

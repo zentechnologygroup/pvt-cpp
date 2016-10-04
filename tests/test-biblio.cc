@@ -1,6 +1,6 @@
 
 # include <iostream>
-# include <biblios.H>
+# include <biblio.H>
 
 using namespace std;
 

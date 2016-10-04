@@ -5,6 +5,7 @@ add_parameter("t", "Celsius",
 add_parameter("pr", "Pascal", "Quantity<psia>(14.5)", "Quantity<psia>(29000)")
 add_parameter("s", "Disolved_Salt_PPM", "Quantity<Disolved_Salt_Percent>(0)",
               "Quantity<Disolved_Salt_Percent>(26)")
+add_author("Spivey et al.")
 end_correlation()
 
 ################################################################
@@ -15,6 +16,7 @@ add_parameter("t", "Celsius",
 add_parameter("pr", "Pascal", "Quantity<psia>(14.5)", "Quantity<psia>(29000)")
 add_parameter("s", "Disolved_Salt_PPM", "Quantity<Disolved_Salt_Percent>(0)",
               "Quantity<Disolved_Salt_Percent>(26)")
+add_author("Spivey et al. (free Gas)")
 end_correlation()
 
 ################################################################
@@ -23,4 +25,5 @@ begin_correlation("PwMcCain", "WaterDensity", "Lb_ft3")
 add_parameter("s", "Disolved_Salt_PPM", "Quantity<Disolved_Salt_Percent>(0)",
               "Quantity<Disolved_Salt_Percent>(26)")
 add_parameter("bw", "RB_STB")
+add_author("McCain")
 end_correlation()

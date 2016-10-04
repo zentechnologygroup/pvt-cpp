@@ -10,6 +10,7 @@ add_db("Depending on the API gravity, the samples can cover three different clas
 add_parameter("uob", "CP", 0.168, 184.86)
 add_parameter("pb", "psia", 24.7, 4764.7)
 add_parameter("p", "psia", 24.7, 6014.7)
+add_author("Kartoatmodjo & Schmidt")
 end_correlation()
 
 ################################################################        
@@ -25,6 +26,7 @@ add_parameter("p", "psia", 1038.49, 7411.54)
 add_parameter("pb", "psia", 1038.49, 7411.54)
 add_parameter("uod", "CP", 7.7, 1386.9)
 add_parameter("api", "Api", 6, 22.3)
+add_author("De Ghetto et al.")
 end_correlation()
 
 ################################################################
@@ -39,6 +41,7 @@ add_note("Beal developed the graphical correlation and Standing presented the eq
 add_parameter("uob", "CP", 0.142, 127)
 add_parameter("p", "psia", 1500, 5500)
 add_parameter("pb", "psia", 125, 4120)
+add_author("Beal")
 end_correlation()
 
 ################################################################
@@ -51,6 +54,7 @@ add_note("The development ranges are presented by Bánzer, who does not specify 
 add_parameter("uob", "CP", 0.117, 148)
 add_parameter("p", "psia", 141, 9515)
 add_parameter("pb", "psia")
+add_author("Vasquez & Beggs")
 end_correlation()
 
 ################################################################
@@ -63,7 +67,7 @@ add_db("A total of 1503 data points were used for oil viscosity above the bubble
 add_parameter("uob", "CP", 0.13, 17.9)
 add_parameter("p", "psia", 4.7, 5015)
 add_parameter("pb", "psia", 4.7, 5015)
-
+add_author("Khan et al.")
 end_correlation()
 
 ################################################################
@@ -77,6 +81,7 @@ add_db("Fluid samples were obtained from reservoirs located offshore Texas and L
 add_parameter("uob", "CP", 0.211, 3.546)
 add_parameter("p", "psia", 1600, 10250)
 add_parameter("pb", "psia", 1574, 9552)
+add_author("Petrosky & Farshad")
 end_correlation()
 
 ################################################################
@@ -88,6 +93,7 @@ add_db("Based on PVT experimental data of five sample oils from Iranian oil rese
 add_parameter("uob", "CP")
 add_parameter("p", "psia", )
 add_parameter("pb", "psia", 1340, 4513)
+add_author("Abedini")
 end_correlation()
 
 ################################################################
@@ -97,6 +103,7 @@ add_title("PÉREZ ET AL. CORRELATION (MODIFIED LABEDI CORRELATION), CALCULATION 
 add_parameter("uob", "CP")
 add_parameter("p", "psia")
 add_parameter("pb", "psia", 405, 1335)
+add_author("Pérez et al.")
 end_correlation()
 
 ################################################################
@@ -108,4 +115,5 @@ add_parameter("uob", "CP", 0.161, 8.7)
 add_parameter("p", "psia", 202, 10140)
 add_parameter("pb", "psia", 926, 12230)
 add_parameter("rs", "SCF_STB")
+add_author("Dindoruk & Christman")
 end_correlation()

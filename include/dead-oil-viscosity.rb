@@ -10,6 +10,7 @@ add_eq("\\mu_{od}\\,=\\,{\\left[{0.32}+{\\frac{1.8\\cdot{10^{7}}}{{\\gamma_{API}
 add_eq("a\\,=\\,antilog{\\left({0.43}+{\\frac{8.33}{\\gamma_{API}}}\\right)}")
 add_parameter("api", "Api", 10.1, 52.5)
 add_parameter("t", "Fahrenheit", 100, 220)
+add_author("Beal")
 end_correlation()
 
 ################################################################
@@ -20,6 +21,7 @@ add_title("BEGGS & ROBINSON CORRELATION, CALCULATION OF DEAD OIL VISCOSITY")
 add_db("Based on 460 dead oil observations. Beggs and Robinson developed correlations for dead and live oil viscosities with samples obtained from 600 oil systems.")
 add_parameter("api", "Api", 16, 58)
 add_parameter("t", "Fahrenheit", 70, 295)
+add_author("Beggs & Robinson")
 end_correlation()
 
 ################################################################
@@ -30,6 +32,7 @@ add_title("EGBOGAH & NG CORRELATION (MODIFIED BEGGS & ROBINSON CORRELATION), CAL
 add_db("Based on viscosity data from the Reservoir Fluids Analysis Laboratory of AGAT Engineering Utd. The total number of oil systems used is 394.")
 add_parameter("api", "Api", 5, 58)
 add_parameter("t", "Fahrenheit", 15, 80)
+add_author("Egbogah")
 end_correlation()
 
 ################################################################
@@ -41,6 +44,7 @@ add_db("Based on 26 samples from the North Sea (collected from wells in the regi
 add_db("The relation between dead oil viscosity, API gravity, and temperature, was developed specifically for North Sea oils (for oils with a paraffinicity characterization factor of 11.9), which have a factor almost equal to California oils, as well as for oil samples from fields in various regions of the world.")
 add_parameter("api", "Api", 20, 48)
 add_parameter("t", "Fahrenheit", 50, 300)
+add_author("Glaso")
 end_correlation()
 
 ################################################################
@@ -52,6 +56,7 @@ add_db("Based on a total of 661 different crude oil samples. The data bank was c
 add_db("The first major source was from South East Asia, mainly Indonesia. The second source was North America, including the offshore area. The rest came from the Middle East and Latin America.")
 add_parameter("api", "Api",  14.4 , 59)
 add_parameter("t", "Fahrenheit", 80, 320)
+add_author("Kartoatmodjo & Schmidt")
 end_correlation()
 
 ################################################################
@@ -63,6 +68,7 @@ add_db("Data were divided into two major groups, depending on the API gravity. T
 add_note("Sattarin confirmed that the correlation has an error in the published article. In order to correct it, -5.9836 was replaced by -5.8936.")
 add_parameter("api", "Api", 17, 45)
 add_parameter("t", "Kelvin", "Quantity<Celsius>(9.85)", "Quantity<Celsius>(40)")
+add_author("Sattarin et al.")
 end_correlation()
 
 ################################################################
@@ -74,6 +80,7 @@ add_db("Based on PVT experimental data of 472 series of Iranian oil reservoirs. 
 add_db("Validity and accuracy of the proposed correlations (dead oil viscosity, saturated and undersaturated viscosity) have been checked by their application to 222 samples.")
 add_parameter("api", "Api", 17, 44)
 add_parameter("t", "Fahrenheit", 105, 295)
+add_author("Naseri")
 end_correlation()
 
 ################################################################
@@ -85,6 +92,7 @@ add_db("Based on a set of 118 data points from 126 laboratory PVT analyses of Gu
 add_db("Fluid samples were obtained from reservoirs located offshore Texas and Louisiana. Producing areas from Galveston Island, eastward, through Main Pass are represented.")
 add_parameter("api", "Api",  25.4, 46.1)
 add_parameter("t", "Fahrenheit", 114, 288)
+add_author("Petrosky & Farshad")
 end_correlation()
 
 ################################################################
@@ -96,6 +104,7 @@ add_db("Based on 1200 measured data points of 63 heavy and extra-heavy oil sampl
 add_db("Oil samples have been divided in two different API gravity classes: extra-heavy oils for °API<=10, heavy oils for 10<°API<=22.3.")
 add_parameter("api", "Api", 6, 22.3)
 add_parameter("t", "Fahrenheit", 131.4, 250.7)
+add_author("De Ghetto et al.")
 end_correlation()
 
 ################################################################
@@ -105,6 +114,7 @@ begin_correlation("UodPerezML", "DeadOilViscosity", "CP")
 add_title("PEREZ ET AL. CORRELATION (MODIFIED BEGGS & ROBINSON CORRELATION), CALCULATION OF DEAD OIL VISCOSITY")
 add_parameter("api", "Api", 6.4, 12.9)
 add_parameter("t", "Fahrenheit", 112, 300)
+add_author("Pérez et al.")
 end_correlation()
 
 ################################################################
@@ -116,5 +126,6 @@ add_parameter("t", "Fahrenheit", 121, 276)
 add_parameter("pb", "psia", 926, 12230)
 add_parameter("rsb", "SCF_STB", 133, 3050)
 add_db("Based on more than 90 PVT reports from the Gulf of Mexico.")
+add_author("Dindoruk & Christman")
 end_correlation()
 
