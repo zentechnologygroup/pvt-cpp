@@ -20,6 +20,7 @@ add_eq("{P_{scHC}}\\,=\\,{677}\\,+\\,{15\\cdot{\\gamma_{gHC}}}\\,-\\,{37.5\\cdot
 add_note("Brown et al. (1948) presented the graphical correlation. Standing (1977) expressed it in a mathematical form.")
 add_internal_note("The values of the development ranges are taken from the graphs presented by Standing (1977) and Ahmed (1989).")
 add_internal_note("Brown et al.'s reference is not available. The correlation was verified by using these references: Standing (1977), Ahmed (1989), and Bánzer (1996). Date: September 9 2016.")
+add_author("Standing")
 end_correlation()
 
 ################################################################
@@ -36,6 +37,7 @@ add_db("These 264 compositions were obtained from a data bank of 275 PVT reports
 add_note("The ranges for Yg, n2Concentration, and co2Concentration, are presented as the ranges of data covered by the total number of PVT reports. The range for Psc was taken from the graph of the variation of pseudocritical pressure with gas gravity, presented by Sutton.")
 add_note("Sutton's correlation was developed based on samples of gases with no hydrogen sulfide content.")
 add_note("Nonhydrocarbon adjustment methods are applied to calculated pseudo-critical properties of gases to account for the presence of nitrogen, carbon dioxide, and hydrogen sulfide.")
+add_author("Sutton")
 end_correlation()
 
 ################################################################
@@ -49,6 +51,7 @@ add_parameter("h2s_concentration", "MoleFraction",
 add_title("GUO & GHALAMBOR CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE NATURAL GAS HYDROCARBON PORTION")
 add_note("The book is available at: https://books.google.co.ve/books?id=KXmjAQAAQBAJ&pg=PA13&hl=es&source=gbs_toc_r&cad=4#v=onepage&q&f=false")
 set_hidden()
+add_author("Guo & Ghalambor")
 end_correlation()
 
 ################################################################
@@ -61,6 +64,7 @@ add_parameter("h2s_concentration", "MoleFraction")
 add_title("AHMED CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE NATURAL GAS MIXTURE")
 add_note("The correlation already has impurity corrections for mixture pseudocriticals.")
 set_hidden()
+add_author("Ahmed")
 end_correlation()
 
 ################################################################
@@ -91,6 +95,6 @@ add_parameter("yghc", "Sgg", 0.61, 1.89)
 add_title("ELSHARKAWY ET AL. CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE CONDENSATE GAS HYDROCARBON PORTION")
 add_db("Based on compositional analysis of 1200 compositions of gas condensates collected worldwide.")
 add_ref("elsharkawy:2000:1")
-add_author("Elsharkawy et al")
+add_author("Elsharkawy et al.")
 add_internal_note("The correlation was verified by using the original reference and a secondary one: Elsharkawy & Elkamel (2000). Date: September 22 2016.")
 end_correlation()

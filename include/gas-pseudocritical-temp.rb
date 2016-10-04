@@ -20,6 +20,7 @@ add_parameter('co2_concentration', 'MoleFraction',
               "Quantity<MolePercent>(0)", "Quantity<MolePercent>(2)")
 add_parameter('h2s_concentration', 'MoleFraction',
               "Quantity<MolePercent>(0)", "Quantity<MolePercent>(2)")
+add_author("Standing (natural gas systems)")
 end_correlation()
 
 ################################################################
@@ -44,6 +45,7 @@ add_parameter('co2_concentration', 'MoleFraction',
               "Quantity<MolePercent>(0)", "Quantity<MolePercent>(2)")
 add_parameter('h2s_concentration', 'MoleFraction',
               "Quantity<MolePercent>(0)", "Quantity<MolePercent>(2)")
+add_author("Standing (gas condensate systems)")
 end_correlation()
 
 ################################################################
@@ -63,6 +65,7 @@ add_parameter('co2_concentration', 'MoleFraction',
               "Quantity<MolePercent>(0.01)", "Quantity<MolePercent>(11.86)")
 add_parameter('h2s_concentration', 'MoleFraction',
               "Quantity<MolePercent>(0)", "Quantity<MolePercent>(0)")
+add_author("Sutton")
 end_correlation()
 
 ################################################################
@@ -78,5 +81,6 @@ add_parameter('n2_concentration', 'MoleFraction')
 add_parameter('co2_concentration', 'MoleFraction')
 add_parameter('h2s_concentration', 'MoleFraction')
 add_internal_note("The correlation was verified by using the original reference and a secondary one: Elsharkawy & Elkamel (2000). Date: September 22 2016.")
+add_author("Elsharkawy et al.")
 end_correlation()
 
