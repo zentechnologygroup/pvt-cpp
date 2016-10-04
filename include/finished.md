@@ -64,3 +64,9 @@
 - Comment      
 - Finished     
 
+## 12. corregir nombre carbons (debe ser carborn)
+- Created at   2016-09-16 11:46:16 -0400
+- Completed at 2016-10-04 09:41:44 -0400
+- Comment      
+- Finished     
+

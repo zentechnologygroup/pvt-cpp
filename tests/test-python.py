@@ -1804,3 +1804,11 @@ def BwMcCainCorrelation(T, P):
     Bw = (1 + dVwP) * (1 + dVwT)
     BwMcCain = Bw 
     return BwMcCain 
+
+def SgwJenningsNewmanCorrelation(T, P):
+    A = 79.1618 - (0.118978 * T)
+    B = -5.28473e-3 + (9.87913e-6 * T)
+    C = (2.33814 - (4.57194e-4 * T) - (7.52678e-6 * (T ** 2))) * 1e-7
+    sgw = A + (B * P) + (C * (P ** 2))
+    sgwJenningsNewman = sgw
+    return sgwJenningsNewman

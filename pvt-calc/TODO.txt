@@ -1,1 +1,2 @@
 definir el step_size como parámetro,2016-10-03 17:36:15 -0400,,
+eliminar el execute y dejar cálculo directo,2016-10-03 22:35:05 -0400,,

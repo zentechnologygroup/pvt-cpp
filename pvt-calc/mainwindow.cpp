@@ -26,10 +26,7 @@ void MainWindow::set_corr_combo(const string &subtype_name)
     ui->corr_combo->addItem(it.get_curr()->name.c_str());
 
   auto correlation = correlations.get_first();
-  auto text = correlation->full_desc(40);
-  set_tech_note(text);
-  build_corr_entries(correlation->name);
-  computed = false;
+  set_correlation(correlation);
 }
 
 void MainWindow::set_tech_note(const string &note)
@@ -37,8 +34,10 @@ void MainWindow::set_tech_note(const string &note)
   ui->tech_note->setText(note.c_str());
 }
 
-void MainWindow::build_corr_entries(const string &corr_name)
-{
+void MainWindow::set_correlation(const Correlation *correlation)
+{  
+  set_tech_note(correlation->full_desc());
+
   auto frame = ui->parameters_area;
 
   for (auto it = pars_vals.get_it(); it.has_curr(); it.next())
@@ -60,7 +59,6 @@ void MainWindow::build_corr_entries(const string &corr_name)
     }
 
   pars_vals.empty();
-  auto correlation = Correlation::search_by_name(corr_name);
   auto pars = correlation->get_preconditions();
 
   size_t i = 0;
@@ -110,13 +108,14 @@ void MainWindow::build_corr_entries(const string &corr_name)
     result_combo->addItem(ptr->symbol.c_str());
   });
 
-  reset_status();
+  compute();
 }
 
 void MainWindow::set_exception(const string &msg)
 {
   const string str = "Status: " + msg;
   ui->status->setText(str.c_str());
+  ui->result->setText("Result = exception!");
 }
 
 void MainWindow::reset_status()
@@ -163,13 +162,11 @@ void MainWindow::compute()
     result.first = r.raw();
     result.second = &r.unit;
     set_result_unit();
-    computed = true;
     reset_status();
   }
   catch (exception & e)
   {
     set_exception(e.what());
-    computed = true;
   }
 }
 
@@ -207,21 +204,11 @@ void MainWindow::on_corr_combo_activated(const QString &arg1)
 {
   auto corr_name = arg1.toStdString();
   auto correlation = Correlation::search_by_name(corr_name);
-  build_corr_entries(corr_name);
-  set_tech_note(correlation->full_desc());  
-  ui->result->setText("Result = --");
-}
-
-void MainWindow::on_exec_push_button_clicked()
-{
-  compute();
+  set_correlation(correlation);
 }
 
 void MainWindow::on_result_unit_combo_activated(const QString &arg1)
 {
-  if (not computed)
-    return;
-
   try
   {
     set_result_unit();
@@ -264,9 +251,6 @@ void MainWindow::par_unit_changed(const QString &arg1)
   double old_val = spin_box->value();
   double old_max = spin_box->maximum();
 
-  cout << "smax = " << spin_box->minimum() << endl
-       << "smin = " << spin_box->maximum() << endl;
-
   double new_min = conversion_fct(old_min);
   double new_val = conversion_fct(old_val);
   double new_max = conversion_fct(old_max);
@@ -277,12 +261,6 @@ void MainWindow::par_unit_changed(const QString &arg1)
   spin_box->setSingleStep(step_size);
   spin_box->setRange(new_min, new_max);  
   spin_box->setValue(new_val);
-
-  cout << "max = " << new_max << endl
-       << "min = " << new_min << endl
-       << "step = " << step_size << endl
-       << "smax = " << spin_box->minimum() << endl
-       << "smin = " << spin_box->maximum() << endl;
 
   get<4>(*ptr) = new_unit_symbol;
 }
@@ -299,6 +277,5 @@ void MainWindow::par_val_changed(double val)
       return;
     }
 
-  if (computed)
-    compute();
+  compute();
 }

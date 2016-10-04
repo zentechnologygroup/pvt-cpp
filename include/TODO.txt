@@ -1,5 +1,4 @@
 preguntar iteración BoVelardeMcCain,2016-09-01 08:33:30 -0400,2016-09-08 11:09:52 -0400,
-corregir nombre carbons (debe ser carborn),2016-09-16 11:46:16 -0400,2016-09-25 10:00:06 -0400,
 nueva flag en gen-corr para generar llamadas externas,2016-09-26 19:34:30 -0400,,
 tabla de correlaciones y protocolo de llamada con manejo de errores,2016-09-27 11:02:41 -0400,,
 en compute de correlation poner un doble itrdor en lugar del zip,2016-09-27 16:16:49 -0400,,
@@ -13,3 +12,4 @@ método estático que retorne los subtipos de correlación dado un tipo,2016-10-
 método estático que retorne las correlaciones dado un subtipo,2016-10-01 16:55:54 -0400,,
 método estático que retorne las correlaciones dado un tipo,2016-10-01 16:56:23 -0400,,
 corregir psia_1: no debe estar asociada a unidad de presión,2016-10-02 21:35:35 -0400,,
+añadir en add_parameter la posibilidad de poner una nota adicional sobre el parámetro,2016-10-04 09:37:02 -0400,,

@@ -98,7 +98,6 @@ Declare_Conversion(psig, mPascal, v)
 Declare_Conversion(Pascal, mPascal, v) { return v / 1e6; }
 Declare_Conversion(kPascal, mPascal, v) { return v / 1e6; }
 
-
 // To Absolute Pound Force per Square Inch (psia)
 Declare_Conversion(Atmosphere, psia, v) { return v * 14.695948775; }
 Declare_Conversion(Bar, psia, v) { return v * 14.503773773; }

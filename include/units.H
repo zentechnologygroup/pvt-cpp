@@ -658,6 +658,11 @@ inline double pow(const long double b, const BaseQuantity & e)
   return pow(b, e.get_value());
 }
 
+inline double pow2(const BaseQuantity & q)
+{
+  return q.raw()*q.raw();
+}
+
 inline double powl(const BaseQuantity & q, const long double e)
 {
   return powl(q.get_value(), e);

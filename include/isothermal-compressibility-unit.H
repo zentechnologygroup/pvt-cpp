@@ -11,20 +11,21 @@ Declare_Physical_Quantity(IsothermalCompressility, "C",
 			  changes while temperature remains constant. )DESC");
 
 
-Declare_Unit(Bar_1, "bar_1",
-	     R"DESC(Isothermal compressibility mesuared in 1/bar)DESC",
+Declare_Unit(Bar_1, "bar_1", "Isothermal compressibility mesuared in 1/bar",
 	     IsothermalCompressility, 0, 14.503773773 );
 
 Declare_Unit(Pascal_1, "Pa_1",
-	     R"DESC(Isothermal compressibility mesuared in 1/Pascal)DESC", IsothermalCompressility, 0, 1.4503773773e-4);
+	     "Isothermal compressibility mesuared in 1/Pascal",
+	     IsothermalCompressility, 0, 1.4503773773e-4);
 
 Declare_Unit(psi_1, "psi_1",
-	     R"DESC(Isothermal compressibility mesuared in 1/psi)DESC", IsothermalCompressility,
-	     0, 1);
+	     "Isothermal compressibility mesuared in 1/psi",
+	     IsothermalCompressility, 0, 1);
 
 
 Declare_Unit(Atmosphere_1, "atm_1",
-	     R"DESC(Isothermal compressibility mesuared in 1/Atmosphere)DESC", IsothermalCompressility, 0, 14.9659487755);
+	     "Isothermal compressibility mesuared in 1/Atmosphere",
+	     IsothermalCompressility, 0, 14.9659487755);
 
 // IsothermalCompressilityconversions  
 // To bar-1
