@@ -6,6 +6,7 @@
 # include <ah-comb.H>
 # include <ahFunctional.H>
 # include <tpl_array.H>
+# include <correlation.H>
 
 # include <pvt-correlations.H>
 

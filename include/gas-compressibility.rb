@@ -9,6 +9,7 @@ add_ref("standing:1942")
 add_ref("banzer:1996")
 add_db("The correlation was obtained by using Legendre polynomials of up to five degree to fit the Standing-Katz curves for the gas compressibility factor (Z).")
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 22 2016.")
+add_author("Sarem")
 end_correlation()
 
 ################################################################
@@ -25,6 +26,7 @@ add_db("Based on the equation of state of Starling-Carnahan for the calculation 
 add_db("The equation is solved by using the Newton-Raphson iteration method.")
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 23 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
+add_author("Hall & Yarborough")
 end_correlation()
 
 ################################################################
@@ -41,6 +43,7 @@ add_db("This method is a result of fitting the Benedict-Webb-Rubin (BWR) equatio
 add_db("The equation is solved by using the Newton-Raphson iteration method.")
 add_internal_note("The correlation was verified by using the original reference and a secondary one: Bánzer (1996). Date: September 28 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
+add_author("Dranchuk &  Purvis")
 end_correlation()
 
 ################################################################
@@ -58,6 +61,7 @@ add_db("The equation is solved by using the Newton-Raphson iteration method.")
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 23 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
 add_internal_note("The lower limit for Ppr (when Tpr's range is from 0.7 to 1.0) was taken from the development ranges of the correlation presented by Standing & Katz (1942).")
+add_author("Dranchuk &  Abou-Kassem")
 end_correlation()
 
 ################################################################
@@ -73,6 +77,7 @@ add_ref("takacs:1989")
 add_db("Gopal presented a non-iterative method for calculating the Z-factor. The coefficients of the equations were obtained by fitting the Standing-Katz curves.")
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 23 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
+add_author("Gopal")
 end_correlation()
 
 ################################################################
@@ -86,6 +91,7 @@ add_ref("standing:1942")
 add_ref("banzer:1996")
 add_db("The equation was obtained by applying adjustment methods to the Standing-Katz curves for the gas compressibility factor (Z).")
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 26 2016.")
+add_author("Brill & Beggs")
 end_correlation()
 
 ################################################################
@@ -101,5 +107,6 @@ add_ref("banzer:1996")
 add_internal_note("The original reference is not available. The correlation was verified by using secondary references: Bánzer (1996) and Takacs (1989). Date: September 23 2016.")
 add_internal_note("The data bank information was obtained from Takacs (1989).")
 add_internal_note("The application ranges were presented by Bánzer (1996).")
+add_author("Papay")
 end_correlation()
 
