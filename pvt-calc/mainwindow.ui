@@ -30,7 +30,7 @@
       <x>9</x>
       <y>10</y>
       <width>225</width>
-      <height>291</height>
+      <height>261</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="parameters_area">
@@ -58,24 +58,11 @@
      </item>
     </layout>
    </widget>
-   <widget class="QPushButton" name="exec_push_button">
-    <property name="geometry">
-     <rect>
-      <x>80</x>
-      <y>440</y>
-      <width>80</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>execute</string>
-    </property>
-   </widget>
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>310</y>
+      <y>280</y>
       <width>223</width>
       <height>21</height>
      </rect>
@@ -110,9 +97,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>345</y>
+      <y>315</y>
       <width>221</width>
-      <height>91</height>
+      <height>111</height>
      </rect>
     </property>
     <property name="text">
@@ -123,6 +110,19 @@
     </property>
     <property name="wordWrap">
      <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>440</y>
+      <width>111</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>show equation</string>
     </property>
    </widget>
   </widget>

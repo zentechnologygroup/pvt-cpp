@@ -9,3 +9,4 @@ homologar unidad psia^-1 (Coefficient of isothermal compressibility),2016-08-29 
 eliminar correlations de Imakefile,2016-08-30 17:39:36 -0400,2016-09-08 11:09:48 -0400,,2016-09-16 11:45:08 -0400
 sustituid const double por double,2016-09-13 13:47:34 -0400,,,2016-09-16 11:45:16 -0400
 generar json,2016-09-15 12:02:30 -0400,2016-09-16 11:44:33 -0400,,2016-09-16 11:45:26 -0400
+corregir nombre carbons (debe ser carborn),2016-09-16 11:46:16 -0400,2016-10-04 09:41:44 -0400,,2016-10-04 09:41:47 -0400
