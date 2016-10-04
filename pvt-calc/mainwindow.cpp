@@ -136,7 +136,10 @@ void MainWindow::set_result_unit()
   auto combo_unit =
       Unit::search_by_symbol(ui->result_unit_combo->currentText().toStdString());
   if (combo_unit != result.second)
-    result.first = unit_convert(*result.second, result.first, *combo_unit);
+    {
+      result.first = unit_convert(*result.second, result.first, *combo_unit);
+      result.second = combo_unit;
+    }
   show_result();
 }
 
@@ -261,20 +264,25 @@ void MainWindow::par_unit_changed(const QString &arg1)
   double old_val = spin_box->value();
   double old_max = spin_box->maximum();
 
+  cout << "smax = " << spin_box->minimum() << endl
+       << "smin = " << spin_box->maximum() << endl;
+
   double new_min = conversion_fct(old_min);
   double new_val = conversion_fct(old_val);
   double new_max = conversion_fct(old_max);
+  if (new_max < new_min)
+    swap(new_max, new_min);
 
   double step_size = (new_max - new_min)/20;
-  spin_box->setMinimum(new_min);
+  spin_box->setSingleStep(step_size);
+  spin_box->setRange(new_min, new_max);  
   spin_box->setValue(new_val);
-  spin_box->setMaximum(new_max);  
 
   cout << "max = " << new_max << endl
        << "min = " << new_min << endl
-       << "step = " << step_size << endl;
-
-  spin_box->setSingleStep(step_size);
+       << "step = " << step_size << endl
+       << "smax = " << spin_box->minimum() << endl
+       << "smin = " << spin_box->maximum() << endl;
 
   get<4>(*ptr) = new_unit_symbol;
 }
