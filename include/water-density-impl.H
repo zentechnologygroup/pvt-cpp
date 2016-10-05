@@ -71,9 +71,6 @@ PwSpiveyMN::impl(const Quantity<Celsius> & t,
   // mCH4w: SOLUBILIDAD DEL METANO EN LA SALMUERA [gmol/KgH2O] A
   // CONDICIONES P Y T DE EVALUACION 
 
-  // Concentracion molal de NaCl [gmol/kgH2O] a partir de S
-  m = (1000 * s_100)/(58.4428 * (1 - s_100));
-        
   // Presion de vapor del agua pura a partir de la formulacion IAWPS-95
   constexpr double tc = 647.096; // K
   constexpr double pc = 22.064; // MPa
