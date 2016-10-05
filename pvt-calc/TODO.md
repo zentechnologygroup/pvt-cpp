@@ -5,3 +5,6 @@
 ## 2. eliminar el execute y dejar cálculo directo
 - Created at   2016-10-03 22:35:05 -0400
 
+## 3. test valgrind
+- Created at   2016-10-04 18:08:53 -0400
+
