@@ -17,7 +17,7 @@
 struct CorrelationPar
 {
   const string name;
-  //const string description;
+  const string description;
   const Unit & unit;
   const VtlQuantity min_val;
   const VtlQuantity max_val;
@@ -44,12 +44,14 @@ public:
     return { name, unit.symbol, min_val.to_string(), max_val.to_string() };
   }
 
-  CorrelationPar(const string & name, const Unit & unit,
-		 const VtlQuantity min, const VtlQuantity max)
-    : name(name), unit(unit), min_val(unit, min), max_val(unit, max) {}
+  CorrelationPar(const string & name, const Unit & unit, const string & desc, 
+		 const VtlQuantity & min, const VtlQuantity & max)
+    : name(name), description(desc), unit(unit),
+      min_val(unit, min), max_val(unit, max) {}
 
-  CorrelationPar(const string & name, BaseQuantity & q, double min, double max)
-    : CorrelationPar(name, q.unit,
+  CorrelationPar(const string & name, const BaseQuantity q,
+		 const string & desc, double min, double max)
+    : CorrelationPar(name, q.unit, desc, 
 		     VtlQuantity(q.unit, min), VtlQuantity(q.unit, max)) {}
 
   bool check(const BaseQuantity & val) const noexcept
@@ -317,6 +319,7 @@ protected:
   virtual ~Correlation() = 0; // Correlation is abstract
 
   void add_parameter(const string & name, const Unit & unit,
+		     const string & description,
 		     const VtlQuantity & min, const VtlQuantity & max)
   {
     auto min_aux = VtlQuantity(unit, min);
@@ -329,26 +332,28 @@ protected:
 	throw domain_error(s.str());
       }
     
-    preconditions.emplace(name, unit, min_aux, max_aux);
+    preconditions.emplace(name, unit, description, min_aux, max_aux);
     ++n;
   }
 
   void add_parameter(const string & name, const Unit & unit,
-		     const VtlQuantity & min)
+		     const string & description, const VtlQuantity & min)
   {
-    add_parameter(name, unit, min, VtlQuantity(unit, unit.max_val));
+    add_parameter(name, unit, description, min, VtlQuantity(unit, unit.max_val));
   }
 
-  void add_parameter(const string & name, const Unit & unit)
+  void add_parameter(const string & name, const Unit & unit,
+		     const string & description)
   {
-    add_parameter(name, unit, VtlQuantity(unit, unit.min_val),
+    add_parameter(name, unit, description, VtlQuantity(unit, unit.min_val),
 		  VtlQuantity(unit, unit.max_val));
   }
 
   void add_parameter(const string & name, const Unit & unit,
-		     double min, double max)
+		     const string & description, double min, double max)
   {
-    add_parameter(name, unit, VtlQuantity(unit, min), VtlQuantity(unit, max));
+    add_parameter(name, unit, description,
+		  VtlQuantity(unit, min), VtlQuantity(unit, max));
   }
 
 public:

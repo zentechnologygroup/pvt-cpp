@@ -3,15 +3,13 @@
 
 file_name = ARGV.shift
 
-puts file_name
-
 def process_par(line)
   tokens = line.split ','
   if tokens.size == 2
     s1 = tokens.shift
     s2 = tokens.shift
-    s2.gsub! ')'
-    return "#{s1}, #{s2}, \"Aqui Neylith\""
+    s2.tr!(')', '').chomp!
+    return "#{s1}, #{s2}, \"Aqui Neylith\")"
   end
 
   s = "#{tokens.shift},#{tokens.shift}, \"Aqui Neylith\""
