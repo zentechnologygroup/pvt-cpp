@@ -5,3 +5,6 @@
 ## 2. eliminar el execute y dejar cálculo directo
 - Created at   2016-10-03 22:35:05 -0400
 
+## 3. usar qt4
+- Created at   2016-10-04 21:43:35 -0400
+
