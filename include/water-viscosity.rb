@@ -7,7 +7,6 @@ add_parameter("s", "Disolved_Salt_PPM", "Quantity<Disolved_Salt_Percent>(0)",
 add_author("Mao & Duan")
 end_correlation()
 
-
 ################################################################
 
 begin_correlation("UwVanWingen", "WaterDensity", "CP", 0.1, 2)

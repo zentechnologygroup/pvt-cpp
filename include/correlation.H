@@ -17,6 +17,7 @@
 struct CorrelationPar
 {
   const string name;
+  //const string description;
   const Unit & unit;
   const VtlQuantity min_val;
   const VtlQuantity max_val;
