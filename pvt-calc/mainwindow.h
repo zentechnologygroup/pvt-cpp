@@ -25,6 +25,7 @@ class MainWindow : public QMainWindow
   DynList<Par> pars_vals;
   const Correlation * correlation = nullptr;
 
+  // TODO resultado siempre en la unidad y se despliega l unidad del combo
   pair<double, const Unit*> result = make_pair(0, nullptr);
 
   void set_substype_combo(const std::string & type_name);

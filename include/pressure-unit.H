@@ -56,8 +56,8 @@ Declare_Conversion(Atmosphere, Pascal, v) { return v * 101324.99658; }
 Declare_Conversion(Bar, Pascal, v) { return  v * 100000.0; }
 Declare_Conversion(psia, Pascal, v) { return  v * 6894.757293178308 ; }
 Declare_Conversion(psig, Pascal, v) { return (v + 14.695948775) * 6894.757293178308; }
-Declare_Conversion(kPascal, Pascal, v) { return v * 1000; }
-Declare_Conversion(mPascal, Pascal, v) { return v * 1000000; }
+Declare_Conversion(kPascal, Pascal, v) { return v * 1e3; }
+Declare_Conversion(mPascal, Pascal, v) { return v * 1e6; }
 
 // To atmophere (atm)
 Declare_Conversion(Bar, Atmosphere, v) { return v * 0.986923267; }
@@ -96,7 +96,8 @@ Declare_Conversion(psia, mPascal, v) { return  v * 6.894757293178308e3; }
 Declare_Conversion(psig, mPascal, v)
 { return ((v + 14.695948775) * 6.894757293178308) / 1000 ; }
 Declare_Conversion(Pascal, mPascal, v) { return v / 1e6; }
-Declare_Conversion(kPascal, mPascal, v) { return v / 1e3; }
+Declare_Conversion(kPascal, mPascal, v) { return v / 1e3; 
+}
 
 // To Absolute Pound Force per Square Inch (psia)
 Declare_Conversion(Atmosphere, psia, v) { return v * 14.695948775; }
@@ -106,7 +107,8 @@ Declare_Conversion(kPascal, psia, v) { return v * 1.4503773773e-1; }
 Declare_Conversion(psig, psia, v) { return v + 14.695948775; }
 Declare_Conversion(mPascal, psia, v)
 {
-  return unit_convert<Pascal, psia>(unit_convert<mPascal, Pascal>(v));
+  const double v_pascal = unit_convert<mPascal, Pascal>(v);
+  return unit_convert<Pascal, psia>(v_pascal);
 }
 
 // To Pound Force per Square Inch (psig)
