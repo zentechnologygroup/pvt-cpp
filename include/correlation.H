@@ -25,8 +25,18 @@ struct CorrelationPar
 private:
 
   bool check_active = true;
-
+  
+  double epsilon = 1e-3;
+  
 public:
+
+  void set_epsilon(double ratio = 0.01)
+  {
+    Unit::validate_ratio(ratio);
+    epsilon = ratio*(max_val.raw() - min_val.raw());
+  }
+
+  double get_epsilon() const noexcept { return epsilon; }
 
   double step_size(size_t n) const noexcept
   {
@@ -56,7 +66,8 @@ public:
 
   bool check(const BaseQuantity & val) const noexcept
   {
-    return val.get_value() >= min_val and val.get_value() <= max_val and
+    return val.get_value() >= min_val.raw() - epsilon and
+      val.get_value() <= max_val.raw() + epsilon and
       &val.unit == &unit;
   }
 
@@ -67,14 +78,14 @@ public:
     
     ostringstream s;
   
-    if (q.get_value() < min_val)
+    if (q.get_value() < min_val.raw() - epsilon)
       {
 	s << "Value " << q.get_value() << " is lesser than the minimum value "
 	  << min_val << " for precondition ";
 	throw range_error(s.str());
       }
 
-    if (q.get_value() > max_val)
+    if (q.get_value() > max_val.raw() + epsilon)
       {
 	s << "Value " << q << " is greater than the maximum value "
 	  << max_val << " for precondition ";
@@ -108,7 +119,7 @@ private:
   static DynMapTree<string, const Correlation * const> tbl;
 
   static Array<const Correlation * > correlations_tbl;
-  
+
 public:
 
   void set_hidden() { hidden = true; }

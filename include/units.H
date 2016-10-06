@@ -97,6 +97,8 @@ class Unit : public UnitItem
 {
   double epsilon = 1e-6;
 
+public:
+
   static void validate_ratio(const double ratio)
   {
     if (not (ratio <= 0 or ratio > 0.3))
@@ -107,13 +109,15 @@ class Unit : public UnitItem
     throw domain_error(s.str());
   }
 
+private:
+
   static const Unit null_unit;
 
 public:
 
   double get_epsilon() const { return epsilon; }
 
-  void set_epsilon(double ratio = 0.02) const
+  void set_epsilon(double ratio = 0.01) const
   {
     validate_ratio(ratio);
     const_cast<Unit*>(this)->epsilon = ratio*(max_val - min_val);
