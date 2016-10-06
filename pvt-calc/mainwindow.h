@@ -23,17 +23,18 @@ class MainWindow : public QMainWindow
   DynList<string> subtypes;
   DynList<const Correlation*> correlations;
   DynList<Par> pars_vals;
+  const Correlation * correlation = nullptr;
 
   pair<double, const Unit*> result = make_pair(0, nullptr);
 
   void set_substype_combo(const std::string & type_name);
   void set_corr_combo(const std::string & subtype_name);
   void set_tech_note(const string & note);
-  void set_correlation(const Correlation * correlation);
+  void set_correlation(const Correlation * __correlation);
   void set_exception(const string & msg);
   void reset_status();
   void show_result();
-  void set_result_unit();
+  void set_result_unit(const VtlQuantity &r);
   void compute();
 
 public:

@@ -25,8 +25,7 @@ void MainWindow::set_corr_combo(const string &subtype_name)
   for (auto it = correlations.get_it(); it.has_curr(); it.next())
     ui->corr_combo->addItem(it.get_curr()->name.c_str());
 
-  auto correlation = correlations.get_first();
-  set_correlation(correlation);
+  set_correlation(correlations.get_first());
 }
 
 void MainWindow::set_tech_note(const string &note)
@@ -34,12 +33,14 @@ void MainWindow::set_tech_note(const string &note)
   ui->tech_note->setText(note.c_str());
 }
 
-void MainWindow::set_correlation(const Correlation *correlation)
+void MainWindow::set_correlation(const Correlation * __correlation)
 {  
+  correlation = __correlation;
   set_tech_note(correlation->full_desc());
 
   auto frame = ui->parameters_area;
 
+  // delete previous correlations combo
   for (auto it = pars_vals.get_it(); it.has_curr(); it.next())
     {
       auto t = it.get_curr();
@@ -130,22 +131,25 @@ void MainWindow::show_result()
   ui->result->show();
 }
 
-void MainWindow::set_result_unit()
+void MainWindow::set_result_unit(const VtlQuantity & r)
 {
   auto combo_unit =
       Unit::search_by_symbol(ui->result_unit_combo->currentText().toStdString());
-  if (combo_unit != result.second)
+  if (combo_unit != &r.unit)
     {
       result.first = unit_convert(*result.second, result.first, *combo_unit);
       result.second = combo_unit;
+    }
+  else
+    {
+      result.first = r.raw();
+      result.second = &r.unit;
     }
   show_result();
 }
 
 void MainWindow::compute()
 {
-  auto corr_name = ui->corr_combo->currentText().toStdString();
-  auto correlation = Correlation::search_by_name(corr_name);
   DynList<VtlQuantity> pars;
   for (auto it = pars_vals.get_it(); it.has_curr(); it.next())
     {
@@ -159,9 +163,7 @@ void MainWindow::compute()
   try
   {
     auto r = correlation->compute_and_check(pars);
-    result.first = r.raw();
-    result.second = &r.unit;
-    set_result_unit();
+    set_result_unit(r);
     reset_status();
   }
   catch (exception & e)
@@ -203,15 +205,14 @@ void MainWindow::on_corr_subtype_combo_activated(const QString &arg1)
 void MainWindow::on_corr_combo_activated(const QString &arg1)
 {
   auto corr_name = arg1.toStdString();
-  auto correlation = Correlation::search_by_name(corr_name);
-  set_correlation(correlation);
+  set_correlation(Correlation::search_by_name(corr_name));
 }
 
 void MainWindow::on_result_unit_combo_activated(const QString &arg1)
 {
   try
   {
-    set_result_unit();
+    set_result_unit(VtlQuantity(*result.second, result.first));
   }
   catch (exception & e)
   {

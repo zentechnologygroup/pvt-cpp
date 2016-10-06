@@ -171,7 +171,13 @@ public:
   static DynList<const Unit* const> units() { return unit_tbl.keys(); }
 
   /// return all the units associated to this (including this)
-  const DynList<const Unit* const> sibling_units() const
+  const DynList<const Unit* const> & family_units() const
+  {
+    return physical_quantity.units();
+  }
+
+  /// return all the units associated to this (not including this)
+  DynList<const Unit* const> sibling_units() const
   {
     return physical_quantity.units().filter([this] (auto ptru)
 					    {
