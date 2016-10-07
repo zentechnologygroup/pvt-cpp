@@ -682,5 +682,6 @@ Declare_Correlation_Subtype(WaterViscosity, WaterCorrelation);
 Declare_Correlation_Subtype(WaterVolumeFactor, WaterCorrelation);
 Declare_Correlation_Subtype(WaterInterfacialTension, WaterCorrelation);
 Declare_Correlation_Subtype(WaterIsothermalCompressibility, WaterCorrelation);
+Declare_Correlation_Subtype(SolutionGasWaterRelation, WaterCorrelation);
 
 # endif // CORRELATION_H

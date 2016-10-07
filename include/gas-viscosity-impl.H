@@ -4,22 +4,21 @@
 # include <gas-viscosity.H>
 
 inline Quantity<CP>
-UgCarrKB::impl(const Quantity<Rankine> & t,
-	       const Quantity<psia> & p,
-	       const Quantity<Rankine> & tsc,
-	       const Quantity<psia> & psc,
+UgCarrKB::impl(const Quantity<Fahrenheit> & t,
+	       const Quantity<PseudoReducedTemperature> & tpr,
+	       const Quantity<PseudoReducedPressure> & ppr,
 	       const Quantity<Sgg> & yg,
 	       const Quantity<MolePercent> & n2_concentration,
 	       const Quantity<MolePercent> & co2_concentration,
 	       const Quantity<MolePercent> & h2s_concentration) const
 {
-  const double tsr = t.raw()/tsc.raw();
-  const double psr = p.raw()/psc.raw();
+  const double tsr = tpr.raw();
+  const double psr = ppr.raw();
 
   const double log10yg = log10(yg);
 
-  const double ugs = (1.709e-5 - 2.062e-6*yg.raw()) * (t.raw() - 460) +
-    8.188e-3 - 6.15e-3*log10yg;
+  const double ugs = (1.709e-5 - 2.062e-6*yg.raw()) * t.raw() + 8.188e-3 -
+    6.15e-3*log10yg;
         
   const double cco2 = 1e-3*co2_concentration.raw() * (9.08 * log10yg + 6.24);
   const double cn2 = 1e-3*n2_concentration.raw() * (8.48 * log10yg + 9.59);
@@ -52,11 +51,11 @@ UgCarrKB::impl(const Quantity<Rankine> & t,
   const double x = a0 + a1*psr + a2*psr*psr + a3*psr3 +
     tsr*(a4 + a5*psr + a6*psr2 + a7 * psr3) +
     tsr2*(a8 + a9*psr + a10*psr2 + a11*psr3 ) + 
-    tsr3*(a12 + a13*psr + a14*psr2 + a15*psr3) - log(tsr);
+    tsr3*(a12 + a13*psr + a14*psr2 + a15*psr3);
         
-  const double ugugsc = exp(x);
+  const double ugugs = exp(x)/tsr;
         
-  const double ug = ugsc * ugugsc;
+  const double ug = ugsc * ugugs;
 
   return Quantity<CP>(ug);
 }
