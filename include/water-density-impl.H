@@ -7,7 +7,7 @@
 inline Quantity<Gr_cm3>
 PwSpiveyMN::impl(const Quantity<Celsius> & t,
 		 const Quantity<Pascal> & pr,
-		 const Quantity<Disolved_Salt_PPM> & s) const
+		 const Quantity<Disolved_Salt_Percent> & s) const
 {
   const double p = pr.raw()/1000000; // pascal to MPA
 
@@ -130,7 +130,7 @@ PwSpiveyMN::impl(const Quantity<Celsius> & t,
 inline Quantity<Gr_cm3>
 PwSpiveyMNGasFree::impl(const Quantity<Celsius> & t,
 			const Quantity<Pascal> & pr,
-			const Quantity<Disolved_Salt_PPM> & s) const
+			const Quantity<Disolved_Salt_Percent> & s) const
 {
   const double p = pr.raw()/1000000;
 
@@ -187,7 +187,7 @@ PwSpiveyMNGasFree::impl(const Quantity<Celsius> & t,
 
 
 inline Quantity<Lb_ft3>
-PwMcCain::impl(const Quantity<Disolved_Salt_PPM> & s,
+PwMcCain::impl(const Quantity<Disolved_Salt_Percent> & s,
 	       const Quantity<RB_STB> & bw) const
 {
   const double s2 = s.raw()*s.raw();

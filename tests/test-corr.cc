@@ -603,13 +603,13 @@ void test(int argc, char *argv[])
 
     }
 
-  if (pars.getValue().size() != correlation_ptr->get_num_pars())
-    {
-      cout << "Correlation " << correlation_ptr->name << " expects "
-	   << correlation_ptr->get_num_pars() << " parameters but "
-	   << pars.getValue().size() << " were passed" << endl;
-      abort();
-    }
+  // if (pars.getValue().size() != correlation_ptr->get_num_pars())
+  //   {
+  //     cout << "Correlation " << correlation_ptr->name << " expects "
+  // 	   << correlation_ptr->get_num_pars() << " parameters but "
+  // 	   << pars.getValue().size() << " were passed" << endl;
+  //     abort();
+  //   }
   
   Array<const Unit*> params = correlation_ptr->get_par_types(); 
   for (const auto & p : arg_unit.getValue())

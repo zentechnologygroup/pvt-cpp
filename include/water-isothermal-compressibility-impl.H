@@ -104,7 +104,8 @@ CwSpiveyMN::impl(const Quantity<Celsius> & t,
         
   const double lnpv = (tc/t273 * (-7.85951783*v + 1.84408259*pow(v, 1.5) +
 				  -11.7866497*v3 + 22.6807411*pow(v, 3.5) +
-				  -15.9618719*v4 + 1.80122502*pow(v, 7.5))) + logpc;
+				  -15.9618719*v4 + 1.80122502*pow(v, 7.5))) +
+    logpc;
 
   const double pv = exp(lnpv);
         
@@ -118,7 +119,8 @@ CwSpiveyMN::impl(const Quantity<Celsius> & t,
   if (p_pv <= 0)
     {
       ostringstream s;
-      s << "CwSpiveyMN::impl: computed pv = " << pv << " is greater than p = " << p;
+      s << "CwSpiveyMN::impl: computed pv = "
+	<< pv << " is greater than p = " << p;
       throw domain_error(s.str());
     }
 
@@ -148,8 +150,8 @@ CwSpiveyMN::impl(const Quantity<Celsius> & t,
       const double mch4pw = exp(a*log_p_pv_2 + b*log_p_pv + c);
                 
       // solubilidad del metano en salmuera
-      const double c1 = -0.80898 + 1.0827e-3*t273 + 183.85/t273 + 3.924e-4*p.raw() +
-	-1.97e-6* p2;
+      const double c1 = -0.80898 + 1.0827e-3*t273 + 183.85/t273 +
+	3.924e-4*p.raw() + -1.97e-6* p2;
       constexpr double c2 = -3.89e-3;
                 
       const double mch4w = mch4pw * exp(-2*c1*m - c2*m2);
@@ -166,7 +168,8 @@ CwSpiveyMN::impl(const Quantity<Celsius> & t,
       // pesos moleculares MNaCl: 58.4428 g/gmol; MCH4: 16.043 g/gmol 
                                
       cw = ((1000 + m*58.4428)*dvgfwdp + mch4w*dvmch4wdp +
-	    (dmch4wdp*(vmch4w - vmch4g))) / ((1000 + m*58.4428)*vgfw + mch4w*vmch4w);
+	    (dmch4wdp*(vmch4w - vmch4g))) /
+	((1000 + m*58.4428)*vgfw + mch4w*vmch4w);
       cw = -cw;
     }
 
@@ -174,6 +177,101 @@ CwSpiveyMN::impl(const Quantity<Celsius> & t,
 }
 
 
+inline Quantity<psia_1>
+CwDodsonStanding::impl(const Quantity<Fahrenheit> & t,
+		       const Quantity<psia> & p,
+		       const Quantity<psia> & pb,
+		       const Quantity<SCF_STB> & rsw,
+		       const Quantity<SCF_STB> & rswb,
+		       const Quantity<Disolved_Salt_Percent> & s,
+		       const Quantity<RCF_SCF> & bg,
+		       const Quantity<RB_STB> & bw) const
+{
+  const double t2 = pow2(t);
+  const double t3 = t2*t.raw();
+  const double s07 = pow(s, 0.7);
+
+  const double a = 3.8546 - 1.34e-4*p.raw();
+  const double b = -0.01052 + 4.77e-7*p.raw();
+  const double c = 3.9267e-5 - 8.8e-10*p.raw();
+  const double cwp = (a + b*t.raw() + c*t2)/1e6;
+
+  double cw = 0;
+  if (p > pb)
+    {
+      const double cws = cwp * (1 + 8.9e-3*rsw.raw());
+        
+      // Correccion de la compresibilidad del agua por solidos disueltos
+      cw = cws * (1 + (s07 * (-5.2e-2 + 2.7e-4*t.raw() -
+			      1.14e-6*t2 + 1.121e-9*t3)));
+      return Quantity<psia_1>(cw);
+    }
+
+  const double & cwpb = cwp;
+  const double cwsb = cwpb * (1 + 8.9e-3*rswb.raw());
+            
+  // Correccion de la compresibilidad del agua por solidos disueltos
+  const double cwb = cwsb * (1 + (s07 * (-5.2e-2 + 2.7e-4*t.raw() -
+					 1.14e-6*t2 + 1.121e-9*t3)));
+
+  const double t4 = t3*t.raw();
+
+  // estimacion de la derivada de Rsw respecto a P        
+  const double bB = 1.01021e-2 - 7.44241e-5*t.raw() + 3.05553e-7*t2 -
+    2.94883e-10*t3;
+  const double cC = (-9.02505 + 0.130237*t.raw() - 8.53425e-4*t2 +
+		     2.34122e-6*t3 - 2.37049e-9*t4) * 1e-7;
+  const double drswdps = bB + 2*cC*p.raw(); 
+                
+  // Correccion de la derivada de Rsw respecto a P por solidos disueltos
+  const double drswdp = drswdps * (1 + (s07 * (-5.2e-2 + 2.7e-4*t.raw() -
+					       1.14e-6*t2 + 1.121e-9 * t3)));
+                
+  cw = cwb + (((bg.raw()*0.177927131)/bw.raw()) * (drswdp));
+
+  return Quantity<psia_1>(cw);
+}
 
 
- # endif // WATER_ISOTHERMAL_COMPRESSIBILITY_IMPL_H
+inline Quantity<psia_1>
+CwOsif::impl(const Quantity<Fahrenheit> & t,
+	     const Quantity<psia> & p,
+	     const Quantity<psia> & pb,
+	     const Quantity<Disolved_Salt_Percent> & s,
+	     const Quantity<RCF_SCF> & bg,
+	     const Quantity<RB_STB> & bw) const
+{
+  if (p > pb)
+    {
+      const double cw = 1/(7.033*p.raw() + 541.5*s.raw()*9.988590004 -
+			   537*t.raw() + 403.3e3);
+      return Quantity<psia_1>(cw);
+    }
+
+  const double t2 = pow2(t);
+  const double t3 = t2*t.raw();
+  const double t4 = t3*t.raw();
+
+  const double cwb = 1/(7.033*pb.raw() + 541.5*s.raw()*9.988590004 -
+			537*t.raw() + 403.3e3);
+
+  const double b = 1.01021e-2 - 7.44241e-5*t.raw() + 3.05553e-7*t2 -
+    2.94883e-10*t3;
+  const double c = (-9.02505 + 0.130237*t.raw() - 8.53425e-4*t2 +
+		    2.34122e-6*t3 - 2.37049e-9*t4) * 1e-7;
+  const double drswdps = b + 2*c*p.raw(); 
+                
+  // correccion de la derivada de Rsw respecto a P por solidos disueltos
+  const double drswdp = drswdps *
+    (1 + pow(s, 0.7) * (-5.2e-2 + 2.7e-4*t.raw() - 1.14e-6*t2 + 1.121e-9*t3));
+                
+  const double cw = cwb + (((bg.raw()*0.177927131)/bw.raw()) * (drswdp));
+
+  return Quantity<psia_1>(cw);
+}
+
+
+
+
+
+# endif // WATER_ISOTHERMAL_COMPRESSIBILITY_IMPL_H

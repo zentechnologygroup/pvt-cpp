@@ -444,14 +444,23 @@ public:
 
   double compute(const DynList<double> & values) const
   {
-    auto unit_ptrs = preconditions.map<const Unit * const>([] (const auto & par)
+    DynList<VtlQuantity> pars;
+    auto it = get_pair_it(preconditions, values);
+    for (;it.has_curr(); it.next())
       {
-	return &par.unit;
-      });
-    auto pars = zipEq(unit_ptrs, values).map<VtlQuantity>([] (auto p)
+	auto p = it.get_curr();
+	pars.append(VtlQuantity(p.first.unit, p.second));
+      }
+
+    if (it.has_curr())
       {
-	return VtlQuantity(*p.first, p.second);
-      });
+	ostringstream s;
+	s << "Correlation::compute: number of effective arguments "
+	  << values.size()
+	  << " is different from number of declared parameters "
+	  << get_num_pars();
+	throw domain_error(s.str());
+      }
 
     VtlQuantity ret = { unit, compute(pars) }; // here conversion is done
     return ret.get_value();
