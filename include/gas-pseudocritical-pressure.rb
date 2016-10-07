@@ -69,12 +69,12 @@ add_parameter("n2_concentration", "MoleFraction", "Aqui Neylith",  "Quantity<Mol
 add_parameter("co2_concentration", "MoleFraction", "Aqui Neylith",  "Quantity<MolePercent>(0)",  "Quantity<MolePercent>(2)") 
 add_parameter("h2s_concentration", "MoleFraction", "Aqui Neylith",  "Quantity<MolePercent>(0)",  "Quantity<MolePercent>(2)") 
 add_title("STANDING CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE WET OR \\\"CONDENSATE\\\" GAS HYDROCARBON PORTION")
-add_author("Standing")
 add_db("Based on laboratory generated gases in equilibrium with crude oil at high pressures (1000 to 8000 psia). Their high gravities come from relatively large quantities of heptanes and heavier compounds.")
 add_db("Standing recommends using the \\\"condensate\\\" curves in calculations that involve gases in equilibrium with crude oil condensate in petroleum reservoirs.")
 add_note("Brown et al. (1948) presented the graphical correlation. Standing (1977) expressed it in a mathematical form.")
 add_note("The values of the development ranges are taken from the graphs presented by Standing (1977) and Ahmed (1989).")
 add_internal_note("Brown et al.'s reference is not available. The correlation was verified by using these references: Standing (1977), Ahmed (1989), and Bánzer (1996). Date: September 9 2016.")
+add_author("Standing (Heavier Fractions)")
 end_correlation()
 
 ################################################################
