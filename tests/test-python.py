@@ -1812,3 +1812,32 @@ def SgwJenningsNewmanCorrelation(T, P):
     sgw = A + (B * P) + (C * (P ** 2))
     sgwJenningsNewman = sgw
     return sgwJenningsNewman
+
+def CwDodsonStandingCorrelation(T, P, Pb, Rsw, Rswb, S, Bg, Bw):
+    if P > Pb: 
+        A = 3.8546 - (1.34e-4 * P)
+        B = -0.01052 + (4.77e-7 * P)
+        C = 3.9267e-5 - (8.8e-10 * P)
+        Cwp = (A + (B * T) + (C * (T ** 2)))/1e6 
+        # Correccion de la compresibilidad del agua por solubilidad del gas
+        Cws = Cwp * (1 + (8.9e-3 * Rsw))
+        # Correccion de la compresibilidad del agua por solidos disueltos
+        Cw = Cws * (1 + ((S ** 0.7) * (-5.2e-2 + (2.7e-4 * T) - (1.14e-6 * (T ** 2)) + (1.121e-9 * (T ** 3)))))
+    else: 
+        if (Bg == None) or (Rsw == None) or (Rswb == None) or (Bw == None):
+            Cw = None   
+        else:
+            Ab = 3.8546 - (1.34e-4 * Pb)
+            Bb = -0.01052 + (4.77e-7 * Pb)
+            Cb = 3.9267e-5 - (8.8e-10 * Pb)
+            Cwpb = (Ab + (Bb * T) + (Cb * (T ** 2)))/1e6 
+            Cwsb = Cwpb * (1 + (8.9e-3 * Rswb))
+            Cwb = Cwsb * (1 + ((S ** 0.7) * (-5.2e-2 + (2.7e-4 * T) - (1.14e-6 * (T ** 2)) + (1.121e-9 * (T ** 3)))))
+            B = 1.01021e-2 - (7.44241e-5 * T) + (3.05553e-7 * (T **2)) - (2.94883e-10 * (T ** 3))
+            C = (-9.02505 + (0.130237 * T) - (8.53425e-4 * (T ** 2)) + (2.34122e-6 * (T ** 3)) - (2.37049e-9 * (T ** 4))) * 1e-7
+            dRswdPs = B + (2 * C * P) 
+            dRswdP = dRswdPs * (1 + ((S ** 0.7) * (-5.2e-2 + (2.7e-4 * T) - (1.14e-6 * (T ** 2)) + (1.121e-9 * (T ** 3)))))
+            Cw = Cwb + (((Bg*0.177927131)/Bw) * (dRswdP)) 
+    CwDodsonStanding = Cw 
+    return CwDodsonStanding
+

@@ -1,8 +1,5 @@
 definir el step_size como parámetro,2016-10-03 17:36:15 -0400,,
-eliminar el execute y dejar cálculo directo,2016-10-03 22:35:05 -0400,,
-<<<<<<< HEAD
+eliminar el execute y dejar cálculo directo,2016-10-03 22:35:05 -0400,2016-10-07 07:36:20 -0400,
 test valgrind,2016-10-04 18:08:53 -0400,,
-=======
 usar qt4,2016-10-04 21:43:35 -0400,,
->>>>>>> 44d10a242a5a3e9857cfb931a4a76fdd38ffd6e4
-hay un bug en conversión de unidades resultado en PbAlMarhoun,2016-10-05 20:14:00 -0400,,
+hay un bug en conversión de unidades resultado en PbAlMarhoun,2016-10-05 20:14:00 -0400,2016-10-07 07:37:00 -0400,

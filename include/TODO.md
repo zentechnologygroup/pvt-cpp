@@ -11,9 +11,11 @@
 
 ## 4. en compute de correlation poner un doble itrdor en lugar del zip
 - Created at   2016-09-27 16:16:49 -0400
+- Completed at 2016-10-07 09:09:39 -0400
 
 ## 5. manejag mPascal en water-density.rb
 - Created at   2016-09-29 10:17:52 -0400
+- Completed at 2016-10-07 09:09:49 -0400
 
 ## 6. buscar manera de inhabilitar validaciones en correlaciones
 - Created at   2016-09-30 09:38:48 -0400
@@ -29,22 +31,31 @@
 
 ## 10. método estático que retorne los tipos de correlacion
 - Created at   2016-10-01 16:54:55 -0400
+- Completed at 2016-10-07 09:10:08 -0400
 
 ## 11. método estático que retorne los subtipos de correlación dado un tipo
 - Created at   2016-10-01 16:55:18 -0400
+- Completed at 2016-10-07 09:10:10 -0400
 
 ## 12. método estático que retorne las correlaciones dado un subtipo
 - Created at   2016-10-01 16:55:54 -0400
+- Completed at 2016-10-07 09:10:22 -0400
 
 ## 13. método estático que retorne las correlaciones dado un tipo
 - Created at   2016-10-01 16:56:23 -0400
+- Completed at 2016-10-07 09:10:29 -0400
 
 ## 14. corregir psia_1: no debe estar asociada a unidad de presión
 - Created at   2016-10-02 21:35:35 -0400
+- Completed at 2016-10-07 07:50:23 -0400
 
 ## 15. añadir en add_parameter la posibilidad de poner una nota adicional sobre el parámetro
 - Created at   2016-10-04 09:37:02 -0400
+- Completed at 2016-10-07 07:50:34 -0400
 
 ## 16. parámetro s de salinidad debe set porcentual para que no dé una raíz negativa
 - Created at   2016-10-04 21:31:03 -0400
+
+## 17. implementar un método de sobrecarga de correlación
+- Created at   2016-10-07 11:25:16 -0400
 
