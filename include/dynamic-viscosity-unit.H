@@ -38,6 +38,9 @@ Declare_Unit(Poise, "poise",
          "Dinamic Viscosity measured as poise.",
           DinamicViscosity, 0, 100000000);
 
+Declare_Unit(mP, "mP", "Dinamic Viscosity measured as micropoise.",
+          DinamicViscosity, 0, 100000000e6);
+
 // Dinamic Viscosity Conversions
   
 // To Kg/m*s
@@ -47,6 +50,17 @@ Declare_Conversion(CP, kg_mxs, v)  { return 0.001 * v; }
 Declare_Conversion(Paxs, kg_mxs, v)  { return  v; }
 Declare_Conversion(lb_ftxh, kg_mxs, v)   { return 0.0004133789 * v; }
 Declare_Conversion(Poise, kg_mxs, v)  { return 0.1 * v; }
+Declare_Conversion(mP, kg_mxs, v)  { return 0.01e-5 * v; }
+
+// to Poise
+Declare_Conversion(kg_mxs, Poise, v)  { return 10 * v ; }
+Declare_Conversion(lb_ftxs, Poise, v)  { return 14.8816394388 * v ; }
+Declare_Conversion(CP, Poise, v)  { return 0.01 * v ; }
+Declare_Conversion(Paxs, Poise, v)  { return 10 * v ; }
+Declare_Conversion(lb_ftxh, Poise, v) { return 0.0041337890 * v; }
+Declare_Conversion(g_mxs, Poise, v) { return  v; }
+Declare_Conversion(Poise, mP, v) { return 1e6 * v; }
+Declare_Conversion(mP, Poise, v) { return v/1e6; }
 
 // to lb/ft*s 
 Declare_Conversion(kg_mxs, lb_ftxs, v)  { return 0.6719689750 * v ; }
@@ -55,6 +69,10 @@ Declare_Conversion(CP, lb_ftxs, v)  { return 0.000671968975 * v ; }
 Declare_Conversion(Paxs, lb_ftxs, v)  { return 0.6719689750 * v ; }
 Declare_Conversion(lb_ftxh, lb_ftxs, v) { return 0.0002777778 * v; }
 Declare_Conversion(Poise, lb_ftxs, v)  { return 0.0671968975 * v ; }
+Declare_Conversion(mP, lb_ftxs, v)
+{
+  return unit_convert<Poise, lb_ftxh>(unit_convert<mP, Poise>(v));
+}
 
 // to g/m*s
 Declare_Conversion(kg_mxs, g_mxs, v)  { return 10 * v ; }
@@ -63,6 +81,10 @@ Declare_Conversion(CP, g_mxs, v)  { return 0.01 * v ; }
 Declare_Conversion(Paxs, g_mxs, v)  { return 10 * v ; }
 Declare_Conversion(lb_ftxh, g_mxs, v) { return 0.0041337890 * v; }
 Declare_Conversion(Poise, g_mxs, v) { return  v; }
+Declare_Conversion(mP, g_mxs, v)
+{
+  return unit_convert<Poise, g_mxs>(unit_convert<mP, Poise>(v));
+}
 
 // to cP
 Declare_Conversion(kg_mxs, CP, v)  { return 1000 * v ; }
@@ -71,6 +93,7 @@ Declare_Conversion(g_mxs, CP, v)  { return 100 * v ; }
 Declare_Conversion(Paxs, CP, v)  { return 1000 * v ; }
 Declare_Conversion(lb_ftxh, CP, v) { return 0.4133789006 * v; } 
 Declare_Conversion(Poise, CP, v)  { return 100 * v ; }
+Declare_Conversion(mP, CP, v) { return v/1e4; }
 
 // to Pa*s
 Declare_Conversion(kg_mxs, Paxs, v)  { return  v ; }
@@ -79,6 +102,10 @@ Declare_Conversion(g_mxs, Paxs, v)  { return 0.1 * v ; }
 Declare_Conversion(CP, Paxs, v)  { return 0.001 * v ; }
 Declare_Conversion(lb_ftxh, Paxs, v) { return 0.0004133789006 * v; } 
 Declare_Conversion(Poise, Paxs, v)  { return 0.1 * v ; }
+Declare_Conversion(mP, Paxs, v)
+{
+  return unit_convert<Poise, Paxs>(unit_convert<Paxs, Poise>(v));
+}
 
 // to lb/ft*h
 Declare_Conversion(kg_mxs, lb_ftxh, v)  { return 2419.08815 * v ; }
@@ -88,13 +115,6 @@ Declare_Conversion(Paxs, lb_ftxh, v)  { return 2419.08815 * v ; }
 Declare_Conversion(Poise, lb_ftxh, v) { return 241.908815 * v; }
 Declare_Conversion(g_mxs, lb_ftxh, v) { return 241.908815 * v; }
 
-// to Poise
-Declare_Conversion(kg_mxs, Poise, v)  { return 10 * v ; }
-Declare_Conversion(lb_ftxs, Poise, v)  { return 14.8816394388 * v ; }
-Declare_Conversion(CP, Poise, v)  { return 0.01 * v ; }
-Declare_Conversion(Paxs, Poise, v)  { return 10 * v ; }
-Declare_Conversion(lb_ftxh, Poise, v) { return 0.0041337890 * v; }
-Declare_Conversion(g_mxs, Poise, v) { return  v; }
 
 # endif // DINAMIC_VISCOSITY_UNIT_H 
 
