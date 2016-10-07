@@ -60,7 +60,7 @@ UgCarrKB::impl(const Quantity<Fahrenheit> & t,
   return Quantity<CP>(ug);
 }
 
-inline Quantity<CP>
+inline Quantity<mP>
 UgLeeGE::impl(const Quantity<Rankine> & t,
 	      const Quantity<psia> & p,
 	      const Quantity<Sgg> & yg,
@@ -74,9 +74,9 @@ UgLeeGE::impl(const Quantity<Rankine> & t,
             
   const double pg = 1.4935e-3*p.raw()*mg/(z.raw()*t.raw()); // gas density [g/cm3]
             
-  const double ug = 1e-4*k*exp(x*pow(pg, y));
+  const double ug = k*exp(x*pow(pg, y));
 
-  return Quantity<CP>(ug);
+  return Quantity<mP>(ug);
 }
 
 inline Quantity<CP>

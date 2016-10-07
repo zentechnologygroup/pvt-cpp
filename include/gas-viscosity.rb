@@ -25,7 +25,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("UgLeeGE", "GasViscosity", "CP")
+begin_correlation("UgLeeGE", "GasViscosity", "mP")
 add_title("LEE ET AL. CORRELATION, CALCULATION OF GAS VISCOSITY")
 add_parameter("t", "Rankine", "Aqui Neylith",  "Quantity<Fahrenheit>(100)",  "Quantity<Fahrenheit>(340)") 
 add_parameter("p", "psia", "Aqui Neylith",  100,  8000)

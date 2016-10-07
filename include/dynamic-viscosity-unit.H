@@ -48,9 +48,10 @@ Declare_Conversion(lb_ftxs, kg_mxs, v) { return 1.4881639439 * v; }
 Declare_Conversion(g_mxs, kg_mxs, v)  { return 0.1 * v; }
 Declare_Conversion(CP, kg_mxs, v)  { return 0.001 * v; }
 Declare_Conversion(Paxs, kg_mxs, v)  { return  v; }
-Declare_Conversion(lb_ftxh, kg_mxs, v)   { return 0.0004133789 * v; }
+Declare_Conversion(lb_ftxh, kg_mxs, v) { return 0.0004133789 * v; }
 Declare_Conversion(Poise, kg_mxs, v)  { return 0.1 * v; }
 Declare_Conversion(mP, kg_mxs, v)  { return 0.01e-5 * v; }
+
 
 // to Poise
 Declare_Conversion(kg_mxs, Poise, v)  { return 10 * v ; }
@@ -59,20 +60,8 @@ Declare_Conversion(CP, Poise, v)  { return 0.01 * v ; }
 Declare_Conversion(Paxs, Poise, v)  { return 10 * v ; }
 Declare_Conversion(lb_ftxh, Poise, v) { return 0.0041337890 * v; }
 Declare_Conversion(g_mxs, Poise, v) { return  v; }
-Declare_Conversion(Poise, mP, v) { return 1e6 * v; }
 Declare_Conversion(mP, Poise, v) { return v/1e6; }
 
-// to lb/ft*s 
-Declare_Conversion(kg_mxs, lb_ftxs, v)  { return 0.6719689750 * v ; }
-Declare_Conversion(g_mxs, lb_ftxs, v)  { return 0.0671968975 * v ; }
-Declare_Conversion(CP, lb_ftxs, v)  { return 0.000671968975 * v ; }
-Declare_Conversion(Paxs, lb_ftxs, v)  { return 0.6719689750 * v ; }
-Declare_Conversion(lb_ftxh, lb_ftxs, v) { return 0.0002777778 * v; }
-Declare_Conversion(Poise, lb_ftxs, v)  { return 0.0671968975 * v ; }
-Declare_Conversion(mP, lb_ftxs, v)
-{
-  return unit_convert<Poise, lb_ftxh>(unit_convert<mP, Poise>(v));
-}
 
 // to g/m*s
 Declare_Conversion(kg_mxs, g_mxs, v)  { return 10 * v ; }
@@ -114,7 +103,50 @@ Declare_Conversion(CP, lb_ftxh, v)  { return 2.41908815 * v ; }
 Declare_Conversion(Paxs, lb_ftxh, v)  { return 2419.08815 * v ; }
 Declare_Conversion(Poise, lb_ftxh, v) { return 241.908815 * v; }
 Declare_Conversion(g_mxs, lb_ftxh, v) { return 241.908815 * v; }
+Declare_Conversion(mP, lb_ftxh, v)
+{
+  return unit_convert<Poise, lb_ftxh>(unit_convert<mP, Poise>(v));
+}
 
+// to lb/ft*s 
+Declare_Conversion(kg_mxs, lb_ftxs, v)  { return 0.6719689750 * v ; }
+Declare_Conversion(g_mxs, lb_ftxs, v)  { return 0.0671968975 * v ; }
+Declare_Conversion(CP, lb_ftxs, v)  { return 0.000671968975 * v ; }
+Declare_Conversion(Paxs, lb_ftxs, v)  { return 0.6719689750 * v ; }
+Declare_Conversion(lb_ftxh, lb_ftxs, v) { return 0.0002777778 * v; }
+Declare_Conversion(Poise, lb_ftxs, v)  { return 0.0671968975 * v ; }
+Declare_Conversion(mP, lb_ftxs, v)
+{
+  return unit_convert<Poise, lb_ftxh>(unit_convert<mP, Poise>(v));
+}
+
+// to mP TODO
+Declare_Conversion(Poise, mP, v) { return 1e6 * v; }
+Declare_Conversion(lb_ftxs, mP, v)
+{
+  return unit_convert<Poise, mP>(unit_convert<lb_ftxs, Poise>(v));
+}
+
+Declare_Conversion(CP, mP, v) { return v/1e4; }
+Declare_Conversion(Paxs, mP, v)
+{
+  return unit_convert<Poise, mP>(unit_convert<Paxs, Poise>(v));
+}
+
+Declare_Conversion(lb_ftxh, mP, v)
+{
+  return unit_convert<Poise, mP>(unit_convert<lb_ftxh, Poise>(v));
+}
+
+Declare_Conversion(g_mxs, mP, v)
+{
+  return unit_convert<Poise, mP>(unit_convert<g_mxs, Poise>(v));
+}
+
+Declare_Conversion(kg_mxs, mP, v)
+{
+  return unit_convert<Poise, mP>(unit_convert<kg_mxs, Poise>(v));
+}
 
 # endif // DINAMIC_VISCOSITY_UNIT_H 
 
