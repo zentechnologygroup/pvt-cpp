@@ -9,13 +9,13 @@ add_doc(%Q[    CALCULATION OF OIL DENSITY
     Oil System Correlations ".SPE International.
 
  ])
-add_parameter("yg",  "Sgg", "Aqui Neylith")
-add_parameter("rs",  "SCF_STB", "Aqui Neylith")
-add_parameter("bo",  "RB_STB", "Aqui Neylith")
-add_parameter("yo",  "Sg_do", "Aqui Neylith")
-add_parameter("p",  "psia", "Aqui Neylith")
-add_parameter("pb",  "psia", "Aqui Neylith")
-add_parameter("co",  "psia_1", "Aqui Neylith")
+add_parameter("yg",  "Sgg", "Gas specific gravity")
+add_parameter("rs",  "SCF_STB", "Solution GOR at Pb")
+add_parameter("bo",  "RB_STB", "Oil formation volume factor")
+add_parameter("yo",  "Sg_do", "Oil specific gravity")
+add_parameter("p",  "psia", "Pressure")
+add_parameter("pb",  "psia", "Bubble point pressure")
+add_parameter("co",  "psia_1", "Coefficient of isothermal compressibility")
 add_author("Bradley")
 end_correlation()
 
