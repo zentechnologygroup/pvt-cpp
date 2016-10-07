@@ -8,6 +8,7 @@ add_parameter("yg", "Sgg")
 add_parameter("n2_concentration", "MoleFraction")
 add_parameter("co2_concentration", "MoleFraction")
 add_parameter("h2s_concentration", "MoleFraction")
+add_author("Correction Yg Wichert & Aziz")
 end_correlation()
 
 ################################################################
@@ -19,6 +20,7 @@ add_parameter("pschc", "psia")
 add_parameter("n2_concentration", "MoleFraction")
 add_parameter("co2_concentration", "MoleFraction")
 add_parameter("h2s_concentration", "MoleFraction")
+add_author("Correction Psc MKayMixingRule")
 end_correlation()
 
 ################################################################
@@ -34,6 +36,7 @@ add_parameter("co2_concentration", "MoleFraction",
               "Quantity<MolePercent>(0)", "Quantity<MolePercent>(54.4)")
 add_parameter("h2s_concentration", "MoleFraction",
               "Quantity<MolePercent>(0)", "Quantity<MolePercent>(73.8)")
+add_author("Correction Psc MWichertAziz")
 end_correlation()
 
 ################################################################
@@ -50,6 +53,7 @@ add_parameter("tschc", "psia")
 add_parameter("n2_concentration", "MoleFraction")
 add_parameter("co2_concentration", "MoleFraction")
 add_parameter("h2s_concentration", "MoleFraction")
+add_author("Correction Tsc MKayMixingRule")
 end_correlation()
 
 ################################################################
@@ -68,4 +72,5 @@ add_parameter("h2s_concentration", "MoleFraction",
               "Quantity<MolePercent>(0)", "Quantity<MolePercent>(73.8)")
 add_note("The original reference is not available. The correlation was verified by using a secondary reference: Standing (1977). Date: September 12 2016.")
 add_note("The development ranges were taken from PetroWiki (http://petrowiki.org/Real_gases).")
+add_author("Correction Tsc MWichertAziz")
 end_correlation()

@@ -9,6 +9,7 @@ add_parameter("yg", "Sgg", 0.55, 1.55)
 add_parameter("n2_concentration", "MolePercent")
 add_parameter("co2_concentration", "MolePercent")
 add_parameter("h2s_concentration", "MolePercent")
+add_author("Carr et al.")
 end_correlation()
 
 ################################################################
@@ -19,6 +20,7 @@ add_parameter("t", "Rankine",
 add_parameter("p", "psia", 100, 8000)
 add_parameter("yg", "Sgg")
 add_parameter("z", "ZFactor")
+add_author("Lee et al.")
 end_correlation()
 
 ################################################################
