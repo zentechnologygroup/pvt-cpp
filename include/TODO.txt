@@ -15,3 +15,5 @@ corregir psia_1: no debe estar asociada a unidad de presión,2016-10-02 21:35:35
 añadir en add_parameter la posibilidad de poner una nota adicional sobre el parámetro,2016-10-04 09:37:02 -0400,2016-10-07 07:50:34 -0400,
 parámetro s de salinidad debe set porcentual para que no dé una raíz negativa,2016-10-04 21:31:03 -0400,,
 implementar un método de sobrecarga de correlación,2016-10-07 11:25:16 -0400,,
+oil-compressibility: sacar a McCain de las otras correlaciones,2016-10-07 15:41:29 -0400,,
+si una correlación oil-compre recibe p>pb +==> excepción,2016-10-07 15:42:41 -0400,,usar presión si es requerida

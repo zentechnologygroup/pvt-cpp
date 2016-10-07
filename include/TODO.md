@@ -59,3 +59,11 @@
 ## 17. implementar un método de sobrecarga de correlación
 - Created at   2016-10-07 11:25:16 -0400
 
+## 18. oil-compressibility: sacar a McCain de las otras correlaciones
+- Created at   2016-10-07 15:41:29 -0400
+
+## 19. si una correlación oil-compre recibe p>pb +==> excepción
+- Created at   2016-10-07 15:42:41 -0400
+- Completed at 
+- Comment      usar presión si es requerida
+
