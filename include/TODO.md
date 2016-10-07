@@ -45,3 +45,6 @@
 ## 15. añadir en add_parameter la posibilidad de poner una nota adicional sobre el parámetro
 - Created at   2016-10-04 09:37:02 -0400
 
+## 16. parámetro s de salinidad debe set porcentual para que no dé una raíz negativa
+- Created at   2016-10-04 21:31:03 -0400
+

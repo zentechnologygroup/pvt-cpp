@@ -39,7 +39,7 @@ generate_row(const Unit & unit, double val, double epsilon, bool verbose)
       abort();
     }
   
-  for (auto ut = unit.sibling_units().get_it(); ut.has_curr(); ut.next())
+  for (auto ut = unit.family_units().get_it(); ut.has_curr(); ut.next())
     {
       const Unit * const unit_ptr = ut.get_curr();
       VtlQuantity conv(*unit_ptr);

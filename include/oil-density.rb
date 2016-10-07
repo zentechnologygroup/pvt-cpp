@@ -9,13 +9,13 @@ add_doc(%Q[    CALCULATION OF OIL DENSITY
     Oil System Correlations ".SPE International.
 
  ])
-add_parameter("yg", "Sgg")
-add_parameter("rs", "SCF_STB")
-add_parameter("bo", "RB_STB")
-add_parameter("yo", "Sg_do")
-add_parameter("p", "psia")
-add_parameter("pb", "psia")
-add_parameter("co", "psia_1")
+add_parameter("yg",  "Sgg", "Aqui Neylith")
+add_parameter("rs",  "SCF_STB", "Aqui Neylith")
+add_parameter("bo",  "RB_STB", "Aqui Neylith")
+add_parameter("yo",  "Sg_do", "Aqui Neylith")
+add_parameter("p",  "psia", "Aqui Neylith")
+add_parameter("pb",  "psia", "Aqui Neylith")
+add_parameter("co",  "psia_1", "Aqui Neylith")
 add_author("Bradley")
 end_correlation()
 

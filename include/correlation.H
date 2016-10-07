@@ -17,6 +17,7 @@
 struct CorrelationPar
 {
   const string name;
+  const string description;
   const Unit & unit;
   const VtlQuantity min_val;
   const VtlQuantity max_val;
@@ -24,8 +25,18 @@ struct CorrelationPar
 private:
 
   bool check_active = true;
-
+  
+  double epsilon = 1e-3;
+  
 public:
+
+  void set_epsilon(double ratio = 0.01)
+  {
+    Unit::validate_ratio(ratio);
+    epsilon = ratio*(max_val.raw() - min_val.raw());
+  }
+
+  double get_epsilon() const noexcept { return epsilon; }
 
   double step_size(size_t n) const noexcept
   {
@@ -43,17 +54,20 @@ public:
     return { name, unit.symbol, min_val.to_string(), max_val.to_string() };
   }
 
-  CorrelationPar(const string & name, const Unit & unit,
-		 const VtlQuantity min, const VtlQuantity max)
-    : name(name), unit(unit), min_val(unit, min), max_val(unit, max) {}
+  CorrelationPar(const string & name, const Unit & unit, const string & desc, 
+		 const VtlQuantity & min, const VtlQuantity & max)
+    : name(name), description(desc), unit(unit),
+      min_val(unit, min), max_val(unit, max) {}
 
-  CorrelationPar(const string & name, BaseQuantity & q, double min, double max)
-    : CorrelationPar(name, q.unit,
+  CorrelationPar(const string & name, const BaseQuantity q,
+		 const string & desc, double min, double max)
+    : CorrelationPar(name, q.unit, desc, 
 		     VtlQuantity(q.unit, min), VtlQuantity(q.unit, max)) {}
 
   bool check(const BaseQuantity & val) const noexcept
   {
-    return val.get_value() >= min_val and val.get_value() <= max_val and
+    return val.get_value() >= min_val.raw() - epsilon and
+      val.get_value() <= max_val.raw() + epsilon and
       &val.unit == &unit;
   }
 
@@ -64,14 +78,14 @@ public:
     
     ostringstream s;
   
-    if (q.get_value() < min_val)
+    if (q.get_value() < min_val.raw() - epsilon)
       {
 	s << "Value " << q.get_value() << " is lesser than the minimum value "
 	  << min_val << " for precondition ";
 	throw range_error(s.str());
       }
 
-    if (q.get_value() > max_val)
+    if (q.get_value() > max_val.raw() + epsilon)
       {
 	s << "Value " << q << " is greater than the maximum value "
 	  << max_val << " for precondition ";
@@ -105,7 +119,7 @@ private:
   static DynMapTree<string, const Correlation * const> tbl;
 
   static Array<const Correlation * > correlations_tbl;
-  
+
 public:
 
   void set_hidden() { hidden = true; }
@@ -316,6 +330,7 @@ protected:
   virtual ~Correlation() = 0; // Correlation is abstract
 
   void add_parameter(const string & name, const Unit & unit,
+		     const string & description,
 		     const VtlQuantity & min, const VtlQuantity & max)
   {
     auto min_aux = VtlQuantity(unit, min);
@@ -328,26 +343,28 @@ protected:
 	throw domain_error(s.str());
       }
     
-    preconditions.emplace(name, unit, min_aux, max_aux);
+    preconditions.emplace(name, unit, description, min_aux, max_aux);
     ++n;
   }
 
   void add_parameter(const string & name, const Unit & unit,
-		     const VtlQuantity & min)
+		     const string & description, const VtlQuantity & min)
   {
-    add_parameter(name, unit, min, VtlQuantity(unit, unit.max_val));
+    add_parameter(name, unit, description, min, VtlQuantity(unit, unit.max_val));
   }
 
-  void add_parameter(const string & name, const Unit & unit)
+  void add_parameter(const string & name, const Unit & unit,
+		     const string & description)
   {
-    add_parameter(name, unit, VtlQuantity(unit, unit.min_val),
+    add_parameter(name, unit, description, VtlQuantity(unit, unit.min_val),
 		  VtlQuantity(unit, unit.max_val));
   }
 
   void add_parameter(const string & name, const Unit & unit,
-		     double min, double max)
+		     const string & description, double min, double max)
   {
-    add_parameter(name, unit, VtlQuantity(unit, min), VtlQuantity(unit, max));
+    add_parameter(name, unit, description,
+		  VtlQuantity(unit, min), VtlQuantity(unit, max));
   }
 
 public:

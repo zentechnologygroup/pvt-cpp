@@ -70,3 +70,9 @@
 - Comment      
 - Finished     
 
+## 13. Los radios pseudo reducidos pueden ser negtivos?
+- Created at   2016-10-06 19:31:30 -0400
+- Completed at 
+- Comment      
+- Finished     
+

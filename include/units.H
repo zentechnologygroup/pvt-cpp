@@ -97,6 +97,8 @@ class Unit : public UnitItem
 {
   double epsilon = 1e-6;
 
+public:
+
   static void validate_ratio(const double ratio)
   {
     if (not (ratio <= 0 or ratio > 0.3))
@@ -106,6 +108,8 @@ class Unit : public UnitItem
     s << "epsilon ratio " << ratio << " is not inside (0, " << ratio << ")";
     throw domain_error(s.str());
   }
+
+private:
 
   static const Unit null_unit;
 
@@ -171,7 +175,13 @@ public:
   static DynList<const Unit* const> units() { return unit_tbl.keys(); }
 
   /// return all the units associated to this (including this)
-  const DynList<const Unit* const> sibling_units() const
+  const DynList<const Unit* const> & family_units() const
+  {
+    return physical_quantity.units();
+  }
+
+  /// return all the units associated to this (not including this)
+  DynList<const Unit* const> sibling_units() const
   {
     return physical_quantity.units().filter([this] (auto ptru)
 					    {

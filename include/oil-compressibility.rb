@@ -18,12 +18,11 @@ add_doc(%Q[    McCAIN ET AL. CORRELATION FOR SATURATED OILS (PRESSURES
     studies of 260 oil fields worldwide. 
 
  ])
-add_parameter("api", "Api", 18, 52)
-add_parameter("rsb", "SCF_STB", 15, 1947)
-add_parameter("t", "Rankine",
-              "Quantity<Fahrenheit>(78)", "Quantity<Fahrenheit>(330)")
-add_parameter("p", "psia", 500, 5300)
-add_parameter("pb", "psia", 763, 5300)
+add_parameter("api", "Api", "Aqui Neylith",  18,  52)
+add_parameter("rsb", "SCF_STB", "Aqui Neylith",  15,  1947)
+add_parameter("t", "Rankine", "Aqui Neylith",  "Quantity<Fahrenheit>(78)",  "Quantity<Fahrenheit>(330)") 
+add_parameter("p", "psia", "Aqui Neylith",  500,  5300)
+add_parameter("pb", "psia", "Aqui Neylith",  763,  5300)
 add_author("McCain et al.")
 end_correlation()
 
@@ -48,14 +47,14 @@ add_doc(%Q[    DE GHETTO CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS
     10<°API<=22.3. 
 
  ])
-add_parameter("yg", "Sgg", 0.623, 1.517)
-add_parameter("api", "Api", 6, 22.3)
-add_parameter("rsb", "SCF_STB", 17.21, 640.25)
-add_parameter("t", "Fahrenheit", 131.4, 250.7)
-add_parameter("tsep", "Fahrenheit", 59, 177.8)
-add_parameter("p", "psia", 1038.49, 7411.54)
-add_parameter("pb", "psia", 208.86, 4021.96)
-add_parameter("psep", "psia", 14.5, 752.2)
+add_parameter("yg", "Sgg", "Aqui Neylith",  0.623,  1.517)
+add_parameter("api", "Api", "Aqui Neylith",  6,  22.3)
+add_parameter("rsb", "SCF_STB", "Aqui Neylith",  17.21,  640.25)
+add_parameter("t", "Fahrenheit", "Aqui Neylith",  131.4,  250.7)
+add_parameter("tsep", "Fahrenheit", "Aqui Neylith",  59,  177.8)
+add_parameter("p", "psia", "Aqui Neylith",  1038.49,  7411.54)
+add_parameter("pb", "psia", "Aqui Neylith",  208.86,  4021.96)
+add_parameter("psep", "psia", "Aqui Neylith",  14.5,  752.2)
 add_author("De Ghetto")
 end_correlation()
 
@@ -78,11 +77,11 @@ add_doc(%Q[     HANAFY CORRELATION, CALCULATION OF OIL ISOTHERMAL COMPRESSIBILIT
 
  ])
 
-add_parameter("api", "Api", 17.8, 47.7)
-add_parameter("rsb", "SCF_STB", 7, 4272)
-add_parameter("t", "Fahrenheit", 107, 327)
-add_parameter("p", "psia")
-add_parameter("pb", "psia", 36, 5003)
+add_parameter("api", "Api", "Aqui Neylith",  17.8,  47.7)
+add_parameter("rsb", "SCF_STB", "Aqui Neylith",  7,  4272)
+add_parameter("t", "Fahrenheit", "Aqui Neylith",  107,  327)
+add_parameter("p",  "psia", "Aqui Neylith")
+add_parameter("pb", "psia", "Aqui Neylith",  36,  5003)
 add_author("Hanafy")
 end_correlation()
 
@@ -107,14 +106,14 @@ crude oil samples.
 
  ])
 
-add_parameter("yg", "Sgg", 0.4824, 1.668)
-add_parameter("api", "Api", 14.4, 59)
-add_parameter("rsb", "SCF_STB", 0, 2890)
-add_parameter("t", "Fahrenheit", 75, 320)
-add_parameter("tsep", "Fahrenheit", 38, 294)
-add_parameter("p", "psia", 24.7, 4764.7)
-add_parameter("pb", "psia", 24.7, 6014.7)
-add_parameter("psep", "psia", 14.7, 1414.7)
+add_parameter("yg", "Sgg", "Aqui Neylith",  0.4824,  1.668)
+add_parameter("api", "Api", "Aqui Neylith",  14.4,  59)
+add_parameter("rsb", "SCF_STB", "Aqui Neylith",  0,  2890)
+add_parameter("t", "Fahrenheit", "Aqui Neylith",  75,  320)
+add_parameter("tsep", "Fahrenheit", "Aqui Neylith",  38,  294)
+add_parameter("p", "psia", "Aqui Neylith",  24.7,  4764.7)
+add_parameter("pb", "psia", "Aqui Neylith",  24.7,  6014.7)
+add_parameter("psep", "psia", "Aqui Neylith",  14.7,  1414.7)
 add_author("Kartoatmodjo & Schmidt")
 end_correlation()
 
@@ -139,12 +138,12 @@ add_doc(%Q[    PETROSKY & FARSHAD CORRELATION, CALCULATION OF OIL
     Many Gulf of Mexico crudes can be characterized as naphthenic or
     biodegraded oils.
  ])
-add_parameter("yg", "Sgg", 0.5781, 0.8519)
-add_parameter("api", "Api", 16.3, 45)
-add_parameter("rsb", "SCF_STB", 217, 1406)
-add_parameter("t", "Fahrenheit", 114, 288)
-add_parameter("p", "psia", 1700, 10692)
-add_parameter("pb", "psia", 1574, 6523)
+add_parameter("yg", "Sgg", "Aqui Neylith",  0.5781,  0.8519)
+add_parameter("api", "Api", "Aqui Neylith",  16.3,  45)
+add_parameter("rsb", "SCF_STB", "Aqui Neylith",  217,  1406)
+add_parameter("t", "Fahrenheit", "Aqui Neylith",  114,  288)
+add_parameter("p", "psia", "Aqui Neylith",  1700,  10692)
+add_parameter("pb", "psia", "Aqui Neylith",  1574,  6523)
 add_author("Petrosky & Farshad")
 end_correlation()
 
@@ -166,14 +165,14 @@ add_doc(%Q[    VASQUEZ & BEGGS CORRELATION, CALCULATION OF OIL
     4036 data points. 
 
  ])
-add_parameter("yg", "Sgg", 0.511, 1.351)
-add_parameter("api", "Api", 15.3, 59.5)
-add_parameter("rsb", "SCF_STB", 9.3, 2199)
-add_parameter("t", "Fahrenheit")
-add_parameter("tsep", "Fahrenheit", 76, 150)
-add_parameter("p", "psia", 141, 9515)
-add_parameter("pb", "psia")
-add_parameter("psep", "psia", 60, 565)
+add_parameter("yg", "Sgg", "Aqui Neylith",  0.511,  1.351)
+add_parameter("api", "Api", "Aqui Neylith",  15.3,  59.5)
+add_parameter("rsb", "SCF_STB", "Aqui Neylith",  9.3,  2199)
+add_parameter("t",  "Fahrenheit", "Aqui Neylith")
+add_parameter("tsep", "Fahrenheit", "Aqui Neylith",  76,  150)
+add_parameter("p", "psia", "Aqui Neylith",  141,  9515)
+add_parameter("pb",  "psia", "Aqui Neylith")
+add_parameter("psep", "psia", "Aqui Neylith",  60,  565)
 add_author("Vasquez & Beggs")
 end_correlation()
 
@@ -191,12 +190,12 @@ add_doc(%Q[    PEREZ ET AL. CORRELATION (MODIFIED PETROSKY-FARSHAD
     Octubre de 2001 
 
  ])
-add_parameter("yg", "Sgg", 0.571, 0.981)
-add_parameter("api", "Api", 6.4, 12.9)
-add_parameter("rsb", "SCF_STB", 38, 121)
-add_parameter("t", "Fahrenheit", 112, 300)
-add_parameter("p", "psia")
-add_parameter("pb", "psia", 405, 1335)
+add_parameter("yg", "Sgg", "Aqui Neylith",  0.571,  0.981)
+add_parameter("api", "Api", "Aqui Neylith",  6.4,  12.9)
+add_parameter("rsb", "SCF_STB", "Aqui Neylith",  38,  121)
+add_parameter("t", "Fahrenheit", "Aqui Neylith",  112,  300)
+add_parameter("p",  "psia", "Aqui Neylith")
+add_parameter("pb", "psia", "Aqui Neylith",  405,  1335)
 add_author("Pérez et al.")
 end_correlation()
 
@@ -219,10 +218,10 @@ add_doc(%Q[    MILLÁN-ARCIA CORRELATION, CALCULATION OF OIL ISOTHERMAL
 
  ])
 
-add_parameter("api", "Api", 9.0, 20.2)
-add_parameter("rsb", "SCF_STB", 53, 459)
-add_parameter("t", "Fahrenheit", 87, 195)
-add_parameter("p", "psia",)
-add_parameter("pb", "psia", 222.0, 3432.7)
+add_parameter("api", "Api", "Aqui Neylith",  9.0,  20.2)
+add_parameter("rsb", "SCF_STB", "Aqui Neylith",  53,  459)
+add_parameter("t", "Fahrenheit", "Aqui Neylith",  87,  195)
+add_parameter("p", "psia", "Aqui Neylith", )
+add_parameter("pb", "psia", "Aqui Neylith",  222.0,  3432.7)
 add_author("Millán Arcia")
 end_correlation()
