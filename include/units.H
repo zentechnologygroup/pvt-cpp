@@ -392,6 +392,8 @@ inline bool exist_conversion(const string & src_symbol,
   return exist_conversion(*src_unit, *tgt_unit);
 }
 
+extern bool conversion_exist(const char * src_symbol, const char * tgt_symbol);
+
 inline Unit_Convert_Fct_Ptr search_conversion_fct(const string & src_symbol,
 						  const string & tgt_symbol)
 {
@@ -492,6 +494,9 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
 
   return (*fct)(val);
 }
+
+extern double unit_convert(const char * src_symbol, const char * tgt_symbol,
+			   double val);
 
 /** Declare a new unit
 

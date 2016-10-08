@@ -1840,3 +1840,19 @@ def CwDodsonStandingCorrelation(T, P, Pb, Rsw, Rswb, S, Bg, Bw):
     CwDodsonStanding = Cw 
     return CwDodsonStanding
 
+def CwOsifCorrelation(T, P, Pb, S, Bg, Bw):
+    if P > Pb: 
+        Cw = 1/((7.033 * P) + (541.5 * S * 9.988590004) - (537 * T) + 403.3e3)
+    else:
+        if (Bg == None) or (Bw == None):            
+            Cw = None  
+        else: 
+            Cwb = 1/((7.033 * Pb) + (541.5 * S * 9.988590004) - (537 * T) + 403.3e3)
+            B = 1.01021e-2 - (7.44241e-5 * T) + (3.05553e-7 * (T **2)) - (2.94883e-10 * (T ** 3))
+            C = (-9.02505 + (0.130237 * T) - (8.53425e-4 * (T ** 2)) + (2.34122e-6 * (T ** 3)) - (2.37049e-9 * (T ** 4))) * 1e-7
+            dRswdPs = B + (2 * C * P) 
+            dRswdP = dRswdPs * (1 + ((S ** 0.7) * (-5.2e-2 + (2.7e-4 * T) - (1.14e-6 * (T ** 2)) + (1.121e-9 * (T ** 3)))))
+            Cw = Cwb + (((Bg*0.177927131)/Bw) * (dRswdP))
+    CwOsif = Cw 
+    return CwOsif
+    

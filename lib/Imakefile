@@ -2,6 +2,8 @@ DEPEND = sh ./depend.sh
 
 ALEPHW = $(shell echo $$ALEPHW)
 
+CXX = $(shell echo $$CLANGPATH)/bin/clang++  
+
 INCLUDES = -I../include -I$(ALEPHW) 
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
 FLAGS = -std=c++14 $(WARN) -O0 -g

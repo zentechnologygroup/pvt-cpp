@@ -28,6 +28,14 @@ QMAKE_CXXFLAGS_RELEASE += -Ofast -D__extern_always_inline=inline
 
 CONFIG += c++14
 
+
+      # TMP
+      # For some reason I still do not understand, the kit fails to accept the compiler I want
+      # So, these two lines are temporal.
+QMAKE_CC = /home/lrleon/LLVM-3.9.0/bin/clang
+QMAKE_CXX = /home/lrleon/LLVM-3.9.0/bin/clang++
+      # End TMP
+
 QMAKE_CXXFLAGS += -std=c++14
 
 LIBS += $$PWD/../lib/libpvt.a -L/home/lrleon/Aleph-w -lAleph

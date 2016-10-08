@@ -177,3 +177,4 @@ long free_correlation_call(long proxy_id)
   delete (CorrelationInvoker*) proxy_id;
   return true;
 }
+

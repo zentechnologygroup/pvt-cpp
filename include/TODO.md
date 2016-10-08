@@ -5,13 +5,14 @@
 
 ## 2. nueva flag en gen-corr para generar llamadas externas
 - Created at   2016-09-26 19:34:30 -0400
+- Completed at 2016-10-08 09:33:55 -0400
 
 ## 3. tabla de correlaciones y protocolo de llamada con manejo de errores
 - Created at   2016-09-27 11:02:41 -0400
 
 ## 4. en compute de correlation poner un doble itrdor en lugar del zip
 - Created at   2016-09-27 16:16:49 -0400
-- Completed at 2016-10-07 09:09:39 -0400
+- Completed at 2016-10-08 09:22:35 -0400
 
 ## 5. manejag mPascal en water-density.rb
 - Created at   2016-09-29 10:17:52 -0400
@@ -19,6 +20,7 @@
 
 ## 6. buscar manera de inhabilitar validaciones en correlaciones
 - Created at   2016-09-30 09:38:48 -0400
+- Completed at 2016-10-08 09:22:49 -0400
 
 ## 7. hacer regresión
 - Created at   2016-09-30 10:15:00 -0400
@@ -55,6 +57,7 @@
 
 ## 16. parámetro s de salinidad debe set porcentual para que no dé una raíz negativa
 - Created at   2016-10-04 21:31:03 -0400
+- Completed at 2016-10-08 09:20:50 -0400
 
 ## 17. implementar un método de sobrecarga de correlación
 - Created at   2016-10-07 11:25:16 -0400
