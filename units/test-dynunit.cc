@@ -1,6 +1,7 @@
 
 # include "test-utils.H"
-# include <units.H>
+
+# include <units/units.H>
 
     // Distance declarations
 Declare_Physical_Quantity(Distance, "d",

@@ -1,38 +1,8 @@
+# define IHaveSubdirs
+# define PassCDebugFlags
 
-INCLUDES = -I../include -I$(ALEPHW) 
-WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
-	-Wno-parentheses
+SUBDIRS =  units correlations
 
-FLAGS = -std=c++14 $(WARN) -O0 -g
-#FLAGS = -std=c++14 $(WARN) -Ofast -DNDEBUG
 
-OPTIONS = $(FLAGS)
-CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
-
-.SUFFIXES: .rb .H .cc
-
-.rb.H: gen-corr
-	$(RM) $*.H; 	\	@@\
-	./gen-corr -f $*.rb -H | clang-format -style=Mozilla > $@
-
-.rb.cc: ../include/gen-corr
-	$(RM) $*.cc; 	\	@@\
-	./gen-corr -f $*.rb -X | clang-format -style=Mozilla > $@
-
-CORRS = $(shell ls $(DIR)*.rb)
-
-HCORRS = $(CORRS:.rb=.H)
-CCORRS = $(CORRS:.rb=.cc)
-
-BIBLIO = $(TOP)/bin/biblio
-
-biblios.H: refs.bib
-	$(RM) $*.H; 	\	@@\
-	$(BIBLIO) -H -f refs.bib | clang-format -style=Mozilla > $@
-
-depend:: $(HCORRS) $(CCORRS) biblios.H
-
-all:: $(HCORRS) $(CCORRS) biblios.H
-
-clean::
-	$(RM) $(HCORRS) $(CCORRS) biblios.H
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))

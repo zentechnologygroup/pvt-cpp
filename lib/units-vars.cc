@@ -1,5 +1,6 @@
 # include <mutex>
-# include <pvt-units.H>
+
+# include <units/pvt-units.H>
 
 // the following data is declared in units.H
 UnitItemTable PhysicalQuantity::tbl;

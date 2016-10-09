@@ -1,7 +1,9 @@
 
 # include <cmath>
 # include <ahSort.H>
-# include <units.H>
+
+# include <units/units.H>
+
 # include "test-utils.H"
 
     // Distance declarations

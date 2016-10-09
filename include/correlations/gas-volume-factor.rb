@@ -1,0 +1,13 @@
+
+begin_correlation("Bg", "GasVolumeFactor", "RCF_SCF")
+add_title("CALCULATION OF GAS FORMATION VOLUME FACTOR")
+add_parameter("t",  "Rankine", "Aqui Neylith")
+add_parameter("p",  "psia", "Aqui Neylith")
+add_parameter("z",  "ZFactor", "Aqui Neylith")
+add_author("Standard Equation")
+add_db("The calculation is based on the Real Gas Law.")
+add_ref("takacs:2005")
+add_ref("banzer:1996")
+add_ref("petroWiki:2016")
+add_internal_note("The equation was verified by using secondary references: Bánzer (1996) and PetroWiki (2016). Date: September 28 2016.")
+end_correlation()

@@ -1,8 +1,8 @@
 
 # include <iostream>
 
-# include <pvt-units.H>
-# include <pvt-correlations.H>
+# include <units/pvt-units.H>
+# include <correlations/pvt-correlations.H>
 
 int main()
 {

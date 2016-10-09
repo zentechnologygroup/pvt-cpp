@@ -1,0 +1,3 @@
+S: Salinidad del agua de formación [% de solidos disueltos]
+
+MC7plus: 100 - 240 [lb/lbmol]

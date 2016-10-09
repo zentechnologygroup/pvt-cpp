@@ -2,7 +2,7 @@ DEPEND = sh ./depend.sh
 
 ALEPHW = $(shell echo $$ALEPHW)
 
-CXX = $(shell echo $$CLANGPATH)/bin/clang++  
+#CXX = $(shell echo $$CLANGPATH)/bin/clang++  
 
 INCLUDES = -I../include -I$(ALEPHW) 
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
@@ -24,25 +24,28 @@ EXTRACT_CV = $(TOP)/bin/extract-cv
 
 BIBLIO = $(TOP)/bin/biblio
 
-DIR=../include/
+UNITSDIR=$(TOP)/include/units/
+CORRDIR=$(TOP)/include/correlations/
 
-CORRS=$(shell ls $(DIR)*.rb)
+CORRS=$(shell ls $(CORRDIR)*.rb)
 
 CALLS =	$(CORRS:.rb=.cc)
-HCORR =	$(CORRS:.rb=.H) $(shell ls $(DIR)*-unit.H) $(shell ls $(DIR)*-impl.H)
+HCORR =	$(CORRS:.rb=.H) $(shell ls $(UNITSDIR)*-unit.H) \
+	$(shell ls $(CORRDIR)*-impl.H)
 
 test:
 	echo $(CORRS)
 
-biblios.cc: ../include/refs.bib 
+biblios.cc: $(TOP)/include/correlations/refs.bib 
 	$(RM) $*.cc; 	\	@@\
-	$(BIBLIO) -C -f ../include/refs.bib | clang-format -style=Mozilla > $@
+	$(BIBLIO) -C -f $(CORRDIR)refs.bib | clang-format -style=Mozilla > $@
 
 pvt.cc: $(CALLS) $(HCORR) 					\
-	../include/units.H 					\
+	$(TOP)/include/units/units.H 					\
 	biblios.cc units-vars.cc correlations-vars.cc 		\
-	../include/pvt-correlations.H ../include/correlation.H 	\
-	../include/units.H ../include/pvt-units.H
+	$(TOP)/include/correlations/pvt-correlations.H \
+	$(TOP)/include/correlations/correlation.H 	\
+	$(TOP)/include/units/pvt-units.H
 	$(RM) -f $@;					\	@@\
 	cat biblio-vars.cc >> $@;			\	@@\
 	cat biblios.cc >> $@;				\	@@\

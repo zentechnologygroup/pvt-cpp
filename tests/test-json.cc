@@ -1,5 +1,5 @@
 
-# include <pvt-correlations.H>
+# include <correlations/pvt-correlations.H>
 
 int main()
 {

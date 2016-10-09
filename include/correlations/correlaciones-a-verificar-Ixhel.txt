@@ -1,0 +1,23 @@
+- BoDindorukChristman es demasiado compleja como para indagar
+  manualmente los caminos de ejecución . Quizá aquí klee sería de interés
+
+Verificar fórmula de CoKartoatmodjoSchmidt la cual da valores muy altos
+
+La correlación de McCain es usada por todas las demás correlaciones de
+oil-compressiblility. Sin embargo, a veces hay contradicciones en los
+rangos que que le pasan a McCain desde otra correlación cuando p <
+pb. Revisar si eso es coherente.
+
+La correlación OilDensity debe tener un nombre asociado al autor, de
+modo que no haya colisión de nonbre con el subtipo de correlación. Por
+ahora se llamará poBradley 
+
+UodPetroskyFarshadCorrelation en python está mal. Concretamente el
+término (2.3511 * 10e7)
+
+El rango de salida para uodDeGhettoEtAl está extraño 7.7 - 1386.9 (muy
+alto). 
+
+En UobKhan la expresión b = (Rs) ** (1/3) es incorrecta, pues 1/3 es cero
+
+En uobKartoatmodjoSchmidt creo que la unidad e uod es cP y no scf/STB

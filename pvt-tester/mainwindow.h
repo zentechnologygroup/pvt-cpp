@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-# include <correlation.H>
+# include <correlations/correlation.H>
 
 #include <QMainWindow>
 # include <QDoubleSpinBox>

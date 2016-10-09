@@ -1,5 +1,4 @@
 
-# include <correlation.H>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"

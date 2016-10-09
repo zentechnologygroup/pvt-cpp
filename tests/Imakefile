@@ -5,7 +5,7 @@ DEPEND = sh ./depend.sh
 
 CXXPATH=$(shell echo $$CLANGPATH)
 
-CXX = $(CXXPATH)/bin/clang++  
+#CXX = $(CXXPATH)/bin/clang++  
 
 INCLUDES = -I../include -I$(ALEPHW) 
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\

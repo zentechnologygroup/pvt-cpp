@@ -1,6 +1,6 @@
 
 # include <tclap/CmdLine.h>
-# include "correlation.H"
+# include <correlations/correlation.H>
 
 using namespace TCLAP;
 
