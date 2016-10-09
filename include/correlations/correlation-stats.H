@@ -12,6 +12,8 @@ class CorrStat
 
   const DynList<DynList<double>> samples;
 
+  long double ss_tot = 0;
+
 public:
 
   // each sample contains a row of parameters plus the value
@@ -36,6 +38,7 @@ public:
 	sum2 += diff*diff;
       }
     var = sum2/n;
+    ss_tot = sum2;
   }
 
   CorrStat(const DynList<double> & y)
@@ -52,6 +55,7 @@ public:
 	sum2 += diff*diff;
       }
     var = sum2/n;
+    ss_tot = sum2;
   }
 
   CorrStat(ifstream & input)
@@ -64,12 +68,21 @@ public:
     if (samples.is_empty())
       throw domain_error("CorrStat::r2: stat object was built without samples");
 
-    DynList<double> f =
-      samples.map<double>([this, correlation] (const DynList<double> & s)
+    long double ss_res = 0;
+    const size_t num_pars = correlation->get_num_pars();
+
+    for (auto it = samples.get_it(); it.has_curr(); it.next())
       {
-	return correlation->compute(s);
-      });
+	const auto & row = it.get_curr();
+	const double & y_i = row.get_last();
+	const double f_i = correlation->compute(row.take(num_pars));
+	const double diff = y_i - f_i;
+	ss_res += diff*diff;
+      }
+
+    return 1 - ss_res/ss_tot;
   }
 };
 
 # endif // CORRELATION_STATS_H
+
