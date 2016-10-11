@@ -87,10 +87,28 @@ public:
       }
   }
 
-  void add_sample(const DynList<string> & unit_symbols,
-		  const DynList<double> & sample)
+  //               var-name value
+  using Par = pair<string, double>;
+
+  void add_sample(DynList<Par> && pars)
   {
-    
+    DynList<double> sample;
+    for (auto it = var_names.get_it(); it.has_curr(); it.next())
+      {
+	auto name = it.get_curr();
+	sample.append(pars.remove([&name] (const auto & p)
+				  { return p.first == name; }));
+      }
+
+    if (not pars.is_empty())
+      {
+	ostringstream s;	
+	s << "EmpiricalData::add_sample(DynList<Par> && pars): pars size "
+	  << "is greater than number of defined variables";
+	throw domain_error(s.str());
+      }
+
+    samples.append(sample);
   }
 };
 
