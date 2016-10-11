@@ -73,3 +73,6 @@
 ## 20. funcion que imprima famila de correlaciones en filas con nombres de parameros y sus unidades
 - Created at   2016-10-10 08:47:05 -0400
 
+## 21. json con unidades
+- Created at   2016-10-10 19:21:55 -0400
+
