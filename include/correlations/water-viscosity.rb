@@ -1,7 +1,7 @@
 
 begin_correlation("UwMaoDuan", "WaterViscosity", "Paxs")
-add_parameter("t", "Fahrenheit", "Aqui Neylith",  32,  662)
-add_parameter("p", "mPascal", "Aqui Neylith", "Quantity<psia>(14.7)",  "Quantity<psia>(14500)")
+add_parameter("t", "Kelvin", "Aqui Neylith",  273, 623)
+add_parameter("ppw", "Gr_cm3", "Aqui Neylith")
 add_parameter("s", "Disolved_Salt_PPM", "Aqui Neylith",  "Quantity<Disolved_Salt_Percent>(0)",  "Quantity<Disolved_Salt_Percent>(26)") 
 add_author("Mao & Duan")
 end_correlation()

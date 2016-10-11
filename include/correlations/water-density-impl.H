@@ -198,5 +198,31 @@ PwMcCain::impl(const Quantity<Disolved_Salt_Percent> & s,
   return Quantity<Lb_ft3>(pw);
 }
 
+inline Quantity<Gr_cm3>
+PpwSpiveyMN::impl(const Quantity<Celsius> & t,
+		  const Quantity<mPascal> & p) const
+{
+  const double t100 = t.raw()/100;
+  const double t100_2 = t100*t100;
+
+  // Densidad del agua pura [g/cm³] a la presion de referencia 70Mpa
+  const double ppwr = (-0.127213*t100_2 + 0.645486*t100 + 1.03265) /
+    (-0.070291*t100_2 + 0.639589*t100 + 1);
+        
+  // Coeficientes de densidad del agua pura [g/cm³] segun Spivey
+  const double epw = (4.221*t100_2 + -3.478*t100 + 6.221) /
+    (0.5182*t100_2 + -0.4405*t100 + 1);
+     
+  const double fpw = (-11.403*t100_2 + 29.932*t100 + 27.952) /
+    (0.20684*t100_2 + 0.3768*t100 + 1);
+        
+  const double ipwr = (1/epw)*log(fabs(epw + fpw));
+  const double ipw = (1/epw)*log(fabs((epw * (p.raw()/70))+ fpw));
+        
+  // Densidad del agua pura [g/cm³]
+  const double ppw = ppwr * exp(ipw - ipwr);
+        
+  return Quantity<Gr_cm3>(ppw);
+}
 
 # endif // WATER_DENSITY_IMPL_H

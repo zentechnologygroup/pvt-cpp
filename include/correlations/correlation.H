@@ -679,6 +679,7 @@ Declare_Correlation_Subtype(GasPseudoReducedRatio, GasFunction);
 
     // correlations & functions associated to water
 Declare_Correlation_Subtype(WaterDensity, WaterCorrelation);
+Declare_Correlation_Subtype(PureWaterDensity, WaterCorrelation);
 Declare_Correlation_Subtype(WaterViscosity, WaterCorrelation);
 Declare_Correlation_Subtype(WaterVolumeFactor, WaterCorrelation);
 Declare_Correlation_Subtype(WaterInterfacialTension, WaterCorrelation);

@@ -22,3 +22,8 @@ add_parameter("s", "Disolved_Salt_Percent", "Aqui Neylith", 0, 26)
 add_parameter("bw",  "RB_STB", "Aqui Neylith")
 add_author("McCain")
 end_correlation()
+
+begin_correlation("PpwSpiveyMN", "PureWaterDensity", "Gr_cm3")
+add_parameter("t", "Celsius", "Temperature", 0, 275);
+add_parameter("p", "mPascal", "Pressure", 0.1, 200)
+end_correlation()
