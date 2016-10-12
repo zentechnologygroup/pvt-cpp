@@ -8,7 +8,7 @@
 # include <ah-string-utils.H>
 
 # include <units/pvt-units.H>
-# include <correlations/correlation.H>
+
 
 using namespace std;
 using namespace Aleph;
@@ -28,16 +28,36 @@ struct EmpiricalData
   DynList<DynList<double>> samples; // must have the same number of
 				    // columns than var_names
 
+  // return true if this data set contains the names as constants or variables
+  bool contain_parameters(const DynList<string> & names) const
+  {
+    return names.all([this] (const auto & name)
+      {
+	return
+	  const_names.exists([&name] (const auto & s) { return s == name; }) or
+	  var_names.exists([&name] (const auto & s) { return s == name; });
+      });
+  }
+
+  // return a list of stored values for the symbol name
+  DynList<double> values(const string & name) const
+  {
+    
+  }
+
   string to_string() const
   {
     ostringstream s;
     s << "Empirical data set" << endl
+      << endl
       << "  Constant list:" << endl;
 
     DynList<DynList<string>> const_list;
-    enum_for_each(zip(const_names, const_units), [&const_list] (auto p, size_t i)
+    enum_for_each(tzip(const_names, const_vals, const_units),
+		  [&const_list] (auto t, size_t i)
       {
-	DynList<string> row = { p.first, p.second->symbol, std::to_string(i + 1)};
+	DynList<string> row = { get<0>(t), std::to_string(get<1>(t)),
+				get<2>(t)->symbol, std::to_string(i + 1)};
 	const_list.append(row);
       });
     auto str = Aleph::to_string(format_string(const_list));
@@ -52,22 +72,43 @@ struct EmpiricalData
     	var_list.append(row);
       });
     str = Aleph::to_string(format_string(var_list));
-    s << shift_lines_to_left(str, 4) << endl
-      << endl;
+    s << shift_lines_to_left(str, 4) << endl;
 
     return s.str();
   }
 
-  void def_const(const string & name, const Unit * unit)
+  string full_desc() const
+  {
+    ostringstream s;
+    s << to_string() << endl
+      << endl
+      << "Samples (" << num_samples << "):" << endl;
+
+    auto str_samples = samples.map<DynList<string>>([] (const auto & l)
+      {
+	return l.template map<string>([] (auto v) { return std::to_string(v); });
+      });
+
+    str_samples.insert(var_names);
+
+    str_samples = format_string(str_samples);
+
+    s << shift_lines_to_left(Aleph::to_string(str_samples), 4);
+
+    return s.str();
+  }
+
+  void def_const(const string & name, double val, const Unit * unit)
   {
     const_names.append(name);
+    const_vals.append(val);
     const_units.append(unit);
     num_const++;
   }
 
-  void def_const(const string & name, const string & symbol)
+  void def_const(const string & name, double val, const string & symbol)
   {
-    def_const(name, Unit::search_by_symbol(symbol));
+    def_const(name, val, Unit::search_by_symbol(symbol));
   }
 
   void def_var(const string & name, const Unit * unit)
@@ -150,17 +191,41 @@ public:
 	num_var++;
       }
 
-    for (; input.good(); ++num_samples)
+    for (size_t linenum = 2; input.good(); ++num_samples, linenum++)
       {
 	auto row = csv_read_row(input, ',');
 	if (row.size() != num_var)
 	  {
 	    ostringstream s;
 	    s << "EmpiricalData::add_samples(istream&): row number "
-	      << num_samples << " has << " << row.size()
+	      << linenum << " has << " << row.size()
 	      << " cols, which is not exactly the number of vars " << num_var;
 	    throw domain_error(s.str());
 	  }
+	DynList<double> sample;
+	enum_for_each(zip(row, var_units), [&sample, linenum] (auto & p, auto i)
+	  {
+	    if (not is_double(p.first))
+	      {
+		ostringstream s;
+		s << "EmpiricalData::add_samples(istream&): in row " << linenum
+		  << " column " << i + 1 << ": " << p.first << " is not a number";
+		throw domain_error(s.str());
+	      }
+	    try
+	      {
+		VtlQuantity v(*p.second, atof(p.first.c_str()));
+		sample.append(v.raw());
+	      }
+	    catch (exception & e)
+	      {
+		ostringstream s;
+		s << "EmpiricalData::add_samples(istream&): in row " << linenum
+		  << " column " << i + 1 << ": " << e.what();
+		throw domain_error(s.str());
+	      }
+	  });
+	samples.append(sample);
       }
   }
 

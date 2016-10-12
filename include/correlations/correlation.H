@@ -123,6 +123,21 @@ private:
 
 public:
 
+  // Returns the names of parameters involved in the correlation. The
+  // first one is the return value. The remainder others are the
+  // parameter names
+  DynList<string> names() const
+  {
+    DynList<string> ret;
+
+    ret.append(to_lower(split_camel_case(name).get_first()));
+
+    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+      ret.append(it.get_curr().name);
+
+    return ret;
+  }
+
   void set_hidden() { hidden = true; }
 
   static string to_json();

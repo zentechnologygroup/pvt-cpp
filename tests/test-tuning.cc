@@ -1,6 +1,5 @@
 
-# include <correlations/correlation-stats.H>
-# include <metadata/empirical-data.H>
+# include <metadata/correlation-analyzer.H>
 
 int main()
 {
@@ -8,14 +7,20 @@ int main()
 
   EmpiricalData e;
 
-  e.def_const("t", "degF");
-  e.def_const("pb", "psia");
+  e.def_const("t", 160, "degF");
+  e.def_const("pb", 1200, "psia");
 
   e.add_samples(file);
 
   e.add_sample({"p = 10", "rs = 10", "bo = 28", "uo = 20"});
 
-  cout << e.to_string() << endl;
+  cout << e.full_desc() << endl;
+
+  CorrelationMatcher m;
+
+  m.target_var = "pb";
+
+  m.target_correlations().for_each([] (auto p) { cout << *p << endl; });
 
   return 0;
 }
