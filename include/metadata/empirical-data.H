@@ -17,6 +17,7 @@ struct EmpiricalData
 {
   size_t num_const = 0;
   DynList<string> const_names;
+  DynList<double> const_vals;
   DynList<const Unit*> const_units;
 
   size_t num_var = 0;
@@ -31,24 +32,28 @@ struct EmpiricalData
   {
     ostringstream s;
     s << "Empirical data set" << endl
-      << "  Constants:" << endl;
+      << "  Constant list:" << endl;
 
     DynList<DynList<string>> const_list;
     enum_for_each(zip(const_names, const_units), [&const_list] (auto p, size_t i)
       {
-	DynList<string> row = { p.first, p.second->symbol, std::to_string(i)};
+	DynList<string> row = { p.first, p.second->symbol, std::to_string(i + 1)};
 	const_list.append(row);
       });
-    s << Aleph::to_string(const_list) << endl
+    auto str = Aleph::to_string(format_string(const_list));
+    s << shift_lines_to_left(str, 4) << endl
       << endl
-      << "  Variables:" << endl;
+      << "  Variables list:" << endl;
 
     DynList<DynList<string>> var_list;
-    // enum_for_each(zip(const_names, const_units), [&const_list] (auto p, auto i)
-    //   {
-    // 	DynList<string> row = { p.first, p.second.symbol, to_string(i)};
-    // 	const_list.append(row);
-    //   });
+    enum_for_each(zip(var_names, var_units), [&var_list] (auto p, auto i)
+      {
+    	DynList<string> row = { p.first, p.second->symbol, std::to_string(i + 1)};
+    	var_list.append(row);
+      });
+    str = Aleph::to_string(format_string(var_list));
+    s << shift_lines_to_left(str, 4) << endl
+      << endl;
 
     return s.str();
   }
