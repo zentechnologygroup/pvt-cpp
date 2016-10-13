@@ -42,3 +42,6 @@
 ## 14. corregir sutton et al en presion
 - Created at   2016-09-21 16:21:49 -0400
 
+## 15. estudio de rangos de aplicación de correlaciones vs data set
+- Created at   2016-10-13 09:00:56 -0400
+

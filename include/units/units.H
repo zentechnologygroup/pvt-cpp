@@ -189,6 +189,8 @@ public:
 					    });
   }
 
+  bool is_sibling(const Unit & unit) const noexcept { return this == &unit; }
+
   /** Search the unit associated to a name
       
       @param[in] name string containing the unit name
@@ -213,6 +215,15 @@ public:
     auto ptr = tbl.search_by_symbol(symbol);
     const Unit * unit_ptr = static_cast<const Unit*>(ptr);
     return unit_ptr;
+  }
+
+  static const Unit * search(const string & str)
+  {
+    auto ptr = search_by_name(str);
+    if (ptr == nullptr)
+      return search_by_symbol(str);
+    
+    return ptr;
   }
 
   static const DynList<const Unit * const> & units(const PhysicalQuantity & pq)

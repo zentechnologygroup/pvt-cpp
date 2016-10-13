@@ -17,7 +17,6 @@ class CorrelationGen
       @unit = unit
       @min = min
       @max = max
-      #puts "====#{@name} #{desc}"
     end
 
     def make
@@ -25,7 +24,6 @@ class CorrelationGen
       s += ", #{@min}" if @min
       s += ", #{@max}" if @max
       s += ");\n"
-      #puts "****#{s}"
       s
     end
   end
@@ -42,6 +40,7 @@ class CorrelationGen
     @notes = []
     @internal_notes = []
     @refs = []
+    @synonyms = []
     @eq = []
   end
 
@@ -85,6 +84,10 @@ class CorrelationGen
 
   def add_parameter(name, unit, desc, min = nil, max = nil)
     @pars << Parameter.new(name, unit, desc, min, max)
+  end
+
+  def add_synonym(name, unit)
+    @synonyms << [name, unit]
   end
 
   def impl_type() "Quantity<#{@unit}>" end
@@ -193,6 +196,7 @@ class CorrelationGen
     @db.each { |db| s += "add_db(\"#{db}\");\n" }
     @notes.each { |note| s += "add_note(\"#{note}\");\n" }
     @refs.each { |ref| s += "add_ref(\"#{ref}\");\n" }
+    # TODO: faltan sinonimos
     s += "}\n"\
          "\n"
     s += "#{gen_impl_declaration};\n"\

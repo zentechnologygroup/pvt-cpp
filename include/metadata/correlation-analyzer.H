@@ -5,7 +5,7 @@
 # include <correlations/correlation-stats.H>
 # include "empirical-data.H"
 
-struct CorrelationMatcher
+struct CorrelationAnalyser
 {
   DynList<const Correlation *> correlation_list; 
 
@@ -18,9 +18,9 @@ struct CorrelationMatcher
   // variables to be considerated in the analysis
   DynList<string> vars;
 
-  CorrelationMatcher(EmpiricalData && ed) : data_set(move(ed)) {}
+  CorrelationAnalyser(EmpiricalData && ed) : data_set(move(ed)) {}
 
-  CorrelationMatcher(const EmpiricalData & ed) : data_set(ed) {}
+  CorrelationAnalyser(const EmpiricalData & ed) : data_set(ed) {}
 
   // return true if correlation correlation_ptr could be applied to
   // the empirical data

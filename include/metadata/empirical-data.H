@@ -26,7 +26,14 @@ struct EmpiricalData
 
   size_t num_samples = 0;
   Array<Array<double>> samples; // must have the same number of
-				    // columns than var_names
+				// columns than var_names
+
+  DynList<string> names() const
+  {
+    DynList<string> ret = to_dynlist(const_names);
+    ret.append(to_dynlist(var_names));
+    return ret;
+  }
 
   // return true if this data set contains the names as constants or variables
   bool contains_names(const DynList<string> & names) const
@@ -82,6 +89,7 @@ struct EmpiricalData
       {
 	DynList<string> row = { get<0>(t), std::to_string(get<1>(t)),
 				get<2>(t)->symbol, std::to_string(i + 1)};
+	row.for_each([] (auto s) { cout << s << " "; }); cout << endl;
 	const_list.append(row);
       });
     auto str = Aleph::to_string(format_string(const_list));
@@ -114,7 +122,6 @@ struct EmpiricalData
 	return l.template map<string>([] (auto v) { return std::to_string(v); });
       });
 
-    //str_samples.insert(var_names.map<string>([] (const auto & s) { return s; }));
     str_samples.insert(to_dynlist(var_names));
 
     str_samples = format_string(str_samples);
@@ -129,7 +136,8 @@ struct EmpiricalData
     if (contains_name(name))
       {
 	ostringstream s;
-	s << "EmpiricalData::def_const(): name " << name << " is already defined";
+	s << "EmpiricalData::def_const(): name " << name
+	  << " is already defined";
 	throw domain_error(s.str());
       }
 
@@ -139,9 +147,29 @@ struct EmpiricalData
     num_const++;
   }
 
+private:
+
+  static const Unit * search_unit(const string & symbol)
+  {
+    auto uptr = Unit::search_by_name(symbol);
+    if (uptr == nullptr)
+      uptr = Unit::search_by_symbol(symbol);
+
+    if (uptr == nullptr)
+      {
+	ostringstream s;
+	s << "search_unit(" << symbol << "): unit not found";
+	throw domain_error(s.str());
+      }
+
+    return uptr;
+  }
+
+public:
+
   void def_const(const string & name, double val, const string & symbol)
   {
-    def_const(name, val, Unit::search_by_symbol(symbol));
+    def_const(name, val, search_unit(symbol));
   }
 
   void def_var(const string & name, const Unit * unit)
@@ -159,33 +187,13 @@ struct EmpiricalData
 
   void def_var(const string & name, const string & symbol)
   {
-    def_var(name, Unit::search_by_symbol(symbol));
+    def_var(name, search_unit(symbol));
   }
 
   void add_sample(const DynList<double> & sample)
   {
     samples.append(sample);
   }
-
-private:
-
-  static const Unit * search_unit(const string & symbol)
-  {
-    const Unit * ptr = Unit::search_by_symbol(symbol);
-    if (ptr)
-      return ptr;
-
-    ptr = Unit::search_by_name(symbol);
-    if (ptr)
-      return ptr;
-
-    ostringstream s;
-    s << "EmpiricalData::search_unit: unit symbol or name " << symbol
-      << " not found";
-    throw domain_error(s.str());
-  }
-
-public:
 
   void add_samples(istream & input)
   {
@@ -248,7 +256,8 @@ public:
 	      {
 		ostringstream s;
 		s << "EmpiricalData::add_samples(istream&): in row " << linenum
-		  << " column " << i + 1 << ": " << p.first << " is not a number";
+		  << " column " << i + 1 << ": " << p.first
+		  << " is not a number";
 		throw domain_error(s.str());
 	      }
 	    try

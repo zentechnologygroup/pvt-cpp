@@ -8,6 +8,7 @@
 # include <ahFunctional.H>
 # include <ah-string-utils.H>
 # include <ah-stl-utils.H>
+# include <ah-comb.H>
 
 # include <traits.hpp>
 # include <utils.H>
@@ -28,8 +29,40 @@ private:
   bool check_active = true;
   
   double epsilon = 1e-3;
+
+  using P = pair<string, const Unit *>;
+
+  DynList<P> synonyms;
   
 public:
+
+  void add_synonym(const string & name, const Unit & unit)
+  {
+    if (not this->unit.is_sibling(unit))
+      {
+	ostringstream s;
+	s << "add_synonym(): synonym unit " << unit.name
+	  << " is not physically related to parameter unit " << this->unit.name;
+	throw domain_error(s.str());
+      }
+    
+    synonyms.append(make_pair(name, &unit));
+  }
+
+  void add_synonym(const string & name, const string & unit_sym_name)
+  {
+    auto ptr = Unit::search(unit_sym_name);
+    if (ptr == nullptr)
+      {
+	ostringstream s;
+	s << "add_synonym(): unit name or symbol " << unit_sym_name
+	  << " not found";
+	throw domain_error(s.str());
+      }
+    add_synonym(name, *ptr);
+  }
+
+  const DynList<P> & get_synonyms() const noexcept { return synonyms; }
 
   void set_epsilon(double ratio = 0.01)
   {
@@ -136,6 +169,46 @@ public:
       ret.append(it.get_curr().name);
 
     return ret;
+  }
+
+  DynList<DynList<string>> synonyms() const
+  {
+    DynList<string> ret_l;
+    ret_l.append(to_lower(split_camel_case(name).get_first()));
+
+    DynList<DynList<string>> ret;
+    ret.append(ret_l);
+
+    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+      {
+	auto par = it.get_curr();
+	DynList<string> col;
+	if (par.get_synonyms().is_empty())
+	  {
+	    col.append(par.name);
+	    continue;
+	  }
+
+	par.get_synonyms().for_each([&col] (auto p) { col.append(p.first); });
+      }
+
+    return build_perms(ret);
+  }
+
+  void add_par_synonym(const string & par_name, const string & synonym,
+		       const string & unit_name)
+  {
+    auto par_ptr =
+      preconditions.find_ptr([&par_name] (auto p) { return p.name == par_name; });
+    if (par_ptr == nullptr)
+      {
+	ostringstream s;
+	s << "Correlation::add_par_synonym(): par name " << par_name
+	  << " not found";
+	throw domain_error(s.str());
+      }
+
+    par_ptr->add_synonym(synonym, unit_name);
   }
 
   void set_hidden() { hidden = true; }
