@@ -26,7 +26,7 @@ struct CorrelationMatcher
   // the empirical data
   bool can_be_applied(const Correlation * correlation_ptr) const
   {
-    return data_set.contain_parameters(correlation_ptr->names()); 
+    return data_set.contains_names(correlation_ptr->names()); 
   }
 
   // Returns the target correlations matching the target_var name

@@ -29,7 +29,7 @@ struct EmpiricalData
 				    // columns than var_names
 
   // return true if this data set contains the names as constants or variables
-  bool contain_parameters(const DynList<string> & names) const
+  bool contains_names(const DynList<string> & names) const
   {
     return names.all([this] (const auto & name)
       {
@@ -39,22 +39,32 @@ struct EmpiricalData
       });
   }
 
+  bool contains_name(const string & name) const
+  {
+    return const_names.exists([&name] (const auto & s) { return s == name; }) or
+      var_names.exists([&name] (const auto & s) { return s == name; });
+  }
+
   // return a list of stored values for the symbol name
   DynList<double> values(const string & name) const
   {
     DynList<double> ret;
 
     for (size_t i = 0; i < const_names.size(); ++i)
-      {
-	if (const_names(i) == name)
-	  {
-	    ret.append(const_vals(i));
-	    return ret;
-	  }
-      }
+      if (const_names(i) == name)
+	{
+	  ret.append(const_vals(i));
+	  return ret;
+	}
 
-    // TODO falta con var
-    
+    for (size_t i = 0; i < var_names.size(); ++i)
+      if (var_names(i) == name)
+	{
+	  for (size_t j = 0; j < num_samples; ++j)
+	    ret.append(samples(i)(j));
+
+	  break;
+	}
 
     return ret;
   }
@@ -116,6 +126,13 @@ struct EmpiricalData
 
   void def_const(const string & name, double val, const Unit * unit)
   {
+    if (contains_name(name))
+      {
+	ostringstream s;
+	s << "EmpiricalData::def_const(): name " << name << " is already defined";
+	throw domain_error(s.str());
+      }
+
     const_names.append(name);
     const_vals.append(val);
     const_units.append(unit);
@@ -129,6 +146,12 @@ struct EmpiricalData
 
   void def_var(const string & name, const Unit * unit)
   {
+    if (contains_name(name))
+      {
+	ostringstream s;
+	s << "EmpiricalData::def_var(): name " << name << " is already defined";
+	throw domain_error(s.str());
+      }
     var_names.append(name);
     var_units.append(unit);
     num_var++;
