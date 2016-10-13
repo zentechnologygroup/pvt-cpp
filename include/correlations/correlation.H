@@ -184,7 +184,7 @@ public:
     return ret;
   }
 
-  DynList<DynList<string>> name_synonyms() const
+  DynList<DynList<string>> names_and_synonyms() const
   {
     DynList<string> ret_l;
     ret_l.append(to_lower(split_camel_case(name).get_first()));
@@ -196,14 +196,9 @@ public:
       {
 	auto par = it.get_curr();
 	DynList<string> col;
-	if (par.get_synonyms().is_empty())
-	  {
-	    col.append(par.name);
-	    continue;
-	  }
-
+	col.append(par.name);
 	par.get_synonyms().for_each([&col] (auto p) { col.append(p.first); });
-	ret.append(ret);
+	ret.append(col);
       }
 
     return build_perms(ret);

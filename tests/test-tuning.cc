@@ -52,7 +52,7 @@ int main()
        << endl;
 
   auto ptr = Correlation::search_by_name("PbAlMarhoun");
-  ptr->name_synonyms().for_each([] (const auto & l)
+  ptr->names_and_synonyms().for_each([] (const auto & l)
     {
       l.for_each([] (const auto & s) { cout << s << " "; });
       cout << endl;
