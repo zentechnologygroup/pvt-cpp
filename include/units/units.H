@@ -189,7 +189,10 @@ public:
 					    });
   }
 
-  bool is_sibling(const Unit & unit) const noexcept { return this == &unit; }
+  bool is_sibling(const Unit & unit) const noexcept
+  {
+    return &physical_quantity == &unit.physical_quantity;
+  }
 
   /** Search the unit associated to a name
       

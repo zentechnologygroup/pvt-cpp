@@ -30,7 +30,11 @@ private:
   
   double epsilon = 1e-3;
 
+public:
+  
   using P = pair<string, const Unit *>;
+
+private:
 
   DynList<P> synonyms;
   
@@ -41,7 +45,7 @@ public:
     if (not this->unit.is_sibling(unit))
       {
 	ostringstream s;
-	s << "add_synonym(): synonym unit " << unit.name
+	s << "CorrelationPar::add_synonym(): synonym unit " << unit.name
 	  << " is not physically related to parameter unit " << this->unit.name;
 	throw domain_error(s.str());
       }
@@ -171,7 +175,16 @@ public:
     return ret;
   }
 
-  DynList<DynList<string>> synonyms() const
+  DynList<CorrelationPar::P> synonyms() const
+  {
+    DynList<CorrelationPar::P> ret;
+    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+      ret.append(it.get_curr().get_synonyms());
+
+    return ret;
+  }
+
+  DynList<DynList<string>> name_synonyms() const
   {
     DynList<string> ret_l;
     ret_l.append(to_lower(split_camel_case(name).get_first()));
@@ -198,8 +211,8 @@ public:
   void add_par_synonym(const string & par_name, const string & synonym,
 		       const string & unit_name)
   {
-    auto par_ptr =
-      preconditions.find_ptr([&par_name] (auto p) { return p.name == par_name; });
+    auto par_ptr = preconditions.find_ptr([&par_name] (auto p)
+					  { return p.name == par_name; });
     if (par_ptr == nullptr)
       {
 	ostringstream s;
@@ -481,6 +494,8 @@ public:
       << endl
       << "  Parameters (" << get_num_pars() << "):" << endl
       << ::to_string(mat);
+
+    
 
     return s.str();
   }
