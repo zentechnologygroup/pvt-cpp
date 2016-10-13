@@ -46,6 +46,7 @@ struct EmpiricalData
       });
   }
 
+  // return true if the data set contais name
   bool contains_name(const string & name) const
   {
     return const_names.exists([&name] (const auto & s) { return s == name; }) or

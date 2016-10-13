@@ -203,6 +203,7 @@ public:
 	  }
 
 	par.get_synonyms().for_each([&col] (auto p) { col.append(p.first); });
+	ret.append(ret);
       }
 
     return build_perms(ret);

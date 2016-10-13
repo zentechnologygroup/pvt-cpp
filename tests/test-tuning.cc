@@ -28,6 +28,7 @@ int main()
   cout << endl
        << endl;
 
+  cout << "Correlation matching return name:" << endl;
   m.target_correlations().for_each([] (auto cptr)
     {
       cout << cptr->name << ":";
@@ -36,14 +37,24 @@ int main()
     });
   cout << endl;
 
+  cout << "Correlations matching data set parameters: " << endl;
   m.target_correlations().filter([&m] (auto cptr)
 				 { return m.can_be_applied(cptr); }).
     for_each([] (auto p)
 	     {
-	       cout << p->name << ":";
+	       cout << p->name << "    :";
 	       p->names().for_each([] (const auto & s) { cout << " " << s; });
 	       cout << endl;
 	     });
 
-  return 0;
+
+  cout << "****************************************************************"
+       << endl;
+
+  auto ptr = Correlation::search_by_name("PbAlMarhoun");
+  ptr->name_synonyms().for_each([] (const auto & l)
+    {
+      l.for_each([] (const auto & s) { cout << s << " "; });
+      cout << endl;
+    });
 }
