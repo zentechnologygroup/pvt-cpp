@@ -25,19 +25,24 @@ add_parameter("t", "Fahrenheit", "Temperature",  74,  341.6)
 add_db("Based on a total of 1709 data sets (1661 data sets from 13 different published literature papers and 48 data sets originated from Kuwait reservoirs from unpublished sources")
 add_ref("alShammasi:1999")
 add_author("Al Shammasi")
+add_eq("P_b={\\gamma_o}^{5.527215}\\cdot\\,\\exp^{\\left({-1.841408\\,\\cdot\\,[\\gamma_o*\\gamma_g]}\\right)}\\cdot{\\left[R_s\\cdot(T + 460)\cdot\\gamma_g\\right]}^{0.783716}")
 end_correlation()
 
 ################################################################
 
 begin_correlation("PbDeGhetto", "BubblePointPressure", "psia", 208.86, 4021.96)
-add_title("DE GHETTO CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS (MODIFIED STANDING CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE")
+add_title("DE GHETTO, PAONE & VILLA CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS (MODIFIED STANDING CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.623,  1.517)
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  17.21,  640.25)
 add_parameter("api", "Api", "API oil gravity",  6,  22.3)
 add_parameter("t", "Fahrenheit", "Temperature",  131.4,  250.7)
 add_db("Based on 1200 measured data points of 63 heavy and extra-heavy oil samples obtained from the Mediterranean Basin, Africa and the Persian Gulf.")
 add_db("Oil samples have been divided in two different API gravity classes: extra-heavy oils for API<=10, heavy oils for 10<API<=22.3.")
-add_author("Al Shammasi")
+add_author("De Ghetto, Paone & Villa")
+add_ref("deGhetto:1995")
+add_eq("P_b=\\left(\\frac{R_s}{\\gamma_g}\\right)^{(\\frac{1}{1.1128})}\\cdot{\\frac{10.7025}{10^{(0.0169\\cdot{API}-0.00156\\cdot{T})}}}")
+add_eq("P_b=15.7286 \\cdot \\left[ \\left(\\frac{{R_s}}{\\gamma_{g}}\\right)^{0.7885} \\cdot \\frac{10^{0.0020 \\cdot T}}{10^{0.0142 \\cdot API}}\\right]")
+add_internal_note("De Ghetto, Paone & Villa use Yg as the average specific gravity of total surface gases, while the original correlation (Standing) uses it as the gravity of dissolved gas. Since Standing doesn't specify if Yg is the gravity of total surface gases or of the separator, it is assumed that the data is from a one stage separation with average gas gravity.")
 end_correlation()
 
 ################################################################
@@ -50,6 +55,9 @@ add_parameter("api", "Api", "API oil gravity",  14.7,  40)
 add_parameter("t", "Fahrenheit", "Temperature",  117,  276)
 add_db("Based on more than 100 PVT reports from the Gulf of Mexico.")
 add_author("Dindoruk & Christman")
+add_ref("dindoruk:2004")
+add_eq("P_b = a_8\\cdot\\left(\\frac{(R_s)\\,^{a_9}}{(\\gamma_g)\\,^{a_{10}}}\\cdot(10)^A+a_{11}\\right)")
+add_eq("A = \\frac{a_1 \\cdot (T)^{a_2}+a_3 \\cdot (API)^{a_4} }{{\\left(a_{5}+ \\frac{2\\cdot(R_s)^{a_6}}{(\\gamma_g)^{a7}} \\right)}^{2}}")
 end_correlation()
 
 ################################################################
