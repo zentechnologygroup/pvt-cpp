@@ -16,7 +16,7 @@ int main()
 
   cout << e.full_desc() << endl;
 
-  CorrelationMatcher m;
+  CorrelationMatcher m(e);
 
   m.target_var = "pb";
 

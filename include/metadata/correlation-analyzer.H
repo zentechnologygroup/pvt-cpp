@@ -28,7 +28,8 @@ struct CorrelationMatcher
   {
     return data_set.contain_parameters(correlation_ptr->names()); 
   }
-  
+
+  // Returns the target correlations matching the target_var name
   DynList<const Correlation * const>
   target_correlations() const
   {

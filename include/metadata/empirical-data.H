@@ -16,16 +16,16 @@ using namespace Aleph;
 struct EmpiricalData
 {
   size_t num_const = 0;
-  DynList<string> const_names;
-  DynList<double> const_vals;
-  DynList<const Unit*> const_units;
+  Array<string> const_names;
+  Array<double> const_vals;
+  Array<const Unit*> const_units;
 
   size_t num_var = 0;
-  DynList<string> var_names; // pressure Rs bo uo
-  DynList<const Unit*> var_units; // of above names
+  Array<string> var_names; // pressure Rs bo uo
+  Array<const Unit*> var_units; // of above names
 
   size_t num_samples = 0;
-  DynList<DynList<double>> samples; // must have the same number of
+  Array<Array<double>> samples; // must have the same number of
 				    // columns than var_names
 
   // return true if this data set contains the names as constants or variables
@@ -42,7 +42,21 @@ struct EmpiricalData
   // return a list of stored values for the symbol name
   DynList<double> values(const string & name) const
   {
+    DynList<double> ret;
+
+    for (size_t i = 0; i < const_names.size(); ++i)
+      {
+	if (const_names(i) == name)
+	  {
+	    ret.append(const_vals(i));
+	    return ret;
+	  }
+      }
+
+    // TODO falta con var
     
+
+    return ret;
   }
 
   string to_string() const
@@ -84,12 +98,14 @@ struct EmpiricalData
       << endl
       << "Samples (" << num_samples << "):" << endl;
 
-    auto str_samples = samples.map<DynList<string>>([] (const auto & l)
+    DynList<DynList<string>> str_samples =
+      samples.map<DynList<string>>([] (const auto & l)
       {
 	return l.template map<string>([] (auto v) { return std::to_string(v); });
       });
 
-    str_samples.insert(var_names);
+    //str_samples.insert(var_names.map<string>([] (const auto & s) { return s; }));
+    str_samples.insert(to_dynlist(var_names));
 
     str_samples = format_string(str_samples);
 
@@ -239,7 +255,7 @@ public:
       {
 	auto name = it.get_curr();
 	sample.append(pars.remove([&name] (const auto & p)
-				  { return p.first == name; }));
+				  { return p.first == name; }).second);
       }
 
     if (not pars.is_empty())
