@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+file_name = ARGV.shift
+
+def process_par(line)
+  first_part = 
+  line
+end
+
+lines = File.open(file_name).readlines
+
+content = []
+lines.each do |line|
+  if line.include? 'begin_correlation(' 
+    content << process_par(line)
+  else
+    content << line
+  end
+end
+
+content.each do |line|
+  if line.include? 'add_parameter'
+    puts process_par line
+  else
+    puts line
+  end
+end
+
+
+
+

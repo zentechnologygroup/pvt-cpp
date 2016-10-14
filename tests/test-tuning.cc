@@ -28,14 +28,14 @@ int main()
   cout << endl
        << endl;
 
-  cout << "Correlation matching return name:" << endl;
-  m.target_correlations().for_each([] (auto cptr)
-    {
-      cout << cptr->name << ":";
-      cptr->names().for_each([] (const auto & name) { cout << " " << name; });
-      cout << endl;
-    });
-  cout << endl;
+  // cout << "Correlation matching return name:" << endl;
+  // m.target_correlations().for_each([] (auto cptr)
+  //   {
+  //     cout << cptr->name << ":";
+  //     cptr->names().for_each([] (const auto & name) { cout << " " << name; });
+  //     cout << endl;
+  //   });
+  // cout << endl;
 
   cout << "Correlations matching data set parameters: " << endl;
   e.matching_correlations().for_each([] (auto p)

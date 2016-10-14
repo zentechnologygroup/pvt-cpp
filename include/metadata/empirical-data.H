@@ -358,8 +358,12 @@ public:
   /// the empirical data 
   bool can_be_applied(const Correlation * correlation_ptr) const
   {
-    return correlation_ptr->names_and_synonyms().exists([this] (const auto & sign)
+    return
+      correlation_ptr->names_and_synonyms().exists([this] (const auto & sign)
       {
+	bool val = this->contains_names(sign);
+	sign.for_each([] (auto s) { cout << s << " "; });
+	cout << (val ? "true" : "false") << endl;
 	return this->contains_names(sign);
       });
   }
