@@ -160,6 +160,18 @@ private:
 
 public:
 
+  /// Returns the correlation target name
+  string target_name() const
+  {
+    return to_lower(split_camel_case(name).get_first());
+  }
+
+  // Returns the parameters names i the declaration order
+  DynList<string> parameters_signature() const
+  {
+    return preconditions.map<string>([] (const auto & par) { return par.name; });
+  }
+
   // Returns the names of parameters involved in the correlation. The
   // first one is the return value. The remainder others are the
   // parameter names
