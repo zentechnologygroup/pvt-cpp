@@ -10,6 +10,7 @@ class CorrStat
   double var;
   size_t n = 0;
 
+  // considerar cambiar a pars_values; total siempre se generará la misma perm
   const DynList<DynList<double>> samples;
 
   long double ss_tot = 0;

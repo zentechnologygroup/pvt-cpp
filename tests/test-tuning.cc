@@ -38,11 +38,9 @@ int main()
   cout << endl;
 
   cout << "Correlations matching data set parameters: " << endl;
-  m.target_correlations().filter([&m] (auto cptr)
-				 { return m.can_be_applied(cptr); }).
-    for_each([] (auto p)
+  e.matching_correlations().for_each([] (auto p)
 	     {
-	       cout << p->name << "    :";
+	       cout << "    " << p->name;
 	       p->names().for_each([] (const auto & s) { cout << " " << s; });
 	       cout << endl;
 	     });
