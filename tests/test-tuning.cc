@@ -51,10 +51,12 @@ int main()
   cout << "****************************************************************"
        << endl;
 
-  auto ptr = Correlation::search_by_name("PbAlMarhoun");
+  auto ptr = Correlation::search_by_name("PbAlShammasi");
   ptr->names_and_synonyms().for_each([] (const auto & l)
     {
       l.for_each([] (const auto & s) { cout << s << " "; });
       cout << endl;
     });
+
+  auto vals = e.execute_correlation(ptr);
 }

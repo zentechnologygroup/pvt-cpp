@@ -6,8 +6,10 @@
 
 # include <parse-csv.H>
 # include <ah-string-utils.H>
+# include <ah-comb.H>
 
 # include <units/pvt-units.H>
+# include <correlations/pvt-correlations.H>
 
 using namespace std;
 using namespace Aleph;
@@ -45,7 +47,6 @@ struct EmpiricalData
       });
   }
 
-  // return true if the data set contais name
   bool contains_name(const string & name) const
   {
     return const_names.exists([&name] (const auto & s) { return s == name; }) or
@@ -100,7 +101,8 @@ struct EmpiricalData
     DynList<DynList<string>> var_list;
     enum_for_each(zip(var_names, var_units), [&var_list] (auto p, auto i)
       {
-    	DynList<string> row = { p.first, p.second->symbol, std::to_string(i + 1)};
+    	DynList<string> row = { p.first, p.second->symbol,
+				std::to_string(i + 1)};
     	var_list.append(row);
       });
     str = Aleph::to_string(format_string(var_list));
@@ -350,6 +352,95 @@ public:
       }
 
     add_sample(move(sample));
+  }
+
+  /// return true if correlation correlation_ptr could be applied to
+  /// the empirical data 
+  bool can_be_applied(const Correlation * correlation_ptr) const
+  {
+    return correlation_ptr->names_and_synonyms().exists([this] (const auto & sign)
+      {
+	return this->contains_names(sign);
+      });
+  }
+
+  /// Returns a list of correlation matching the names contaned in
+  /// the data set
+  DynList<const Correlation* const> matching_correlations()
+  {
+    return Correlation::list().filter([this] (auto ptr)
+				      { return this->can_be_applied(ptr); });
+  }
+
+  // Return a list of list of correlation parameter belonging to the
+  // data set that would be used in order to compute the all the value
+  // of the correlation
+  DynList<DynList<double>>
+  correlation_values(const Correlation * correlation_ptr) const
+  {
+    DynList<DynList<double>> ret; // this is the return value
+
+    // traverse all correlation parameter and get from the data set a
+    // column of data
+    for (auto it = correlation_ptr->get_preconditions().get_it(); it.has_curr();
+	 it.next())
+      {
+	auto par = it.get_curr();
+	DynList<double> vals = values(par.name); // extract value of data set
+	if (not vals.is_empty())
+	  {
+	    ret.append(vals);
+	    continue;
+	  }
+
+	// if vals is empty, the it could exist a synonym in the
+	// correlation that matches with par_name. So we traverse the
+	// par_name synonyms
+	for (auto it_syn = par.get_synonyms().get_it(); it_syn.has_curr();
+	     it.next())
+	{
+	  auto syn = it_syn.get_curr();
+	  const auto & syn_name = syn.first;
+	  vals = values(syn_name); // verify if there are values in data set
+	  if (not vals.is_empty())
+	    { // a synomym was found for par_name in the
+	      // correlation. Now we convert the values to the synonym unit
+	      const Unit * syn_unit = syn.second;
+	      vals.mutable_for_each([syn_unit, &par] (auto & v)
+				    {
+				      VtlQuantity vsyn(*syn_unit, v);
+				      v = VtlQuantity(par.unit, vsyn).raw();
+				    });
+	      break;
+	    }
+	}
+	if (vals.is_empty())
+	  { // here definitely there is no data for the parameter
+	    // inside the data set
+	    ostringstream s;
+	    s << "EmpiricalData::correlation_values(): parameter " << par.name
+	      << " of correlation " << correlation_ptr->name
+	      << " does not match with any name of data set";
+	    throw domain_error(s.str());
+	  }
+
+	ret.append(vals);
+      }
+
+    return ret;
+  }
+
+  DynList<double> execute_correlation(const Correlation * correlation_ptr) const
+  {
+    auto vals = correlation_values(correlation_ptr);
+    DynList<double> ret;
+
+    for_each_perm(vals, [&ret, correlation_ptr] (const auto & pars)
+      {
+	pars.for_each([] (auto v) { cout << v << " "; }); cout << endl;
+	ret.append(correlation_ptr->compute(pars));		       
+      });
+    return ret;
   }
 };
 

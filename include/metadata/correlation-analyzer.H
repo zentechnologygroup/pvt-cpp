@@ -43,6 +43,8 @@ struct CorrelationAnalyser
       });
   }
 
+  
+
   // TODO: función que retoorne las correlciones factibles
 
   // TODO función que calcule los valores de las correaciones
