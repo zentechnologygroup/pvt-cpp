@@ -21,19 +21,36 @@ struct EmpiricalData
   Array<double> const_vals;
   Array<const Unit*> const_units;
 
-  size_t num_var = 0;
-  Array<string> var_names; // pressure Rs bo uo
-  Array<const Unit*> var_units; // of above names
+  struct VarSet
+  {
+    string name = "NO-NAME";
+    string desc = "NO-DESC";
 
-  size_t num_samples = 0;
-  Array<Array<double>> samples; // must have the same number of
-				// columns than var_names
+    VarSet() {}
+    VarSet(const string & name, const string & desc) : name(name), desc(desc) {}
+
+    size_t num_var = 0;
+    Array<string> var_names; // pressure Rs bo uo
+    Array<const Unit*> var_units; // of above names
+    size_t num_samples = 0;
+    Array<Array<double>> samples; // must have the same number of
+                                  // columns than var_names
+
+    bool contains_name(const string & name) const noexcept
+    {
+      return var_names.exists([&name] (const auto & s) { return s == name; });
+    }
+  };
+
+  Array<VarSet> var_sets;
 
   DynList<string> names() const
   {
-    DynList<string> ret = to_dynlist(const_names);
-    ret.append(to_dynlist(var_names));
-    return ret;
+    DynSetTree<string> ret = const_names;
+    for (auto it = var_sets.get_it(); it.has_curr(); it.next())
+      it.get_curr().var_names.for_each([&ret] (const auto & s) { ret.append(s); });
+
+    return ret.keys();
   }
 
   // return true if this data set contains the names as constants or variables
@@ -43,14 +60,22 @@ struct EmpiricalData
       {
 	return
 	  const_names.exists([&name] (const auto & s) { return s == name; }) or
-	  var_names.exists([&name] (const auto & s) { return s == name; });
+	  var_sets.exists([&name] (const auto & vset)
+          {
+	    return vset.var_names.exists([&name] (const auto & s)
+					 { return s == name; });
+	  });
       });
   }
 
   bool contains_name(const string & name) const
   {
     return const_names.exists([&name] (const auto & s) { return s == name; }) or
-      var_names.exists([&name] (const auto & s) { return s == name; });
+      var_sets.exists([&name] (const auto & vset)
+         {
+	   return vset.var_names.exists([&name] (const auto & s)
+					{ return s == name; });
+	 });
   }
 
   // return a list of stored values for the symbol name
@@ -65,13 +90,20 @@ struct EmpiricalData
 	  return ret;
 	}
 
-    for (size_t i = 0; i < var_names.size(); ++i)
-      if (var_names(i) == name)
-	{
-	  for (size_t j = 0; j < num_samples; ++j)
-	    ret.append(samples(i)(j));
+    for (size_t k = 0; k < var_sets.size(); ++k)
+      {
+	const auto & var_set = var_sets(k);
+	const auto & var_names = var_set.var_names;
+	for (size_t i = 0; i < var_names.size(); ++i)
+	  if (var_names(i) == name)
+	    {
+	      const auto & samples = var_set.samples;
+	      const auto & num_samples = var_set.num_samples;
+	      for (size_t j = 0; j < num_samples; ++j)
+		ret.append(samples(i)(j));
 
-	  break;
+	      return ret;
+	    }
 	}
 
     return ret;
@@ -95,18 +127,26 @@ struct EmpiricalData
       });
     auto str = Aleph::to_string(format_string(const_list));
     s << shift_lines_to_left(str, 4) << endl
-      << endl
-      << "  Variables list:" << endl;
+      << endl;
 
-    DynList<DynList<string>> var_list;
-    enum_for_each(zip(var_names, var_units), [&var_list] (auto p, auto i)
+    for (auto it = var_sets.get_it(); it.has_curr(); it.next())
       {
-    	DynList<string> row = { p.first, p.second->symbol,
-				std::to_string(i + 1)};
-    	var_list.append(row);
-      });
-    str = Aleph::to_string(format_string(var_list));
-    s << shift_lines_to_left(str, 4) << endl;
+	const auto vset = it.get_curr();
+
+	s << "  Variable set " << vset.name << ": " << vset.desc << endl;
+
+	DynList<DynList<string>> var_list;
+	enum_for_each(zip(vset.var_names, vset.var_units),
+		      [&var_list] (auto p, auto i)
+          {
+	    DynList<string> row = { p.first, p.second->symbol,
+				    std::to_string(i + 1)};
+	    var_list.append(row);
+	  });
+	str = Aleph::to_string(format_string(var_list));
+	s << shift_lines_to_left(str, 4) << endl
+	  << endl;
+      }
 
     return s.str();
   }
@@ -114,21 +154,27 @@ struct EmpiricalData
   string full_desc() const
   {
     ostringstream s;
-    s << to_string() << endl
-      << endl
-      << "Samples (" << num_samples << "):" << endl;
-
-    DynList<DynList<string>> str_samples =
-      samples.map<DynList<string>>([] (const auto & l)
+    
+    for (size_t i = 0; i < var_sets.size(); ++i)
       {
-	return l.template map<string>([] (auto v) { return std::to_string(v); });
-      });
+	const auto & vset = var_sets(i);
+	s << to_string() << endl
+	  << endl
+	  << "Samples set " << i + 1 << " (" << vset.num_samples << "):" << endl;
 
-    str_samples.insert(to_dynlist(var_names));
+	DynList<DynList<string>> str_samples =
+	  vset.samples.map<DynList<string>>([] (const auto & l)
+            {
+	      return
+	      l.template map<string>([] (auto v) { return std::to_string(v); });
+	    });
 
-    str_samples = format_string(str_samples);
+	str_samples.insert(to_dynlist(vset.var_names));
+	
+	str_samples = format_string(str_samples);
 
-    s << shift_lines_to_left(Aleph::to_string(str_samples), 4);
+	s << shift_lines_to_left(Aleph::to_string(str_samples), 4);
+      }
 
     return s.str();
   }
@@ -174,32 +220,56 @@ public:
     def_const(name, val, search_unit(symbol));
   }
 
-  void def_var(const string & name, const Unit * unit)
+  void def_var_set(const string & name, const string & desc)
   {
-    if (contains_name(name))
+    var_sets.emplace(name, desc);
+  }
+
+  void def_var(size_t set_idx, const string & name, const Unit * unit)
+  {
+    auto & vset = var_sets[set_idx];
+    if (vset.contains_name(name))
       {
 	ostringstream s;
-	s << "EmpiricalData::def_var(): name " << name << " is already defined";
+	s << "EmpiricalData::def_var(): name " << name
+	  << " is already defined in the set " << vset.name;
 	throw domain_error(s.str());
       }
-    var_names.append(name);
-    var_units.append(unit);
-    num_var++;
+    
+    vset.var_names.append(name);
+    vset.var_units.append(unit);
+    vset.num_var++;
   }
 
-  void def_var(const string & name, const string & symbol)
+private:
+
+  size_t set_index(const string & name) const noexcept
   {
-    def_var(name, search_unit(symbol));
+    return
+      var_sets.find_index([&name] (const auto & s) { return s.name == name; });
+  }  
+
+public:
+
+  void def_var(const string & set_name,  string & name, const string & symbol)
+  {
+    def_var(set_index(set_name), name, search_unit(symbol));
   }
 
-  void add_sample(const DynList<double> & sample)
+  void add_sample(size_t set_idx, DynList<double> && sample)
   {
-    samples.append(sample);
+    var_sets[set_idx].samples.append(move(sample));
   }
 
-  void add_samples(istream & input)
+  void add_sample(const string & set_name, DynList<double> && sample)
   {
-    if (not var_names.is_empty())
+    add_sample(set_index(set_name), move(sample));
+  }
+
+  void add_samples(const string & set_name, istream & input)
+  {
+    auto & vset = var_sets[set_index(set_name)];
+    if (not vset.var_names.is_empty())
       {
 	const string s = "EmpiricalData::add_samples(istream&): "
 	  "the data has already variables";
@@ -235,24 +305,25 @@ public:
 
 	auto unit_ptr = search_unit(symbol);
 
-	var_names.append(move(name));
-	var_units.append(unit_ptr);
-	num_var++;
+	vset.var_names.append(move(name));
+	vset.var_units.append(unit_ptr);
+	vset.num_var++;
       }
 
-    for (size_t linenum = 2; input.good(); ++num_samples, linenum++)
+    for (size_t linenum = 2; input.good(); ++vset.num_samples, linenum++)
       {
 	auto row = csv_read_row(input, ',');
-	if (row.size() != num_var)
+	if (row.size() != vset.num_var)
 	  {
 	    ostringstream s;
 	    s << "EmpiricalData::add_samples(istream&): row number "
 	      << linenum << " has << " << row.size()
-	      << " cols, which is not exactly the number of vars " << num_var;
+	      << " cols, which is not exactly the number of vars " << vset.num_var;
 	    throw domain_error(s.str());
 	  }
 	DynList<double> sample;
-	enum_for_each(zip(row, var_units), [&sample, linenum] (auto & p, auto i)
+	enum_for_each(zip(row, vset.var_units),
+		      [&sample, linenum] (auto & p, auto i)
 	  {
 	    if (not is_double(p.first))
 	      {
@@ -275,17 +346,18 @@ public:
 		throw domain_error(s.str());
 	      }
 	  });
-	samples.append(sample);
+	vset.samples.append(sample);
       }
   }
 
   //               var-name value
   using Par = pair<string, double>;
 
-  void add_sample(DynList<Par> && pars)
+  void add_sample(size_t set_idx, DynList<Par> && pars)
   {
+    auto vset = var_sets[set_idx];
     DynList<double> sample;
-    for (auto it = var_names.get_it(); it.has_curr(); it.next())
+    for (auto it = vset.var_names.get_it(); it.has_curr(); it.next())
       {
 	auto name = it.get_curr();
 	sample.append(pars.remove([&name] (const auto & p)
@@ -300,21 +372,35 @@ public:
 	throw domain_error(s.str());
       }
 
-    samples.append(sample);
-  }
-  
-  bool exists_var_name(const string & name) const noexcept
-  {
-    return var_names.exists([&name] (const string & s) { return s == name; });
+    vset.samples.append(sample);
   }
 
-  void add_sample(DynList<string> && pars)
+  void add_sample(const string & set_name, DynList<Par> && pars)
   {
-    if (pars.size() != num_var)
+    add_sample(set_index(set_name), move(pars));
+  }
+  
+  bool exists_var_name(size_t set_idx, const string & name) const noexcept
+  {
+    return var_sets[set_idx].var_names.exists([&name] (const string & s)
+					      { return s == name; });
+  }
+
+  bool exists_var_name(const string & set_name, const string & name)
+    const noexcept
+  {
+    return exists_var_name(set_index(set_name), name);
+  }
+
+  void add_sample(const string & set_name, DynList<string> && pars)
+  {
+    auto set_idx = set_index(set_name);
+    auto & vset = var_sets[set_idx];
+    if (pars.size() != vset.num_var)
       {
 	ostringstream s;
 	s << "EmpiricalData::add_sample(DynList<string> &&): pars size "
-	  << pars.size() << " is different than number of vars " << num_var;
+	  << pars.size() << " is different than number of vars " << vset.num_var;
 	throw domain_error(s.str());
       }
 
@@ -324,7 +410,7 @@ public:
       {
 	auto tokens = split_to_list(pars.remove_first(), "=");
 	string name = remove_spaces(tokens.remove_first());
-	if (not exists_var_name(name))
+	if (not exists_var_name(set_idx, name))
 	  {
 	    ostringstream s;
 	    s << "EmpiricalData::add_sample(DynList<string>&): var name "
@@ -343,15 +429,15 @@ public:
 	sample.append(make_pair(move(name), atof(val.c_str())));
       }
 
-    if (n < num_var or not pars.is_empty())
+    if (n < vset.num_var or not pars.is_empty())
       {
 	ostringstream s;
 	s << "EmpiricalData::add_sample(DynList<string> &&): pars size "
-	  << pars.size() << " is different than number of vars " << num_var;
+	  << pars.size() << " is different than number of vars " << vset.num_var;
 	throw domain_error(s.str());
       }
 
-    add_sample(move(sample));
+    add_sample(set_idx, move(sample));
   }
 
   /// return true if correlation correlation_ptr could be applied to
@@ -361,9 +447,6 @@ public:
     return
       correlation_ptr->names_and_synonyms().exists([this] (const auto & sign)
       {
-	bool val = this->contains_names(sign);
-	sign.for_each([] (auto s) { cout << s << " "; });
-	cout << (val ? "true" : "false") << endl;
 	return this->contains_names(sign);
       });
   }
@@ -433,16 +516,34 @@ public:
 
     return ret;
   }
-
-  DynList<double> execute_correlation(const Correlation * correlation_ptr) const
+  
+  /// Returns a column of correlation outputs for the values stored in
+  /// this data set
+  DynList<double> compute(const Correlation * correlation_ptr,
+			  bool check = true) const
   {
     auto vals = correlation_values(correlation_ptr);
     DynList<double> ret;
 
-    for_each_perm(vals, [&ret, correlation_ptr] (const auto & pars)
+    for_each_perm(vals, [&ret, correlation_ptr, check] (const auto & pars)
       {
 	pars.for_each([] (auto v) { cout << v << " "; }); cout << endl;
-	ret.append(correlation_ptr->compute(pars));		       
+	ret.append(correlation_ptr->compute(pars, check));		       
+      });
+    return ret;
+  }
+
+  DynList<DynList<double>> compute_mat(const Correlation * correlation_ptr,
+				       bool check) const
+  {
+    auto vals = correlation_values(correlation_ptr);
+    DynList<DynList<double>> ret;
+
+    for_each_perm(vals, [&ret, correlation_ptr, check] (const auto & pars)
+      {
+	DynList<double> row = pars;
+	row.append(correlation_ptr->compute(pars, check));
+	ret.append(row); 
       });
     return ret;
   }

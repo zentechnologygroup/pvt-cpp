@@ -26,8 +26,6 @@ struct CorrelationPar
 
 private:
 
-  bool check_active = true;
-  
   double epsilon = 1e-3;
 
 public:
@@ -81,12 +79,6 @@ public:
     return (max_val.raw() - min_val.raw()) / n;
   }
 
-  void set_active() noexcept { check_active = true; }
-
-  void set_inactive() noexcept { check_active = false; }
-
-  bool is_active() const noexcept { return check_active; }
-
   DynList<string> to_list_string() const
   {
     return { name, unit.symbol, min_val.to_string(), max_val.to_string() };
@@ -111,9 +103,6 @@ public:
 
   void verify(const BaseQuantity & q) const
   {
-    if (not check_active)
-      return;
-    
     ostringstream s;
   
     if (q.get_value() < min_val.raw() - epsilon)
@@ -247,28 +236,6 @@ public:
   void add_ref(const string & tag)
   {
     refs.append(BibEntry::find(tag));
-  }
-
-  void inactive_preconditions()
-  {
-    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
-      it.get_curr().set_inactive();
-  }
-
-  void active_preconditions()
-  {
-    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
-      it.get_curr().set_active();
-  }
-
-  void active_precondition(size_t i)
-  {
-    preconditions.nth(i).set_active();
-  }
-
-  void inactive_precondition(size_t i)
-  {
-    preconditions.nth(i).set_inactive();
   }
 
   const DynList<CorrelationPar> & get_preconditions() const noexcept
@@ -547,14 +514,16 @@ public:
     return out << c.to_string();
   }
 
-  virtual VtlQuantity compute(const DynList<VtlQuantity> &) const = 0;
+  virtual
+  VtlQuantity compute(const DynList<VtlQuantity> &, bool check = true) const = 0;
 
-  VtlQuantity compute_and_check(const DynList<VtlQuantity> & pars) const
+  VtlQuantity compute_and_check(const DynList<VtlQuantity> & pars,
+				bool check = true) const
   {
-    return verify_result(compute(pars));
+    return verify_result(compute(pars, check));
   }
 
-  double compute(const DynList<double> & values) const
+  double compute(const DynList<double> & values, bool check = true) const
   {
     DynList<VtlQuantity> pars;
     auto it = get_pair_it(preconditions, values);
@@ -574,13 +543,14 @@ public:
 	throw domain_error(s.str());
       }
 
-    VtlQuantity ret = { unit, compute(pars) }; // here conversion is done
+    VtlQuantity ret = { unit, compute(pars, check) }; // here conversion is done
     return ret.get_value();
   }
 
-  double compute_and_check(const DynList<double> & pars) const
+  double
+  compute_and_check(const DynList<double> & pars, bool check = true) const
   {
-    return verify_result(VtlQuantity(unit, compute(pars))).get_value();
+    return verify_result(VtlQuantity(unit, compute(pars, check))).get_value();
   }
 
   /** return a list of validated and adequately converted correlation

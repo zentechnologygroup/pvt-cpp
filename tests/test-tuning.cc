@@ -1,10 +1,9 @@
 
+# include <ah-string-utils.H>
 # include <metadata/correlation-analyzer.H>
 
 int main()
 {
-  ifstream file("data.csv");
-
   EmpiricalData e;
 
   e.def_const("t", 189, "degF");
@@ -15,7 +14,18 @@ int main()
   e.def_const("tsep", 90, "degF");
   e.def_const("psep", 60, "psia");
 
-  e.add_samples(file);
+  e.def_var_set("Uob", "Points below the bubble point");
+  e.def_var_set("Uoa", "Points above the bubble point");
+
+  {
+    ifstream file("data-b.csv");
+    e.add_samples("Uob", file);
+  }
+
+  {
+    ifstream file("data-a.csv");
+    e.add_samples("Uoa", file);
+  }
 
   cout << e.to_string() << endl;
 
@@ -49,12 +59,29 @@ int main()
   cout << "****************************************************************"
        << endl;
 
-  auto ptr = Correlation::search_by_name("PbAlShammasi");
+  auto ptr = Correlation::search_by_name("RsMillanArcia");
+
+  assert(e.can_be_applied(ptr));
+  assert(not e.can_be_applied(Correlation::search_by_name("ZFactorGopal")));
+
   ptr->names_and_synonyms().for_each([] (const auto & l)
     {
       l.for_each([] (const auto & s) { cout << s << " "; });
       cout << endl;
     });
 
-  auto vals = e.execute_correlation(ptr);
+  auto mat = e.compute_mat(ptr, false);
+  auto smat = mat.map<DynList<string>>([] (const auto & l)
+    {
+      return
+      l.template map<string>([] (const auto & v) { return ::to_string(v); });
+    });
+
+  auto sign = ptr->parameters_signature();
+  sign.append(ptr->target_name());
+  smat.insert(sign);
+
+  auto r = format_string(smat);
+
+  cout << to_string(r) << endl;
 }
