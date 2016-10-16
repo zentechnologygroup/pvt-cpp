@@ -53,7 +53,8 @@ struct EmpiricalData
     return ret.keys();
   }
 
-  // return true if this data set contains the names as constants or variables
+  // return true if this data set contains the names stored in `names
+  // as constants or variables
   bool contains_names(const DynList<string> & names) const
   {
     return names.all([this] (const auto & name)
@@ -450,16 +451,7 @@ public:
 	return this->contains_names(sign);
       });
   }
-
-  /// Returns a list of correlation matching the names contaned in
-  /// the data set
-  DynList<const Correlation* const> matching_correlations()
-  {
-    return Correlation::list().filter([this] (auto ptr)
-				      { return this->can_be_applied(ptr); });
-  }
-
-  // Return a list of list of correlation parameter belonging to the
+  // Return a list of list of correlation parameters belonging to the
   // data set that would be used in order to compute the all the value
   // of the correlation
   DynList<DynList<double>>
@@ -517,7 +509,91 @@ public:
     return ret;
   }
   
-  /// Returns a column of correlation outputs for the values stored in
+  bool fits_parameter_ranges(const Correlation * correlation_ptr) const
+  {
+    auto vals = correlation_values(correlation_ptr);
+    vals.mutable_for_each([] (auto & l) { in_place_sort(l); });
+
+    for (auto it = get_pair_it(vals, correlation_ptr->get_preconditions());
+	 it.has_curr(); it.next())
+      {
+	auto p = it.get_curr();
+	auto empirical_samples = p.first;
+	const auto & par = p.second;
+	double min_emp_sample = empirical_samples.get_first();
+	double max_emp_sample = empirical_samples.get_last();
+	if (not par.check(min_emp_sample) or not par.check(max_emp_sample))
+	  return false;
+      }
+
+    return true;
+  }
+
+  using InvalidRange = pair<string, DynList<double>>;
+
+  DynList<InvalidRange>
+  invalid_parameters_values(const Correlation * correlation_ptr) const
+  {
+    auto vals = correlation_values(correlation_ptr);
+    vals.mutable_for_each([] (auto & l) { in_place_sort(l); });
+    DynList<InvalidRange> ret;
+
+    for (auto it = get_pair_it(vals, correlation_ptr->get_preconditions());
+	 it.has_curr(); it.next())
+      {
+	auto p = it.get_curr();
+	auto empirical_samples = p.first;
+	const auto & par = p.second;
+	double min_emp_sample = empirical_samples.get_first();
+	if (empirical_samples.is_unitarian())
+	  {
+	    if (not par.check(min_emp_sample))
+	      ret.append(make_pair(par.name, DynList<double>({ min_emp_sample })));
+	    continue;
+	  }
+
+	DynList<double> invalid_vals;
+	while (not empirical_samples.is_empty() and
+	       not par.check(empirical_samples.get_first()))
+	  invalid_vals.append(empirical_samples.remove_first());
+
+	if (empirical_samples.is_empty())
+	  {
+	    if (not invalid_vals.is_empty())
+	      ret.append(make_pair(par.name, invalid_vals));
+	    continue;
+	  }
+
+	empirical_samples.reverse();
+	while (not empirical_samples.is_empty() and
+	       not par.check(empirical_samples.get_first()))
+	  invalid_vals.append(empirical_samples.remove_first());
+
+	if (not invalid_vals.is_empty())
+	  ret.append(make_pair(par.name, invalid_vals));
+      }
+
+    return ret;
+  }
+
+
+  /// Returns a list of correlation matching the names contaned in
+  /// the data set
+  DynList<const Correlation*> matching_correlations() const
+  {
+    return Correlation::list().filter([this] (auto ptr)
+				      { return this->can_be_applied(ptr); });
+  }
+
+  DynList<const Correlation*> valid_correlations() const
+  {
+    return Correlation::array().filter([this] (auto ptr)
+      {
+	return this->can_be_applied(ptr) and this->fits_parameter_ranges(ptr);
+      });
+  }
+
+  /// returns a column of correlation outputs for the values stored in
   /// this data set
   DynList<double> compute(const Correlation * correlation_ptr,
 			  bool check = true) const
@@ -547,6 +623,14 @@ public:
       });
     return ret;
   }
+
+  // TODO: funcion que dado un name en un var_set determine las
+  // correlaciones que calculan el valor.
+
+  // TODO: luego función que calcule cuáles parámetros están ausentes
+
+  // TODO: luego funcione que calcule cuales correlaciones pueden
+  // calcular los datos ausentes con los datos del var_set y las constantes
 };
 
 

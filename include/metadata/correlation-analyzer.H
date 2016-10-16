@@ -35,7 +35,7 @@ struct CorrelationAnalyser
   }
 
   // Returns the target correlations matching the target_var name
-  DynList<const Correlation * const> target_correlations() const
+  DynList<const Correlation *> target_correlations() const
   {
     return Correlation::list().filter([this] (const Correlation * ptr)
       {

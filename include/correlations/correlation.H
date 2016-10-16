@@ -101,6 +101,8 @@ public:
       &val.unit == &unit;
   }
 
+  bool check(double val) const noexcept { return check(VtlQuantity(unit, val)); }
+
   void verify(const BaseQuantity & q) const
   {
     ostringstream s;
@@ -143,9 +145,9 @@ private:
   size_t n = 0;
 
   static size_t counter;
-  static DynMapTree<string, const Correlation * const> tbl;
+  static DynMapTree<string, const Correlation *> tbl;
 
-  static Array<const Correlation * > correlations_tbl;
+  static Array<const Correlation *> correlations_tbl;
 
 public:
 
@@ -324,7 +326,7 @@ public:
 	}));
   }
 
-  static DynList<const Correlation * const> list() { return tbl.values(); }
+  static DynList<const Correlation *> list() { return tbl.values(); }
 
   static const Array<const Correlation*> & array() noexcept
   {

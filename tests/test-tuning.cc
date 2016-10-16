@@ -55,6 +55,14 @@ int main()
 	       cout << endl;
 	     });
 
+  cout << "Correlation matching data set parameters and its values" << endl;
+  e.valid_correlations().for_each([] (auto p)
+	     {
+	       cout << "    " << p->name;
+	       p->names().for_each([] (const auto & s) { cout << " " << s; });
+	       cout << endl;
+	     });
+
 
   cout << "****************************************************************"
        << endl;
@@ -69,6 +77,26 @@ int main()
       l.for_each([] (const auto & s) { cout << s << " "; });
       cout << endl;
     });
+
+  if (e.fits_parameter_ranges(ptr))
+    cout << "Empirical data fits the correlation ranges" << endl;
+  else
+    {
+      cout << "Empirical data does not fit the correlation ranges" << endl
+	   << "Here the correlation pars:" << endl
+	   << *ptr << endl
+	   << endl
+	   << "And here the empirical parameter out of range" << endl;
+      auto novalid = e.invalid_parameters_values(ptr);
+      for (auto it = novalid.get_it(); it.has_curr(); it.next())
+	{
+	  auto p = it.get_curr();
+	  cout << "    " << p.first;
+	  p.second.for_each([] (auto v) { cout << " " << v; });
+	  cout << endl;
+	}
+      cout << endl;
+    }
 
   auto mat = e.compute_mat(ptr, false);
   auto smat = mat.map<DynList<string>>([] (const auto & l)
