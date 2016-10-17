@@ -624,8 +624,45 @@ public:
     return ret;
   }
 
+  /// Returns a pair with the names needed for computing correlation
+  /// `correlation_ptr`. The first element is a list of names that are
+  /// present between the const and the var_set-set_idx]. The second
+  /// element is a list of names that are not present
+  pair<DynList<string>, DynList<string>>
+    matching_names(size_t set_idx, const Correlation * correlation_ptr) const
+  {
+    const auto & var_set = var_sets[set_idx];
+    DynList<string> present, absent;
+    for (auto it = correlation_ptr->get_preconditions().get_it(); it.has_curr();
+	 it.next())
+      {
+	const auto & par = it.get_curr();
+	const auto & name = par.name;
+	auto exist = [&name] (const string & s) { return s == name; };
+	if (const_names.exists(exist) or var_set.var_names.exists(exist))
+	  present.append(name);
+	else
+	  absent.append(name);
+      }
+
+    return make_pair(present, absent);
+  }
+
   // TODO: funcion que dado un name en un var_set determine las
   // correlaciones que calculan el valor.
+  // DynList<const Correlation*>
+  // correlations(size_t set_idx, const string & name) const
+  // {
+  //   const auto & var_set = var_sets[set_idx];
+  //   if (not var_set.contains_name(&name))
+  //     {
+  // 	ostringstream s;
+  // 	s << "var set " << var_set.name << " does not contain the name " << name;
+  // 	throw domain_error(s.str());
+  //     }
+
+    
+  // }
 
   // TODO: luego función que calcule cuáles parámetros están ausentes
 

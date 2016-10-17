@@ -112,4 +112,10 @@ int main()
   auto r = format_string(smat);
 
   cout << to_string(r) << endl;
+
+  auto bo_correlations = Correlation::array().filter([] (auto ptr)
+    {
+      return ptr->target_name() == "bo";
+    });
+  bo_correlations.for_each([] (auto ptr) { cout << ptr->name << endl; });
 }
