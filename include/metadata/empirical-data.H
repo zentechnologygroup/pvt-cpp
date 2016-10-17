@@ -551,7 +551,9 @@ public:
 
     return ret;
   }
-  
+
+  /// Returns true if the parameter contained in data set number
+  /// `seti` fits the restrictions of correlation `correlation_ptr`
   bool fits_parameter_ranges(size_t seti,
 			     const Correlation * correlation_ptr) const
   {
