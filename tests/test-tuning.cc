@@ -1,6 +1,6 @@
 
 # include <ah-string-utils.H>
-# include <metadata/correlation-analyzer.H>
+# include <metadata/empirical-data.H>
 
 int main()
 {
@@ -29,10 +29,6 @@ int main()
 
   cout << e.to_string() << endl;
 
-  CorrelationAnalyser m(e);
-
-  m.target_var = "pb";
-
   cout << "Data names: ";
   e.names().for_each([] (const auto & s) { cout << " " << s; });
   cout << endl
@@ -48,7 +44,7 @@ int main()
   // cout << endl;
 
   cout << "Correlations matching data set parameters: " << endl;
-  e.matching_correlations().for_each([] (auto p)
+  e.matching_correlations("Uob").for_each([] (auto p)
 	     {
 	       cout << "    " << p->name;
 	       p->names().for_each([] (const auto & s) { cout << " " << s; });
@@ -56,7 +52,7 @@ int main()
 	     });
 
   cout << "Correlation matching data set parameters and its values" << endl;
-  e.valid_correlations().for_each([] (auto p)
+  e.valid_correlations("Uoa").for_each([] (auto p)
 	     {
 	       cout << "    " << p->name;
 	       p->names().for_each([] (const auto & s) { cout << " " << s; });
@@ -67,27 +63,26 @@ int main()
   cout << "****************************************************************"
        << endl;
 
-  auto ptr = Correlation::search_by_name("RsMillanArcia");
+  auto rs_ptr = Correlation::search_by_name("RsMillanArcia");
 
-  assert(e.can_be_applied(ptr));
-  assert(not e.can_be_applied(Correlation::search_by_name("ZFactorGopal")));
+  assert(e.can_be_applied("Uob", rs_ptr) and e.can_be_applied("Uob", rs_ptr));
 
-  ptr->names_and_synonyms().for_each([] (const auto & l)
+  rs_ptr->names_and_synonyms().for_each([] (const auto & l)
     {
       l.for_each([] (const auto & s) { cout << s << " "; });
       cout << endl;
     });
 
-  if (e.fits_parameter_ranges(ptr))
+  if (e.fits_parameter_ranges("Uob", rs_ptr)) 
     cout << "Empirical data fits the correlation ranges" << endl;
   else
     {
       cout << "Empirical data does not fit the correlation ranges" << endl
 	   << "Here the correlation pars:" << endl
-	   << *ptr << endl
+	   << *rs_ptr << endl
 	   << endl
 	   << "And here the empirical parameter out of range" << endl;
-      auto novalid = e.invalid_parameters_values(ptr);
+      auto novalid = e.invalid_parameters_values("Uob", rs_ptr); 
       for (auto it = novalid.get_it(); it.has_curr(); it.next())
 	{
 	  auto p = it.get_curr();
@@ -98,15 +93,15 @@ int main()
       cout << endl;
     }
 
-  auto mat = e.compute_mat(ptr, false);
+  auto mat = e.compute_mat("Uob", rs_ptr, false); 
   auto smat = mat.map<DynList<string>>([] (const auto & l)
     {
       return
       l.template map<string>([] (const auto & v) { return ::to_string(v); });
     });
 
-  auto sign = ptr->parameters_signature();
-  sign.append(ptr->target_name());
+  auto sign = rs_ptr->parameters_signature();
+  sign.append(rs_ptr->target_name());
   smat.insert(sign);
 
   auto r = format_string(smat);
@@ -118,4 +113,14 @@ int main()
       return ptr->target_name() == "bo";
     });
   bo_correlations.for_each([] (auto ptr) { cout << ptr->name << endl; });
+
+  bo_correlations.for_each([&e] (auto ptr)
+    {
+      cout << ptr->name << ":";
+      auto p = e.matching_names(0, ptr);
+      cout << " "; p.first.for_each([] (const auto & s) { cout << " " << s; });
+      cout << ","; p.second.for_each([] (const auto & s) { cout << " " << s; });
+      cout << endl
+	   << endl;
+    });
 }

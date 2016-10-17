@@ -55,28 +55,33 @@ struct EmpiricalData
 
   // return true if this data set contains the names stored in `names
   // as constants or variables
-  bool contains_names(const DynList<string> & names) const
+  bool contains_names(size_t set_idx, const DynList<string> & names) const
   {
-    return names.all([this] (const auto & name)
+    const auto & vset = var_sets[set_idx];
+    return names.all([this, &vset] (const auto & name)
       {
 	return
 	  const_names.exists([&name] (const auto & s) { return s == name; }) or
-	  var_sets.exists([&name] (const auto & vset)
-          {
-	    return vset.var_names.exists([&name] (const auto & s)
-					 { return s == name; });
-	  });
+	  vset.var_names.exists([&name] (const auto & s) { return s == name; });
       });
   }
 
+  /// Return true is name belongs to the constant set of to var name
+  /// of varriabe set set_idex
+  bool contains_name(size_t set_idx, const string & name) const
+  {
+    const auto & vset = var_sets[set_idx];
+    return const_names.exists([&name] (const auto & s) { return s == name; }) or
+      vset.var_names.exists([&name] (const auto & s) { return s == name; });
+  }
+
+  /// Return true if name is define as constant or variable name
   bool contains_name(const string & name) const
   {
     return const_names.exists([&name] (const auto & s) { return s == name; }) or
       var_sets.exists([&name] (const auto & vset)
-         {
-	   return vset.var_names.exists([&name] (const auto & s)
-					{ return s == name; });
-	 });
+		      { return vset.var_names.exists([&name] (const auto & s)
+						     { return s == name; }); });
   }
 
   // return a list of stored values for the symbol name
@@ -106,6 +111,31 @@ struct EmpiricalData
 	      return ret;
 	    }
 	}
+
+    return ret;
+  }
+
+  // return a list of stored values for the symbol name
+  DynList<double> values(size_t set_idx, const string & name) const
+  {
+    DynList<double> ret;
+
+    for (size_t i = 0; i < const_names.size(); ++i)
+      if (const_names(i) == name)
+	{
+	  ret.append(const_vals(i));
+	  return ret;
+	}
+
+    const auto & var_set = var_sets[set_idx];
+    const auto & var_names = var_set.var_names;
+    for (size_t i = 0; i < var_names.size(); ++i)
+      if (var_names(i) == name)
+	for (size_t j = 0; j < var_set.num_samples; ++j)
+	  {
+	    ret.append(var_set.samples(i)(j));
+	    return ret;
+	  }
 
     return ret;
   }
@@ -246,8 +276,14 @@ private:
 
   size_t set_index(const string & name) const noexcept
   {
-    return
+    auto i =
       var_sets.find_index([&name] (const auto & s) { return s.name == name; });
+    if (i < var_sets.size())
+      return i;
+
+    ostringstream s;
+    s << "set name " << name << " not found";
+    throw domain_error(s.str());
   }  
 
 public:
@@ -380,7 +416,7 @@ public:
   {
     add_sample(set_index(set_name), move(pars));
   }
-  
+
   bool exists_var_name(size_t set_idx, const string & name) const noexcept
   {
     return var_sets[set_idx].var_names.exists([&name] (const string & s)
@@ -443,19 +479,26 @@ public:
 
   /// return true if correlation correlation_ptr could be applied to
   /// the empirical data 
-  bool can_be_applied(const Correlation * correlation_ptr) const
+  bool can_be_applied(size_t seti, const Correlation * correlation_ptr) const
   {
     return
-      correlation_ptr->names_and_synonyms().exists([this] (const auto & sign)
+      correlation_ptr->names_and_synonyms().exists([this, seti] (const auto & sign)
       {
-	return this->contains_names(sign);
+	return this->contains_names(seti, sign);
       });
   }
+
+  bool can_be_applied(const string &set_name,
+		      const Correlation * correlation_ptr) const
+  {
+    return can_be_applied(set_index(set_name), correlation_ptr);
+  }
+
   // Return a list of list of correlation parameters belonging to the
   // data set that would be used in order to compute the all the value
   // of the correlation
   DynList<DynList<double>>
-  correlation_values(const Correlation * correlation_ptr) const
+  correlation_values(size_t seti, const Correlation * correlation_ptr) const
   {
     DynList<DynList<double>> ret; // this is the return value
 
@@ -465,7 +508,7 @@ public:
 	 it.next())
       {
 	auto par = it.get_curr();
-	DynList<double> vals = values(par.name); // extract value of data set
+	DynList<double> vals = values(seti, par.name); // values of data set
 	if (not vals.is_empty())
 	  {
 	    ret.append(vals);
@@ -480,7 +523,7 @@ public:
 	{
 	  auto syn = it_syn.get_curr();
 	  const auto & syn_name = syn.first;
-	  vals = values(syn_name); // verify if there are values in data set
+	  vals = values(seti, syn_name); // verify if there are values in data set
 	  if (not vals.is_empty())
 	    { // a synomym was found for par_name in the
 	      // correlation. Now we convert the values to the synonym unit
@@ -509,9 +552,10 @@ public:
     return ret;
   }
   
-  bool fits_parameter_ranges(const Correlation * correlation_ptr) const
+  bool fits_parameter_ranges(size_t seti,
+			     const Correlation * correlation_ptr) const
   {
-    auto vals = correlation_values(correlation_ptr);
+    auto vals = correlation_values(seti, correlation_ptr);
     vals.mutable_for_each([] (auto & l) { in_place_sort(l); });
 
     for (auto it = get_pair_it(vals, correlation_ptr->get_preconditions());
@@ -529,12 +573,19 @@ public:
     return true;
   }
 
+  bool fits_parameter_ranges(const string & set_name,
+			     const Correlation * correlation_ptr) const
+  {
+    return fits_parameter_ranges(set_index(set_name), correlation_ptr);
+  }
+
   using InvalidRange = pair<string, DynList<double>>;
 
   DynList<InvalidRange>
-  invalid_parameters_values(const Correlation * correlation_ptr) const
+  invalid_parameters_values(size_t seti,
+			    const Correlation * correlation_ptr) const
   {
-    auto vals = correlation_values(correlation_ptr);
+    auto vals = correlation_values(seti, correlation_ptr);
     vals.mutable_for_each([] (auto & l) { in_place_sort(l); });
     DynList<InvalidRange> ret;
 
@@ -576,29 +627,47 @@ public:
     return ret;
   }
 
-
+  DynList<InvalidRange>
+  invalid_parameters_values(const string & set_name,
+			    const Correlation * correlation_ptr) const
+  {
+    return invalid_parameters_values(set_index(set_name), correlation_ptr);
+  }
+  
   /// Returns a list of correlation matching the names contaned in
   /// the data set
-  DynList<const Correlation*> matching_correlations() const
+  DynList<const Correlation*> matching_correlations(size_t seti) const
   {
-    return Correlation::list().filter([this] (auto ptr)
-				      { return this->can_be_applied(ptr); });
+    return Correlation::list().filter([this, seti] (auto ptr)
+				      { return this->can_be_applied(seti, ptr); });
   }
 
-  DynList<const Correlation*> valid_correlations() const
+  DynList<const Correlation*> matching_correlations(const string & set_name)
+    const
   {
-    return Correlation::array().filter([this] (auto ptr)
+    return matching_correlations(set_index(set_name));
+  }
+
+  DynList<const Correlation*> valid_correlations(size_t seti) const
+  {
+    return Correlation::array().filter([this, seti] (auto ptr)
       {
-	return this->can_be_applied(ptr) and this->fits_parameter_ranges(ptr);
+	return this->can_be_applied(seti, ptr) and
+	  this->fits_parameter_ranges(seti, ptr);
       });
+  }
+
+  DynList<const Correlation*> valid_correlations(const string & set_name) const
+  {
+    return valid_correlations(set_index(set_name));
   }
 
   /// returns a column of correlation outputs for the values stored in
   /// this data set
-  DynList<double> compute(const Correlation * correlation_ptr,
+  DynList<double> compute(size_t seti, const Correlation * correlation_ptr,
 			  bool check = true) const
   {
-    auto vals = correlation_values(correlation_ptr);
+    auto vals = correlation_values(seti, correlation_ptr);
     DynList<double> ret;
 
     for_each_perm(vals, [&ret, correlation_ptr, check] (const auto & pars)
@@ -609,10 +678,18 @@ public:
     return ret;
   }
 
-  DynList<DynList<double>> compute_mat(const Correlation * correlation_ptr,
+  DynList<double> compute(const string & set_name,
+			  const Correlation * correlation_ptr,
+			  bool check = true) const
+  {
+    return compute(set_index(set_name), correlation_ptr, check);
+  }
+
+  DynList<DynList<double>> compute_mat(size_t seti,
+				       const Correlation * correlation_ptr,
 				       bool check) const
   {
-    auto vals = correlation_values(correlation_ptr);
+    auto vals = correlation_values(seti, correlation_ptr);
     DynList<DynList<double>> ret;
 
     for_each_perm(vals, [&ret, correlation_ptr, check] (const auto & pars)
@@ -622,6 +699,13 @@ public:
 	ret.append(row); 
       });
     return ret;
+  }
+
+  DynList<DynList<double>> compute_mat(const string & set_name,
+				       const Correlation * correlation_ptr,
+				       bool check) const
+  {
+    return compute_mat(set_index(set_name), correlation_ptr, check);
   }
 
   /// Returns a pair with the names needed for computing correlation
@@ -638,7 +722,12 @@ public:
       {
 	const auto & par = it.get_curr();
 	const auto & name = par.name;
-	auto exist = [&name] (const string & s) { return s == name; };
+	auto exist = [&par] (const string & s)
+	  {
+	    return s == par.name or
+	    par.get_synonyms().exists([&s] (const auto & syn)
+	  { return s == syn.first; });
+	  };
 	if (const_names.exists(exist) or var_set.var_names.exists(exist))
 	  present.append(name);
 	else
@@ -648,21 +737,24 @@ public:
     return make_pair(present, absent);
   }
 
-  // TODO: funcion que dado un name en un var_set determine las
-  // correlaciones que calculan el valor.
-  // DynList<const Correlation*>
-  // correlations(size_t set_idx, const string & name) const
-  // {
-  //   const auto & var_set = var_sets[set_idx];
-  //   if (not var_set.contains_name(&name))
-  //     {
-  // 	ostringstream s;
-  // 	s << "var set " << var_set.name << " does not contain the name " << name;
-  // 	throw domain_error(s.str());
-  //     }
+  // TODO: funcion que dado un name que no está en el data set_set
+  // determine las correlaciones que calculan su valor a partir de
+  // datos que si están en el data set
+  DynList<const Correlation*>
+  correlations(size_t seti, const string & name) const
+  {
+    const auto & var_set = var_sets[seti];
+    if (var_set.contains_name(name))
+      {
+	ostringstream s;
+	s << "var set " << var_set.name << " contains the name " << name;
+	throw domain_error(s.str());
+      }
 
-    
-  // }
+    return Correlation::array().filter([&name] (auto ptr)
+      { return ptr->target_name() == name; }).
+      filter([this, i = seti] (auto ptr) { return this->can_be_applied(i, ptr); });
+    }
 
   // TODO: luego función que calcule cuáles parámetros están ausentes
 
