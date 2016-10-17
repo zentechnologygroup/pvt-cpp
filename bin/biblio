@@ -54,7 +54,7 @@ options_parser = OptionParser.new do |opts|
     options[:source] = true
   end
 
-  opst.on('-S', '--style style', 'citation style') do |style|
+  opts.on('-S', '--style style', 'citation style') do |style|
     options[:style] = style
   end
 end

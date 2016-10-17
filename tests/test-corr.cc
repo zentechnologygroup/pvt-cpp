@@ -395,6 +395,8 @@ void test(int argc, char *argv[])
 
   SwitchArg json = { "j", "json", "output in json", cmd };
 
+  SwitchArg server = { "X", "server-execute", "output adapted to server", cmd };
+
   ValueArg<size_t> n = { "n", "num-steps",
 			 "number of steps by parameter", false, 10,
 			 "number of samples", cmd };
@@ -641,16 +643,25 @@ void test(int argc, char *argv[])
 	 << correlation_ptr->python_call(pars_list) << endl
 	 << endl;
 
-    if (ignore.getValue())
-      {
-	auto ret = correlation_ptr->compute(pars_list);
-	cout << correlation_ptr->call_string(pars_list) << " = " << ret << endl;
-      }
-    else
-      {
-	auto ret = correlation_ptr->compute_and_check(pars_list);
-	cout << correlation_ptr->call_string(pars_list) << " = " << ret << endl;
-      }
+  if (server.getValue())
+    {
+      auto ret = correlation_ptr->execute(pars_list);
+      cout << get<0>(ret) << ", " << get<1>(ret) << ", "
+	   << (get<2>(ret) ? "true" : "false") << " ,\"" << get<3>(ret)
+	       << "\"" << endl;
+      exit(0);
+    }
+
+  if (ignore.getValue())
+    {
+      auto ret = correlation_ptr->compute(pars_list);
+      cout << correlation_ptr->call_string(pars_list) << " = " << ret << endl;
+    }
+  else
+    {
+      auto ret = correlation_ptr->compute_and_check(pars_list);
+      cout << correlation_ptr->call_string(pars_list) << " = " << ret << endl;
+    }
 
   cout << endl;
 }

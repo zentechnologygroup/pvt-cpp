@@ -525,6 +525,27 @@ public:
     return verify_result(compute(pars, check));
   }
 
+  tuple<double, string, bool, string> execute(DynList<VtlQuantity> & pars,
+					      bool check = true) const
+  {
+    try
+      {
+	const auto result = compute(pars, check);
+	auto status = check_result(VtlQuantity(unit, result));
+	if (status)
+	  return make_tuple(result.raw(), unit.symbol, true, "");
+
+	ostringstream s;
+	s << "Correlation result " << result << " is out of range ["
+	  << min_val << ", " << max_val << "]";
+	return make_tuple(result.raw(), unit.symbol, false, s.str());
+      }
+    catch (exception &e)
+      {
+	return make_tuple(0, unit.symbol, false, e.what());
+      }
+  }
+
   double compute(const DynList<double> & values, bool check = true) const
   {
     DynList<VtlQuantity> pars;
@@ -604,7 +625,7 @@ public:
   VtlQuantity verify_result(const VtlQuantity & result) const
   {
     assert(&result.unit == &unit);
-    if (result.get_value()  < min_val or result.get_value() > max_val)
+    if (result.get_value() < min_val or result.get_value() > max_val)
       {
 	ostringstream s;
 	s << "In correlation " << name << " " << subtype_name << " " << type_name
