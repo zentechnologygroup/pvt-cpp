@@ -123,4 +123,6 @@ int main()
       cout << endl
 	   << endl;
     });
+
+  cout << e.to_json() << endl;
 }

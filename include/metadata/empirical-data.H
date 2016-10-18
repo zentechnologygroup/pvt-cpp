@@ -7,15 +7,24 @@
 # include <parse-csv.H>
 # include <ah-string-utils.H>
 # include <ah-comb.H>
+# include <ah-zip.H>
 
 # include <units/pvt-units.H>
 # include <correlations/pvt-correlations.H>
 
+# include <json.hpp>
+
 using namespace std;
 using namespace Aleph;
 
+using json = nlohmann::json;
+
 struct EmpiricalData
 {
+  string name = "Test de Alberto Valderrama";
+
+  string desc = "Usado para pruebas, aparentemente deun pozo en Monagas";
+
   size_t num_const = 0;
   Array<string> const_names;
   Array<double> const_vals;
@@ -40,6 +49,31 @@ struct EmpiricalData
     {
       return var_names.exists([&name] (const auto & s) { return s == name; });
     }
+
+    json to_json() const
+    {
+      json j;
+      j["name"] = name;
+      j["description"] = desc;
+      j["num vars"] = num_var;
+      j["num samples"] = num_samples;
+      j["variables"] = to_vector(t_zip(var_names, var_units).
+	map<json>([] (const auto & t)
+		  {
+		    json ret;
+		    ret["name"] = get<0>(t);
+		    ret["unit"] = get<1>(t)->symbol;
+		    return ret;
+		  }));
+      
+      for (auto it = get_zip_it(var_names, samples); it.has_curr(); it.next())
+	{
+	  const auto & t = it.get_curr();
+	  j["samples"][get<0>(t)] = to_vector(get<1>(t));
+	}
+
+      return j;
+    }
   };
 
   Array<VarSet> var_sets;
@@ -51,6 +85,41 @@ struct EmpiricalData
       it.get_curr().var_names.for_each([&ret] (const auto & s) { ret.append(s); });
 
     return ret.keys();
+  }
+
+  void check_constant(const string & name, const PhysicalQuantity & pq) const
+  {
+    for (auto it = get_zip_it(const_names, const_vals, const_units); it.has_curr();
+	 it.next())
+      {
+	auto curr = it.get_curr();
+	if (get<0>(curr) != name)
+	  continue;
+
+	const auto & physical_quantity = get<2>(curr)->physical_quantity;
+	if (&physical_quantity != &pq)
+	  {
+	    ostringstream s;
+	    s << "Physical quantity of name " << name << " is "
+	      << physical_quantity << " but it must be " << pq.name;
+	    throw domain_error(s.str());
+	  }
+
+	try
+	  {
+	    VtlQuantity q(*get<2>(curr), get<1>(curr));
+	    return;
+	  }
+	catch (exception &e)
+	  {
+	    ostringstream s;
+	    s << "For constant " << name << ": " << e.what();
+	    throw domain_error(s.str());
+	  }
+      }
+    ostringstream s;
+    s << "constant name " << name << " not found";
+    throw domain_error(s.str());
   }
 
   // return true if this data set contains the names stored in `names
@@ -762,7 +831,37 @@ public:
 
   // TODO: luego funcione que calcule cuales correlaciones pueden
   // calcular los datos ausentes con los datos del var_set y las constantes
+
+private:
+
+  static json const_json(const tuple<string, double, const Unit *> & c)
+  {
+    json j;
+    j["name"] = get<0>(c);
+    j["value"] = get<1>(c);
+    j["unit"] = get<2>(c)->symbol;
+
+    return j;
+  }
+
+public:
+
+  string to_json() const
+  {
+    json j;
+    j["name"] = name;
+    j["description"] = desc;
+    auto const_list = t_zip(const_names, const_vals, const_units).
+      map<json>([] (const auto & c) { return const_json(c); });
+
+    j["constants"] = to_vector(const_list);
+    j["varsets"] = to_vector(var_sets.map<json>([] (const auto & s)
+      { return s.to_json(); }));
+
+    return j.dump(2);
+  }
 };
 
 
 # endif // EMPIRICAL_DATA_H
+
