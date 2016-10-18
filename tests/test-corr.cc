@@ -16,7 +16,7 @@ DynList<DynList<double>>
 generate_pars_values(const Correlation * const corr_ptr, size_t n)
 {
   return
-    corr_ptr->get_preconditions().map<DynList<double>>([n] (const auto & par)
+    corr_ptr->get_preconditions().maps<DynList<double>>([n] (const auto & par)
       {
 	const double s = (par.max_val.get_value()-par.min_val.get_value())/(n-1);
 	DynList<double> ret;
@@ -70,7 +70,7 @@ struct RangeDesc
 
 DynList<DynList<double>> generate_pars_values(const DynList<RangeDesc> & l)
 {
-  return l.map<DynList<double>>([] (const auto & r)
+  return l.maps<DynList<double>>([] (const auto & r)
     {
       DynList<double> ret;
       const double step = (r.max - r.min) / (r.n - 1);
@@ -101,7 +101,7 @@ void full_mat(const Correlation * const corr_ptr, size_t n,
 	      bool ignore_exception)
 {
   auto samples = generate_samples(corr_ptr, n);
-  auto results = samples.map<string>([corr_ptr, ignore_exception] (auto sample)
+  auto results = samples.maps<string>([corr_ptr, ignore_exception] (auto sample)
     {
       if (ignore_exception)
 	{
@@ -120,16 +120,16 @@ void full_mat(const Correlation * const corr_ptr, size_t n,
 	return to_string(corr_ptr->compute_and_check(sample));
     });
 
-  auto mat = zip(samples, results).map<DynList<string>>([] (auto p)
+  auto mat = zip(samples, results).maps<DynList<string>>([] (auto p)
     {
       DynList<string> ret;
-      ret.append(p.first.template map<string>([] (auto v)
+      ret.append(p.first.template maps<string>([] (auto v)
 					      { return to_string(v); }));
       ret.append(p.second);
       return ret;
     });
 
-  auto header = corr_ptr->get_preconditions().map<string>([] (const auto & pre)
+  auto header = corr_ptr->get_preconditions().maps<string>([] (const auto & pre)
     {
       ostringstream s;
       s << pre.name << " (" << pre.unit.symbol << ")";
@@ -145,7 +145,7 @@ void full_mat(const Correlation * const corr_ptr, size_t n,
 void full_mat(const Correlation * const corr_ptr, const DynList<RangeDesc> & l,
 	      bool ignore_exception)
 {  
-  auto header = corr_ptr->get_preconditions().map<string>([] (const auto & pre)
+  auto header = corr_ptr->get_preconditions().maps<string>([] (const auto & pre)
     {
       ostringstream s;
       s << pre.name << " (" << pre.unit.symbol << ")";
@@ -155,7 +155,7 @@ void full_mat(const Correlation * const corr_ptr, const DynList<RangeDesc> & l,
 
   auto samples = generate_pars_values(l);
   auto lens = fold_perm<DynList<size_t>>
-    (header.map<size_t>([] (const auto & t) { return t.size(); }), samples,
+    (header.maps<size_t>([] (const auto & t) { return t.size(); }), samples,
      [corr_ptr, ignore_exception]
      (const DynList<size_t> & acu, const DynList<double> & sample)
     {
@@ -171,10 +171,10 @@ void full_mat(const Correlation * const corr_ptr, const DynList<RangeDesc> & l,
 	  else
 	    throw;
 	}
-      auto row = sample.map<string>([] (auto v) { return to_string(v); });
+      auto row = sample.maps<string>([] (auto v) { return to_string(v); });
       row.append(ret);
 
-      return zip(acu, row).map<size_t>([] (auto p)
+      return zip(acu, row).maps<size_t>([] (auto p)
         { return max(p.first, p.second.size()); });
     });
 
@@ -197,9 +197,9 @@ void full_mat(const Correlation * const corr_ptr, const DynList<RangeDesc> & l,
 	{
 	  result = "NA";
 	}
-      auto row = sample.map<string>([] (auto v) { return to_string(v); });
+      auto row = sample.maps<string>([] (auto v) { return to_string(v); });
       row.append(result);
-      auto line = zip(lens, row).template map<string>([] (auto p)
+      auto line = zip(lens, row).template maps<string>([] (auto p)
 	{
 	  const string blanks(p.first - p.second.size(), ' ');
 	  return blanks + p.second + " ";
@@ -306,7 +306,7 @@ struct Find_Extremes
 T find_extremes(const Correlation * const corr_ptr, size_t n, bool verbose)
 {
   auto samples =
-    corr_ptr->get_preconditions().map<DynList<double>>([n] (const auto & par)
+    corr_ptr->get_preconditions().maps<DynList<double>>([n] (const auto & par)
       {
 	const double min = par.min_val.get_value();
 	const double max = par.max_val.get_value();
@@ -426,7 +426,7 @@ void test(int argc, char *argv[])
 	  exit(0);
 	}
       
-      auto l = correlation_list.map<DynList<string>>([] (auto p)
+      auto l = correlation_list.maps<DynList<string>>([] (auto p)
         {
 	  return DynList<string>({p->name, p->subtype_name, p->type_name});
 	});
@@ -483,7 +483,7 @@ void test(int argc, char *argv[])
     {
       size_t i = 0;
       Array<RangeDesc> ranges = correlation_ptr->get_preconditions().
-	map<RangeDesc>([&i, &n] (const auto & p)
+	maps<RangeDesc>([&i, &n] (const auto & p)
           {
 	    RangeDesc r;
 	    r.i = i++;
@@ -636,7 +636,7 @@ void test(int argc, char *argv[])
     }
 
   auto pars_list = zip(params, to_DynList(pars.getValue())).
-    map<VtlQuantity>([] (auto p) { return VtlQuantity(*p.first, p.second); });
+    maps<VtlQuantity>([] (auto p) { return VtlQuantity(*p.first, p.second); });
 
   if (python.getValue())
     cout << endl

@@ -42,7 +42,7 @@ public:
   {
     using T = pair<DynList<string>, string>;
 
-    return tbl.items_ptr().map<T>([] (auto p)
+    return tbl.items_ptr().maps<T>([] (auto p)
       {
 	return make_pair(p->first, p->second->name);
       });

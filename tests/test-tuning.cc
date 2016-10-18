@@ -94,10 +94,10 @@ int main()
     }
 
   auto mat = e.compute_mat("Uob", rs_ptr, false); 
-  auto smat = mat.map<DynList<string>>([] (const auto & l)
+  auto smat = mat.maps<DynList<string>>([] (const auto & l)
     {
       return
-      l.template map<string>([] (const auto & v) { return ::to_string(v); });
+      l.template maps<string>([] (const auto & v) { return ::to_string(v); });
     });
 
   auto sign = rs_ptr->parameters_signature();
@@ -125,4 +125,6 @@ int main()
     });
 
   cout << e.to_json() << endl;
+  //  cout << e.full_desc() << endl;
+
 }

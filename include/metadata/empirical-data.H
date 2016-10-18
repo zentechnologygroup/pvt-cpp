@@ -23,7 +23,7 @@ struct EmpiricalData
 {
   string name = "Test de Alberto Valderrama";
 
-  string desc = "Usado para pruebas, aparentemente deun pozo en Monagas";
+  string desc = "Usado para pruebas, aparentemente de un pozo en Monagas";
 
   size_t num_const = 0;
   Array<string> const_names;
@@ -45,6 +45,25 @@ struct EmpiricalData
     Array<Array<double>> samples; // must have the same number of
                                   // columns than var_names
 
+    DynList<double> values(const string & name) const
+    {
+      auto i = var_names.find_index([&name] (const auto & n)
+				    { return name == n; });
+      if (i >= var_names.size())
+	{
+	  ostringstream s;
+	  s << "var name " << name << " not found in data set name "
+	    << this->name;
+	  throw domain_error(s.str());
+	}
+
+      DynList<double> ret;
+      for (size_t j = 0; j < num_samples; ++j)
+	ret.append(samples(j)(i));
+
+      return ret;
+    }
+
     bool contains_name(const string & name) const noexcept
     {
       return var_names.exists([&name] (const auto & s) { return s == name; });
@@ -58,7 +77,7 @@ struct EmpiricalData
       j["num vars"] = num_var;
       j["num samples"] = num_samples;
       j["variables"] = to_vector(t_zip(var_names, var_units).
-	map<json>([] (const auto & t)
+	maps<json>([] (const auto & t)
 		  {
 		    json ret;
 		    ret["name"] = get<0>(t);
@@ -66,10 +85,10 @@ struct EmpiricalData
 		    return ret;
 		  }));
       
-      for (auto it = get_zip_it(var_names, samples); it.has_curr(); it.next())
+      for (auto it = var_names.get_it(); it.has_curr(); it.next())
 	{
-	  const auto & t = it.get_curr();
-	  j["samples"][get<0>(t)] = to_vector(get<1>(t));
+	  const auto & var_name = it.get_curr();
+	  j["samples"][var_name] = to_vector(values(var_name));
 	}
 
       return j;
@@ -212,22 +231,28 @@ struct EmpiricalData
   string to_string() const
   {
     ostringstream s;
-    s << "Empirical data set" << endl
+    s << "Empirical data set: " << name << endl
+      << desc << endl
       << endl
       << "  Constant list:" << endl;
 
-    DynList<DynList<string>> const_list;
-    enum_for_each(tzip(const_names, const_vals, const_units),
-		  [&const_list] (auto t, size_t i)
+    if (const_names.is_empty())
+      s << "    Empty" << endl;
+    else
       {
-	DynList<string> row = { get<0>(t), std::to_string(get<1>(t)),
-				get<2>(t)->symbol, std::to_string(i + 1)};
-	row.for_each([] (auto s) { cout << s << " "; }); cout << endl;
-	const_list.append(row);
-      });
-    auto str = Aleph::to_string(format_string(const_list));
-    s << shift_lines_to_left(str, 4) << endl
-      << endl;
+	DynList<DynList<string>> const_list;
+	enum_for_each(tzip(const_names, const_vals, const_units),
+		      [&const_list] (auto t, size_t i)
+         {
+	   DynList<string> row = { get<0>(t), std::to_string(get<1>(t)),
+				   get<2>(t)->symbol, std::to_string(i + 1)};
+	   row.for_each([] (auto s) { cout << s << " "; }); cout << endl;
+	   const_list.append(row);
+	 });
+	auto str = Aleph::to_string(format_string(const_list));
+	s << shift_lines_to_left(str, 4) << endl
+	  << endl;
+      }
 
     for (auto it = var_sets.get_it(); it.has_curr(); it.next())
       {
@@ -243,7 +268,7 @@ struct EmpiricalData
 				    std::to_string(i + 1)};
 	    var_list.append(row);
 	  });
-	str = Aleph::to_string(format_string(var_list));
+	auto str = Aleph::to_string(format_string(var_list));
 	s << shift_lines_to_left(str, 4) << endl
 	  << endl;
       }
@@ -263,10 +288,10 @@ struct EmpiricalData
 	  << "Samples set " << i + 1 << " (" << vset.num_samples << "):" << endl;
 
 	DynList<DynList<string>> str_samples =
-	  vset.samples.map<DynList<string>>([] (const auto & l)
+	  vset.samples.maps<DynList<string>>([] (const auto & l)
             {
 	      return
-	      l.template map<string>([] (auto v) { return std::to_string(v); });
+	      l.template maps<string>([] (auto v) { return std::to_string(v); });
 	    });
 
 	str_samples.insert(to_dynlist(vset.var_names));
@@ -383,6 +408,14 @@ public:
       }	
 
     auto header = csv_read_row(input, ',');
+    if (header.size() == 0)
+      {
+	ostringstream s;
+	s << "EmpiricalData::add_samples(istream&): "
+	  << "input stream header for data set name " 
+	  << set_name << " apparently is empty";
+	throw domain_error(s.str());
+      }
     size_t i = 1;
     for (auto it = header.get_it(); it.has_curr(); it.next(), ++i)
       {
@@ -415,6 +448,9 @@ public:
 	vset.var_units.append(unit_ptr);
 	vset.num_var++;
       }
+
+    vset.var_names.for_each([] (const auto & s) { cout << s << " "; });
+    cout << endl;
 
     for (size_t linenum = 2; input.good(); ++vset.num_samples, linenum++)
       {
@@ -452,7 +488,17 @@ public:
 		throw domain_error(s.str());
 	      }
 	  });
+	sample.for_each([] (auto v) { cout << v << " "; });
+	cout << endl;
+
 	vset.samples.append(sample);
+      }
+    if (vset.samples.is_empty())
+      {
+	ostringstream s;
+	s << "EmpiricalData::add_samples(istream&): input stream apparently "
+	  << "does not contain samples";
+	throw domain_error(s.str());
       }
   }
 
@@ -852,13 +898,24 @@ public:
     j["name"] = name;
     j["description"] = desc;
     auto const_list = t_zip(const_names, const_vals, const_units).
-      map<json>([] (const auto & c) { return const_json(c); });
+      maps<json>([] (const auto & c) { return const_json(c); });
 
     j["constants"] = to_vector(const_list);
-    j["varsets"] = to_vector(var_sets.map<json>([] (const auto & s)
+    j["varsets"] = to_vector(var_sets.maps<json>([] (const auto & s)
       { return s.to_json(); }));
 
     return j.dump(2);
+  }
+
+  EmpiricalData() {}
+
+  EmpiricalData(const string & json_str)
+  {
+    json j = json::parse(json_str);
+    name = j["name"];
+    desc = j["description"];
+
+    //cout << name << " " << desc << endl;
   }
 };
 

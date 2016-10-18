@@ -40,10 +40,10 @@ biblios.cc: $(TOP)/include/correlations/refs.bib
 	$(RM) $*.cc; 	\	@@\
 	$(BIBLIO) -C -f $(CORRDIR)refs.bib | clang-format -style=Mozilla > $@
 
-pvt.cc: $(CALLS) $(HCORR) 					\
-	$(TOP)/include/units/units.H 					\
-	biblios.cc units-vars.cc correlations-vars.cc 		\
-	$(TOP)/include/correlations/pvt-correlations.H \
+pvt.cc: $(CALLS) $(HCORR)				\
+	$(TOP)/include/units/units.H			\
+	biblios.cc units-vars.cc correlations-vars.cc	\
+	$(TOP)/include/correlations/pvt-correlations.H	\
 	$(TOP)/include/correlations/correlation.H 	\
 	$(TOP)/include/units/pvt-units.H
 	$(RM) -f $@;					\	@@\

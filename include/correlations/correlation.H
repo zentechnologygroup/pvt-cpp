@@ -160,7 +160,7 @@ public:
   // Returns the parameters names i the declaration order
   DynList<string> parameters_signature() const
   {
-    return preconditions.map<string>([] (const auto & par) { return par.name; });
+    return preconditions.maps<string>([] (const auto & par) { return par.name; });
   }
 
   // Returns the names of parameters involved in the correlation. The
@@ -247,7 +247,7 @@ public:
 
   const DynList<const CorrelationPar * const> preconditions_list() const 
   {
-    return preconditions.map<const CorrelationPar * const>([] (const auto & par)
+    return preconditions.maps<const CorrelationPar * const>([] (const auto & par)
       {
 	return &par;
       });
@@ -255,7 +255,7 @@ public:
 
   DynList<const Unit *> get_par_types() const
   {
-    return preconditions.map<const Unit *>([] (const auto & par)
+    return preconditions.maps<const Unit *>([] (const auto & par)
 						 { return &par.unit; });
   }
 
@@ -274,7 +274,7 @@ public:
 
   DynList<VtlQuantity> double_to_pars(const DynList<double> & vals) const
   {
-    return zipEq(preconditions_list(), vals).map<VtlQuantity>([] (auto p)
+    return zipEq(preconditions_list(), vals).maps<VtlQuantity>([] (auto p)
       {
 	return VtlQuantity(p.first->name, p.second);
       });
@@ -320,7 +320,7 @@ public:
   string call_string(const DynList<double> & vals) const
   {
     return
-      call_string(zipEq(preconditions_list(), vals).map<VtlQuantity>([] (auto p)
+      call_string(zipEq(preconditions_list(), vals).maps<VtlQuantity>([] (auto p)
         {
 	  return VtlQuantity(p.first->unit, p.second);
 	}));
@@ -451,7 +451,7 @@ public:
   string to_string() const
   {
     size_t i = 1;
-    auto prows = preconditions.map<DynList<string>>([&i] (const auto & c)
+    auto prows = preconditions.maps<DynList<string>>([&i] (const auto & c)
       {
 	DynList<string> ret = { "    " };
 	ret.append(c.to_list_string());
