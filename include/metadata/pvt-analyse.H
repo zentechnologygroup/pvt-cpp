@@ -7,11 +7,36 @@ class PvtAnalyzer
 {
   EmpiricalData data;
 
+public:
+
+  EmpiricalData & get_data() { return data; }
+
   void check_data() const
   {
     data.check_constant("t", Temperature::get_instance());
     data.check_constant("pb", Pressure::get_instance());
+    data.check_constant("api", OilGravity::get_instance());
     data.check_constant("rsb", GORGLRvolumeRatio::get_instance());
+    data.check_constant("yg", gasSpecificGravity::get_instance());
+
+    data.check_variable("Below Pb", "p", Pressure::get_instance());
+    data.check_variable("Below Pb", "rs", GORGLRvolumeRatio::get_instance());
+    data.check_variable("Below Pb", "bo", FVFvolumeRatio::get_instance());
+    data.check_variable("Below Pb", "uo", DinamicViscosity::get_instance());
+
+    data.check_variable("Above Pb", "p", Pressure::get_instance());
+    data.check_variable("Above Pb", "rs", GORGLRvolumeRatio::get_instance());
+    data.check_variable("Above Pb", "bo", FVFvolumeRatio::get_instance());
+    data.check_variable("Above Pb", "uo", DinamicViscosity::get_instance());
+}
+
+  PvtAnalyzer() {}
+
+  PvtAnalyzer(istream & input)
+  {
+    stringstream s;
+    s << input.rdbuf();
+    data.set_from_json(s.str());
   }
 };
 

@@ -1,17 +1,16 @@
 
-# include <sstream>
 # include <iostream>
+
 # include <tclap/CmdLine.h>
 
-# include <metadata/empirical-data.H>
+# include <metadata/pvt-analyse.H>
 
-using namespace TCLAP;
 using namespace std;
-using namespace Aleph;
+using namespace TCLAP;
 
 int main(int argc, char *argv[])
 {
-  CmdLine cmd(argv[0], ' ', "0");
+  CmdLine cmd = { argv[0], ' ', "0" };
 
   ValueArg<string> json_file = { "f", "json-file", "json file", false,
 				 "data.json", "json file name", cmd };
@@ -23,15 +22,14 @@ int main(int argc, char *argv[])
     {
       cout << "cannot open " << json_file.getValue() << endl;
       return 0;
-    }w
+    }
 
-  stringstream s;
-  s << input.rdbuf();
-  
-  EmpiricalData e(s.str());
+  PvtAnalyzer pvt(input);
 
-  cout << e.full_desc() << endl;
-  
+  cout << pvt.get_data().full_desc() << endl;
+
+  pvt.check_data();
+    
+
   return 0;
 }
-

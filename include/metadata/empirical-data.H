@@ -167,6 +167,39 @@ struct EmpiricalData
     throw domain_error(s.str());
   }
 
+  void check_variable(size_t set_i, const string & name,
+		      const PhysicalQuantity & pq) const
+  {
+    const auto & vset = var_sets[set_i];
+    for (auto it = get_zip_it(vset.var_names, vset.var_units); it.has_curr();
+	 it.next())
+      {
+	auto t = it.get_curr();
+	const string & vname = get<0>(t);
+	if (vname != name)
+	  continue;
+
+	const auto & physical_quantity = get<1>(t)->physical_quantity;
+	if (&physical_quantity == &pq)
+	  continue;
+	    
+	ostringstream s;
+	s << "Physical quantity of name " << name << " is "
+	  << physical_quantity << " but it must be " << pq.name;
+	throw domain_error(s.str());
+      }
+
+    ostringstream s;
+    s << "var name " << name << " in data set " << set_i << " not found";
+    throw domain_error(s.str());
+  }
+
+  void check_variable(const string && set_name, const string & name,
+		      const PhysicalQuantity & pq) const
+  {
+    return check_variable(set_index(set_name), name, pq);
+  }
+
   // return true if this data set contains the names stored in `names
   // as constants or variables
   bool contains_names(size_t set_idx, const DynList<string> & names) const
@@ -310,7 +343,7 @@ struct EmpiricalData
       {
 	const auto & vset = var_sets(i);
 
-	s << "Samples set " << i + 1 << " (" << vset.num_samples << "):" << endl
+	s << "Samples set " << i + 1 << " (" << vset.num_samples << "):"
 	  << "  " << vset.name << endl
 	  << "  " << vset.desc << endl;
 
@@ -933,7 +966,7 @@ public:
 
   EmpiricalData() {}
 
-  EmpiricalData(const string & json_str)
+  void set_from_json(const string & json_str)
   {
     json j = json::parse(json_str);
     name = j["name"];
@@ -952,8 +985,11 @@ public:
 	vset.set_from_json(json_set);
 	var_sets.append(move(vset));
       }
+  }
 
-    //cout << name << " " << desc << endl;
+  EmpiricalData(const string & json_str)
+  {
+    set_from_json(json_str);
   }
 };
 

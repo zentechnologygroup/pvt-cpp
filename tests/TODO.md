@@ -54,3 +54,7 @@
 ## 18. manejar excepciones en lectura del json
 - Created at   2016-10-18 21:45:06 -0400
 
+## 19. sacar inclusion de json.hpp de cadena de compilación. Poner tuinas inline dentro de lib
+- Created at    pues hace quemar ciclos a emacs
+- Completed at 2016-10-19 17:09:50 -0400
+

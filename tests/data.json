@@ -41,7 +41,7 @@
   "varsets": [
     {
       "description": "Points below the bubble point",
-      "name": "Uob",
+      "name": "Below Pb",
       "num samples": 6,
       "num vars": 4,
       "samples": {
@@ -99,7 +99,7 @@
     },
     {
       "description": "Points above the bubble point",
-      "name": "Uoa",
+      "name": "Above Pb",
       "num samples": 16,
       "num vars": 4,
       "samples": {
