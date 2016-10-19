@@ -124,7 +124,7 @@ int main()
 	   << endl;
     });
 
-  cout << e.to_json() << endl;
-  //  cout << e.full_desc() << endl;
+  //cout << e.to_json() << endl;
+  cout << e.full_desc() << endl;
 
 }

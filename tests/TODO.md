@@ -51,3 +51,6 @@
 - Created at    el cual por omisión estaría en true
 - Completed at 2016-10-15 15:29:54 -0400
 
+## 18. manejar excepciones en lectura del json
+- Created at   2016-10-18 21:45:06 -0400
+

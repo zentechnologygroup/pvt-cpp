@@ -15,3 +15,4 @@ estudio de rangos de aplicación de correlaciones vs data set,2016-10-13 09:00:5
 enerar json con unidades,2016-10-15 09:52:28 -0400,,
 usar bitex con estilo bobliografico,2016-10-15 09:52:38 -0400,,
 apagar check de rangos en parametros mediante parámetro en compute, el cual por omisión estaría en true,2016-10-15 15:29:54 -0400,,
+manejar excepciones en lectura del json,2016-10-18 21:45:06 -0400,,

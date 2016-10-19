@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   
   EmpiricalData e(s.str());
 
-  cout << e.to_string() << endl;
+  cout << e.full_desc() << endl;
   
   return 0;
 }

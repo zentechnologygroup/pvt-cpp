@@ -84,7 +84,7 @@ struct EmpiricalData
 		    ret["unit"] = get<1>(t)->symbol;
 		    return ret;
 		  }));
-      
+
       for (auto it = var_names.get_it(); it.has_curr(); it.next())
 	{
 	  const auto & var_name = it.get_curr();
@@ -92,6 +92,31 @@ struct EmpiricalData
 	}
 
       return j;
+    }
+
+    void set_from_json(const json & j)
+    {
+      name = j["name"];
+      desc = j["description"];
+      num_var = j["num vars"];
+      num_samples = j["num samples"];
+      for (const auto & item : j["variables"])
+	{
+	  var_names.append(item["name"]);
+	  var_units.append(Unit::search_by_symbol(item["unit"]));
+	}
+
+      for (size_t i = 0; i < num_samples; ++i)
+	samples.append(Array<double>(rep<double>(num_var)));
+
+      size_t col = 0;
+      for (auto it = var_names.get_it(); it.has_curr(); it.next(), ++col)
+	{
+	  const auto & vname = it.get_curr();
+	  size_t row = 0;
+	  for (auto v : j["samples"][vname])
+	    samples[row++][col] = v;
+	}
     }
   };
 
@@ -101,15 +126,16 @@ struct EmpiricalData
   {
     DynSetTree<string> ret = const_names;
     for (auto it = var_sets.get_it(); it.has_curr(); it.next())
-      it.get_curr().var_names.for_each([&ret] (const auto & s) { ret.append(s); });
+      it.get_curr().var_names.for_each([&ret] (const auto & s)
+				       { ret.append(s); });
 
     return ret.keys();
   }
 
   void check_constant(const string & name, const PhysicalQuantity & pq) const
   {
-    for (auto it = get_zip_it(const_names, const_vals, const_units); it.has_curr();
-	 it.next())
+    for (auto it = get_zip_it(const_names, const_vals, const_units);
+	 it.has_curr(); it.next())
       {
 	auto curr = it.get_curr();
 	if (get<0>(curr) != name)
@@ -246,7 +272,6 @@ struct EmpiricalData
          {
 	   DynList<string> row = { get<0>(t), std::to_string(get<1>(t)),
 				   get<2>(t)->symbol, std::to_string(i + 1)};
-	   row.for_each([] (auto s) { cout << s << " "; }); cout << endl;
 	   const_list.append(row);
 	 });
 	auto str = Aleph::to_string(format_string(const_list));
@@ -279,13 +304,15 @@ struct EmpiricalData
   string full_desc() const
   {
     ostringstream s;
-    
+    s << to_string() << endl;
+
     for (size_t i = 0; i < var_sets.size(); ++i)
       {
 	const auto & vset = var_sets(i);
-	s << to_string() << endl
-	  << endl
-	  << "Samples set " << i + 1 << " (" << vset.num_samples << "):" << endl;
+
+	s << "Samples set " << i + 1 << " (" << vset.num_samples << "):" << endl
+	  << "  " << vset.name << endl
+	  << "  " << vset.desc << endl;
 
 	DynList<DynList<string>> str_samples =
 	  vset.samples.maps<DynList<string>>([] (const auto & l)
@@ -298,7 +325,8 @@ struct EmpiricalData
 	
 	str_samples = format_string(str_samples);
 
-	s << shift_lines_to_left(Aleph::to_string(str_samples), 4);
+	s << shift_lines_to_left(Aleph::to_string(str_samples), 4)
+	  << endl;
       }
 
     return s.str();
@@ -449,9 +477,6 @@ public:
 	vset.num_var++;
       }
 
-    vset.var_names.for_each([] (const auto & s) { cout << s << " "; });
-    cout << endl;
-
     for (size_t linenum = 2; input.good(); ++vset.num_samples, linenum++)
       {
 	auto row = csv_read_row(input, ',');
@@ -488,8 +513,6 @@ public:
 		throw domain_error(s.str());
 	      }
 	  });
-	sample.for_each([] (auto v) { cout << v << " "; });
-	cout << endl;
 
 	vset.samples.append(sample);
       }
@@ -789,7 +812,6 @@ public:
 
     for_each_perm(vals, [&ret, correlation_ptr, check] (const auto & pars)
       {
-	pars.for_each([] (auto v) { cout << v << " "; }); cout << endl;
 	ret.append(correlation_ptr->compute(pars, check));		       
       });
     return ret;
@@ -870,7 +892,8 @@ public:
 
     return Correlation::array().filter([&name] (auto ptr)
       { return ptr->target_name() == name; }).
-      filter([this, i = seti] (auto ptr) { return this->can_be_applied(i, ptr); });
+      filter([this, i = seti] (auto ptr)
+	     { return this->can_be_applied(i, ptr); });
     }
 
   // TODO: luego función que calcule cuáles parámetros están ausentes
@@ -901,6 +924,7 @@ public:
       maps<json>([] (const auto & c) { return const_json(c); });
 
     j["constants"] = to_vector(const_list);
+    
     j["varsets"] = to_vector(var_sets.maps<json>([] (const auto & s)
       { return s.to_json(); }));
 
@@ -914,6 +938,20 @@ public:
     json j = json::parse(json_str);
     name = j["name"];
     desc = j["description"];
+
+    for (const auto & item : j["constants"])
+      {
+	const_names.append(item["name"]);
+	const_vals.append(item["value"]);
+	const_units.append(Unit::search_by_symbol(item["unit"]));
+      }
+
+    for (const auto & json_set : j["varsets"])
+      {
+	VarSet vset;
+	vset.set_from_json(json_set);
+	var_sets.append(move(vset));
+      }
 
     //cout << name << " " << desc << endl;
   }
