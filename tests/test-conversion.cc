@@ -21,7 +21,15 @@ void test(int argc, char *argv[])
 
   SwitchArg v("v", "verbose", "verbose mode", cmd, false);
 
+  SwitchArg json("j", "json", "json list of units", cmd, false);
+
   cmd.parse(argc, argv);
+
+  if (json.isSet())
+    {
+      cout << units_json() << endl;
+      exit(0);
+    }
 
   auto verbose = v.getValue();
 

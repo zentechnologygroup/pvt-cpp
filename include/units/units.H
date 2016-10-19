@@ -260,6 +260,8 @@ protected:
   double default_value() const noexcept { return (min_val + max_val)/2; }
 };
 
+extern string units_json();
+
 using Unit_Convert_Fct_Ptr = double (*)(double);
 
 using UnitHashTbl = DynMapTree<pair<string, string>, Unit_Convert_Fct_Ptr>;
