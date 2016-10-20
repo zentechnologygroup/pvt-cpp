@@ -26,8 +26,6 @@ struct CorrelationPar
 
 private:
 
-  bool check_active = true;
-  
   double epsilon = 1e-3;
 
 public:
@@ -68,6 +66,13 @@ public:
 
   const DynList<P> & get_synonyms() const noexcept { return synonyms; }
 
+  DynList<P> names() const
+  {
+    DynList<P> ret = get_unitarian_DynList(make_pair(name, &unit));
+    ret.append(get_synonyms());
+    return ret;
+  }
+
   void set_epsilon(double ratio = 0.01)
   {
     Unit::validate_ratio(ratio);
@@ -80,12 +85,6 @@ public:
   {
     return (max_val.raw() - min_val.raw()) / n;
   }
-
-  void set_active() noexcept { check_active = true; }
-
-  void set_inactive() noexcept { check_active = false; }
-
-  bool is_active() const noexcept { return check_active; }
 
   DynList<string> to_list_string() const
   {
@@ -109,11 +108,10 @@ public:
       &val.unit == &unit;
   }
 
+  bool check(double val) const { return check(VtlQuantity(unit, val)); }
+
   void verify(const BaseQuantity & q) const
   {
-    if (not check_active)
-      return;
-    
     ostringstream s;
   
     if (q.get_value() < min_val.raw() - epsilon)
@@ -154,11 +152,23 @@ private:
   size_t n = 0;
 
   static size_t counter;
-  static DynMapTree<string, const Correlation * const> tbl;
+  static DynMapTree<string, const Correlation *> tbl;
 
-  static Array<const Correlation * > correlations_tbl;
+  static Array<const Correlation *> correlations_tbl;
 
 public:
+
+  /// Returns the correlation target name
+  string target_name() const
+  {
+    return to_lower(split_camel_case(name).get_first());
+  }
+
+  // Returns the parameters names i the declaration order
+  DynList<string> parameters_signature() const
+  {
+    return preconditions.maps<string>([] (const auto & par) { return par.name; });
+  }
 
   // Returns the names of parameters involved in the correlation. The
   // first one is the return value. The remainder others are the
@@ -184,7 +194,7 @@ public:
     return ret;
   }
 
-  DynList<DynList<string>> name_synonyms() const
+  DynList<DynList<string>> names_and_synonyms() const
   {
     DynList<string> ret_l;
     ret_l.append(to_lower(split_camel_case(name).get_first()));
@@ -196,13 +206,9 @@ public:
       {
 	auto par = it.get_curr();
 	DynList<string> col;
-	if (par.get_synonyms().is_empty())
-	  {
-	    col.append(par.name);
-	    continue;
-	  }
-
+	col.append(par.name);
 	par.get_synonyms().for_each([&col] (auto p) { col.append(p.first); });
+	ret.append(col);
       }
 
     return build_perms(ret);
@@ -241,28 +247,6 @@ public:
     refs.append(BibEntry::find(tag));
   }
 
-  void inactive_preconditions()
-  {
-    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
-      it.get_curr().set_inactive();
-  }
-
-  void active_preconditions()
-  {
-    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
-      it.get_curr().set_active();
-  }
-
-  void active_precondition(size_t i)
-  {
-    preconditions.nth(i).set_active();
-  }
-
-  void inactive_precondition(size_t i)
-  {
-    preconditions.nth(i).set_inactive();
-  }
-
   const DynList<CorrelationPar> & get_preconditions() const noexcept
   {
     return preconditions;
@@ -270,7 +254,7 @@ public:
 
   const DynList<const CorrelationPar * const> preconditions_list() const 
   {
-    return preconditions.map<const CorrelationPar * const>([] (const auto & par)
+    return preconditions.maps<const CorrelationPar * const>([] (const auto & par)
       {
 	return &par;
       });
@@ -278,7 +262,7 @@ public:
 
   DynList<const Unit *> get_par_types() const
   {
-    return preconditions.map<const Unit *>([] (const auto & par)
+    return preconditions.maps<const Unit *>([] (const auto & par)
 						 { return &par.unit; });
   }
 
@@ -297,7 +281,7 @@ public:
 
   DynList<VtlQuantity> double_to_pars(const DynList<double> & vals) const
   {
-    return zipEq(preconditions_list(), vals).map<VtlQuantity>([] (auto p)
+    return zipEq(preconditions_list(), vals).maps<VtlQuantity>([] (auto p)
       {
 	return VtlQuantity(p.first->name, p.second);
       });
@@ -343,13 +327,13 @@ public:
   string call_string(const DynList<double> & vals) const
   {
     return
-      call_string(zipEq(preconditions_list(), vals).map<VtlQuantity>([] (auto p)
+      call_string(zipEq(preconditions_list(), vals).maps<VtlQuantity>([] (auto p)
         {
 	  return VtlQuantity(p.first->unit, p.second);
 	}));
   }
 
-  static DynList<const Correlation * const> list() { return tbl.values(); }
+  static DynList<const Correlation *> list() { return tbl.values(); }
 
   static const Array<const Correlation*> & array() noexcept
   {
@@ -474,7 +458,7 @@ public:
   string to_string() const
   {
     size_t i = 1;
-    auto prows = preconditions.map<DynList<string>>([&i] (const auto & c)
+    auto prows = preconditions.maps<DynList<string>>([&i] (const auto & c)
       {
 	DynList<string> ret = { "    " };
 	ret.append(c.to_list_string());
@@ -539,14 +523,37 @@ public:
     return out << c.to_string();
   }
 
-  virtual VtlQuantity compute(const DynList<VtlQuantity> &) const = 0;
+  virtual
+  VtlQuantity compute(const DynList<VtlQuantity> &, bool check = true) const = 0;
 
-  VtlQuantity compute_and_check(const DynList<VtlQuantity> & pars) const
+  VtlQuantity compute_and_check(const DynList<VtlQuantity> & pars,
+				bool check = true) const
   {
-    return verify_result(compute(pars));
+    return verify_result(compute(pars, check));
   }
 
-  double compute(const DynList<double> & values) const
+  tuple<double, string, bool, string> execute(DynList<VtlQuantity> & pars,
+					      bool check = true) const
+  {
+    try
+      {
+	const auto result = compute(pars, check);
+	auto status = check_result(VtlQuantity(unit, result));
+	if (status)
+	  return make_tuple(result.raw(), unit.symbol, true, "");
+
+	ostringstream s;
+	s << "Correlation result " << result << " is out of range ["
+	  << min_val << ", " << max_val << "]";
+	return make_tuple(result.raw(), unit.symbol, false, s.str());
+      }
+    catch (exception &e)
+      {
+	return make_tuple(0, unit.symbol, false, e.what());
+      }
+  }
+
+  double compute(const DynList<double> & values, bool check = true) const
   {
     DynList<VtlQuantity> pars;
     auto it = get_pair_it(preconditions, values);
@@ -566,13 +573,14 @@ public:
 	throw domain_error(s.str());
       }
 
-    VtlQuantity ret = { unit, compute(pars) }; // here conversion is done
+    VtlQuantity ret = { unit, compute(pars, check) }; // here conversion is done
     return ret.get_value();
   }
 
-  double compute_and_check(const DynList<double> & pars) const
+  double
+  compute_and_check(const DynList<double> & pars, bool check = true) const
   {
-    return verify_result(VtlQuantity(unit, compute(pars))).get_value();
+    return verify_result(VtlQuantity(unit, compute(pars, check))).get_value();
   }
 
   /** return a list of validated and adequately converted correlation
@@ -624,7 +632,7 @@ public:
   VtlQuantity verify_result(const VtlQuantity & result) const
   {
     assert(&result.unit == &unit);
-    if (result.get_value()  < min_val or result.get_value() > max_val)
+    if (result.get_value() < min_val or result.get_value() > max_val)
       {
 	ostringstream s;
 	s << "In correlation " << name << " " << subtype_name << " " << type_name

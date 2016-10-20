@@ -4,12 +4,14 @@
 # include "units.H"
 
 Declare_Physical_Quantity(GORGLRvolumeRatio, "GORGLR_V_V",
-     R"DESC(The gas/oil ratio (GOR) is the ratio of the 
-        volume of gas that comes out of solution, 
-        to the volume of oil at standard conditions, The gas/liquid ratio (GLR) 
-        is the ratio of the volume of gas that comes out of solution, 
-        to the volume of liquid (usually oil+water) at standard conditions. 
-        Both are a dimensionless ratio (volume per volume))DESC");
+			  "The gas/oil ratio (GOR) is the ratio of the"
+			  "volume of gas that comes out of solution, "
+			  "to the volume of oil at standard conditions, "
+			  "The gas/liquid ratio (GLR) is the ratio of the "
+			  "volume of gas that comes out of solution, to the "
+			  "volume of liquid (usually oil+water) at standard "
+			  "conditions. Both are a dimensionless ratio "
+			  "(volume per volume)");
     
 Declare_Unit(SCF_STB, "scf/STB",
          R"DESC(Dimensionless volumen ratio (volume per volume) 

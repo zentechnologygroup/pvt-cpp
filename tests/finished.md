@@ -250,3 +250,9 @@
 - Comment      
 - Finished     
 
+## 43. producir lib so
+- Created at   2016-09-21 09:04:47 -0400
+- Completed at 2016-09-28 19:12:01 -0400
+- Comment      
+- Finished     
+

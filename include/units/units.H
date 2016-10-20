@@ -49,7 +49,7 @@ public:
   // Return all the defined  physical magnitudes  
   static DynList<const PhysicalQuantity * const> quantities()
   {
-    return tbl.items().map<const PhysicalQuantity * const>([] (auto p)
+    return tbl.items().maps<const PhysicalQuantity * const>([] (auto p)
       {
 	return static_cast<const PhysicalQuantity * const>(p);
       });
@@ -259,6 +259,8 @@ protected:
 
   double default_value() const noexcept { return (min_val + max_val)/2; }
 };
+
+extern string units_json();
 
 using Unit_Convert_Fct_Ptr = double (*)(double);
 

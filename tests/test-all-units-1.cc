@@ -153,7 +153,7 @@ test_random_conversions(const PhysicalQuantity & pq, bool verbose,
     cout << "Generating random samples " << endl;
 
       // generate the random samples
-  auto samples = units.map<Puv>([nsamples, r, max, verbose] (auto unit_ptr)
+  auto samples = units.maps<Puv>([nsamples, r, max, verbose] (auto unit_ptr)
     {
       if (verbose)
 	cout << "    For " << unit_ptr->name << ":";
@@ -180,7 +180,7 @@ test_random_conversions(const PhysicalQuantity & pq, bool verbose,
 	 << endl;
 
       // generate the rows
-  auto rows = samples.map<DynList<string>>([&units, epsilon, verbose] (Puv p)
+  auto rows = samples.maps<DynList<string>>([&units, epsilon, verbose] (Puv p)
     {
       DynList<string> conversions;
       const DynList<double> & samples = p.second;
@@ -190,7 +190,7 @@ test_random_conversions(const PhysicalQuantity & pq, bool verbose,
       
       DynList<string> ret;
       ret.append(p.first->name);
-      ret.append(samples.map<string>([] (auto v) { return to_string(v); }));
+      ret.append(samples.maps<string>([] (auto v) { return to_string(v); }));
       ret.append(conversions);
 
       return ret;
@@ -198,7 +198,7 @@ test_random_conversions(const PhysicalQuantity & pq, bool verbose,
 
       // generate title row
   DynList<string> title = { "Unit name" };
-  DynList<string> vals = range(nsamples).map<string>([] (auto i)
+  DynList<string> vals = range(nsamples).maps<string>([] (auto i)
                          { return "sample-" + to_string(i); });
   title.append(vals);
 

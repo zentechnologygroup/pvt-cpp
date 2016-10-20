@@ -148,20 +148,29 @@ class CorrelationGen
     end
   end
 
-  def gen_compute
-    s = "virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars) "\
-        "const\n"\
-        "{\n"\
-        "  auto pars = verify_preconditions(__pars);\n"\
-        "\n"\
-        "  auto it = pars.get_it();\n"
+  def gen_pars_extraction()
+    s = "auto it = pars.get_it();\n"
     @pars.each do |par|
-      s += "  const auto & #{par.name} = it.get_curr();"
-      s += "it.next();\n" unless par == @pars.last
+      s += "    const auto & #{par.name} = it.get_curr();"
+      s += "    it.next();\n" unless par == @pars.last
     end
     s += "\n"\
-         "\n"
-    s += "  return impl(#{pars_list});\n"\
+         "\n"\
+         "      return impl(#{pars_list});\n"\
+  end
+
+  def gen_compute
+    s = "virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars,\n"\
+        "bool check = true) const\n"\
+        "{\n"\
+        "   if (check)\n"\
+        "     {\n"\
+        "       auto pars = verify_preconditions(__pars);\n"
+    s += "#{gen_pars_extraction}\n"\
+         "    }\n"\
+         "\n"\
+         "const DynList<VtlQuantity> & pars = __pars;\n"\
+         "#{gen_pars_extraction}\n"\
          "}\n"
   end
 

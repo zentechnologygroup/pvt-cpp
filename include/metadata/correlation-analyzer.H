@@ -26,18 +26,28 @@ struct CorrelationAnalyser
   // the empirical data
   bool can_be_applied(const Correlation * correlation_ptr) const
   {
-    return data_set.contains_names(correlation_ptr->names()); 
+    auto corr_signatures = correlation_ptr->names_and_synonyms();
+
+    return corr_signatures.exists([this] (const auto & sign)
+      {
+	return data_set.contains_names(sign);
+      });
   }
 
   // Returns the target correlations matching the target_var name
-  DynList<const Correlation * const>
-  target_correlations() const
+  DynList<const Correlation *> target_correlations() const
   {
     return Correlation::list().filter([this] (const Correlation * ptr)
       {
 	return is_prefix(Aleph::to_lower(ptr->name), target_var);
       });
   }
+
+  
+
+  // TODO: función que retoorne las correlciones factibles
+
+  // TODO función que calcule los valores de las correaciones
 };
 
 # endif // CORRELATION_ANALYZER_H

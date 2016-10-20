@@ -35,13 +35,30 @@
 ## 12. generar llamada a correlaion con funcion para usar desde interprrete
 - Created at   2016-09-20 17:05:44 -0400
 
-## 13. producir lib so
-- Created at   2016-09-21 09:04:47 -0400
-- Completed at 2016-09-28 19:12:01 -0400
-
-## 14. corregir sutton et al en presion
+## 13. corregir sutton et al en presion
 - Created at   2016-09-21 16:21:49 -0400
 
-## 15. estudio de rangos de aplicación de correlaciones vs data set
+## 14. estudio de rangos de aplicación de correlaciones vs data set
 - Created at   2016-10-13 09:00:56 -0400
+
+## 15. enerar json con unidades
+- Created at   2016-10-15 09:52:28 -0400
+
+## 16. usar bitex con estilo bobliografico
+- Created at   2016-10-15 09:52:38 -0400
+
+## 17. apagar check de rangos en parametros mediante parámetro en compute
+- Created at    el cual por omisión estaría en true
+- Completed at 2016-10-15 15:29:54 -0400
+
+## 18. manejar excepciones en lectura del json
+- Created at   2016-10-18 21:45:06 -0400
+
+## 19. sacar inclusion de json.hpp de cadena de compilación. Poner tuinas inline dentro de lib
+- Created at    pues hace quemar ciclos a emacs
+- Completed at 2016-10-19 17:09:50 -0400
+
+## 20. compute para contantes
+- Created at    no para variables en empirical model
+- Completed at 2016-10-20 10:34:42 -0400
 

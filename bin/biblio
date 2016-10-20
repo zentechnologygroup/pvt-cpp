@@ -52,10 +52,18 @@ options_parser = OptionParser.new do |opts|
 
   opts.on('-C', 'generate C++ source with bibliographic entries') do
     options[:source] = true
-  end    
+  end
+
+  opts.on('-S', '--style style', 'citation style') do |style|
+    options[:style] = style
+  end
 end
 
 options_parser.parse!
+
+require 'citeproc'
+
+style = options[:style] || :ieee
 
 file_name = options[:file_name]
 raise "file name not specified (-f option)" unless file_name

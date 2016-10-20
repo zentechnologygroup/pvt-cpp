@@ -9,8 +9,8 @@ using namespace Aleph;
 using json = nlohmann::json;
   
 size_t Correlation::counter = 0;
-DynMapTree<string, const Correlation * const> Correlation::tbl;
-Array<const Correlation*> Correlation::correlations_tbl;
+DynMapTree<string, const Correlation *> Correlation::tbl;
+Array<const Correlation *> Correlation::correlations_tbl;
 
 CorrelationInstantiater __correlations; 
 
@@ -35,7 +35,7 @@ static json to_json(const Correlation & c)
   j["Result maximum value"] = c.max_val;
   j["Result minimum value"] = c.min_val;
   j["Result unit"] = c.unit.symbol;
-  j["refs"] = to_vector(c.refs.map<string>([] (const auto & r)
+  j["refs"] = to_vector(c.refs.maps<string>([] (const auto & r)
     { return r->to_string(); }));
   j["notes"] = to_vector(c.notes);
   j["data bank"] = to_vector(c.db);
@@ -47,7 +47,7 @@ static json to_json(const Correlation & c)
   j["hidden"] = c.hidden;
   j["id"] = c.id;
 
-  auto jpars = c.get_preconditions().map<json>([] (const auto & par)
+  auto jpars = c.get_preconditions().maps<json>([] (const auto & par)
 					       { return ::to_json(par); });
   auto pars = to_vector(jpars);
   j["parameters"] = pars;
