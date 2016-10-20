@@ -66,6 +66,13 @@ public:
 
   const DynList<P> & get_synonyms() const noexcept { return synonyms; }
 
+  DynList<P> names() const
+  {
+    DynList<P> ret = get_unitarian_DynList(make_pair(name, &unit));
+    ret.append(get_synonyms());
+    return ret;
+  }
+
   void set_epsilon(double ratio = 0.01)
   {
     Unit::validate_ratio(ratio);
@@ -101,7 +108,7 @@ public:
       &val.unit == &unit;
   }
 
-  bool check(double val) const noexcept { return check(VtlQuantity(unit, val)); }
+  bool check(double val) const { return check(VtlQuantity(unit, val)); }
 
   void verify(const BaseQuantity & q) const
   {

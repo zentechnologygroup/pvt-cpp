@@ -180,12 +180,20 @@ struct EmpiricalData
 	  continue;
 
 	const auto & physical_quantity = get<1>(t)->physical_quantity;
-	if (&physical_quantity == &pq)
-	  continue;
-	    
+	if (&physical_quantity != &pq)
+	  {	    
+	    ostringstream s;
+	    s << "Physical quantity of name " << name << " is "
+	      << physical_quantity << " but it must be " << pq.name;
+	    throw domain_error(s.str());
+	  }
+
+	if (not vset.values(name).is_empty())
+	  return;
+
 	ostringstream s;
-	s << "Physical quantity of name " << name << " is "
-	  << physical_quantity << " but it must be " << pq.name;
+	s << "var name " << name << " in var set " << vset.name
+	  << " does not contain any sample";
 	throw domain_error(s.str());
       }
 
@@ -518,7 +526,8 @@ public:
 	    ostringstream s;
 	    s << "EmpiricalData::add_samples(istream&): row number "
 	      << linenum << " has << " << row.size()
-	      << " cols, which is not exactly the number of vars " << vset.num_var;
+	      << " cols, which is not exactly the number of vars "
+	      << vset.num_var;
 	    throw domain_error(s.str());
 	  }
 	DynList<double> sample;
@@ -588,6 +597,11 @@ public:
     add_sample(set_index(set_name), move(pars));
   }
 
+  bool exists_const_name(const string & name) const
+  {
+    return const_names.exists([&name] (const auto & s) { return name == s; });
+  }
+
   bool exists_var_name(size_t set_idx, const string & name) const noexcept
   {
     return var_sets[set_idx].var_names.exists([&name] (const string & s)
@@ -653,7 +667,8 @@ public:
   bool can_be_applied(size_t seti, const Correlation * correlation_ptr) const
   {
     return
-      correlation_ptr->names_and_synonyms().exists([this, seti] (const auto & sign)
+      correlation_ptr->names_and_synonyms().exists([this, seti]
+						   (const auto & sign)
       {
 	return this->contains_names(seti, sign);
       });
@@ -806,13 +821,84 @@ public:
   {
     return invalid_parameters_values(set_index(set_name), correlation_ptr);
   }
+
+  /// Returns all the correlations that compute `const_name` and
+  /// matching with other constant parameters
+  DynList<const Correlation*>
+  matching_const_correlations(const string & const_name) const
+  {
+    auto target_correlations =
+      Correlation::list().filter([&const_name] (auto ptr)
+      {
+	return ptr->target_name() == const_name;
+      });
+
+    auto ret = target_correlations.filter([this] (auto ptr)
+      {
+	return ptr->get_preconditions().all([this](const auto & par)
+          {
+	    return par.names().exists([&par](const auto & p)
+              { return p.first == par.name; });
+	  });
+      });
+
+    return ret;
+  }
+
+  //   found, real name, value, unit
+  tuple<bool, string, double, const Unit*>
+  search_const_name(const string & name) const
+  {
+    auto result = t_zip(const_names, const_vals, const_units).
+      find_item([&name] (const auto & t) { return get<0>(t) == name; });
+    if (get<0>(result))
+      return tuple_cat(make_tuple(true), get<1>(result));
+
+    return tuple_cat(make_tuple(false), get<1>(result));
+  }
+
+  /// Return all the correlations that compute `const_name`, match
+  /// with other constant parameters and their parameters ranges are
+  /// valid respect to the constant stored in this data set
+  DynList<const Correlation*>
+  matching_const_valid_correlations(const string & const_name) const
+  {
+    return matching_const_correlations(const_name).filter([this, &const_name]
+							  (auto ptr)
+      {
+	return ptr->get_preconditions().all([this] (const auto & par)
+	  {
+	    return par.names().exists([this, &par] (auto p)
+              {
+		auto t = this->search_const_name(p.first);
+		if (not get<0>(t))
+		  return false;
+
+		cout << "Found par " << get<1>(t) << endl;
+		const double val = get<2>(t);
+		const Unit * unit_ptr = get<3>(t);
+		try
+		  { // exception handler because val could be out of
+		    // unit bounds
+		    return par.check(VtlQuantity(*unit_ptr, val));
+		  }
+		catch (...)
+		  {
+		    return false; // this precondition is not matched
+		  }
+	      });
+	  });
+      });
+  }
   
   /// Returns a list of correlation matching the names contaned in
   /// the data set
   DynList<const Correlation*> matching_correlations(size_t seti) const
   {
     return Correlation::list().filter([this, seti] (auto ptr)
-				      { return this->can_be_applied(seti, ptr); });
+      {
+	return this->can_be_applied(seti, ptr);
+      });
   }
 
   DynList<const Correlation*> matching_correlations(const string & set_name)

@@ -58,3 +58,7 @@
 - Created at    pues hace quemar ciclos a emacs
 - Completed at 2016-10-19 17:09:50 -0400
 
+## 20. compute para contantes
+- Created at    no para variables en empirical model
+- Completed at 2016-10-20 10:34:42 -0400
+

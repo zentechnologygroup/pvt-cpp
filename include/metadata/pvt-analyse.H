@@ -28,7 +28,17 @@ public:
     data.check_variable("Above Pb", "rs", GORGLRvolumeRatio::get_instance());
     data.check_variable("Above Pb", "bo", FVFvolumeRatio::get_instance());
     data.check_variable("Above Pb", "uo", DinamicViscosity::get_instance());
-}
+  }
+
+  DynList<const Correlation *> pb_correlations() const
+  {
+    return data.matching_const_correlations("pb");
+  }
+
+  DynList<const Correlation *> pb_valid_correlations() const
+  {
+    return data.matching_const_valid_correlations("pb");
+  }
 
   PvtAnalyzer() {}
 
