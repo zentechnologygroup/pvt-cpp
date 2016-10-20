@@ -30,7 +30,7 @@ end_correlation()
 
 # verificada con python!
 begin_correlation("CoDeGhetto", "OilCompressibility", "psia_1", 3.02e-6, 42.9e-6)
-add_doc(%Q[    DE GHETTO CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS
+add_doc(%Q[    DE GHETTO, PAONE & VILLA CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS
     (MODIFIED VASQUEZ-BEGGS CORRELATION), CALCULATION OF OIL ISOTHERMAL
     COMPRESSIBILITY 
              
@@ -55,7 +55,7 @@ add_parameter("tsep", "Fahrenheit", "Separator temperature",  59,  177.8)
 add_parameter("p", "psia", "Pressure",  1038.49,  7411.54)
 add_parameter("pb", "psia", "Bubble point pressure",  208.86,  4021.96)
 add_parameter("psep", "psia", "Separator pressure",  14.5,  752.2)
-add_author("De Ghetto")
+add_author("De Ghetto, Paone & Villa")
 end_correlation()
 
 ################################################################        

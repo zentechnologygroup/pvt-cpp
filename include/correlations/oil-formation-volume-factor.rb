@@ -45,7 +45,7 @@ end_correlation()
 ## verificada con python
 begin_correlation("BoDeGhetto", "OilFormationVolumeFactor", "RB_STB",
                   1.057, 1.362)
-add_title("DE GHETTO CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS (VASQUEZ & BEGGS CORRELATION), CALCULATION OF OIL FORMATION VOLUME FACTOR")
+add_title("DE GHETTO, PAONE & VILLA CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS (VASQUEZ & BEGGS CORRELATION), CALCULATION OF OIL FORMATION VOLUME FACTOR")
 add_db("Based on 1200 measured data points of 63 heavy and extra-heavy oil samples obtained from the Mediterranean Basin, Africa and the Persian Gulf.")
 add_db("Oil samples have been divided in two different API gravity classes: extra-heavy oils for °API<=10, heavy oils for 10<°API<=22.3.")
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.623,  1.517)
@@ -58,7 +58,7 @@ add_parameter("p", "psia", "Pressure",  1038.49,  7411.54)
 add_parameter("pb", "psia", "Bubble point pressure",  208.86,  4021.96)
 add_parameter("psep", "psia", "Separator pressure",  14.5,  752.2)
 add_parameter("co", "psia_1", "Coefficient of isothermal compressibility ",  1.057,  1.362)
-add_author("De Guetto et al.")
+add_author("De Ghetto, Paone & Villa")
 end_correlation()
 
 
