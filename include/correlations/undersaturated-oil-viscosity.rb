@@ -18,7 +18,7 @@ end_correlation()
 ## verificada con python
 begin_correlation("UoaDeGhettoEtAl", "UndersaturatedOilViscosity",
                   "CP", 2.4, 354.6)
-add_title("DE GHETTO ET AL. CORRELATION FOR EXTRA-HEAVY (MODIFIED LABEDI CORRELATION) AND HEAVY (MODIFIED KARTOATMODJO & SCHMIDT CORRELATION) OILS, CALCULATION OF UNDERSATURATED OIL VISCOSITY")
+add_title("DE GHETTO, PAONE & VILLA CORRELATION FOR EXTRA-HEAVY (MODIFIED LABEDI CORRELATION) AND HEAVY (MODIFIED KARTOATMODJO & SCHMIDT CORRELATION) OILS, CALCULATION OF UNDERSATURATED OIL VISCOSITY")
 add_db("Based on 1200 measured data points of 63 heavy and extra-heavy oil samples obtained from the Mediterranean Basin, Africa and the Persian Gulf.")
 add_db("Oil samples have been divided in two different API gravity classes: extra-heavy oils for °API<=10, heavy oils for 10<°API<=22.3.")
 add_parameter("uob", "CP", "Saturated oil viscosity at Pb",  2.1,  295.9)
@@ -26,7 +26,7 @@ add_parameter("p", "psia", "Pressure",  1038.49,  7411.54)
 add_parameter("pb", "psia", "Bubble point pressure",  1038.49,  7411.54)
 add_parameter("uod", "CP", "Dead oil viscosity",  7.7,  1386.9)
 add_parameter("api", "Api", "API oil gravity",  6,  22.3)
-add_author("De Ghetto et al.")
+add_author("De Ghetto, Paone & Villa")
 end_correlation()
 
 ################################################################

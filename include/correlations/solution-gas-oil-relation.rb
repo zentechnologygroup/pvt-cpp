@@ -39,11 +39,11 @@ add_parameter("t", "Fahrenheit", "Temperature", 131.4, 250.7)
 add_parameter("tsep", "Fahrenheit", "Separator temperature", 59, 177.8);
 add_parameter("psep", "psia", "Separator pressure", 14.5, 752.2); 
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb", 26, 1602)
-add_db("DE GHETTO CORRELATION FOR EXTRA-HEAVY (MODIFIED STANDING CORRELATION) AND HEAVY (MODIFIED VASQUEZ-BEGGS CORRELATION) OILS, CALCULATION OF SOLUTION GOR")
+add_db("DE GHETTO, PAONE & VILLA CORRELATION FOR EXTRA-HEAVY (MODIFIED STANDING CORRELATION) AND HEAVY (MODIFIED VASQUEZ-BEGGS CORRELATION) OILS, CALCULATION OF SOLUTION GOR")
 add_db("Based on 1200 measured data points of 63 heavy and extra-heavy oil samples obtained from the Mediterranean Basin, Africa and the Persian Gulf.")
 add_db("Oil samples have been divided in two different API gravity classes: extra-heavy oils for API<=10, heavy oils for 10<API<=22.3.")
-add_note("De Ghetto uses Yg as the average specific gravity of total surface gases, while the original correlation (Standing) uses it as the gravity of dissolved gas. Since Standing doesn't specify if Yg is the gravity of total surface gases or of the separator, it is assumed that the data is from a one stage separation with average gas gravity.")
-add_author("De Ghetto et al.")
+add_internal_note("De Ghetto uses Yg as the average specific gravity of total surface gases, while the original correlation (Standing) uses it as the gravity of dissolved gas. Since Standing doesn't specify if Yg is the gravity of total surface gases or of the separator, it is assumed that the data is from a one stage separation with average gas gravity.")
+add_author("De Ghetto, Paone & Villa")
 end_correlation()
 
 ################################################################
