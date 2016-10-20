@@ -54,7 +54,8 @@ public:
 	  }
 	catch (exception & e)
 	  {
-	    return make_tuple(false, 0.0, p, e.what()); 
+	    return make_tuple(false, numeric_limits<double>::max(),
+			      p, e.what()); 
 	  }
       });
   }

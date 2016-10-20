@@ -824,6 +824,18 @@ public:
     return invalid_parameters_values(set_index(set_name), correlation_ptr);
   }
 
+  //   found, real name, value, unit
+  tuple<bool, string, double, const Unit*>
+  search_const_name(const string & name) const
+  {
+    auto result = t_zip(const_names, const_vals, const_units).
+      find_item([&name] (const auto & t) { return get<0>(t) == name; });
+    if (get<0>(result))
+      return tuple_cat(make_tuple(true), get<1>(result));
+
+    return tuple_cat(make_tuple(false), get<1>(result));
+  }
+
   /// Returns all the correlations that compute `const_name` and
   /// matching with other constant parameters
   DynList<const Correlation*>
@@ -835,28 +847,21 @@ public:
 	return ptr->target_name() == const_name;
       });
 
-    auto ret = target_correlations.filter([this] (auto ptr)
+    auto ret = target_correlations.filter([&] (auto ptr)
       {
-	return ptr->get_preconditions().all([this](const auto & par)
+	return ptr->get_preconditions().all([&](const auto & par)
           {
-	    return par.names().exists([&par](const auto & p)
-              { return p.first == par.name; });
+	    return par.names().exists([&](const auto & p)
+              {
+		return const_names.exists([&] (const auto &s)
+                  {
+		    return s == p.first;
+		  });
+	      });
 	  });
       });
 
     return ret;
-  }
-
-  //   found, real name, value, unit
-  tuple<bool, string, double, const Unit*>
-  search_const_name(const string & name) const
-  {
-    auto result = t_zip(const_names, const_vals, const_units).
-      find_item([&name] (const auto & t) { return get<0>(t) == name; });
-    if (get<0>(result))
-      return tuple_cat(make_tuple(true), get<1>(result));
-
-    return tuple_cat(make_tuple(false), get<1>(result));
   }
 
   /// Return all the correlations that compute `const_name`, match

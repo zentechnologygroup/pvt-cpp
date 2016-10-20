@@ -18,3 +18,4 @@ apagar check de rangos en parametros mediante parámetro en compute, el cual por
 manejar excepciones en lectura del json,2016-10-18 21:45:06 -0400,,
 sacar inclusion de json.hpp de cadena de compilación. Poner tuinas inline dentro de lib, pues hace quemar ciclos a emacs,2016-10-19 17:09:50 -0400,,
 compute para contantes, no para variables en empirical model,2016-10-20 10:34:42 -0400,,
+Mejorar performance de matching_const_correlations,2016-10-20 19:20:41 -0400,,

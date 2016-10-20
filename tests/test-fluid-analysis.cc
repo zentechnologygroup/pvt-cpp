@@ -37,8 +37,6 @@ int main(int argc, char *argv[])
   cout << "================================================================"
        << endl;
 
-  return 0;
-
   auto valid_pb = pvt.pb_valid_correlations();
 
   valid_pb.for_each([] (auto p) { cout << *p << endl; });

@@ -62,3 +62,6 @@
 - Created at    no para variables en empirical model
 - Completed at 2016-10-20 10:34:42 -0400
 
+## 21. Mejorar performance de matching_const_correlations
+- Created at   2016-10-20 19:20:41 -0400
+
