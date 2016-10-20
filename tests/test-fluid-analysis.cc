@@ -30,13 +30,30 @@ int main(int argc, char *argv[])
 
   pvt.check_data();
     
-  pvt.pb_correlations().for_each([] (auto p) { cout << *p << endl; });
+  auto all_pb = pvt.pb_correlations();
+
+  all_pb.for_each([] (auto p) { cout << *p << endl; });
 
   cout << "================================================================"
        << endl;
 
-  pvt.pb_valid_correlations().for_each([] (auto p) { cout << *p << endl; });
+  return 0;
 
+  auto valid_pb = pvt.pb_valid_correlations();
+
+  valid_pb.for_each([] (auto p) { cout << *p << endl; });
+
+  pvt.compute(valid_pb).for_each([] (auto r)
+    {
+      cout << get<2>(r)->name << " = " << get<1>(r) << " " << get<3>(r) << endl;
+    });
+  cout << endl;
+
+  pvt.compute(all_pb, false).for_each([] (auto r)
+    {
+      cout << get<2>(r)->name << " = " << get<1>(r) << " " << get<3>(r) << endl;
+    });
+  cout << endl;
 
   return 0;
 }

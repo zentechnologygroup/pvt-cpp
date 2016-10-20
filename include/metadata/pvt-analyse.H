@@ -40,6 +40,25 @@ public:
     return data.matching_const_valid_correlations("pb");
   }
 
+  //                      ok    result     correlation       message if not ok
+  using CorrStatus = tuple<bool, double, const Correlation*, string>;
+
+  DynList<CorrStatus> compute(const DynList<const Correlation*> & corr_list,
+			     bool check = true) const
+  {
+    return corr_list.maps<CorrStatus>([&] (auto p)
+      {
+	try
+	  {
+	    return make_tuple(true, this->data.compute(p, check), p, "");
+	  }
+	catch (exception & e)
+	  {
+	    return make_tuple(false, 0.0, p, e.what()); 
+	  }
+      });
+  }
+
   PvtAnalyzer() {}
 
   PvtAnalyzer(istream & input)

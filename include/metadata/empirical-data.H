@@ -709,7 +709,8 @@ public:
 	{
 	  auto syn = it_syn.get_curr();
 	  const auto & syn_name = syn.first;
-	  vals = values(seti, syn_name); // verify if there are values in data set
+	  vals = values(seti, syn_name); // verify if there are values
+					 // in data set 
 	  if (not vals.is_empty())
 	    { // a synomym was found for par_name in the
 	      // correlation. Now we convert the values to the synonym unit
@@ -787,7 +788,8 @@ public:
 	if (empirical_samples.is_unitarian())
 	  {
 	    if (not par.check(min_emp_sample))
-	      ret.append(make_pair(par.name, DynList<double>({ min_emp_sample })));
+	      ret.append(make_pair(par.name,
+				   DynList<double>({ min_emp_sample })));
 	    continue;
 	  }
 
@@ -921,6 +923,30 @@ public:
     return valid_correlations(set_index(set_name));
   }
 
+  double compute(const Correlation * correlation_ptr, bool check = true) const
+  {
+    auto const_list = t_zip(const_names, const_vals, const_units);
+    auto pars = correlation_ptr->get_preconditions().
+      maps<VtlQuantity>([&] (const auto & par)
+        {
+	  auto ptr = const_list.find_ptr([&] (auto t)
+            { return par.names().exists([&] (const auto & p)
+	       { return get<0>(p) == get<0>(t); });
+	    });
+	  
+	  if (ptr == nullptr)
+	    {
+	      ostringstream s;
+	      s << "Parameter " << par.name << " of correlation "
+		<< correlation_ptr->name << " was not found in data set";
+	      throw domain_error(s.str());
+	    }
+	  return VtlQuantity(*get<2>(*ptr), get<1>(*ptr));
+	});
+
+    return correlation_ptr->compute(pars, check).raw();
+  }
+
   /// returns a column of correlation outputs for the values stored in
   /// this data set
   DynList<double> compute(size_t seti, const Correlation * correlation_ptr,
@@ -943,6 +969,7 @@ public:
     return compute(set_index(set_name), correlation_ptr, check);
   }
 
+  /// Return a matrix of correlations inputs and its outputs
   DynList<DynList<double>> compute_mat(size_t seti,
 				       const Correlation * correlation_ptr,
 				       bool check) const
