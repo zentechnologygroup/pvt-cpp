@@ -304,11 +304,11 @@ struct EmpiricalData
     const auto & var_names = var_set.var_names;
     for (size_t i = 0; i < var_names.size(); ++i)
       if (var_names(i) == name)
-	for (size_t j = 0; j < var_set.num_samples; ++j)
-	  {
-	    ret.append(var_set.samples(i)(j));
-	    return ret;
-	  }
+	{
+	  for (size_t j = 0; j < var_set.num_samples; ++j)
+	    ret.append(var_set.samples(j)(i));
+	  return ret;
+	}
 
     return ret;
   }
@@ -453,8 +453,6 @@ public:
     vset.num_var++;
   }
 
-private:
-
   size_t set_index(const string & name) const noexcept
   {
     auto i =
@@ -466,8 +464,6 @@ private:
     s << "set name " << name << " not found";
     throw domain_error(s.str());
   }  
-
-public:
 
   void def_var(const string & set_name,  string & name, const string & symbol)
   {
@@ -975,6 +971,13 @@ public:
 			  bool check = true) const
   {
     auto vals = correlation_values(seti, correlation_ptr);
+
+    t_zip(correlation_ptr->preconditions_list(), vals).for_each([] (auto t)
+      {
+	cout << get<0>(t)->name << ":";
+	get<1>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
+      });
+
     DynList<double> ret;
 
     for_each_perm(vals, [&ret, correlation_ptr, check] (const auto & pars)
@@ -991,26 +994,28 @@ public:
     return compute(set_index(set_name), correlation_ptr, check);
   }
 
+  using CorrRow = tuple<DynList<double>, double>;
+  
   /// Return a matrix of correlations inputs and its outputs
-  DynList<DynList<double>> compute_mat(size_t seti,
-				       const Correlation * correlation_ptr,
-				       bool check) const
+  DynList<CorrRow> compute_mat(size_t seti, const Correlation * correlation_ptr,
+			       bool check) const
   {
     auto vals = correlation_values(seti, correlation_ptr);
-    DynList<DynList<double>> ret;
 
-    for_each_perm(vals, [&ret, correlation_ptr, check] (const auto & pars)
+    DynList<CorrRow> ret;
+
+    for_each_perm(vals, [&ret, correlation_ptr, check] (auto & row)
       {
-	DynList<double> row = pars;
-	row.append(correlation_ptr->compute(pars, check));
-	ret.append(row); 
+	double result = correlation_ptr->compute(row, check);
+	ret.append(make_tuple(row, result));
       });
+    
     return ret;
   }
 
-  DynList<DynList<double>> compute_mat(const string & set_name,
-				       const Correlation * correlation_ptr,
-				       bool check) const
+  DynList<CorrRow> compute_mat(const string & set_name,
+			       const Correlation * correlation_ptr,
+			       bool check) const
   {
     return compute_mat(set_index(set_name), correlation_ptr, check);
   }

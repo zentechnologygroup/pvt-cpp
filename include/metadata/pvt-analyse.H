@@ -42,13 +42,28 @@ public:
     return data.matching_const_valid_correlations("pb");
   }
 
-  //                      ok    result     correlation       message if not ok
-  using CorrStatus = tuple<bool, double, const Correlation*, string>;
-
-  DynList<CorrStatus> compute(const DynList<const Correlation*> & corr_list,
-			     bool check = true) const
+  DynList<const Correlation*> rs_correlations() const
   {
-    return corr_list.maps<CorrStatus>([&] (auto p)
+    return data.matching_correlations("Below Pb").
+      filter([] (auto ptr) { return ptr->target_name() == "rs"; });
+  }
+
+  DynList<const Correlation*> rs_valid_correlations() const
+  {
+    return data.valid_correlations("Below Pb").
+      filter([] (auto ptr) { return ptr->target_name() == "rs"; });
+  }
+
+  //                      ok    result     correlation       message if not ok
+  using ConstCorrStatus = tuple<bool, double, const Correlation*, string>;
+
+  /// Takes a list of correlations for constant values of data set an
+  /// compute them according to the present data
+  DynList<ConstCorrStatus>
+  compute_constant_correlations(const DynList<const Correlation*> & corr_list,
+			       bool check = true) const
+  {
+    return corr_list.maps<ConstCorrStatus>([&] (auto p)
       {
 	try
 	  {
@@ -62,14 +77,57 @@ public:
       });
   }
 
-  DynList<CorrStatus> best_pb_correlations(bool check = true) const
+  //                          ok     results        correlation, message if not ok
+  using VarCorrStatus = tuple<bool, DynList<double>, const Correlation*, string>;
+
+  // DynList<DynList<VarCorrStatus>>
+  // compute_var_correlations(const DynList<const Correlation*> & corr_list,
+  // 			   const string & set_name,
+  // 			   bool check = true) const
+  // {
+  //   size_t idx = data.set_index(set_name); 
+  //   return corr_list.maps<DynList<VarCorrStatus>>([&] (auto ptr)
+  //     {
+  // 	try
+  // 	  {
+  // 	    auto result = data.compute(idx, ptr, check);
+  // 	    return make_tuple(true, move(result), ptr, "");
+  // 	  }
+  // 	catch (exception & e)
+  // 	  {
+  // 	    DynList<double> l = { numeric_limits<double>::max() };
+  // 	    return make_tuple(false, move(l), ptr, e.what());
+  // 	  }
+  //     });
+  // }
+
+  DynList<ConstCorrStatus> best_pb_correlations(bool check = true) const
   {
     const double pb = get_pb();
-    return sort(compute(pb_valid_correlations(), check),
+    return sort(compute_constant_correlations(pb_valid_correlations(), check),
 		[pb] (const auto & t1, const auto & t2)
 		{
 		  return abs(get<1>(t1) - pb) < abs(pb - get<1>(t2));
 		});
+  }
+
+  DynList<VarCorrStatus> best_rs_correlations(bool check = true) const
+  {
+    auto rs_correlations = rs_valid_correlations();
+    DynList<VarCorrStatus> ret;
+    for (auto it = rs_correlations.get_it(); it.has_curr(); it.next())
+      {
+	auto corr_ptr = it.get_curr();
+	try
+	  {
+	    auto result = data.compute(0, corr_ptr, check);
+	    cout << "size = " << result.size() << endl;
+	    ret.append(make_tuple(true, move(result), corr_ptr, ""));
+	  }
+	catch (exception & e) { /* ignore it! */ }
+      }
+
+    return ret;
   }
 
   PvtAnalyzer() {}

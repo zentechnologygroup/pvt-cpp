@@ -65,3 +65,6 @@
 ## 21. Mejorar performance de matching_const_correlations
 - Created at   2016-10-20 19:20:41 -0400
 
+## 22. En EmpiricalData: indizar con árbol las constantes y variables
+- Created at   2016-10-21 13:03:15 -0400
+

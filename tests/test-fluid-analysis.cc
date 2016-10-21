@@ -32,25 +32,25 @@ int main(int argc, char *argv[])
     
   auto all_pb = pvt.pb_correlations();
 
-  all_pb.for_each([] (auto p) { cout << *p << endl; });
+  // all_pb.for_each([] (auto p) { cout << *p << endl; });
 
   cout << "================================================================"
        << endl;
 
   auto valid_pb = pvt.pb_valid_correlations();
 
-  valid_pb.for_each([] (auto p) { cout << *p << endl; });
+  // valid_pb.for_each([] (auto p) { cout << *p << endl; });
 
-  pvt.compute(valid_pb).for_each([] (auto r)
-    {
-      cout << get<2>(r)->name << " = " << get<1>(r) << " " << get<3>(r) << endl;
-    });
-  cout << endl;
+  // pvt.compute_constant_correlations(valid_pb).for_each([] (auto r)
+  //   {
+  //     cout << get<2>(r)->name << " = " << get<1>(r) << " " << get<3>(r) << endl;
+  //   });
+  // cout << endl;
 
-  pvt.compute(all_pb, false).for_each([] (auto r)
-    {
-      cout << get<2>(r)->name << " = " << get<1>(r) << " " << get<3>(r) << endl;
-    });
+  // pvt.compute_constant_correlations(all_pb, false).for_each([] (auto r)
+  //   {
+  //     cout << get<2>(r)->name << " = " << get<1>(r) << " " << get<3>(r) << endl;
+  //   });
   cout << endl
        << endl
        << "Best pb correlations" << endl;
@@ -64,7 +64,25 @@ int main(int argc, char *argv[])
 
   cout << to_string(format_string(l)) << endl;
 
+  auto rs_l = pvt.rs_correlations();
+  //.for_each([] (auto p) { cout << *p << endl; });
+
+  auto rs_v = pvt.rs_valid_correlations();
+  //.for_each([] (auto p) { cout << *p << endl; });
+
+  auto rs_best = pvt.best_rs_correlations();
+
+  rs_best.for_each([] (auto t)
+    {
+      cout << get<2>(t)->name << ":";
+      get<1>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    });
+
   return 0;
 
   
 }
+
+
+
+

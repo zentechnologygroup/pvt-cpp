@@ -12,32 +12,28 @@ class CorrStat
 
   // considerar cambiar a pars_values; total siempre se generará la misma perm
   const DynList<DynList<double>> samples;
+  const DynList<double> y;
 
   long double ss_tot = 0;
 
 public:
 
   // each sample contains a row of parameters plus the value
-  CorrStat(const DynList<DynList<double>> & samples)
-    : samples(samples)
+  CorrStat(const DynList<DynList<double>> & samples, const DynList<double> & y)
+    : samples(samples), y(y)
   {
-    long double sum = 0;
-    for (auto it = samples.get_it(); it.has_curr(); it.next(), ++n)
-      {
-	const auto & sample = it.get_curr();
-	const auto & y = sample.get_last();
-	sum += y;
-      }
+    long double sum = y.foldl(0.0, [] (const auto & acu, const auto & yi)
+			      {
+				return acu + yi;
+			      });
     mean = sum/n;
 
-    long double sum2 = 0;
-    for (auto it = samples.get_it(); it.has_curr(); it.next())
-      {
-	const auto & sample = it.get_curr();
-	const auto & y = sample.get_last();
-	const double diff = y - mean;
-	sum2 += diff*diff;
-      }
+    long double sum2 =
+      y.foldl(0.0, [m = mean] (const auto & acu, const auto & yi)
+	      {
+		const double diff = yi - m;
+		return acu + diff*diff;
+	      });
     var = sum2/n;
     ss_tot = sum2;
   }
@@ -57,11 +53,6 @@ public:
       }
     var = sum2/n;
     ss_tot = sum2;
-  }
-
-  CorrStat(ifstream & input)
-  {
-
   }
 
   double r2(const Correlation * correlation)
@@ -84,6 +75,15 @@ public:
     return 1 - ss_res/ss_tot;
   }
 };
+
+inline double r2(const Correlation * correlation_ptr,
+		 DynList<DynList<double>> & samples,
+		 const DynList<double> & y)
+{
+  CorrStat stat(samples, y);
+  return stat.r2(correlation_ptr);
+}
+		 
 
 # endif // CORRELATION_STATS_H
 
