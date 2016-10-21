@@ -51,7 +51,20 @@ int main(int argc, char *argv[])
     {
       cout << get<2>(r)->name << " = " << get<1>(r) << " " << get<3>(r) << endl;
     });
-  cout << endl;
+  cout << endl
+       << endl
+       << "Best pb correlations" << endl;
+  auto l =
+    pvt.best_pb_correlations().maps<DynList<string>>([pb = pvt.get_pb()] (auto r)
+    {
+      auto v = get<1>(r);
+      return DynList<string>( { get<2>(r)->name, "=", to_string(v),
+	    to_string((min(v, pb)/max(v, pb))*100) + " %",  get<3>(r)});
+    });
+
+  cout << to_string(format_string(l)) << endl;
 
   return 0;
+
+  
 }

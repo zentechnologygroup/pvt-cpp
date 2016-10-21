@@ -122,6 +122,7 @@ struct EmpiricalData
 
   Array<VarSet> var_sets;
 
+  /// Returns all the names contained in this data set
   DynList<string> names() const
   {
     DynSetTree<string> ret = const_names;
@@ -130,6 +131,23 @@ struct EmpiricalData
 				       { ret.append(s); });
 
     return ret.keys();
+  }
+
+  using ConstDef = tuple<string, double, const Unit *>;
+
+  ConstDef find_const(const string & name) const
+  {
+    for (auto it = get_zip_it(const_names, const_vals, const_units);
+	 it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	if (get<0>(t) == name)
+	  return t;
+      }
+
+    ostringstream s;
+    s << "const name " << name << " not found in data set";
+    throw domain_error(s.str());
   }
 
   void check_constant(const string & name, const PhysicalQuantity & pq) const
@@ -881,7 +899,6 @@ public:
 		if (not get<0>(t))
 		  return false;
 
-		cout << "Found par " << get<1>(t) << endl;
 		const double val = get<2>(t);
 		const Unit * unit_ptr = get<3>(t);
 		try
