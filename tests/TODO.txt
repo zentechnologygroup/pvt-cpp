@@ -20,3 +20,5 @@ sacar inclusion de json.hpp de cadena de compilación. Poner tuinas inline dentr
 compute para contantes, no para variables en empirical model,2016-10-20 10:34:42 -0400,,
 Mejorar performance de matching_const_correlations,2016-10-20 19:20:41 -0400,,
 En EmpiricalData: indizar con árbol las constantes y variables,2016-10-21 13:03:15 -0400,,
+pone en test-corr que se imprima nota tecnica,2016-10-21 14:54:17 -0400,,
+conversion unidad uno a uno,2016-10-21 16:58:32 -0400,,

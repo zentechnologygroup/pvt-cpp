@@ -77,30 +77,6 @@ public:
       });
   }
 
-  //                          ok     results        correlation, message if not ok
-  using VarCorrStatus = tuple<bool, DynList<double>, const Correlation*, string>;
-
-  // DynList<DynList<VarCorrStatus>>
-  // compute_var_correlations(const DynList<const Correlation*> & corr_list,
-  // 			   const string & set_name,
-  // 			   bool check = true) const
-  // {
-  //   size_t idx = data.set_index(set_name); 
-  //   return corr_list.maps<DynList<VarCorrStatus>>([&] (auto ptr)
-  //     {
-  // 	try
-  // 	  {
-  // 	    auto result = data.compute(idx, ptr, check);
-  // 	    return make_tuple(true, move(result), ptr, "");
-  // 	  }
-  // 	catch (exception & e)
-  // 	  {
-  // 	    DynList<double> l = { numeric_limits<double>::max() };
-  // 	    return make_tuple(false, move(l), ptr, e.what());
-  // 	  }
-  //     });
-  // }
-
   DynList<ConstCorrStatus> best_pb_correlations(bool check = true) const
   {
     const double pb = get_pb();
@@ -111,7 +87,31 @@ public:
 		});
   }
 
-  DynList<VarCorrStatus> best_rs_correlations(bool check = true) const
+  //                          ok     results        correlation, message if not ok
+  using VarCorrYStatus = tuple<bool, DynList<double>, const Correlation*, string>;
+
+  DynList<VarCorrYStatus> best_rs_correlations(bool check = true) const
+  {
+    auto rs_correlations = rs_valid_correlations();
+    DynList<VarCorrYStatus> ret;
+    for (auto it = rs_correlations.get_it(); it.has_curr(); it.next())
+      {
+	auto corr_ptr = it.get_curr();
+	try
+	  {
+	    auto result = data.compute(0, corr_ptr, check);
+	    ret.append(make_tuple(true, move(result), corr_ptr, ""));
+	  }
+	catch (exception & e) { /* ignore it! */ }
+      }
+
+    return ret;
+  }
+
+  using VarCorrStatus = tuple<bool, DynList<DynList<double>>,
+			      DynList<double>, const Correlation*, string>;
+
+  DynList<VarCorrStatus> best_mat_rs_correlations(bool check = true) const
   {
     auto rs_correlations = rs_valid_correlations();
     DynList<VarCorrStatus> ret;
@@ -120,9 +120,9 @@ public:
 	auto corr_ptr = it.get_curr();
 	try
 	  {
-	    auto result = data.compute(0, corr_ptr, check);
-	    cout << "size = " << result.size() << endl;
-	    ret.append(make_tuple(true, move(result), corr_ptr, ""));
+	    auto result = data.compute_mat(0, corr_ptr, check);
+	    ret.append(make_tuple(true, move(get<0>(result)),
+				  move(get<1>(result)), corr_ptr, ""));
 	  }
 	catch (exception & e) { /* ignore it! */ }
       }

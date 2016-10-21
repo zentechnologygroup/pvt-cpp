@@ -68,3 +68,9 @@
 ## 22. En EmpiricalData: indizar con árbol las constantes y variables
 - Created at   2016-10-21 13:03:15 -0400
 
+## 23. pone en test-corr que se imprima nota tecnica
+- Created at   2016-10-21 14:54:17 -0400
+
+## 24. conversion unidad uno a uno
+- Created at   2016-10-21 16:58:32 -0400
+

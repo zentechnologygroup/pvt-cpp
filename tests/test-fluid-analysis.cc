@@ -39,18 +39,18 @@ int main(int argc, char *argv[])
 
   auto valid_pb = pvt.pb_valid_correlations();
 
-  // valid_pb.for_each([] (auto p) { cout << *p << endl; });
+  valid_pb.for_each([] (auto p) { cout << *p << endl; });
 
-  // pvt.compute_constant_correlations(valid_pb).for_each([] (auto r)
-  //   {
-  //     cout << get<2>(r)->name << " = " << get<1>(r) << " " << get<3>(r) << endl;
-  //   });
-  // cout << endl;
+  pvt.compute_constant_correlations(valid_pb).for_each([] (auto r)
+    {
+      cout << get<2>(r)->name << " = " << get<1>(r) << " " << get<3>(r) << endl;
+    });
+  cout << endl;
 
-  // pvt.compute_constant_correlations(all_pb, false).for_each([] (auto r)
-  //   {
-  //     cout << get<2>(r)->name << " = " << get<1>(r) << " " << get<3>(r) << endl;
-  //   });
+  pvt.compute_constant_correlations(all_pb, false).for_each([] (auto r)
+    {
+      cout << get<2>(r)->name << " = " << get<1>(r) << " " << get<3>(r) << endl;
+    });
   cout << endl
        << endl
        << "Best pb correlations" << endl;

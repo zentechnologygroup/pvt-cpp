@@ -94,19 +94,21 @@ int main()
     }
 
   auto mat = e.compute_mat("Uob", rs_ptr, false); 
-  auto smat = mat.maps<DynList<string>>([] (const auto & l)
+  auto smat = get<0>(mat).maps<DynList<string>>([] (const auto & row)
     {
-      return
-      l.template maps<string>([] (const auto & v) { return ::to_string(v); });
+      return row.template maps<string>([] (auto v) { return to_string(v); });
     });
+  zip_for_each([] (auto t) { get<0>(t).append(to_string(get<1>(t))); },
+	       smat, get<1>(mat));
+  // smat.mutable_for_each([y = get<1>(mat)] (auto & row)
+  // 			{ row.append(to_string(
 
   auto sign = rs_ptr->parameters_signature();
   sign.append(rs_ptr->target_name());
   smat.insert(sign);
 
-  auto r = format_string(smat);
-
-  cout << to_string(r) << endl;
+  cout << "Matrix = " << endl
+       << to_string(format_string(smat));
 
   auto bo_correlations = Correlation::array().filter([] (auto ptr)
     {

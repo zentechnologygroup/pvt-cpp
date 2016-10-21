@@ -86,7 +86,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbKartoatmodjoSchmidt", "BubblePointPressure", "psia",
-                  14.7, 6054.7)
+k                  14.7, 6054.7)
 add_title("KARTOATMODJO & SCHMIDT CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.5,  1.668)
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  0,  2890)

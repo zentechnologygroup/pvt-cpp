@@ -972,18 +972,13 @@ public:
   {
     auto vals = correlation_values(seti, correlation_ptr);
 
-    t_zip(correlation_ptr->preconditions_list(), vals).for_each([] (auto t)
-      {
-	cout << get<0>(t)->name << ":";
-	get<1>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
-      });
-
     DynList<double> ret;
 
     for_each_perm(vals, [&ret, correlation_ptr, check] (const auto & pars)
       {
 	ret.append(correlation_ptr->compute(pars, check));		       
       });
+    
     return ret;
   }
 
@@ -995,27 +990,30 @@ public:
   }
 
   using CorrRow = tuple<DynList<double>, double>;
+  using CorrMat = tuple<DynList<DynList<double>>, DynList<double>>;
   
   /// Return a matrix of correlations inputs and its outputs
-  DynList<CorrRow> compute_mat(size_t seti, const Correlation * correlation_ptr,
-			       bool check) const
+  CorrMat compute_mat(size_t seti, const Correlation * correlation_ptr,
+		      bool check) const
   {
     auto vals = correlation_values(seti, correlation_ptr);
 
-    DynList<CorrRow> ret;
+    DynList<DynList<double>> samples;
+    DynList<double> y;
 
-    for_each_perm(vals, [&ret, correlation_ptr, check] (auto & row)
+    for_each_perm(vals, [&samples, &y, correlation_ptr, check] (auto & row)
       {
 	double result = correlation_ptr->compute(row, check);
-	ret.append(make_tuple(row, result));
+	samples.append(row);
+	y.append(result);
       });
     
-    return ret;
+    return make_tuple(move(samples), move(y));
   }
 
-  DynList<CorrRow> compute_mat(const string & set_name,
-			       const Correlation * correlation_ptr,
-			       bool check) const
+  CorrMat compute_mat(const string & set_name,
+		      const Correlation * correlation_ptr,
+		      bool check) const
   {
     return compute_mat(set_index(set_name), correlation_ptr, check);
   }
