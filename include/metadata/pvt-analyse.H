@@ -1,6 +1,7 @@
 # ifndef PVT_CALIBRATE_H
 # define PVT_CALIBRATE_H
 
+# include <correlations/correlation-stats.H>
 # include "empirical-data.H"
 
 class PvtAnalyzer
@@ -108,11 +109,16 @@ public:
     return ret;
   }
 
-  using VarCorrStatus = tuple<bool, DynList<DynList<double>>,
-			      DynList<double>, const Correlation*, string>;
+  using VarCorrStatus =
+    //   ok      y                r2     correlation,  message if not ok
+    tuple<bool, DynList<double>, double, const Correlation*, string>;
 
   DynList<VarCorrStatus> best_mat_rs_correlations(bool check = true) const
   {
+    // como asegurar que el orden de las y sea el mismo tanto para en
+    // data set como las correlaciones? R: ordenar por 
+    CorrStat stat(data.values("rs"));
+
     auto rs_correlations = rs_valid_correlations();
     DynList<VarCorrStatus> ret;
     for (auto it = rs_correlations.get_it(); it.has_curr(); it.next())
@@ -120,20 +126,14 @@ public:
 	auto corr_ptr = it.get_curr();
 	try
 	  {
-	    auto result = data.compute_mat(0, corr_ptr, check);
-	    ret.append(make_tuple(true, move(get<1>(result)),
-				  move(get<2>(result)), corr_ptr, ""));
+	    auto result = data.compute(0, corr_ptr, check);
+	    auto r2 = stat.r2(result);
+	    ret.append(make_tuple(true, move(result), r2, corr_ptr, ""));
 	  }
 	catch (exception & e) { /* ignore it! */ }
       }
 
-    // cada calculo deben tener el mismo orden la muestra para que los y coincidan
-
-
-    //auto r2 = ::r2(
-    // TODO: calcular r2 y ordenar
-
-    return ret;
+    return sort(ret, [] (auto t1, auto t2) { return get<2>(t1) < get<2>(t2); });
   }
 
   PvtAnalyzer() {}
