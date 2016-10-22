@@ -6,6 +6,7 @@
 
 # include <parse-csv.H>
 # include <ah-string-utils.H>
+# include <ahSort.H>
 # include <ah-comb.H>
 # include <ah-zip.H>
 
@@ -117,6 +118,84 @@ struct EmpiricalData
 	  for (auto v : j["samples"][vname])
 	    samples[row++][col] = v;
 	}
+    }
+
+    /// Return samples array sorted by the column name `name`
+    DynList<DynList<double>> sort_by_name(const string & name) const
+    {
+      size_t col =
+	var_names.find_index([&name] (const auto & s) { return s == name; });
+      if (col >= var_names.size())
+	{
+	  ostringstream s;
+	  s << "VarSet::sort_by_name(" << name << "): name not found";
+	  throw domain_error(s.str());
+	}
+
+      auto ret = sort(samples, [&col] (auto & row1, auto & row2)
+		      {
+			return row1[col] < row2[col];
+		      });
+
+      return ret.maps<DynList<double>>([] (const auto & row)
+        {
+	  return row.template maps<double>([] (auto v) { return v; });
+	});
+    }
+
+    /// Return a copy of sample involving the rows concerned to
+    /// correlation `ptr`. The matrix is sorted according to the col name
+    tuple<DynList<DynList<double>>, DynList<double>>
+    get_set_by_correlation(const Correlation * ptr, const string & name) const
+    {
+      size_t col =
+	var_names.find_index([&name] (const auto & s) { return s == name; });
+      if (col >= var_names.size())
+	{
+	  ostringstream s;
+	  s << "VarSet::get_set_by_correlation(): name " << name << " not found";
+	  throw domain_error(s.str());
+	}
+
+      const string target_name = ptr->target_name();
+      size_t target_col = var_names.find_index([&target_name] (const auto & s)
+					       { return s == target_name; });
+      if (target_col >= var_names.size())
+	{
+	  ostringstream s;
+	  s << "VarSet::get_set_by_correlation(): correlation target name "
+	    << target_name << " not found";
+	  throw domain_error(s.str());
+	}
+
+      auto mat = sort(samples, [&col] (auto & row1, auto & row2)
+		      {
+			return row1[col] < row2[col];
+		      });
+
+      auto col_indexes =
+	ptr->get_preconditions().maps<size_t>([this] (const auto & par)
+          {
+	    return var_names.find_index([&par] (const auto & s)
+	      {
+		return s == par.name;
+	      });
+	  });
+      
+      DynList<DynList<double>> smat; // samples matrix
+      for (size_t i = 0; i < mat.size(); ++i)
+	{
+	  const auto & row = mat(i);
+	  DynList<double> l =
+	    col_indexes.maps<double>([&row] (auto i) { return row(i); });
+	  smat.append(l);
+	}
+
+      DynList<double> y;
+      for (size_t i = 0; i < mat.size(); ++i)
+	y.append(mat(i)(target_col));
+
+      return make_tuple(smat, y);
     }
   };
 
@@ -676,6 +755,24 @@ public:
     add_sample(set_idx, move(sample));
   }
 
+  /// Given the correlation `ptr`, extract the samples matrix and
+  /// correlated var from the data set `seti`. return a tuple whose
+  /// first item is the matrix of samples and second item is
+  /// therrelated value
+  tuple<DynList<DynList<double>>, DynList<double>>
+  get_set_by_correlation(size_t seti, const Correlation * ptr,
+			 const string & name) const
+  {
+    return var_sets[seti].get_set_by_correlation(ptr, name);
+  }
+
+  tuple<DynList<DynList<double>>, DynList<double>>
+  get_set_by_correlation(const string & set_name, const Correlation * ptr,
+			 const string & name) const
+  {
+    return get_set_by_correlation(set_index(set_name), ptr, name);
+  }
+
   /// return true if correlation correlation_ptr could be applied to
   /// the empirical data 
   bool can_be_applied(size_t seti, const Correlation * correlation_ptr) const
@@ -990,12 +1087,17 @@ public:
   }
 
   using CorrRow = tuple<DynList<double>, double>;
-  using CorrMat = tuple<DynList<DynList<double>>, DynList<double>>;
+  using CorrMat =
+    tuple<DynList<string>, DynList<DynList<double>>, DynList<double>>;
   
   /// Return a matrix of correlations inputs and its outputs
   CorrMat compute_mat(size_t seti, const Correlation * correlation_ptr,
 		      bool check) const
   {
+    DynList<string> names = correlation_ptr->get_preconditions().
+      maps<string>([] (const auto & par) { return par.name; });
+    names.append(correlation_ptr->target_name());
+
     auto vals = correlation_values(seti, correlation_ptr);
 
     DynList<DynList<double>> samples;
@@ -1008,7 +1110,7 @@ public:
 	y.append(result);
       });
     
-    return make_tuple(move(samples), move(y));
+    return make_tuple(move(names), move(samples), move(y));
   }
 
   CorrMat compute_mat(const string & set_name,
@@ -1036,7 +1138,7 @@ public:
 	  {
 	    return s == par.name or
 	    par.get_synonyms().exists([&s] (const auto & syn)
-	  { return s == syn.first; });
+	      { return s == syn.first; });
 	  };
 	if (const_names.exists(exist) or var_set.var_names.exists(exist))
 	  present.append(name);
@@ -1047,9 +1149,8 @@ public:
     return make_pair(present, absent);
   }
 
-  // TODO: funcion que dado un name que no está en el data set_set
-  // determine las correlaciones que calculan su valor a partir de
-  // datos que si están en el data set
+  /// Returns the set of correlations whose target name is
+  /// `name`. That is, those correlations computing `name`
   DynList<const Correlation*>
   correlations(size_t seti, const string & name) const
   {
@@ -1066,11 +1167,6 @@ public:
       filter([this, i = seti] (auto ptr)
 	     { return this->can_be_applied(i, ptr); });
     }
-
-  // TODO: luego función que calcule cuáles parámetros están ausentes
-
-  // TODO: luego funcione que calcule cuales correlaciones pueden
-  // calcular los datos ausentes con los datos del var_set y las constantes
 
 private:
 

@@ -121,11 +121,17 @@ public:
 	try
 	  {
 	    auto result = data.compute_mat(0, corr_ptr, check);
-	    ret.append(make_tuple(true, move(get<0>(result)),
-				  move(get<1>(result)), corr_ptr, ""));
+	    ret.append(make_tuple(true, move(get<1>(result)),
+				  move(get<2>(result)), corr_ptr, ""));
 	  }
 	catch (exception & e) { /* ignore it! */ }
       }
+
+    // cada calculo deben tener el mismo orden la muestra para que los y coincidan
+
+
+    //auto r2 = ::r2(
+    // TODO: calcular r2 y ordenar
 
     return ret;
   }
