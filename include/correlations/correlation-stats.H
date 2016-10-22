@@ -17,8 +17,9 @@ class CorrStat
 
   void compute_base()
   {
-    long double sum = y.foldl(0.0, [] (const auto & acu, const auto & yi)
+    long double sum = y.foldl(0.0, [this] (const auto & acu, const auto & yi)
 			      {
+				++n;
 				return acu + yi;
 			      });
     mean = sum/n;

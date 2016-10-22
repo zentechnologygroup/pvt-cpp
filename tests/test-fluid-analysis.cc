@@ -74,8 +74,8 @@ int main(int argc, char *argv[])
 
   rs_best.for_each([] (auto t)
     {
-      cout << get<2>(t)->name << ":";
-      get<1>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
+      cout << get<3>(t)->name << " r2 = " << get<2>(t) << endl;
+      //get<1>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
     });
 
   return 0;
