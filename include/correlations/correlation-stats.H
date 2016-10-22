@@ -2,6 +2,7 @@
 # ifndef CORRELATION_STATS_H
 # define CORRELATION_STATS_H 1
 
+# include <ah-zip.H>
 # include "correlation.H"
 
 class CorrStat
@@ -10,17 +11,11 @@ class CorrStat
   double var;
   size_t n = 0;
 
-  // considerar cambiar a pars_values; total siempre se generará la misma perm
-  const DynList<DynList<double>> samples;
   const DynList<double> y;
 
   long double ss_tot = 0;
 
-public:
-
-  // each sample contains a row of parameters plus the value
-  CorrStat(const DynList<DynList<double>> & samples, const DynList<double> & y)
-    : samples(samples), y(y)
+  void compute_base()
   {
     long double sum = y.foldl(0.0, [] (const auto & acu, const auto & yi)
 			      {
@@ -38,37 +33,21 @@ public:
     ss_tot = sum2;
   }
 
-  CorrStat(const DynList<double> & y)
+public:
+
+  // each sample contains a row of parameters plus the value
+  CorrStat(const DynList<double> & y) : y(y) { compute_base(); }
+
+  CorrStat(DynList<double> && y) : y(move(y)) { compute_base(); }
+
+  double r2(const DynList<double> & yc)
   {
-    long double sum = 0;
-    for (auto it = y.get_it(); it.has_curr(); it.next(), ++n)
-      sum += it.get_curr();
-    mean = sum/n;
-
-    long double sum2 = 0;
-    for (auto it = y.get_it(); it.has_curr(); it.next())
-      {
-	const double diff = it.get_curr() - mean;
-	sum2 += diff*diff;
-      }
-    var = sum2/n;
-    ss_tot = sum2;
-  }
-
-  double r2(const Correlation * correlation)
-  {
-    if (samples.is_empty())
-      throw domain_error("CorrStat::r2: stat object was built without samples");
-
     long double ss_res = 0;
-    const size_t num_pars = correlation->get_num_pars();
 
-    for (auto it = samples.get_it(); it.has_curr(); it.next())
+    for (auto it = get_zip_it(y, yc); it.has_curr(); it.next())
       {
-	const auto & row = it.get_curr();
-	const double & y_i = row.get_last();
-	const double f_i = correlation->compute(row.take(num_pars));
-	const double diff = y_i - f_i;
+	const auto & t = it.get_curr();
+	const double diff = get<0>(t) - get<1>(t);
 	ss_res += diff*diff;
       }
 
@@ -76,13 +55,6 @@ public:
   }
 };
 
-inline double r2(const Correlation * correlation_ptr,
-		 DynList<DynList<double>> & samples,
-		 const DynList<double> & y)
-{
-  CorrStat stat(samples, y);
-  return stat.r2(correlation_ptr);
-}
 		 
 
 # endif // CORRELATION_STATS_H

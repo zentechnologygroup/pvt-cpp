@@ -94,12 +94,12 @@ int main()
     }
 
   auto mat = e.compute_mat("Uob", rs_ptr, false); 
-  auto smat = get<0>(mat).maps<DynList<string>>([] (const auto & row)
+  auto smat = get<1>(mat).maps<DynList<string>>([] (const auto & row)
     {
       return row.template maps<string>([] (auto v) { return to_string(v); });
     });
   zip_for_each([] (auto t) { get<0>(t).append(to_string(get<1>(t))); },
-	       smat, get<1>(mat));
+	       smat, get<2>(mat));
   // smat.mutable_for_each([y = get<1>(mat)] (auto & row)
   // 			{ row.append(to_string(
 
