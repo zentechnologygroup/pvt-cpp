@@ -121,6 +121,7 @@ public:
 	try
 	  {
 	    auto result = data.compute_mat(0, corr_ptr, check);
+	    auto & samples = get<0>(result);
 	    ret.append(make_tuple(true, move(get<0>(result)),
 				  move(get<1>(result)), corr_ptr, ""));
 	  }
