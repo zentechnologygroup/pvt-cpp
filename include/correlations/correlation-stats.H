@@ -7,6 +7,7 @@
 # include <gsl/gsl_statistics_double.h>
 
 # include <ah-zip.H>
+# include <tpl_array.H>
 
 # include "correlation.H"
 
@@ -20,33 +21,9 @@ class CorrStat
 
   long double ss_tot = 0;
 
-  void compute_base()
-  {
-    long double sum = y.foldl(0.0, [this] (const auto & acu, const auto & yi)
-			      {
-				++n;
-				return acu + yi;
-			      });
-    mean = sum/n;
-
-    long double sum2 =
-      y.foldl(0.0, [m = mean] (const auto & acu, const auto & yi)
-	      {
-		const double diff = yi - m;
-		return acu + diff*diff;
-	      });
-    var = sum2/n;
-    ss_tot = sum2;
-  }
-
 public:
 
-  // each sample contains a row of parameters plus the value
-  CorrStat(const Array<double> & y) : y(y) { compute_base(); }
-
-  CorrStat(Array<double> && y) : y(move(y)) { compute_base(); }
-
-  double r2(const Array<double> & yc)
+  double r2(const Array<double> & yc) const
   {
     auto pearson_corr = gsl_stats_correlation(&y.base(), 1,
 					      &yc.base(), 1, y.size());
@@ -81,11 +58,64 @@ public:
       {
 	auto t = it.get_curr();
 	auto diff = get<0>(t) - get<1>(t);
-	sum += diff;
+	cout << "diff = " << get<0>(t) << " - " << get<1>(t) << " " << diff << endl;
+	sum += diff*diff;
       }
-    
+
+    cout << "sqrt(sum/" << n << ") = " <<  sqrt(sum/n) << endl;
+
     return sqrt(sum/n);
   }
+
+  typedef double (CorrStat::*Statistical)(const Array<double>&) const;
+
+  Array<pair<string, Statistical>> statisticals;
+
+  void set_statistical(const string & name, Statistical statistical)
+  {
+    statisticals.append(make_pair(name, statistical));
+  }
+
+  Statistical statistical(const string & name) const
+  {
+    auto ptr = statisticals.find_ptr([&name] (const auto & p)
+				     { return p.first == name; });
+    if (ptr)
+      return ptr->second;
+
+    ostringstream s;
+    s << "CorrStat::statistical(" << name << ") : statistica name not found";
+    throw domain_error(s.str());
+  }
+
+  void compute_base()
+  {
+    cout << "y =";
+    y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    set_statistical("r2", &CorrStat::r2);
+    set_statistical("mse", &CorrStat::mse);
+    set_statistical("sigma_distance", &CorrStat::sigma_distance);
+    long double sum = y.foldl(0.0, [this] (const auto & acu, const auto & yi)
+			      {
+				++n;
+				return acu + yi;
+			      });
+    mean = sum/n;
+
+    long double sum2 =
+      y.foldl(0.0, [m = mean] (const auto & acu, const auto & yi)
+	      {
+		const double diff = yi - m;
+		return acu + diff*diff;
+	      });
+    var = sum2/n;
+    ss_tot = sum2;
+  }
+
+  // each sample contains a row of parameters plus the value
+  CorrStat(const Array<double> & y) : y(y) { compute_base(); }
+
+  CorrStat(Array<double> && y) : y(move(y)) { compute_base(); }
 };
 
 		 

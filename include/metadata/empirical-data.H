@@ -339,35 +339,35 @@ struct EmpiricalData
   }
 
   // return a list of stored values for the symbol name
-  Array<double> values(const string & name) const
-  {
-    for (size_t i = 0; i < const_names.size(); ++i)
-      if (const_names(i) == name)
-	{
-	  Array<double> ret;
-	  ret.append(const_vals(i));
-	  return ret;
-	}
+  // Array<double> values(const string & name) const
+  // {
+  //   for (size_t i = 0; i < const_names.size(); ++i)
+  //     if (const_names(i) == name)
+  // 	{
+  // 	  Array<double> ret;
+  // 	  ret.append(const_vals(i));
+  // 	  return ret;
+  // 	}
 
-    for (size_t k = 0; k < var_sets.size(); ++k)
-      {
-	const auto & var_set = var_sets(k);
-	const auto & var_names = var_set.var_names;
-	for (size_t i = 0; i < var_names.size(); ++i)
-	  if (var_names(i) == name)
-	    {
-	      Array<double> ret(var_set.num_samples);
-	      const auto & samples = var_set.samples;
-	      const auto & num_samples = var_set.num_samples;
-	      for (size_t j = 0; j < num_samples; ++j)
-		ret.append(samples(i)(j));
+  //   for (size_t k = 0; k < var_sets.size(); ++k)
+  //     {
+  // 	const auto & var_set = var_sets(k);
+  // 	const auto & var_names = var_set.var_names;
+  // 	for (size_t i = 0; i < var_names.size(); ++i)
+  // 	  if (var_names(i) == name)
+  // 	    {
+  // 	      Array<double> ret(var_set.num_samples);
+  // 	      const auto & samples = var_set.samples;
+  // 	      const auto & num_samples = var_set.num_samples;
+  // 	      for (size_t j = 0; j < num_samples; ++j)
+  // 		ret.append(samples(i)(j));
 
-	      return ret;
-	    }
-	}
+  // 	      return ret;
+  // 	    }
+  // 	}
 
-    return Array<double>();
-  }
+  //   return Array<double>();
+  // }
 
   // return a list of stored values for the symbol name
   Array<double> values(size_t set_idx, const string & name) const

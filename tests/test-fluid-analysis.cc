@@ -1,4 +1,5 @@
 
+# include <tuple>
 # include <iostream>
 
 # include <tclap/CmdLine.h>
@@ -70,16 +71,46 @@ int main(int argc, char *argv[])
   auto rs_v = pvt.rs_valid_correlations();
   //.for_each([] (auto p) { cout << *p << endl; });
 
-  auto rs_best = pvt.best_rs_correlations();
+  auto cmp = [] (const PvtAnalyzer::VarCorrStatus & s1,
+		 const PvtAnalyzer::VarCorrStatus & s2)
+    {
+      return get<3>(s1)->name < get<3>(s2)->name;
+    };
+
+  auto rs_best_sigma = sort(pvt.best_rs_correlations("sigma_distance"), cmp);
+  auto rs_best_r2 = sort(pvt.best_rs_correlations("r2"), cmp);
+  auto rs_best_mse = sort(pvt.best_rs_correlations("mse"), cmp);
 
   cout << Rvector("rs", pvt.get_data().values(0, "rs")) << endl;
 
-  rs_best.for_each([] (auto t)
+  auto best = t_zip(rs_best_r2, rs_best_mse, rs_best_sigma).
+    maps<tuple<const Correlation *, double, double, double>>([] (auto t)
     {
-      cout << Rvector(get<4>(t)->name, get<1>(t)) << endl
-	   << "  r2    = " << get<2>(t) << endl
-	   << "  Sigma = " << get<3>(t) << endl;
+      return make_tuple(get<3>(get<0>(t)), get<2>(get<0>(t)),
+			get<2>(get<1>(t)), get<2>(get<2>(t)));
     });
+
+  rs_best_mse.for_each([] (auto t)
+    {
+      cout << Rvector(get<3>(t)->name, get<1>(t)) << endl;
+    });
+
+  
+  auto best_list = best.maps<DynList<string>>([] (auto t)
+    {
+      return DynList<string>({ get<0>(t)->name, to_string(get<1>(t)),
+	    to_string(get<2>(t)), to_string(get<3>(t)) });
+    });
+  best_list.insert({"Correlation", "r2", "mse", "sigma"});
+    
+  cout << endl
+       << to_string(format_string(best_list)) << endl;
+  
+  // best.for_each([] (auto t)
+  // 	     {
+  // 	       cout << get<0>(t)->name << " " << get<1>(t) << " "
+  // 		    << get<2>(t) << " " << get<3>(t) << endl;
+  // 	     });
 
   cout << endl;
 

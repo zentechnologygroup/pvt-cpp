@@ -89,14 +89,16 @@ public:
   }
 
   using VarCorrStatus =
-    //   ok      y                r2     sigma, correlation,  message if not ok
-    tuple<bool, DynList<double>, double, double, const Correlation*, string>;
+    //   ok      y              statistical, correlation,  message if not ok
+    tuple<bool, DynList<double>, double, const Correlation*, string>;
 
-  DynList<VarCorrStatus> best_rs_correlations(bool check = true) const
+  DynList<VarCorrStatus> best_rs_correlations(const string & name,
+					      bool check = true) const
   {
     // como asegurar que el orden de las y sea el mismo tanto para en
     // data set como las correlaciones? R: ordenar por 
-    CorrStat stat(data.values("rs"));
+    CorrStat stat(data.values(0, "rs"));
+    auto statistical = stat.statistical(name);
 
     auto rs_correlations = rs_valid_correlations();
     DynList<VarCorrStatus> ret;
@@ -106,9 +108,8 @@ public:
 	try
 	  {
 	    auto result = data.compute(0, corr_ptr, check);
-	    auto r2 = stat.r2(result);
-	    auto sigma = stat.sigma_error(result);
-	    ret.append(make_tuple(true, move(result), r2, sigma, corr_ptr, ""));
+	    auto s = (stat.*statistical)(result);
+	    ret.append(make_tuple(true, move(result), s, corr_ptr, ""));
 	  }
 	catch (exception & e) { /* ignore it! */ }
       }
