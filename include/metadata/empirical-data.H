@@ -6,6 +6,7 @@
 
 # include <parse-csv.H>
 # include <ah-string-utils.H>
+# include <ah-convert.H>
 # include <ahSort.H>
 # include <ah-comb.H>
 # include <ah-zip.H>
@@ -47,7 +48,7 @@ struct EmpiricalData
     Array<Array<double>> samples; // must have the same number of
                                   // columns than var_names
 
-    DynList<double> values(const string & name) const
+    Array<double> values(const string & name) const
     {
       auto i = var_names.find_index([&name] (const auto & n)
 				    { return name == n; });
@@ -59,7 +60,7 @@ struct EmpiricalData
 	  throw domain_error(s.str());
 	}
 
-      DynList<double> ret;
+      Array<double> ret(var_names.size());
       for (size_t j = 0; j < num_samples; ++j)
 	ret.append(samples(j)(i));
 
@@ -338,13 +339,12 @@ struct EmpiricalData
   }
 
   // return a list of stored values for the symbol name
-  DynList<double> values(const string & name) const
+  Array<double> values(const string & name) const
   {
-    DynList<double> ret;
-
     for (size_t i = 0; i < const_names.size(); ++i)
       if (const_names(i) == name)
 	{
+	  Array<double> ret;
 	  ret.append(const_vals(i));
 	  return ret;
 	}
@@ -356,6 +356,7 @@ struct EmpiricalData
 	for (size_t i = 0; i < var_names.size(); ++i)
 	  if (var_names(i) == name)
 	    {
+	      Array<double> ret(var_set.num_samples);
 	      const auto & samples = var_set.samples;
 	      const auto & num_samples = var_set.num_samples;
 	      for (size_t j = 0; j < num_samples; ++j)
@@ -365,17 +366,16 @@ struct EmpiricalData
 	    }
 	}
 
-    return ret;
+    return Array<double>();
   }
 
   // return a list of stored values for the symbol name
-  DynList<double> values(size_t set_idx, const string & name) const
+  Array<double> values(size_t set_idx, const string & name) const
   {
-    DynList<double> ret;
-
     for (size_t i = 0; i < const_names.size(); ++i)
       if (const_names(i) == name)
 	{
+	  DynList<double> ret;
 	  ret.append(const_vals(i));
 	  return ret;
 	}
@@ -385,12 +385,13 @@ struct EmpiricalData
     for (size_t i = 0; i < var_names.size(); ++i)
       if (var_names(i) == name)
 	{
+	  Array<double> ret(var_set.num_samples);
 	  for (size_t j = 0; j < var_set.num_samples; ++j)
 	    ret.append(var_set.samples(j)(i));
 	  return ret;
 	}
 
-    return ret;
+    return Array<double>();
   }
 
   string to_string() const
@@ -806,7 +807,7 @@ public:
 	 it.next())
       {
 	auto par = it.get_curr();
-	DynList<double> vals = values(seti, par.name); // values of data set
+	DynList<double> vals = to_DynList(values(seti, par.name));
 	if (not vals.is_empty())
 	  {
 	    ret.append(vals);
@@ -821,8 +822,8 @@ public:
 	{
 	  auto syn = it_syn.get_curr();
 	  const auto & syn_name = syn.first;
-	  vals = values(seti, syn_name); // verify if there are values
-					 // in data set 
+	  vals = to_DynList(values(seti, syn_name)); // verify if there are values
+	                                             // in data set 
 	  if (not vals.is_empty())
 	    { // a synomym was found for par_name in the
 	      // correlation. Now we convert the values to the synonym unit

@@ -3,7 +3,11 @@
 # define CORRELATION_STATS_H 1
 
 # include <cmath>
+
+# include <gsl/gsl_statistics_double.h>
+
 # include <ah-zip.H>
+
 # include "correlation.H"
 
 class CorrStat
@@ -12,7 +16,7 @@ class CorrStat
   double var;
   size_t n = 0;
 
-  const DynList<double> y;
+  const Array<double> y;
 
   long double ss_tot = 0;
 
@@ -38,28 +42,21 @@ class CorrStat
 public:
 
   // each sample contains a row of parameters plus the value
-  CorrStat(const DynList<double> & y) : y(y) { compute_base(); }
+  CorrStat(const Array<double> & y) : y(y) { compute_base(); }
 
-  CorrStat(DynList<double> && y) : y(move(y)) { compute_base(); }
+  CorrStat(Array<double> && y) : y(move(y)) { compute_base(); }
 
-  double r2(const DynList<double> & yc)
+  double r2(const Array<double> & yc)
   {
-    long double ss_res = 0;
-
-    for (auto it = get_zip_it(y, yc); it.has_curr(); it.next())
-      {
-	const auto & t = it.get_curr();
-	const double diff = get<0>(t) - get<1>(t);
-	ss_res += diff*diff;
-      }
-
-    return 1 - ss_res/ss_tot;
+    auto pearson_corr = gsl_stats_correlation(&y.base(), 1,
+					      &yc.base(), 1, y.size());
+    return pearson_corr*pearson_corr;
   }
 
-  double sigma_error(const DynList<double> & yc) const
+  double sigma_distance(const Array<double> & yc) const
   {
     double sum = 0;
-    DynList<double> error;
+    Array<double> error;
     for (auto it = get_zip_it(y, yc); it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
@@ -75,6 +72,19 @@ public:
 				   }) / n;
 
     return sqrt(var);
+  }
+
+  double mse(const Array<double> & yc) const
+  {
+    double sum = 0;
+    for (auto it = get_zip_it(y, yc); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	auto diff = get<0>(t) - get<1>(t);
+	sum += diff;
+      }
+    
+    return sqrt(sum/n);
   }
 };
 

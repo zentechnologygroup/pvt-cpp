@@ -5,7 +5,12 @@
 # include <memory>
 # include <cxxabi.h>
 # include <string>
+# include <sstream>
 # include <typeinfo>
+
+# include <ah-convert.H>
+# include <htlist.H>
+# include <tpl_array.H>
 
 inline std::string demangle(const char* name)
 {
@@ -15,5 +20,27 @@ inline std::string demangle(const char* name)
     { abi::__cxa_demangle(name, NULL, NULL, &status), std::free };
   return (status==0) ? res.get() : name ;
 }
+
+inline std::string Rvector(const std::string & name, const DynList<double> & l)
+{
+  std::ostringstream s;
+  s << name << " <- c(";
+  for (auto it = l.get_it(); it.has_curr(); it.next())
+    {
+      const auto & v = it.get_curr();
+      s << v;
+      if (&v != &l.get_last())
+	s << ", ";
+    }
+  s << ")";
+
+  return s.str();
+}
+
+inline std::string Rvector(const std::string & name, const Array<double> & a)
+{
+  return Rvector(name, to_DynList(a));
+}
+  
 
 # endif // UTILS_H

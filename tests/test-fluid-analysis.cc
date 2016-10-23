@@ -72,19 +72,17 @@ int main(int argc, char *argv[])
 
   auto rs_best = pvt.best_rs_correlations();
 
-  cout << "rs =";
-  pvt.get_data().values(0, "rs").for_each([] (auto v) { cout << " " << v; });
-  cout << endl;
+  cout << Rvector("rs", pvt.get_data().values(0, "rs")) << endl;
 
   rs_best.for_each([] (auto t)
     {
-      cout << get<3>(t)->name << " sigma = " << get<2>(t) << " | ";
-      get<1>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
+      cout << Rvector(get<4>(t)->name, get<1>(t)) << endl
+	   << "  r2    = " << get<2>(t) << endl
+	   << "  Sigma = " << get<3>(t) << endl;
     });
 
-  return 0;
+  cout << endl;
 
-  
 }
 
 

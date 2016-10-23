@@ -77,3 +77,6 @@
 ## 25. usar más estadísticos
 - Created at   2016-10-22 19:59:38 -0400
 
+## 26. eliminar uso de gsl para versiones standalone por ser de licencia gpl
+- Created at   2016-10-23 10:22:32 -0400
+

@@ -89,8 +89,8 @@ public:
   }
 
   using VarCorrStatus =
-    //   ok      y                r2     correlation,  message if not ok
-    tuple<bool, DynList<double>, double, const Correlation*, string>;
+    //   ok      y                r2     sigma, correlation,  message if not ok
+    tuple<bool, DynList<double>, double, double, const Correlation*, string>;
 
   DynList<VarCorrStatus> best_rs_correlations(bool check = true) const
   {
@@ -106,13 +106,14 @@ public:
 	try
 	  {
 	    auto result = data.compute(0, corr_ptr, check);
-	    auto r2 = stat.sigma_error(result);
-	    ret.append(make_tuple(true, move(result), r2, corr_ptr, ""));
+	    auto r2 = stat.r2(result);
+	    auto sigma = stat.sigma_error(result);
+	    ret.append(make_tuple(true, move(result), r2, sigma, corr_ptr, ""));
 	  }
 	catch (exception & e) { /* ignore it! */ }
       }
 
-    return sort(ret, [] (auto t1, auto t2) { return get<2>(t1) < get<2>(t2); });
+    return sort(ret, [] (auto t1, auto t2) { return get<3>(t1) < get<3>(t2); });
   }
 
   PvtAnalyzer() {}
