@@ -74,3 +74,6 @@
 ## 24. conversion unidad uno a uno
 - Created at   2016-10-21 16:58:32 -0400
 
+## 25. usar más estadísticos
+- Created at   2016-10-22 19:59:38 -0400
+
