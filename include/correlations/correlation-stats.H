@@ -2,6 +2,7 @@
 # ifndef CORRELATION_STATS_H
 # define CORRELATION_STATS_H 1
 
+# include <cmath>
 # include <ah-zip.H>
 # include "correlation.H"
 
@@ -53,6 +54,27 @@ public:
       }
 
     return 1 - ss_res/ss_tot;
+  }
+
+  double sigma_error(const DynList<double> & yc) const
+  {
+    double sum = 0;
+    DynList<double> error;
+    for (auto it = get_zip_it(y, yc); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	auto e = fabs(get<0>(t) - get<1>(t));
+	error.append(e);
+	sum += e;
+      }
+
+    auto var = error.foldl<double>(0.0, [ym = sum/n] (auto acu, auto y)
+				   {
+				     double diff = y - ym;
+				     return acu + diff*diff;
+				   }) / n;
+
+    return sqrt(var);
   }
 };
 

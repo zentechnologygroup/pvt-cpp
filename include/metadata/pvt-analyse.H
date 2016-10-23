@@ -106,7 +106,7 @@ public:
 	try
 	  {
 	    auto result = data.compute(0, corr_ptr, check);
-	    auto r2 = stat.r2(result);
+	    auto r2 = stat.sigma_error(result);
 	    ret.append(make_tuple(true, move(result), r2, corr_ptr, ""));
 	  }
 	catch (exception & e) { /* ignore it! */ }

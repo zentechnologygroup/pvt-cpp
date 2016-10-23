@@ -72,10 +72,14 @@ int main(int argc, char *argv[])
 
   auto rs_best = pvt.best_rs_correlations();
 
+  cout << "rs =";
+  pvt.get_data().values(0, "rs").for_each([] (auto v) { cout << " " << v; });
+  cout << endl;
+
   rs_best.for_each([] (auto t)
     {
-      cout << get<3>(t)->name << " r2 = " << get<2>(t) << endl;
-      //get<1>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
+      cout << get<3>(t)->name << " sigma = " << get<2>(t) << " | ";
+      get<1>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
     });
 
   return 0;
