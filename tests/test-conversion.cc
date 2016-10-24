@@ -17,7 +17,12 @@ void test(int argc, char *argv[])
   MultiArg<string> unit_desc = { "U", "Unit-symbol", "describe unit",
 				 false, &allowed, cmd };
 
-  ValueArg<double> sample("s", "sample", "sample", false, 0, "sample", cmd);
+  ValueArg<double> sample = {"s", "sample", "sample", false, 0, "sample", cmd};
+
+  ValueArg<string> source = {"S", "source-unit", "source unit", false,
+			     "", "source unit", cmd};
+  ValueArg<string> target = {"T", "target-unit", "target unit", false,
+			     "", "target unit", cmd};
 
   SwitchArg v("v", "verbose", "verbose mode", cmd, false);
 
@@ -38,6 +43,34 @@ void test(int argc, char *argv[])
       for (const auto & s : unit_desc.getValue())
 	cout << Unit::search_by_symbol(s)->to_string(50, 2) << endl
 	     << endl;
+      exit(0);
+    }
+
+  if (source.isSet() and target.isSet())
+    {
+      auto src_ptr = Unit::search_by_symbol(source.getValue());
+      if (src_ptr == nullptr)
+	{
+	  cout << "Source unit symbol " << source.getValue()
+	       << " not found" << endl;
+	  abort();
+	}
+      auto tgt_ptr = Unit::search_by_symbol(target.getValue());
+      if (tgt_ptr == nullptr)
+	{
+	  cout << "Target unit symbol " << target.getValue()
+	       << " not found" << endl;
+	  abort();
+	}
+      // if (not exist_conversion(*src_ptr, *tgt_ptr))
+      // 	{
+      // 	  cout << "Conversion from " << source.getValue() << " to "
+      // 	       << target.getValue() << " not found" << endl;
+      // 	  abort();
+      // 	}
+
+      VtlQuantity val(*src_ptr, sample.getValue());
+      cout << VtlQuantity(*tgt_ptr, val).raw() << endl;
       exit(0);
     }
 
