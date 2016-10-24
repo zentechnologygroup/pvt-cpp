@@ -88,7 +88,7 @@ inline Quantity<psia>
 PbDoklaOsman::impl(const Quantity<Sgg> & yg,
 		   const Quantity<SCF_STB> & rsb,
 		   const Quantity<Sg_do> & yo,
-		   const Quantity<Fahrenheit> & t) const
+		   const Quantity<Rankine> & t) const
 {
   const double pb = 8363.86 * pow(yg, -1.01049) * pow(yo, 0.107991) *
       pow(t, -0.952584) * pow(rsb, 0.724047);

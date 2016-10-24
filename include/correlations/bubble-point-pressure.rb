@@ -235,7 +235,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("PbGlaso", "BubblePointPressure", "psia", "Quantity<psig>(150)", "Quantity<psig>(7127)")
+begin_correlation("PbGlaso", "BubblePointPressure", "psia", 135.304, 7112.3)
 add_title("GLASO CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.650,  1.276)
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  90,  2637)

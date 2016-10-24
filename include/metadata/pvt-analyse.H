@@ -117,6 +117,39 @@ public:
     return sort(ret, [] (auto t1, auto t2) { return get<3>(t1) < get<3>(t2); });
   }
 
+  using VarCorrFit =
+    //   ok      y              statistical, correlation,  message if not ok
+    tuple<bool, DynList<double>, double, const Correlation*, string,
+	  CorrStat::LinearRegression>;
+  
+  DynList<VarCorrFit> rs_correlations_fits(const string & name,
+					   bool check = true) const
+  {
+    // como asegurar que el orden de las y sea el mismo tanto para en
+    // data set como las correlaciones? R: ordenar por 
+    CorrStat stat(data.values(0, "rs"));
+    auto statistical = stat.statistical(name);
+
+    auto rs_correlations = rs_valid_correlations();
+    DynList<VarCorrFit> ret;
+    for (auto it = rs_correlations.get_it(); it.has_curr(); it.next())
+      {
+	auto corr_ptr = it.get_curr();
+	try
+	  {
+	    auto result = data.compute(0, corr_ptr, check);
+	    auto s = (stat.*statistical)(result);
+	    auto fit = stat.linear_fit(result);
+	    ret.append(make_tuple(true, move(result), s, corr_ptr, "", fit));
+	  }
+	catch (exception & e) { /* ignore it! */ }
+      }
+
+    return sort(ret, [] (auto t1, auto t2) { return get<3>(t1) < get<3>(t2); });
+  }
+
+  //CorrStat::LinearRegression linear_fit(
+
   string to_R(const Array<double> & lab_data,
 	      const DynList<VarCorrStatus> & l) const
   {

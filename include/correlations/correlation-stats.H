@@ -5,6 +5,7 @@
 # include <cmath>
 
 # include <gsl/gsl_statistics_double.h>
+# include <gsl/gsl_fit.h>
 
 # include <ah-zip.H>
 # include <tpl_array.H>
@@ -110,6 +111,38 @@ public:
 	      });
     var = sum2/n;
     ss_tot = sum2;
+  }
+
+  struct LinearRegression
+  {
+    double c = 0;
+    double m = 0;
+    double cov00 = 0;
+    double cov01 = 0;
+    double cov11 = 0;
+    double sumsq = 0;
+
+    LinearRegression(const Array<double> & y, const Array<double> & yc)
+    {
+      gsl_fit_linear(&y.base(), 1, &yc.base(), 1, y.size(), &c, &m,
+		     &cov00, &cov01, &cov11, &sumsq);
+    }
+
+    string to_string() const
+    {
+      ostringstream s;
+      s << "Line y = " << c << " + " << m << " x" << endl
+	<< "cov00 = " << cov00 << endl
+	<< "cov01 = " << cov01 << endl
+	<< "cov11 = " << cov11 << endl
+	<< "sumsq = " << sumsq;
+      return s.str();
+    }
+  };
+
+  LinearRegression linear_fit(const Array<double> & yc) const
+  {
+    return LinearRegression(y, yc);
   }
 
   // each sample contains a row of parameters plus the value

@@ -80,3 +80,6 @@
 ## 26. eliminar uso de gsl para versiones standalone por ser de licencia gpl
 - Created at   2016-10-23 10:22:32 -0400
 
+## 27. Retorno de correlation debe poder especificarse en otras unidades
+- Created at   2016-10-24 17:27:15 -0400
+
