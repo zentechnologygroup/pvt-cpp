@@ -21,7 +21,8 @@ inline std::string demangle(const char* name)
   return (status==0) ? res.get() : name ;
 }
 
-inline std::string Rvector(const std::string & name, const DynList<double> & l)
+template <typename T>
+inline std::string Rvector(const std::string & name, const DynList<T> & l)
 {
   std::ostringstream s;
   s << name << " <- c(";
@@ -41,6 +42,8 @@ inline std::string Rvector(const std::string & name, const Array<double> & a)
 {
   return Rvector(name, to_DynList(a));
 }
+
+
   
 
 # endif // UTILS_H

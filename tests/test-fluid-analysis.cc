@@ -6,6 +6,8 @@
 
 # include <metadata/pvt-analyse.H>
 
+
+
 using namespace std;
 using namespace TCLAP;
 
@@ -112,7 +114,7 @@ int main(int argc, char *argv[])
   // 		    << get<2>(t) << " " << get<3>(t) << endl;
   // 	     });
 
-  cout << endl;
+  cout << pvt.to_R(pvt.get_data().values(0, "rs"), rs_best_mse);
 
 }
 
