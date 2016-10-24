@@ -116,16 +116,18 @@ int main(int argc, char *argv[])
 
   cout << pvt.to_R(pvt.get_data().values(0, "rs"), rs_best_mse);
 
-  auto best_fits = pvt.rs_correlations_fits("rs");
+  auto best_fits = pvt.rs_correlations_fits("mse");
 
   auto best_fits_l = best_fits.maps<DynList<string>>([] (auto t)
     {
-      return DynList<string>({ get<0>(t)->name, to_string(get<1>(t)),
-	    to_string(get<2>(t)), to_string(get<3>(t)) });
+      auto r = get<5>(t);
+      return DynList<string>({ get<3>(t)->name, to_string(get<2>(t)),
+	    to_string(r.c), to_string(r.m), to_string(r.sumsq) });
     });
-  best_list.insert({"Correlation", "r2", "mse", "sigma"});
+
+  best_list.insert({"Correlation", "mse", "c", "m", "sumsq"});
     
   cout << endl
-       << to_string(format_string(best_list)) << endl;
+       << to_string(format_string(best_fits_l)) << endl;
 
 }

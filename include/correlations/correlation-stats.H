@@ -122,6 +122,8 @@ public:
     double cov11 = 0;
     double sumsq = 0;
 
+    LinearRegression() noexcept {}
+
     LinearRegression(const Array<double> & y, const Array<double> & yc)
     {
       gsl_fit_linear(&y.base(), 1, &yc.base(), 1, y.size(), &c, &m,
