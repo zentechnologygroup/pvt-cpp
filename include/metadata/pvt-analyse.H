@@ -117,6 +117,32 @@ public:
     return sort(ret, [] (auto t1, auto t2) { return get<3>(t1) < get<3>(t2); });
   }
 
+  string to_R(const Array<double> & lab_data,
+	      const DynList<VarCorrStatus> & l) const
+  {
+    using P = pair<string, Array<double>>;
+    ostringstream s;
+
+    const string & name = get<3>(l.get_first())->target_name();
+
+    s << Rvector(name, lab_data) << endl;
+
+    DynList<P> corrs =
+      l.maps<P>([] (auto t) { return make_pair(get<3>(t)->name, get<1>(t)); });
+
+    corrs.for_each([&s] (auto p) { cout << Rvector(p.first, p.second) << endl; });
+    
+    s << "plot(" << name << ", type=\"l\")" << endl;
+
+    auto colnames = corrs.maps<string>([] (auto p)
+				       { return "\"" + p.first + "\""; });
+    colnames.insert("\"" + name + "\"");
+
+    s << Rvector("cnames", colnames) << endl;
+
+    return s.str();
+  }
+
   PvtAnalyzer() {}
 
   PvtAnalyzer(istream & input)
