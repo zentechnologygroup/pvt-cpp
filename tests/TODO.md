@@ -83,3 +83,7 @@
 ## 27. Retorno de correlation debe poder especificarse en otras unidades
 - Created at   2016-10-24 17:27:15 -0400
 
+## 28. pvt-analisis debede mar nombre de unidad
+- Created at    no su símbolo
+- Completed at 2016-10-24 19:20:36 -0400
+

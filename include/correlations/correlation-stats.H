@@ -59,11 +59,8 @@ public:
       {
 	auto t = it.get_curr();
 	auto diff = get<0>(t) - get<1>(t);
-	cout << "diff = " << get<0>(t) << " - " << get<1>(t) << " " << diff << endl;
 	sum += diff*diff;
       }
-
-    cout << "sqrt(sum/" << n << ") = " <<  sqrt(sum/n) << endl;
 
     return sqrt(sum/n);
   }
@@ -91,8 +88,6 @@ public:
 
   void compute_base()
   {
-    cout << "y =";
-    y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
     set_statistical("r2", &CorrStat::r2);
     set_statistical("mse", &CorrStat::mse);
     set_statistical("sigma_distance", &CorrStat::sigma_distance);

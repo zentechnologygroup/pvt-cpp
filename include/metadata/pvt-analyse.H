@@ -163,8 +163,6 @@ public:
     DynList<P> corrs =
       l.maps<P>([] (auto t) { return make_pair(get<3>(t)->name, get<1>(t)); });
 
-    corrs.for_each([&s] (auto p) { cout << Rvector(p.first, p.second) << endl; });
-    
     auto colnames = corrs.maps<string>([] (auto p)
 				       { return "\"" + p.first + "\""; });
     colnames.insert("\"" + name + "\"");

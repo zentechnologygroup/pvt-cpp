@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 	    to_string(r.c), to_string(r.m), to_string(r.sumsq) });
     });
 
-  best_list.insert({"Correlation", "mse", "c", "m", "sumsq"});
+  best_fits_l.insert({"Correlation", "mse", "c", "m", "sumsq"});
     
   cout << endl
        << to_string(format_string(best_fits_l)) << endl;
