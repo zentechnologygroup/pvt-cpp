@@ -132,13 +132,24 @@ public:
 
     corrs.for_each([&s] (auto p) { cout << Rvector(p.first, p.second) << endl; });
     
-    s << "plot(" << name << ", type=\"l\")" << endl;
-
     auto colnames = corrs.maps<string>([] (auto p)
 				       { return "\"" + p.first + "\""; });
     colnames.insert("\"" + name + "\"");
 
     s << Rvector("cnames", colnames) << endl;
+
+    s << "plot(" << name << ", type=\"l\")" << endl;
+
+    size_t col = 2;
+    corrs.for_each([&s, &col] (auto p)
+      {
+	s << "lines(" << p.first << ",lty=" << col << ", col=" << col++ << ")"
+	  << endl;
+      });
+
+    s << Rvector("nums", range<int>(1, corrs.size() + 1)) << endl;
+
+    s << "legend(\"topleft\", legend=cnames, lty=nums, col=nums)" << endl;
 
     return s.str();
   }
