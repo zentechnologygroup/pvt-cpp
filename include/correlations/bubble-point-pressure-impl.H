@@ -148,14 +148,14 @@ PbKartoatmodjoSchmidt::impl(const Quantity<Sgg> & yg,
 inline Quantity<psia>
 PbLasater::impl(const Quantity<Sgg> & yg,
 		const Quantity<SCF_STB> & rsb,
-		const Quantity<Api> & api,
+		const Quantity<Sg_do> & yo,
 		const Quantity<Fahrenheit> & t) const
 {
+  const Quantity<Api> api = yo;
+
       // effective molecular weight
   const double mo =
     api <= 40 ? 630 - (10*api.get_value()) : 73110 * pow(api, -1.562);
-
-  const Quantity<Sg_do> yo = api;
 
       // mol fraction of gas
   double pbfactor = 0;
