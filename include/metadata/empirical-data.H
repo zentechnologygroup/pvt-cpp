@@ -1081,11 +1081,35 @@ public:
     return ret;
   }
 
+  DynList<double> tuned_compute(size_t seti, const Correlation * correlation_ptr,
+				double c, double m,
+				bool check = true) const
+  {
+    auto vals = correlation_values(seti, correlation_ptr);
+
+    DynList<double> ret;
+
+    for_each_perm(vals, [&ret, correlation_ptr, check, c, m] (const auto & pars)
+      {
+	ret.append(correlation_ptr->tuned_compute(pars, c, m, check));
+      });
+    
+    return ret;
+  }
+
   DynList<double> compute(const string & set_name,
 			  const Correlation * correlation_ptr,
 			  bool check = true) const
   {
     return compute(set_index(set_name), correlation_ptr, check);
+  }
+
+  DynList<double> tuned_compute(const string & set_name,
+				const Correlation * correlation_ptr,
+				double c, double m,
+				bool check = true) const
+  {
+    return tuned_compute(set_index(set_name), correlation_ptr, c, m, check);
   }
 
   using CorrRow = tuple<DynList<double>, double>;

@@ -148,6 +148,12 @@ public:
     return LinearRegression(y, yc);
   }
 
+  struct LeastSqFit
+  {
+
+    
+  };
+
   // each sample contains a row of parameters plus the value
   CorrStat(const Array<double> & y) : y(y) { compute_base(); }
 
