@@ -216,12 +216,12 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbPerezML", "BubblePointPressure", "psia", 405, 1335)
-add_title("PEREZ ET AL. CORRELATION (MODIFIED TOTAL CFP CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE")
+add_title("PÉREZ, HENY & LAGO CORRELATION (MODIFIED TOTAL CFP CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.571,  0.981)
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  38,  121)
 add_parameter("api", "Api", "API oil gravity",  6.4,  12.9)
 add_parameter("t", "Fahrenheit", "Temperature",  112,  300)
-add_author("Pérez et al.")
+add_author("Pérez, Heny & Lago")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 10 2016.")
 end_correlation()
@@ -244,7 +244,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbManucciRosales", "BubblePointPressure", "psia", 1230, 5035)
-add_title("MANUCCI-ROSALES CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
+add_title("MANUCCI & ROSALES CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg",  "Sgg", "Gas specific gravity")
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  180,  2500)
 add_parameter("api", "Api", "API oil gravity",  14,  40)
