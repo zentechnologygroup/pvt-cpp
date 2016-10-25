@@ -121,7 +121,13 @@ public:
 
     LinearRegression(const Array<double> & y, const Array<double> & yc)
     {
-      gsl_fit_linear(&y.base(), 1, &yc.base(), 1, y.size(), &c, &m,
+      Array<double> residuals;
+      for (auto it = get_zip_it(y, yc); it.has_curr(); it.next())
+	{
+	  auto t = it.get_curr();
+	  residuals.append(get<1>(t) - get<0>(t));
+	}
+      gsl_fit_linear(&y.base(), 1, &residuals.base(), 1, y.size(), &c, &m,
 		     &cov00, &cov01, &cov11, &sumsq);
     }
 

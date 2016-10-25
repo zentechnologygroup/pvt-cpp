@@ -1212,7 +1212,7 @@ public:
       {
 	const_names.append(item["name"]);
 	const_vals.append(item["value"]);
-	const_units.append(Unit::search_by_symbol(item["unit"]));
+	const_units.append(search_unit(item["unit"]));
       }
 
     for (const auto & json_set : j["varsets"])

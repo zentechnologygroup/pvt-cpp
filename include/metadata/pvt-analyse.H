@@ -174,8 +174,8 @@ public:
     size_t col = 2;
     corrs.for_each([&s, &col] (auto p)
       {
-	s << "lines(" << p.first << ",lty=" << col << ", col=" << col++ << ")"
-	  << endl;
+	s << "lines(" << p.first << ",lwd=2,lty=" << col << ", col="
+	  << col++ << ")" << endl;
       });
 
     s << Rvector("nums", range<int>(1, corrs.size() + 1)) << endl;
