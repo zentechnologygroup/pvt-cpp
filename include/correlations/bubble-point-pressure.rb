@@ -201,7 +201,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbCegarra", "BubblePointPressure", "psia", 735, 7303)
-add_title("STANDING CORRELATION MODIFIED BY CEGARRA, CALCULATION OF BUBBLE POINT PRESSURE")
+add_title("CEGARRA CORRELATION (MODIFIED STANDING CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.654,  1.337)
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  135,  4290)
 add_parameter("api", "Api", "API oil gravity",  22,  41.9)
@@ -216,7 +216,7 @@ end_correlation()
 ################################################################
 
 begin_correlation("PbPerezML", "BubblePointPressure", "psia", 405, 1335)
-add_title("TOTAL CFP CORRELATION MODIFIED BY PEREZ ET AL., CALCULATION OF BUBBLE POINT PRESSURE")
+add_title("PEREZ ET AL. CORRELATION (MODIFIED TOTAL CFP CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.571,  0.981)
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  38,  121)
 add_parameter("api", "Api", "API oil gravity",  6.4,  12.9)
