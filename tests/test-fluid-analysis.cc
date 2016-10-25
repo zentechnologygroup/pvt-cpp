@@ -126,6 +126,16 @@ int main(int argc, char *argv[])
     });
 
   best_fits_l.insert({"Correlation", "mse", "c", "m", "sumsq"});
+
+  auto tuned = best_fits.maps<pair<string, DynList<double>>>([&pvt] (auto t)
+    {
+      auto r = get<5>(t);
+      auto ptr = get<3>(t);
+      auto values = pvt.get_data().tuned_compute(0, ptr, r.c, r.m);
+      return make_pair(ptr->name, move(values));
+    });
+
+  cout << pvt.to_R(tuned) << endl;
     
   cout << endl
        << to_string(format_string(best_fits_l)) << endl;

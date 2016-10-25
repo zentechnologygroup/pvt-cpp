@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     {
       cout << "cannot open " << json_file.getValue() << endl;
       return 0;
-    }w
+    }
 
   stringstream s;
   s << input.rdbuf();

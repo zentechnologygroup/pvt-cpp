@@ -175,12 +175,24 @@ public:
     corrs.for_each([&s, &col] (auto p)
       {
 	s << "lines(" << p.first << ",lwd=2,lty=" << col << ", col="
-	  << col++ << ")" << endl;
+	  << col << ")" << endl;
+	++col;
       });
 
     s << Rvector("nums", range<int>(1, corrs.size() + 1)) << endl;
 
     s << "legend(\"topleft\", legend=cnames, lty=nums, col=nums)" << endl;
+
+    return s.str();
+  }
+
+  string to_R(const DynList<pair<string, DynList<double>>> & l)
+  {
+    ostringstream s;
+    s << Rvector("cnames", l.maps<string>([] (auto p)
+					  { return "\"" + p.first + + "\""; }));
+    l.for_each([&s] (auto p)
+	       { s << Rvector("tuned_" + p.first, p.second) << endl; });	
 
     return s.str();
   }

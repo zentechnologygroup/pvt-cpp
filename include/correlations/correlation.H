@@ -580,7 +580,68 @@ public:
   double
   compute_and_check(const DynList<double> & pars, bool check = true) const
   {
-    return verify_result(VtlQuantity(unit, compute(pars, check))).get_value();
+    return verify_result(VtlQuantity(unit, compute(pars, check))).raw();
+  }
+
+  VtlQuantity tuned_compute_and_check(const DynList<VtlQuantity> & pars,
+				      double c, double m,
+				      bool check = true) const
+  {
+    return verify_result(VtlQuantity(unit, c + m*compute(pars, check).raw()));
+  }
+
+  tuple<double, string, bool, string> tuned_execute(DynList<VtlQuantity> & pars,
+						    double c, double m,
+						    bool check = true) const
+  {
+    try
+      {
+	const auto result = c + m*compute(pars, check).raw();
+	auto status = check_result(VtlQuantity(unit, result));
+	if (status)
+	  return make_tuple(result, unit.symbol, true, "");
+
+	ostringstream s;
+	s << "Correlation result " << result << " is out of range ["
+	  << min_val << ", " << max_val << "]";
+	return make_tuple(result, unit.symbol, false, s.str());
+      }
+    catch (exception &e)
+      {
+	return make_tuple(0, unit.symbol, false, e.what());
+      }
+  }
+
+  double tuned_compute(const DynList<double> & values, double c, double m,
+		       bool check = true) const
+  {
+    DynList<VtlQuantity> pars;
+    auto it = get_pair_it(preconditions, values);
+    for (;it.has_curr(); it.next())
+      {
+	auto p = it.get_curr();
+	pars.append(VtlQuantity(p.first.unit, p.second));
+      }
+
+    if (it.has_curr())
+      {
+	ostringstream s;
+	s << "Correlation::compute: number of effective arguments "
+	  << values.size()
+	  << " is different from number of declared parameters "
+	  << get_num_pars();
+	throw domain_error(s.str());
+      }
+
+    VtlQuantity ret = { unit, c + m*compute(pars, check).raw() }; 
+    return ret.raw();
+  }
+
+  double
+  tuned_compute_and_check(const DynList<double> & pars, double c, double m,
+			  bool check = true) const
+  {
+    return verify_result(VtlQuantity(unit, c + m*compute(pars, check))).raw();
   }
 
   /** return a list of validated and adequately converted correlation
