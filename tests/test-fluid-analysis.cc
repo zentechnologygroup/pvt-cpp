@@ -97,7 +97,6 @@ int main(int argc, char *argv[])
       cout << Rvector(get<3>(t)->name, get<1>(t)) << endl;
     });
 
-  
   auto best_list = best.maps<DynList<string>>([] (auto t)
     {
       return DynList<string>({ get<0>(t)->name, to_string(get<1>(t)),
@@ -122,7 +121,7 @@ int main(int argc, char *argv[])
     {
       auto r = get<5>(t);
       return DynList<string>({ get<3>(t)->name, to_string(get<2>(t)),
-	    to_string(r.c), to_string(r.m), to_string(r.sumsq) });
+	    to_string(r.c), to_string(r.m), to_string(r.sum_line) });
     });
 
   best_fits_l.insert({"Correlation", "mse", "c", "m", "sumsq"});

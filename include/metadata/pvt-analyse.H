@@ -120,7 +120,7 @@ public:
   using VarCorrFit =
     //   ok      y              statistical, correlation,  message if not ok
     tuple<bool, DynList<double>, double, const Correlation*, string,
-	  CorrStat::LinearRegression>;
+	  CorrStat::NlFit>;
   
   DynList<VarCorrFit> rs_correlations_fits(const string & name,
 					   bool check = true) const
@@ -139,7 +139,7 @@ public:
 	  {
 	    auto result = data.compute(0, corr_ptr, check);
 	    auto s = (stat.*statistical)(result);
-	    auto fit = stat.linear_fit(result);
+	    auto fit = stat.nlfit(result);
 	    ret.append(make_tuple(true, move(result), s, corr_ptr, "", fit));
 	  }
 	catch (exception & e) { /* ignore it! */ }

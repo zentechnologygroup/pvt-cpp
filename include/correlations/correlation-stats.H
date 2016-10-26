@@ -4,6 +4,8 @@
 
 # include <cmath>
 
+# include <nlopt.h>
+
 # include <gsl/gsl_statistics_double.h>
 # include <gsl/gsl_fit.h>
 
@@ -148,11 +150,59 @@ public:
     return LinearRegression(y, yc);
   }
 
-  struct LeastSqFit
+  struct NlFit
   {
+    double c = 0;
+    double m = 0;
+    double sum_line = 0;
 
-    
+    using Vals = tuple<double*, double*, size_t>;
+
+    static double obj_fct(unsigned, const double * x, double *, void * vals)
+    {
+      auto v = * (Vals*) vals;
+      size_t n = get<2>(v);
+      double * y = get<0>(v);
+      double * yc = get<1>(v);
+      double sum = 0;
+      for (size_t i = 0; i < n; ++i)
+	sum += fabs(y[i] - (x[0] + x[1]*yc[i]));
+      //cout << "sum = " << sum << endl;
+      return sum;
+    }
+
+    NlFit()  {}
+
+    NlFit(const Array<double> & y, const Array<double> & yc)
+    {
+      double lb[] = { -HUGE_VAL, 0}; // lower bounds
+      double ub[] = { HUGE_VAL, 1 }; // upper bounds
+
+      Vals pars = make_tuple(&y.base(), &yc.base(), y.size());
+
+      auto opt = nlopt_create(NLOPT_LN_COBYLA, 2);
+      nlopt_set_lower_bounds(opt, lb);
+      nlopt_set_upper_bounds(opt, ub);
+      nlopt_set_min_objective(opt, obj_fct, &pars);
+
+      double x[2] = { 0, 0 };
+      auto status = nlopt_optimize(opt, x, &sum_line);
+      nlopt_destroy(opt);
+      if (not (status == NLOPT_SUCCESS or status == NLOPT_ROUNDOFF_LIMITED))
+	{
+	  ostringstream s;
+	  s << "NlFit: bad status code " << status;
+	  throw domain_error(s.str());
+	}
+      c = x[0];
+      m = x[1];
+    }
   };
+
+  NlFit nlfit(const Array<double> & yc) const
+  {
+    return NlFit(y, yc);
+  }
 
   // each sample contains a row of parameters plus the value
   CorrStat(const Array<double> & y) : y(y) { compute_base(); }
