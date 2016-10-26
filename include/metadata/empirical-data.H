@@ -339,37 +339,6 @@ struct EmpiricalData
   }
 
   // return a list of stored values for the symbol name
-  // Array<double> values(const string & name) const
-  // {
-  //   for (size_t i = 0; i < const_names.size(); ++i)
-  //     if (const_names(i) == name)
-  // 	{
-  // 	  Array<double> ret;
-  // 	  ret.append(const_vals(i));
-  // 	  return ret;
-  // 	}
-
-  //   for (size_t k = 0; k < var_sets.size(); ++k)
-  //     {
-  // 	const auto & var_set = var_sets(k);
-  // 	const auto & var_names = var_set.var_names;
-  // 	for (size_t i = 0; i < var_names.size(); ++i)
-  // 	  if (var_names(i) == name)
-  // 	    {
-  // 	      Array<double> ret(var_set.num_samples);
-  // 	      const auto & samples = var_set.samples;
-  // 	      const auto & num_samples = var_set.num_samples;
-  // 	      for (size_t j = 0; j < num_samples; ++j)
-  // 		ret.append(samples(i)(j));
-
-  // 	      return ret;
-  // 	    }
-  // 	}
-
-  //   return Array<double>();
-  // }
-
-  // return a list of stored values for the symbol name
   Array<double> values(size_t set_idx, const string & name) const
   {
     for (size_t i = 0; i < const_names.size(); ++i)
@@ -793,6 +762,27 @@ public:
     return can_be_applied(set_index(set_name), correlation_ptr);
   }
 
+  /// Return a list of missing parameters needed for computing the
+  /// correlation `correlation_ptr` according to the constants stored
+  /// in all he data set and variables stored in the variables set `seti`
+  DynList<string>
+  missing_parameters(size_t seti,  const Correlation * correlation_ptr) const
+  {
+    DynList<string> ret;
+    for (auto it = correlation_ptr->get_preconditions().get_it();
+	 it.has_curr(); it.next())
+      {
+	const auto & par = it.get_curr();
+	if (not (par.names().exists([this, seti] (const auto & s)
+                     {
+		       return this->exists_const_name(s.first) or
+			 this->exists_var_name(seti, s.first);
+		     })))
+	  ret.append(par.name);
+      }
+    return ret;
+  }
+
   // Return a list of list of correlation parameters belonging to the
   // data set that would be used in order to compute the all the value
   // of the correlation
@@ -822,8 +812,10 @@ public:
 	{
 	  auto syn = it_syn.get_curr();
 	  const auto & syn_name = syn.first;
-	  vals = to_DynList(values(seti, syn_name)); // verify if there are values
-	                                             // in data set 
+	  vals = to_DynList(values(seti, syn_name)); // verify if
+						     // there are
+						     // values in data
+						     // set
 	  if (not vals.is_empty())
 	    { // a synomym was found for par_name in the
 	      // correlation. Now we convert the values to the synonym unit
@@ -1020,8 +1012,8 @@ public:
       });
   }
 
-  DynList<const Correlation*> matching_correlations(const string & set_name)
-    const
+  DynList<const Correlation*>
+  matching_correlations(const string & set_name) const
   {
     return matching_correlations(set_index(set_name));
   }

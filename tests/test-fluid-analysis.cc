@@ -6,8 +6,6 @@
 
 # include <metadata/pvt-analyse.H>
 
-
-
 using namespace std;
 using namespace TCLAP;
 
@@ -139,14 +137,26 @@ int main(int argc, char *argv[])
   cout << endl
        << to_string(format_string(best_fits_l)) << endl;
 
-  auto bob_list = pvt.bob_correlations();
-  cout << "bob correlations" << endl;
-  //  pvt.bob_correlations().for_each([] (auto p) { cout << p->name << endl; });
+  auto bob_correlations =
+    Correlation::list().filter([] (auto p) { return p->target_name() == "bo"; });
 
-  bob_list.for_each([] (auto p) { cout << p->name << endl; });
+  cout << "bo correlations" << endl;
+  bob_correlations.for_each([&pvt] (auto p)
+    {
+      cout << p->name;
+      p->names().for_each([] (const auto & s) { cout << " " << s; });
+      pvt.get_data().missing_parameters(0, p).for_each([] (const auto & s)
+        {
+	  cout << " *" << s;
+	});
+      cout << endl;
+    });
 
+  cout << "cob correlations" << endl;
+  pvt.cob_correlations().for_each([] (auto p) { cout << p->name << endl; });
+
+  cout << "All matching correlations" << endl;
+  pvt.get_data().matching_correlations(0).
+    for_each([] (auto p) { cout << "  " << p->name << endl; });
 }
-
-
-
 
