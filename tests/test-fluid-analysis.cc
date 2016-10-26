@@ -119,8 +119,8 @@ int main(int argc, char *argv[])
 
   auto best_fits_l = best_fits.maps<DynList<string>>([] (auto t)
     {
-      auto r = get<5>(t);
-      return DynList<string>({ get<3>(t)->name, to_string(get<2>(t)),
+      auto r = get<4>(t); // nlfit
+      return DynList<string>({ get<2>(t)->name, get<3>(t),
 	    to_string(r.c), to_string(r.m), to_string(r.sum_line) });
     });
 
@@ -128,8 +128,8 @@ int main(int argc, char *argv[])
 
   auto tuned = best_fits.maps<pair<string, DynList<double>>>([&pvt] (auto t)
     {
-      auto r = get<5>(t);
-      auto ptr = get<3>(t);
+      auto r = get<4>(t);
+      auto ptr = get<2>(t);
       auto values = pvt.get_data().tuned_compute(0, ptr, r.c, r.m);
       return make_pair(ptr->name, move(values));
     });

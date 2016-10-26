@@ -154,7 +154,7 @@ public:
   {
     double c = 0;
     double m = 0;
-    double sum_line = 0;
+    double sum_line = numeric_limits<double>::max();
 
     using Vals = tuple<double*, double*, size_t>;
 
@@ -175,8 +175,8 @@ public:
 
     NlFit(const Array<double> & y, const Array<double> & yc)
     {
-      double lb[] = { -HUGE_VAL, 0}; // lower bounds
-      double ub[] = { HUGE_VAL, 1 }; // upper bounds
+      double lb[] = { -HUGE_VAL, -10}; // lower bounds
+      double ub[] = { HUGE_VAL, 10 }; // upper bounds
 
       Vals pars = make_tuple(&y.base(), &yc.base(), y.size());
 

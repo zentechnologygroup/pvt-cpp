@@ -31,7 +31,7 @@ public:
     data.check_variable("Above Pb", "uo", DinamicViscosity::get_instance());
   }
 
-  double get_pb() const { return get<1>(data.find_const("pb")); } 
+  double get_pb() const { return get<1>(data.find_const("pb")); }
 
   DynList<const Correlation *> pb_correlations() const
   {
@@ -53,6 +53,30 @@ public:
   {
     return data.valid_correlations("Below Pb").
       filter([] (auto ptr) { return ptr->target_name() == "rs"; });
+  }
+
+  DynList<const Correlation*> bob_correlations() const
+  {
+    return data.matching_correlations("Below Pb").
+      filter([] (auto ptr) { return ptr->target_name() == "bo"; });
+  }
+
+  DynList<const Correlation*> bob_valid_correlations() const
+  {
+    return data.valid_correlations(0).
+      filter([] (auto ptr) { return ptr->target_name() == "bo"; });
+  }
+
+  DynList<const Correlation*> boa_correlations() const
+  {
+    return data.matching_correlations("Above Pb").
+      filter([] (auto ptr) { return ptr->target_name() == "bo"; });
+  }
+
+  DynList<const Correlation*> boa_valid_correlations() const
+  {
+    return data.valid_correlations(1).
+      filter([] (auto ptr) { return ptr->target_name() == "bo"; });
   }
 
   //                      ok    result     correlation       message if not ok
@@ -92,6 +116,7 @@ public:
     //   ok      y              statistical, correlation,  message if not ok
     tuple<bool, DynList<double>, double, const Correlation*, string>;
 
+  /// Returns the rs correlations sorted by the statistical `name`
   DynList<VarCorrStatus> best_rs_correlations(const string & name,
 					      bool check = true) const
   {
@@ -118,37 +143,43 @@ public:
   }
 
   using VarCorrFit =
-    //   ok      y              statistical, correlation,  message if not ok
-    tuple<bool, DynList<double>, double, const Correlation*, string,
-	  CorrStat::NlFit>;
-  
-  DynList<VarCorrFit> rs_correlations_fits(const string & name,
-					   bool check = true) const
-  {
-    // como asegurar que el orden de las y sea el mismo tanto para en
-    // data set como las correlaciones? R: ordenar por 
-    CorrStat stat(data.values(0, "rs"));
-    auto statistical = stat.statistical(name);
+    //   ok      y              correlation,  message if not ok, Fit values
+    tuple<bool, DynList<double>, const Correlation*, string, CorrStat::NlFit>;
 
-    auto rs_correlations = rs_valid_correlations();
-    DynList<VarCorrFit> ret;
-    for (auto it = rs_correlations.get_it(); it.has_curr(); it.next())
+  // TODO: parámetros de bounds que serían según la tendencia de la pendiente
+  DynList<VarCorrFit>
+  correlations_fits(const DynList<const Correlation*> & corr_list,
+		    size_t seti, bool check = true) const
+  {
+    const string & var_name = corr_list.get_first()->target_name();
+    CorrStat stat(data.values(seti, var_name));
+
+    DynList<VarCorrFit> ret = corr_list.maps<VarCorrFit>([&] (auto ptr)
       {
-	auto corr_ptr = it.get_curr();
 	try
 	  {
-	    auto result = data.compute(0, corr_ptr, check);
-	    auto s = (stat.*statistical)(result);
+	    auto result = data.compute(0, ptr, check);
 	    auto fit = stat.nlfit(result);
-	    ret.append(make_tuple(true, move(result), s, corr_ptr, "", fit));
+	    return make_tuple(true, move(result), ptr, "", fit);
 	  }
-	catch (exception & e) { /* ignore it! */ }
-      }
+	catch (exception & e)
+	  {
+	    return make_tuple(false, DynList<double>(), ptr, e.what(),
+			      CorrStat::NlFit());
+	  }
+      });
 
-    return sort(ret, [] (auto t1, auto t2) { return get<3>(t1) < get<3>(t2); });
+    return sort(ret, [] (auto t1, auto t2)
+		{ return get<4>(t1).sum_line < get<4>(t2).sum_line; });
   }
 
-  //CorrStat::LinearRegression linear_fit(
+  /// Computes the coefficients c + m corr(p1, p2, ...) for all valid
+  /// correlations that best calibrate. The resulting list is sorted
+  /// according the fit with minumum error
+  DynList<VarCorrFit> rs_correlations_fits(bool check = true) const
+  {
+    return correlations_fits(rs_valid_correlations(), 0, check);
+  }
 
   string to_R(const Array<double> & lab_data,
 	      const DynList<VarCorrStatus> & l) const
