@@ -9,7 +9,8 @@ import numpy
 
 def tunedFuntion (xPressure, yLabData, yCorrelationValue ):    
     def residuals(p, yLabData, yCorrelationValue ):
-        res = yLabData - (p[0]* yCorrelationValue + p[1]) 
+        res = yLabData - (p[0]* yCorrelationValue + p[1])
+        print p
         return res   
      
     p0 = [1.00000, 0.000000]  # valores iniciales de iteracion   
