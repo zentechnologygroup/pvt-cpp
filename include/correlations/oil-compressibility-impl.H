@@ -93,7 +93,7 @@ CoKartoatmodjoSchmidt::impl(const Quantity<Sgg> & yg,
 				    // separator pressure: Psep=100 psig) 
 
   const double co = 6.8257e-6 * pow(rsb, 0.5002) * p.raw() *
-    pow(t, 0.76606) * pow(ygcorr, 0.35505);
+    pow(t, 0.76606) * pow(ygcorr, -0.35505);
 
   return Quantity<psia_1>(co);
 }
