@@ -58,7 +58,8 @@ public:
   DynList<const Correlation*> bob_correlations() const
   {
     return data.matching_correlations("Below Pb").
-      filter([] (auto ptr) { return ptr->target_name() == "bo"; });
+      filter([] (auto ptr) { cout << ptr->name << endl;
+	  return ptr->target_name() == "bo"; });
   }
 
   DynList<const Correlation*> bob_valid_correlations() const

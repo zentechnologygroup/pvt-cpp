@@ -139,4 +139,14 @@ int main(int argc, char *argv[])
   cout << endl
        << to_string(format_string(best_fits_l)) << endl;
 
+  auto bob_list = pvt.bob_correlations();
+  cout << "bob correlations" << endl;
+  //  pvt.bob_correlations().for_each([] (auto p) { cout << p->name << endl; });
+
+  bob_list.for_each([] (auto p) { cout << p->name << endl; });
+
 }
+
+
+
+
