@@ -4,6 +4,7 @@
 # include "bubble-point-pressure.H"
 # include "solution-gas-oil-relation.H"
 # include "oil-formation-volume-factor.H"
+# include "saturated-oil-formation-volume-factor.H"
 # include "oil-compressibility.H"
 # include "oil-density.H"
 # include "dead-oil-viscosity.H"
@@ -28,6 +29,7 @@
 # include "bubble-point-pressure-impl.H"
 # include "solution-gas-oil-relation-impl.H"
 # include "oil-formation-volume-factor-impl.H"
+# include "saturated-oil-formation-volume-factor-impl.H"
 # include "oil-compressibility-impl.H"
 # include "oil-density-impl.H"
 # include "dead-oil-viscosity-impl.H"
@@ -110,6 +112,26 @@ struct CorrelationInstantiater
     BoVelardeMcCain::get_instance();
     BoMillanArcia::get_instance();
     BoManucciRosales::get_instance();
+
+    BobAlmarhoun::get_instance();
+    BobAlShammasi::get_instance();
+    BobDeGhetto::get_instance();
+    BobDindorukChristman::get_instance();
+    BobDoklaOsman::get_instance();
+    BoGlaso::get_instance();
+    BobHanafy::get_instance();
+    BobKartoatmodjo::get_instance();
+    BobLasater::get_instance();
+    BobPetroskyFarshad::get_instance();
+    BobStanding::get_instance();
+    BobTotalCFP::get_instance();
+    BobVasquezBeggs::get_instance();
+    BobCegarra::get_instance();
+    BobPerezML::get_instance();
+    BobPerezML::get_instance();
+    BobVelardeMcCain::get_instance();
+    BobMillanArcia::get_instance();
+    BobManucciRosales::get_instance();
 
     CoMcCainEtAl::get_instance();
     CoDeGhetto::get_instance();

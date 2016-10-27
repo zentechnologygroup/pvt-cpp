@@ -1,15 +1,11 @@
-
 # ifndef OIL_FORMATION_VOLUME_FACTOR_IMPL_H
 # define OIL_FORMATION_VOLUME_FACTOR_IMPL_H
-
 # include "oil-formation-volume-factor.H"
-
 inline double
 bo_undersaturated_oil_McCain(double bob, double p, double pb, double co)
 {
   return bob*exp(co*(pb - p));
 }
-
 inline Quantity<RB_STB>
 BoAlmarhoun::impl(const Quantity<Sgg> & yg,
 		  const Quantity<Sg_do> & yo,
@@ -23,7 +19,6 @@ BoAlmarhoun::impl(const Quantity<Sgg> & yg,
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
   const double raw_t = t.get_value();
-
   double bo = 0;
   if (raw_p < raw_pb) // Saturated oil
     {
@@ -37,10 +32,8 @@ BoAlmarhoun::impl(const Quantity<Sgg> & yg,
 	0.00000318099*fb*fb;
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
 inline Quantity<RB_STB>
 BoAlShammasi::impl(const Quantity<Sgg> & yg,
 		   const Quantity<Sg_do> & yo,
@@ -56,7 +49,6 @@ BoAlShammasi::impl(const Quantity<Sgg> & yg,
   const double raw_t = t.get_value();
   const double raw_yg = yg.get_value();
   const double raw_yo = yo.get_value();
-
   double bo = 0;
   if (raw_p < raw_pb) // Saturated oil
     {
@@ -73,10 +65,8 @@ BoAlShammasi::impl(const Quantity<Sgg> & yg,
             
        bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
 inline Quantity<RB_STB>
 BoDeGhetto::impl(const Quantity<Sgg> & yg,
 		 const Quantity<Api> & api,
@@ -88,12 +78,10 @@ BoDeGhetto::impl(const Quantity<Sgg> & yg,
 		 const Quantity<psia> & pb,
 		 const Quantity<psia> & psep,
 		 const Quantity<psia_1> & co) const
-
 {
   constexpr double c1 = 0.0004677;
   constexpr double c2 = 0.00001751;
   constexpr double c3 = -0.00000001811;
-
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
   const double raw_api = api.get_value();
@@ -101,7 +89,6 @@ BoDeGhetto::impl(const Quantity<Sgg> & yg,
         
   const double ygs = yg.get_value() *
     (1. + 0.00005912*raw_api*tsep.get_value()*log10(psep.get_value()/114.7));
-
   double bo = 0;
   if (raw_p < raw_pb) // Saturated oil
     {
@@ -114,14 +101,10 @@ BoDeGhetto::impl(const Quantity<Sgg> & yg,
       const double raw_rsb = rsb.get_value();
       const double bob = 1 + c1*raw_rsb + c2*(raw_t - 60)*(raw_api/ygs) +
 	c3*raw_rsb * (raw_t - 60) * (raw_api/ygs);
-
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
-
 inline Quantity<RB_STB>
 BoDindorukChristman::impl(const Quantity<Sgg> & yg,
 			  const Quantity<Api> & api,
@@ -158,11 +141,9 @@ BoDindorukChristman::impl(const Quantity<Sgg> & yg,
   constexpr double b8 = 9.828286832;
         
   const double yo = Quantity<Sg_do>(api).get_value();
-
   const double raw_t = t.get_value();
   const double raw_yg = yg.get_value();
   const double t_60 = raw_t - 60;
-
   double bo = 0;
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
@@ -184,7 +165,6 @@ BoDindorukChristman::impl(const Quantity<Sgg> & yg,
 	    b3*pow(bodl - 1, b4);
 	  const double d = pow(1 + pow(bodl, b5)*pow(t_tsep, b6)*
 			       pow(log10(bodl), b7), b8);
-
 	  bo = 1 + (n / d);
         }
     }
@@ -193,10 +173,8 @@ BoDindorukChristman::impl(const Quantity<Sgg> & yg,
       const double raw_rsb = rsb.get_value();
       const double d = a8 + (2*pow(raw_rsb, a9)/pow(yg, a10))*t_60;
       const double d2 = d*d;
-
       const double ab = pow(pow(raw_rsb, a1)*pow(yg, a2)/pow(yo, a3)  + a4 *
 			    pow(t_60, a5) + a6 * raw_rsb, a7) / d2;
-
       double bob = a11 + a12*ab + a13*ab*ab + a14*t_60*api.get_value() /
 	raw_yg;
             
@@ -208,17 +186,13 @@ BoDindorukChristman::impl(const Quantity<Sgg> & yg,
 	    pow(b3*(bodl - 1), b4);
 	  const double d = pow(1 + pow(bodl, b5)*pow(t_tsep, b6)*
 			       pow(log10(bodl), b7), b8);
-
 	  bob = 1 + (n / d);
 	}
       
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
-
 inline Quantity<RB_STB>
 BoDoklaOsman::impl(const Quantity<Sgg> & yg,
 		   const Quantity<Sg_do> & yo,
@@ -232,7 +206,6 @@ BoDoklaOsman::impl(const Quantity<Sgg> & yg,
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
   const double raw_t = t.get_value();
-
   double bo = 0;
   if (raw_p < raw_pb) // Saturated oil
     {
@@ -247,10 +220,8 @@ BoDoklaOsman::impl(const Quantity<Sgg> & yg,
 	+ 0.380525e-5*mb*mb;
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
 inline Quantity<RB_STB>
 BoGlaso::impl(const Quantity<Sgg> & yg,
 	      const Quantity<Sg_do> & yo,
@@ -265,7 +236,6 @@ BoGlaso::impl(const Quantity<Sgg> & yg,
   const double raw_pb = pb.get_value();
   const double raw_t = t.get_value();
   const double yg_yo = yg.get_value()/yo.get_value();
-
   double bo = 0;
   if (raw_p < raw_pb) // Saturated oil
     {
@@ -282,17 +252,12 @@ BoGlaso::impl(const Quantity<Sgg> & yg,
       const double fb = raw_rsb*pow(yg_yo, 0.526) + 0.968*raw_t;
       const double log_fb = log10(fb);
       const double log_fb_2 = log_fb*log_fb;
-
       const double bob =
 	1 + pow(10, -6.58511 + 2.91329*log_fb - 0.27683*log_fb_2);
-
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);  
 }
-
-
 inline Quantity<RB_STB>
 BoHanafy::impl(const Quantity<SCF_STB> & rs,
 	       const Quantity<SCF_STB> & rsb,
@@ -302,7 +267,6 @@ BoHanafy::impl(const Quantity<SCF_STB> & rs,
 {
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
-
   double bo = 0;
   if (raw_p < raw_pb) // Saturated oil  
     bo = 0.0006*rs.get_value() + 1.079;
@@ -311,10 +275,8 @@ BoHanafy::impl(const Quantity<SCF_STB> & rs,
       const double bob = 0.0006*rsb.get_value() + 1.079;
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
    return Quantity<RB_STB>(bo);  
 }
-
 inline Quantity<RB_STB>
 BoKartoatmodjo::impl(const Quantity<Sgg> & yg,
 		     const Quantity<Sg_do> & yo,
@@ -328,15 +290,12 @@ BoKartoatmodjo::impl(const Quantity<Sgg> & yg,
 		     const Quantity<psia_1> & co) const
 {
   const Quantity<Api> api(yo);
-
   const double c =
     1 + 0.1595*pow(api, .4078)*pow(tsep, -0.2466)*log10(psep/114.7);
        
   const double ygcorr = c*yg.get_value();
-
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
-
   double bo = 0;
   
   if (raw_p < raw_pb) // Saturated oil
@@ -352,10 +311,8 @@ BoKartoatmodjo::impl(const Quantity<Sgg> & yg,
       const double bob = 0.98496 + 0.0001 * pow(fb, 1.5);
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
 inline Quantity<RB_STB>
 BoLasater::impl(const Quantity<Sgg> & yg,
 		const Quantity<Sg_do> & yo,
@@ -371,7 +328,6 @@ BoLasater::impl(const Quantity<Sgg> & yg,
   const double raw_yg = yg.get_value();
   const double raw_yo = yo.get_value();
   const double raw_t = t.get_value();
-
   double bo = 0;  
   if (raw_p < raw_pb) // Saturated oil
     {
@@ -386,11 +342,8 @@ BoLasater::impl(const Quantity<Sgg> & yg,
             
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
-
 inline Quantity<RB_STB>
 BoPetroskyFarshad::impl(const Quantity<Sgg> & yg,
 			const Quantity<Sg_do> & yo,
@@ -403,7 +356,6 @@ BoPetroskyFarshad::impl(const Quantity<Sgg> & yg,
 {
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
-
   double bo = 0;  
   if (raw_p < raw_pb) // Saturated oil
     {
@@ -421,8 +373,6 @@ BoPetroskyFarshad::impl(const Quantity<Sgg> & yg,
         
   return Quantity<RB_STB>(bo);
 }
-
-
 inline Quantity<RB_STB>
 BoStanding::impl(const Quantity<Sgg> & yg,
 		 const Quantity<Sg_do> & yo,
@@ -438,7 +388,6 @@ BoStanding::impl(const Quantity<Sgg> & yg,
   const double raw_yg = yg.get_value();
   const double raw_yo = yo.get_value();
   const double raw_t = t.get_value();
-
   double bo = 0;  
   if (raw_p < raw_pb) // Saturated oil
     {
@@ -452,10 +401,8 @@ BoStanding::impl(const Quantity<Sgg> & yg,
 	0.972 + 0.000147*pow(raw_rsb*sqrt(raw_yg/raw_yo) + 1.25*raw_t, 1.175);
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
 inline Quantity<RB_STB>
 BoTotalCFP::impl(const Quantity<Sgg> & yg,
 		 const Quantity<Api> & api,
@@ -470,7 +417,6 @@ BoTotalCFP::impl(const Quantity<Sgg> & yg,
   const double raw_pb = pb.get_value();
   const double t_60 = t.get_value() - 60;
   const double api_yg = api.get_value()/yg.get_value();
-
   double bo = 0;  
   if (raw_p < raw_pb) // Saturated oil
     {
@@ -485,11 +431,8 @@ BoTotalCFP::impl(const Quantity<Sgg> & yg,
 	17.569e-9*raw_rsb*t_60*api_yg;
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
-
 inline Quantity<RB_STB>
 BoVasquezBeggs::impl(const Quantity<Sgg> & yg,
 		     const Quantity<Api> & api,
@@ -516,16 +459,13 @@ BoVasquezBeggs::impl(const Quantity<Sgg> & yg,
       c2 = 1.1e-5;
       c3 = 1.337e-9;
     }
-
   const double raw_yg = yg.get_value();
   const double ygs = raw_yg*
     (1. + 5.912e-5 * raw_api * tsep.get_value() * log10(psep/114.7));
-
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
   const double t_60 = t.get_value() - 60;
   const double api_ygs = raw_api/ygs;
-
   double bo = 0;  
   if (raw_p < raw_pb) // Saturated oil
     {
@@ -539,10 +479,8 @@ BoVasquezBeggs::impl(const Quantity<Sgg> & yg,
 	1 + c1*raw_rsb + c2*t_60 * api_ygs + c3 * raw_rsb * t_60 * api_ygs;
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
 inline Quantity<RB_STB>
 BoCegarra::impl(const Quantity<Sgg> & yg,
 		const Quantity<Sg_do> & yo,
@@ -557,7 +495,6 @@ BoCegarra::impl(const Quantity<Sgg> & yg,
   const double raw_pb = pb.get_value();
   const double raw_t = t.get_value();
   const double yg_yo = yg.get_value()/yo.get_value();
-
   double bo = 0;  
   if (raw_p < raw_pb) // Saturated oil
     {
@@ -571,11 +508,8 @@ BoCegarra::impl(const Quantity<Sgg> & yg,
 	0.972 + 0.000147 * pow(raw_rsb * sqrt(yg_yo) + 1.25*raw_t, 1.175);
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
-
 inline Quantity<RB_STB>
 BoPerezML::impl(const Quantity<Sgg> & yg,
 		const Quantity<Sg_do> & yo,
@@ -588,23 +522,17 @@ BoPerezML::impl(const Quantity<Sgg> & yg,
   const double raw_rsb = rsb.get_value();
   const double raw_t = t.get_value();
   const double yg_yo = yg.get_value()/yo.get_value();
-
   const double c = 1e-4 * (raw_rsb*sqrt(yg_yo) + 1.25*raw_t);
   const double bob = 0.974322 + 4.35048*c - 2.85869*c*c;        
-
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
-
   double bo = 0;  
   if (raw_p < raw_pb) // Saturated oil
     bo = bob * (1 - (8.801 + 0.1547*raw_t) * 1e-3 * (1 - raw_p/raw_pb));
   else // Undersaturated oil
     bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
-
   return Quantity<RB_STB>(bo);
 }
-
-
 inline Quantity<RB_STB>
 BoVelardeMcCain::impl(const Quantity<Sgg> & yg,
 		      const Quantity<Sg_do> & yo,
@@ -617,7 +545,6 @@ BoVelardeMcCain::impl(const Quantity<Sgg> & yg,
 {
   constexpr double pwater = 62.4; // water specific weight in  lb/ft³ or lb/scf
   const double psto = pwater*yo.get_value();
-
   const double raw_yg = yg.get_value();
   const double raw_yo = yo.get_value();
   const double raw_rs = rs.get_value();
@@ -634,13 +561,10 @@ BoVelardeMcCain::impl(const Quantity<Sgg> & yg,
       ppof = (raw_rs*raw_yg + 4600*raw_yo) / (73.71 + raw_rs*raw_yg/pa);
       b = ppof;
     }
-
   ppo = ppof;
-
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
   const double t_60 = t.get_value() - 60;
-
   double bo = 0;  
   if (raw_p < raw_pb) // Saturated oil
     {
@@ -672,11 +596,8 @@ BoVelardeMcCain::impl(const Quantity<Sgg> & yg,
             
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
-
 inline Quantity<RB_STB>
 BoMillanArcia::impl(const Quantity<Sgg> &,
 		    const Quantity<Api> & api,
@@ -690,20 +611,15 @@ BoMillanArcia::impl(const Quantity<Sgg> &,
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
   const double raw_api = api.get_value();
-
   const double bob = 1.3537 * pow(rsb, 0.1505) * pow(raw_pb, -0.1239) *
     exp(-0.00405*raw_api);
-
   double bo = 0;  
   if (raw_p < raw_pb) // Saturated oil
     bo = bob * (0.9419 + 0.0608 * raw_p/raw_pb);
   else // Undersaturated oil
     bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
-
   return Quantity<RB_STB>(bo);
 }
-
-
 inline Quantity<RB_STB>
 BoManucciRosales::impl(const Quantity<Sgg> &,
 		       const Quantity<Api> & api,
@@ -718,9 +634,7 @@ BoManucciRosales::impl(const Quantity<Sgg> &,
   const double raw_pb = pb.get_value();
   const double raw_api = api.get_value();
   const double raw_t = t.get_value();
-
   const double x = 3.27e-4*raw_t + 0.00321*raw_api;
-
   double bo = 0;  
   if (raw_p < raw_pb) // Saturated oil
     bo = 0.2378 * pow(rs, 0.221) * pow(10, x);
@@ -729,9 +643,6 @@ BoManucciRosales::impl(const Quantity<Sgg> &,
       const double bob = 0.2378 * pow(rsb, 0.221) * pow(10, x);
       bo = bo_undersaturated_oil_McCain(bob, raw_p, raw_pb, co.get_value());
     }
-
   return Quantity<RB_STB>(bo);
 }
-
-
 # endif // OIL_FORMATION_VOLUME_FACTOR_IMPL_H

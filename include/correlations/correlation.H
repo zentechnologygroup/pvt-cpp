@@ -198,10 +198,10 @@ public:
   DynList<DynList<string>> names_and_synonyms() const
   {
     DynList<string> ret_l;
-    ret_l.append(to_lower(split_camel_case(name).get_first()));
+    // ret_l.append(to_lower(split_camel_case(name).get_first()));
 
     DynList<DynList<string>> ret;
-    ret.append(ret_l);
+    // ret.append(ret_l);
 
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
       {
@@ -831,6 +831,9 @@ private:
 Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
 Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation);
 Declare_Correlation_Subtype(OilFormationVolumeFactor, OilCorrelation);
+Declare_Correlation_Subtype(UndersaturatedOilFormationVolumeFactor,
+			    OilCorrelation);
+Declare_Correlation_Subtype(SaturatedOilFormationVolumeFactor, OilCorrelation);
 Declare_Correlation_Subtype(SaturatedOilViscosity, OilCorrelation);
 Declare_Correlation_Subtype(UndersaturatedOilViscosity, OilCorrelation);
 Declare_Correlation_Subtype(OilCompressibility, OilCorrelation);

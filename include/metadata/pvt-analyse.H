@@ -57,11 +57,9 @@ public:
 
   DynList<const Correlation*> cob_correlations() const
   {
-    // matching_correlations no retorna las de co porque ese parámetro
-    // no está en el data set.
-    // solución: calcular todas las co y luego filtrar por can_be_applied
-    return data.matching_correlations("Below Pb").
-      filter([] (auto ptr) { return ptr->target_name() == "co"; });
+    return Correlation::array().
+      filter([] (auto p) { return p->target_name() == "co"; }).
+      filter([this] (auto p) { return data.can_be_applied(0, p); });
   }
 
   DynList<const Correlation*> bob_correlations() const

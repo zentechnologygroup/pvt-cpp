@@ -947,7 +947,7 @@ public:
   matching_const_correlations(const string & const_name) const
   {
     auto target_correlations =
-      Correlation::list().filter([&const_name] (auto ptr)
+      Correlation::array().filter([&const_name] (auto ptr)
       {
 	return ptr->target_name() == const_name;
       });
@@ -1006,7 +1006,7 @@ public:
   /// the data set
   DynList<const Correlation*> matching_correlations(size_t seti) const
   {
-    return Correlation::list().filter([this, seti] (auto ptr)
+    return Correlation::array().filter([this, seti] (auto ptr)
       {
 	return this->can_be_applied(seti, ptr);
       });

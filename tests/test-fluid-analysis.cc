@@ -113,16 +113,16 @@ int main(int argc, char *argv[])
 
   cout << pvt.to_R(pvt.get_data().values(0, "rs"), rs_best_mse);
 
-  auto best_fits = pvt.rs_correlations_fits("mse");
+  auto best_fits = pvt.rs_correlations_fits();
 
   auto best_fits_l = best_fits.maps<DynList<string>>([] (auto t)
     {
       auto r = get<4>(t); // nlfit
-      return DynList<string>({ get<2>(t)->name, get<3>(t),
+      return DynList<string>({ get<2>(t)->name, 
 	    to_string(r.c), to_string(r.m), to_string(r.sum_line) });
     });
 
-  best_fits_l.insert({"Correlation", "mse", "c", "m", "sumsq"});
+  best_fits_l.insert({"Correlation", "c", "m", "sumsq"});
 
   auto tuned = best_fits.maps<pair<string, DynList<double>>>([&pvt] (auto t)
     {
@@ -155,8 +155,8 @@ int main(int argc, char *argv[])
   cout << "cob correlations" << endl;
   pvt.cob_correlations().for_each([] (auto p) { cout << p->name << endl; });
 
-  cout << "All matching correlations" << endl;
-  pvt.get_data().matching_correlations(0).
-    for_each([] (auto p) { cout << "  " << p->name << endl; });
+  // cout << "All matching correlations" << endl;
+  // pvt.get_data().matching_correlations(0).
+  //   for_each([] (auto p) { cout << "  " << p->name << endl; });
 }
 
