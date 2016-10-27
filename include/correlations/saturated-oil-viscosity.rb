@@ -52,10 +52,11 @@ begin_correlation("UobKartoatmodjoSchmidt", "SaturatedOilViscosity",
 add_title("KARTOATMODJO & SCHMIDT CORRELATION FOR HEAVY, MEDIUM AND LIGHT OILS, CALCULATION OF SATURATED OIL VISCOSITY")
 add_db("Based on 5321 data points of heavy, medium and light oil samples. The data bank was collected from PVT reports and literature.")
 add_db("The first major source was from South East Asia, mainly Indonesia. The second source was North America, including the offshore area. The rest came from the Middle East and Latin America.")
-add_db("Depending on the API gravity, the samples can cover three different classes of crude oils: heavy oils for 10<°API<=22.3, medium oils for 22.3<°API<=31.1, and light oils for °API>31.1.")
+add_internal_note("Depending on the API gravity, the samples can cover three different classes of crude oils: heavy oils for 10<°API<=22.3, medium oils for 22.3<°API<=31.1, and light oils for °API>31.1.")
 add_parameter("uod", "CP", "Dead oil viscosity",  0.506,  682.0)
 add_parameter("rs", "SCF_STB", "Solution GOR",  0,  2890)
 add_author("Kartoatmodjo & Schmidt")
+add_ref("kartoatmodjo:1991")
 end_correlation()
 
 ################################################################
@@ -69,6 +70,7 @@ add_db("Fluid samples were obtained from reservoirs located offshore Texas and L
 add_parameter("uod", "CP", "Dead oil viscosity",  0.725,  11.69)
 add_parameter("rs", "SCF_STB", "Solution GOR",  21,  1885)
 add_author("Petrosky & Farshad")
+add_ref("petrosky:1995")
 end_correlation()
 
 
@@ -76,10 +78,12 @@ end_correlation()
 
 ## verificada con python
 begin_correlation("UobPerezML", "SaturatedOilViscosity", "CP")
-add_title("PÉREZ ET AL. CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
+add_title("PÉREZ, HENY & LAGO CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
 add_parameter("uod",  "CP", "Dead oil viscosity")
 add_parameter("rs", "SCF_STB", "Solution GOR",  38,  121)
-add_author("Pérez et al.")
+add_author("Pérez, Heny & Lago")
+add_ref("perez:2001")
+add_internal_note("The correlation could not be verified because the original reference is not available. Date: September 6 2016.")
 end_correlation()
 
 
@@ -87,10 +91,12 @@ end_correlation()
 
 ## verificada con python
 begin_correlation("UobGilFonseca", "SaturatedOilViscosity", "CP")
-add_title("GIL-FONSECA CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
+add_title("GIL & FONSECA CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
 add_parameter("uod",  "CP", "Dead oil viscosity")
-add_parameter("rs", "SCF_STB", "Solution GOR",  )
-add_author("Gil Fonseca")
+add_parameter("rs", "SCF_STB", "Solution GOR")
+add_author("Gil & Fonseca")
+add_ref("perez:2001")
+add_internal_note("The correlation could not be verified because the original and secondary references are not available. Date: September 6 2016.")
 end_correlation()
 
 
@@ -105,6 +111,7 @@ add_parameter("uod", "CP", "Dead oil viscosity",  7.7,  1386.9)
 add_parameter("rs", "SCF_STB", "Solution GOR",  17.21,  640.25)
 add_parameter("api", "Api", "API oil gravity",  6,  22.3)
 add_author("De Ghetto, Paone & Villa")
+add_ref("deGhetto:1995")
 end_correlation()
 
 ################################################################
@@ -113,6 +120,7 @@ begin_correlation("UobDindorukChristman", "SaturatedOilViscosity", "CP", 0.161, 
 add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
 add_db("Based on more than 90 PVT reports from the Gulf of Mexico.")
 add_parameter("uod", "CP", "Dead oil viscosity",  0.896,  62.63)
-add_parameter("rs",  "SCF_STB", "Solution GOR at Pb")
+add_parameter("rs",  "SCF_STB", "Solution GOR")
 add_author("Dindoruk & Christman")
+add_ref("dindoruk:2004")
 end_correlation()
