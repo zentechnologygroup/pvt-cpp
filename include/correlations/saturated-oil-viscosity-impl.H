@@ -31,13 +31,12 @@ UobChewConnally::impl(const Quantity<CP> & uod,
 
 inline Quantity<CP>
 UobKhan::impl(const Quantity<SCF_STB> & rsb,
-	      const Quantity<Api> & api,
+	      const Quantity<Sg_do> & yo,
 	      const Quantity<Sgg> & yg,
 	      const Quantity<Fahrenheit> & t,
 	      const Quantity<psia> & p,
 	      const Quantity<psia> & pb) const
 {
-  Quantity<Sg_do> yo = api; // Relative oil density
 
   const double tr = (t.raw() + 459.67)/459.67; // Relative Temperature
         
