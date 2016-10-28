@@ -382,11 +382,8 @@ BobVelardeMcCain::impl(const Quantity<Sgg> & yg,
 
 
 inline Quantity<RB_STB>
-BobMillanArcia::impl(const Quantity<Sgg> &,
-		    const Quantity<Api> & api,
-		    const Quantity<SCF_STB> &,
+BobMillanArcia::impl(const Quantity<Api> & api,
 		    const Quantity<SCF_STB> & rsb,
-		    const Quantity<Fahrenheit> &,
 		    const Quantity<psia> & p,
 		    const Quantity<psia> & pb) const
 {
