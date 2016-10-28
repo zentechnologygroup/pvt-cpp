@@ -5,6 +5,7 @@
 # include "solution-gas-oil-relation.H"
 # include "oil-formation-volume-factor.H"
 # include "saturated-oil-formation-volume-factor.H"
+# include "undersaturated-oil-formation-volume-factor.H"
 # include "oil-compressibility.H"
 # include "oil-density.H"
 # include "dead-oil-viscosity.H"
@@ -30,6 +31,7 @@
 # include "solution-gas-oil-relation-impl.H"
 # include "oil-formation-volume-factor-impl.H"
 # include "saturated-oil-formation-volume-factor-impl.H"
+# include "undersaturated-oil-formation-volume-factor-impl.H"
 # include "oil-compressibility-impl.H"
 # include "oil-density-impl.H"
 # include "dead-oil-viscosity-impl.H"
@@ -132,6 +134,8 @@ struct CorrelationInstantiater
     BobVelardeMcCain::get_instance();
     BobMillanArcia::get_instance();
     BobManucciRosales::get_instance();
+
+    BoaMcCain::get_instance();
 
     CoMcCainEtAl::get_instance();
     CoDeGhetto::get_instance();

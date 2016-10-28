@@ -14,17 +14,17 @@ int main()
   e.def_const("tsep", 90, "degF");
   e.def_const("psep", 60, "psia");
 
-  e.def_var_set("Uob", "Points below the bubble point");
-  e.def_var_set("Uoa", "Points above the bubble point");
+  e.def_var_set("Below Pb", "Points below the bubble point");
+  e.def_var_set("Above Pb", "Points above the bubble point");
 
   {
     ifstream file("data-b.csv");
-    e.add_samples("Uob", file);
+    e.add_samples("Below Pb", file);
   }
 
   {
     ifstream file("data-a.csv");
-    e.add_samples("Uoa", file);
+    e.add_samples("Above Pb", file);
   }
 
   cout << e.to_string() << endl;
@@ -44,7 +44,7 @@ int main()
   // cout << endl;
 
   cout << "Correlations matching data set parameters: " << endl;
-  e.matching_correlations("Uob").for_each([] (auto p)
+  e.matching_correlations("Below Pb").for_each([] (auto p)
 	     {
 	       cout << "    " << p->name;
 	       p->names().for_each([] (const auto & s) { cout << " " << s; });
@@ -52,7 +52,7 @@ int main()
 	     });
 
   cout << "Correlation matching data set parameters and its values" << endl;
-  e.valid_correlations("Uoa").for_each([] (auto p)
+  e.valid_correlations("Above Pb").for_each([] (auto p)
 	     {
 	       cout << "    " << p->name;
 	       p->names().for_each([] (const auto & s) { cout << " " << s; });
@@ -65,7 +65,8 @@ int main()
 
   auto rs_ptr = Correlation::search_by_name("RsMillanArcia");
 
-  assert(e.can_be_applied("Uob", rs_ptr) and e.can_be_applied("Uob", rs_ptr));
+  assert(e.can_be_applied("Below Pb", rs_ptr) and
+	 e.can_be_applied("Below Pb", rs_ptr));
 
   rs_ptr->names_and_synonyms().for_each([] (const auto & l)
     {
@@ -73,7 +74,7 @@ int main()
       cout << endl;
     });
 
-  if (e.fits_parameter_ranges("Uob", rs_ptr)) 
+  if (e.fits_parameter_ranges("Below Pb", rs_ptr)) 
     cout << "Empirical data fits the correlation ranges" << endl;
   else
     {
@@ -82,7 +83,7 @@ int main()
 	   << *rs_ptr << endl
 	   << endl
 	   << "And here the empirical parameter out of range" << endl;
-      auto novalid = e.invalid_parameters_values("Uob", rs_ptr); 
+      auto novalid = e.invalid_parameters_values("Below Pb", rs_ptr); 
       for (auto it = novalid.get_it(); it.has_curr(); it.next())
 	{
 	  auto p = it.get_curr();
@@ -93,7 +94,7 @@ int main()
       cout << endl;
     }
 
-  auto mat = e.compute_mat("Uob", rs_ptr, false); 
+  auto mat = e.compute_mat("Below Pb", rs_ptr, false); 
   auto smat = get<1>(mat).maps<DynList<string>>([] (const auto & row)
     {
       return row.template maps<string>([] (auto v) { return to_string(v); });
@@ -126,7 +127,7 @@ int main()
 	   << endl;
     });
 
-  //cout << e.to_json() << endl;
-  cout << e.full_desc() << endl;
+  cout << e.to_json() << endl;
+  // cout << e.full_desc() << endl;
 
 }

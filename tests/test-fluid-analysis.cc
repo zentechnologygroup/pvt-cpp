@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
   // 		    << get<2>(t) << " " << get<3>(t) << endl;
   // 	     });
 
-  cout << pvt.to_R(pvt.get_data().values(0, "rs"), rs_best_mse);
+  cout << pvt.to_R(pvt.get_data().values(0, "rs"), rs_best_mse) << endl;
 
   auto best_fits = pvt.rs_correlations_fits();
 

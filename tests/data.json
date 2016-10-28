@@ -36,7 +36,7 @@
       "value": 60
     }
   ],
-  "description": "Usado para pruebas, aparentemente deun pozo en Monagas",
+  "description": "Usado para pruebas, aparentemente de un pozo en Monagas",
   "name": "Test de Alberto Valderrama",
   "varsets": [
     {
@@ -45,7 +45,7 @@
       "num samples": 6,
       "num vars": 4,
       "samples": {
-        "bo": [
+        "bob": [
           1.32591,
           1.45799,
           1.61047,
@@ -88,7 +88,7 @@
           "unit": "scf/STB"
         },
         {
-          "name": "bo",
+          "name": "bob",
           "unit": "RB/STB"
         },
         {
@@ -103,7 +103,7 @@
       "num samples": 16,
       "num vars": 4,
       "samples": {
-        "bo": [
+        "boa": [
           1.77432,
           1.75642,
           1.75603,
@@ -186,7 +186,7 @@
           "unit": "scf/STB"
         },
         {
-          "name": "bo",
+          "name": "boa",
           "unit": "RB/STB"
         },
         {

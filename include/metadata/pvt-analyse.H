@@ -22,12 +22,12 @@ public:
 
     data.check_variable("Below Pb", "p", Pressure::get_instance());
     data.check_variable("Below Pb", "rs", GORGLRvolumeRatio::get_instance());
-    data.check_variable("Below Pb", "bo", FVFvolumeRatio::get_instance());
+    data.check_variable("Below Pb", "bob", FVFvolumeRatio::get_instance());
     data.check_variable("Below Pb", "uo", DinamicViscosity::get_instance());
 
     data.check_variable("Above Pb", "p", Pressure::get_instance());
     data.check_variable("Above Pb", "rs", GORGLRvolumeRatio::get_instance());
-    data.check_variable("Above Pb", "bo", FVFvolumeRatio::get_instance());
+    data.check_variable("Above Pb", "boa", FVFvolumeRatio::get_instance());
     data.check_variable("Above Pb", "uo", DinamicViscosity::get_instance());
   }
 
@@ -230,6 +230,7 @@ public:
     ostringstream s;
     s << Rvector("cnames", l.maps<string>([] (auto p)
 					  { return "\"" + p.first + + "\""; }));
+    s << endl;
     l.for_each([&s] (auto p)
 	       { s << Rvector("tuned_" + p.first, p.second) << endl; });	
 

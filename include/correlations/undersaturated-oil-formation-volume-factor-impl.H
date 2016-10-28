@@ -7,7 +7,9 @@
 inline Quantity<RB_STB>
 BoaMcCain::impl(const Quantity<psia> & p,
 		const Quantity<psia> & pb,
+		const Quantity<RB_STB> & bob,
 		const Quantity<psia_1> & co) const
+
 {
   const double bwa = bob.raw() * exp(co.raw() * (pb.raw() - p.raw()));
 
