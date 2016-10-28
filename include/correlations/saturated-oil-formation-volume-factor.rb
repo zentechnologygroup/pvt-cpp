@@ -5,8 +5,7 @@ begin_correlation("BobAlmarhoun", "SaturatedOilFormationVolumeFactor", "RB_STB",
 add_title("AL-MARHOUN CORRELATION, CALCULATION OF SATURATED OIL FORMATION VOLUME FACTOR")
 add_db("Based on 69 bottomhole fluid samples from 69 Middle East oil reservoirs.")
 add_ref("alMarhoun:1988")
-add_ref("banzer:1996") 
-add_ref("mcCain:1990")                  
+add_ref("banzer:1996")                  
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.752,  1.367)
 add_parameter("yo", "Sg_do", "Oil specific gravity",  "Quantity<Api>(44.6)",  "Quantity<Api>(19.4)")
 add_synonym("yo", "api", "Api")
@@ -14,6 +13,8 @@ add_parameter("rs", "SCF_STB", "Solution GOR",  26,  1602)
 add_parameter("t", "Rankine", "Temperature",  "Quantity<Fahrenheit>(74)",  "Quantity<Fahrenheit>(240)") 
 add_author("Al-Marhoun")
 end_correlation()
+
+################################################################
 
 begin_correlation("BobAlShammasi", "SaturatedOilFormationVolumeFactor", "RB_STB",
                   1.02, 2.916)
@@ -27,8 +28,9 @@ add_parameter("rs", "SCF_STB", "Solution GOR",  6,  3298.6)
 add_parameter("t", "Fahrenheit", "Temperature",  74,  341.6)
 add_author("Al-Shammasi")
 add_ref("alShammasi:1999")
-add_ref("mcCain:1990")
 end_correlation()
+
+################################################################
 
 begin_correlation("BobDeGhetto", "SaturatedOilFormationVolumeFactor", "RB_STB",
                   1.057, 1.362)
@@ -46,6 +48,8 @@ add_ref("deGhetto:1995")
 add_internal_note("De Ghetto et al. recommend the use of the Vazquez & Beggs correlation for the estimation of Bo. The values for the coefficients c1, c2, and c3 are selected only for API<=30.")
 end_correlation()
 
+################################################################
+
 begin_correlation("BobDindorukChristman", "SaturatedOilFormationVolumeFactor",
                   "RB_STB", 1.0845, 2.7381)
 add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF SATURATED OIL FORMATION VOLUME FACTOR")
@@ -57,9 +61,10 @@ add_parameter("t", "Fahrenheit", "Temperature",  117,  276)
 add_parameter("tsep",  "Fahrenheit", "Separator temperature")
 add_author("Dindoruk & Christman")
 add_ref("dindoruk:2004")
-add_ref("mcCain:1990")
 add_internal_note("The range assigned for Rs was taken from the range expressed by the authors for Rsb.")
 end_correlation()
+
+################################################################
 
 begin_correlation("BobDoklaOsman", "SaturatedOilFormationVolumeFactor", "RB_STB",
                   1.216, 2.493)
@@ -73,10 +78,10 @@ add_parameter("t", "Rankine", "Temperature",  "Quantity<Fahrenheit>(190)",  "Qua
 add_author("Dokla & Osman")
 add_ref("dokla:1992")
 add_ref("banzer:1996")
-add_ref("mcCain:1990")
 add_internal_note("The range assigned for Rs was taken from the range expressed by the authors for Rsb.")
 end_correlation()
 
+################################################################
 
 begin_correlation("BobGlaso", "SaturatedOilFormationVolumeFactor", "RB_STB",
                   1.087, 2.588)
@@ -90,7 +95,6 @@ add_parameter("t", "Fahrenheit", "Temperature",  80,  280)
 add_author("Glaso")
 add_ref("glaso:1980")
 add_ref("banzer:1996")
-add_ref("mcCain:1990")
 end_correlation()
 
 
@@ -139,7 +143,6 @@ add_author("Lasater")
 add_ref("lasater:1958")
 add_ref("standing:1947")
 add_ref("beggs:1987")
-add_ref("mcCain:1990")
 add_internal_note("Lasater didn't present a correlation for Bo. Standing's correlation is used to calculate Bob because of the similarity of his data bank and development ranges with Lasater's.")
 add_internal_note("The range assigned for Rs was taken from the range expressed by the author for Rsb.")
 set_hidden()
@@ -176,7 +179,6 @@ add_parameter("t", "Fahrenheit", "Temperature",  100,  258)
 add_author("Standing")
 add_ref("standing:1947")
 add_ref("alShammasi:2001")
-add_ref("mcCain:1990")
 end_correlation()
 
 
@@ -229,7 +231,6 @@ add_parameter("t", "Fahrenheit", "Temperature",  117,  354)
 add_author("Cegarra")
 add_ref("cegarra:2007")
 add_ref("standing:1947")
-add_ref("mcCain:1990")
 end_correlation()
 
 ################################################################
@@ -266,7 +267,6 @@ add_parameter("t", "Fahrenheit", "Temperature",  70,  307)
 add_parameter("p",  "psia", "Pressure")
 add_author("Velarde, Blasingame & McCain")
 add_ref("velarde:1997")
-add_ref("mcCain:1990")
 add_internal_note("The solution gas-oil ratios in the database are total gas-oil ratios (obtained by adding the solution gas-oil ratios at the separator and the stock tank).")
 end_correlation()
 
