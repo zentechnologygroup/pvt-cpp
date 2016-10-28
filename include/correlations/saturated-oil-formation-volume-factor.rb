@@ -293,7 +293,7 @@ end_correlation()
 ## verificada con python
 begin_correlation("BobManucciRosales", "SaturatedOilFormationVolumeFactor",
                   "RB_STB", 1.050, 2.400)
-add_title("MANUCCI & ROSALES CORRELATION, CALCULATION OF OIL FORMATION VOLUME FACTOR")
+add_title("MANUCCI & ROSALES CORRELATION, CALCULATION OF SATURATED OIL FORMATION VOLUME FACTOR")
 add_db("Crude oils of eastern Venezuela were correlated, by using differential separation data from laboratory PVT analysis.")
 add_parameter("api",  "Api", "API oil gravity",  14,  40)
 add_parameter("rs", "SCF_STB", "Solution GOR",  180,  2500)
