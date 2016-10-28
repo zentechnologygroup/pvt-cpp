@@ -110,7 +110,7 @@ public:
     ss_tot = sum2;
   }
 
-  struct LinearRegression
+  struct LFit
   {
     double c = 0;
     double m = 0;
@@ -119,17 +119,11 @@ public:
     double cov11 = 0;
     double sumsq = 0;
 
-    LinearRegression() noexcept {}
+    LFit() noexcept {}
 
-    LinearRegression(const Array<double> & y, const Array<double> & yc)
+    LFit(const Array<double> & y, const Array<double> & yc)
     {
-      Array<double> residuals;
-      for (auto it = get_zip_it(y, yc); it.has_curr(); it.next())
-	{
-	  auto t = it.get_curr();
-	  residuals.append(get<1>(t) - get<0>(t));
-	}
-      gsl_fit_linear(&y.base(), 1, &residuals.base(), 1, y.size(), &c, &m,
+      gsl_fit_linear(&yc.base(), 1, &y.base(), 1, yc.size(), &c, &m,
 		     &cov00, &cov01, &cov11, &sumsq);
     }
 
@@ -145,9 +139,9 @@ public:
     }
   };
 
-  LinearRegression linear_fit(const Array<double> & yc) const
+  LFit linear_fit(const Array<double> & yc) const
   {
-    return LinearRegression(y, yc);
+    return LFit(y, yc);
   }
 
   struct NlFit

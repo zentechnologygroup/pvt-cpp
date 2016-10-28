@@ -334,6 +334,22 @@ public:
 	}));
   }
 
+  string call_string() const
+  {
+    ostringstream s;
+    s << name << "(";
+    const auto & last = preconditions.get_last();
+    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+      {
+	const auto & curr = it.get_curr();
+	s << curr.name;
+	if (&curr != &last)
+	  s << ", ";
+      }
+    s << ")";
+    return s.str();
+  }
+
   static DynList<const Correlation *> list() { return tbl.values(); }
 
   static const Array<const Correlation*> & array() noexcept

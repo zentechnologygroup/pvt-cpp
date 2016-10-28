@@ -66,13 +66,13 @@ public:
   {
     return data.matching_correlations("Below Pb").
       filter([] (auto ptr) { cout << ptr->name << endl;
-	  return ptr->target_name() == "bo"; });
+	  return ptr->target_name() == "bob"; });
   }
 
   DynList<const Correlation*> bob_valid_correlations() const
   {
     return data.valid_correlations(0).
-      filter([] (auto ptr) { return ptr->target_name() == "bo"; });
+      filter([] (auto ptr) { return ptr->target_name() == "bob"; });
   }
 
   DynList<const Correlation*> boa_correlations() const
@@ -150,19 +150,19 @@ public:
     return sort(ret, [] (auto t1, auto t2) { return get<3>(t1) < get<3>(t2); });
   }
 
-  using VarCorrFit =
+  using VarCorrNlFit =
     //   ok      y              correlation,  message if not ok, Fit values
     tuple<bool, DynList<double>, const Correlation*, string, CorrStat::NlFit>;
 
   // TODO: parámetros de bounds que serían según la tendencia de la pendiente
-  DynList<VarCorrFit>
-  correlations_fits(const DynList<const Correlation*> & corr_list,
+  DynList<VarCorrNlFit>
+  correlations_nlfits(const DynList<const Correlation*> & corr_list,
 		    size_t seti, bool check = true) const
   {
     const string & var_name = corr_list.get_first()->target_name();
     CorrStat stat(data.values(seti, var_name));
 
-    DynList<VarCorrFit> ret = corr_list.maps<VarCorrFit>([&] (auto ptr)
+    DynList<VarCorrNlFit> ret = corr_list.maps<VarCorrNlFit>([&] (auto ptr)
       {
 	try
 	  {
@@ -181,15 +181,88 @@ public:
 		{ return get<4>(t1).sum_line < get<4>(t2).sum_line; });
   }
 
-  /// Computes the coefficients c + m corr(p1, p2, ...) for all valid
-  /// correlations that best calibrate. The resulting list is sorted
-  /// according the fit with minumum error
-  DynList<VarCorrFit> rs_correlations_fits(bool check = true) const
+  using VarCorrLFit =
+    //   ok      y              correlation,  message if not ok, Fit values
+    tuple<bool, DynList<double>, const Correlation*, string, CorrStat::LFit>;
+
+  string to_string(const VarCorrLFit & t) const
   {
-    return correlations_fits(rs_valid_correlations(), 0, check);
+    auto corr = get<2>(t);
+    const auto & name = corr->name;
+
+    ostringstream s;
+    
+    s << name << ": ";
+    if (not get<0>(t))
+      {
+	s << ": " << get<3>(t);
+	return s.str();
+      }
+
+    const auto & desc = get<4>(t);
+    s << "ltuned." << name << " = " << desc.c << " + " << desc.m << " " 
+      << corr->call_string() << " error = " << desc.sumsq;
+
+    return s.str();
+  }
+
+  string to_R(const VarCorrLFit & t) const
+  {
+    auto corr = get<2>(t);
+    const auto & name = corr->name;
+
+    ostringstream s;
+
+    s << Rvector("ltuned." +  name, get<1>(t));
+
+    return s.str();
+  }
+
+  DynList<VarCorrLFit>
+  correlations_lfits(const DynList<const Correlation*> & corr_list,
+		     size_t seti, bool check = true) const
+  {
+    const string & var_name = corr_list.get_first()->target_name();
+    CorrStat stat(data.values(seti, var_name));
+
+    DynList<VarCorrLFit> ret = corr_list.maps<VarCorrLFit>([&] (auto ptr)
+      {
+	try
+	  {
+	    auto result = data.compute(0, ptr, check);
+	    auto fit = stat.linear_fit(result);
+	    return make_tuple(true, move(result), ptr, "", fit);
+	  }
+	catch (exception & e)
+	  {
+	    return make_tuple(false, DynList<double>(), ptr, e.what(),
+			      CorrStat::LFit());
+	  }
+      });
+
+    return sort(ret, [] (auto t1, auto t2)
+		{ return get<4>(t1).sumsq < get<4>(t2).sumsq; });
+  }
+
+  DynList<VarCorrLFit> rs_correlations_lfits(bool check = true) const
+  {
+    return correlations_lfits(rs_valid_correlations(), 0, check);
+  }
+
+  DynList<VarCorrNlFit> rs_correlations_nlfits(bool check = true) const
+  {
+    return correlations_nlfits(rs_valid_correlations(), 0, check);
+  }
+
+  DynList<VarCorrLFit> bob_correlations_lfits(bool check = true) const
+  {
+    return correlations_lfits(bob_valid_correlations(), 0, check);
   }
 
   string to_R(const Array<double> & lab_data,
+	      const Array<double> & xdata,
+	      const string & xlabel,
+	      const string & ylabel,
 	      const DynList<VarCorrStatus> & l) const
   {
     using P = pair<string, Array<double>>;
@@ -198,6 +271,7 @@ public:
     const string & name = get<3>(l.get_first())->target_name();
 
     s << Rvector(name, lab_data) << endl;
+    s << Rvector("xdata", xdata) << endl;
 
     DynList<P> corrs =
       l.maps<P>([] (auto t) { return make_pair(get<3>(t)->name, get<1>(t)); });
@@ -208,12 +282,13 @@ public:
 
     s << Rvector("cnames", colnames) << endl;
 
-    s << "plot(" << name << ", type=\"l\")" << endl;
+    s << "plot(xdata, " << name << ", type=\"l\", xlab=\"" << xlabel
+      << "\", ylab=\"" << ylabel << "\")" << endl;
 
     size_t col = 2;
     corrs.for_each([&s, &col] (auto p)
       {
-	s << "lines(" << p.first << ",lwd=2,lty=" << col << ", col="
+	s << "lines(xdata, " << p.first << ",lwd=2,lty=" << col << ", col="
 	  << col << ")" << endl;
 	++col;
       });
@@ -225,14 +300,14 @@ public:
     return s.str();
   }
 
-  string to_R(const DynList<pair<string, DynList<double>>> & l)
+  string to_R(const string & prefix,  DynList<pair<string, DynList<double>>> & l)
   {
     ostringstream s;
-    s << Rvector("cnames", l.maps<string>([] (auto p)
+    s << Rvector(prefix + ".cnames", l.maps<string>([] (auto p)
 					  { return "\"" + p.first + + "\""; }));
     s << endl;
-    l.for_each([&s] (auto p)
-	       { s << Rvector("tuned_" + p.first, p.second) << endl; });	
+    l.for_each([&s, &prefix] (auto p)
+	       { s << Rvector(prefix + p.first, p.second) << endl; });	
 
     return s.str();
   }

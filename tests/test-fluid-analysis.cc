@@ -111,20 +111,34 @@ int main(int argc, char *argv[])
   // 		    << get<2>(t) << " " << get<3>(t) << endl;
   // 	     });
 
-  cout << pvt.to_R(pvt.get_data().values(0, "rs"), rs_best_mse) << endl;
+  cout << pvt.to_R(pvt.get_data().values(0, "rs"),
+		   pvt.get_data().values(0, "p"), "Pressure", "Rs",
+		   rs_best_mse) << endl;
 
-  auto best_fits = pvt.rs_correlations_fits();
+  cout << "Non linear" << endl;
+  auto best_nlfits = pvt.rs_correlations_nlfits();
 
-  auto best_fits_l = best_fits.maps<DynList<string>>([] (auto t)
+  auto best_nlfits_l = best_nlfits.maps<DynList<string>>([] (auto t)
     {
       auto r = get<4>(t); // nlfit
       return DynList<string>({ get<2>(t)->name, 
 	    to_string(r.c), to_string(r.m), to_string(r.sum_line) });
     });
 
-  best_fits_l.insert({"Correlation", "c", "m", "sumsq"});
+  best_nlfits_l.insert({"Correlation", "c", "m", "sumsq"});
 
-  auto tuned = best_fits.maps<pair<string, DynList<double>>>([&pvt] (auto t)
+  auto best_lfits = pvt.rs_correlations_lfits();
+
+  auto best_lfits_l = best_lfits.maps<DynList<string>>([] (auto t)
+    {
+      auto r = get<4>(t); // nlfit
+      return DynList<string>({ get<2>(t)->name, 
+	    to_string(r.c), to_string(r.m), to_string(r.sumsq) });
+    });
+
+  best_lfits_l.insert({"Correlation", "c", "m", "sumsq"});
+
+  auto nl_tuned = best_nlfits.maps<pair<string, DynList<double>>>([&pvt] (auto t)
     {
       auto r = get<4>(t);
       auto ptr = get<2>(t);
@@ -132,16 +146,56 @@ int main(int argc, char *argv[])
       return make_pair(ptr->name, move(values));
     });
 
-  cout << pvt.to_R(tuned) << endl;
-    
+  auto l_tuned = best_lfits.maps<pair<string, DynList<double>>>([&pvt] (auto t)
+    {
+      auto r = get<4>(t);
+      auto ptr = get<2>(t);
+      auto values = pvt.get_data().tuned_compute(0, ptr, r.c, r.m);
+      return make_pair(ptr->name, move(values));
+    });
+
+  cout << pvt.to_R("nltuned.", nl_tuned) << endl
+       << endl
+       << pvt.to_R("ltuned.", l_tuned) << endl;
+
+  CorrStat stat(pvt.get_data().values(0, "rs"));
+  auto all_tuned =
+    l_tuned.maps<pair<string, DynList<double>>>([] (auto p)
+      {
+	return make_pair("ltuned." + p.first, p.second);
+      });
+  all_tuned.append(nl_tuned.maps<pair<string, DynList<double>>>([] (auto p)
+      {
+	return make_pair("nltuned." + p.first, p.second);
+      }));
+  auto all_tuned_stats =
+    sort(all_tuned.maps<tuple<string, double, double>>([&stat] (auto p)
+      {
+	return make_tuple(p.first, stat.mse(p.second),
+			  stat.sigma_distance(p.second));
+      }), [] (auto t1, auto t2) { return get<1>(t1) < get<1>(t2); }).
+    maps<DynList<string>>([] (auto t)
+      {
+	return DynList<string>({ get<0>(t), to_string(get<1>(t)),
+	      to_string(get<2>(t)) });
+      });
+  all_tuned_stats.
+    insert(DynList<string>({"Correlation", "mse", "sigma_distance"}));
+
+   cout << "Tuned correlations sorted by mse:" << endl
+        << to_string(format_string(all_tuned_stats)) << endl;
+
+
   cout << endl
-       << to_string(format_string(best_fits_l)) << endl;
+       << "Non linear" << endl
+       << to_string(format_string(best_nlfits_l)) << endl
+       << "Linear" << endl
+       << to_string(format_string(best_lfits_l)) << endl
+       << endl;
 
-  auto bob_correlations =
-    Correlation::list().filter([] (auto p) { return p->target_name() == "bo"; });
 
-  cout << "bo correlations" << endl;
-  bob_correlations.for_each([&pvt] (auto p)
+  cout << "Bob valid correlations" << endl;
+  pvt.bob_valid_correlations().for_each([&pvt] (auto p)
     {
       cout << p->name;
       p->names().for_each([] (const auto & s) { cout << " " << s; });
@@ -152,8 +206,21 @@ int main(int argc, char *argv[])
       cout << endl;
     });
 
-  cout << "cob correlations" << endl;
-  pvt.cob_correlations().for_each([] (auto p) { cout << p->name << endl; });
+  cout << endl;
+
+  auto bob_lfits = pvt.bob_correlations_lfits();
+
+  cout << Rvector("bob", pvt.get_data().values(0, "bob")) << endl;
+
+  bob_lfits.for_each([&pvt] (auto t)
+		     {
+		       cout << pvt.to_R(t) << endl;
+		     });
+
+  
+
+  // cout << "cob correlations" << endl;
+  // pvt.cob_correlations().for_each([] (auto p) { cout << p->name << endl; });
 
   // cout << "All matching correlations" << endl;
   // pvt.get_data().matching_correlations(0).
