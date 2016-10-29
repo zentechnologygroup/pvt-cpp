@@ -261,6 +261,16 @@ public:
       });
   }
 
+  // Returns the signature position of parameter `par_name`. If not
+  // found return a position greater than the number of parameters
+  size_t parameter_pos(const string & par_name) const
+  {
+    return preconditions.find_index([&par_name] (const auto & par)
+				    {
+				      return par.name == par_name;
+				    });
+  }
+
   DynList<const Unit *> get_par_types() const
   {
     return preconditions.maps<const Unit *>([] (const auto & par)

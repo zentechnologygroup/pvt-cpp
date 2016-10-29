@@ -35,7 +35,18 @@ int main(int argc, char *argv[])
   auto bob_samples = pvt.get_data().values(0, "bob");
   auto bob_valid = pvt.bob_valid_correlations();
 
-  //auto velarde = 
+  auto c = bob_valid.get_first();
+  cout << c->call_string() << endl << endl;
+
+  auto corr = pvt.get_data().correlation_perms(0, bob_valid.get_first(), "rs");
+
+  corr.for_each([] (const auto & l)
+		{
+		  l.for_each([] (auto v) { cout << v << " "; });
+		  cout << endl;
+		});
+
+  return 0;
 
   cout << "Bob valid correlations" << endl;
   for (auto it = bob_valid.get_it(); it.has_curr(); it.next())
