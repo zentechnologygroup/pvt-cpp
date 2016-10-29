@@ -10,6 +10,17 @@ class PvtAnalyzer
 
 public:
 
+  struct SelectedCorrelation
+  {
+    const Correlation * correlation = nullptr;
+    const double c = 0;
+    const double m = 1;
+    const bool is_calibrated = false;
+
+    SelectedCorrelation(const Correlation * ptr, double c = 0, double m = 1)
+      : correlation(ptr), c(c), m(m), is_calibrated(c != 0 or m != 1) {}
+  };
+
   EmpiricalData & get_data() { return data; }
 
   void check_data() const
@@ -121,33 +132,54 @@ public:
   }
 
   using VarCorrStatus =
-    //   ok      y              statistical, correlation,  message if not ok
-    tuple<bool, DynList<double>, double, const Correlation*, string>;
+    //   ok      y                                    r2,     mse,   sigma-dist 
+    tuple<bool, DynList<double>, const Correlation*, double, double, double,
+	  string>; // message if not ok
 
   /// Returns the rs correlations sorted by the statistical `name`
-  DynList<VarCorrStatus> best_rs_correlations(const string & name,
-					      bool check = true) const
+  DynList<VarCorrStatus>
+  best_correlations(const DynList<const Correlation*> & l,
+		    bool check = true) const
   {
-    // como asegurar que el orden de las y sea el mismo tanto para en
-    // data set como las correlaciones? R: ordenar por 
-    CorrStat stat(data.values(0, "rs"));
-    auto statistical = stat.statistical(name);
+    const string corr_name  = l.get_first()->name;
+    CorrStat stat(data.values(0, corr_name));
 
-    auto rs_correlations = rs_valid_correlations();
     DynList<VarCorrStatus> ret;
-    for (auto it = rs_correlations.get_it(); it.has_curr(); it.next())
+    for (auto it = l.get_it(); it.has_curr(); it.next())
       {
 	auto corr_ptr = it.get_curr();
+	if (corr_ptr->target_name() != corr_name)
+	  {
+	    ostringstream s;
+	    s << "PvtAnalyzer::best_correlations(): Correlation "
+	      << corr_ptr->name << " target name " << corr_ptr->target_name()
+	      << " contained in list is not the name " << corr_name;
+	    throw domain_error(s.str()); 
+	  }
+	    
 	try
 	  {
 	    auto result = data.compute(0, corr_ptr, check);
-	    auto s = (stat.*statistical)(result);
-	    ret.append(make_tuple(true, move(result), s, corr_ptr, ""));
+	    auto r2 = stat.r2(result);
+	    auto mse = stat.mse(result);
+	    auto sigma_distance = stat.sigma_distance(result);
+	    ret.append(make_tuple(true, move(result), corr_ptr, r2, mse,
+				  sigma_distance, ""));
 	  }
 	catch (exception & e) { /* ignore it! */ }
       }
 
     return sort(ret, [] (auto t1, auto t2) { return get<3>(t1) < get<3>(t2); });
+  }
+
+  DynList<VarCorrStatus> best_rs_correlations(bool check = true) const
+  {
+    return best_correlations(rs_valid_correlations(), check);
+  }
+
+  DynList<VarCorrStatus> best_bob_correlations(bool check = true) const
+  {
+    return best_correlations(bob_valid_correlations(), check);
   }
 
   using VarCorrNlFit =
@@ -229,7 +261,7 @@ public:
       {
 	try
 	  {
-	    auto result = data.compute(0, ptr, check);
+	    auto result = data.compute(seti, ptr, check);
 	    auto fit = stat.linear_fit(result);
 	    return make_tuple(true, move(result), ptr, "", fit);
 	  }
@@ -268,13 +300,13 @@ public:
     using P = pair<string, Array<double>>;
     ostringstream s;
 
-    const string & name = get<3>(l.get_first())->target_name();
+    const string & name = get<2>(l.get_first())->target_name();
 
     s << Rvector(name, lab_data) << endl;
     s << Rvector("xdata", xdata) << endl;
 
     DynList<P> corrs =
-      l.maps<P>([] (auto t) { return make_pair(get<3>(t)->name, get<1>(t)); });
+      l.maps<P>([] (auto t) { return make_pair(get<2>(t)->name, get<1>(t)); });
 
     auto colnames = corrs.maps<string>([] (auto p)
 				       { return "\"" + p.first + "\""; });

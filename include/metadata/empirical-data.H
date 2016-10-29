@@ -844,6 +844,67 @@ public:
     return ret;
   }
 
+  // Return a list of permutations input for `correlation_ptr` built
+  // according to column index `col`
+  DynList<DynList<double>>
+  correlation_perms(size_t seti, const Correlation * correlation_ptr,
+		    size_t col) const
+  {
+    DynList<DynList<double>> ret; // this is the return value
+
+    // traverse all correlation parameter and get from the data set a
+    // column of data
+    for (auto it = correlation_ptr->get_preconditions().get_it(); it.has_curr();
+	 it.next())
+      {
+	auto par = it.get_curr();
+	DynList<double> vals = to_DynList(values(seti, par.name));
+	if (not vals.is_empty())
+	  {
+	    ret.append(vals);
+	    continue;
+	  }
+
+	// if vals is empty, the it could exist a synonym in the
+	// correlation that matches with par_name. So we traverse the
+	// par_name synonyms
+	for (auto it_syn = par.get_synonyms().get_it(); it_syn.has_curr();
+	     it.next())
+	  {
+	    auto syn = it_syn.get_curr();
+	    const auto & syn_name = syn.first;
+	    vals = to_DynList(values(seti, syn_name)); // verify if
+	    // there are
+	    // values in data
+	    // set
+	    if (not vals.is_empty())
+	      { // a synomym was found for par_name in the
+		// correlation. Now we convert the values to the synonym unit
+		const Unit * syn_unit = syn.second;
+		vals.mutable_for_each([syn_unit, &par] (auto & v)
+				      {
+					VtlQuantity vsyn(*syn_unit, v);
+					v = VtlQuantity(par.unit, vsyn).raw();
+				      });
+		break;
+	      }
+	  }
+	if (vals.is_empty())
+	  { // here definitely there is no data for the parameter
+	    // inside the data set
+	    ostringstream s;
+	    s << "EmpiricalData::correlation_values(): parameter " << par.name
+	      << " of correlation " << correlation_ptr->name
+	      << " does not match with any name of data set";
+	    throw domain_error(s.str());
+	  }
+
+	ret.append(vals);
+      }
+
+    return ret;
+  }
+
   /// Returns true if the parameter contained in data set number
   /// `seti` fits the restrictions of correlation `correlation_ptr`
   bool fits_parameter_ranges(size_t seti,
