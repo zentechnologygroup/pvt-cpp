@@ -11,3 +11,6 @@ RsVasquezBeggs <- c(132.246, 282.24, 439.754, 520.51, 537.27, 584.575)
 RsVelarde <- c(355.914, 598.431, 853.873, 993.521, 1023.47, 1109.97)
 
 plot(rs, type="l")
+
+
+legend("topleft",legend=colnames(tab),lty=c(1,2,3),col=c("red","black","blue"),bg="white",lwd=2)

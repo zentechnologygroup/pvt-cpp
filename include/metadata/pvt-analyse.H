@@ -136,12 +136,28 @@ public:
     tuple<bool, DynList<double>, const Correlation*, double, double, double,
 	  string>; // message if not ok
 
+  string to_string(const DynList<VarCorrStatus> & l) const
+  {
+    DynList<DynList<string>> lines;
+    for (auto it = l.get_it(); it.has_curr(); it.next())
+      {
+	const auto & s = it.get_curr();
+	if (not get<0>(s))
+	  continue;
+	lines.append({get<2>(s)->name, ::to_string(get<3>(s)),
+	      ::to_string(get<4>(s)), ::to_string(get<4>(s))});
+      }
+    lines.insert({"Correlation", "r2", "mse", "sigma-distance"});
+
+    return Aleph::to_string(format_string(lines));
+  }
+
   /// Returns the rs correlations sorted by the statistical `name`
   DynList<VarCorrStatus>
   best_correlations(const DynList<const Correlation*> & l,
-		    bool check = true) const
+		    const string & row_name, bool check = true) const
   {
-    const string corr_name  = l.get_first()->name;
+    const string corr_name  = l.get_first()->target_name();
     CorrStat stat(data.values(0, corr_name));
 
     DynList<VarCorrStatus> ret;
@@ -159,7 +175,7 @@ public:
 	    
 	try
 	  {
-	    auto result = data.compute(0, corr_ptr, check);
+	    auto result = data.compute(0, row_name, corr_ptr, check);
 	    auto r2 = stat.r2(result);
 	    auto mse = stat.mse(result);
 	    auto sigma_distance = stat.sigma_distance(result);
@@ -174,12 +190,12 @@ public:
 
   DynList<VarCorrStatus> best_rs_correlations(bool check = true) const
   {
-    return best_correlations(rs_valid_correlations(), check);
+    return best_correlations(rs_valid_correlations(), "p", check);
   }
 
   DynList<VarCorrStatus> best_bob_correlations(bool check = true) const
   {
-    return best_correlations(bob_valid_correlations(), check);
+    return best_correlations(bob_valid_correlations(), "rs", check);
   }
 
   using VarCorrNlFit =
@@ -189,7 +205,8 @@ public:
   // TODO: parámetros de bounds que serían según la tendencia de la pendiente
   DynList<VarCorrNlFit>
   correlations_nlfits(const DynList<const Correlation*> & corr_list,
-		    size_t seti, bool check = true) const
+		      size_t seti, const string & row_name,
+		      bool check = true) const
   {
     const string & var_name = corr_list.get_first()->target_name();
     CorrStat stat(data.values(seti, var_name));
@@ -198,7 +215,7 @@ public:
       {
 	try
 	  {
-	    auto result = data.compute(0, ptr, check);
+	    auto result = data.compute(0, row_name, ptr, check);
 	    auto fit = stat.nlfit(result);
 	    return make_tuple(true, move(result), ptr, "", fit);
 	  }
@@ -252,7 +269,8 @@ public:
 
   DynList<VarCorrLFit>
   correlations_lfits(const DynList<const Correlation*> & corr_list,
-		     size_t seti, bool check = true) const
+		     size_t seti, const string & row_name,
+		     bool check = true) const
   {
     const string & var_name = corr_list.get_first()->target_name();
     CorrStat stat(data.values(seti, var_name));
@@ -261,7 +279,7 @@ public:
       {
 	try
 	  {
-	    auto result = data.compute(seti, ptr, check);
+	    auto result = data.compute(seti, row_name, ptr, check);
 	    auto fit = stat.linear_fit(result);
 	    return make_tuple(true, move(result), ptr, "", fit);
 	  }
@@ -278,17 +296,17 @@ public:
 
   DynList<VarCorrLFit> rs_correlations_lfits(bool check = true) const
   {
-    return correlations_lfits(rs_valid_correlations(), 0, check);
+    return correlations_lfits(rs_valid_correlations(), 0, "p", check);
   }
 
   DynList<VarCorrNlFit> rs_correlations_nlfits(bool check = true) const
   {
-    return correlations_nlfits(rs_valid_correlations(), 0, check);
+    return correlations_nlfits(rs_valid_correlations(), 0, "p", check);
   }
 
   DynList<VarCorrLFit> bob_correlations_lfits(bool check = true) const
   {
-    return correlations_lfits(bob_valid_correlations(), 0, check);
+    return correlations_lfits(bob_valid_correlations(), 0, "rs", check);
   }
 
   string to_R(const Array<double> & lab_data,
@@ -314,7 +332,7 @@ public:
 
     s << Rvector("cnames", colnames) << endl;
 
-    s << "plot(xdata, " << name << ", type=\"l\", xlab=\"" << xlabel
+    s << "plot(xdata, " << name << ", xlab=\"" << xlabel
       << "\", ylab=\"" << ylabel << "\")" << endl;
 
     size_t col = 2;

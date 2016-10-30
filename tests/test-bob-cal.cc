@@ -33,40 +33,30 @@ int main(int argc, char *argv[])
   pvt.check_data();
 
   auto bob_samples = pvt.get_data().values(0, "bob");
+  cout << Rvector("bob", bob_samples) << endl;
+
   auto bob_valid = pvt.bob_valid_correlations();
 
   auto c = bob_valid.get_first();
   cout << c->call_string() << endl << endl;
 
-  auto corr = pvt.get_data().correlation_perms(0, bob_valid.get_first(), "rs");
+  auto rs = pvt.get_data().values(0, "rs");
 
-  corr.for_each([] (const auto & l)
-		{
-		  l.for_each([] (auto v) { cout << v << " "; });
-		  cout << endl;
-		});
-
-  return 0;
+  cout << Rvector("rs", rs) << endl;
 
   cout << "Bob valid correlations" << endl;
-  for (auto it = bob_valid.get_it(); it.has_curr(); it.next())
-    {
-      const Correlation * ptr = it.get_curr();
-      EmpiricalData & data = pvt.get_data();
-      DynList<double> r = data.compute(0, ptr);
-      cout << Rvector("bob", bob_samples) << endl
-	   << Rvector("tuned." + ptr->name, r) << endl;
-    }
-
+  bob_valid.for_each([] (auto p) { cout << p->call_string() << endl; });
   cout << endl;
+
+  cout << pvt.to_string(pvt.best_bob_correlations()) << endl
+       << endl;
 
   auto bob_lfits = pvt.bob_correlations_lfits();
 
-  cout << Rvector("bob", bob_samples) << endl;
-
   bob_lfits.for_each([&pvt] (auto t)
 		     {
-		       cout << pvt.to_R(t) << endl;
+		       cout << pvt.to_R(t) << endl
+			    << pvt.to_string(t) << endl;
 		     });
 }
 

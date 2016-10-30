@@ -1081,9 +1081,17 @@ public:
 
   /// returns a column of correlation outputs for the values stored in
   /// this data set
-  DynList<double> compute(size_t seti, const Correlation * correlation_ptr,
+  DynList<double> compute(size_t seti, const string & row_name,
+			  const Correlation * correlation_ptr,
 			  bool check = true) const
   {
+    return
+      correlation_perms(seti, correlation_ptr, row_name).
+      maps<double>([&](const auto & l)
+		   {
+		     return correlation_ptr->compute(l, check);
+		   });
+    
     auto vals = correlation_values(seti, correlation_ptr);
 
     DynList<double> ret;
@@ -1096,10 +1104,18 @@ public:
     return ret;
   }
 
-  DynList<double> tuned_compute(size_t seti, const Correlation * correlation_ptr,
+  DynList<double> tuned_compute(size_t seti, const string & row_name,
+				const Correlation * correlation_ptr,
 				double c, double m,
 				bool check = true) const
   {
+    return
+      correlation_perms(seti, correlation_ptr, row_name).
+      maps<double>([&](const auto & l)
+		   {
+		     return correlation_ptr->tuned_compute(l, c, m, check);
+		   });
+
     auto vals = correlation_values(seti, correlation_ptr);
 
     DynList<double> ret;
@@ -1112,19 +1128,20 @@ public:
     return ret;
   }
 
-  DynList<double> compute(const string & set_name,
+  DynList<double> compute(const string & set_name, const string & row_name,
 			  const Correlation * correlation_ptr,
 			  bool check = true) const
   {
-    return compute(set_index(set_name), correlation_ptr, check);
+    return compute(set_index(set_name), row_name, correlation_ptr, check);
   }
 
-  DynList<double> tuned_compute(const string & set_name,
+  DynList<double> tuned_compute(const string & set_name, const string & row_name,
 				const Correlation * correlation_ptr,
 				double c, double m,
 				bool check = true) const
   {
-    return tuned_compute(set_index(set_name), correlation_ptr, c, m, check);
+    return
+      tuned_compute(set_index(set_name), row_name, correlation_ptr, c, m, check);
   }
 
   using CorrRow = tuple<DynList<double>, double>;
