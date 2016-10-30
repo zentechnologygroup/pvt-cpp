@@ -304,10 +304,34 @@ public:
     return correlations_nlfits(rs_valid_correlations(), 0, "p", check);
   }
 
+  DynList<pair<string, DynList<double>>>
+  lfits_list(const DynList<VarCorrLFit> & l, const string & row_name) const
+  {
+    return l.maps<pair<string, DynList<double>>>([this, &row_name] (auto t)
+    {
+      auto r = get<4>(t);
+      auto ptr = get<2>(t);
+      auto values = data.tuned_compute(0, row_name, ptr, r.c, r.m);
+      return make_pair(ptr->name, move(values));
+    });
+  }
+
+  DynList<pair<string, DynList<double>>>
+	 rs_lfits_list(const DynList<VarCorrLFit> & l) const
+  {
+    return lfits_list(l, "p");
+  }
+
   DynList<VarCorrLFit> bob_correlations_lfits(bool check = true) const
   {
     return correlations_lfits(bob_valid_correlations(), 0, "rs", check);
   }
+
+  DynList<pair<string, DynList<double>>>
+  bob_lfits_list(const DynList<VarCorrLFit> & l) const
+  {
+    return lfits_list(l, "rs");
+  }  
 
   string to_R(const Array<double> & lab_data,
 	      const Array<double> & xdata,
@@ -350,7 +374,8 @@ public:
     return s.str();
   }
 
-  string to_R(const string & prefix,  DynList<pair<string, DynList<double>>> & l)
+  string to_R(const string & prefix,
+	      const DynList<pair<string, DynList<double>>> & l)
   {
     ostringstream s;
     s << Rvector(prefix + ".cnames", l.maps<string>([] (auto p)
@@ -361,6 +386,11 @@ public:
 
     return s.str();
   }
+
+  // string to_R(const string & prefix,  DynList<pair<string, DynList<double>>> && l)
+  // {
+  //   return to_R(prefix, l);
+  // }
 
   PvtAnalyzer() {}
 

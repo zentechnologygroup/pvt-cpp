@@ -51,12 +51,25 @@ int main(int argc, char *argv[])
   cout << pvt.to_string(pvt.best_bob_correlations()) << endl
        << endl;
 
-  auto bob_lfits = pvt.bob_correlations_lfits();
+  auto bob_lfits = sort(pvt.bob_correlations_lfits(),
+			[] (const auto & t1, const auto &t2)
+			{
+			  return get<4>(t1).sumsq < get<4>(t2).sumsq;
+			});
 
-  bob_lfits.for_each([&pvt] (auto t)
-		     {
-		       cout << pvt.to_R(t) << endl
-			    << pvt.to_string(t) << endl;
-		     });
+  cout << to_string(format_string(bob_lfits.maps<DynList<string>>([] (auto t)
+    {
+      auto fit = get<4>(t);
+      return DynList<string>({get<2>(t)->name, to_string(fit.c),
+	    to_string(fit.m), to_string(fit.sumsq) });
+    }))) << endl;
+
+  auto bob_lfits_list = pvt.bob_lfits_list(bob_lfits);
+
+  cout << pvt.to_R("tuned.", bob_lfits_list) << endl;
+
+  cout << pvt.to_R(pvt.get_data().values(0, "bob"),
+   		   pvt.get_data().values(0, "rs"), "Rs", "Bob",
+		   pvt.best_bob_correlations()) << endl;
 }
 
