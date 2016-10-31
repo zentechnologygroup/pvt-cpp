@@ -1,11 +1,10 @@
 DEPEND = sh ./depend.sh
 
-PVT=/home/lrleon/pvt
 ALEPHW = $(shell echo $$ALEPHW)
-
+#Prueba: BoRRAR
 UNITS=../units/units.o
 
-INCLUDES = -I$(ALEPHW) -I$(PVT)/include
+INCLUDES = -I$(ALEPHW) -I$(TOP)/include
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
 FLAGS = -std=c++14 $(WARN) -O0 -g
 
