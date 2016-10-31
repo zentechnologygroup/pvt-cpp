@@ -1,7 +1,7 @@
 # ifndef OIL_FORMATION_VOLUME_FACTOR_IMPL_H
 # define OIL_FORMATION_VOLUME_FACTOR_IMPL_H
 # include "oil-formation-volume-factor.H"
-inline double
+static inline double
 bo_undersaturated_oil_McCain(double bob, double p, double pb, double co)
 {
   return bob*exp(co*(pb - p));

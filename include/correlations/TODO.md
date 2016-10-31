@@ -15,3 +15,6 @@
 ## 5. oil-density
 - Created at   2016-10-31 07:41:00 -0400
 
+## 6. gen-corr: el operador () de la correlación debe ser una llamada directa a la implementación y no el pase de la lista
+- Created at   2016-10-31 17:41:10 -0400
+

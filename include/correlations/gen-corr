@@ -214,7 +214,7 @@ class CorrelationGen
          "\n"
     s += "#{impl_type} operator () #{gen_pars} const\n"\
          "{\n"\
-         "  return compute({#{pars_list}});\n"\
+         "  return impl(#{pars_list});\n"\
          "}\n"\
          "\n"
     s += gen_compute

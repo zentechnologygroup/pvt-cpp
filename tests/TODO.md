@@ -87,3 +87,6 @@
 - Created at    no su símbolo
 - Completed at 2016-10-24 19:20:36 -0400
 
+## 29. flag en test-conversion que liste unidades dada magnitud física
+- Created at   2016-10-31 17:25:29 -0400
+
