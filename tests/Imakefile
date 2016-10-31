@@ -60,9 +60,6 @@ NormalProgramTarget(test-analyse,test-analyse.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(
 AllTarget(test-empirical-json)
 NormalProgramTarget(test-empirical-json,test-empirical-json.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
-# AllTarget(test-fluid-analysis)
-# NormalProgramTarget(test-fluid-analysis,test-fluid-analysis.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
-
 AllTarget(test-non-lsq)
 NormalProgramTarget(test-non-lsq,test-non-lsq.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
