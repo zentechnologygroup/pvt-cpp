@@ -432,11 +432,8 @@ inline Quantity<SCF_STB> RsCegarra::impl(const Quantity<Sgg> & yg,
   return Quantity<SCF_STB>(rs); 
 }
 
-inline Quantity<SCF_STB> RsPerezML::impl(const Quantity<Sgg> &,
-					 const Quantity<psia> & pb,
+inline Quantity<SCF_STB> RsPerezML::impl(const Quantity<psia> & pb,
 					 const Quantity<psia> & p,
-					 const Quantity<Api> &,
-					 const Quantity<Fahrenheit> &,
 					 const Quantity<SCF_STB> & rsb) const
 {
   const double raw_pb = pb.get_value();
@@ -448,11 +445,8 @@ inline Quantity<SCF_STB> RsPerezML::impl(const Quantity<Sgg> &,
 }
 
 inline Quantity<SCF_STB>
-RsMillanArcia::impl(const Quantity<Sgg> &,
-		    const Quantity<psia> & pb,
+RsMillanArcia::impl(const Quantity<psia> & pb,
 		    const Quantity<psia> & p,
-		    const Quantity<Api> &,
-		    const Quantity<Fahrenheit> &,
 		    const Quantity<SCF_STB> & rsb) const
 {
   const double raw_pb = pb.get_value();
