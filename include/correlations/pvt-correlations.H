@@ -7,6 +7,8 @@
 # include "saturated-oil-formation-volume-factor.H"
 # include "undersaturated-oil-formation-volume-factor.H"
 # include "oil-compressibility.H"
+# include "saturated-compressibility.H"
+# include "undersaturated-compressibility.H"
 # include "oil-density.H"
 # include "dead-oil-viscosity.H"
 # include "saturated-oil-viscosity.H"
@@ -33,6 +35,8 @@
 # include "saturated-oil-formation-volume-factor-impl.H"
 # include "undersaturated-oil-formation-volume-factor-impl.H"
 # include "oil-compressibility-impl.H"
+# include "saturated-compressibility-impl.H"
+# include "undersaturated-compressibility-impl.H"
 # include "oil-density-impl.H"
 # include "dead-oil-viscosity-impl.H"
 # include "saturated-oil-viscosity-impl.H"
@@ -143,6 +147,10 @@ struct CorrelationInstantiater
     CoVasquezBeggs::get_instance();
     CoPerezML::get_instance();
     CoMillanArcia::get_instance();
+
+    CobMcCainEtAl::get_instance();
+
+    CoaDeGhetto::get_instance();
 
     PoBradley::get_instance();
 
