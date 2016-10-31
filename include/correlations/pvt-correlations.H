@@ -123,12 +123,10 @@ struct CorrelationInstantiater
     BoGlaso::get_instance();
     BobHanafy::get_instance();
     BobKartoatmodjo::get_instance();
-    BobLasater::get_instance();
     BobPetroskyFarshad::get_instance();
     BobStanding::get_instance();
     BobTotalCFP::get_instance();
     BobVasquezBeggs::get_instance();
-    BobCegarra::get_instance();
     BobPerezML::get_instance();
     BobPerezML::get_instance();
     BobVelardeMcCain::get_instance();

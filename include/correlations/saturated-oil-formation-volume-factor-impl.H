@@ -190,10 +190,10 @@ BobKartoatmodjo::impl(const Quantity<Sgg> & yg,
 }
 
 inline Quantity<RB_STB>
-BobLasater::impl(const Quantity<Sgg> & yg,
-		const Quantity<Sg_do> & yo,
-		const Quantity<SCF_STB> & rs,
-		const Quantity<Fahrenheit> & t) const
+BobStanding::impl(const Quantity<Sgg> & yg,
+		  const Quantity<Sg_do> & yo,
+		  const Quantity<SCF_STB> & rs,
+		  const Quantity<Fahrenheit> & t) const
 {
   const double raw_yg = yg.get_value();
   const double raw_yo = yo.get_value();
@@ -220,23 +220,6 @@ BobPetroskyFarshad::impl(const Quantity<Sgg> & yg,
   return Quantity<RB_STB>(bo);
 }
 
-
-inline Quantity<RB_STB>
-BobStanding::impl(const Quantity<Sgg> & yg,
-		 const Quantity<Sg_do> & yo,
-		 const Quantity<SCF_STB> & rs,
-		 const Quantity<Fahrenheit> & t) const
-{
-  const double raw_yg = yg.get_value();
-  const double raw_yo = yo.get_value();
-  const double raw_t = t.get_value();
-
-  const double raw_rs = rs.get_value();
-  const double bo =
-    0.972 + 0.000147*pow(raw_rs*sqrt(raw_yg/raw_yo) + 1.25*raw_t, 1.175);
-
-  return Quantity<RB_STB>(bo);
-}
 
 inline Quantity<RB_STB>
 BobTotalCFP::impl(const Quantity<Sgg> & yg,
@@ -288,22 +271,6 @@ BobVasquezBeggs::impl(const Quantity<Sgg> & yg,
   const double raw_rs = rs.get_value();
   const double bo =
     1 + c1*raw_rs + c2*t_60 * api_ygs + c3 * raw_rs * t_60 * api_ygs;
-
-  return Quantity<RB_STB>(bo);
-}
-
-inline Quantity<RB_STB>
-BobCegarra::impl(const Quantity<Sgg> & yg,
-		const Quantity<Sg_do> & yo,
-		const Quantity<SCF_STB> & rs,
-		const Quantity<Fahrenheit> & t) const
-{
-  const double raw_t = t.get_value();
-  const double yg_yo = yg.get_value()/yo.get_value();
-
-  const double raw_rs = rs.get_value();
-  const double bo =
-    0.972 + 0.000147 * pow(raw_rs * sqrt(yg_yo) + 1.25*raw_t, 1.175);
 
   return Quantity<RB_STB>(bo);
 }

@@ -130,15 +130,14 @@ end_correlation()
 ################################################################
 
 ## verificada con python
-begin_correlation("BobLasater", "SaturatedOilFormationVolumeFactor", "RB_STB")
-add_title("LASATER CORRELATION (STANDING CORRELATION APPLIED FOR LASATER), CALCULATION OF SATURATED OIL FORMATION VOLUME FACTOR")
-add_db("Lasater correlation is based on data obtained from Canada, Western and Mid-Continental United States, and South America.")
-add_db("Standing correlation for formation volumes of bubble point liquids is based on data collected from 22 different Californian crude-oil-natural-gas mixtures (Western United States).")
-add_parameter("yg",  "Sgg", "Gas specific gravity")
-add_parameter("yo", "Sg_do", "Oil specific gravity",  "Quantity<Api>(51.1)",  "Quantity<Api>(17.9)")
+begin_correlation("BobStanding", "SaturatedOilFormationVolumeFactor", "RB_STB")
+add_title("STANDING CORRELATION, CALCULATION OF SATURATED OIL FORMATION VOLUME FACTOR")
+add_db("Based on 105 experimentally determined bubble point pressures from 22 different Californian crude-oil-natural-gas mixtures.")
+add_parameter("yg",  "Sgg", "Gas specific gravity", 0.59, 1.337)
+add_parameter("yo", "Sg_do", "Oil specific gravity", "Quantity<Api>(63.8)", "Quantity<Api>(16.5)")
 add_synonym("yo", "api", "Api")
-add_parameter("rs",  "SCF_STB", "Solution GOR", 3, 2905)
-add_parameter("t", "Fahrenheit", "Temperature",  82,  272)
+add_parameter("rs",  "SCF_STB", "Solution GOR", 3, 4390)
+add_parameter("t", "Fahrenheit", "Temperature",  82,  354)
 add_author("Lasater")
 add_ref("lasater:1958")
 add_ref("standing:1947")
@@ -163,22 +162,6 @@ add_parameter("rs", "SCF_STB", "Solution GOR",  217,  1406)
 add_parameter("t", "Fahrenheit", "Temperature",  114,  288)
 add_author("Petrosky & Farshad")
 add_ref("petrosky:1993")
-end_correlation()
-
-
-################################################################
-
-begin_correlation("BobStanding", "SaturatedOilFormationVolumeFactor", "RB_STB",
-                 1.024, 2.15)
-add_title("STANDING CORRELATION, CALCULATION OF SATURATED OIL FORMATION VOLUME FACTOR")
-add_db("Based on 105 experimentally determined bubble point pressures from 22 different Californian crude-oil-natural-gas mixtures.")
-add_parameter("yg", "Sgg", "Gas specific gravity",  0.59,  0.95)
-add_parameter("yo", "Sg_do", "Oil specific gravity",  "Quantity<Api>(63.8)",  "Quantity<Api>(16.5)")
-add_parameter("rs", "SCF_STB", "Solution GOR",  20,  1425)
-add_parameter("t", "Fahrenheit", "Temperature",  100,  258)
-add_author("Standing")
-add_ref("standing:1947")
-add_ref("alShammasi:2001")
 end_correlation()
 
 
@@ -213,24 +196,6 @@ add_author("Vazquez & Beggs")
 add_ref("vazquez:1980")
 add_ref("alShammasi:2001")
 add_ref("banzer:1996")
-end_correlation()
-
-################################################################
-
-begin_correlation("BobCegarra", "SaturatedOilFormationVolumeFactor", "RB_STB")
-add_title("CEGARRA CORRELATION (STANDING CORRELATION APPLIED FOR CEGARRA), CALCULATION OF SATURATED OIL FORMATION VOLUME FACTOR")
-add_db("Based on 375 consistent PVT analyses. The data bank was compiled from 8394 fields of eastern Venezuela subdivided into 5192 fields of light oil and 3202 fields of medium oil.")
-add_db("The correlation takes the functional form of Standing correlation, which is based on 105 experimental data of 22 different crude-oil-natural-gas mixtures from California (USA).")
-add_internal_note("The isothermal compressibility of crude oils (Co) used in this equation is obtained from the Vazquez & Beggs correlation.")
-add_internal_note("The correlation's development ranges could not be verified because the original reference is not available. Date: August 22 2016.")
-add_parameter("yg", "Sgg", "Gas specific gravity",  0.654,  1.337)
-add_parameter("yo", "Sg_do", "Oil specific gravity",  "Quantity<Api>(41.8)",  "Quantity<Api>(22)")
-add_synonym("yo", "api", "Api")
-add_parameter("rs", "SCF_STB", "Solution GOR",  135,  4290)
-add_parameter("t", "Fahrenheit", "Temperature",  117,  354)
-add_author("Cegarra")
-add_ref("cegarra:2007")
-add_ref("standing:1947")
 end_correlation()
 
 ################################################################
