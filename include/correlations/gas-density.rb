@@ -1,4 +1,5 @@
 begin_correlation("Pg", "GasDensity", "Lb_ft3")
+add_title("CALCULATION OF GAS DENSITY")
 add_parameter("yg",  "Sgg", "Gas specific gravity")
 add_parameter("pb",  "psia", "Bubble point pressure")
 add_parameter("t",  "Rankine", "Temperature")
