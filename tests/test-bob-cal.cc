@@ -40,9 +40,11 @@ int main(int argc, char *argv[])
   auto c = bob_valid.get_first();
   cout << c->call_string() << endl << endl;
 
+  auto p = pvt.get_data().values(0, "p");
   auto rs = pvt.get_data().values(0, "rs");
 
-  cout << Rvector("rs", rs) << endl;
+  cout << Rvector("rs", rs) << endl
+       << Rvector("p", p) << endl;
 
   cout << "Bob valid correlations" << endl;
   bob_valid.for_each([] (auto p) { cout << p->call_string() << endl; });
@@ -50,6 +52,12 @@ int main(int argc, char *argv[])
 
   cout << pvt.to_string(pvt.best_bob_correlations()) << endl
        << endl;
+
+  pvt.best_bob_correlations().for_each([&pvt] (auto t)
+    {
+      cout << Rvector(get<2>(t)->name, pvt.get_data().compute(0, "rs", get<2>(t)))
+	   << endl;
+    });
 
   auto bob_lfits = sort(pvt.bob_correlations_lfits(),
 			[] (const auto & t1, const auto &t2)
@@ -69,7 +77,7 @@ int main(int argc, char *argv[])
   cout << pvt.to_R("tuned.", bob_lfits_list) << endl;
 
   cout << pvt.to_R(pvt.get_data().values(0, "bob"),
-   		   pvt.get_data().values(0, "rs"), "Rs", "Bob",
+   		   pvt.get_data().values(0, "p"), "p", "Bob",
 		   pvt.best_bob_correlations()) << endl;
 }
 

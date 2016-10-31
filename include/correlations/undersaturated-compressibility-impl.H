@@ -51,10 +51,6 @@ CoaKartoatmodjoSchmidt::impl(const Quantity<Sgg> & yg,
 			    const Quantity<psia> & p,
 			    const Quantity<psia> & psep) const
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> 716df84238040ae1e8db6cedbc1fef0c069beccc
   const double c =
     1 + 0.1595 * pow(api, 0.4078) * pow(tsep, -0.2466) * log10(psep/114.7);
         
@@ -69,8 +65,6 @@ CoaKartoatmodjoSchmidt::impl(const Quantity<Sgg> & yg,
 }
 
 
-<<<<<<< HEAD
-=======
 inline Quantity<psia_1>
 CoaPetroskyFarshad::impl(const Quantity<Sgg> & yg,
 			const Quantity<Api> & api,
@@ -141,6 +135,4 @@ CoaMillanArcia::impl(const Quantity<Api> & api,
   return Quantity<psia_1>(co);
 }
 
-
->>>>>>> 716df84238040ae1e8db6cedbc1fef0c069beccc
 # endif // UNDERSATURATED_COMPRESSIBILITY_IMPL_H

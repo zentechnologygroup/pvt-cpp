@@ -51,8 +51,6 @@ end_correlation()
 
 ################################################################
 
-<<<<<<< HEAD
-=======
 # verificada con python!
 begin_correlation("CoaPetroskyFarshad", "UndersaturatedOilCompressibility",
                   "psia_1", 3.507e-6, 24.64e-6)
@@ -126,4 +124,4 @@ add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 29 2016.")
 set_hidden()
 end_correlation()
->>>>>>> 716df84238040ae1e8db6cedbc1fef0c069beccc
+
