@@ -34,11 +34,7 @@ CoaDeGhetto::impl(const Quantity<Sgg> & yg,
 
 
 inline Quantity<psia_1>
-CoaHanafy::impl(const Quantity<Api> & api,
-	       const Quantity<SCF_STB> & rsb,
-	       const Quantity<Fahrenheit> & t,
-	       const Quantity<psia> & p,
-	       const Quantity<psia> & pb) const
+CoaHanafy::impl(const Quantity<SCF_STB> & rsb) const
 {
   const double bob = 0.0006*rsb.raw() + 1.079; // Bubble point oil volume factor
   const double pob = 1 / (2.366 - 1.358/bob); // Bubble point oil density
@@ -55,12 +51,8 @@ CoaKartoatmodjoSchmidt::impl(const Quantity<Sgg> & yg,
 			    const Quantity<Fahrenheit> & t,
 			    const Quantity<Fahrenheit> & tsep,
 			    const Quantity<psia> & p,
-			    const Quantity<psia> & pb,
 			    const Quantity<psia> & psep) const
 {
-
-  if (p <= pb) // Saturated oil - McCain et al. correlation
-    return CoMcCainEtAl::get_instance()(api, rsb, t, p, pb);
 
   const double c =
     1 + 0.1595 * pow(api, 0.4078) * pow(tsep, -0.2466) * log10(psep/114.7);
@@ -81,11 +73,8 @@ CoaPetroskyFarshad::impl(const Quantity<Sgg> & yg,
 			const Quantity<Api> & api,
 			const Quantity<SCF_STB> & rsb,
 			const Quantity<Fahrenheit> & t,
-			const Quantity<psia> & p,
-			const Quantity<psia> & pb) const
+			const Quantity<psia> & p) const
 {
-  if (p <= pb) // Saturated oil - McCain et al. correlation
-    return CoMcCainEtAl::get_instance()(api, rsb, t, p, pb);
             
   const double co = 1.705e-7 * pow(rsb, 0.69357) * pow(yg, 0.1885) *
     pow(api, 0.3272) * pow(t, 0.6729) * pow(p, -0.5906);
@@ -100,11 +89,8 @@ CoaVasquezBeggs::impl(const Quantity<Sgg> & yg,
 		     const Quantity<Fahrenheit> & t,
 		     const Quantity<Fahrenheit> & tsep,
 		     const Quantity<psia> & p,
-		     const Quantity<psia> & pb,
 		     const Quantity<psia> & psep) const
 {
-  if (p <= pb) // Saturated oil - McCain et al. correlation
-    return CoMcCainEtAl::get_instance()(api, rsb, t, p, pb); 
 
   // Gas gravity that would result from separator conditions of 100
   // psig (approximately 114.7 psia) 
@@ -127,8 +113,6 @@ CoaPerezML::impl(const Quantity<Sgg> & yg,
 		const Quantity<psia> & p,
 		const Quantity<psia> & pb) const
 {
-  if (p <= pb) // Saturated oil - McCain et al. correlation
-    return CoMcCainEtAl::get_instance()(api, rsb, t, p, pb);
             
   const double cob = 2.856e-7 * pow(rsb, 0.69357) * pow(yg, 0.1885) *
     pow(api, 0.3272) * pow(t, 0.6729) * pow(pb, -0.5906);
@@ -145,9 +129,7 @@ CoaMillanArcia::impl(const Quantity<Api> & api,
 		    const Quantity<psia> & p,
 		    const Quantity<psia> & pb) const
 {
-  if (p <= pb) // Saturated oil - McCain et al. correlation
-    return CoMcCainEtAl::get_instance()(api, rsb, t, p, pb);
-            
+
   const double cob = 2.075883e-6 * pow(api, 0.5307) * pow(t, -0.1143) *
     exp(2.0523e-4*pb.raw() + 4.0568e-4*rsb.raw());
 
