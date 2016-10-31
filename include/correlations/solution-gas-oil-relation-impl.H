@@ -6,15 +6,10 @@
 
 inline Quantity<SCF_STB>
 RsAlShammasi::impl(const Quantity<Sgg> & yg,
-		   const Quantity<psia> & pb,
 		   const Quantity<psia> & p,
 		   const Quantity<Sg_do> & yo,
-		   const Quantity<Fahrenheit> & t,
-		   const Quantity<SCF_STB> & rsb) const
+		   const Quantity<Fahrenheit> & t) const
 {
-  if (p >= pb)
-    return rsb;
-
   constexpr double c1 = 0.00538088;
   constexpr double c2 = -1.87784;
   constexpr double c3 = 3.1437;
@@ -30,15 +25,10 @@ RsAlShammasi::impl(const Quantity<Sgg> & yg,
 
 inline Quantity<SCF_STB>
 RsAlMarhoun::impl(const Quantity<Sgg> & yg,
-		  const Quantity<psia> & pb,
 		  const Quantity<psia> & p,
 		  const Quantity<Sg_do> & yo,
-		  const Quantity<Rankine> & t,
-		  const Quantity<SCF_STB> & rsb) const
+		  const Quantity<Rankine> & t) const
 {
-  if (p >= pb)
-    return rsb;
-    
   constexpr double c1 = 5.527215;
   constexpr double c2 = -1.841408;
   constexpr double c3_inv = 1/0.783716;
@@ -56,17 +46,12 @@ RsAlMarhoun::impl(const Quantity<Sgg> & yg,
 
 inline Quantity<SCF_STB>
 RsDeGhetto::impl(const Quantity<Sgg> & yg,
-		 const Quantity<psia> & pb,
 		 const Quantity<psia> & p,
 		 const Quantity<Api> & api,
 		 const Quantity<Fahrenheit> & t,
 		 const Quantity<Fahrenheit> & tsep,
-		 const Quantity<psia> & psep,
-		 const Quantity<SCF_STB> & rsb) const
+		 const Quantity<psia> & psep) const
 {
-  if (p >= pb)
-    return rsb;
-
   const double raw_api = api.get_value();
   const double raw_yg = yg.get_value();
   const double raw_t = t.get_value();
@@ -95,12 +80,8 @@ RsDindorukChristman::impl(const Quantity<Sgg> & yg,
 			  const Quantity<psia> & pb,
 			  const Quantity<psia> & p,
 			  const Quantity<Api> & api,
-			  const Quantity<Fahrenheit> & t,
-			  const Quantity<SCF_STB> & rsb) const
+			  const Quantity<Fahrenheit> & t) const
 {
-  if (p >= pb)
-    return rsb;
-
   constexpr double a1  = 4.86996e-06;
   constexpr double a2  = 5.730982539;
   constexpr double a3  = 0.0099251;
@@ -127,15 +108,10 @@ RsDindorukChristman::impl(const Quantity<Sgg> & yg,
 
 inline Quantity<SCF_STB>
 RsDoklaOsman::impl(const Quantity<Sgg> & yg,
-		   const Quantity<psia> & pb,
 		   const Quantity<psia> & p,
 		   const Quantity<Sg_do> & yo,
-		   const Quantity<Rankine> & t,
-		   const Quantity<SCF_STB> & rsb) const
+		   const Quantity<Rankine> & t) const
 {
-  if (p >= pb)
-    return rsb;
-
   constexpr double k = 11956.20204068456430404144; // (1/0.836386 * 10 **4)
   constexpr double d = 1/0.724047;
 
@@ -150,15 +126,10 @@ RsDoklaOsman::impl(const Quantity<Sgg> & yg,
 
 inline Quantity<SCF_STB>
 RsGlaso::impl(const Quantity<Sgg> & yg,
-	      const Quantity<psia> & pb,
 	      const Quantity<psia> & p,
 	      const Quantity<Api> & api,
-	      const Quantity<Fahrenheit> & t,
-	      const Quantity<SCF_STB> & rsb) const
+	      const Quantity<Fahrenheit> & t) const
 {
-  if (p >= pb)
-    return rsb;
-
   constexpr double a = -0.30218;
   constexpr double b = 1.7447;
   constexpr double b2 = b*b; // b**2
@@ -181,13 +152,8 @@ RsGlaso::impl(const Quantity<Sgg> & yg,
 
 
 inline Quantity<SCF_STB>
-RsHanafy::impl(const Quantity<psia> & pb,
-	       const Quantity<psia> & p,
-	       const Quantity<SCF_STB> & rsb) const
+RsHanafy::impl(const Quantity<psia> & p) const
 {
-  if (p >= pb)
-    return rsb;
-
   const double rs = -49.069 + 0.312*p.get_value();
 
   return Quantity<SCF_STB>(rs);
@@ -195,17 +161,12 @@ RsHanafy::impl(const Quantity<psia> & pb,
 
 inline Quantity<SCF_STB>
 RsKartoatmodjoSchmidt::impl(const Quantity<Sgg> & yg,
-			    const Quantity<psia> & pb,
 			    const Quantity<psia> & p,
 			    const Quantity<Api> & api,
 			    const Quantity<Fahrenheit> & t,
 			    const Quantity<Fahrenheit> & tsep,
-			    const Quantity<psia> & psep,
-			    const Quantity<SCF_STB> & rsb) const
+			    const Quantity<psia> & psep) const
 {
-  if (p >= pb)
-    return rsb;
-
   const double raw_t = t.get_value();
 
   const double c =
@@ -239,15 +200,10 @@ RsKartoatmodjoSchmidt::impl(const Quantity<Sgg> & yg,
 
 inline Quantity<SCF_STB>
 RsLasater::impl(const Quantity<Sgg> & yg,
-		const Quantity<psia> & pb,
 		const Quantity<psia> & p,
 		const Quantity<Sg_do> & yo,
-		const Quantity<Rankine> & t,
-		const Quantity<SCF_STB> & rsb) const
+		const Quantity<Rankine> & t) const
 {
-  if (p >= pb)
-    return rsb;
-
   const double raw_api = Quantity<Api>(yo).get_value();
   const double mo =
     raw_api <= 40 ? 630 - 10*raw_api : pow(73110*raw_api, -1.562);
@@ -284,15 +240,10 @@ RsLasater::impl(const Quantity<Sgg> & yg,
 
 inline Quantity<SCF_STB>
 RsPetroskyFarshad::impl(const Quantity<Sgg> & yg,
-			const Quantity<psia> & pb,
 			const Quantity<psia> & p,
 			const Quantity<Api> & api,
-			const Quantity<Fahrenheit> & t,
-			const Quantity<SCF_STB> & rsb) const
+			const Quantity<Fahrenheit> & t) const
 {
-  if (p >= pb)
-    return rsb;
-
   const double raw_p = p.get_value();
   const double x = 0.0007916 * pow(api, 1.541) - 0.00004561 * pow(t, 1.3911);
         
@@ -305,16 +256,11 @@ RsPetroskyFarshad::impl(const Quantity<Sgg> & yg,
 
 
 inline Quantity<SCF_STB> RsStanding::impl(const Quantity<Sgg> & yg,
-					  const Quantity<psia> & pb,
 					  const Quantity<psia> & p,
 					  const Quantity<Api> & api,
-					  const Quantity<Fahrenheit> & t,
-					  const Quantity<SCF_STB> & rsb) const
+					  const Quantity<Fahrenheit> & t) const
 {
   const double raw_p = p.get_value();
-  if (raw_p >= pb)
-    return rsb;
-
   const double raw_yg = yg.get_value();
   const double raw_api = api.get_value();
   const double raw_t = t.get_value();
@@ -326,15 +272,11 @@ inline Quantity<SCF_STB> RsStanding::impl(const Quantity<Sgg> & yg,
 }
 
 inline Quantity<SCF_STB> RsTotalCFP::impl(const Quantity<Sgg> & yg,
-					  const Quantity<psia> & pb,
 					  const Quantity<psia> & p,
 					  const Quantity<Api> & api,
-					  const Quantity<Fahrenheit> & t,
-					  const Quantity<SCF_STB> & rsb) const
+					  const Quantity<Fahrenheit> & t) const
 {
   const double raw_p = p.get_value();
-  if (raw_p >= pb)
-    return rsb;
 
   double c1 = 0, c2 = 0, c3 = 0, c4 = 0;
   const double raw_api = api.get_value();
@@ -371,17 +313,13 @@ inline Quantity<SCF_STB> RsTotalCFP::impl(const Quantity<Sgg> & yg,
 
 inline Quantity<SCF_STB>
 RsVasquezBeggs::impl(const Quantity<Sgg> & yg,
-		     const Quantity<psia> & pb,
 		     const Quantity<psia> & p,
 		     const Quantity<Api> & api,
 		     const Quantity<Fahrenheit> & t,
 		     const Quantity<Fahrenheit> & tsep,
-		     const Quantity<psia> & psep,
-		     const Quantity<SCF_STB> & rsb) const
+		     const Quantity<psia> & psep) const
 {
   const double raw_p = p.get_value();
-  if (raw_p >= pb)
-    return rsb;
 
   const double raw_api = api.get_value();
   double c1 = 0, c2 = 0, c3 = 0;
@@ -418,8 +356,6 @@ inline Quantity<SCF_STB> RsVelarde::impl(const Quantity<Sgg> & yg,
 {
   const double raw_pb = pb.get_value();
   const double raw_p  = p.get_value();
-  if (raw_p >= raw_pb)
-    return rsb;
 
   constexpr double a0 = 9.73e-07;
   constexpr double a1 = 1.672608;
@@ -462,16 +398,11 @@ inline Quantity<SCF_STB> RsVelarde::impl(const Quantity<Sgg> & yg,
 }
 
 inline Quantity<SCF_STB> RsCegarra::impl(const Quantity<Sgg> & yg,
-					 const Quantity<psia> & pb,
 					 const Quantity<psia> & p,
 					 const Quantity<Api> & api,
-					 const Quantity<Fahrenheit> & t,
-					 const Quantity<SCF_STB> & rsb) const
+					 const Quantity<Fahrenheit> & t) const
 {
-  const double raw_pb = pb.get_value();
   const double raw_p  = p.get_value();
-  if (raw_p >= raw_pb)
-    return rsb;
 
   double l1 = 0, l2 = 0, l3 = 0, l4 = 0, l5 = 0;
   const double raw_api = api.get_value();
@@ -510,8 +441,6 @@ inline Quantity<SCF_STB> RsPerezML::impl(const Quantity<Sgg> &,
 {
   const double raw_pb = pb.get_value();
   const double raw_p  = p.get_value();
-  if (raw_p >= raw_pb)
-    return rsb;
 
   const double rs = (rsb.get_value()/1.031) * pow((raw_p/raw_pb), 0.83);
 
@@ -528,8 +457,6 @@ RsMillanArcia::impl(const Quantity<Sgg> &,
 {
   const double raw_pb = pb.get_value();
   const double raw_p  = p.get_value();
-  if (raw_p >= raw_pb)
-    return rsb;
 
   const double rs = (rsb.get_value()/1.031) * pow(raw_p/raw_pb, 0.83);
 
@@ -538,16 +465,11 @@ RsMillanArcia::impl(const Quantity<Sgg> &,
 
 inline Quantity<SCF_STB>
 RsManucciRosales::impl(const Quantity<Sgg> & yg,
-		       const Quantity<psia> & pb,
 		       const Quantity<psia> & p,
 		       const Quantity<Api> & api,
-		       const Quantity<Fahrenheit> & t,
-		       const Quantity<SCF_STB> & rsb) const
+		       const Quantity<Fahrenheit> & t) const
 {
-  const double raw_pb = pb.get_value();
   const double raw_p  = p.get_value();
-  if (raw_p >= raw_pb)
-    return rsb;
 
   const double x = 0.000922*t.get_value() - 0.0072*api.get_value();
             
