@@ -250,6 +250,7 @@ add_author("Cegarra")
 add_ref("cegarra:2007")
 add_ref("standing:1947")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 16 2016.")
+set_hidden()
 end_correlation()
 
 ################################################################
@@ -266,6 +267,7 @@ add_parameter("rsb", "SCF_STB", "Solution GOR at Pb", 38, 121)
 add_author("Pérez, Heny & Lago")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 16 2016.")
+set_hidden()
 end_correlation()
 
 
@@ -285,6 +287,7 @@ add_author("Millán-Arcia")
 add_ref("millan:1984")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 16 2016.")
+set_hidden()
 end_correlation()
 
 
@@ -304,4 +307,5 @@ add_author("Manucci & Rosales")
 add_ref("manucci:1968")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 16 2016.")
+set_hidden()
 end_correlation()

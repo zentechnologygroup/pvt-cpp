@@ -129,6 +129,7 @@ add_parameter("pb", "psia", "Bubble point pressure",  405,  1335)
 add_author("Pérez, Heny & Lago")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 29 2016.")
+set_hidden()
 end_correlation()
 
 ################################################################
@@ -146,4 +147,5 @@ add_author("Millán-Arcia")
 add_ref("millan:1984")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 29 2016.")
+set_hidden()
 end_correlation()

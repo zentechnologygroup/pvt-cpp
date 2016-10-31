@@ -129,6 +129,7 @@ add_parameter("t", "Fahrenheit", "Temperature",  112,  300)
 add_author("Pérez, Heny & Lago")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: September 1 2016.")
+set_hidden()
 end_correlation()
 
 ################################################################

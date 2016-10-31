@@ -84,6 +84,7 @@ add_parameter("rs", "SCF_STB", "Solution GOR",  38,  121)
 add_author("Pérez, Heny & Lago")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: September 6 2016.")
+set_hidden()
 end_correlation()
 
 
@@ -97,6 +98,7 @@ add_parameter("rs", "SCF_STB", "Solution GOR")
 add_author("Gil & Fonseca")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original and secondary references are not available. Date: September 6 2016.")
+set_hidden()
 end_correlation()
 
 
@@ -120,7 +122,8 @@ begin_correlation("UobDindorukChristman", "SaturatedOilViscosity", "CP", 0.161, 
 add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
 add_db("Based on more than 90 PVT reports from the Gulf of Mexico.")
 add_parameter("uod", "CP", "Dead oil viscosity",  0.896,  62.63)
-add_parameter("rs",  "SCF_STB", "Solution GOR")
+add_parameter("rs",  "SCF_STB", "Solution GOR", 133, 3050)
 add_author("Dindoruk & Christman")
 add_ref("dindoruk:2004")
+add_internal_note("The range assigned for Rs was taken from the range expressed by the author for Rsb.")
 end_correlation()
