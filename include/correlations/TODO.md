@@ -17,4 +17,17 @@
 
 ## 6. gen-corr: el operador () de la correlación debe ser una llamada directa a la implementación y no el pase de la lista
 - Created at   2016-10-31 17:41:10 -0400
+- Completed at 2016-10-31 20:51:37 -0400
+
+## 7. Posibilidad de definir correlaciones sobrecargadas; que reciban distintos parámetros
+- Created at   2016-11-01 09:28:12 -0400
+
+## 8. Revisar los rangos de salida de correlaciones Boa
+- Created at   2016-11-01 09:40:08 -0400
+
+## 9. borrar oil-compressibility.rb y asociados
+- Created at   2016-11-01 10:43:21 -0400
+
+## 10. borrar oil-formation-volume-factor.rb y asociados
+- Created at   2016-11-01 10:44:07 -0400
 
