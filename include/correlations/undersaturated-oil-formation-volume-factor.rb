@@ -18,7 +18,8 @@ end_correlation()
 
 ## verificada con python
 
-begin_correlation("BoaDeGhetto", "OilFormationVolumeFactor", "RB_STB")
+begin_correlation("BoaDeGhetto", "UndersaturatedOilFormationVolumeFactor",
+                  "RB_STB")
 add_title("DE GHETTO, PAONE & VILLA CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS (VAZQUEZ & BEGGS CORRELATION), CALCULATION OF UNDERSATURATED OIL FORMATION VOLUME FACTOR")
 add_db("Based on 1200 measured data points of 63 heavy and extra-heavy oil samples obtained from the Mediterranean Basin, Africa and the Persian Gulf.")
 add_db("Oil samples have been divided in two different API gravity classes: extra-heavy oils for °API<=10, heavy oils for 10<°API<=22.3.")
@@ -41,7 +42,8 @@ end_correlation()
 ################################################################
 
 ## verificada con python
-begin_correlation("BoaHanafy", "OilFormationVolumeFactor", "RB_STB")
+begin_correlation("BoaHanafy", "UndersaturatedOilFormationVolumeFactor",
+                  "RB_STB")
 add_title("HANAFY ET AL. CORRELATION, CALCULATION OF UNDERSATURATED OIL FORMATION VOLUME FACTOR")
 add_db("Based on experimental PVT data of 324 fluid samples taken from 176 wells located in 75 fields. This data represents 15 productive zones of 123 reservoirs distributed along three different regions of Egypt, including the Gulf of Suez, Western Desert, and Sinai.")
 add_parameter("bobp", "RB_STB", "Oil formation volume factor at Pb") 
@@ -56,7 +58,8 @@ end_correlation()
 ################################################################
 
 ## verificada con python
-begin_correlation("BoaKartoatmodjo", "OilFormationVolumeFactor", "RB_STB")
+begin_correlation("BoaKartoatmodjo", "UndersaturatedOilFormationVolumeFactor",
+                  "RB_STB")
 add_title("KARTOATMODJO & SCHMIDT CORRELATION, CALCULATION OF UNDERSATURATED OIL FORMATION VOLUME FACTOR")
 add_db("Based on a set of 5392 data points, which represent 740 different crude oil samples.")
 add_db("The data bank was collected from PVT reports and literature. The first major source was from South East Asia, mainly Indonesia. The second source was North America, including the offshore area. The rest came from the Middle East and Latin America.")
@@ -79,7 +82,8 @@ end_correlation()
 ################################################################
 
 ## verificada con python
-begin_correlation("BoaPetroskyFarshad", "OilFormationVolumeFactor", "RB_STB")
+begin_correlation("BoaPetroskyFarshad", "UndersaturatedOilFormationVolumeFactor",
+                  "RB_STB")
 add_title("PETROSKY & FARSHAD CORRELATION, CALCULATION OF UNDERSATURATED OIL FORMATION VOLUME FACTOR")
 add_db("Based on 81 laboratory PVT analyses. Fluid samples were obtained from reservoirs located offshore Texas and Louisiana.")
 add_db("Producing areas from Galveston Island, eastward, through Main Pass are represented.")
@@ -101,7 +105,8 @@ end_correlation()
 ################################################################
 
 ## verificada con python
-begin_correlation("BoaVasquezBeggs", "OilFormationVolumeFactor", "RB_STB")
+begin_correlation("BoaVasquezBeggs", "UndersaturatedOilFormationVolumeFactor",
+                  "RB_STB")
 add_title("VAZQUEZ & BEGGS CORRELATION, CALCULATION OF UNDERSATURATED OIL FORMATION VOLUME FACTOR")
 add_db("Based on more than 600 laboratory PVT analyses from fields all over the world.")
 add_parameter("bobp", "RB_STB", "Oil formation volume factor at Pb") 
@@ -124,7 +129,8 @@ end_correlation()
 ################################################################
 
 ## verificada con python
-begin_correlation("BoaPerezML", "OilFormationVolumeFactor", "RB_STB")
+begin_correlation("BoaPerezML", "UndersaturatedOilFormationVolumeFactor",
+                  "RB_STB")
 add_title("PÉREZ, HENY & LAGO CORRELATION (EZEKWE-QUERIN-HUMPHREY CORRELATION USED BY PÉREZ, HENY & LAGO), CALCULATION OF UNDERSATURATED OIL FORMATION VOLUME FACTOR")
 add_note("The correlation could not be verified because the original reference is not available. Date: August 22 2016.")
 add_parameter("bobp", "RB_STB", "Oil formation volume factor at Pb") 
@@ -145,7 +151,8 @@ end_correlation()
 ################################################################ 
 
 ## verificada con python
-begin_correlation("BoaMillanArcia", "OilFormationVolumeFactor", "RB_STB")
+begin_correlation("BoaMillanArcia", "UndersaturatedOilFormationVolumeFactor",
+                  "RB_STB")
 add_title("MILLÁN-ARCIA CORRELATION, CALCULATION OF UNDERSATURATED OIL FORMATION VOLUME FACTOR")
 add_db("Venezuelan heavy crudes were correlated.")
 add_parameter("bobp", "RB_STB", "Oil formation volume factor at Pb") 
