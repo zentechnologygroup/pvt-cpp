@@ -1,7 +1,7 @@
-# ifndef UNDERSATURATED_COMPRESSIBILITY_IMPL_H
-# define UNDERSATURATED_COMPRESSIBILITY_IMPL_H
+# ifndef UNDERSATURATED_OIL_COMPRESSIBILITY_IMPL_H
+# define UNDERSATURATED_OIL_COMPRESSIBILITY_IMPL_H
 
-# include <correlations/undersaturated-compressibility.H>
+# include <correlations/undersaturated-oil-compressibility.H>
 
 inline Quantity<psia_1>
 CoaDeGhetto::impl(const Quantity<Sgg> & yg,
@@ -135,4 +135,4 @@ CoaMillanArcia::impl(const Quantity<Api> & api,
   return Quantity<psia_1>(co);
 }
 
-# endif // UNDERSATURATED_COMPRESSIBILITY_IMPL_H
+# endif // UNDERSATURATED_OIL_COMPRESSIBILITY_IMPL_H

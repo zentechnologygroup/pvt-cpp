@@ -95,7 +95,6 @@ string Correlation::to_json()
 	    {
 	      auto corr_ptr = it.get_curr();
 	      corrs.push_back(::to_json(*corr_ptr));
-	      cout << corr_ptr->name << endl; 
 	    }
 
 	  physical_property["number of relations"] = corrs.size();

@@ -1,7 +1,7 @@
-# ifndef SATURATED_COMPRESSIBILITY_IMPL_H
-# define SATURATED_COMPRESSIBILITY_IMPL_H
+# ifndef SATURATED_OIL_COMPRESSIBILITY_IMPL_H
+# define SATURATED_OIL_COMPRESSIBILITY_IMPL_H
 
-# include <correlations/saturated-compressibility.H>
+# include <correlations/saturated-oil-compressibility.H>
 
 
 inline Quantity<psia_1>
@@ -19,4 +19,4 @@ CobMcCainEtAl::impl(const Quantity<Api> & api,
 
 
 
- # endif // SATURATED_COMPRESSIBILITY_IMPL_H
+ # endif // SATURATED_OIL_COMPRESSIBILITY_IMPL_H

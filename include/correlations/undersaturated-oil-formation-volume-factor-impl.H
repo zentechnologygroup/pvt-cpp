@@ -2,7 +2,7 @@
 # define UNDERSATURATED_OIL_FORMATION_VOLUME_FACTOR_IMPL_H
 
 # include <correlations/undersaturated-oil-formation-volume-factor.H>
-# include "correlations/undersaturated-compressibility.H"
+# include "correlations/undersaturated-oil-compressibility.H"
 
 inline Quantity<RB_STB>
 BoaMcCain::impl(const Quantity<RB_STB> & bobp,

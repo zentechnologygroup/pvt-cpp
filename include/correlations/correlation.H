@@ -866,6 +866,8 @@ Declare_Correlation_Subtype(OilCompressibility, OilCorrelation);
 Declare_Correlation_Subtype(SaturatedOilCompressibility, OilCorrelation);
 Declare_Correlation_Subtype(UndersaturatedOilCompressibility, OilCorrelation);
 Declare_Correlation_Subtype(OilDensity, OilFunction);
+Declare_Correlation_Subtype(SaturatedOilDensity, OilFunction);
+Declare_Correlation_Subtype(UndersaturatedOilDensity, OilFunction);
 Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation);
 Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation);  
 

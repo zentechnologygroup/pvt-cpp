@@ -113,7 +113,7 @@ class CorrelationGen
   def gen_impl_declaration
     s = "public:\n"\
         "\n"
-    s += impl_type + " impl"
+    s += "inline " + impl_type + " impl"
     s += gen_pars
     s += " const"
   end

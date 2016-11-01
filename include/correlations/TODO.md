@@ -31,3 +31,6 @@
 ## 10. borrar oil-formation-volume-factor.rb y asociados
 - Created at   2016-11-01 10:44:07 -0400
 
+## 11. revisar inline en impl
+- Created at   2016-11-01 18:26:05 -0400
+
