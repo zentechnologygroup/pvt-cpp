@@ -78,7 +78,7 @@ add_parameter("co", "psia_1", "Oil isothermal compressibility ",  3.02e6,  42.9e
 add_author("De Ghetto, Paone & Villa")
 add_ref("deGhetto:1995")
 add_internal_note("De Ghetto et al. recommend the use of the Vazquez & Beggs correlation for the estimation of Bo. The values for the coefficients c1, c2, and c3 are selected only for API<=30.")
-add_internal_note("McCain's correlation for Boa is evaluated with the Co value obtained from the De Ghetto, Paone & Villa correlation.")
+add_internal_note("McCain's correlation for Boa is evaluated with the Coa value obtained from the De Ghetto, Paone & Villa correlation.")
 set_hidden()
 end_correlation()
 
