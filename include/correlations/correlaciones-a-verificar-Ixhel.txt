@@ -1,37 +1,8 @@
-- BoDindorukChristman es demasiado compleja como para indagar
-  manualmente los caminos de ejecución . Quizá aquí klee sería de interés
 
-Verificar fórmula de CoKartoatmodjoSchmidt la cual da valores muy altos
+1) A todas las correlaciones Boa les quité el rango de salida boa. La
+razón es que ahora reciben bob y están diseñadas para que partan desde
+este punto. Revisa eso por favor.
 
-R: Al revisar de nuevo la ecuación me di cuenta de que faltó incluir un signo negativo (YgCorr ** -0.35505). Corregido en Python y C++.
-
-La correlación de McCain es usada por todas las demás correlaciones de
-oil-compressiblility. Sin embargo, a veces hay contradicciones en los
-rangos que que le pasan a McCain desde otra correlación cuando p <
-pb. Revisar si eso es coherente.
-
-R: Sería mejor extraer los cálculos de McCain de cada una de las correlaciones de oil-compressibility. Se revisaría si P <= Pb a otro nivel. También se debería hacer esto para oil-formation-volume-factor.
-
-La correlación OilDensity debe tener un nombre asociado al autor, de
-modo que no haya colisión de nonbre con el subtipo de correlación. Por
-ahora se llamará poBradley 
-
-R: Beggs (autor del capítulo 22 del libro de Bradley) presenta la ecuación y no especifica la referencia.
-
-UodPetroskyFarshadCorrelation en python está mal. Concretamente el
-término (2.3511 * 10e7)
-
-R: Corregido.
-
-El rango de salida para uodDeGhettoEtAl está extraño 7.7 - 1386.9 (muy
-alto). 
-
-R: Se verificó de nuevo el rango y está igual al indicado por De Ghetto et al.
-
-En UobKhan la expresión b = (Rs) ** (1/3) es incorrecta, pues 1/3 es cero
-
-R: Corregido.
-
-En uobKartoatmodjoSchmidt creo que la unidad e uod es cP y no scf/STB
-
-R: Si, es cp. Corregido.
+También quité los rangos de entrada para bobp. Podría ponerse los
+rangos de bob, pero para probar la calibración es preferible por los
+momentos no tener ese rango

@@ -111,8 +111,8 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("BobKartoatmodjo", "SaturatedOilFormationVolumeFactor", "RB_STB",
-                  1.007, 2.144)
+begin_correlation("BobKartoatmodjo", "SaturatedOilFormationVolumeFactor",
+                  "RB_STB", 1.007, 2.144)
 add_title("KARTOATMODJO & SCHMIDT CORRELATION, CALCULATION OF SATURATED OIL FORMATION VOLUME FACTOR")
 add_db("Based on a set of 5392 data points, which represent 740 different crude oil samples.")
 add_db("The data bank was collected from PVT reports and literature. The first major source was from South East Asia, mainly Indonesia. The second source was North America, including the offshore area. The rest came from the Middle East and Latin America.")
