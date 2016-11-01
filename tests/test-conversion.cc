@@ -17,6 +17,14 @@ void test(int argc, char *argv[])
   MultiArg<string> unit_desc = { "U", "Unit-symbol", "describe unit",
 				 false, &allowed, cmd };
 
+  vector<string> pqs =
+    to_vector(PhysicalQuantity::quantities().maps<string>([] (auto p)
+    { return p->name; }));
+  ValuesConstraint<string> pq_allowed(pqs);
+  ValueArg<string> list = { "L", "list-units",
+			    "list units associated to a physical quantity",
+			    false, "", &pq_allowed, cmd };
+
   ValueArg<double> sample = {"s", "sample", "sample", false, 0, "sample", cmd};
 
   ValueArg<string> source = {"S", "source-unit", "source unit", false,
@@ -29,6 +37,12 @@ void test(int argc, char *argv[])
   SwitchArg json("j", "json", "json list of units", cmd, false);
 
   cmd.parse(argc, argv);
+
+  if (list.isSet())
+    {
+
+      exit(0);
+    }
 
   if (json.isSet())
     {
