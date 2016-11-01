@@ -40,7 +40,14 @@ void test(int argc, char *argv[])
 
   if (list.isSet())
     {
-
+      auto pq_name = list.getValue();
+      auto pq = PhysicalQuantity::search(pq_name);
+      if (pq == nullptr)
+	{
+	  cout << "Physical quantity " << pq_name << " not found" << endl;
+	  abort();
+	}
+      pq->units().for_each([] (auto uptr) { cout << uptr->symbol << endl; });
       exit(0);
     }
 
