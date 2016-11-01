@@ -338,7 +338,7 @@ struct EmpiricalData
 						     { return s == name; }); });
   }
 
-  // return a list of stored values for the symbol name
+  // return a list of stored values for the symbol name of the vars set set_idx
   Array<double> values(size_t set_idx, const string & name) const
   {
     for (size_t i = 0; i < const_names.size(); ++i)
@@ -361,6 +361,11 @@ struct EmpiricalData
 	}
 
     return Array<double>();
+  }
+
+  Array<double> values(const string & set_name, const string & name) const
+  {
+    return values(set_index(set_name), name);
   }
 
   string to_string() const

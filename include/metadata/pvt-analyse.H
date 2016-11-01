@@ -89,7 +89,7 @@ public:
   DynList<const Correlation*> boa_correlations() const
   {
     return data.matching_correlations("Above Pb").
-      filter([] (auto ptr) { return ptr->target_name() == "bo"; });
+      filter([] (auto ptr) { return ptr->target_name() == "boa"; });
   }
 
   DynList<const Correlation*> boa_valid_correlations() const
