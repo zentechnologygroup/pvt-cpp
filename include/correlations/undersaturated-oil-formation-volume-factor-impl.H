@@ -111,7 +111,6 @@ BoaPerezML::impl(const Quantity<RB_STB> & bobp,
 inline Quantity<RB_STB>
 BoaMillanArcia::impl(const Quantity<RB_STB> & bobp,
 		     const Quantity<Api> & api,
-		     const Quantity<SCF_STB> &,
 		     const Quantity<SCF_STB> & rsb,
 		     const Quantity<Fahrenheit> & t,
 		     const Quantity<psia> & p,
