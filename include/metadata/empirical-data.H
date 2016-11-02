@@ -972,7 +972,8 @@ public:
   /// Returns all the correlations that compute `const_name` and
   /// matching with other constant parameters
   DynList<const Correlation*>
-  matching_const_correlations(const string & const_name) const
+  matching_const_correlations(const string & const_name,
+			      const DynList<pair<string, double> & pars) const
   {
     auto target_correlations =
       Correlation::array().filter([&const_name] (auto ptr)
@@ -990,6 +991,9 @@ public:
                   {
 		    return s == p.first;
 		  });
+	      }) or pars.exists([&] (auto p) // TODO
+              {
+		return pars.names()
 	      });
 	  });
       });

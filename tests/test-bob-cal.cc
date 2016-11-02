@@ -55,7 +55,8 @@ int main(int argc, char *argv[])
 
   pvt.best_bob_correlations().for_each([&pvt] (auto t)
     {
-      cout << Rvector(get<2>(t)->name, pvt.get_data().compute(0, "rs", get<2>(t)))
+      cout << Rvector(get<2>(t)->name,
+		      pvt.get_data().compute(0, "rs", get<2>(t)))
 	   << endl;
     });
 
@@ -79,5 +80,9 @@ int main(int argc, char *argv[])
   cout << pvt.to_R(pvt.get_data().values(0, "bob"),
    		   pvt.get_data().values(0, "p"), "p", "Bob",
 		   pvt.best_bob_correlations()) << endl;
+
+  auto best_corr = get<2>(bob_lfits.get_first());
+
+  cout << "The best correlation is " << best_corr->call_string() << endl;
 }
 
