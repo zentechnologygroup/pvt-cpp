@@ -231,6 +231,19 @@ struct EmpiricalData
     throw domain_error(s.str());
   }
 
+  pair<bool, double> search_const(const string & name) const
+  {
+    for (auto it = get_zip_it(const_names, const_vals, const_units);
+	 it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	if (get<0>(t) == name)
+	  return make_pair(true, get<1>(t));
+      }
+
+    return make_pair(false, 0);
+  }
+
   void check_constant(const string & name, const PhysicalQuantity & pq) const
   {
     for (auto it = get_zip_it(const_names, const_vals, const_units);
@@ -361,6 +374,32 @@ struct EmpiricalData
 	}
 
     return Array<double>();
+  }
+
+  // return a list of stored values for the symbol name of the vars set set_idx
+  pair<Array<double>, const Unit *>
+  quantities(size_t set_idx, const string & name) const
+  {
+    for (size_t i = 0; i < const_names.size(); ++i)
+      if (const_names(i) == name)
+	{
+	  Array<double> ret;
+	  ret.append(const_vals(i));
+	  return make_pair(ret, const_units(i));
+	}
+
+    const auto & var_set = var_sets[set_idx];
+    const auto & var_names = var_set.var_names;
+    for (size_t i = 0; i < var_names.size(); ++i)
+      if (var_names(i) == name)
+	{
+	  Array<double> ret(var_set.num_samples);
+	  for (size_t j = 0; j < var_set.num_samples; ++j)
+	    ret.append(var_set.samples(j)(i));
+	  return make_pair(ret, var_set.var_units(i));
+	}
+
+    return make_pair(Array<double>(), nullptr);
   }
 
   Array<double> values(const string & set_name, const string & name) const
@@ -970,10 +1009,9 @@ public:
   }
 
   /// Returns all the correlations that compute `const_name` and
-  /// matching with other constant parameters
+  /// matching with other constant parameters 
   DynList<const Correlation*>
-  matching_const_correlations(const string & const_name,
-			      const DynList<pair<string, double> & pars) const
+  matching_const_correlations(const string & const_name) const
   {
     auto target_correlations =
       Correlation::array().filter([&const_name] (auto ptr)
@@ -991,9 +1029,6 @@ public:
                   {
 		    return s == p.first;
 		  });
-	      }) or pars.exists([&] (auto p) // TODO
-              {
-		return pars.names()
 	      });
 	  });
       });
@@ -1005,10 +1040,11 @@ public:
   /// with other constant parameters and their parameters ranges are
   /// valid respect to the constant stored in this data set
   DynList<const Correlation*>
-  matching_const_valid_correlations(const string & const_name) const
+  matching_const_valid_correlations(const string & const_name)
+    const
   {
-    return matching_const_correlations(const_name).filter([this, &const_name]
-							  (auto ptr)
+    return matching_const_correlations(const_name).
+      filter([this, &const_name] (auto ptr)
       {
 	return ptr->get_preconditions().all([this] (const auto & par)
 	  {
@@ -1017,7 +1053,7 @@ public:
 		auto t = this->search_const_name(p.first);
 		if (not get<0>(t))
 		  return false;
-
+		
 		const double val = get<2>(t);
 		const Unit * unit_ptr = get<3>(t);
 		try
@@ -1033,7 +1069,7 @@ public:
 	  });
       });
   }
-  
+
   /// Returns a list of correlation matching the names contaned in
   /// the data set
   DynList<const Correlation*> matching_correlations(size_t seti) const

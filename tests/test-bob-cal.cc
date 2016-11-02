@@ -84,5 +84,40 @@ int main(int argc, char *argv[])
   auto best_corr = get<2>(bob_lfits.get_first());
 
   cout << "The best correlation is " << best_corr->call_string() << endl;
+
+  using P = tuple<bool, string, double>;
+
+  DynList<P> pars = best_corr->get_preconditions().
+    maps<P>([&pvt] (const auto & par)
+    {
+      auto p = pvt.get_data().search_const(par.name);
+      if (p.first)
+	return make_tuple(true, par.name, p.second);
+
+      // TODO: VtlQuantity 
+
+      try
+	{
+	  auto values = pvt.get_data().values("Below Pb", par.name);
+	  if (values.is_empty())
+	    return make_tuple(false, par.name, 0.0);
+	  return make_tuple(true, par.name, values.get_last());
+	}
+      catch (exception &e)
+	{
+	  return make_tuple(false, par.name, 0.0);
+	}
+    });
+
+  cout << "List of parameters values used for computing "
+       << best_corr->call_string() << endl;
+  pars.for_each([] (const auto & t)
+		{
+		  cout << get<1>(t);
+		  if (not get<0>(t))
+		    cout << get<2>(t) << " Not found in data set" << endl;
+		  else
+		    cout << " " << get<2>(t) << endl;
+		});
 }
 

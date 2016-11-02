@@ -27,3 +27,6 @@ eliminar uso de gsl para versiones standalone por ser de licencia gpl,2016-10-23
 Retorno de correlation debe poder especificarse en otras unidades,2016-10-24 17:27:15 -0400,,
 pvt-analisis debede mar nombre de unidad, no su símbolo,2016-10-24 19:20:36 -0400,,
 flag en test-conversion que liste unidades dada magnitud física,2016-10-31 17:25:29 -0400,,
+lista de unidades,2016-11-02 17:06:18 -0400,,
+lista de nombres de parámtros de correlación,2016-11-02 17:06:32 -0400,,
+lista de correlaciones con pares parmámero/unidad,2016-11-02 17:06:53 -0400,,

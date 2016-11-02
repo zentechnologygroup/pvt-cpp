@@ -610,6 +610,7 @@ public:
     return verify_result(VtlQuantity(unit, compute(pars, check))).raw();
   }
 
+  /// Compute correlation by receiving an unseorted list of pair par-name,value
   VtlQuantity
   compute_by_names(const DynList<pair<string, double>> & pair_list) const
   {
