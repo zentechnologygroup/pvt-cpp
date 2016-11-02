@@ -77,7 +77,6 @@ RsDeGhetto::impl(const Quantity<Sgg> & yg,
 
 inline Quantity<SCF_STB>
 RsDindorukChristman::impl(const Quantity<Sgg> & yg,
-			  const Quantity<psia> & pb,
 			  const Quantity<psia> & p,
 			  const Quantity<Api> & api,
 			  const Quantity<Fahrenheit> & t) const
@@ -96,7 +95,7 @@ RsDindorukChristman::impl(const Quantity<Sgg> & yg,
 
   const double raw_p = p.get_value();
   const double raw_api = api.get_value();
-  const double d = a5 + 2*pow(raw_api, a6)/pow(pb, a7);
+  const double d = a5 + 2*pow(raw_api, a6)/pow(p, a7);
   const double d2 = d*d;
 
   const double a = (a1*pow(raw_api, a2) + a3*pow(t, a4)) / d2;
