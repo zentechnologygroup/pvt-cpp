@@ -7,7 +7,7 @@
 Quantity<Lb_ft3>
 PoaBradley::impl(const Quantity<Sgg> & yg,
 		 const Quantity<SCF_STB> & rsb,
-		 const Quantity<psia> & bobp,
+		 const Quantity<RB_STB> & bobp,
 		 const Quantity<Sgg> & yo,
 		 const Quantity<psia> & p,
 		 const Quantity<psia> & pb,
