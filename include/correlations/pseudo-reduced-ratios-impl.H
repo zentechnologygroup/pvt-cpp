@@ -1,7 +1,7 @@
 # ifndef PSEUDO_REDUCED_RATIOS_IMPL_H
 # define PSEUDO_REDUCED_RATIOS_IMPL_H
 
-# include "pseudo-reduced-ratios.H"
+# include <correlations/pseudo-reduced-ratios.H>
 
 
 inline Quantity<PseudoReducedTemperature>

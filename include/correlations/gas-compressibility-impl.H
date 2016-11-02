@@ -3,7 +3,7 @@
 
 # include <correlations/correlation-utils.H>
 
-# include "gas-compressibility.H"
+# include <correlations/gas-compressibility.H>
 
 inline Quantity<ZFactor>
 ZFactorSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,

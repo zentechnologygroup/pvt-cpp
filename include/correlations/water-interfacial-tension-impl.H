@@ -1,7 +1,7 @@
 # ifndef WATER_INTERFACIAL_TENSION_IMPL_H
 # define WATER_INTERFACIAL_TENSION_IMPL_H
 
-# include "water-interfacial-tension.H"
+# include <correlations/water-interfacial-tension.H>
 
 
 inline Quantity<dynes_cm>

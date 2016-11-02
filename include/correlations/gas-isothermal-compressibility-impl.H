@@ -2,7 +2,7 @@
 # define GAS_ISOTHERMAL_COMPRESSIBILITY_IMPL_H
 
 # include <correlations/correlation-utils.H>
-# include "gas-isothermal-compressibility.H"
+# include <correlations/gas-isothermal-compressibility.H>
 
 inline Quantity<psia_1>
 CgSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,

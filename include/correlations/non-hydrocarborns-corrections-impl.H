@@ -1,7 +1,7 @@
 # ifndef NON_HYDROCARBORNS_CORRECTIONS_IMPL_H
 # define NON_HYDROCARBORNS_CORRECTIONS_IMPL_H
 
-# include "non-hydrocarborns-corrections.H"
+# include <correlations/non-hydrocarborns-corrections.H>
 
 inline Quantity<Sgg>
 YgHCWichertAziz::impl(const Quantity<Sgg> & yg,

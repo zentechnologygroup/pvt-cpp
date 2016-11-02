@@ -1,7 +1,7 @@
 # ifndef GAS_PSEUDOCRITICAL_PRESSURE_IMPL_H
 # define GAS_PSEUDOCRITICAL_PRESSURE_IMPL_H
 
-# include "gas-pseudocritical-pressure.H"
+# include <correlations/gas-pseudocritical-pressure.H>
 
 inline Quantity<psia>
 PscHCStanding::impl(const Quantity<Sgg> & yghc,

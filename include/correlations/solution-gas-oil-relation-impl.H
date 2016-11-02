@@ -2,7 +2,7 @@
 # ifndef SOLUTION_GAS_OIL_RELATION_IMPL_H
 # define SOLUTION_GAS_OIL_RELATION_IMPL_H
 
-# include "solution-gas-oil-relation.H"
+# include <correlations/solution-gas-oil-relation.H>
 
 inline Quantity<SCF_STB>
 RsAlShammasi::impl(const Quantity<Sgg> & yg,

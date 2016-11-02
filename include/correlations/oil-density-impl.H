@@ -2,7 +2,7 @@
 # ifndef OIL_DENSITY_IMPL_H
 # define OIL_DENSITY_IMPL_H
 
-# include "oil-density.H"
+# include <correlations/oil-density.H>
 
 inline Quantity<Lb_ft3>
 PoBradley::impl(const Quantity<Sgg> & yg,

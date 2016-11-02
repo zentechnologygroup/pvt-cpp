@@ -1,7 +1,7 @@
 # ifndef WATER_DENSITY_IMPL_H
 # define WATER_DENSITY_IMPL_H
 
-# include "water-density.H"
+# include <correlations/water-density.H>
 
 
 inline Quantity<Gr_cm3>

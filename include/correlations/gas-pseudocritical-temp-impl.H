@@ -1,7 +1,7 @@
 # ifndef GAS_PSEUDOCRITICAL_TEMP_IMPL_H
 # define GAS_PSEUDOCRITICAL_TEMP_IMPL_H
 
-# include "gas-pseudocritical-temp-impl.H"
+# include <correlations/gas-pseudocritical-temp.H>
 
 inline Quantity<Rankine>
 TscHCStanding::impl(const Quantity<Sgg> & yghc,

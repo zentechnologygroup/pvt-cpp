@@ -19,6 +19,7 @@ LIBSRCS = units-vars.cc correlations-vars.cc
 
 SRCS = $(LIBSRCS)
 OBJS = pvt.o
+#OBJS = pvt.o pvt-impl.o
 
 EXTRACT_CV = $(TOP)/bin/extract-cv
 
@@ -30,8 +31,9 @@ CORRDIR=$(TOP)/include/correlations/
 CORRS=$(shell ls $(CORRDIR)*.rb)
 
 CALLS =	$(CORRS:.rb=.cc)
-HCORR =	$(CORRS:.rb=.H) $(shell ls $(UNITSDIR)*-unit.H) \
-	$(shell ls $(CORRDIR)*-impl.H)
+HCORR =	$(CORRS:.rb=.H) $(shell ls $(UNITSDIR)*-unit.H)
+
+HIMPL = $(shell ls $(CORRDIR)*-impl.H)
 
 test:
 	echo $(CORRS)
@@ -39,6 +41,12 @@ test:
 biblios.cc: $(TOP)/include/correlations/refs.bib 
 	$(RM) $*.cc; 	\	@@\
 	$(BIBLIO) -C -f $(CORRDIR)refs.bib | clang-format -style=Mozilla > $@
+
+# pvt-impl.cc: $(HIMPL)
+# 	$(RM) -f $@;					\	@@\
+# 	cat $(HIMPL) > pvt-impl.cc
+
+# pvt-impl.o: pvt-impl.cc
 
 pvt.cc: $(CALLS) $(HCORR)				\
 	$(TOP)/include/units/units.H			\
@@ -63,7 +71,7 @@ clean::
 
 libpvt.so: pvt.cc
 	$(RM) -f $@;		\	@@\
-	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) -fpic pvt.cc -o aux.o;	\	@@\
+	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) -fpic pvt.cc -o aux.o;\	@@\
 	gcc -shared -o libpvt.so aux.o; \	@@\
 	$(RM) -f aux.o
 

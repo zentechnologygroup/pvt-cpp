@@ -1,7 +1,7 @@
 # ifndef OIL_COMPRESSIBILITY_IMPL_H
 # define OIL_COMPRESSIBILITY_IMPL_H
 
-# include "oil-compressibility.H"
+# include <correlations/oil-compressibility.H>
 
 inline Quantity<psia_1>
 CoMcCainEtAl::impl(const Quantity<Api> & api,

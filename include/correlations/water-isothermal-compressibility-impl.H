@@ -1,7 +1,7 @@
 # ifndef WATER_ISOTHERMAL_COMPRESSIBILITY_IMPL_H
 # define WATER_ISOTHERMAL_COMPRESSIBILITY_IMPL_H
 
-# include "water-isothermal-compressibility.H"
+# include <correlations/water-isothermal-compressibility.H>
 
 
 inline Quantity<mPa_1>

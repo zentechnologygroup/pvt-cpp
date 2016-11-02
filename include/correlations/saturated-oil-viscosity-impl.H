@@ -2,7 +2,7 @@
 # ifndef SATURATED_OIL_VISCOSITY_IMPL_H
 # define SATURATED_OIL_VISCOSITY_IMPL_H
 
-# include "saturated-oil-viscosity.H"
+# include <correlations/saturated-oil-viscosity.H>
 
 inline Quantity<CP>
 UobBeggsRobinson::impl(const Quantity<CP> & uod,

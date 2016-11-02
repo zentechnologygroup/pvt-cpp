@@ -1,7 +1,7 @@
 # ifndef GAS_VISCOSITY_IMPL_H
 # define GAS_VISCOSITY_IMPL_H
 
-# include "gas-viscosity.H"
+# include <correlations/gas-viscosity.H>
 
 inline Quantity<CP>
 UgCarrKB::impl(const Quantity<Fahrenheit> & t,

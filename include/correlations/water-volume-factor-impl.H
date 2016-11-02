@@ -1,7 +1,7 @@
 # ifndef WATER_VOLUME_FACTOR_IMPL_H
 # define WATER_VOLUME_FACTOR_IMPL_H
 
-# include "water-volume-factor.H"
+# include <correlations/water-volume-factor.H>
 
 
 inline Quantity<RB_STB>

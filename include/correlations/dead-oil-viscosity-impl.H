@@ -2,7 +2,7 @@
 # ifndef DEAD_OIL_VISCOSITY_IMPL_H
 # define DEAD_OIL_VISCOSITY_IMPL_H
 
-# include "dead-oil-viscosity.H"
+# include <correlations/dead-oil-viscosity.H>
 
 inline Quantity<CP>
 UodBeal::impl(const Quantity<Api> & api,

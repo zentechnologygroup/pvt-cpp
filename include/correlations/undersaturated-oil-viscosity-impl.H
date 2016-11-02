@@ -2,7 +2,7 @@
 # ifndef UNDERSATURATED_OIL_VISCOSITY_IMPL_H
 # define UNDERSATURATED_OIL_VISCOSITY_IMPL_H
 
-# include "undersaturated-oil-viscosity.H"
+# include <correlations/undersaturated-oil-viscosity.H>
 
 inline Quantity<CP>
 UoaKartoatmodjoSchmidt::impl(const Quantity<CP> & uob,

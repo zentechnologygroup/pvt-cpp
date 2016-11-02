@@ -2,7 +2,7 @@
 # ifndef OIL_INTERFACIAL_TENSION_IMPL_H
 # define OIL_INTERFACIAL_TENSION_IMPL_H
 
-# include "oil-interfacial-tension.H"
+# include <correlations/oil-interfacial-tension.H>
 
 inline Quantity<dynes_cm>
 SgoBakerSwerdloff::impl(const Quantity<Fahrenheit> & t,

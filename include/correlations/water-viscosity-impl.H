@@ -1,8 +1,8 @@
 # ifndef WATER_VISCOSITY_IMPL_H
 # define WATER_VISCOSITY_IMPL_H
 
-# include "water-viscosity.H"
-# include "water-density.H"
+# include <correlations/water-viscosity.H>
+# include <correlations/water-density.H>
 
 inline Quantity<Paxs>
 UwMaoDuan::impl(const Quantity<Kelvin> & t,

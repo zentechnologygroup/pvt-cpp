@@ -1,7 +1,7 @@
 # ifndef BUBBLE_POINT_PRESSURE_IMPL_H
 # define BUBBLE_POINT_PRESSURE_IMPL_H
 
-# include "bubble-point-pressure.H"
+# include <correlations/bubble-point-pressure.H>
 
 inline Quantity<psia>
 PbAlMarhoun::impl(const Quantity<Sgg> & yg,

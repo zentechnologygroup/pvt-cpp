@@ -2,7 +2,7 @@
 # ifndef GAS_DENSITY_IMPL_H
 # define GAS_DENSITY_IMPL_H
 
-# include "gas-density.H"
+# include <correlations/gas-density.H>
 
 inline Quantity<Lb_ft3>
 Pg::impl(const Quantity<Sgg> & yg,

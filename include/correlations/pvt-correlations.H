@@ -26,7 +26,7 @@
 # include "gas-isothermal-compressibility.H"
 # include "gas-volume-factor.H"
 # include "water-density.H"
-# include "water-density.H"
+# include "water-viscosity.H"
 # include "water-volume-factor.H"
 # include "water-interfacial-tension.H"
 # include "water-isothermal-compressibility.H"
