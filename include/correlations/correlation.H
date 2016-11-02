@@ -610,6 +610,28 @@ public:
     return verify_result(VtlQuantity(unit, compute(pars, check))).raw();
   }
 
+  VtlQuantity
+  compute_by_names(const DynList<pair<string, double>> & pair_list) const
+  {
+    DynList<VtlQuantity> vals;
+    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+      {
+	const auto & par = it.get_curr();
+	auto ptr_val =
+	  pair_list.find_ptr([&par] (auto p) { return p.first == par.name; });
+	if (ptr_val == nullptr)
+	  {
+	    ostringstream s;
+	    s << "compute_by_names() for correlation " << name
+	      << ": parameter name " << par.name << " was not found";
+	    throw domain_error(s.str());
+	  }
+	vals.append(VtlQuantity(par.unit, ptr_val->second));
+      }
+
+    return compute(vals);
+  }
+  
   VtlQuantity tuned_compute_and_check(const DynList<VtlQuantity> & pars,
 				      double c, double m,
 				      bool check = true) const

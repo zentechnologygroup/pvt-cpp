@@ -34,7 +34,24 @@ int main(int argc, char *argv[])
   auto boa_samples = pvt.get_data().values("Above Pb", "boa");
   cout << Rvector("boa", boa_samples) << endl;
 
+  auto boa_corr = Correlation::array().filter([] (auto p)
+    { return p->target_name() == "Boa"; });
+  cout << "Boa correlations" << endl;
+  boa_corr.for_each([] (auto p) { cout << "  " << p->call_string() << endl; });
+  
+  auto boa_apliable = pvt.boa_correlations();
+  if (boa_apliable.is_empty())
+    {
+      cout << "There is not any boa correlation" << endl;
+      return 0;
+    }  
+
   auto boa_valid = pvt.boa_valid_correlations();
+  if (boa_valid.is_empty())
+    {
+      cout << "Valid correlation ist is empty" << endl;
+      return 0;
+    }
 
   auto c = boa_valid.get_first();
   cout << c->call_string() << endl << endl;
