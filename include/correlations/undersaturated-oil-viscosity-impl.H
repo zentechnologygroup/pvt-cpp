@@ -126,7 +126,7 @@ inline Quantity<CP>
 UoaDindorukChristman::impl(const Quantity<CP> & uob,
 			   const Quantity<psia> & p,
 			   const Quantity<psia> & pb,
-			   const Quantity<SCF_STB> & rs) const
+			   const Quantity<SCF_STB> & rsb) const
 {
   constexpr double a1 = 0.776644115;
   constexpr double a2 = 0.987658646;
@@ -137,7 +137,7 @@ UoaDindorukChristman::impl(const Quantity<CP> & uob,
 
   const double p_pb = p.raw() - pb.raw();
   
-  const double a = a1 + a2*log10(uob) + a3*log10(rs) + a4*uob.raw()*log10(rs) +
+  const double a = a1 + a2*log10(uob) + a3*log10(rsb) + a4*uob.raw()*log10(rsb) +
     a5*p_pb;
         
   const double uoa = uob.raw() + a6*p_pb*pow(10, a);
