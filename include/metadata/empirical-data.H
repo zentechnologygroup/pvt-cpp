@@ -402,6 +402,12 @@ struct EmpiricalData
     return make_pair(Array<double>(), nullptr);
   }
 
+  pair<Array<double>, const Unit *>
+  quantities(const string & set_name, const string & var_name) const
+  {
+    return quantities(set_index(set_name), var_name);
+  }
+
   Array<double> values(const string & set_name, const string & name) const
   {
     return values(set_index(set_name), name);

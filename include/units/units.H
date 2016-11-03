@@ -31,6 +31,10 @@ class PhysicalQuantity : public UnitItem
   static UnitItemTable tbl;
 
   DynList<const Unit * const> unit_list;
+
+public:
+
+  static const PhysicalQuantity null_physical_quantity;
   
 protected:
 
@@ -109,11 +113,7 @@ public:
     throw domain_error(s.str());
   }
 
-private:
-
   static const Unit null_unit;
-
-public:
 
   double get_epsilon() const { return epsilon; }
 

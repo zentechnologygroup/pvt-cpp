@@ -85,28 +85,30 @@ int main(int argc, char *argv[])
 
   cout << "The best correlation is " << best_corr->call_string() << endl;
 
-  using P = tuple<bool, string, double>;
+  using P = tuple<bool, string, double, const Unit *>;
 
+  // TODO: esto va a una rutina en empirical_data (correlation,
+  // var_set, index for returned vector of data set
   DynList<P> pars = best_corr->get_preconditions().
     maps<P>([&pvt] (const auto & par)
     {
-      auto p = pvt.get_data().search_const(par.name);
-      if (p.first)
-	return make_tuple(true, par.name, p.second);
-
-      // TODO: VtlQuantity 
-
-      try
+      auto par_alias = par.names();
+      for (auto it = par_alias.get_it(); it.has_curr(); it.next())
 	{
-	  auto values = pvt.get_data().values("Below Pb", par.name);
-	  if (values.is_empty())
-	    return make_tuple(false, par.name, 0.0);
-	  return make_tuple(true, par.name, values.get_last());
+	  auto syn = it.get_curr();
+	  const auto & name = syn.first;
+	  cout << "Searching " << name << " for " << par.name << endl;
+	  try
+	    {
+	      auto values = pvt.get_data().quantities("Below Pb", name);
+	      if (values.first.is_empty())
+		continue;
+	      return make_tuple(true, par.name,
+				values.first.get_last(), syn.second);
+	    }
+	  catch (...) { /* ignore it! it could be in another synonym */ }
 	}
-      catch (exception &e)
-	{
-	  return make_tuple(false, par.name, 0.0);
-	}
+      return make_tuple(false, par.name, 0.0, &Unit::null_unit);
     });
 
   cout << "List of parameters values used for computing "
@@ -115,9 +117,8 @@ int main(int argc, char *argv[])
 		{
 		  cout << get<1>(t);
 		  if (not get<0>(t))
-		    cout << get<2>(t) << " Not found in data set" << endl;
-		  else
-		    cout << " " << get<2>(t) << endl;
+		    cout << " Not found in data set";
+		  cout << endl;
 		});
 }
 

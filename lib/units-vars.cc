@@ -22,6 +22,14 @@ CompoundUnitTbl __compound_unit_tbl;
 
 static std::mutex unit_mutex;
 
+const PhysicalQuantity
+PhysicalQuantity::null_physical_quantity("NullPhysicalQuantity", "NullPQ",
+					 "Null Physical Quantity");
+
+const Unit Unit::null_unit("NullUnit", "Null Unit", "Null unit",
+			   PhysicalQuantity::null_physical_quantity,
+			   0.0, 1.0, 0.1);
+
 bool conversion_exist(const char * src_symbol, const char * tgt_symbol)
 {
   std::lock_guard<std::mutex> critical_section(unit_mutex);
