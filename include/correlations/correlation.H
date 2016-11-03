@@ -66,6 +66,8 @@ public:
 
   const DynList<P> & get_synonyms() const noexcept { return synonyms; }
 
+  /// Returns a list of alias associated to this parameter (including
+  /// the name itself) 
   DynList<P> names() const
   {
     DynList<P> ret = get_unitarian_DynList(make_pair(name, &unit));

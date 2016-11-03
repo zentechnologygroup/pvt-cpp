@@ -4,7 +4,7 @@
 # include <correlations/undersaturated-oil-density.H>
 
 
-Quantity<Lb_ft3>
+inline Quantity<Lb_ft3>
 PoaBradley::impl(const Quantity<Sgg> & yg,
 		 const Quantity<SCF_STB> & rsb,
 		 const Quantity<RB_STB> & bobp,
