@@ -1186,13 +1186,42 @@ public:
     return compute(set_index(set_name), row_name, correlation_ptr, check);
   }
 
-  DynList<double> tuned_compute(const string & set_name, const string & row_name,
+  DynList<double> tuned_compute(const string & set_name,
+				const string & row_name,
 				const Correlation * correlation_ptr,
 				double c, double m,
 				bool check = true) const
   {
     return
       tuned_compute(set_index(set_name), row_name, correlation_ptr, c, m, check);
+  }
+
+  /// Builds a parameter list for correlation `corr_ptr` extracting the
+  /// values from the var_set with index `seti` and the column number `col`
+  DynList<Correlation::NamedPar>
+  get_last_row_named_pars(const Correlation * corr_ptr, size_t seti) const
+  {
+    return corr_ptr->get_preconditions().
+      maps<Correlation::NamedPar>([this, seti] (const auto & par)
+      {
+	auto par_alias = par.names();
+	for (auto it = par_alias.get_it(); it.has_curr(); it.next())
+	  {
+	    auto syn = it.get_curr();
+	    const auto & name = syn.first;
+	    cout << "Searching " << name << " for " << par.name << endl;
+	    try
+	      {
+		auto values = this->quantities(seti, name);
+		if (values.first.is_empty())
+		  continue;
+		return make_tuple(true, par.name,
+				  values.first.get_last(), syn.second);
+	    }
+	  catch (...) { /* ignore it! it could be in another synonym */ }
+	}
+      return make_tuple(false, par.name, 0.0, &Unit::null_unit);
+    });
   }
 
   using CorrRow = tuple<DynList<double>, double>;

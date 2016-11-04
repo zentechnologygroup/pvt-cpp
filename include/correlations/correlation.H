@@ -612,9 +612,20 @@ public:
     return verify_result(VtlQuantity(unit, compute(pars, check))).raw();
   }
 
+  using NamedPar = tuple<bool, string, double, const Unit*>;
+  using ParByName = pair<string, double>;
+
+  DynList<ParByName> to_ParByName(const DynList<NamedPar> & pars) const
+  {
+    return pars.maps<ParByName>([] (auto t)
+      {
+	
+  }
+
   /// Compute correlation by receiving an unseorted list of pair par-name,value
   VtlQuantity
-  compute_by_names(const DynList<pair<string, double>> & pair_list) const
+  compute_by_names(const DynList<pair<string, double>> & pair_list,
+		   bool check = true) const
   {
     DynList<VtlQuantity> vals;
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
@@ -632,7 +643,7 @@ public:
 	vals.append(VtlQuantity(par.unit, ptr_val->second));
       }
 
-    return compute(vals);
+    return compute(vals, check);
   }
   
   VtlQuantity tuned_compute_and_check(const DynList<VtlQuantity> & pars,
@@ -686,6 +697,14 @@ public:
       }
 
     VtlQuantity ret = { unit, c + m*compute(pars, check).raw() }; 
+    return ret.raw();
+  }
+
+  VtlQuantity
+  tuned_compute_by_names(const DynList<pair<string, double>> & pair_list,
+			 double c, double m, bool check = true) const
+  {
+    VtlQuantity ret = { unit, c + m*compute_by_names(pair_list, check).raw() };
     return ret.raw();
   }
 
@@ -905,6 +924,7 @@ Declare_Correlation_Subtype(GasDensity, GasFunction)
 Declare_Correlation_Subtype(GasVolumeFactor, GasFunction);
 Declare_Correlation_Subtype(GasCompressibility, GasCorrelation);
 Declare_Correlation_Subtype(GasPseudoCriticalTemperature, GasCorrelation);
+Declare_Correlation_Subtype(GasSpecificGravity, GasCorrelation);
 Declare_Correlation_Subtype(GasIsothermalCompressibility, GasCorrelation);
 Declare_Correlation_Subtype(GasPseudoReducedRatio, GasFunction);
 

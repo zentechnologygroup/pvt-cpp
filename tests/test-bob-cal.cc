@@ -87,9 +87,7 @@ int main(int argc, char *argv[])
 
   using P = tuple<bool, string, double, const Unit *>;
 
-  // TODO: esto va a una rutina en empirical_data (correlation,
-  // var_set, index for returned vector of data set
-  DynList<P> pars = best_corr->get_preconditions().
+  DynList<Correlation::NamedPar> pars = best_corr->get_preconditions().
     maps<P>([&pvt] (const auto & par)
     {
       auto par_alias = par.names();
@@ -110,6 +108,18 @@ int main(int argc, char *argv[])
 	}
       return make_tuple(false, par.name, 0.0, &Unit::null_unit);
     });
+
+  cout << "List of parameters values used for computing "
+       << best_corr->call_string() << endl;
+  pars.for_each([] (const auto & t)
+		{
+		  cout << get<1>(t);
+		  if (not get<0>(t))
+		    cout << " Not found in data set";
+		  cout << endl;
+		});
+
+  pars = pvt.get_data().get_last_row_named_pars(best_corr, 0);
 
   cout << "List of parameters values used for computing "
        << best_corr->call_string() << endl;
