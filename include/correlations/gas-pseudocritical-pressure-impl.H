@@ -4,10 +4,7 @@
 # include <correlations/gas-pseudocritical-pressure.H>
 
 inline Quantity<psia>
-PscHCStanding::impl(const Quantity<Sgg> & yghc,
-		    const Quantity<MoleFraction> &,
-		    const Quantity<MoleFraction> &,
-		    const Quantity<MoleFraction> &) const
+PscHCStanding::impl(const Quantity<Sgg> & yghc) const
 {
   const double raw_yghc = yghc.raw();
   const double pschc = 677 + 15*raw_yghc - 37.5*raw_yghc*raw_yghc;
@@ -15,9 +12,7 @@ PscHCStanding::impl(const Quantity<Sgg> & yghc,
 }
 
 inline Quantity<psia>
-PscHcSutton::impl(const Quantity<Sgg> & yghc,
-		  const Quantity<MoleFraction> &,
-		  const Quantity<MoleFraction> &) const
+PscHcSutton::impl(const Quantity<Sgg> & yghc) const
 {
   const double pschc = 756.8 - 131.0 * yghc.raw() - 3.6 * pow(yghc, 2);
   return Quantity<psia>(pschc);
@@ -54,14 +49,13 @@ PscAhmed::impl(const Quantity<Sgg> & yghc,
 }
 
 inline Quantity<psia>
-PscHCStandingHeavierFractions::impl (const Quantity<Sgg> & yghc, 
-				     const Quantity<MoleFraction> &,
-				     const Quantity<MoleFraction> &,
-				     const Quantity<MoleFraction> &) const
+PscHCStandingHeavierFractions::impl (const Quantity<Sgg> & yghc) const
 { 
   const double pschc = 706 - 51.7*yghc.raw() - 11.1*yghc.raw()*yghc.raw();
   return Quantity<psia>(pschc);
-}                                                                                   inline Quantity<psia>
+}                                                                                   
+
+inline Quantity<psia>
 PscHCElsharkawyEtAl::impl(const Quantity<Sgg> & yghc) const
 {
   const double pschc = 787.06 - 147.34*yghc.raw() - 7.916*yghc.raw()*yghc.raw();
