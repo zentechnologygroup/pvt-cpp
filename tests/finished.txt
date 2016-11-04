@@ -41,3 +41,4 @@ opción que genere matrix aún con excepciones,2016-08-22 19:03:55 -0400,2016-09
 la auditoria debe hacerse sobre los nombres, símbolos y extremos,2016-08-14 19:42:44 -0400,,2016-09-25 12:11:50 -0400
 verificar todo en nonhydrocarbons gas-pseudo-cirtical-pressure especialmente MolePercent versus MoleFraction,2016-09-20 18:02:56 -0400,2016-09-25 12:10:00 -0400,,2016-09-25 12:12:20 -0400
 producir lib so,2016-09-21 09:04:47 -0400,2016-09-28 19:12:01 -0400,,2016-10-15 09:52:15 -0400
+sacar inclusion de json.hpp de cadena de compilación. Poner tuinas inline dentro de lib, pues hace quemar ciclos a emacs,2016-10-19 17:09:50 -0400,,2016-11-04 13:31:29 -0400

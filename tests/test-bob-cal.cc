@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
 
   auto bob_valid = pvt.bob_valid_correlations();
 
-  auto c = bob_valid.get_first();
-  cout << c->call_string() << endl << endl;
+  auto corr = bob_valid.get_first();
+  cout << corr->call_string() << endl << endl;
 
   auto p = pvt.get_data().values(0, "p");
   auto rs = pvt.get_data().values(0, "rs");
@@ -81,7 +81,11 @@ int main(int argc, char *argv[])
    		   pvt.get_data().values(0, "p"), "p", "Bob",
 		   pvt.best_bob_correlations()) << endl;
 
-  auto best_corr = get<2>(bob_lfits.get_first());
+  auto best_fit = bob_lfits.get_first();
+  auto best_corr = get<2>(best_fit);
+  auto fit_vals = get<4>(best_fit);
+  auto m = fit_vals.m;
+  auto c = fit_vals.c;
 
   cout << "The best correlation is " << best_corr->call_string() << endl;
 
@@ -109,16 +113,6 @@ int main(int argc, char *argv[])
       return make_tuple(false, par.name, 0.0, &Unit::null_unit);
     });
 
-  cout << "List of parameters values used for computing "
-       << best_corr->call_string() << endl;
-  pars.for_each([] (const auto & t)
-		{
-		  cout << get<1>(t);
-		  if (not get<0>(t))
-		    cout << " Not found in data set";
-		  cout << endl;
-		});
-
   pars = pvt.get_data().get_last_row_named_pars(best_corr, 0);
 
   cout << "List of parameters values used for computing "
@@ -130,5 +124,9 @@ int main(int argc, char *argv[])
 		    cout << " Not found in data set";
 		  cout << endl;
 		});
+
+  cout << best_corr->name << " = " << best_corr->compute_by_names(pars) << endl
+       << string(best_corr->name.size(), ' ') << " = " 
+       << best_corr->tuned_compute_by_names(pars, c, m) << endl;
 }
 

@@ -54,48 +54,44 @@
 ## 18. manejar excepciones en lectura del json
 - Created at   2016-10-18 21:45:06 -0400
 
-## 19. sacar inclusion de json.hpp de cadena de compilación. Poner tuinas inline dentro de lib
-- Created at    pues hace quemar ciclos a emacs
-- Completed at 2016-10-19 17:09:50 -0400
-
-## 20. compute para contantes
+## 19. compute para contantes
 - Created at    no para variables en empirical model
 - Completed at 2016-10-20 10:34:42 -0400
 
-## 21. Mejorar performance de matching_const_correlations
+## 20. Mejorar performance de matching_const_correlations
 - Created at   2016-10-20 19:20:41 -0400
 
-## 22. En EmpiricalData: indizar con árbol las constantes y variables
+## 21. En EmpiricalData: indizar con árbol las constantes y variables
 - Created at   2016-10-21 13:03:15 -0400
 
-## 23. pone en test-corr que se imprima nota tecnica
+## 22. pone en test-corr que se imprima nota tecnica
 - Created at   2016-10-21 14:54:17 -0400
 
-## 24. conversion unidad uno a uno
+## 23. conversion unidad uno a uno
 - Created at   2016-10-21 16:58:32 -0400
 
-## 25. usar más estadísticos
+## 24. usar más estadísticos
 - Created at   2016-10-22 19:59:38 -0400
 
-## 26. eliminar uso de gsl para versiones standalone por ser de licencia gpl
+## 25. eliminar uso de gsl para versiones standalone por ser de licencia gpl
 - Created at   2016-10-23 10:22:32 -0400
 
-## 27. Retorno de correlation debe poder especificarse en otras unidades
+## 26. Retorno de correlation debe poder especificarse en otras unidades
 - Created at   2016-10-24 17:27:15 -0400
 
-## 28. pvt-analisis debede mar nombre de unidad
+## 27. pvt-analisis debede mar nombre de unidad
 - Created at    no su símbolo
 - Completed at 2016-10-24 19:20:36 -0400
 
-## 29. flag en test-conversion que liste unidades dada magnitud física
+## 28. flag en test-conversion que liste unidades dada magnitud física
 - Created at   2016-10-31 17:25:29 -0400
 
-## 30. lista de unidades
+## 29. lista de unidades
 - Created at   2016-11-02 17:06:18 -0400
 
-## 31. lista de nombres de parámtros de correlación
+## 30. lista de nombres de parámtros de correlación
 - Created at   2016-11-02 17:06:32 -0400
 
-## 32. lista de correlaciones con pares parmámero/unidad
+## 31. lista de correlaciones con pares parmámero/unidad
 - Created at   2016-11-02 17:06:53 -0400
 
