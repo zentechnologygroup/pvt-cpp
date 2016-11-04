@@ -32,11 +32,15 @@ void test(int argc, char *argv[])
   ValueArg<string> target = {"T", "target-unit", "target unit", false,
 			     "", "target unit", cmd};
 
+  SwitchArg l = { "l", "list", "list all units", cmd, false };
+
   SwitchArg v("v", "verbose", "verbose mode", cmd, false);
 
   SwitchArg json("j", "json", "json list of units", cmd, false);
 
   cmd.parse(argc, argv);
+
+  if (l.getValue())
 
   if (list.isSet())
     {
