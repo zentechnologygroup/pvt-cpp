@@ -5,7 +5,7 @@ add_db("The brine density correlation was obtained by combining the correlations
 add_db("The methane solubility correlation is based on 1039 data points from a database of volumetric properties of sodium chloride brine.")
 add_parameter("t", "Celsius", "Temperature",  0,  275) 
 add_parameter("p", "mPascal", "Pressure",  0.9,  200)
-add_parameter("s", "Disolved_Salt_Percent", "Dissolved salt concentration", 0, 26) 
+add_parameter("nacl_concentration", "Molality_NaCl", "Dissolved salt concentration", 0, 5.7) 
 add_author("Spivey, McCain & North")
 add_ref("spivey:2004")
 add_ref("mcCain:2011")
