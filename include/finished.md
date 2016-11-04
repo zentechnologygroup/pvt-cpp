@@ -76,3 +76,21 @@
 - Comment      
 - Finished     
 
+## 14. método estático que retorne los tipos de correlacion
+- Created at   2016-10-01 16:54:55 -0400
+- Completed at 2016-10-07 09:10:08 -0400
+- Comment      
+- Finished     
+
+## 15. método estático que retorne las correlaciones dado un subtipo
+- Created at   2016-10-01 16:55:54 -0400
+- Completed at 2016-10-07 09:10:22 -0400
+- Comment      
+- Finished     
+
+## 16. método estático que retorne las correlaciones dado un tipo
+- Created at   2016-10-01 16:56:23 -0400
+- Completed at 2016-10-07 09:10:29 -0400
+- Comment      
+- Finished     
+

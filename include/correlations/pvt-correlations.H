@@ -253,6 +253,7 @@ struct CorrelationInstantiater
     PwSpiveyMN::get_instance();
     PwSpiveyMNGasFree::get_instance();
     PwMcCain::get_instance();
+    PpwSpiveyMN::get_instance();
 
     UwMaoDuan::get_instance();
     UwVanWingen::get_instance();

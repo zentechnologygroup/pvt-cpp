@@ -7,7 +7,7 @@
 inline Quantity<RB_STB>
 BwSpiveyMN::impl(const Quantity<Celsius> & t,
 		 const Quantity<mPascal> & p,
-		 const Quantity<Disolved_Salt_Percent> & s) const
+		 const Quantity<Dissolved_Salt_Percent> & s) const
 {
   // TERMINO1 vgfw: VOLUMEN ESPECIFICO DE LA SALMUERA LIBRE DE GAS A
   // CONDICIONES T Y P DE EVALUACION 
@@ -210,7 +210,7 @@ inline Quantity<RB_STB>
 BwMcCoy::impl(const Quantity<Fahrenheit> & t,
 	      const Quantity<psia> & p,
 	      const Quantity<psia> & pb,
-	      const Quantity<Disolved_Salt_Percent> & s,
+	      const Quantity<Dissolved_Salt_Percent> & s,
 	      const Quantity<psia_1> & cw) const
 {
   const double t2 = t.raw()*t.raw();

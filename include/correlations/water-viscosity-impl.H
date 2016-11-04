@@ -7,7 +7,7 @@
 inline Quantity<Paxs>
 UwMaoDuan::impl(const Quantity<Kelvin> & t,
 		const Quantity<Gr_cm3> & ppw,
-		const Quantity<Disolved_Salt_PPM> & s) const
+		const Quantity<Dissolved_Salt_PPM> & s) const
 {
   const double t2 = pow2(t);
   
@@ -53,7 +53,7 @@ UwVanWingen::impl(const Quantity<Fahrenheit> & t) const
 inline Quantity<CP>
 UwMatthewsRussel::impl(const Quantity<Fahrenheit> & t,
 		       const Quantity<psia> & p,
-		       const Quantity<Disolved_Salt_Percent> & s) const
+		       const Quantity<Dissolved_Salt_Percent> & s) const
 {
   const double s2 = s.raw()*s.raw();
   const double a = -0.04518 + 0.009313*s.raw() - 0.000393*s2;
@@ -70,7 +70,7 @@ UwMatthewsRussel::impl(const Quantity<Fahrenheit> & t,
 inline Quantity<CP>
 UwMcCain::impl(const Quantity<Fahrenheit> & t,
 	       const Quantity<psia> & p,
-	       const Quantity<Disolved_Salt_Percent> & s) const
+	       const Quantity<Dissolved_Salt_Percent> & s) const
 {
   const double s2 = s.raw()*s.raw();
   const double s3 = s2*s.raw();
@@ -91,7 +91,7 @@ UwMcCain::impl(const Quantity<Fahrenheit> & t,
 
 inline Quantity<CP>
 UwMcCoy::impl(const Quantity<Fahrenheit> & t,
-	      const Quantity<Disolved_Salt_Percent> & s) const
+	      const Quantity<Dissolved_Salt_Percent> & s) const
 {
   const double uwp =
     0.02414 * pow(10, (247.8/(((0.555555556 * t.raw()) + 255.37) - 140)));

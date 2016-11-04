@@ -8,7 +8,7 @@ inline Quantity<mPa_1>
 CwSpiveyMN::impl(const Quantity<Celsius> & t,
 		 const Quantity<mPascal> & p,
 		 const Quantity<mPascal> & pb,
-		 const Quantity<Disolved_Salt_Percent> & s,
+		 const Quantity<Dissolved_Salt_Percent> & s,
 		 const Quantity<ZFactor> & z) const
 {
   const double t100 = t.raw()/100;
@@ -183,7 +183,7 @@ CwDodsonStanding::impl(const Quantity<Fahrenheit> & t,
 		       const Quantity<psia> & pb,
 		       const Quantity<SCF_STB> & rsw,
 		       const Quantity<SCF_STB> & rswb,
-		       const Quantity<Disolved_Salt_Percent> & s,
+		       const Quantity<Dissolved_Salt_Percent> & s,
 		       const Quantity<RCF_SCF> & bg,
 		       const Quantity<RB_STB> & bw) const
 {
@@ -237,7 +237,7 @@ inline Quantity<psia_1>
 CwOsif::impl(const Quantity<Fahrenheit> & t,
 	     const Quantity<psia> & p,
 	     const Quantity<psia> & pb,
-	     const Quantity<Disolved_Salt_Percent> & s,
+	     const Quantity<Dissolved_Salt_Percent> & s,
 	     const Quantity<RCF_SCF> & bg,
 	     const Quantity<RB_STB> & bw) const
 {

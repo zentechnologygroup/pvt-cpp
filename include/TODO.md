@@ -24,6 +24,7 @@
 
 ## 7. hacer regresión
 - Created at   2016-09-30 10:15:00 -0400
+- Completed at 2016-11-04 15:23:00 -0400
 
 ## 8. recibir una data experimental y seleccionar las correlaciones que aplican
 - Created at   2016-09-30 10:15:28 -0400
@@ -31,48 +32,36 @@
 ## 9. script que compile todo
 - Created at   2016-09-30 15:55:07 -0400
 
-## 10. método estático que retorne los tipos de correlacion
-- Created at   2016-10-01 16:54:55 -0400
-- Completed at 2016-10-07 09:10:08 -0400
-
-## 11. método estático que retorne los subtipos de correlación dado un tipo
+## 10. método estático que retorne los subtipos de correlación dado un tipo
 - Created at   2016-10-01 16:55:18 -0400
 - Completed at 2016-10-07 09:10:10 -0400
 
-## 12. método estático que retorne las correlaciones dado un subtipo
-- Created at   2016-10-01 16:55:54 -0400
-- Completed at 2016-10-07 09:10:22 -0400
-
-## 13. método estático que retorne las correlaciones dado un tipo
-- Created at   2016-10-01 16:56:23 -0400
-- Completed at 2016-10-07 09:10:29 -0400
-
-## 14. corregir psia_1: no debe estar asociada a unidad de presión
+## 11. corregir psia_1: no debe estar asociada a unidad de presión
 - Created at   2016-10-02 21:35:35 -0400
 - Completed at 2016-10-07 07:50:23 -0400
 
-## 15. añadir en add_parameter la posibilidad de poner una nota adicional sobre el parámetro
+## 12. añadir en add_parameter la posibilidad de poner una nota adicional sobre el parámetro
 - Created at   2016-10-04 09:37:02 -0400
 - Completed at 2016-10-07 07:50:34 -0400
 
-## 16. parámetro s de salinidad debe set porcentual para que no dé una raíz negativa
+## 13. parámetro s de salinidad debe set porcentual para que no dé una raíz negativa
 - Created at   2016-10-04 21:31:03 -0400
 - Completed at 2016-10-08 09:20:50 -0400
 
-## 17. implementar un método de sobrecarga de correlación
+## 14. implementar un método de sobrecarga de correlación
 - Created at   2016-10-07 11:25:16 -0400
 
-## 18. oil-compressibility: sacar a McCain de las otras correlaciones
+## 15. oil-compressibility: sacar a McCain de las otras correlaciones
 - Created at   2016-10-07 15:41:29 -0400
 
-## 19. si una correlación oil-compre recibe p>pb +==> excepción
+## 16. si una correlación oil-compre recibe p>pb +==> excepción
 - Created at   2016-10-07 15:42:41 -0400
 - Completed at 
 - Comment      usar presión si es requerida
 
-## 20. funcion que imprima famila de correlaciones en filas con nombres de parameros y sus unidades
+## 17. funcion que imprima famila de correlaciones en filas con nombres de parameros y sus unidades
 - Created at   2016-10-10 08:47:05 -0400
 
-## 21. json con unidades
+## 18. json con unidades
 - Created at   2016-10-10 19:21:55 -0400
 
