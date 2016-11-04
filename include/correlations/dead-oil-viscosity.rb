@@ -117,6 +117,7 @@ add_db("Oil samples have been divided in two different API gravity classes: extr
 add_parameter("api", "Api", "API oil gravity",  6,  22.3)
 add_parameter("t", "Fahrenheit", "Temperature",  131.4,  250.7)
 add_author("De Ghetto, Paone & Villa")
+add_ref("deGhetto:1995")
 end_correlation()
 
 ################################################################
