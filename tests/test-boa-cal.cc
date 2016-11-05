@@ -16,6 +16,12 @@ int main(int argc, char *argv[])
   ValueArg<string> json_file = { "f", "json-file", "json file", false,
 				 "data.json", "json file name", cmd };
 
+  ValueArg<double> bobp = { "b", "bobp", "bo at bubble point", false,
+			    0.0, "bo at bubble point", cmd };
+
+  ValueArg<string> bobp_unit = { "u", "bobp-unit", "unit used for bobp", false,
+				 "", "unit symbol used for bobp", cmd };
+
   cmd.parse(argc, argv);
 
   ifstream input(json_file.getValue());
@@ -27,9 +33,46 @@ int main(int argc, char *argv[])
 
   PvtAnalyzer pvt(input);
 
-  cout << pvt.get_data().full_desc() << endl;
+  auto bob_vals = pvt.get_data().search_variable("Below Pb", "bob");
+  if (not get<0>(bob_vals))
+    {
+      cout << "The data set does not contain the bob variable" << endl;
+      abort();
+    }
+
+  auto bob_val_unit = get<2>(bob_vals);
+
+  double last_bob_val = get<1>(bob_vals).get_last();
+
+  if (bobp_unit.isSet())
+    {
+      auto unit_ptr = Unit::search_by_symbol(bobp_unit.getValue());
+      if (unit_ptr == nullptr)
+	{
+	  cout << "Unit symbol " << bobp_unit.getValue() << " not found"
+	       << endl;
+	  abort();
+	}
+
+      if (not unit_ptr->is_sibling(*bob_val_unit))
+	{
+	  cout << "Defined unit for bobp " << unit_ptr->name
+	       << " is not physically related to defined unit for bob "
+	       << bob_val_unit->name << endl;
+	  abort();
+	}
+
+      bob_val_unit = unit_ptr;
+    }
+
+  if (bobp.isSet())
+    pvt.get_data().def_const("bobp", bobp.getValue(), bob_val_unit);
+  else
+    pvt.get_data().def_const("bobp", last_bob_val, bob_val_unit);
 
   pvt.check_data();
+
+  cout << pvt.get_data().full_desc() << endl;
 
   auto boa_samples = pvt.get_data().values("Above Pb", "boa");
   cout << Rvector("boa", boa_samples) << endl;
@@ -49,7 +92,7 @@ int main(int argc, char *argv[])
   auto boa_valid = pvt.boa_valid_correlations();
   if (boa_valid.is_empty())
     {
-      cout << "Valid correlation ist is empty" << endl;
+      cout << "Valid correlation is is empty" << endl;
       return 0;
     }
 
@@ -57,14 +100,33 @@ int main(int argc, char *argv[])
   cout << c->call_string() << endl << endl;
 
   auto p = pvt.get_data().values("Above Pb", "p");
-  auto rs = pvt.get_data().values(0, "rs");
 
-  cout << Rvector("rs", rs) << endl
-       << Rvector("p", p) << endl;
+  cout << Rvector("p", p) << endl;
 
-  cout << "Boa valid correlations" << endl;
-  boa_valid.for_each([] (auto p) { cout << p->call_string() << endl; });
+  cout << "Boa valid correlations:" << endl;
+  boa_valid.for_each([] (auto p) { cout << " " << p->call_string() << endl; });
   cout << endl;
+
+  auto boa_fits = sort(pvt.boa_correlations_lfits(),
+		       [] (const auto & t1, const auto &t2)
+		       {
+			 return get<4>(t1).sumsq < get<4>(t2).sumsq;
+		       });
+
+  boa_fits.for_each([&pvt] (auto c) { cout << pvt.to_string(c) << endl; });
+
+  boa_valid.for_each([&pvt] (auto t)
+    {
+      cout << Rvector(t->name, pvt.get_data().compute(1, "p", t)) << endl;
+    });
+
+  auto boa_lfits_list = pvt.boa_lfits_list(boa_fits);
+
+  cout << pvt.to_R("tuned.", boa_lfits_list) << endl;
+  // boa_fits.for_each([&pvt] (auto t)
+  //   {
+  //     cout << Rvector(t->name, pvt.get_data().compute(1, "p", t)) << endl;
+  //   });
 
   // cout << pvt.to_string(pvt.best_bob_correlations()) << endl
   //      << endl;

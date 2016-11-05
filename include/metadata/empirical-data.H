@@ -231,17 +231,17 @@ struct EmpiricalData
     throw domain_error(s.str());
   }
 
-  pair<bool, double> search_const(const string & name) const
+  tuple<bool, double, const Unit*> search_const(const string & name) const
   {
     for (auto it = get_zip_it(const_names, const_vals, const_units);
 	 it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
 	if (get<0>(t) == name)
-	  return make_pair(true, get<1>(t));
+	  return make_tuple(true, get<1>(t), get<2>(t));
       }
 
-    return make_pair(false, 0);
+    return make_tuple(false, 0, &Unit::null_unit);
   }
 
   void check_constant(const string & name, const PhysicalQuantity & pq) const
@@ -318,6 +318,34 @@ struct EmpiricalData
 		      const PhysicalQuantity & pq) const
   {
     return check_variable(set_index(set_name), name, pq);
+  }
+
+  tuple<bool, Array<double>, const Unit*> search_variable(size_t seti,
+							  const string & name) const
+  {
+    const auto & vset = var_sets[seti];
+    for (auto it = get_zip_it(vset.var_names, vset.var_units); it.has_curr();
+	 it.next())
+      {
+	auto t = it.get_curr();
+	const string & vname = get<0>(t);
+	if (vname != name)
+	  continue;
+
+	auto vals = vset.values(name);
+	if (vals.is_empty())
+	  return make_tuple(true, vals, &Unit::null_unit);
+	else
+	  return make_tuple(true, move(vals), get<1>(t));
+      }
+
+    return make_tuple(true, Array<double>(), &Unit::null_unit);
+  }
+
+  tuple<bool, Array<double>, const Unit*> search_variable(const string & set_name,
+							  const string & name) const
+  {
+    return search_variable(set_index(set_name), name);
   }
 
   // return true if this data set contains the names stored in `names

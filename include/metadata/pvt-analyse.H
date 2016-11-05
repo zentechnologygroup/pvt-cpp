@@ -94,8 +94,8 @@ public:
 
   DynList<const Correlation*> boa_valid_correlations() const
   {
-    return data.valid_correlations(1).
-      filter([] (auto ptr) { return ptr->target_name() == "bo"; });
+    return data.valid_correlations("Above Pb").
+      filter([] (auto ptr) { return ptr->target_name() == "boa"; });
   }
 
   //                      ok    result     correlation       message if not ok
@@ -305,21 +305,29 @@ public:
   }
 
   DynList<pair<string, DynList<double>>>
-  lfits_list(const DynList<VarCorrLFit> & l, const string & row_name) const
+   lfits_list(const DynList<VarCorrLFit> & l, size_t seti,
+	      const string & row_name) const
   {
-    return l.maps<pair<string, DynList<double>>>([this, &row_name] (auto t)
+    return l.maps<pair<string, DynList<double>>>([this, &row_name, seti] (auto t)
     {
       auto r = get<4>(t);
       auto ptr = get<2>(t);
-      auto values = data.tuned_compute(0, row_name, ptr, r.c, r.m);
+      auto values = data.tuned_compute(seti, row_name, ptr, r.c, r.m);
       return make_pair(ptr->name, move(values));
     });
   }
 
   DynList<pair<string, DynList<double>>>
+  lfits_list(const DynList<VarCorrLFit> & l, const string & set_name,
+	     const string & row_name) const
+  {
+    return lfits_list(l, data.set_index(set_name), row_name);
+  }
+
+  DynList<pair<string, DynList<double>>>
 	 rs_lfits_list(const DynList<VarCorrLFit> & l) const
   {
-    return lfits_list(l, "p");
+    return lfits_list(l, 0, "p");
   }
 
   DynList<VarCorrLFit> bob_correlations_lfits(bool check = true) const
@@ -327,10 +335,21 @@ public:
     return correlations_lfits(bob_valid_correlations(), 0, "rs", check);
   }
 
+  DynList<VarCorrLFit> boa_correlations_lfits(bool check = true) const
+  {
+    return correlations_lfits(boa_valid_correlations(), 1, "p", check);
+  }
+
   DynList<pair<string, DynList<double>>>
   bob_lfits_list(const DynList<VarCorrLFit> & l) const
   {
-    return lfits_list(l, "rs");
+    return lfits_list(l, 0, "rs");
+  }  
+
+  DynList<pair<string, DynList<double>>>
+  boa_lfits_list(const DynList<VarCorrLFit> & l) const
+  {
+    return lfits_list(l, 1, "p");
   }  
 
   string to_R(const Array<double> & lab_data,

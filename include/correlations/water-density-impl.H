@@ -31,7 +31,8 @@ PwSpiveyMN::impl(const Quantity<Celsius> & t,
     {
       ostringstream s;
       s << "PwSpiveyMN::impl: received pressure " << p
-	<< " is less than computed vapour pressure " << pv << " " << p.unit.name;
+	<< " is less than computed vapour pressure " << pv << " "
+	<< p.unit.name;
       throw domain_error(s.str());
     }
 

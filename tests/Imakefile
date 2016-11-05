@@ -27,7 +27,7 @@ LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
 TESTSRCS = test-all-units-1.cc test-conversion.cc test-corr.cc test-seq.cc \
 	test-biblio.cc test-json.cc test-tuning.cc test-analyse.cc \
 	test-empirical-json.cc test-fluid-analysis.cc test-non-lsq.cc \
-	test-bob-cal.cc test-boa-cal.cc test-rs-cal.cc
+	test-bob-cal.cc test-boa-cal.cc test-rs-cal.cc test-def-corr.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
@@ -71,5 +71,8 @@ NormalProgramTarget(test-boa-cal,test-boa-cal.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(
 
 AllTarget(test-rs-cal)
 NormalProgramTarget(test-rs-cal,test-rs-cal.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(test-def-corr)
+NormalProgramTarget(test-def-corr,test-def-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()

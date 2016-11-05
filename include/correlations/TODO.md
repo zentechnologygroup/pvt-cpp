@@ -37,3 +37,6 @@
 ## 12. completar compute_by_names para demás versiones
 - Created at   2016-11-02 09:21:30 -0400
 
+## 13. definir clase crrelacion calibrada que pueda ser por partes
+- Created at   2016-11-05 10:19:51 -0400
+
