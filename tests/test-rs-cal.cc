@@ -60,19 +60,13 @@ int main(int argc, char *argv[])
 		   pvt.get_data().values(0, "p"), "Pressure", "Rs",
 		   rs_best_mse) << endl;
 
-  cout << "Non linear" << endl;
-  auto best_nlfits = pvt.rs_correlations_nlfits();
-
-  auto best_nlfits_l = best_nlfits.maps<DynList<string>>([] (auto t)
-    {
-      auto r = get<4>(t); // nlfit
-      return DynList<string>({ get<2>(t)->name, 
-	    to_string(r.c), to_string(r.m), to_string(r.sum_line) });
-    });
-
-  best_nlfits_l.insert({"Correlation", "c", "m", "sumsq"});
-
   auto best_lfits = pvt.rs_correlations_lfits();
+
+  cout << get<4>(best_lfits.get_first()).to_string() << endl
+       << pvt.rs_lfit(get<2>(best_lfits.get_first())).to_string() << endl;
+         
+  assert(get<4>(best_lfits.get_first()) ==
+	 pvt.rs_lfit(get<2>(best_lfits.get_first())));
 
   auto best_lfits_l = best_lfits.maps<DynList<string>>([] (auto t)
     {
@@ -83,15 +77,6 @@ int main(int argc, char *argv[])
 
   best_lfits_l.insert({"Correlation", "c", "m", "sumsq"});
 
-  auto nl_tuned =
-    best_nlfits.maps<pair<string, DynList<double>>>([&pvt] (auto t)
-    {
-      auto r = get<4>(t);
-      auto ptr = get<2>(t);
-      auto values = pvt.get_data().tuned_compute(0, "p", ptr, r.c, r.m);
-      return make_pair(ptr->name, move(values));
-    });
-
   auto l_tuned = best_lfits.maps<pair<string, DynList<double>>>([&pvt] (auto t)
     {
       auto r = get<4>(t);
@@ -100,9 +85,7 @@ int main(int argc, char *argv[])
       return make_pair(ptr->name, move(values));
     });
 
-  cout << pvt.to_R("nltuned.", nl_tuned) << endl
-       << endl
-       << pvt.to_R("ltuned.", l_tuned) << endl;
+  cout << pvt.to_R("ltuned.", l_tuned) << endl;
 
   CorrStat stat(pvt.get_data().values(0, "rs"));
   auto all_tuned =
@@ -110,10 +93,7 @@ int main(int argc, char *argv[])
       {
 	return make_pair("ltuned." + p.first, p.second);
       });
-  all_tuned.append(nl_tuned.maps<pair<string, DynList<double>>>([] (auto p)
-      {
-	return make_pair("nltuned." + p.first, p.second);
-      }));
+
   auto all_tuned_stats =
     sort(all_tuned.maps<tuple<string, double, double>>([&stat] (auto p)
       {
@@ -132,8 +112,6 @@ int main(int argc, char *argv[])
         << to_string(format_string(all_tuned_stats)) << endl;
 
   cout << endl
-       << "Non linear" << endl
-       << to_string(format_string(best_nlfits_l)) << endl
        << "Linear" << endl
        << to_string(format_string(best_lfits_l)) << endl
        << endl;

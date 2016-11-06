@@ -66,6 +66,9 @@ int main(int argc, char *argv[])
 			  return get<4>(t1).sumsq < get<4>(t2).sumsq;
 			});
 
+  assert(get<4>(bob_lfits.get_first()) ==
+	 pvt.bob_lfit(get<2>(bob_lfits.get_first())));
+
   cout << to_string(format_string(bob_lfits.maps<DynList<string>>([] (auto t)
     {
       auto fit = get<4>(t);

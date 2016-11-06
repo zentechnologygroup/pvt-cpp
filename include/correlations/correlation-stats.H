@@ -137,6 +137,11 @@ public:
 	<< "sumsq = " << sumsq;
       return s.str();
     }
+
+    bool operator == (const LFit & rhs) const noexcept
+    {
+      return c == rhs.c and m == rhs.m and sumsq == rhs.sumsq;
+    }
   };
 
   LFit linear_fit(const Array<double> & yc) const

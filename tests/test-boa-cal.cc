@@ -113,6 +113,12 @@ int main(int argc, char *argv[])
 			 return get<4>(t1).sumsq < get<4>(t2).sumsq;
 		       });
 
+  cout << get<4>(boa_fits.get_first()).to_string() << endl
+       << pvt.boa_lfit(get<2>(boa_fits.get_first())).to_string() << endl;
+
+  assert(get<4>(boa_fits.get_first()) ==
+	 pvt.boa_lfit(get<2>(boa_fits.get_first())));
+
   boa_fits.for_each([&pvt] (auto c) { cout << pvt.to_string(c) << endl; });
 
   boa_valid.for_each([&pvt] (auto t)
@@ -126,11 +132,11 @@ int main(int argc, char *argv[])
 
   auto p_below = pvt.get_data().values("Below Pb", "p");
   auto best_bob_correlation = &BobStanding::get_instance();
-  auto below_fit = pvt.lfit(best_bob_correlation, 0, "p");
+  auto below_fit = pvt.bob_lfit(best_bob_correlation);
 
   auto p_above = pvt.get_data().values("Above Pb", "p");
   auto best_boa_correlation = get<2>(boa_fits.get_first());
-  auto above_fit = pvt.lfit(best_boa_correlation, 1, "rs");
+  auto above_fit = pvt.boa_lfit(best_boa_correlation);
 
   DefinedCorrelation defcorr("p");
 

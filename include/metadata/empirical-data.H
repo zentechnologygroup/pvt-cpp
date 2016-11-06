@@ -322,8 +322,8 @@ struct EmpiricalData
     return check_variable(set_index(set_name), name, pq);
   }
 
-  tuple<bool, Array<double>, const Unit*> search_variable(size_t seti,
-							  const string & name) const
+  tuple<bool, Array<double>, const Unit*>
+  search_variable(size_t seti, const string & name) const
   {
     const auto & vset = var_sets[seti];
     for (auto it = get_zip_it(vset.var_names, vset.var_units); it.has_curr();
@@ -344,8 +344,8 @@ struct EmpiricalData
     return make_tuple(true, Array<double>(), &Unit::null_unit);
   }
 
-  tuple<bool, Array<double>, const Unit*> search_variable(const string & set_name,
-							  const string & name) const
+  tuple<bool, Array<double>, const Unit*>
+  search_variable(const string & set_name, const string & name) const
   {
     return search_variable(set_index(set_name), name);
   }
@@ -799,7 +799,8 @@ public:
       {
 	ostringstream s;
 	s << "EmpiricalData::add_sample(DynList<string> &&): pars size "
-	  << pars.size() << " is different than number of vars " << vset.num_var;
+	  << pars.size() << " is different than number of vars "
+	  << vset.num_var;
 	throw domain_error(s.str());
       }
 
@@ -924,7 +925,7 @@ public:
     return ret;
   }
 
-  // Return a list of permutations input for `correlation_ptr` built
+  // Return a list of permutations inputs for `correlation_ptr` built
   // according to column index `col`
   DynList<DynList<double>>
   correlation_perms(size_t seti, const Correlation * correlation_ptr,
@@ -978,6 +979,8 @@ public:
 
   using InvalidRange = pair<string, DynList<double>>;
 
+  /// given `correlaion_ptr` and the var set `seti`, it returns a list
+  /// of names and their values which are not inside in te correlation range
   DynList<InvalidRange>
   invalid_parameters_values(size_t seti,
 			    const Correlation * correlation_ptr) const
@@ -1076,8 +1079,7 @@ public:
   /// with other constant parameters and their parameters ranges are
   /// valid respect to the constant stored in this data set
   DynList<const Correlation*>
-  matching_const_valid_correlations(const string & const_name)
-    const
+  matching_const_valid_correlations(const string & const_name) const
   {
     return matching_const_correlations(const_name).
       filter([this, &const_name] (auto ptr)
@@ -1106,7 +1108,7 @@ public:
       });
   }
 
-  /// Returns a list of correlation matching the names contaned in
+  /// Returns a list of correlation matching the names contained in
   /// the data set
   DynList<const Correlation*> matching_correlations(size_t seti) const
   {
@@ -1131,7 +1133,8 @@ public:
       });
   }
 
-  DynList<const Correlation*> valid_correlations(const string & set_name) const
+  DynList<const Correlation*>
+  valid_correlations(const string & set_name) const
   {
     return valid_correlations(set_index(set_name));
   }

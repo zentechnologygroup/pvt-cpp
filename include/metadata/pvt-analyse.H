@@ -198,38 +198,6 @@ public:
     return best_correlations(bob_valid_correlations(), "rs", check);
   }
 
-  using VarCorrNlFit =
-    //   ok      y              correlation,  message if not ok, Fit values
-    tuple<bool, DynList<double>, const Correlation*, string, CorrStat::NlFit>;
-
-  // TODO: parámetros de bounds que serían según la tendencia de la pendiente
-  DynList<VarCorrNlFit>
-  correlations_nlfits(const DynList<const Correlation*> & corr_list,
-		      size_t seti, const string & row_name,
-		      bool check = true) const
-  {
-    const string & var_name = corr_list.get_first()->target_name();
-    CorrStat stat(data.values(seti, var_name));
-
-    DynList<VarCorrNlFit> ret = corr_list.maps<VarCorrNlFit>([&] (auto ptr)
-      {
-	try
-	  {
-	    auto result = data.compute(0, row_name, ptr, check);
-	    auto fit = stat.nlfit(result);
-	    return make_tuple(true, move(result), ptr, "", fit);
-	  }
-	catch (exception & e)
-	  {
-	    return make_tuple(false, DynList<double>(), ptr, e.what(),
-			      CorrStat::NlFit());
-	  }
-      });
-
-    return sort(ret, [] (auto t1, auto t2)
-		{ return get<4>(t1).sum_line < get<4>(t2).sum_line; });
-  }
-
   using VarCorrLFit =
     //   ok      y              correlation,  message if not ok, Fit values
     tuple<bool, DynList<double>, const Correlation*, string, CorrStat::LFit>;
@@ -267,6 +235,10 @@ public:
     return s.str();
   }
 
+  /// Performs a linear regression fit for the `correlation_ptr`
+  /// taking as data the onst names and the varables stored in the var
+  /// set `seti`. The used samples for doing the fit are taken from
+  /// row `row_name` in the var set `seti`
   CorrStat::LFit lfit(const Correlation * correlation_ptr, size_t seti,
 		       const string & row_name, bool check = true) const
   {
@@ -275,6 +247,51 @@ public:
 
     auto result = data.compute(seti, row_name, correlation_ptr, check);
     return stat.linear_fit(result);
+  }
+
+  CorrStat::LFit
+  rs_lfit(const Correlation * corr_ptr, bool check = true) const
+  {
+    if (corr_ptr->target_name() != "rs")
+      {
+	ostringstream s;
+	s << "PvtAnalyzer::rs_lfit: correlation " << corr_ptr->name
+	  << " has not rs as target name";
+	throw domain_error(s.str());
+      }
+    
+    CorrStat stat(data.values(0, "rs"));
+    return stat.linear_fit(data.compute(0, "p", corr_ptr, check));
+  }
+
+  CorrStat::LFit
+  bob_lfit(const Correlation * corr_ptr, bool check = true) const
+  {
+    if (corr_ptr->target_name() != "bob")
+      {
+	ostringstream s;
+	s << "PvtAnalyzer::bob_lfit: correlation " << corr_ptr->name
+	  << " has not bob as target name";
+	throw domain_error(s.str());
+      }
+    
+    CorrStat stat(data.values(0, "bob"));
+    return stat.linear_fit(data.compute(0, "rs", corr_ptr, check));
+  }
+
+  CorrStat::LFit
+  boa_lfit(const Correlation * corr_ptr, bool check = true) const
+  {
+    if (corr_ptr->target_name() != "boa")
+      {
+	ostringstream s;
+	s << "PvtAnalyzer::boa_lfit: correlation " << corr_ptr->name
+	  << " has not bob as target name";
+	throw domain_error(s.str());
+      }
+    
+    CorrStat stat(data.values(1, "boa"));
+    return stat.linear_fit(data.compute(1, "p", corr_ptr, check));
   }
 
   DynList<VarCorrLFit>
@@ -309,23 +326,12 @@ public:
     return correlations_lfits(rs_valid_correlations(), 0, "p", check);
   }
 
-  CorrStat::LFit rs_lfit(const Correlation * corr_ptr, bool check = true) const
-  {
-    const string & var_name = corr_ptr->target_name();
-    CorrStat stat(data.values(0, var_name));
-    return stat.linear_fit(data.compute(0, "p", corr_ptr, check));
-  }
-
-  DynList<VarCorrNlFit> rs_correlations_nlfits(bool check = true) const
-  {
-    return correlations_nlfits(rs_valid_correlations(), 0, "p", check);
-  }
-
   DynList<pair<string, DynList<double>>>
    lfits_list(const DynList<VarCorrLFit> & l, size_t seti,
 	      const string & row_name) const
   {
-    return l.maps<pair<string, DynList<double>>>([this, &row_name, seti] (auto t)
+    return l.maps<pair<string, DynList<double>>>
+      ([this, &row_name, seti] (auto t)
     {
       auto r = get<4>(t);
       auto ptr = get<2>(t);
