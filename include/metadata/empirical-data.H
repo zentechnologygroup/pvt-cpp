@@ -1139,8 +1139,14 @@ public:
     return valid_correlations(set_index(set_name));
   }
 
-  double compute(const Correlation * correlation_ptr, bool check = true) const
+  //Todo: esta rutina puede usarse desde DfineCorrelation. Pero debe
+  //devolver una lista de resultados
+  double compute(const Correlation * correlation_ptr, size_t seti,
+			  bool check = true) const
   {
+    pair<string, double> const_vals;
+
+    const auto & var_set = var_sets[seti];
     auto const_list = t_zip(const_names, const_vals, const_units);
     auto pars = correlation_ptr->get_preconditions().
       maps<VtlQuantity>([&] (const auto & par)
