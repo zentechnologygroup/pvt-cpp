@@ -910,7 +910,8 @@ decltype(auto) call_compute(Func&& f, const DynList<T>& pars)
 {
   constexpr std::size_t N =
     compute_arity<std::remove_pointer_t<std::decay_t<Func>>>::value;
-  return call_compute(std::forward<Func>(f), pars, std::make_index_sequence<N>());
+  return
+    call_compute(std::forward<Func>(f), pars, std::make_index_sequence<N>());
 }
 
 # define Correlation_Singleton(name)					\
