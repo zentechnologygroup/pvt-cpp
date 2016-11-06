@@ -267,6 +267,16 @@ public:
     return s.str();
   }
 
+  CorrStat::LFit lfit(const Correlation * correlation_ptr, size_t seti,
+		       const string & row_name, bool check = true) const
+  {
+    const string & var_name = correlation_ptr->target_name();
+    CorrStat stat(data.values(seti, var_name));
+
+    auto result = data.compute(seti, row_name, correlation_ptr, check);
+    return stat.linear_fit(result);
+  }
+
   DynList<VarCorrLFit>
   correlations_lfits(const DynList<const Correlation*> & corr_list,
 		     size_t seti, const string & row_name,
@@ -297,6 +307,13 @@ public:
   DynList<VarCorrLFit> rs_correlations_lfits(bool check = true) const
   {
     return correlations_lfits(rs_valid_correlations(), 0, "p", check);
+  }
+
+  CorrStat::LFit rs_lfit(const Correlation * corr_ptr, bool check = true) const
+  {
+    const string & var_name = corr_ptr->target_name();
+    CorrStat stat(data.values(0, var_name));
+    return stat.linear_fit(data.compute(0, "p", corr_ptr, check));
   }
 
   DynList<VarCorrNlFit> rs_correlations_nlfits(bool check = true) const

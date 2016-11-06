@@ -14,6 +14,7 @@
 
 # include <units/pvt-units.H>
 # include <correlations/pvt-correlations.H>
+# include <correlations/defined-correlation.H>
 
 # include <json.hpp>
 
@@ -39,7 +40,8 @@ struct EmpiricalData
     string desc = "NO-DESC";
 
     VarSet() {}
-    VarSet(const string & name, const string & desc) : name(name), desc(desc) {}
+    VarSet(const string & name, const string & desc)
+      : name(name), desc(desc) {}
 
     size_t num_var = 0;
     Array<string> var_names; // pressure Rs bo uo

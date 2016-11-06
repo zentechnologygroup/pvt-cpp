@@ -123,6 +123,28 @@ int main(int argc, char *argv[])
   auto boa_lfits_list = pvt.boa_lfits_list(boa_fits);
 
   cout << pvt.to_R("tuned.", boa_lfits_list) << endl;
+
+  auto p_below = pvt.get_data().values("Below Pb", "p");
+  auto best_bob_correlation = &BobStanding::get_instance();
+  auto below_fit = pvt.lfit(best_bob_correlation, 0, "p");
+
+  auto p_above = pvt.get_data().values("Above Pb", "p");
+  auto best_boa_correlation = get<2>(boa_fits.get_first());
+  auto above_fit = pvt.lfit(best_boa_correlation, 1, "rs");
+
+  DefinedCorrelation defcorr("p");
+
+  defcorr.add_tuned_correlation(best_bob_correlation,
+				p_below.get_first(), p_below.get_last(),
+				below_fit.c, below_fit.m);
+  defcorr.add_tuned_correlation(best_boa_correlation,
+				p_above.get_first(), p_above.get_last(),
+				above_fit.c, above_fit.m);
+
+//   defcorr.add_tuned_correlation(
+				
+// , double start, double end)
+
   // boa_fits.for_each([&pvt] (auto t)
   //   {
   //     cout << Rvector(t->name, pvt.get_data().compute(1, "p", t)) << endl;
