@@ -16,7 +16,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("PscMKayMixingRule", "GasPseudoCriticalPressure", "psia")
+begin_correlation("PscMKayMixingRule", "GasPseudocriticalPressure", "psia")
 add_title("KAY'S MIXING RULE, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE WHOLE GAS MIXTURE")
 add_note("The value of the pseudocritical pressure of the gas hydrocarbon portion is adjusted for nonhydrocarbon content on the basis of Kay's mixing rule.")
 add_parameter("ppchc",  "psia", "Gas pseudocritical pressure of the hydrocarbon portion")
@@ -33,7 +33,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("AdjustedPscMWichertAziz", "GasPseudoCriticalPressure", "psia")
+begin_correlation("AdjustedPscMWichertAziz", "GasPseudocriticalPressure", "psia")
 add_title("WICHERT & AZIZ CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE WHOLE GAS MIXTURE")
 add_note("The pseudocritical pressure is adjusted by using the Wichert & Aziz correlation when the gas contains significant fractions of acid gases, specifically carbon dioxide and hydrogen sulfide.")
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Standing (1977). Date: September 12 2016.")
@@ -49,7 +49,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("TscMKayMixingRule", "GasPseudoCriticalTemperature", "psia")
+begin_correlation("TscMKayMixingRule", "GasPseudocriticalTemperature", "psia")
 add_title("KAY'S MIXING RULE, CALCULATION OF PSEUDOCRITICAL TEMPERATURE OF THE WHOLE GAS MIXTURE")
 add_note("The value of the pseudocritical temperature of the gas hydrocarbon portion (PscHC) is adjusted for nonhydrocarbon content on the basis of Kay's mixing rule.")
 add_internal_note("The original reference is not available. The correlation was verified by using secondary references: Whitson & Brulé (2000), Standing (1977) and Bánzer (1996). Date: September 12 2016.")
@@ -66,7 +66,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("AdjustedTscMWichertAziz", "GasPseudoCriticalTemperature",
+begin_correlation("AdjustedTscMWichertAziz", "GasPseudocriticalTemperature",
                   "psia")
 add_title("WICHERT & AZIZ CORRELATION, CALCULATION OF PSEUDOCRITICAL TEMPERATURE OF THE WHOLE GAS MIXTURE")
 add_note("The pseudocritical temperature is adjusted by using the Wichert & Aziz correlation when the gas contains significant fractions of acid gases, specifically carbon dioxide and hydrogen sulfide.")

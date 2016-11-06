@@ -948,7 +948,7 @@ Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation);
 
     // correlations & functions associated to gas
 Declare_Correlation_Subtype(GasPseudocriticalPressure, GasCorrelation);
-Declare_Correlation_Subtype(GasPseudoCriticalPressureC7, GasCorrelation);
+Declare_Correlation_Subtype(GasPseudocriticalPressureC7, GasCorrelation);
 Declare_Correlation_Subtype(GasViscosity, GasCorrelation);
 Declare_Correlation_Subtype(GasDensity, GasFunction)
 Declare_Correlation_Subtype(GasVolumeFactor, GasFunction);

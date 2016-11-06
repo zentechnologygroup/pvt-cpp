@@ -62,9 +62,46 @@ class DefinedCorrelation
     }
   };
 
-  DynSetTree<Interval> intervals;
+  DynSetTree<Interval, Avl_Tree, Cmp> intervals;
+
+  Interval * search(double val) const
+  {
+    Interval i(nullptr, val, val);
+    return intervals.search(i);
+  }
 
 public:
+
+  void add_correlation(const Correlation * correlation_ptr,
+		       double start, double end)
+  {
+    auto result = intervals.insert(Interval(correlation_ptr, start, end));
+    if (result)
+      return;
+    ostringstream s;
+    s << "DefinedCorrelation::add_correlation: interval [" << start << ", "
+      << end << "] is already inserted";
+    throw domain_error(s.str());
+  }
+
+  VtlQuantity
+  compute_and_check(const DynList<VtlQuantity> & pars,
+		    bool check = true) const
+    {
+      if (tuned)
+	return correlation_ptr->tuned_compute_and_check(pars, c, m, check);
+
+      return correlation_ptr->compute_and_check(pars, check);
+    }
+
+    double
+    compute(const DynList<double> & pars, bool check = true) const
+    {
+      if (tuned)
+	return correlation_ptr->tuned_compute(pars, c, m, check);
+
+      return correlation_ptr->compute(pars, check);
+    }
 
 };
 
