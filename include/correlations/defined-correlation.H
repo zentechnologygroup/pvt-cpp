@@ -74,6 +74,8 @@ class DefinedCorrelation
 
   DynSetTree<Interval, Avl_Tree, Cmp> intervals;
   string main_par_name;
+      // store all the parameter names for all correlations
+  DynSetTree<string> par_names; 
 
 public:
 
@@ -110,7 +112,13 @@ public:
   {
     auto result = intervals.insert(Interval(correlation_ptr, start, end));
     if (result)
-      return;
+      {
+	correlation_ptr->get_preconditions().for_each([this] (const auto & par)
+				  {
+				    par_names.insert(par.name);
+				  });
+	return;
+      }
     ostringstream s;
     s << "DefinedCorrelation::add_correlation: interval [" << start << ", "
       << end << "] is already inserted";
@@ -122,7 +130,13 @@ public:
   {
     auto result = intervals.insert(Interval(correlation_ptr, start, end, c, m));
     if (result)
-      return;
+      {
+	correlation_ptr->get_preconditions().for_each([this] (const auto & par)
+          {
+	    par_names.insert(par.name);
+	  });
+	return;
+      }
     ostringstream s;
     s << "DefinedCorrelation::add_correlation: interval [" << start << ", "
       << end << "] is already inserted";
@@ -155,6 +169,16 @@ public:
       }
 
     return interval_ptr->correlation_ptr->compute_by_names(pars, check);
+  }
+
+  DynList<double>
+  compute_by_names(const DynList<DynList<Correlation::ParByName>> & pars,
+		   bool check = true) const
+  {
+    return pars.maps<double>([this, check] (const auto & par)
+      {
+	return compute_by_names(par, check).raw();
+      });
   }
 };
 
