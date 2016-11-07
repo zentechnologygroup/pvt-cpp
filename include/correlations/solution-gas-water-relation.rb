@@ -21,7 +21,7 @@ add_title("CULBERSON & McKETTA CORRELATION, CALCULATION OF THE SOLUTION GAS-WATE
 add_db("Based on experimental and smoothed data for the solubility of methane in water for temperatures of 77, 100, 160, 220, 280, and 340 °F at pressures to 10000 psia.")
 add_parameter("t", "Fahrenheit", "Temperature",  77,  340) 
 add_parameter("p", "psia", "Pressure",  1000,  10000)
-add_parameter("nacl_concentration", "Dissolved_Salt_Percent", "Dissolved salt concentration", 0, 30)
+add_parameter("nacl_concentration", "Dissolved_Salt_Percent", "Dissolved salt concentration", 0, 26) # TODO: valor de referencia es 30 pero 26 es el límite de la unidad
 add_author("Culberson & McKetta")
 add_ref("culberson:1951")
 add_ref("mcCain:1990")

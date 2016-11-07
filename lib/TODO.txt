@@ -1,3 +1,2 @@
 veriicar reentrancia de libpvt.so,2016-09-29 17:25:11 -0400,,
-Corregir WaterSpecicGravity,2016-10-11 17:56:47 -0400,,
 verificación de consistencia en lectura del json,2016-10-25 08:57:52 -0400,,

@@ -4,6 +4,20 @@
 
 using namespace TCLAP;
 
+void list_all_units()
+{
+  DynList<DynList<string>> rows;
+  PhysicalQuantity::quantities().for_each([&rows] (const auto & pq)
+    {
+      rows.append(pq->units().template maps<DynList<string>>([&pq] (auto p)
+        {
+	  return DynList<string>({ pq->name, pq->symbol, p->name, p->symbol });
+	}));
+    });
+  rows.insert({"Physical Quantity", "symbol", "Unit name", "Unit symbol"});
+  cout << to_string(format_string(rows)) << endl;
+}
+
 void test(int argc, char *argv[])
 {
   CmdLine cmd(argv[0], ' ', "0");
@@ -41,6 +55,10 @@ void test(int argc, char *argv[])
   cmd.parse(argc, argv);
 
   if (l.getValue())
+    {
+      list_all_units();
+      exit(0);
+    }
 
   if (list.isSet())
     {

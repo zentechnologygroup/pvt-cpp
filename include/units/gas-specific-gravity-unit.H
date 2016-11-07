@@ -11,7 +11,7 @@ Declare_Physical_Quantity(gasSpecificGravity, "Yg",
 		Engineers (SPE) defines standard temperature to be 15°C 
 		[288.15°K, 59°F] and standard pressure to be 100 kPa.)DESC");
 
-Declare_Unit(Sgg, "Ratio air = 1",
+Declare_Unit(Sgg, "Sgg",
 	     R"DESC(it is defined as the ratio of the density of a gas,
 	     compared to the density of air in the same 
 	     pressure and temperature condition (ussualy standard condition)

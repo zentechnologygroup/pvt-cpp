@@ -262,3 +262,93 @@
 - Comment      
 - Finished     
 
+## 45. lista de unidades
+- Created at   2016-11-02 17:06:18 -0400
+- Completed at 2016-11-07 16:14:51 -0400
+- Comment      
+- Finished     
+
+## 46. lista de nombres de parámtros de correlación
+- Created at   2016-11-02 17:06:32 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 47. lista de correlaciones con pares parmámero/unidad
+- Created at   2016-11-02 17:06:53 -0400
+- Completed at 2016-11-07 16:15:16 -0400
+- Comment      
+- Finished     
+
+## 48. Retorno de correlation debe poder especificarse en otras unidades
+- Created at   2016-10-24 17:27:15 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 49. indagar uso de klee con c++14
+- Created at   2016-08-14 19:52:59 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 50. Cambiar referencia contsnate a Unit por un puntero constante
+- Created at   2016-08-20 13:37:31 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 51. generar llamada a correlaion con funcion para usar desde interprrete
+- Created at   2016-09-20 17:05:44 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 52. compute para contantes
+- Created at    no para variables en empirical model
+- Completed at 2016-10-20 10:34:42 -0400
+- Comment      
+- Finished     
+
+## 53. Revisar métodos De Unit que retornan Units
+- Created at   2016-08-14 13:34:54 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 54. pvt-analisis debede mar nombre de unidad
+- Created at    no su símbolo
+- Completed at 2016-10-24 19:20:36 -0400
+- Comment      
+- Finished     
+
+## 55. usar más estadísticos
+- Created at   2016-10-22 19:59:38 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 56. En EmpiricalData: indizar con árbol las constantes y variables
+- Created at   2016-10-21 13:03:15 -0400
+- Completed at 2016-11-07 16:17:03 -0400
+- Comment      
+- Finished     
+
+## 57. enerar json con unidades
+- Created at   2016-10-15 09:52:28 -0400
+- Completed at 2016-11-07 16:47:21 -0400
+- Comment      
+- Finished     
+
+## 58. apagar check de rangos en parametros mediante parámetro en compute
+- Created at    el cual por omisión estaría en true
+- Completed at 2016-10-15 15:29:54 -0400
+- Comment      
+- Finished     
+
+## 59. conversion unidad uno a uno
+- Created at   2016-10-21 16:58:32 -0400
+- Completed at 2016-11-07 16:48:16 -0400
+- Comment      
+- Finished     
+

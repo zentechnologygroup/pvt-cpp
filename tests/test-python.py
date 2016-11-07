@@ -1856,3 +1856,60 @@ def CwOsifCorrelation(T, P, Pb, S, Bg, Bw):
     CwOsif = Cw 
     return CwOsif
     
+
+def pwSpiveyMNGasFree(T, P, saltConcentration):
+        S = saltConcentration
+        # Transformation from Salinity [weight percent] to Molality of NaCl [mol NaCl/kg]
+        m = (1000 * (S/100))/(58.4428 * (1 - (S/100)))
+        
+        measure_Unit = measureUnity.MeasureUnity()
+        unit_Converter = unityConverter.UnityConverter()
+        
+        # Transformation from °F to °C
+        T = float(unit_Converter.convertTemperatureUnits(T, measure_Unit.fahrenheit, measure_Unit.celsius))
+        
+        # Transformation from psia to pascal
+        P = float(unit_Converter.convertPressureUnits(P, measure_Unit.absolutePoundForcePerSquareInch, measure_Unit.pascal))
+        P = P/1000000 # Transformation from pascal to MPa
+        # <- Conversion of units
+        
+        # Pure water density [g/cm³] at the reference pressure (70 Mpa) and evaluation temperature
+        ppwr = (((-0.127213) * ((T/100.) ** 2)) + ((0.645486) * (T/100.)) + (1.03265))/(((-0.070291) * ((T/100.) ** 2)) + ((0.639589) * (T/100.)) + 1)
+        
+        # Coefficients of compressibility of pure water 
+        Epw = (((4.221) * ((T/100.) ** 2)) + ((-3.478) * (T/100.)) + (6.221))/(((0.5182) * ((T/100.) ** 2)) + ((-0.4405) * (T/100.)) + 1)
+        Fpw = (((-11.403) * ((T/100.) ** 2)) + ((29.932) * (T/100.)) + (27.952))/(((0.20684) * ((T/100.) ** 2)) + ((0.3768) * (T/100.)) + 1)
+        
+        # Coefficients of gas-free brine density at the temperature of evaluation and the reference pressure of 70 MPa
+        D1 = (((-7.925e-5) * ((T/100.) ** 2)) + ((-1.93e-6) * (T/100.)) + (-3.4254e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        D2 = (((1.0998e-3) * ((T/100.) ** 2)) + ((-2.8755e-3) * (T/100.)) + (-3.5819e-3))/(((-0.72877) * ((T/100.) ** 2)) + ((1.92016) * (T/100.)) + 1)
+        D3 = (((-7.6402e-3) * ((T/100.) ** 2)) + ((3.6963e-2) * (T/100.)) + (4.36083e-2))/(((-0.333661) * ((T/100.) ** 2)) + ((1.185685) * (T/100.)) + 1)
+        D4 = (((3.746e-4) * ((T/100.) ** 2)) + ((-3.328e-4) * (T/100.)) + (-3.346e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        
+        # Density of gas-free brine
+        pgfwr = ppwr + (D1 * (m ** 2)) + (D2 * (m ** (3/2))) + (D3 * m) + (D4 * (m ** (1/2)))
+        
+        # Coefficients of gas-free brine compressibility
+        E = (((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + (0.1353))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        F1 = (((-1.409) * ((T/100.) ** 2)) + ((-0.361) * (T/100.)) + (-0.2532))/(((0) * ((T/100.) ** 2)) + ((9.216) * (T/100.)) + 1)
+        F2 = (((0) * ((T/100.) ** 2)) + ((5.614) * (T/100.)) + (4.6782))/(((-0.307) * ((T/100.) ** 2)) + ((2.6069) * (T/100.)) + 1)
+        F3 = (((-0.1127) * ((T/100.) ** 2)) + ((0.2047) * (T/100.)) + (-0.0452))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        
+        Ew = Epw + E * m
+        Fw = Fpw + F1 * m ** (3/2) + F2 * m + F3 * m ** (1/2)
+        
+        Iwr = (1/Ew) * log(fabs(Ew + Fw))
+        Iw = (1/Ew) * log(fabs((Ew * (P/70.))+ Fw))
+        
+        # Density of gas-free brine [g/cm³] at the temperature and pressure of evaluation
+        pgfw = pgfwr * exp(Iw - Iwr)
+        
+        # -> Conversion of units               
+        # Transformation from [gr/cm³] to [lb/ft³]       
+        pgfw = float(unit_Converter.convertDensityUnits(pgfw, measure_Unit.gramPerCubicCentimeter, measure_Unit.poundPerCubicFoot))
+        # <- Conversion of units
+        
+        pwSpiveyMNGasFree = pgfw
+        
+        return pwSpiveyMNGasFree
+    

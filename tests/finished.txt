@@ -42,3 +42,18 @@ la auditoria debe hacerse sobre los nombres, símbolos y extremos,2016-08-14 19:
 verificar todo en nonhydrocarbons gas-pseudo-cirtical-pressure especialmente MolePercent versus MoleFraction,2016-09-20 18:02:56 -0400,2016-09-25 12:10:00 -0400,,2016-09-25 12:12:20 -0400
 producir lib so,2016-09-21 09:04:47 -0400,2016-09-28 19:12:01 -0400,,2016-10-15 09:52:15 -0400
 sacar inclusion de json.hpp de cadena de compilación. Poner tuinas inline dentro de lib, pues hace quemar ciclos a emacs,2016-10-19 17:09:50 -0400,,2016-11-04 13:31:29 -0400
+lista de unidades,2016-11-02 17:06:18 -0400,2016-11-07 16:14:51 -0400,,2016-11-07 16:14:58 -0400
+lista de nombres de parámtros de correlación,2016-11-02 17:06:32 -0400,,,2016-11-07 16:15:08 -0400
+lista de correlaciones con pares parmámero/unidad,2016-11-02 17:06:53 -0400,2016-11-07 16:15:16 -0400,,2016-11-07 16:15:22 -0400
+Retorno de correlation debe poder especificarse en otras unidades,2016-10-24 17:27:15 -0400,,,2016-11-07 16:15:48 -0400
+indagar uso de klee con c++14,2016-08-14 19:52:59 -0400,,,2016-11-07 16:16:12 -0400
+Cambiar referencia contsnate a Unit por un puntero constante,2016-08-20 13:37:31 -0400,,,2016-11-07 16:16:27 -0400
+generar llamada a correlaion con funcion para usar desde interprrete,2016-09-20 17:05:44 -0400,,,2016-11-07 16:16:47 -0400
+compute para contantes, no para variables en empirical model,2016-10-20 10:34:42 -0400,,2016-11-07 16:17:13 -0400
+Revisar métodos De Unit que retornan Units,2016-08-14 13:34:54 -0400,,,2016-11-07 16:46:11 -0400
+pvt-analisis debede mar nombre de unidad, no su símbolo,2016-10-24 19:20:36 -0400,,2016-11-07 16:46:23 -0400
+usar más estadísticos,2016-10-22 19:59:38 -0400,,,2016-11-07 16:46:32 -0400
+En EmpiricalData: indizar con árbol las constantes y variables,2016-10-21 13:03:15 -0400,2016-11-07 16:17:03 -0400,,2016-11-07 16:46:38 -0400
+enerar json con unidades,2016-10-15 09:52:28 -0400,2016-11-07 16:47:21 -0400,,2016-11-07 16:47:25 -0400
+apagar check de rangos en parametros mediante parámetro en compute, el cual por omisión estaría en true,2016-10-15 15:29:54 -0400,,2016-11-07 16:47:41 -0400
+conversion unidad uno a uno,2016-10-21 16:58:32 -0400,2016-11-07 16:48:16 -0400,,2016-11-07 16:48:22 -0400

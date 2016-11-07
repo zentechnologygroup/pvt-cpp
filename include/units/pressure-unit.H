@@ -92,7 +92,7 @@ Declare_Conversion(mPascal, kPascal, v) { return v * 1000; }
 // To mPascal
 Declare_Conversion(Atmosphere, mPascal, v) { return v * 0.10132499658; }
 Declare_Conversion(Bar, mPascal, v) { return  v * 0.1; }
-Declare_Conversion(psia, mPascal, v) { return  v * 6.894757293178308e3; }
+Declare_Conversion(psia, mPascal, v) { return  v * 6.894757293178308e-3; }
 Declare_Conversion(psig, mPascal, v)
 { return ((v + 14.695948775) * 6.894757293178308) / 1000 ; }
 Declare_Conversion(Pascal, mPascal, v) { return v / 1e6; }

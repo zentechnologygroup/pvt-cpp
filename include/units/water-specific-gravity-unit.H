@@ -27,7 +27,7 @@ Declare_Unit(Pwl_lb_ft3, "pwl_lb/ft3",
          in normal conditions denoted as pound per cubic feet)DESC",
 	     WaterSpecicGravity, 62.366389027, 75);
 
-Declare_Unit(Dissolved_Salt_Percent, "disolvedSaltPercent",
+Declare_Unit(Dissolved_Salt_Percent, "dissolvedSaltPercent",
 	     R"DESC(Unit used to measure salinity of a brine
 	     in normal conditions in percentage of disolved salt)DESC",
 	     WaterSpecicGravity, 0, 26.28319558586105);
@@ -37,7 +37,7 @@ Declare_Unit(Sgw_sg, "swsg",
          the ratio of the density of a brine to the density of a
          pure water;)DESC", WaterSpecicGravity, 1, 1.2025708265317492);
 
-Declare_Unit(Dissolved_Salt_PPM, "disolvedSaltPPM",
+Declare_Unit(Dissolved_Salt_PPM, "dissolvedSaltPPM",
 	     R"DESC(Total solid disolved in a brine
 	     measure in Part Per Million PPM)DESC",
 	     WaterSpecicGravity, 0, 262831.9558586105);
