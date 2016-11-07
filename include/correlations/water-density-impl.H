@@ -101,36 +101,35 @@ PwSpiveyMNGasFree::impl(const Quantity<Celsius> & t,
   const double t_100_2 = t_100*t_100;
   const double m = nacl_concentration.raw();
 
-  // Densidad del agua [g/cm³] pura a la presion de referencia 70Mpa y
-  // T de evaluacion 
+  // Pure water density [g/cm³] at the reference pressure (70 Mpa) and evaluation temperature
   const double ppwr = (-0.127213*t_100_2 + 0.645486*t_100 + 1.03265) /
     (-0.070291*t_100_2 + 0.639589*t_100 + 1);
         
-  // Coeficientes de compresibilidad del agua pura 
+  // Coefficients of compressibility of pure water  
   const double epw = (4.221*t_100_2 + -3.478*t_100 + 6.221) / 
     (0.5182*t_100_2 + -0.4405*t_100 + 1);
 
   const double fpw = (-11.403*t_100_2 + 29.932*t_100 + 27.952) /
     (0.20684*t_100_2 + 0.3768*t_100 + 1);
         
-  // Coeficientes para la densidad de la salmuera libre de gas a la
-  // presion de referencia 70Mpa 
-  const double d1 = (-1.1149e-4*t_100_2 + 1.7105e-4*t_100 + -4.3766e-4); 
-  const double d2 = (-8.878e-4*t_100_2 + -1.388e-4*t_100 + -2.96318e-3) /
-    (0.51103*t_100 + 1);
-  const double d3 = (2.1466e-3*t_100_2 + 1.2427e-2*t_100 + 4.2648e-2) /
-    (-8.1009e-2*t_100_2 + 0.525417*t_100 + 1);
-  const double d4 = (2.356e-4*t_100_2 + -3.636e-4*t_100 + -2.278e-4);
+  // Coefficients of gas-free brine density at the temperature of evaluation 
+  // and the reference pressure of 70 MPa
+  const double d1 = (-7.925e-5*t_100_2 + -1.93e-6*t_100 + -3.4254e-4); 
+  const double d2 = (1.0998e-3*t_100_2 + -2.8755e-3*t_100 + -3.5819e-3) /
+    (-0.72877*t_100_2 + 1.92016*t_100 + 1);
+  const double d3 = (-7.6402e-3*t_100_2 + 3.6963e-2*t_100 + 4.36083e-2) /
+    (-0.333661*t_100_2 + 1.185685*t_100 + 1);
+  const double d4 = (3.746e-4*t_100_2 + -3.328e-4*t_100 + -3.346e-4);
 
-  // Densidad de la salmuera libre de gas
+  // Density of gas-free brine
   const double pgfwr = ppwr + d1*m*m + d2*pow(m, 3.0/2.0) + d3*m + d4 * sqrt(m);
         
-  // Coeficientes de compresibilidad de la salmuera libre de gas
-  constexpr double e =  0.1249;
+  // Coefficients of gas-free brine compressibility
+  constexpr double e =  0.1353;
 
-  const double f1 = (-0.617*t_100_2 + -0.747*t_100 + -0.4339)/(10.26*t_100 + 1);
-  const double f2 = (9.917*t_100 + 5.1128) / (3.892*t_100 + 1);
-  const double f3 = 0.0365*t_100_2 + -0.0369*t_100;
+  const double f1 = (-1.409*t_100_2 + -0.361*t_100 + -0.2532)/(10.26*t_100 + 1);
+  const double f2 = (5.614*t_100 + 4.6782) / (-0.307*t_100_2 + 2.6069*t_100 + 1);
+  const double f3 = -0.1127*t_100_2 + 0.2047*t_100 + -0.0452;
         
   const double ew = epw + e*m;
   const double fw = fpw + f1*pow(m, 1.5) + f2*m + f3*sqrt(m);
@@ -138,8 +137,7 @@ PwSpiveyMNGasFree::impl(const Quantity<Celsius> & t,
   const double iwr = (1/ew)*log(fabs(ew + fw));
   const double iw = (1/ew)*log(fabs((ew*(p.raw()/70)) + fw));
         
-  // Densidad de la salmuera libre de gas a las condiciones T y P de
-  // evaluacion [g/cm³] 
+  // Density of gas-free brine [g/cm³] at the temperature and pressure of evaluation 
   const double pgfw = pgfwr*exp(iw - iwr);
                         
   return Quantity<Gr_cm3>(pgfw);
