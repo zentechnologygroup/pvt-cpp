@@ -37,6 +37,12 @@ Declare_Unit(Sm3_Sm3, "Sm3/Sm3",
          per cubic meters of liquid (oil,condensate or/and water).)DESC",
          GORGLRvolumeRatio, 0, 5643340857.78781);
 
+Declare_Unit(Scm3_Scm3, "Scm3/Scm3",
+         R"DESC(Dimensionless volumen ratio (volume per volume) 
+         measured in metrics units, cubic meters of gas at standard conditions
+         per cubic centimeters of liquid (oil,condensate or/and water).)DESC",
+         GORGLRvolumeRatio, 0, 5643340857.78781);
+
 // The gas/oil ratio (GOR) and The gas/liquid ratio (GLR) conversions 
        
 // To standard cubic feet per stock tank barrels (scf/STB)   

@@ -1164,10 +1164,13 @@ public:
   DynList<double> compute(const Correlation * correlation_ptr, size_t seti,
 			  bool check = true) const
   {
-    size_t i = 0;
     const size_t n = correlation_ptr->get_num_pars();
+
+	//        par-name  par-value par-unit
     Array<tuple<string, double, const Unit*>> pars(n);
 
+    size_t num_seen = 0;
+    size_t i = 0;
     correlation_ptr->get_preconditions().for_each([&] (const auto & par)
       {
 	auto & t = pars(i);
@@ -1186,27 +1189,64 @@ public:
 	    VtlQuantity result = { *p->second.second, val };
 	    get<1>(t) = result.raw();
 	    get<2>(t) = p->second.second;
+	    ++num_seen;
 	    break;
 	  }
 	
 	++i; // next index of correlation parameter
       });
 
+    const auto & var_set = var_sets[seti];
+
+    //          index in par, index in samples col
+    DynList<pair<size_t, size_t>> cols;
+
     // missing parameters indexes are the null_unit entries of pars
-    for (i = 0; i < n; ++i)
+    for (i = 0; i < n and num_seen < n; ++i)
       {
 	auto & t = pars(i);
 	if (get<2>(t) != &Unit::null_unit)
 	  continue;
 
-	
+	const auto & name = get<0>(t); // correlation parameter name
+	const auto par_ptr = correlation_ptr->search_par_name(name);
+	size_t col_idx = var_set.var_names.find_index([&] (const auto & vname)
+          {
+	    return par_ptr->names().exists([&] (const auto & p)
+	      { return p.first == vname; });
+	  });
+
+	if (col_idx >= var_set.var_names.size())
+	  continue; // this col name is not inside the correlation
+
+	// col name found. col_idx contains its column index
+	get<2>(t) = var_set.var_units(col_idx);
+	++num_seen;
+	cols.append(make_pair(i, col_idx));
       }
 
-    const auto & var_set = var_sets[seti];
-
-    
+    if (num_seen < n)
+      {
+	ostringstream s;
+	s << "EmpiricalData::compute(" << correlation_ptr->name << ", "
+	  << seti << ") parameters";
+	pars.for_each([&s] (auto t) { s << " " << get<0>(t); });
+	s << " not found in the data set";
+	throw domain_error(s.str());
+      }
 
     DynList<double> ret;
+    for (i = 0; i < var_set.samples.size(); ++i)
+      {
+	const auto & row = var_set.samples(i);
+	cols.for_each([&row, &pars] (auto p)
+		      { get<1>(pars(p.first)) = row(p.second); });
+	auto sample = pars.maps<VtlQuantity>([] (auto t)
+          {
+	    return VtlQuantity(*get<2>(t), get<1>(t));
+	  });
+	ret.append(correlation_ptr->compute(sample, check).raw());
+      }
 
     return ret;
   }
