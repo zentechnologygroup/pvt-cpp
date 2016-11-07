@@ -255,6 +255,18 @@ public:
     return preconditions;
   }
 
+  const CorrelationPar * search_par_name(const string & name) const
+  {
+    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+      {
+	const auto & par = it.get_curr();
+	if (par.names().exists([&name] (const auto & p)
+			       { return p.first == name; }))
+	  return &par;
+      }
+    return nullptr;
+  }
+
   const DynList<const CorrelationPar * const> preconditions_list() const 
   {
     return preconditions.maps<const CorrelationPar * const>([] (const auto & par)

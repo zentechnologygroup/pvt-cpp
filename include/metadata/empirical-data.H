@@ -34,6 +34,8 @@ struct EmpiricalData
   Array<double> const_vals;
   Array<const Unit*> const_units;
 
+  DynMapTree<string, pair<double, const Unit*>> const_table;
+
   struct VarSet
   {
     string name = "NO-NAME";
@@ -235,50 +237,46 @@ struct EmpiricalData
 
   tuple<bool, double, const Unit*> search_const(const string & name) const
   {
-    for (auto it = get_zip_it(const_names, const_vals, const_units);
-	 it.has_curr(); it.next())
-      {
-	auto t = it.get_curr();
-	if (get<0>(t) == name)
-	  return make_tuple(true, get<1>(t), get<2>(t));
-      }
+    auto p = const_table.search(name);
+    if (p == nullptr)
+      return make_tuple(false, 0.0, &Unit::null_unit);
 
-    return make_tuple(false, 0, &Unit::null_unit);
+    return make_tuple(true, p->second.first, p->second.second);
   }
 
   void check_constant(const string & name, const PhysicalQuantity & pq) const
   {
-    for (auto it = get_zip_it(const_names, const_vals, const_units);
-	 it.has_curr(); it.next())
+    auto p = const_table.search(name);
+    if (p == nullptr)
       {
-	auto curr = it.get_curr();
-	if (get<0>(curr) != name)
-	  continue;
-
-	const auto & physical_quantity = get<2>(curr)->physical_quantity;
-	if (&physical_quantity != &pq)
-	  {
-	    ostringstream s;
-	    s << "Physical quantity of name " << name << " is "
-	      << physical_quantity << " but it must be " << pq.name;
-	    throw domain_error(s.str());
-	  }
-
-	try
-	  {
-	    VtlQuantity q(*get<2>(curr), get<1>(curr));
-	    return;
-	  }
-	catch (exception &e)
-	  {
-	    ostringstream s;
-	    s << "For constant " << name << ": " << e.what();
-	    throw domain_error(s.str());
-	  }
+	ostringstream s;
+	s << "EmpiricalData::check_constant: constant name " << name
+	  << " not found";
+	throw domain_error(s.str());
       }
-    ostringstream s;
-    s << "constant name " << name << " not found";
-    throw domain_error(s.str());
+
+    const auto & physical_quantity = p->second.second->physical_quantity;
+    if (&physical_quantity != &pq)
+      {
+	ostringstream s;
+	s << "EmpiricalData::check_constant: Physical quantity of name "
+	  << name << " is " << physical_quantity << " but it must be "
+	  << pq.name;
+	throw domain_error(s.str());
+      }
+
+    try
+      {
+	VtlQuantity q(*p->second.second, p->second.first);
+	return;
+      }
+    catch (exception &e)
+      {
+	ostringstream s;
+	s << "EmpiricalData::check_constant: constant " << name << ": "
+	  << e.what();
+	throw domain_error(s.str());
+      }
   }
 
   void check_variable(size_t set_i, const string & name,
@@ -534,6 +532,7 @@ struct EmpiricalData
     const_names.append(name);
     const_vals.append(val);
     const_units.append(unit);
+    const_table.insert(name, make_pair(val, unit));
     num_const++;
   }
 
@@ -1139,14 +1138,8 @@ public:
     return valid_correlations(set_index(set_name));
   }
 
-  //Todo: esta rutina puede usarse desde DfineCorrelation. Pero debe
-  //devolver una lista de resultados
-  double compute(const Correlation * correlation_ptr, size_t seti,
-			  bool check = true) const
+ double compute(const Correlation * correlation_ptr, bool check = true) const
   {
-    pair<string, double> const_vals;
-
-    const auto & var_set = var_sets[seti];
     auto const_list = t_zip(const_names, const_vals, const_units);
     auto pars = correlation_ptr->get_preconditions().
       maps<VtlQuantity>([&] (const auto & par)
@@ -1165,8 +1158,57 @@ public:
 	    }
 	  return VtlQuantity(*get<2>(*ptr), get<1>(*ptr));
 	});
-
     return correlation_ptr->compute(pars, check).raw();
+  }
+
+  DynList<double> compute(const Correlation * correlation_ptr, size_t seti,
+			  bool check = true) const
+  {
+    size_t i = 0;
+    const size_t n = correlation_ptr->get_num_pars();
+    Array<tuple<string, double, const Unit*>> pars(n);
+
+    correlation_ptr->get_preconditions().for_each([&] (const auto & par)
+      {
+	auto & t = pars(i);
+	get<0>(t) = par.name;
+	get<2>(t) = &Unit::null_unit;
+
+	auto names = par.names();
+	for (auto it = names.get_it(); it.has_curr(); it.next())
+	  {
+	    auto alias = it.get_curr();
+	    auto p = const_table.search(alias.first);
+	    if (p == nullptr)
+	      continue; // not found alias ==> look at next alias
+	    
+	    VtlQuantity val = { *alias.second, p->second.first };
+	    VtlQuantity result = { *p->second.second, val };
+	    get<1>(t) = result.raw();
+	    get<2>(t) = p->second.second;
+	    break;
+	  }
+	
+	++i; // next index of correlation parameter
+      });
+
+    // missing parameters indexes are the null_unit entries of pars
+    for (i = 0; i < n; ++i)
+      {
+	auto & t = pars(i);
+	if (get<2>(t) != &Unit::null_unit)
+	  continue;
+
+	
+      }
+
+    const auto & var_set = var_sets[seti];
+
+    
+
+    DynList<double> ret;
+
+    return ret;
   }
 
   /// returns a column of correlation outputs for the values stored in
