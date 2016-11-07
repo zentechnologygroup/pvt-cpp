@@ -4,7 +4,7 @@
 # include <correlations/solution-gas-water-relation.H>
 # include <correlations/water-density.H>
 
-inline Quantity<Scm3_Scm3>
+inline Quantity<Sm3_Sm3>
 RswSpiveyMN::impl(const Quantity<Celsius> & t,
 		 const Quantity<mPascal> & p,
 		 const Quantity<Molality_NaCl> & nacl_concentration) const
@@ -63,10 +63,10 @@ RswSpiveyMN::impl(const Quantity<Celsius> & t,
   // FROM THE REAL GAS LAW
   constexpr double R = 8.314467; // Universal gas constant [MPa
 				 // cm³/gmol K] (McCain et al., 2011) 
-  constexpr double Tstd = 15.555556; // °C (60 °F)  
+  const Quantity<Celsius> Tstd = 15.555556; // °C (60 °F)  
   constexpr double Pstd = 0.101352; // MPa (14.7 psia)
 
-  constexpr double VMCH4gstd = R*Quantity<Kelvin>(Tstd).raw()/Pstd; // Zstd = 1.0
+  const double VMCH4gstd = R*Quantity<Kelvin>(Tstd).raw()/Pstd; // Zstd = 1.0
             
   // vgfwstd: SPECIFIC VOLUME OF METHANE-FREE BRINE
             
@@ -79,9 +79,9 @@ RswSpiveyMN::impl(const Quantity<Celsius> & t,
 
   // CALCULATION OF THE SOLUTION GAS-WATER RATIO [std cm³/ST cm³]
   // Molecular weight MNaCl: 58.4428 g/gmol
-  const double rsw = (mCH4w * VMCH4gstd)/((1000 + m * 58.4428) * vgfwstd);
+  const double rsw = (mch4w * VMCH4gstd)/((1000 + m * 58.4428) * vgfwstd);
 
-  return Quantity<Scm3_Scm3>(rsw);
+  return Quantity<Sm3_Sm3>(rsw);
 }
 
 
