@@ -10,7 +10,6 @@
 # include <ah-stl-utils.H>
 # include <ah-comb.H>
 
-//# include <traits.hpp>
 # include <utils.H>
 
 # include <units/pvt-units.H>

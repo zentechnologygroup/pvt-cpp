@@ -4,14 +4,14 @@
 # include <utility>
 # include <vector>
 
-# include <boost/type_traits.hpp>
+//# include <boost/type_traits.hpp>
 
 # include <traits.hpp>
 
 # include <htlist.H>
 # include <ah-stl-utils.H>
 
-using namespace boost;
+//using namespace boost;
 using namespace utils;
 
 template <typename F> struct arity;
