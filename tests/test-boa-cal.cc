@@ -154,6 +154,8 @@ int main(int argc, char *argv[])
       cout << endl;
     });
 
+  auto lc = pvt.get_data().generate_samples_by_name(defcorr, "p", { 0, 1});
+
 //   defcorr.add_tuned_correlation(
 				
 // , double start, double end)

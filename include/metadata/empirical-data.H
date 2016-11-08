@@ -76,6 +76,11 @@ struct EmpiricalData
       return var_names.exists([&name] (const auto & s) { return s == name; });
     }
 
+    size_t name_index(const string & name) const noexcept
+    {
+      return var_names.find_index([&name] (const auto & s) { return s == name; });
+    }
+
     json to_json() const
     {
       json j;
@@ -1268,8 +1273,40 @@ public:
   {
     // primero determinar los rangos de var_name según lo contenido en
     // sets
+    //                 start    end
+    using Range = pair<double, double>;
+    auto sets_ranges = sets.maps<Range>([&var_name, this] (size_t i)
+      {
+	const auto & var_set = var_sets[i];
+	auto col = var_set.name_index(var_name);
+	if (col >= var_set.var_names.size())
+	  {
+	    ostringstream s;
+	    s << "Variable name " << name << " was not found in var set " << i;
+	    throw domain_error(s.str());
+	  }
+	return make_pair(var_set.samples.get_first()(col),
+			 var_set.samples.get_last()(col));
+      });
+
+    cout << "Set ranges:" << endl;
+    sets_ranges.for_each([] (auto p) { cout << "[" << p.first << ", "
+					    << p.second << "] "; });
+    cout << endl;
 
     // Luego según los rangos determinar las correlaciones
+    auto corr_ranges = correlation.interval_list().maps<Range>([] (const auto &i)
+      {
+	return make_pair(i.start, i.end);
+      });
+
+    cout << "Corr ranges:" << endl;
+    corr_ranges.for_each([] (auto p) { cout << "[" << p.first << ", "
+					    << p.second << "] "; });
+    cout << endl;
+
+    // Ahora debo hacer una especie de mere de los intervalos tal que
+    // el resultado tenga la mínima cantidad de intervalos
     
     DynList<DynList<Correlation::ParByName>> ret;
 
