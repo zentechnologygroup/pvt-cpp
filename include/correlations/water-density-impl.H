@@ -127,7 +127,7 @@ PwSpiveyMNGasFree::impl(const Quantity<Celsius> & t,
   // Coefficients of gas-free brine compressibility
   constexpr double e =  0.1353;
 
-  const double f1 = (-1.409*t_100_2 + -0.361*t_100 + -0.2532)/(10.26*t_100 + 1);
+  const double f1 = (-1.409*t_100_2 + -0.361*t_100 + -0.2532)/(9.216*t_100 + 1);
   const double f2 = (5.614*t_100 + 4.6782) / (-0.307*t_100_2 + 2.6069*t_100 + 1);
   const double f3 = -0.1127*t_100_2 + 0.2047*t_100 + -0.0452;
         
