@@ -538,16 +538,16 @@ struct EmpiricalData
 
 private:
 
-  static const Unit * search_unit(const string & symbol)
+  static const Unit * search_unit(const string & name)
   {
-    auto uptr = Unit::search_by_name(symbol);
+    auto uptr = Unit::search_by_name(name);
     if (uptr == nullptr)
-      uptr = Unit::search_by_symbol(symbol);
+      uptr = Unit::search_by_symbol(name);
 
     if (uptr == nullptr)
       {
 	ostringstream s;
-	s << "search_unit(" << symbol << "): unit not found";
+	s << "search_unit(" << name << "): unit not found";
 	throw domain_error(s.str());
       }
 
@@ -1160,17 +1160,20 @@ public:
 	});
     return correlation_ptr->compute(pars, check).raw();
   }
-
-  DynList<double> compute(const Correlation * correlation_ptr, size_t seti,
-			  bool check = true) const
+  
+  DynList<DynList<Correlation::ParByName>>
+  generate_samples_by_name(const Correlation * correlation_ptr, size_t seti)
+    const
   {
     const size_t n = correlation_ptr->get_num_pars();
 
 	//        par-name  par-value par-unit
     Array<tuple<string, double, const Unit*>> pars(n);
+    pars.putn(n);
 
     size_t num_seen = 0;
     size_t i = 0;
+    // Set the constant values
     correlation_ptr->get_preconditions().for_each([&] (const auto & par)
       {
 	auto & t = pars(i);
@@ -1201,7 +1204,8 @@ public:
     //          index in par, index in samples col
     DynList<pair<size_t, size_t>> cols;
 
-    // missing parameters indexes are the null_unit entries of pars
+    // missing parameters indexes are the null_unit entries of
+    // pars. These are set to the var_set
     for (i = 0; i < n and num_seen < n; ++i)
       {
 	auto & t = pars(i);
@@ -1235,20 +1239,46 @@ public:
 	throw domain_error(s.str());
       }
 
-    DynList<double> ret;
+    cout << "pars.size() = " << pars.size() << endl;
+
+    DynList<DynList<Correlation::ParByName>> ret;
     for (i = 0; i < var_set.samples.size(); ++i)
       {
 	const auto & row = var_set.samples(i);
-	cols.for_each([&row, &pars] (auto p)
-		      { get<1>(pars(p.first)) = row(p.second); });
-	auto sample = pars.maps<VtlQuantity>([] (auto t)
+	cols.for_each([&row, &pars, &var_set] (auto col)
           {
-	    return VtlQuantity(*get<2>(t), get<1>(t));
+	    VtlQuantity q = { *var_set.var_units(col.second), row(col.second) };
+	    get<1>(pars(col.first)) = q.raw();
 	  });
-	ret.append(correlation_ptr->compute(sample, check).raw());
+	ret.append(pars.maps<Correlation::ParByName>([] (auto t)
+	  {
+	    cout << get<0>(t) << " = " << get<1>(t) << " ";
+	    return make_pair(get<0>(t), get<1>(t));
+	  }));
+	cout << endl;
       }
 
     return ret;
+  }
+
+  DynList<DynList<Correlation::ParByName>>
+  generate_samples_by_name(const DefinedCorrelation & correlation,
+			   const string & var_name, 
+			   DynList<size_t> sets) const
+  {
+    // primero determinar los rangos de var_name según lo contenido en
+    // sets
+
+    // Luego según los rangos determinar las correlaciones
+    
+    DynList<DynList<Correlation::ParByName>> ret;
+
+    for (auto it = sets.get_it(); it.has_curr(); it.next())
+      {
+	auto seti = it.get_curr();
+	const auto & var_set = var_sets[seti];
+	// buscar var_name en el conjunto
+      }
   }
 
   /// returns a column of correlation outputs for the values stored in
@@ -1434,7 +1464,7 @@ private:
     json j;
     j["name"] = get<0>(c);
     j["value"] = get<1>(c);
-    j["unit"] = get<2>(c)->symbol;
+    j["unit"] = get<2>(c)->name;
 
     return j;
   }
@@ -1467,9 +1497,13 @@ public:
 
     for (const auto & item : j["constants"])
       {
-	const_names.append(item["name"]);
-	const_vals.append(item["value"]);
-	const_units.append(search_unit(item["unit"]));
+	const string name = item["name"];
+	const double value = item["value"];
+	const Unit * unit = search_unit(item["unit"]);
+	const_names.append(name);
+	const_table.insert(name, make_pair(value, unit));
+	const_vals.append(value);
+	const_units.append(unit);
       }
 
     for (const auto & json_set : j["varsets"])

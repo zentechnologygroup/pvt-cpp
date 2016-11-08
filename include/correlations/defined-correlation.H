@@ -177,7 +177,7 @@ public:
   {
     return pars.maps<double>([this, check] (const auto & par)
       {
-	return compute_by_names(par, check).raw();
+	return this->compute_by_names(par, check).raw();
       });
   }
 };
