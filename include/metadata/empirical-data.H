@@ -1279,12 +1279,14 @@ public:
       {
 	const auto & var_set = var_sets[i];
 	auto col = var_set.name_index(var_name);
+
 	if (col >= var_set.var_names.size())
 	  {
 	    ostringstream s;
 	    s << "Variable name " << name << " was not found in var set " << i;
 	    throw domain_error(s.str());
 	  }
+	// TODO: verificar que coluna esté ordenada
 	return make_pair(var_set.samples.get_first()(col),
 			 var_set.samples.get_last()(col));
       });
