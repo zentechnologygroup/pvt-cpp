@@ -1273,9 +1273,9 @@ public:
   {
     // primero determinar los rangos de var_name según lo contenido en
     // sets
-    //                 start    end
-    using Range = pair<double, double>;
-    auto sets_ranges = sets.maps<Range>([&var_name, this] (size_t i)
+    //                 start    end       seti
+    using SRange = tuple<double, double, size_t>;
+    auto sets_ranges = sets.maps<SRange>([&var_name, this] (size_t i)
       {
 	const auto & var_set = var_sets[i];
 	auto col = var_set.name_index(var_name);
@@ -1287,37 +1287,69 @@ public:
 	    throw domain_error(s.str());
 	  }
 	// TODO: verificar que coluna esté ordenada
-	return make_pair(var_set.samples.get_first()(col),
-			 var_set.samples.get_last()(col));
+	return make_tuple(var_set.samples.get_first()(col),
+			  var_set.samples.get_last()(col), i);
       });
 
     cout << "Set ranges:" << endl;
-    sets_ranges.for_each([] (auto p) { cout << "[" << p.first << ", "
-					    << p.second << "] "; });
+    sets_ranges.for_each([] (auto p) { cout << "[" << get<0>(p) << ", "
+					    << get<1>(p) << "] "; });
     cout << endl;
 
     // Luego según los rangos determinar las correlaciones
-    auto corr_ranges = correlation.interval_list().maps<Range>([] (const auto &i)
+    using CRange = tuple<double, double, const Correlation*>;
+    auto corr_ranges =
+      correlation.interval_list().maps<CRange>([] (const auto &i)
       {
-	return make_pair(i.start, i.end);
+	return make_tuple(i.start, i.end, i.correlation_ptr);
       });
 
     cout << "Corr ranges:" << endl;
-    corr_ranges.for_each([] (auto p) { cout << "[" << p.first << ", "
-					    << p.second << "] "; });
+    corr_ranges.for_each([] (auto p) { cout << "[" << get<0>(p) << ", "
+					    << get<1>(p) << "] "; });
     cout << endl;
 
-    // Ahora debo hacer una especie de mere de los intervalos tal que
+    if (not (get<0>(sets_ranges.get_first()) >= get<0>(corr_ranges.get_first())
+	     and
+	     get<1>(sets_ranges.get_last()) <= get<1>(corr_ranges.get_last())))
+      {
+	ostringstream s;
+	s << "Empiricaldata::generate_samples_by_name(): data given in some "
+	  " variable set is outside of correlation range";
+	throw domain_error(s.str());
+      }
+
+    // Ahora debo hacer una especie de merge de los intervalos tal que
     // el resultado tenga la mínima cantidad de intervalos
-    
+
     DynList<DynList<Correlation::ParByName>> ret;
 
-    for (auto it = sets.get_it(); it.has_curr(); it.next())
+    auto sets_it = sets_ranges.get_it(); 
+    auto corr_it = corr_ranges.get_it();
+    while (sets_it.has_curr() and corr_it.has_curr())
       {
-	auto seti = it.get_curr();
-	const auto & var_set = var_sets[seti];
-	// buscar var_name en el conjunto
+	auto set_range = sets_it.get_curr();
+	auto corr_range = corr_it.get_curr();
+
+	auto set_min = get<0>(set_range);
+	auto set_max = get<1>(set_range);
+	auto corr_min = get<0>(corr_range);
+	auto corr_max = get<1>(corr_range);
+
+	// Verify that the intervals intersect
+	if (set_max < corr_min or corr_max < set_min)
+	  {
+	    ostringstream s;
+	    s << "Empiricaldata::generate_samples_by_name(): range of var set ["
+	      << set_min << ", " << set_max
+	      << "] does not intersect correlation range ["
+	      << corr_min << ", " << corr_max << "]";
+	    throw domain_error(s.str());
+	  }
       }
+    
+    
+
   }
 
   /// returns a column of correlation outputs for the values stored in
