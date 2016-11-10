@@ -1269,8 +1269,6 @@ public:
 	throw domain_error(s.str());
       }
 
-    cout << "pars.size() = " << pars.size() << endl;
-
     DynList<DynList<Correlation::ParByName>> ret;
     for (i = 0; i <= var_set.samples.size(); ++i)
       {
@@ -1286,10 +1284,8 @@ public:
 	  });
 	ret.append(pars.maps<Correlation::ParByName>([] (auto t)
 	  {
-	    cout << get<0>(t) << " = " << get<1>(t) << " ";
 	    return make_pair(get<0>(t), get<1>(t));
 	  }));
-	cout << endl;
       }
 
     return ret;

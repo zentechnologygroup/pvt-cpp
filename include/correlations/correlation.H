@@ -942,21 +942,17 @@ private:
     // correlations & functions associated to oil
 Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
 Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation);
-Declare_Correlation_Subtype(OilFormationVolumeFactor, OilCorrelation);
 Declare_Correlation_Subtype(UndersaturatedOilFormationVolumeFactor,
 			    OilCorrelation);
 Declare_Correlation_Subtype(SaturatedOilFormationVolumeFactor, OilCorrelation);
 Declare_Correlation_Subtype(SaturatedOilViscosity, OilCorrelation);
 Declare_Correlation_Subtype(UndersaturatedOilViscosity, OilCorrelation);
-Declare_Correlation_Subtype(OilCompressibility, OilCorrelation);
 Declare_Correlation_Subtype(SaturatedOilCompressibility, OilCorrelation);
 Declare_Correlation_Subtype(UndersaturatedOilCompressibility, OilCorrelation);
-Declare_Correlation_Subtype(OilDensity, OilFunction);
 Declare_Correlation_Subtype(SaturatedOilDensity, OilFunction);
 Declare_Correlation_Subtype(UndersaturatedOilDensity, OilFunction);
 Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation);
-Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation);  
-
+Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation);
 
     // correlations & functions associated to gas
 Declare_Correlation_Subtype(GasPseudocriticalPressure, GasCorrelation);
