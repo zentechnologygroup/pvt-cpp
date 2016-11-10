@@ -3,13 +3,10 @@
 
 # include "bubble-point-pressure.H"
 # include "solution-gas-oil-relation.H"
-# include "oil-formation-volume-factor.H"
 # include "saturated-oil-formation-volume-factor.H"
 # include "undersaturated-oil-formation-volume-factor.H"
-# include "oil-compressibility.H"
 # include "saturated-oil-compressibility.H"
 # include "undersaturated-oil-compressibility.H"
-# include "oil-density.H"
 # include "undersaturated-oil-density.H"
 # include "saturated-oil-density.H"
 # include "dead-oil-viscosity.H"
@@ -35,13 +32,10 @@
 
 # include "bubble-point-pressure-impl.H"
 # include "solution-gas-oil-relation-impl.H"
-# include "oil-formation-volume-factor-impl.H"
 # include "saturated-oil-formation-volume-factor-impl.H"
 # include "undersaturated-oil-formation-volume-factor-impl.H"
-# include "oil-compressibility-impl.H"
 # include "saturated-oil-compressibility-impl.H"
 # include "undersaturated-oil-compressibility-impl.H"
-# include "oil-density-impl.H"
 # include "undersaturated-oil-density-impl.H"
 # include "saturated-oil-density-impl.H"
 # include "dead-oil-viscosity-impl.H"
@@ -108,31 +102,11 @@ struct CorrelationInstantiater
     RsMillanArcia::get_instance();
     RsManucciRosales::get_instance();
 
-    BoAlmarhoun::get_instance();
-    BoAlShammasi::get_instance();
-    BoDeGhetto::get_instance();
-    BoDindorukChristman::get_instance();
-    BoDoklaOsman::get_instance();
-    BoGlaso::get_instance();
-    BoHanafy::get_instance();
-    BoKartoatmodjo::get_instance();
-    BoLasater::get_instance();
-    BoPetroskyFarshad::get_instance();
-    BoStanding::get_instance();
-    BoTotalCFP::get_instance();
-    BoVasquezBeggs::get_instance();
-    BoCegarra::get_instance();
-    BoPerezML::get_instance();
-    BoVelardeMcCain::get_instance();
-    BoMillanArcia::get_instance();
-    BoManucciRosales::get_instance();
-
     BobAlmarhoun::get_instance();
     BobAlShammasi::get_instance();
     BobDeGhetto::get_instance();
     BobDindorukChristman::get_instance();
     BobDoklaOsman::get_instance();
-    BoGlaso::get_instance();
     BobHanafy::get_instance();
     BobKartoatmodjo::get_instance();
     BobPetroskyFarshad::get_instance();
@@ -153,17 +127,6 @@ struct CorrelationInstantiater
     BoaPetroskyFarshad::get_instance();
     BoaVasquezBeggs::get_instance();
 
-    CoMcCainEtAl::get_instance();
-    CoDeGhetto::get_instance();
-    CoHanafy::get_instance();
-    CoKartoatmodjoSchmidt::get_instance();
-    CoPetroskyFarshad::get_instance();
-    CoVasquezBeggs::get_instance();
-    CoPerezML::get_instance();
-    CoMillanArcia::get_instance();
-
-    CobMcCainEtAl::get_instance();
-
     CoaDeGhetto::get_instance();
     CoaHanafy::get_instance();
     CoaKartoatmodjoSchmidt::get_instance();
@@ -172,7 +135,6 @@ struct CorrelationInstantiater
     CoaPetroskyFarshad::get_instance();
     CoaVasquezBeggs::get_instance();
 
-    PoBradley::get_instance();
     PobBradley::get_instance();
     PoaBradley::get_instance();
 
