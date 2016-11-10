@@ -45,8 +45,22 @@ Declare_Unit(Dissolved_Salt_PPM, "dissolvedSaltPPM",
 Declare_Unit(Molality_NaCl, "mol_NaCl/Kg_H2O", "Molality of sodium chloride",
   	     WaterSpecicGravity, 0, 6.10071379841343394345);
 
+Declare_Unit(CgL, "g_NaCl/L", "Pon Aquí la descripción Alberto",
+	     WaterSpecicGravity, 0, 300.23065361973435253768);
+
 // Declare_Unit(Dissolved_Salt_Fraction, "disolvedSaltFraction", "TODO",
 // 	     0, 0.2628319558586105);
+
+
+Declare_Conversion(Dissolved_Salt_Percent, CgL, v)
+{
+  return 10*(v/0.99923174527);
+}
+
+Declare_Conversion(CgL, Dissolved_Salt_Percent, v)
+{
+  return 0.99923174527*v/10;
+}
 
 // To Molality_NaCl
 Declare_Conversion(Dissolved_Salt_Percent, Molality_NaCl, s)
@@ -153,5 +167,52 @@ Declare_Conversion(Sgw_sg, Molality_NaCl, v)
     (unit_convert<Sgw_sg, Dissolved_Salt_Percent>(v));
 }
 
+Declare_Conversion(Pwl_lb_ft3, CgL, v)
+{
+  return unit_convert<Dissolved_Salt_Percent, CgL>
+    (unit_convert<Pwl_lb_ft3, Dissolved_Salt_Percent>(v));
+}
+
+Declare_Conversion(Sgw_sg, CgL, v)
+{
+  return unit_convert<Dissolved_Salt_Percent, CgL>
+    (unit_convert<Sgw_sg, Dissolved_Salt_Percent>(v));
+}
+
+Declare_Conversion(Dissolved_Salt_PPM, CgL, v)
+{
+  return unit_convert<Dissolved_Salt_Percent, CgL>
+    (unit_convert<Dissolved_Salt_PPM, Dissolved_Salt_Percent>(v));
+}
+
+Declare_Conversion(Molality_NaCl, CgL, v)
+{
+return unit_convert<Dissolved_Salt_Percent, CgL>
+    (unit_convert<Molality_NaCl, Dissolved_Salt_Percent>(v));
+}
+
+Declare_Conversion(CgL, Pwl_lb_ft3, v)
+{
+  return unit_convert<Dissolved_Salt_Percent, Pwl_lb_ft3>
+    (unit_convert<CgL, Dissolved_Salt_Percent>(v));
+}
+
+Declare_Conversion(CgL, Sgw_sg, v)
+{
+  return unit_convert<Dissolved_Salt_Percent, Sgw_sg>
+    (unit_convert<CgL, Dissolved_Salt_Percent>(v));
+}
+
+Declare_Conversion(CgL, Dissolved_Salt_PPM, v)
+{
+  return unit_convert<Dissolved_Salt_Percent, Dissolved_Salt_PPM>
+    (unit_convert<CgL, Dissolved_Salt_Percent>(v));
+}
+
+Declare_Conversion(CgL, Molality_NaCl, v)
+{
+  return unit_convert<Dissolved_Salt_Percent, Molality_NaCl>
+    (unit_convert<CgL, Dissolved_Salt_Percent>(v));
+}
 
 # endif // WATER_SPECIFIC_GRAVITY_UNIT_H

@@ -40,3 +40,12 @@
 ## 13. definir clase crrelacion calibrada que pueda ser por partes
 - Created at   2016-11-05 10:19:51 -0400
 
+## 14. Crear un nuevo subtipo WaterSpivey para cálculos comunes
+- Created at   2016-11-08 17:52:21 -0400
+
+## 15. Los subtipos de correlación deben tener la posibilidad de ser hidden
+- Created at   2016-11-08 17:52:46 -0400
+
+## 16. campo que iindique si limites de parámetros vienen o no del author
+- Created at   2016-11-10 16:33:59 -0400
+
