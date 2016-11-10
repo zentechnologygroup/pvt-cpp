@@ -78,7 +78,8 @@ struct EmpiricalData
 
     size_t name_index(const string & name) const noexcept
     {
-      return var_names.find_index([&name] (const auto & s) { return s == name; });
+      return
+	var_names.find_index([&name] (const auto & s) { return s == name; });
     }
 
     json to_json() const
@@ -1165,11 +1166,37 @@ public:
 	});
     return correlation_ptr->compute(pars, check).raw();
   }
-  
+
+  /// Aplies `correlation_ptr` to the var set seti restricted to the
+  /// values of samples[col] are greater or equal than min_val and
+  /// lesser than max_val
   DynList<DynList<Correlation::ParByName>>
-  generate_samples_by_name(const Correlation * correlation_ptr, size_t seti)
-    const
+  generate_samples_by_name(const Correlation * correlation_ptr,
+			   size_t seti,
+			   size_t col,
+			   double min_val, double max_val) const
   {
+    if (not (max_val >= min_val))
+      {
+	ostringstream s;
+	s << "EmpiricalData::compute(" << correlation_ptr->name << ", "
+	  << seti << ", " << col << ", " << min_val << ", " << max_val
+	  << "): min_val is greater than max_val";
+	throw domain_error(s.str());
+      }
+
+    const auto & var_set = var_sets[seti];
+
+    if (col >= var_set.var_names.size())
+      {
+	ostringstream s;
+	s << "EmpiricalData::compute(" << correlation_ptr->name << ", "
+	  << seti << ", " << col << ", " << min_val << ", " << max_val
+	  << "): column " << col << " out of range [0, "
+	  << var_set.var_names.size() - 1 << "]";
+	throw out_of_range(s.str());
+      }
+
     const size_t n = correlation_ptr->get_num_pars();
 
 	//        par-name  par-value par-unit
@@ -1203,8 +1230,6 @@ public:
 	
 	++i; // next index of correlation parameter
       });
-
-    const auto & var_set = var_sets[seti];
 
     //          index in par, index in samples col
     DynList<pair<size_t, size_t>> cols;
@@ -1247,9 +1272,13 @@ public:
     cout << "pars.size() = " << pars.size() << endl;
 
     DynList<DynList<Correlation::ParByName>> ret;
-    for (i = 0; i < var_set.samples.size(); ++i)
+    for (i = 0; i <= var_set.samples.size(); ++i)
       {
 	const auto & row = var_set.samples(i);
+
+	if (not (row(col) >= min_val and row(col) <= max_val))
+	  continue;
+
 	cols.for_each([&row, &pars, &var_set] (auto col)
           {
 	    VtlQuantity q = { *var_set.var_units(col.second), row(col.second) };
@@ -1267,14 +1296,27 @@ public:
   }
 
   DynList<DynList<Correlation::ParByName>>
+  generate_samples_by_name(const Correlation * correlation_ptr,
+			   size_t seti,
+			   const string & col_name,
+			   double min_val, double max_val) const
+  {
+    auto var_set = var_sets[seti];
+    auto col = var_set.var_names.find_index([&col_name] (const auto & s)
+					    { return s == col_name; });
+    return
+      generate_samples_by_name(correlation_ptr, seti, col, min_val, max_val);
+  }
+
+  DynList<pair<const Correlation *, DynList<DynList<Correlation::ParByName>>>>
   generate_samples_by_name(const DefinedCorrelation & correlation,
 			   const string & var_name, 
 			   DynList<size_t> sets) const
   {
     // primero determinar los rangos de var_name según lo contenido en
     // sets
-    //                 start    end       seti
-    using SRange = tuple<double, double, size_t>;
+    //                 start    end       seti    col
+    using SRange = tuple<double, double, size_t, size_t>;
     auto sets_ranges = sets.maps<SRange>([&var_name, this] (size_t i)
       {
 	const auto & var_set = var_sets[i];
@@ -1288,7 +1330,7 @@ public:
 	  }
 	// TODO: verificar que coluna esté ordenada
 	return make_tuple(var_set.samples.get_first()(col),
-			  var_set.samples.get_last()(col), i);
+			  var_set.samples.get_last()(col), i, col);
       });
 
     cout << "Set ranges:" << endl;
@@ -1322,7 +1364,9 @@ public:
     // Ahora debo hacer una especie de merge de los intervalos tal que
     // el resultado tenga la mínima cantidad de intervalos
 
-    DynList<DynList<Correlation::ParByName>> ret;
+    DynList<pair<const Correlation*,
+		 DynList<DynList<Correlation::ParByName>>>> ret;
+    DynList<DynList<Correlation::ParByName>> curr_pars;
 
     auto sets_it = sets_ranges.get_it(); 
     auto corr_it = corr_ranges.get_it();
@@ -1346,11 +1390,58 @@ public:
 	      << corr_min << ", " << corr_max << "]";
 	    throw domain_error(s.str());
 	  }
-      }
-    
-    
 
+	const auto & seti = get<2>(set_range);
+	const auto & col = get<3>(set_range);
+
+	if (set_min >= corr_min and set_max == corr_max) // equal intervals
+	  { // compute all values inside set, afterward advance to next 
+	    curr_pars.append(generate_samples_by_name(get<2>(corr_range),
+						      seti, col,
+						      set_min, set_max));
+	    ret.append(make_pair(get<2>(corr_range), curr_pars));
+	    curr_pars.empty();
+	    corr_it.next();
+	    sets_it.next();
+	    continue;
+	  }
+
+	if (set_min >= corr_min and set_max <= corr_max)
+	  { 
+	    curr_pars.append(generate_samples_by_name(get<2>(corr_range), seti,
+						      col, set_min, set_max));
+	    sets_it.next();
+	    continue;
+	  }
+
+	if (set_min < corr_min)
+	  {
+	    ostringstream s;
+	    s << "Empiricaldata::generate_samples_by_name(): values inside ["
+	      << set_min << ", " << corr_min
+	      << ") does not have any correlation";
+	    throw domain_error(s.str());
+	  }
+
+	curr_pars.append(generate_samples_by_name(get<2>(corr_range), seti, col,
+						  set_min, corr_max));
+	ret.append(make_pair(get<2>(corr_range), curr_pars));
+	curr_pars.empty();
+	get<1>(set_range) = nextafter(corr_max, set_max);
+	corr_it.next();
+      }
+
+    return ret;
   }
+
+  // DynList<double> compute(const DefinedCorrelation & correlation,
+  // 			   const string & var_name, 
+  // 			   DynList<size_t> sets) const
+  // {
+  //   return generate_samples_by_name(correlation, var_name, sets).
+  //     maps<double>([
+			    
+			  
 
   /// returns a column of correlation outputs for the values stored in
   /// this data set

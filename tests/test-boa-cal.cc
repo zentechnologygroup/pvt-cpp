@@ -147,14 +147,30 @@ int main(int argc, char *argv[])
 				p_above.get_first(), p_above.get_last(),
 				above_fit.c, above_fit.m);
 
-  auto l = pvt.get_data().generate_samples_by_name(best_boa_correlation, 0);
+  auto l = pvt.get_data().generate_samples_by_name(best_boa_correlation, 0,
+						   "p", 0, 15000);
   l.for_each([] (const auto & row)
     {
       row.for_each([] (auto p) { cout << p.first << " = " << p.second << " "; });
       cout << endl;
     });
 
-  auto lc = pvt.get_data().generate_samples_by_name(defcorr, "p", { 0, 1});
+  auto lc = pvt.get_data().generate_samples_by_name(defcorr, "p", {0, 1});
+  cout << endl
+       << "All samples:" << endl;
+  lc.for_each([] (const auto & p)
+    {
+      cout << p.first->call_string() << endl;
+      p.second.for_each([] (auto l)
+         {
+	   l.for_each([] (auto p)
+		      { cout << "  " << p.first << " = " << p.second << " "; });
+	   cout << endl;
+	 });
+      cout << endl;
+    });
+
+
 
 //   defcorr.add_tuned_correlation(
 				
