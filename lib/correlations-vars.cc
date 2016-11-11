@@ -68,6 +68,7 @@ string Correlation::to_json()
     {
       auto corr_ptr = it.get_curr().second;
       auto & subtree = tree[corr_ptr->type_name];
+      // TODO: si subtype_name está marcado hidden ==> ignorar
       auto & l = subtree[corr_ptr->subtype_name];
       l.append(corr_ptr);
     }

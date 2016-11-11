@@ -48,4 +48,5 @@
 
 ## 16. campo que iindique si limites de parámetros vienen o no del author
 - Created at   2016-11-10 16:33:59 -0400
+- Completed at 2016-11-10 17:45:13 -0400
 
