@@ -170,7 +170,8 @@ int main(int argc, char *argv[])
       cout << endl;
     });
 
-
+  // pvt.get_data().samples_by_name(defcorr, "p", { 0, 1 }).
+  //   for_each([] (const auto & l) { l.for_each(
 
 //   defcorr.add_tuned_correlation(
 				

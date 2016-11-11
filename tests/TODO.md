@@ -37,6 +37,7 @@
 
 ## 13. Mejorar performance de matching_const_correlations
 - Created at   2016-10-20 19:20:41 -0400
+- Completed at 2016-11-11 08:06:27 -0400
 
 ## 14. pone en test-corr que se imprima nota tecnica
 - Created at   2016-10-21 14:54:17 -0400
@@ -46,7 +47,4 @@
 
 ## 16. flag en test-conversion que liste unidades dada magnitud física
 - Created at   2016-10-31 17:25:29 -0400
-
-## 17. Por cada parámetro de corelaciión saber si hay o no límites puestos por el autor y ello proparglo al json
-- Created at   2016-11-10 15:04:01 -0400
 

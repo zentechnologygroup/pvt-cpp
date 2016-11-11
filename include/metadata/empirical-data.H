@@ -1197,6 +1197,8 @@ public:
 	throw out_of_range(s.str());
       }
 
+    const string & col_name = var_set.var_names[col];
+    bool col_name_seen = false;
     const size_t n = correlation_ptr->get_num_pars();
 
 	//        par-name  par-value par-unit
@@ -1219,7 +1221,7 @@ public:
 	    auto p = const_table.search(alias.first);
 	    if (p == nullptr)
 	      continue; // not found alias ==> look at next alias
-	    
+
 	    VtlQuantity val = { *alias.second, p->second.first };
 	    VtlQuantity result = { *p->second.second, val };
 	    get<1>(t) = result.raw();
@@ -1307,7 +1309,7 @@ public:
   DynList<pair<const Correlation *, DynList<DynList<Correlation::ParByName>>>>
   generate_samples_by_name(const DefinedCorrelation & correlation,
 			   const string & var_name, 
-			   DynList<size_t> sets) const
+			   const DynList<size_t> & sets) const
   {
     // primero determinar los rangos de var_name según lo contenido en
     // sets
@@ -1427,6 +1429,17 @@ public:
 	corr_it.next();
       }
 
+    return ret;
+  }
+
+  DynList<DynList<Correlation::ParByName>>
+  samples_by_name(const DefinedCorrelation & correlation,
+		  const string & var_name, 
+		  const DynList<size_t> & sets) const
+  {
+    auto samples = generate_samples_by_name(correlation, var_name, sets);
+    DynList<DynList<Correlation::ParByName>> ret;
+    samples.for_each([&ret] (auto p) { ret.append(p.second); });
     return ret;
   }
 
