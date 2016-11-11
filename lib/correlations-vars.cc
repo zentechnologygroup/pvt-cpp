@@ -26,6 +26,8 @@ static json to_json(const CorrelationPar & p)
   j["minimum value unit"] = p.min_val.unit.symbol;
   j["maximum value"] = p.max_val.get_value();
   j["maximum value unit"] = p.min_val.unit.symbol;
+  j["min from author"] = p.min_from_author;
+  j["max from author"] = p.max_from_author;
   return j;
 }
 
@@ -66,6 +68,7 @@ string Correlation::to_json()
     {
       auto corr_ptr = it.get_curr().second;
       auto & subtree = tree[corr_ptr->type_name];
+      // TODO: si subtype_name está marcado hidden ==> ignorar
       auto & l = subtree[corr_ptr->subtype_name];
       l.append(corr_ptr);
     }

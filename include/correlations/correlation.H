@@ -22,6 +22,8 @@ struct CorrelationPar
   const Unit & unit;
   const VtlQuantity min_val;
   const VtlQuantity max_val;
+  bool min_from_author = true;
+  bool max_from_author = true;
 
 private:
 
@@ -455,9 +457,9 @@ protected:
 
   virtual ~Correlation() = 0; // Correlation is abstract
 
-  void add_parameter(const string & name, const Unit & unit,
-		     const string & description,
-		     const VtlQuantity & min, const VtlQuantity & max)
+  CorrelationPar & add_parameter(const string & name, const Unit & unit,
+				 const string & description,
+				 const VtlQuantity & min, const VtlQuantity & max)
   {
     auto min_aux = VtlQuantity(unit, min);
     auto max_aux = VtlQuantity(unit, max);
@@ -468,29 +470,38 @@ protected:
 	  << max_aux << " for parameter " << name;
 	throw domain_error(s.str());
       }
-    
-    preconditions.emplace(name, unit, description, min_aux, max_aux);
+
+    CorrelationPar par(name, unit, description, min, max);
+    CorrelationPar & ret = preconditions.append(move(par));
     ++n;
+    return ret;
   }
 
-  void add_parameter(const string & name, const Unit & unit,
-		     const string & description, const VtlQuantity & min)
+  CorrelationPar &  add_parameter(const string & name, const Unit & unit,
+				  const string & description,
+				  const VtlQuantity & min)
   {
-    add_parameter(name, unit, description, min, VtlQuantity(unit, unit.max_val));
+    CorrelationPar & ret = add_parameter(name, unit, description,
+					 min, VtlQuantity(unit, unit.max_val));
+    ret.max_from_author = true;
+    return ret;
   }
 
-  void add_parameter(const string & name, const Unit & unit,
-		     const string & description)
+  CorrelationPar & add_parameter(const string & name, const Unit & unit,
+				 const string & description)
   {
-    add_parameter(name, unit, description, VtlQuantity(unit, unit.min_val),
-		  VtlQuantity(unit, unit.max_val));
+    CorrelationPar & ret = add_parameter(name, unit, description,
+					 VtlQuantity(unit, unit.min_val),
+					 VtlQuantity(unit, unit.max_val));
+    ret.min_from_author = ret.max_from_author = false;
+    return ret;
   }
 
-  void add_parameter(const string & name, const Unit & unit,
-		     const string & description, double min, double max)
+  CorrelationPar add_parameter(const string & name, const Unit & unit,
+			       const string & description, double min, double max)
   {
-    add_parameter(name, unit, description,
-		  VtlQuantity(unit, min), VtlQuantity(unit, max));
+    return add_parameter(name, unit, description,
+			 VtlQuantity(unit, min), VtlQuantity(unit, max));
   }
 
 public:
@@ -880,7 +891,7 @@ Declare_Correlation_Type(GasCorrelation);
 Declare_Correlation_Type(GasFunction);
 Declare_Correlation_Type(WaterCorrelation);
 
-# define Declare_Correlation_Subtype(subtype_name, type_name)	\
+# define Header_Correlation_Subtype(subtype_name, type_name, is_hidden)	\
   struct subtype_name : public type_name			\
   {								\
     subtype_name(const string & name, const Unit & result_unit,	\
@@ -893,12 +904,20 @@ Declare_Correlation_Type(WaterCorrelation);
     subtype_name(const string & name, const Unit & unit)		\
       : type_name(#subtype_name, name, unit, unit.min_val, unit.max_val) {} \
     virtual ~subtype_name() = 0;					\
+									\
+    bool hidden = is_hidden;						\
+									\
   protected:								\
     using type_name::add_parameter;					\
   };									\
 									\
   inline subtype_name::~subtype_name() {}
 
+# define Declare_Correlation_Subtype(subtype_name, type_name)	\
+  Header_Correlation_Subtype(subtype_name, type_name, false);
+
+# define Declare_Hidden_Correlation_Subtype(subtype_name, type_name)	\
+  Header_Correlation_Subtype(subtype_name, type_name, true);
 
 template <typename F> struct compute_arity;
 

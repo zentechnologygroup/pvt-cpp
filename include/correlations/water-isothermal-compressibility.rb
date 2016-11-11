@@ -38,6 +38,7 @@ end_correlation()
 
 begin_correlation("CwOsif", "WaterIsothermalCompressibility", "psia_1")
 add_title("OSIF CORRELATION, CALCULATION OF WATER ISOTHERMAL COMPRESSIBILITY (FOR PRESSURES ABOVE THE BUBBLE POINT)")
+add_db("Based on 420 observations.")
 add_parameter("t", "Fahrenheit", "Temperature", 200, 270) 
 add_parameter("p", "psia", "Pressure", 1000, 20000)
 add_parameter("nacl_concentration", "Dissolved_Salt_Percent", "Dissolved salt concentration",  0, 20)
