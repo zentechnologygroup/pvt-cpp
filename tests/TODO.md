@@ -28,6 +28,7 @@
 
 ## 10. estudio de rangos de aplicación de correlaciones vs data set
 - Created at   2016-10-13 09:00:56 -0400
+- Completed at 2016-11-12 17:34:28 -0400
 
 ## 11. usar bitex con estilo bobliografico
 - Created at   2016-10-15 09:52:38 -0400

@@ -11,6 +11,7 @@
 
 ## 4. revisar inline en impl
 - Created at   2016-11-01 18:26:05 -0400
+- Completed at 2016-11-12 17:34:06 -0400
 
 ## 5. completar compute_by_names para demás versiones
 - Created at   2016-11-02 09:21:30 -0400
