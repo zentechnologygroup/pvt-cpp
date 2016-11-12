@@ -410,6 +410,19 @@ struct EmpiricalData
     return Array<double>();
   }
 
+  // return a list of stored values for the symbol name in the vars
+  // sets contained in sets
+  Array<double> values(const DynList<size_t> & sets, const string & name) const
+  {
+    Array<double> ret;
+    sets.for_each([&] (size_t i)
+      {
+	auto a = this->values(i, name);
+	a.for_each([&ret] (auto v) { ret.append(v); });
+      });
+    return ret;
+  }
+
   // return a list of stored values for the symbol name of the vars set set_idx
   pair<Array<double>, const Unit *>
   quantities(size_t set_idx, const string & name) const
@@ -1063,6 +1076,8 @@ public:
 	return ptr->target_name() == const_name;
       });
 
+    target_correlations.for_each([] (auto p) { cout << p->name << endl; });
+
     auto ret = target_correlations.filter([&] (auto ptr)
       {
 	return ptr->get_preconditions().all([&](const auto & par)
@@ -1197,13 +1212,14 @@ public:
 	throw out_of_range(s.str());
       }
 
-    const string & col_name = var_set.var_names[col];
-    bool col_name_seen = false;
     const size_t n = correlation_ptr->get_num_pars();
 
 	//        par-name  par-value par-unit
     Array<tuple<string, double, const Unit*>> pars(n);
     pars.putn(n);
+
+    const string & col_name = var_set.var_names[col];
+    bool col_name_seen = false;
 
     size_t num_seen = 0;
     size_t i = 0;
@@ -1222,16 +1238,21 @@ public:
 	    if (p == nullptr)
 	      continue; // not found alias ==> look at next alias
 
-	    VtlQuantity val = { *alias.second, p->second.first };
-	    VtlQuantity result = { *p->second.second, val };
+	    if (alias.first == col_name)
+	      col_name_seen = true;
+
+	    VtlQuantity val = { *p->second.second, p->second.first };
+	    VtlQuantity result = { par.unit, val };
 	    get<1>(t) = result.raw();
-	    get<2>(t) = p->second.second;
+	    get<2>(t) = &par.unit;
 	    ++num_seen;
 	    break;
 	  }
 	
 	++i; // next index of correlation parameter
       });
+
+    const bool col_is_constant = col_name_seen;
 
     //          index in par, index in samples col
     DynList<pair<size_t, size_t>> cols;
@@ -1255,18 +1276,24 @@ public:
 	if (col_idx >= var_set.var_names.size())
 	  continue; // this col name is not inside the correlation
 
+	if (not col_is_constant and col_idx == col)
+	  col_name_seen = true;
+
 	// col name found. col_idx contains its column index
-	get<2>(t) = var_set.var_units(col_idx);
+	get<2>(t) = &par_ptr->unit;
 	++num_seen;
 	cols.append(make_pair(i, col_idx));
       }
+
+    const bool col_is_var = col_name_seen and not col_is_constant;
 
     if (num_seen < n)
       {
 	ostringstream s;
 	s << "EmpiricalData::compute(" << correlation_ptr->name << ", "
 	  << seti << ") parameters";
-	pars.for_each([&s] (auto t) { s << " " << get<0>(t); });
+	pars.filter([] (auto t) { return get<2>(t); }).
+	  for_each([&s] (auto t) { s << " " << get<0>(t); });
 	s << " not found in the data set";
 	throw domain_error(s.str());
       }
@@ -1282,12 +1309,19 @@ public:
 	cols.for_each([&row, &pars, &var_set] (auto col)
           {
 	    VtlQuantity q = { *var_set.var_units(col.second), row(col.second) };
-	    get<1>(pars(col.first)) = q.raw();
+	    VtlQuantity val = { *get<2>(pars(col.first)), q };
+	    get<1>(pars(col.first)) = val.raw();
 	  });
-	ret.append(pars.maps<Correlation::ParByName>([] (auto t)
+
+	auto pars_list = pars.maps<Correlation::ParByName>([] (auto t)
 	  {
 	    return make_pair(get<0>(t), get<1>(t));
-	  }));
+	  });
+	
+	if (not col_is_var)
+	  pars_list.insert(make_pair(col_name, row(col)));
+
+	ret.append(move(pars_list));	  
       }
 
     return ret;

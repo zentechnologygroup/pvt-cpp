@@ -34,12 +34,12 @@ public:
     data.check_variable("Below Pb", "p", Pressure::get_instance());
     data.check_variable("Below Pb", "rs", GORGLRvolumeRatio::get_instance());
     data.check_variable("Below Pb", "bob", FVFvolumeRatio::get_instance());
-    data.check_variable("Below Pb", "uo", DinamicViscosity::get_instance());
+    data.check_variable("Below Pb", "uob", DinamicViscosity::get_instance());
 
     data.check_variable("Above Pb", "p", Pressure::get_instance());
     data.check_variable("Above Pb", "rs", GORGLRvolumeRatio::get_instance());
     data.check_variable("Above Pb", "boa", FVFvolumeRatio::get_instance());
-    data.check_variable("Above Pb", "uo", DinamicViscosity::get_instance());
+    data.check_variable("Above Pb", "uoa", DinamicViscosity::get_instance());
   }
 
   double get_pb() const { return get<1>(data.find_const("pb")); }
@@ -96,6 +96,76 @@ public:
   {
     return data.valid_correlations("Above Pb").
       filter([] (auto ptr) { return ptr->target_name() == "boa"; });
+  }
+
+  DynList<const Correlation*> uod_correlations() const
+  {
+    return data.matching_correlations("Below Pb").
+      filter([] (auto ptr) { return ptr->target_name() == "uod"; });
+  }
+
+  DynList<const Correlation*> uod_valid_correlations() const
+  {
+    return data.valid_correlations(0).
+      filter([] (auto ptr) { return ptr->target_name() == "uod"; });
+  }
+
+  DynList<const Correlation*> uob_correlations() const
+  {
+    return data.matching_correlations("Below Pb").
+      filter([] (auto ptr) { return ptr->target_name() == "uob"; });
+  }
+
+  /// Retorna una lista de pares correlacion,lista-nombres de
+  /// correlaciones uob que no pueden ser calculaladas. Por cada
+  /// correlación, una lista de parámetros faltantes es dada
+  DynList<pair<const Correlation*, DynList<string>>>
+    uob_incomplete_correlations() const
+  {
+    auto l = Correlation::array().filter([this] (auto p)
+     {
+       return p->target_name() == "uob" and not data.can_be_applied(0, p);
+     });
+
+    return l.maps<pair<const Correlation*, DynList<string>>>([this] (auto p)
+      {
+	auto missing_pars = data.missing_parameters(0, p);
+	return make_pair(p, move(missing_pars));
+      });
+  }
+
+  DynList<pair<const Correlation*, DynList<pair<string, const Correlation*>>>>
+ uob_complete_correlations
+    (const DynList<pair<const Correlation*, DynList<string>>> & corr_list) const
+  {
+    DynList<pair<const Correlation*, DynList<pair<string, const Correlation*>>>>
+      ret;
+    for (auto it = corr_list.get_it(); it.has_curr(); it.next())
+      {
+	auto p = it.get_curr();
+	auto corr_ptr = p.first;
+	auto missing_pars = p.second;
+      }
+
+    return ret;
+  }
+
+  DynList<const Correlation*> uob_valid_correlations() const
+  {
+    return data.valid_correlations(0).
+      filter([] (auto ptr) { return ptr->target_name() == "uob"; });
+  }
+
+  DynList<const Correlation*> uoa_correlations() const
+  {
+    return data.matching_correlations("Above Pb").
+      filter([] (auto ptr) { return ptr->target_name() == "uoa"; });
+  }
+
+  DynList<const Correlation*> uoa_valid_correlations() const
+  {
+    return data.valid_correlations(0).
+      filter([] (auto ptr) { return ptr->target_name() == "uoa"; });
   }
 
   //                      ok    result     correlation       message if not ok

@@ -17,14 +17,17 @@
 
 ## 6. definir clase crrelacion calibrada que pueda ser por partes
 - Created at   2016-11-05 10:19:51 -0400
+- Completed at 2016-11-12 11:57:47 -0400
 
-## 7. Crear un nuevo subtipo WaterSpivey para cálculos comunes
-- Created at   2016-11-08 17:52:21 -0400
-- Completed at 2016-11-11 08:00:08 -0400
-
-## 8. Los subtipos de correlación deben tener la posibilidad de ser hidden
+## 7. Los subtipos de correlación deben tener la posibilidad de ser hidden
 - Created at   2016-11-08 17:52:46 -0400
 
-## 9. Renderizar bibliografia según estilo
+## 8. Renderizar bibliografia según estilo
 - Created at   2016-11-11 08:01:56 -0400
+
+## 9. acelerar matching_const_correlations
+- Created at   2016-11-12 11:57:24 -0400
+
+## 10. Alertar sobre lo sinónimos de parámetros; es el medio que tiene el sistema para identificar correlaciones automáticamente
+- Created at   2016-11-12 14:05:50 -0400
 

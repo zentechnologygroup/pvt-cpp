@@ -143,7 +143,7 @@ public:
     throw domain_error(s.str());
   }
 
-  VtlQuantity
+  double
   compute_by_names(const DynList<Correlation::ParByName> & pars,
 		   bool check = true) const
   {
@@ -168,18 +168,18 @@ public:
 	throw domain_error(s.str());
       }
 
-    return interval_ptr->correlation_ptr->compute_by_names(pars, check);
+    return interval_ptr->compute(pars, check).raw();
   }
 
-  DynList<double>
-  compute_by_names(const DynList<DynList<Correlation::ParByName>> & pars,
-		   bool check = true) const
-  {
-    return pars.maps<double>([this, check] (const auto & par)
-      {
-	return this->compute_by_names(par, check).raw();
-      });
-  }
+  // DynList<double>
+  // compute_by_names(const DynList<DynList<Correlation::ParByName>> & pars,
+  // 		   bool check = true) const
+  // {
+  //   return pars.maps<double>([this, check] (const auto & par)
+  //     {
+  // 	return this->compute_by_names(par, check).raw();
+  //     });
+  // }
 };
 
 
