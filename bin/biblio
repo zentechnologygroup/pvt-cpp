@@ -3,6 +3,8 @@
 
 require 'optparse'
 require 'bibtex'
+require 'citeproc'
+require 'csl/styles'
 
 def tag(str)
   str.gsub(':', '_').gsub('-', '_')
@@ -25,14 +27,16 @@ def generate_header
 end
 
 def generate_source
+  cp = CiteProc::Processor.new style: 'apa', format: 'text'
+  cp.import $bib_db.to_citeproc
   puts %Q[
 # include <correlations/biblios.H>
 
 ]
   $bib_db.each do |b|
     tag = tag(b.id)
-    entry = b.to_s.gsub("\n", "\\n")
-    puts "BibEntry #{tag}(\"#{b.id}\", \"#{entry}\");"
+    entry = cp.render :bibliography, id: b.id
+    puts "BibEntry #{tag}(\"#{b.id}\", \"#{entry[0]}\");"
     puts 
   end
 end
@@ -60,8 +64,6 @@ options_parser = OptionParser.new do |opts|
 end
 
 options_parser.parse!
-
-require 'citeproc'
 
 style = options[:style] || :ieee
 

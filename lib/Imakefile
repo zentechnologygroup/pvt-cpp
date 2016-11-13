@@ -38,7 +38,7 @@ HIMPL = $(shell ls $(CORRDIR)*-impl.H)
 test:
 	echo $(CORRS)
 
-biblios.cc: $(TOP)/include/correlations/refs.bib 
+biblios.cc: $(TOP)/include/correlations/refs.bib $(TOP)/bin/biblio
 	$(RM) $*.cc; 	\	@@\
 	$(BIBLIO) -C -f $(CORRDIR)refs.bib | clang-format -style=Mozilla > $@
 
