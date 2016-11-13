@@ -76,8 +76,7 @@ public:
   DynList<const Correlation*> bob_correlations() const
   {
     return data.matching_correlations("Below Pb").
-      filter([] (auto ptr) { cout << ptr->name << endl;
-	  return ptr->target_name() == "bob"; });
+      filter([] (auto ptr) { return ptr->target_name() == "bob"; });
   }
 
   DynList<const Correlation*> bob_valid_correlations() const
@@ -116,10 +115,12 @@ public:
       filter([] (auto ptr) { return ptr->target_name() == "uob"; });
   }
 
+  using IncompletePar = pair<string, DynList<const Correlation*>>;
+  
   /// Retorna una lista de pares correlacion,lista-nombres de
   /// correlaciones uob que no pueden ser calculaladas. Por cada
   /// correlación, una lista de parámetros faltantes es dada
-  DynList<pair<const Correlation*, DynList<string>>>
+  DynList<pair<const Correlation*, DynList<IncompletePar>>>
     uob_incomplete_correlations() const
   {
     auto l = Correlation::array().filter([this] (auto p)
@@ -127,27 +128,37 @@ public:
        return p->target_name() == "uob" and not data.can_be_applied(0, p);
      });
 
-    return l.maps<pair<const Correlation*, DynList<string>>>([this] (auto p)
+    return l.maps<pair<const Correlation*, DynList<IncompletePar>>>
+      ([this] (auto corr)
       {
-	auto missing_pars = data.missing_parameters(0, p);
-	return make_pair(p, move(missing_pars));
+	auto missing_pars = data.missing_parameters(0, corr);
+	return make_pair(corr, missing_pars.template maps<IncompletePar>
+			 ([&] (const auto & par_name)
+          {
+	    auto corrs = data.valid_correlations(0).filter([&] (auto corr)
+              {
+		return corr->target_name() == par_name;
+	      });
+	    return make_pair(par_name, move(corrs));
+	  }));
       });
   }
 
-  DynList<pair<const Correlation*, DynList<pair<string, const Correlation*>>>>
- uob_complete_correlations
-    (const DynList<pair<const Correlation*, DynList<string>>> & corr_list) const
+  DynList<string> uob_required_values() const
   {
-    DynList<pair<const Correlation*, DynList<pair<string, const Correlation*>>>>
-      ret;
-    for (auto it = corr_list.get_it(); it.has_curr(); it.next())
+    DynSetTree<string> missing_pars;
+    for (auto it = Correlation::array().get_it(); it.has_curr(); it.next())
       {
-	auto p = it.get_curr();
-	auto corr_ptr = p.first;
-	auto missing_pars = p.second;
+	auto corr = it.get_curr();
+	if (not (corr->target_name() == "uob" and
+		 not data.can_be_applied(0, corr)))
+	  continue;
+	data.missing_parameters(0, corr).for_each([&] (const auto & name)
+          {
+	    missing_pars.insert(name);
+	  });
       }
-
-    return ret;
+    return missing_pars.keys();
   }
 
   DynList<const Correlation*> uob_valid_correlations() const

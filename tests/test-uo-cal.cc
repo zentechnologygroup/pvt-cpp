@@ -101,11 +101,20 @@ int main(int argc, char *argv[])
        << "Uob incomplete correlations:" << endl;
   pvt.uob_incomplete_correlations().for_each([] (auto p)
     {
-      cout << "  " << p.first->call_string();
-      p.second.for_each([] (const auto & s) { cout << " " << s; });
+      cout << "  " << p.first->call_string() << endl;
+      p.second.for_each([] (auto p)
+      {
+	cout << "    " << p.first << endl;
+	p.second.for_each([] (auto p)
+			  {
+			    cout << "      " << p->name << endl;
+			  });
+	  });
       cout << endl;
     });
     
-  
+  cout << "Uob required values:";
+  pvt.uob_required_values().for_each([] (const auto & s) { cout << " " << s; });
+  cout << endl;
 }
 

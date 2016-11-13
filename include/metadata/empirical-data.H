@@ -1076,8 +1076,6 @@ public:
 	return ptr->target_name() == const_name;
       });
 
-    target_correlations.for_each([] (auto p) { cout << p->name << endl; });
-
     auto ret = target_correlations.filter([&] (auto ptr)
       {
 	return ptr->get_preconditions().all([&](const auto & par)
