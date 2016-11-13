@@ -161,6 +161,19 @@ public:
     return missing_pars.keys();
   }
 
+  DynList<EmpiricalData::VarSet>
+  compute_uob_required_data(const DynList<string> & pars_lst) const
+  {
+    DynList<EmpiricalData::VarSet> ret;
+    for (auto it = pars_lst.get_it(); it.has_curr(); it.next())
+      {
+	auto var_name = it.get_curr();
+	
+      }
+
+    return ret;
+  }
+
   DynList<const Correlation*> uob_valid_correlations() const
   {
     return data.valid_correlations(0).

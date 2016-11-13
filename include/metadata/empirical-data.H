@@ -107,6 +107,26 @@ struct EmpiricalData
       return j;
     }
 
+    string to_string() const
+    {
+      ostringstream s;
+      s << "Varset " << name << " " << desc << endl;
+      auto mat = samples.maps<DynList<string>>([this] (const auto & row)
+        {
+	  return
+	  row.template maps<string>([] (auto v) { return ::to_string(v); });
+	});
+
+      mat.insert(t_zip(var_names, var_units).maps<string>([] (auto t)
+        {
+	  return get<0>(t) + " " + get<1>(t)->symbol;
+	}));
+
+      s << Aleph::to_string(format_string(mat));
+
+      return s.str();
+    }
+
     void set_from_json(const json & j)
     {
       name = j["name"];
@@ -165,7 +185,8 @@ struct EmpiricalData
       if (col >= var_names.size())
 	{
 	  ostringstream s;
-	  s << "VarSet::get_set_by_correlation(): name " << name << " not found";
+	  s << "VarSet::get_set_by_correlation(): name " << name
+	    << " not found";
 	  throw domain_error(s.str());
 	}
 
@@ -580,12 +601,22 @@ public:
     def_const(name, val, search_unit(symbol));
   }
 
-  void def_var_set(const string & name, const string & desc)
+  VarSet & def_var_set(const string & name, const string & desc)
   {
-    var_sets.emplace(name, desc);
+    VarSet varset = { name, desc };
+    return var_sets.append(move(varset));
   }
 
-  void def_var(size_t set_idx, const string & name, const Unit * unit)
+  VarSet & copy_var_set(size_t seti, const string & name, const string & desc)
+  {
+    auto & varset = def_var_set(name, desc);
+    varset = var_sets[seti];
+    varset.name = name;
+    varset.desc = desc;
+    return varset;
+  }    
+
+  VarSet & def_var(size_t set_idx, const string & name, const Unit * unit)
   {
     auto & vset = var_sets[set_idx];
     if (vset.contains_name(name))
@@ -599,6 +630,8 @@ public:
     vset.var_names.append(name);
     vset.var_units.append(unit);
     vset.num_var++;
+
+    return vset;
   }
 
   size_t set_index(const string & name) const noexcept
@@ -613,9 +646,30 @@ public:
     throw domain_error(s.str());
   }  
 
-  void def_var(const string & set_name,  string & name, const string & symbol)
+  VarSet & def_var(const string & set_name, const string & name,
+		   const string & symbol)
   {
-    def_var(set_index(set_name), name, search_unit(symbol));
+    return def_var(set_index(set_name), name, search_unit(symbol));
+  }
+
+  VarSet & def_var(const string & set_name, const string & name,
+		   const string & symbol, const DynList<double> & col)
+  {
+    auto & varset = def_var(set_name, name, symbol);
+
+    for (auto it = get_zip_it(varset.samples, col); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	auto & row = get<0>(t);
+	row.append(get<1>(t));
+	row.for_each([] (auto v) { cout << " " << v; });
+	cout << endl;
+      }
+    
+    // TODO: hay que recorrer todas las filas y añadir la nueva
+    // columna junto con la copia
+
+    return varset;
   }
 
   void add_sample(size_t set_idx, DynList<double> && sample)
