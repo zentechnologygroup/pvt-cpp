@@ -3,61 +3,35 @@
 
 # include <correlations/solution-gas-water-relation.H>
 # include <correlations/water-density.H>
+# include <correlations/spivey-dry.H>
 
 inline Quantity<Sm3_Sm3>
 RswSpiveyMN::impl(const Quantity<Celsius> & t,
 		 const Quantity<mPascal> & p,
 		 const Quantity<Molality_NaCl> & nacl_concentration) const
 {
+  const double m = nacl_concentration.raw();
+
   // Transformation from °C to °K
   const double tk = Quantity<Kelvin>(t).raw();
-        
+
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  constexpr double tc = 647.096; // °K
-  constexpr double pc = 22.064; // MPa
+  const double pv =
+    PvSpiveyMN::get_instance().impl(tk).raw();
 
-  const double v = 1 - (tk/tc);
-  const double v2 = v*v;
-  const double v3 = v2*v;
-  const double v4 = v3*v;
-        
-  const double lnpv = ((tc/tk) * (-7.85951783*v + 1.84408259*pow(v, 1.5) +
-				  -11.7866497*v3 + 22.6807411*pow(v, 3.5) +
-				  -15.9618719*v4 + 1.80122502 * pow(v, 7.5))) +
-    				log(pc);
-
-  const double pv = exp(lnpv);
   if (p < pv)
     {
       ostringstream s;
       s << "RswSpiveyMN::impl: received pressure " << p
-	<< " is less than computed vapour pressure " << pv << " "
+	<< " is less than computed vapor pressure " << pv << " "
 	<< p.unit.name;
       throw domain_error(s.str());
     }
 
-  const double t100 = t.raw()/100;
-  const double t100_2 = t100*t100;
-  const double log_p_pv = log(p.raw() - pv);
-  const double p2 = pow2(p);
-  
-  // Solubility of methane in pure water
-  const double a = -0.007751*t100_2 + 0.013624*t100 + -0.0781;
-  const double b = 0.01193*t100_2 + 0.0851*t100 + 1.02766;
-  const double c = (1.8316*t100_2 + -7.8119*t100 + -3.6231) /
-    (-0.10733*t100_2 + 1.09192*t100 + 1);
-  const double m = nacl_concentration.raw();
-  const double m2 = m*m;
-
-  const double mch4pw = exp(a*log_p_pv*log_p_pv + b*log_p_pv + c);
-            
-  // Solubility of methane in brine
-  const double c1 = 7.015e-2 + 1.074e-4*tk + 2.260e-1*p.raw()/tk + -1.227e-3*p2/tk;
-  constexpr double c2 = -6.28e-3;
-
-  // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] AT THE
-  // TEMPERATURE AND PRESSURE OF EVALUATION 
-  const double mch4w = mch4pw * exp(-2*c1*m - c2*m2);
+  // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
+  // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
+  const double mch4w =
+    MwSpiveyMN::get_instance().impl(t, p, pv, m).raw();
 
   // VMCH4gstd: MOLAR VOLUME OF METHANE IN THE GAS PHASE AT STANDARD CONDITIONS [cm³/gmol] 
   // FROM THE REAL GAS LAW
