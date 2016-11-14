@@ -107,6 +107,26 @@ struct EmpiricalData
       return j;
     }
 
+    string to_string() const
+    {
+      ostringstream s;
+      s << "Varset " << name << " " << desc << endl;
+      auto mat = samples.maps<DynList<string>>([this] (const auto & row)
+        {
+	  return
+	  row.template maps<string>([] (auto v) { return ::to_string(v); });
+	});
+
+      mat.insert(t_zip(var_names, var_units).maps<string>([] (auto t)
+        {
+	  return get<0>(t) + " " + get<1>(t)->symbol;
+	}));
+
+      s << Aleph::to_string(format_string(mat));
+
+      return s.str();
+    }
+
     void set_from_json(const json & j)
     {
       name = j["name"];
@@ -165,7 +185,8 @@ struct EmpiricalData
       if (col >= var_names.size())
 	{
 	  ostringstream s;
-	  s << "VarSet::get_set_by_correlation(): name " << name << " not found";
+	  s << "VarSet::get_set_by_correlation(): name " << name
+	    << " not found";
 	  throw domain_error(s.str());
 	}
 
@@ -410,6 +431,19 @@ struct EmpiricalData
     return Array<double>();
   }
 
+  // return a list of stored values for the symbol name in the vars
+  // sets contained in sets
+  Array<double> values(const DynList<size_t> & sets, const string & name) const
+  {
+    Array<double> ret;
+    sets.for_each([&] (size_t i)
+      {
+	auto a = this->values(i, name);
+	a.for_each([&ret] (auto v) { ret.append(v); });
+      });
+    return ret;
+  }
+
   // return a list of stored values for the symbol name of the vars set set_idx
   pair<Array<double>, const Unit *>
   quantities(size_t set_idx, const string & name) const
@@ -567,12 +601,22 @@ public:
     def_const(name, val, search_unit(symbol));
   }
 
-  void def_var_set(const string & name, const string & desc)
+  VarSet & def_var_set(const string & name, const string & desc)
   {
-    var_sets.emplace(name, desc);
+    VarSet varset = { name, desc };
+    return var_sets.append(move(varset));
   }
 
-  void def_var(size_t set_idx, const string & name, const Unit * unit)
+  VarSet & copy_var_set(size_t seti, const string & name, const string & desc)
+  {
+    auto & varset = def_var_set(name, desc);
+    varset = var_sets[seti];
+    varset.name = name;
+    varset.desc = desc;
+    return varset;
+  }    
+
+  VarSet & def_var(size_t set_idx, const string & name, const Unit * unit)
   {
     auto & vset = var_sets[set_idx];
     if (vset.contains_name(name))
@@ -586,6 +630,8 @@ public:
     vset.var_names.append(name);
     vset.var_units.append(unit);
     vset.num_var++;
+
+    return vset;
   }
 
   size_t set_index(const string & name) const noexcept
@@ -600,9 +646,30 @@ public:
     throw domain_error(s.str());
   }  
 
-  void def_var(const string & set_name,  string & name, const string & symbol)
+  VarSet & def_var(const string & set_name, const string & name,
+		   const string & symbol)
   {
-    def_var(set_index(set_name), name, search_unit(symbol));
+    return def_var(set_index(set_name), name, search_unit(symbol));
+  }
+
+  VarSet & def_var(const string & set_name, const string & name,
+		   const string & symbol, const DynList<double> & col)
+  {
+    auto & varset = def_var(set_name, name, symbol);
+
+    for (auto it = get_zip_it(varset.samples, col); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	auto & row = get<0>(t);
+	row.append(get<1>(t));
+	row.for_each([] (auto v) { cout << " " << v; });
+	cout << endl;
+      }
+    
+    // TODO: hay que recorrer todas las filas y añadir la nueva
+    // columna junto con la copia
+
+    return varset;
   }
 
   void add_sample(size_t set_idx, DynList<double> && sample)
@@ -1203,6 +1270,9 @@ public:
     Array<tuple<string, double, const Unit*>> pars(n);
     pars.putn(n);
 
+    const string & col_name = var_set.var_names[col];
+    bool col_name_seen = false;
+
     size_t num_seen = 0;
     size_t i = 0;
     // Set the constant values
@@ -1219,17 +1289,22 @@ public:
 	    auto p = const_table.search(alias.first);
 	    if (p == nullptr)
 	      continue; // not found alias ==> look at next alias
-	    
-	    VtlQuantity val = { *alias.second, p->second.first };
-	    VtlQuantity result = { *p->second.second, val };
+
+	    if (alias.first == col_name)
+	      col_name_seen = true;
+
+	    VtlQuantity val = { *p->second.second, p->second.first };
+	    VtlQuantity result = { par.unit, val };
 	    get<1>(t) = result.raw();
-	    get<2>(t) = p->second.second;
+	    get<2>(t) = &par.unit;
 	    ++num_seen;
 	    break;
 	  }
 	
 	++i; // next index of correlation parameter
       });
+
+    const bool col_is_constant = col_name_seen;
 
     //          index in par, index in samples col
     DynList<pair<size_t, size_t>> cols;
@@ -1253,18 +1328,24 @@ public:
 	if (col_idx >= var_set.var_names.size())
 	  continue; // this col name is not inside the correlation
 
+	if (not col_is_constant and col_idx == col)
+	  col_name_seen = true;
+
 	// col name found. col_idx contains its column index
-	get<2>(t) = var_set.var_units(col_idx);
+	get<2>(t) = &par_ptr->unit;
 	++num_seen;
 	cols.append(make_pair(i, col_idx));
       }
+
+    const bool col_is_var = col_name_seen and not col_is_constant;
 
     if (num_seen < n)
       {
 	ostringstream s;
 	s << "EmpiricalData::compute(" << correlation_ptr->name << ", "
 	  << seti << ") parameters";
-	pars.for_each([&s] (auto t) { s << " " << get<0>(t); });
+	pars.filter([] (auto t) { return get<2>(t); }).
+	  for_each([&s] (auto t) { s << " " << get<0>(t); });
 	s << " not found in the data set";
 	throw domain_error(s.str());
       }
@@ -1280,12 +1361,19 @@ public:
 	cols.for_each([&row, &pars, &var_set] (auto col)
           {
 	    VtlQuantity q = { *var_set.var_units(col.second), row(col.second) };
-	    get<1>(pars(col.first)) = q.raw();
+	    VtlQuantity val = { *get<2>(pars(col.first)), q };
+	    get<1>(pars(col.first)) = val.raw();
 	  });
-	ret.append(pars.maps<Correlation::ParByName>([] (auto t)
+
+	auto pars_list = pars.maps<Correlation::ParByName>([] (auto t)
 	  {
 	    return make_pair(get<0>(t), get<1>(t));
-	  }));
+	  });
+	
+	if (not col_is_var)
+	  pars_list.insert(make_pair(col_name, row(col)));
+
+	ret.append(move(pars_list));	  
       }
 
     return ret;
@@ -1307,7 +1395,7 @@ public:
   DynList<pair<const Correlation *, DynList<DynList<Correlation::ParByName>>>>
   generate_samples_by_name(const DefinedCorrelation & correlation,
 			   const string & var_name, 
-			   DynList<size_t> sets) const
+			   const DynList<size_t> & sets) const
   {
     // primero determinar los rangos de var_name según lo contenido en
     // sets
@@ -1427,6 +1515,17 @@ public:
 	corr_it.next();
       }
 
+    return ret;
+  }
+
+  DynList<DynList<Correlation::ParByName>>
+  samples_by_name(const DefinedCorrelation & correlation,
+		  const string & var_name, 
+		  const DynList<size_t> & sets) const
+  {
+    auto samples = generate_samples_by_name(correlation, var_name, sets);
+    DynList<DynList<Correlation::ParByName>> ret;
+    samples.for_each([&ret] (auto p) { ret.append(p.second); });
     return ret;
   }
 

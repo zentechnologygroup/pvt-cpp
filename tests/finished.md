@@ -352,3 +352,9 @@
 - Comment      
 - Finished     
 
+## 60. Por cada parámetro de corelaciión saber si hay o no límites puestos por el autor y ello proparglo al json
+- Created at   2016-11-10 15:04:01 -0400
+- Completed at 2016-11-11 08:06:00 -0400
+- Comment      
+- Finished     
+

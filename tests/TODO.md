@@ -28,6 +28,7 @@
 
 ## 10. estudio de rangos de aplicación de correlaciones vs data set
 - Created at   2016-10-13 09:00:56 -0400
+- Completed at 2016-11-12 17:34:28 -0400
 
 ## 11. usar bitex con estilo bobliografico
 - Created at   2016-10-15 09:52:38 -0400
@@ -37,6 +38,7 @@
 
 ## 13. Mejorar performance de matching_const_correlations
 - Created at   2016-10-20 19:20:41 -0400
+- Completed at 2016-11-11 08:06:27 -0400
 
 ## 14. pone en test-corr que se imprima nota tecnica
 - Created at   2016-10-21 14:54:17 -0400
@@ -47,6 +49,6 @@
 ## 16. flag en test-conversion que liste unidades dada magnitud física
 - Created at   2016-10-31 17:25:29 -0400
 
-## 17. Por cada parámetro de corelaciión saber si hay o no límites puestos por el autor y ello proparglo al json
-- Created at   2016-11-10 15:04:01 -0400
+## 17. llamadas a matching_correlations valid_correlations pueden ser factorizadas y con eso acelarar computo
+- Created at   2016-11-13 11:35:43 -0400
 

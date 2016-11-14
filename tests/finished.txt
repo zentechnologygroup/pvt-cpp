@@ -57,3 +57,4 @@ En EmpiricalData: indizar con árbol las constantes y variables,2016-10-21 13:03
 enerar json con unidades,2016-10-15 09:52:28 -0400,2016-11-07 16:47:21 -0400,,2016-11-07 16:47:25 -0400
 apagar check de rangos en parametros mediante parámetro en compute, el cual por omisión estaría en true,2016-10-15 15:29:54 -0400,,2016-11-07 16:47:41 -0400
 conversion unidad uno a uno,2016-10-21 16:58:32 -0400,2016-11-07 16:48:16 -0400,,2016-11-07 16:48:22 -0400
+Por cada parámetro de corelaciión saber si hay o no límites puestos por el autor y ello proparglo al json,2016-11-10 15:04:01 -0400,2016-11-11 08:06:00 -0400,,2016-11-11 08:06:03 -0400
