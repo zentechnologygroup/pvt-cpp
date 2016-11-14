@@ -1,11 +1,11 @@
 # coding: utf-8
 
 begin_correlation("CwSpiveyMN", "WaterIsothermalCompressibility", "mPa_1")
-add_title("SPIVEY, McCAIN & NORTH, CALCULATION OF WATER ISOTHERMAL COMPRESSIBILITY (FOR PRESSURES BELOW THE BUBBLE POINT)")
+add_title("SPIVEY, McCAIN & NORTH, CALCULATION OF WATER ISOTHERMAL COMPRESSIBILITY")
 add_db("The volumetric properties of oilfield brines were obtained by combining the correlations developed by Spivey et al., for density of methane-free sodium chloride brine and solubility of methane in sodium chloride brines, with published correlations for specific volume and partial molar volume of methane in brine.")
 add_parameter("t", "Celsius", "Temperature",  0,  275) 
 add_parameter("p", "mPascal", "Pressure",  0.1, 200)
-add_parameter("pb", "mPascal", "Bubble point ressure")
+add_parameter("pb", "mPascal", "Bubble point pressure")
 add_parameter("nacl_concentration", "Molality_NaCl", "Dissolved salt concentration",  0,  5.7)
 add_parameter("z",  "ZFactor", "Gas compressibility factor")
 add_author("Spivey, McCain & North")

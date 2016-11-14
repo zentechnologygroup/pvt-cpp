@@ -21,7 +21,7 @@ add_title("McCAIN CORRELATION, CALCULATION OF WATER ISOTHERMAL COMPRESSIBILITY (
 add_db("Based on differentiated gas-in-water solubility data. Ramey (1964) presented the pressure differential of gas in solution for a single natural gas containing 88.51 % methane and 6.02 % ethane.")
 add_parameter("t", "Fahrenheit", "Temperature", 100, 250) 
 add_parameter("p", "psia", "Pressure", 500, 5000)
-add_parameter("nacl_concentration", "Dissolved_Salt_Percent", "Dissolved salt concentration",  0, 26)
+add_parameter("nacl_concentration", "Dissolved_Salt_Percent", "Dissolved salt concentration",  0, 26) # TODO: el valor debería ser 30
 add_parameter("bg", "RB_SCF", "Gas formation volume factor")
 add_parameter("bw", "RB_STB", "Water formation volume factor")
 add_parameter("cwa", "psia_1", "Water isothermal compressibility above Pb")

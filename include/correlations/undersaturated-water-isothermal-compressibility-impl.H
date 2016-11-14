@@ -108,7 +108,7 @@ CwaOsif::impl(const Quantity<Fahrenheit> & t,
 	     const Quantity<psia> & p,
 	     const Quantity<CgL> & nacl_concentration) const
 {
-  const double cw = 1/(7.033*p.raw() + 541.5*nacl_concentration.raw()*9.988590004 -
+  const double cw = 1/(7.033*p.raw() + 541.5*nacl_concentration.raw() -
 			   537*t.raw() + 403.3e3);
 
   return Quantity<psia_1>(cw);
