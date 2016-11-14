@@ -174,7 +174,8 @@ public:
           {
 	    if (not data.can_be_applied(p))
 	      return;
-	    
+
+	    // TODO: calcular valor y construir tupla
 	  });
       }
 
