@@ -198,6 +198,9 @@ public:
     return ret;
   }
 
+  // Returns a list with all the possible correlation signatures; that
+  // is all the valid permutations through the parameters names and
+  // their synonyms
   DynList<DynList<string>> names_and_synonyms() const
   {
     DynList<string> ret_l;
