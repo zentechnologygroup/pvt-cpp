@@ -1812,50 +1812,6 @@ def SgwJenningsNewmanCorrelation(T, P):
     sgw = A + (B * P) + (C * (P ** 2))
     sgwJenningsNewman = sgw
     return sgwJenningsNewman
-
-def CwDodsonStandingCorrelation(T, P, Pb, Rsw, Rswb, S, Bg, Bw):
-    if P > Pb: 
-        A = 3.8546 - (1.34e-4 * P)
-        B = -0.01052 + (4.77e-7 * P)
-        C = 3.9267e-5 - (8.8e-10 * P)
-        Cwp = (A + (B * T) + (C * (T ** 2)))/1e6 
-        # Correccion de la compresibilidad del agua por solubilidad del gas
-        Cws = Cwp * (1 + (8.9e-3 * Rsw))
-        # Correccion de la compresibilidad del agua por solidos disueltos
-        Cw = Cws * (1 + ((S ** 0.7) * (-5.2e-2 + (2.7e-4 * T) - (1.14e-6 * (T ** 2)) + (1.121e-9 * (T ** 3)))))
-    else: 
-        if (Bg == None) or (Rsw == None) or (Rswb == None) or (Bw == None):
-            Cw = None   
-        else:
-            Ab = 3.8546 - (1.34e-4 * Pb)
-            Bb = -0.01052 + (4.77e-7 * Pb)
-            Cb = 3.9267e-5 - (8.8e-10 * Pb)
-            Cwpb = (Ab + (Bb * T) + (Cb * (T ** 2)))/1e6 
-            Cwsb = Cwpb * (1 + (8.9e-3 * Rswb))
-            Cwb = Cwsb * (1 + ((S ** 0.7) * (-5.2e-2 + (2.7e-4 * T) - (1.14e-6 * (T ** 2)) + (1.121e-9 * (T ** 3)))))
-            B = 1.01021e-2 - (7.44241e-5 * T) + (3.05553e-7 * (T **2)) - (2.94883e-10 * (T ** 3))
-            C = (-9.02505 + (0.130237 * T) - (8.53425e-4 * (T ** 2)) + (2.34122e-6 * (T ** 3)) - (2.37049e-9 * (T ** 4))) * 1e-7
-            dRswdPs = B + (2 * C * P) 
-            dRswdP = dRswdPs * (1 + ((S ** 0.7) * (-5.2e-2 + (2.7e-4 * T) - (1.14e-6 * (T ** 2)) + (1.121e-9 * (T ** 3)))))
-            Cw = Cwb + (((Bg*0.177927131)/Bw) * (dRswdP)) 
-    CwDodsonStanding = Cw 
-    return CwDodsonStanding
-
-def CwOsifCorrelation(T, P, Pb, S, Bg, Bw):
-    if P > Pb: 
-        Cw = 1/((7.033 * P) + (541.5 * S * 9.988590004) - (537 * T) + 403.3e3)
-    else:
-        if (Bg == None) or (Bw == None):            
-            Cw = None  
-        else: 
-            Cwb = 1/((7.033 * Pb) + (541.5 * S * 9.988590004) - (537 * T) + 403.3e3)
-            B = 1.01021e-2 - (7.44241e-5 * T) + (3.05553e-7 * (T **2)) - (2.94883e-10 * (T ** 3))
-            C = (-9.02505 + (0.130237 * T) - (8.53425e-4 * (T ** 2)) + (2.34122e-6 * (T ** 3)) - (2.37049e-9 * (T ** 4))) * 1e-7
-            dRswdPs = B + (2 * C * P) 
-            dRswdP = dRswdPs * (1 + ((S ** 0.7) * (-5.2e-2 + (2.7e-4 * T) - (1.14e-6 * (T ** 2)) + (1.121e-9 * (T ** 3)))))
-            Cw = Cwb + (((Bg*0.177927131)/Bw) * (dRswdP))
-    CwOsif = Cw 
-    return CwOsif
     
 
 def pwSpiveyMNGasFree(T, P, saltConcentration):
@@ -2180,6 +2136,127 @@ def CwbMcCainCorrelation(T, P, saltConcentration, Bg, Bw, Cwa):
     return CwbMcCain
 
 
+def RswSpiveyMNCorrelation(T, P, saltConcentration):
+    m = saltConcentration
+
+    # Transformation from °C to °K
+    Tk = T + 273.15
+    
+    # Vapor pressure of pure water, calculated from the IAWPS-95 formulation
+    Tc = 647.096 # °K
+    Pc = 22.064 # MPa
+
+    v = 1 - (Tk/Tc)
+    
+    lnPv = ((Tc/Tk) * (((-7.85951783) * v) + ((1.84408259) * (v ** 1.5)) + ((-11.7866497) * (v ** 3)) + ((22.6807411) * (v ** 3.5)) + ((-15.9618719) * (v ** 4)) + ((1.80122502) * (v ** 7.5)))) + log(Pc)
+    Pv = exp(lnPv)
+    
+    if P - Pv > 0: # Domain validation of the mathematical equation
+    
+        # mCH4pw: SOLUBILITY OF METHANE IN PURE WATER
+        A = (((-0.007751) * ((T/100) ** 2)) + ((0.013624) * (T/100)) + (-0.0781))/(((0) * ((T/100) ** 2)) + ((0) * (T/100)) + 1)
+        B = (((0.01193) * ((T/100) ** 2)) + ((0.0851) * (T/100)) + (1.02766))/(((0) * ((T/100) ** 2)) + ((0) * (T/100)) + 1)
+        C = (((1.8316) * ((T/100) ** 2)) + ((-7.8119) * (T/100)) + (-3.6231))/(((-0.10733) * ((T/100) ** 2)) + ((1.09192) * (T/100)) + 1)
+
+        mCH4pw = exp((A * ((log(P - Pv)) ** 2)) + (B * log(P - Pv)) + C)
+        
+        # mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] AT THE TEMPERATURE AND PRESSURE OF EVALUATION            
+        C1 = 7.015e-2 + 1.074e-4 * Tk + 2.260e-1 * P/Tk + (-1.227e-3 * (P ** 2))/Tk
+        C2 = -6.28e-3
+
+        mCH4w = mCH4pw * exp((-2 * C1 * m) - (C2 * (m ** 2)))    
+        
+        # VMCH4gstd: MOLAR VOLUME OF METHANE IN THE GAS PHASE AT STANDARD CONDITIONS [cm³/gmol] FROM THE REAL GAS LAW
+        Zstd = 1.0 # Dmnl
+        R = 8.314467 # Universal gas constant [MPa cm³/gmol K] (McCain et al., 2011)
+        Tstd = 15.555556 # °C (60 °F)  
+        Pstd = 0.101352 # MPa (14.7 psia)
+        
+        VMCH4gstd = (Zstd * R * (Tstd + 273.15))/Pstd
+        
+        # vgfwstd: SPECIFIC VOLUME OF METHANE-FREE BRINE
+        
+        # Density of methane-free brine [g/cm³] at standard temperature and pressure
+        # pgfwstd = WaterDensity.pwSpiveyMNGasFree(Tstd, Pstd, saltConcentration)  # [lb/ft³], for C++: [g/cm³] 
+ 
+        # Pure water density [g/cm³] at the reference pressure (70 Mpa) and evaluation temperature
+        ppwr = (((-0.127213) * ((Tstd/100.) ** 2)) + ((0.645486) * (Tstd/100.)) + (1.03265))/(((-0.070291) * ((Tstd/100.) ** 2)) + ((0.639589) * (Tstd/100.)) + 1)
+        
+        # Coefficients of compressibility of pure water 
+        Epw = (((4.221) * ((Tstd/100.) ** 2)) + ((-3.478) * (Tstd/100.)) + (6.221))/(((0.5182) * ((Tstd/100.) ** 2)) + ((-0.4405) * (Tstd/100.)) + 1)
+        Fpw = (((-11.403) * ((Tstd/100.) ** 2)) + ((29.932) * (Tstd/100.)) + (27.952))/(((0.20684) * ((Tstd/100.) ** 2)) + ((0.3768) * (Tstd/100.)) + 1)
+        
+        # Coefficients of gas-free brine density at the temperature of evaluation and the reference pressure of 70 MPa
+        D1 = (((-7.925e-5) * ((Tstd/100.) ** 2)) + ((-1.93e-6) * (Tstd/100.)) + (-3.4254e-4))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
+        D2 = (((1.0998e-3) * ((Tstd/100.) ** 2)) + ((-2.8755e-3) * (Tstd/100.)) + (-3.5819e-3))/(((-0.72877) * ((Tstd/100.) ** 2)) + ((1.92016) * (Tstd/100.)) + 1)
+        D3 = (((-7.6402e-3) * ((Tstd/100.) ** 2)) + ((3.6963e-2) * (Tstd/100.)) + (4.36083e-2))/(((-0.333661) * ((Tstd/100.) ** 2)) + ((1.185685) * (Tstd/100.)) + 1)
+        D4 = (((3.746e-4) * ((Tstd/100.) ** 2)) + ((-3.328e-4) * (Tstd/100.)) + (-3.346e-4))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
+        
+        # Density of gas-free brine
+        pgfwr = ppwr + (D1 * (m ** 2)) + (D2 * (m ** (3/2))) + (D3 * m) + (D4 * (m ** (1/2)))
+        
+        # Coefficients of gas-free brine compressibility
+        E = (((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + (0.1353))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
+        F1 = (((-1.409) * ((Tstd/100.) ** 2)) + ((-0.361) * (Tstd/100.)) + (-0.2532))/(((0) * ((Tstd/100.) ** 2)) + ((9.216) * (Tstd/100.)) + 1)
+        F2 = (((0) * ((Tstd/100.) ** 2)) + ((5.614) * (Tstd/100.)) + (4.6782))/(((-0.307) * ((Tstd/100.) ** 2)) + ((2.6069) * (Tstd/100.)) + 1)
+        F3 = (((-0.1127) * ((Tstd/100.) ** 2)) + ((0.2047) * (Tstd/100.)) + (-0.0452))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
+        
+        Ew = Epw + E * m
+        Fw = Fpw + F1 * m ** (3/2) + F2 * m + F3 * m ** (1/2)
+        
+        Iwr = (1/Ew) * log(fabs(Ew + Fw))
+        Iw = (1/Ew) * log(fabs((Ew * (Pstd/70.))+ Fw))
+        
+        # Density of gas-free brine [g/cm³] at the temperature and pressure of evaluation
+        pgfwstd = pgfwr * exp(Iw - Iwr)
+        
+
+        
+        # Specific volume of methane-free brine [cm³/g]
+        vgfwstd = 1.0/pgfwstd
+        
+        # CALCULATION OF THE SOLUTION GAS-WATER RATIO [std cm³/ST cm³]
+        # Molecular weight MNaCl: 58.4428 g/gmol
+        Rsw = (mCH4w * VMCH4gstd)/((1000 + m * 58.4428) * vgfwstd)
+         
+    else:
+        
+        Rsw = None
+    
+    RswSpiveyMN = Rsw
+    
+    return RswSpiveyMN 
+
+
+def RswCulbersonMcKettaCorrelation(T, P, saltConcentration):
+    
+    A = 8.15839 - 6.12265e-2 * T + 1.91663e-4 * (T ** 2) - 2.1654e-7 * (T ** 3)
+    B = 1.01021e-2 - 7.44241e-5 * T + 3.05553e-7 * (T **2) - 2.94883e-10 * (T ** 3)
+    C = (-9.02505 + 0.130237 * T - 8.53425e-4 * (T ** 2) + 2.34122e-6 * (T ** 3) - 2.37049e-9 * (T ** 4)) * 1e-7
+    
+    Rspw = A + B * P + C * (P ** 2) # Solubility of gas in pure water
+    
+    Rsw = Rspw * 10 ** (-0.0840655 * saltConcentration * T ** (-0.285854)) # Solubility of gas in brine
+    
+    RswCulbersonMcKetta = Rsw 
+    
+    return RswCulbersonMcKetta
+
+
+def RswMcCoyCorrelation(T, P, saltConcentration):
+    
+    A = 2.12 + (3.45e-3 * T) - (3.59e-5 * (T ** 2)) 
+    B = 0.0107 - (5.26e-5 * T) + (1.48e-7 * (T **2))
+    C = -8.75e-7 + (3.9e-9 * T) - (1.02e-11 * (T ** 2))
+    
+    Rswp = A + B * P + C * (P ** 2) # Solubility of gas in pure water
+    
+    Rsw = Rswp * (1 - (0.0753 - 1.73e-4 * T) * saltConcentration)
+    
+    RswMcCoy = Rsw 
+    
+    return RswMcCoy
+
 # Tests
 
 # CwaSpiveyMNCorrelation(93.3333, 34.4738, 0.349199)
@@ -2187,3 +2264,8 @@ def CwbMcCainCorrelation(T, P, saltConcentration, Bg, Bw, Cwa):
 # CwaDodsonStandingCorrelation(200, 5000, 17.8, 2)
 # CwaOsifCorrelation(200, 5000, 20.0154)
 # CwbMcCainCorrelation(200, 3000, 2, 0.00098, 1.03393, 3.26e-06)
+
+# RswSpiveyMNCorrelation(93.3333, 34.4738, 0.349199)
+# RswCulbersonMcKettaCorrelation(200, 5000, 2)
+# RswMcCoyCorrelation(200, 5000, 2)
+
