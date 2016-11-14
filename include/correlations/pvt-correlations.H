@@ -27,6 +27,8 @@
 # include "water-volume-factor.H"
 # include "water-interfacial-tension.H"
 # include "water-isothermal-compressibility.H"
+# include "saturated-water-isothermal-compressibility.H"
+# include "undersaturated-water-isothermal-compressibility.H"
 # include "solution-gas-water-relation.H"
 # include "spivey-dry.H"
 
@@ -56,6 +58,8 @@
 # include "water-volume-factor-impl.H"
 # include "water-interfacial-tension-impl.H"
 # include "water-isothermal-compressibility-impl.H"
+# include "saturated-water-isothermal-compressibility-impl.H"
+# include "undersaturated-water-isothermal-compressibility-impl.H"
 # include "solution-gas-water-relation-impl.H"
 # include "spivey-dry-impl.H"
 
@@ -234,8 +238,10 @@ struct CorrelationInstantiater
     SgwJenningsNewman::get_instance();
 
     CwSpiveyMN::get_instance();
-    CwDodsonStanding::get_instance();
-    CwOsif::get_instance();
+    CwbSpiveyMN::get_instance();
+    CwaSpiveyMN::get_instance();
+    CwaDodsonStanding::get_instance();
+    CwaOsif::get_instance();
     CwbMcCain::get_instance();
 
     RswSpiveyMN::get_instance();

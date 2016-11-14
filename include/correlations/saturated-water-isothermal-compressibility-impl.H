@@ -1,13 +1,12 @@
-# ifndef WATER_ISOTHERMAL_COMPRESSIBILITY_IMPL_H
-# define WATER_ISOTHERMAL_COMPRESSIBILITY_IMPL_H
+# ifndef SATURATED_WATER_ISOTHERMAL_COMPRESSIBILITY_IMPL_H
+# define SATURATED_WATER_ISOTHERMAL_COMPRESSIBILITY_IMPL_H
 
-# include <correlations/water-isothermal-compressibility.H>
+# include <correlations/saturated-water-isothermal-compressibility.H>
 # include <correlations/spivey-dry.H>
 
 inline Quantity<mPa_1>
-CwSpiveyMN::impl(const Quantity<Celsius> & t,
+CwbSpiveyMN::impl(const Quantity<Celsius> & t,
 		 const Quantity<mPascal> & p,
-		 const Quantity<mPascal> & pb,
 		 const Quantity<Molality_NaCl> & nacl_concentration,
 		 const Quantity<ZFactor> & z) const
 {
@@ -22,7 +21,7 @@ CwSpiveyMN::impl(const Quantity<Celsius> & t,
   if (p < pv)
     {
       ostringstream s;
-      s << "CwSpiveyMN::impl: received pressure " << p
+      s << "CwbSpiveyMN::impl: received pressure " << p
 	<< " is less than computed vapour pressure " << pv << " "
 	<< p.unit.name;
       throw domain_error(s.str());
@@ -70,76 +69,31 @@ CwSpiveyMN::impl(const Quantity<Celsius> & t,
 
   const double volume = (1000 + m * 58.4428) * vgfw + mch4w * vmch4w;
 
-  double cw = 0;
-
-  if (p > pb) {// Isothermal compressibility for brine undersaturated with respect to methane
-  	cw = -(1/volume) * ((1000 + m*58.4428)*dvgfwdp + mch4w*dvmch4wdp);
-  }
-  else {// Isothermal compressibility for saturated brine
-  	const double t_100 = t.raw()/100;
-  	const double t_100_2 = t_100*t_100;
-  	const double a = -0.007751*t_100_2 + 0.013624*t_100 + -0.0781;
-  	const double b = 0.01193*t_100_2 + 0.0851*t_100 + 1.02766;
+  // Isothermal compressibility for saturated brine
+  const double t_100 = t.raw()/100;
+  const double t_100_2 = t_100*t_100;
+  const double a = -0.007751*t_100_2 + 0.013624*t_100 + -0.0781;
+  const double b = 0.01193*t_100_2 + 0.0851*t_100 + 1.02766;
 	
-  	const double log_p_pv = log(p.raw() - pv);
-  	const double p_pv = p.raw() - pv;
+  const double log_p_pv = log(p.raw() - pv);
+  const double p_pv = p.raw() - pv;
 
-  	const double dc1dp = 2.260e-1/tk + 2*-1.227e-3*p.raw()/tk;
-  	const double dmch4wdp = mch4w*((2*a*log_p_pv + b)/p_pv -
+  const double dc1dp = 2.260e-1/tk + 2*-1.227e-3*p.raw()/tk;
+  const double dmch4wdp = mch4w*((2*a*log_p_pv + b)/p_pv -
 				     2*dc1dp*m);
 
-  	// VMCH4g: MOLAR VOLUME OF METHANE IN THE GAS PHASE
-  	const double vmch4g = z.raw()*R*tk/p.raw(); 
+  // VMCH4g: MOLAR VOLUME OF METHANE IN THE GAS PHASE
+  const double vmch4g = z.raw()*R*tk/p.raw(); 
                                
-  	cw = -(1/volume) * ((1000 + m*58.4428)*dvgfwdp + mch4w*dvmch4wdp +
+  const double cw = -(1/volume) * ((1000 + m*58.4428)*dvgfwdp + mch4w*dvmch4wdp +
 	      (dmch4wdp*(vmch4w - vmch4g)));
-  }
 
   return Quantity<mPa_1>(cw);                   
 }
 
 
 inline Quantity<psia_1>
-CwDodsonStanding::impl(const Quantity<Fahrenheit> & t,
-		       const Quantity<psia> & p,
-		       const Quantity<SCF_STB> & rsw,
-		       const Quantity<Dissolved_Salt_Percent> & nacl_concentration) const
-{
-  const double t2 = pow2(t);
-  const double t3 = t2*t.raw();
-  const double s07 = pow(nacl_concentration, 0.7);
-
-  // Compressibility of gas-free water
-  const double a = 3.8546 - 1.34e-4*p.raw();
-  const double b = -0.01052 + 4.77e-7*p.raw();
-  const double c = 3.9267e-5 - 8.8e-10*p.raw();
-  const double cwp = (a + b*t.raw() + c*t2)/1e6;
-
-  // Compressibility of gas-saturated water
-  const double cws = cwp * (1 + 8.9e-3*rsw.raw());
-
-  // Correction of the water compressibility, due to dissolved solids
-  const double cw = cws * (1 + (s07 * (-5.2e-2 + 2.7e-4*t.raw() -
-			               1.14e-6*t2 + 1.121e-9*t3)));
-
-  return Quantity<psia_1>(cw);
-}
-
-
-inline Quantity<psia_1>
-CwOsif::impl(const Quantity<Fahrenheit> & t,
-	     const Quantity<psia> & p,
-	     const Quantity<CgL> & nacl_concentration) const
-{
-  const double cw = 1/(7.033*p.raw() + 541.5*nacl_concentration.raw()*9.988590004 -
-			   537*t.raw() + 403.3e3);
-
-  return Quantity<psia_1>(cw);
-}
-
-
-inline Quantity<psia_1>
-CwMcCain::impl(const Quantity<Fahrenheit> & t,
+CwbMcCain::impl(const Quantity<Fahrenheit> & t,
 		const Quantity<psia> & p,
 		const Quantity<Dissolved_Salt_Percent> & nacl_concentration,
 		const Quantity<RB_SCF> & bg,
@@ -168,4 +122,4 @@ CwMcCain::impl(const Quantity<Fahrenheit> & t,
 }
 
 
-# endif // WATER_ISOTHERMAL_COMPRESSIBILITY_IMPL_H
+# endif // SATURATED_WATER_ISOTHERMAL_COMPRESSIBILITY_IMPL_H

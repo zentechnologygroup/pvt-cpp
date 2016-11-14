@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from math import exp, log10, floor, log, fabs
 
 def PbAlMarhounCorrelation(Yg, Yo, Rsb, T):        
@@ -917,20 +918,20 @@ def UodBeggsRobinsonCorrelation( API, T):
     uodBeggsRobinson = uod
     return uodBeggsRobinson
 
- def UodEgbogahNgCorrelation(API, T):
-     a = 1.8653 - 0.025086 * API - 0.5644 * log10 (T)
-     b = 10 ** a
-     c = 10 ** b
-     uod = c - 1
-     uodEgbogahNg = uod
-     return uodEgbogahNg
+def UodEgbogahNgCorrelation(API, T):
+    a = 1.8653 - 0.025086 * API - 0.5644 * log10 (T)
+    b = 10 ** a
+    c = 10 ** b
+    uod = c - 1
+    uodEgbogahNg = uod
+    return uodEgbogahNg
 
- def UodGlaso(API, T):
-     c = 3.141 * (10 ** 10) * (T ** -3.444)
-     d = (10.313 * log10 (T)) - 36.447
-     uod = c * (log10(API) ** d)
-     uodGlaso = uod
-     return uodGlaso
+def UodGlaso(API, T):
+    c = 3.141 * (10 ** 10) * (T ** -3.444)
+    d = (10.313 * log10 (T)) - 36.447
+    uod = c * (log10(API) ** d)
+    uodGlaso = uod
+    return uodGlaso
     
 def UodKartoatmodjoSchmidtCorrelation(API, T):
     a = (5.7526 * log10(T)) - 26.9718
@@ -1912,4 +1913,115 @@ def pwSpiveyMNGasFree(T, P, saltConcentration):
         pwSpiveyMNGasFree = pgfw
         
         return pwSpiveyMNGasFree
-    
+
+
+def CwbSpiveyMNCorrelation(T, P, m, Z):
+    # Transformation from °C to °K
+    Tk = T + 273.15
+        
+    # Vapor pressure of pure water, calculated from the IAWPS-95 formulation
+    Tc = 647.096 # °K
+    Pc = 22.064 # MPa
+
+    v = 1 - (Tk/Tc)
+        
+    lnPv = ((Tc/Tk) * (((-7.85951783) * v) + ((1.84408259) * (v ** 1.5)) + ((-11.7866497) * (v ** 3)) + ((22.6807411) * (v ** 3.5)) + ((-15.9618719) * (v ** 4)) + ((1.80122502) * (v ** 7.5)))) + log(Pc)
+    Pv = exp(lnPv)        
+        
+    if P - Pv > 0: # Domain validation of the mathematical equation
+	        
+        # vgfw: SPECIFIC VOLUME OF METHANE-FREE BRINE
+
+        # Pure water density [g/cm³] at the reference pressure (70 Mpa) and evaluation temperature
+        ppwr = (((-0.127213) * ((T/100.) ** 2)) + ((0.645486) * (T/100.)) + (1.03265))/(((-0.070291) * ((T/100.) ** 2)) + ((0.639589) * (T/100.)) + 1)
+        
+        # Coefficients of compressibility of pure water 
+        Epw = (((4.221) * ((T/100.) ** 2)) + ((-3.478) * (T/100.)) + (6.221))/(((0.5182) * ((T/100.) ** 2)) + ((-0.4405) * (T/100.)) + 1)
+        Fpw = (((-11.403) * ((T/100.) ** 2)) + ((29.932) * (T/100.)) + (27.952))/(((0.20684) * ((T/100.) ** 2)) + ((0.3768) * (T/100.)) + 1)
+        
+        # Coefficients of gas-free brine density at the temperature of evaluation and the reference pressure of 70 MPa
+        D1 = (((-7.925e-5) * ((T/100.) ** 2)) + ((-1.93e-6) * (T/100.)) + (-3.4254e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        D2 = (((1.0998e-3) * ((T/100.) ** 2)) + ((-2.8755e-3) * (T/100.)) + (-3.5819e-3))/(((-0.72877) * ((T/100.) ** 2)) + ((1.92016) * (T/100.)) + 1)
+        D3 = (((-7.6402e-3) * ((T/100.) ** 2)) + ((3.6963e-2) * (T/100.)) + (4.36083e-2))/(((-0.333661) * ((T/100.) ** 2)) + ((1.185685) * (T/100.)) + 1)
+        D4 = (((3.746e-4) * ((T/100.) ** 2)) + ((-3.328e-4) * (T/100.)) + (-3.346e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        
+        # Density of gas-free brine
+        pgfwr = ppwr + (D1 * (m ** 2)) + (D2 * (m ** (3./2.))) + (D3 * m) + (D4 * (m ** (1./2.)))
+        
+        # Coefficients of gas-free brine compressibility
+        E = (((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + (0.1353))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        F1 = (((-1.409) * ((T/100.) ** 2)) + ((-0.361) * (T/100.)) + (-0.2532))/(((0) * ((T/100.) ** 2)) + ((9.216) * (T/100.)) + 1)
+        F2 = (((0) * ((T/100.) ** 2)) + ((5.614) * (T/100.)) + (4.6782))/(((-0.307) * ((T/100.) ** 2)) + ((2.6069) * (T/100.)) + 1)
+        F3 = (((-0.1127) * ((T/100.) ** 2)) + ((0.2047) * (T/100.)) + (-0.0452))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        
+        Ew = Epw + E * m
+        Fw = Fpw + F1 * m ** (3./2.) + F2 * m + F3 * m ** (1./2.)
+        
+        Iwr = (1/Ew) * log(fabs(Ew + Fw))
+        Iw = (1/Ew) * log(fabs((Ew * (P/70.))+ Fw))
+        
+        # Density of gas-free brine [g/cm³] at the temperature and pressure of evaluation
+        pgfw = pgfwr * exp(Iw - Iwr)
+
+                
+        # Specific volume of methane-free brine [cm³/g]
+        vgfw = 1.0/pgfw         
+        
+        # mCH4pw: SOLUBILITY OF METHANE IN PURE WATER
+        A = (((-0.007751) * ((T/100) ** 2)) + ((0.013624) * (T/100)) + (-0.0781))/(((0) * ((T/100) ** 2)) + ((0) * (T/100)) + 1)
+        B = (((0.01193) * ((T/100) ** 2)) + ((0.0851) * (T/100)) + (1.02766))/(((0) * ((T/100) ** 2)) + ((0) * (T/100)) + 1)
+        C = (((1.8316) * ((T/100) ** 2)) + ((-7.8119) * (T/100)) + (-3.6231))/(((-0.10733) * ((T/100) ** 2)) + ((1.09192) * (T/100)) + 1)
+
+        mCH4pw = exp((A * ((log(P - Pv)) ** 2)) + (B * log(P - Pv)) + C)
+            
+        # mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] AT THE TEMPERATURE AND PRESSURE OF EVALUATION            
+        C1 = 7.015e-2 + 1.074e-4 * Tk + 2.260e-1 * P/Tk + (-1.227e-3 * (P ** 2))/Tk
+        C2 = -6.28e-3
+
+        mCH4w = mCH4pw * exp((-2 * C1 * m) - (C2 * (m ** 2))) 
+                             
+        # VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE TEMPERATURE AND PRESSURE OF EVALUATION 
+        # Derivatives with respect to P
+        C3 = -8.5658e-2 + 1.31961e-2 * log(Tk) + 7.338/Tk + 9.05e-2/(680 - Tk) + 2 * (0) * P/Tk  
+        C4 = 2.260e-1/Tk + 2 * -1.227e-3 * P/Tk
+        C5 = 0
+            
+        R = 8.314467 # Universal gas constant [MPa cm³/gmol K] (McCain et al., 2011)
+            
+        # Partial molar volume of methane in brine
+        VMCH4w = R * Tk * (C3 + (2 * m * C4) + (m ** 2) * C5)                
+            
+        # dvgfwdP: DERIVATIVE OF SPECIFIC VOLUME WITH RESPECT TO PRESSURE 
+                       
+        # Compressibility of gas-free brine
+        Cgfw = (1/70.) * (1/(Ew * (P/70.) + Fw))
+        dvgfwdP = -vgfw * Cgfw             
+            
+        # dVMCH4wdP: DERIVATIVE OF MOLAR VOLUME OF METHANE DISSOLVED IN BRINE WITH RESPECT TO PRESSURE
+        dC3dP = 0  
+        dC4dP = 2 * -1.227e-3/Tk
+        dC5dP = 0
+            
+        dVMCH4wdP = R * Tk * (dC3dP + 2 * m * dC4dP + (m ** 2) * dC5dP)
+            
+        volume = (1000 + m * 58.4428) * vgfw + mCH4w * VMCH4w
+                        
+        # Isothermal compressibility for saturated brine
+        if Z == None:
+            Cw = None
+                
+        # dmCH4wdP: DERIVATIVE OF THE SOLUBILITY OF METHANE WITH RESPECT TO PRESSURE
+        dC1dP = 2.260e-1/Tk + (-1.227e-3 * 2 * P)/Tk
+        dmCH4wdP = mCH4w * (((2 * A * log(P - Pv) + B)/(P - Pv)) - 2 * dC1dP * m)
+
+        # VMCH4g: MOLAR VOLUME OF METHANE IN THE GAS PHASE
+        VMCH4g = Z * R * Tk/P
+                
+        Cw = -1.0/volume * ((1000 + m * 58.4428) * dvgfwdP + mCH4w * dVMCH4wdP + dmCH4wdP * (VMCH4w - VMCH4g))
+            
+        return Cw
+        
+    else:
+        Cw = None
+        return Cw
+
