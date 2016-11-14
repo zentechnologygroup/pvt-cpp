@@ -388,6 +388,11 @@ struct EmpiricalData
       });
   }
 
+  bool is_defined_as_constant(const string & name) const
+  {
+    return const_names.exists([&name] (const auto & s) { return s == name; });
+  }
+
   /// Return true is name belongs to the constant set of to var name
   /// of varriabe set set_idex
   bool contains_name(size_t set_idx, const string & name) const
@@ -657,11 +662,11 @@ public:
   {
     auto & varset = def_var(set_name, name, symbol);
 
-    for (auto it = get_zip_it(varset.samples, col); it.has_curr(); it.next())
+    for (auto it = get_enum_zip_it(col); it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
-	auto & row = get<0>(t);
-	row.append(get<1>(t));
+	auto & row = varset.samples(get<1>(t));
+	row.append(get<0>(t));
 	row.for_each([] (auto v) { cout << " " << v; });
 	cout << endl;
       }
@@ -897,8 +902,21 @@ public:
     return get_set_by_correlation(set_index(set_name), ptr, name);
   }
 
+  // returns true if the correlation can be computed through the constants values
+  bool can_be_applied(const Correlation * correlation_ptr) const
+  {
+    return correlation_ptr->names_and_synonyms().exists
+      ([this] (const auto & signature)
+      {
+	return signature.all([this] (const auto & par_name)
+          {
+	    return this->is_defined_as_constant(par_name);
+	  });
+      });
+  }
+
   /// return true if correlation correlation_ptr could be applied to
-  /// the empirical data 
+  /// the empirical data including contants and the variable set `seti`
   bool can_be_applied(size_t seti, const Correlation * correlation_ptr) const
   {
     return
@@ -1211,6 +1229,7 @@ public:
     return valid_correlations(set_index(set_name));
   }
 
+  /// Computes `correlation_ptr` from the stored constant values 
  double compute(const Correlation * correlation_ptr, bool check = true) const
   {
     auto const_list = t_zip(const_names, const_vals, const_units);
@@ -1218,8 +1237,8 @@ public:
       maps<VtlQuantity>([&] (const auto & par)
         {
 	  auto ptr = const_list.find_ptr([&] (auto t)
-            { return par.names().exists([&] (const auto & p)
-	       { return get<0>(p) == get<0>(t); });
+            { return par.names().exists
+	      ([&] (const auto & p) { return get<0>(p) == get<0>(t); });
 	    });
 	  
 	  if (ptr == nullptr)

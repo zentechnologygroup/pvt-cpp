@@ -130,18 +130,18 @@ public:
 
     return l.maps<pair<const Correlation*, DynList<IncompletePar>>>
       ([this] (auto corr)
-      {
-	auto missing_pars = data.missing_parameters(0, corr);
-	return make_pair(corr, missing_pars.template maps<IncompletePar>
-			 ([&] (const auto & par_name)
-          {
-	    auto corrs = data.valid_correlations(0).filter([&] (auto corr)
-              {
-		return corr->target_name() == par_name;
-	      });
-	    return make_pair(par_name, move(corrs));
-	  }));
-      });
+       {
+	 auto missing_pars = data.missing_parameters(0, corr);
+	 return make_pair(corr, missing_pars.template maps<IncompletePar>
+			  ([&] (const auto & par_name)
+           {
+	     auto corrs = data.valid_correlations(0).filter([&] (auto corr)
+               {
+		 return corr->target_name() == par_name;
+	       });
+	     return make_pair(par_name, move(corrs));
+	   }));
+       });
   }
 
   DynList<string> uob_required_values() const
@@ -161,14 +161,21 @@ public:
     return missing_pars.keys();
   }
 
-  DynList<EmpiricalData::VarSet>
-  compute_uob_required_data(const DynList<string> & pars_lst) const
+  DynList<tuple<string, const Correlation*, double>>
+      compute_uob_required_data(const DynList<string> & names) const
   {
-    DynList<EmpiricalData::VarSet> ret;
-    for (auto it = pars_lst.get_it(); it.has_curr(); it.next())
+    DynList<tuple<string, const Correlation*, double>> ret;
+    for (auto it = names.get_it(); it.has_curr(); it.next())
       {
-	auto var_name = it.get_curr();
-	
+	const string & name = it.get_curr();
+	auto corrs = Correlation::array().filter
+	  ([&name] (auto p) { return p->name == name; });
+	corrs.for_each([&ret, this] (auto p)
+          {
+	    if (not data.can_be_applied(p))
+	      return;
+	    
+	  });
       }
 
     return ret;

@@ -99,30 +99,35 @@ int main(int argc, char *argv[])
     });
   cout << endl
        << "Uob incomplete correlations:" << endl;
-  pvt.uob_incomplete_correlations().for_each([] (auto p)
+  pvt.uob_incomplete_correlations().for_each([&] (auto p)
     {
       cout << "  " << p.first->call_string() << endl;
-      p.second.for_each([] (auto p)
+      p.second.for_each([&] (auto p)
       {
 	cout << "    " << p.first << endl;
-	p.second.for_each([] (auto p)
-			  {
-			    cout << "      " << p->name << endl;
-			  });
+	p.second.for_each([&] (auto p)
+          {
+	    cout << "      " << p->call_string() << " "
+		 << pvt.get_data().can_be_applied(p) << endl;
 	  });
+      });
       cout << endl;
     });
-    
+
+  auto required = pvt.uob_required_values();
   cout << "Uob required values:";
-  pvt.uob_required_values().for_each([] (const auto & s) { cout << " " << s; });
-  cout << endl;
-
-  auto & data = pvt.get_data();
-  auto & vset = data.copy_var_set(0, "new", "Testing");
-
-  DynList<double> ll = rep(vset.samples.size(), -1.0);
-  data.def_var("new", "uod", "cP", ll);
-
-  cout << data.var_sets[2].to_string() << endl;
+  required.for_each([] (const auto & s) { cout << " " << s; });
+  cout << endl
+       << endl
+       << "Available correlations" << endl;
+  required.for_each([&pvt] (const auto & s)
+    {
+      cout << s << ":" << endl;
+      pvt.uod_valid_correlations().for_each([] (auto p)
+        {
+	  cout << "    " << p->call_string() << endl;
+	});
+    });
+  
 }
 
