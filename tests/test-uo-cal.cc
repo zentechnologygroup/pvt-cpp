@@ -120,14 +120,12 @@ int main(int argc, char *argv[])
   cout << endl
        << endl
        << "Available correlations" << endl;
-  required.for_each([&pvt] (const auto & s)
+
+  pvt.compute_uob_required_values(required).for_each([] (auto t)
     {
-      cout << s << ":" << endl;
-      pvt.uod_valid_correlations().for_each([] (auto p)
-        {
-	  cout << "    " << p->call_string() << endl;
-	});
+      cout << get<0>(t) << " = " << get<2>(t) << " " << get<1>(t)->call_string()
+	   << endl;
     });
-  
+
 }
 

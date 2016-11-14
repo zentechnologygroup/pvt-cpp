@@ -935,9 +935,9 @@ public:
 
   /// Return a list of missing parameters needed for computing the
   /// correlation `correlation_ptr` according to the constants stored
-  /// in all he data set and variables stored in the variables set `seti`
+  /// in all the data set and variables stored in the variables set `seti`
   DynList<string>
-  missing_parameters(size_t seti,  const Correlation * correlation_ptr) const
+  missing_parameters(size_t seti, const Correlation * correlation_ptr) const
   {
     DynList<string> ret;
     for (auto it = correlation_ptr->get_preconditions().get_it();
@@ -949,6 +949,26 @@ public:
 		       return this->exists_const_name(s.first) or
 			 this->exists_var_name(seti, s.first);
 		     })))
+	  ret.append(par.name);
+      }
+    return ret;
+  }
+
+  /// Return a list of missing parameters needed for computing the
+  /// correlation `correlation_ptr` according to the constants stored
+  /// in the data set
+  DynList<string>
+  missing_parameters(const Correlation * correlation_ptr) const
+  {
+    DynList<string> ret;
+    for (auto it = correlation_ptr->get_preconditions().get_it();
+	 it.has_curr(); it.next())
+      {
+	const auto & par = it.get_curr();
+	if (not (par.names().exists([this] (const auto & s)
+				    {
+				      return this->exists_const_name(s.first);
+				    })))
 	  ret.append(par.name);
       }
     return ret;

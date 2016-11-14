@@ -162,21 +162,25 @@ public:
   }
 
   DynList<tuple<string, const Correlation*, double>>
-      compute_uob_required_data(const DynList<string> & names) const
+    compute_uob_required_values(const DynList<string> & names,
+			      bool check = true) const
   {
     DynList<tuple<string, const Correlation*, double>> ret;
     for (auto it = names.get_it(); it.has_curr(); it.next())
       {
 	const string & name = it.get_curr();
-	auto corrs = Correlation::array().filter
-	  ([&name] (auto p) { return p->name == name; });
-	corrs.for_each([&ret, this] (auto p)
-          {
-	    if (not data.can_be_applied(p))
-	      return;
-
-	    // TODO: calcular valor y construir tupla
-	  });
+	Correlation::array().filter
+	  ([&name] (auto p) { return p->target_name() == name; }).
+	  for_each([&ret, this, &name, check] (auto p)
+            {
+	      if (not data.can_be_applied(p))
+		return;
+	      try
+		{
+		  ret.append(make_tuple(name, p, data.compute(p, check)));
+		}
+	      catch (...) { /* ignore it */ }
+	    });
       }
 
     return ret;
@@ -274,7 +278,7 @@ public:
 	      << " contained in list is not the name " << corr_name;
 	    throw domain_error(s.str()); 
 	  }
-	    
+
 	try
 	  {
 	    auto result = data.compute(0, row_name, corr_ptr, check);
@@ -288,6 +292,57 @@ public:
       }
 
     return sort(ret, [] (auto t1, auto t2) { return get<3>(t1) < get<3>(t2); });
+  }
+
+  using VarIncompleteCorrStatus =
+    //   ok      y                                    
+    tuple<bool, DynList<double>, const Correlation*,
+	  DynList<const Correlation*>, // Correlation completing missins pars
+	  double, double, double, // r2, mse, sigma-dist 
+	  string>; // error message
+
+  DynList<VarIncompleteCorrStatus>
+  best_incomplete_correlations(const DynList<const Correlation*> & l,
+			       const string & row_name, bool check = true) const
+  {
+    const string corr_name  = l.get_first()->target_name();
+    CorrStat stat(data.values(0, corr_name));
+
+    DynList<VarIncompleteCorrStatus> ret;
+    for (auto it = l.get_it(); it.has_curr(); it.next())
+      {
+	auto corr_ptr = it.get_curr();
+	if (corr_ptr->target_name() != corr_name)
+	  {
+	    ostringstream s;
+	    s << "PvtAnalyzer::best_incomplete_correlations(): Correlation "
+	      << corr_ptr->name << " target name " << corr_ptr->target_name()
+	      << " contained in list is not the name " << corr_name;
+	    throw domain_error(s.str()); 
+	  }
+
+	auto missing_pars = data.missing_parameters(corr_ptr);
+	if (not missing_pars.is_empty())
+	  {
+	    
+	  }
+
+	// Todo: considerar que a l le puedan faltr parámetros
+	
+	try
+	  {
+	    auto result = data.compute(0, row_name, corr_ptr, check);
+	    auto r2 = stat.r2(result);
+	    auto mse = stat.mse(result);
+	    auto sigma_distance = stat.sigma_distance(result);
+	    ret.append(make_tuple(true, move(result), corr_ptr,
+				  DynList<const Correlation*>(),
+				  r2, mse, sigma_distance, ""));
+	  }
+	catch (exception & e) { /* ignore it! */ }
+      }
+
+    return sort(ret, [] (auto t1, auto t2) { return get<4>(t1) < get<4>(t2); });
   }
 
   DynList<VarCorrStatus> best_rs_correlations(bool check = true) const
