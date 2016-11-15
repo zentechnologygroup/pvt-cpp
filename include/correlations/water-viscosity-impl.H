@@ -6,35 +6,32 @@
 
 inline Quantity<Paxs>
 UwMaoDuan::impl(const Quantity<Kelvin> & t,
-		const Quantity<Gr_cm3> & ppw,
-		const Quantity<Dissolved_Salt_PPM> & s) const
+		const Quantity<Molality_NaCl> & nacl_concentration,
+		const Quantity<Gr_cm3> & ppw) const
 {
   const double t2 = pow2(t);
   
-  // Viscosidad del agua pura [Pa.s]
+  // Viscosity of pure water [Pa.s]
   const double upw = exp((0.28853170e7/t2 + -0.11072577e5/t.raw() +
 			  -0.90834095e1 + 0.30925651e-1*t.raw() +
 			  -0.27407100e-4*t2) + 
-			 ppw * (-0.19283851e7/t2 + 0.56216046e4/t.raw() + 
+			 ppw.raw() * (-0.19283851e7/t2 + 0.56216046e4/t.raw() + 
 				0.13827250e2 + -0.47609523e-1*t.raw() + 
 				0.35545041e-4*t2));
         
-  // calculo de los coeficientes de salinidad 
+  // Calculation of the coefficients (salinity of sodium chloride) 
   const double a = -0.21319213 + 0.13651589e-2*t.raw() + -0.12191756e-5*t2;
   const double b = 0.69161945e-1 + -0.27292263e-3*t.raw() + 0.20852448e-6*t2;
   const double c = -0.25988855e-2 + 0.77989227e-5*t.raw();
 
-  const double s100 = s.raw()/100;
-
-  // Concentracion molal de NaCl [gmol/kgH2O] a partir de S
-  const double m = (1000*s100) /(58.4428 * (1 - s100));
+  const double m = nacl_concentration.raw();
   const double m2 = m*m;
   const double m3 = m2*m;
         
-  // Viscosidad relativa de la salmuera
+  // Relative viscosity
   const double uwr = exp(a*m + b*m2 + c*m3);
         
-  // viscosidad de la salmuera [Pa.s]
+  // Viscosity of the solution [Pa.s]
   const double uw = uwr * upw; 
         
   return Quantity<Paxs>(uw);
@@ -53,10 +50,11 @@ UwVanWingen::impl(const Quantity<Fahrenheit> & t) const
 inline Quantity<CP>
 UwMatthewsRussel::impl(const Quantity<Fahrenheit> & t,
 		       const Quantity<psia> & p,
-		       const Quantity<Dissolved_Salt_Percent> & s) const
+		       const Quantity<Dissolved_Salt_Percent> & nacl_concentration) const
 {
-  const double s2 = s.raw()*s.raw();
-  const double a = -0.04518 + 0.009313*s.raw() - 0.000393*s2;
+  const double s = nacl_concentration.raw();
+  const double s2 = s*s;
+  const double a = -0.04518 + 0.009313*s - 0.000393*s2;
   const double b = 70.634 + 0.09576*s2;
   const double uwat = a + b/t.raw();
         
@@ -70,14 +68,15 @@ UwMatthewsRussel::impl(const Quantity<Fahrenheit> & t,
 inline Quantity<CP>
 UwMcCain::impl(const Quantity<Fahrenheit> & t,
 	       const Quantity<psia> & p,
-	       const Quantity<Dissolved_Salt_Percent> & s) const
+	       const Quantity<Dissolved_Salt_Percent> & nacl_concentration) const
 {
-  const double s2 = s.raw()*s.raw();
-  const double s3 = s2*s.raw();
-  const double s4 = s3*s.raw();
+  const double s = nacl_concentration.raw();
+  const double s2 = s*s;
+  const double s3 = s2*s;
+  const double s4 = s3*s;
 
-  const double a = 109.574 - 8.40564*s.raw() + 0.313314*s2 + 8.72213e-3*s3;
-  const double b = -1.12166 + 2.63951e-2*s.raw() - 6.79461e-4*s2 -
+  const double a = 109.574 - 8.40564*s + 0.313314*s2 + 8.72213e-3*s3;
+  const double b = -1.12166 + 2.63951e-2*s - 6.79461e-4*s2 -
     5.47119e-5*s3 + 1.55586e-6*s4;
   
   const double uwat = a * pow(t, b);
@@ -90,15 +89,16 @@ UwMcCain::impl(const Quantity<Fahrenheit> & t,
 
 
 inline Quantity<CP>
-UwMcCoy::impl(const Quantity<Fahrenheit> & t,
-	      const Quantity<Dissolved_Salt_Percent> & s) const
+UwMcCoy::impl(const Quantity<Kelvin> & t,
+	      const Quantity<Dissolved_Salt_Percent> & nacl_concentration) const
 {
+  const double s = nacl_concentration.raw();
   const double uwp =
-    0.02414 * pow(10, (247.8/(((0.555555556 * t.raw()) + 255.37) - 140)));
+    0.02414 * pow(10, 247.8/(t.raw() - 140));
 
   const double uw = uwp * (1 - 1.87e-3*sqrt(s) + 2.18e-4*pow(s, 2.5) +
 			   ((sqrt(t) - 1.35e-2*t.raw()) *
-			    (2.76e-3*s.raw() - 3.44e-4*pow(s, 1.5))));
+			    (2.76e-3*s - 3.44e-4*pow(s, 1.5))));
 
   return Quantity<CP>(uw);
 }
