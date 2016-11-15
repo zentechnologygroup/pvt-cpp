@@ -162,11 +162,11 @@ public:
   }
 
   DynList<tuple<string, const Correlation*, double>>
-    compute_uob_required_values(const DynList<string> & names,
+    compute_required_values(const DynList<string> & required_names,
 			      bool check = true) const
   {
     DynList<tuple<string, const Correlation*, double>> ret;
-    for (auto it = names.get_it(); it.has_curr(); it.next())
+    for (auto it = required_names.get_it(); it.has_curr(); it.next())
       {
 	const string & name = it.get_curr();
 	Correlation::array().filter
@@ -260,11 +260,11 @@ public:
 
   /// Returns the rs correlations sorted by the statistical `name`
   DynList<VarCorrStatus>
-  best_correlations(const DynList<const Correlation*> & l,
+  best_correlations(const DynList<const Correlation*> & l, size_t seti,
 		    const string & row_name, bool check = true) const
   {
     const string corr_name  = l.get_first()->target_name();
-    CorrStat stat(data.values(0, corr_name));
+    CorrStat stat(data.values(seti, corr_name));
 
     DynList<VarCorrStatus> ret;
     for (auto it = l.get_it(); it.has_curr(); it.next())
@@ -281,7 +281,7 @@ public:
 
 	try
 	  {
-	    auto result = data.compute(0, row_name, corr_ptr, check);
+	    auto result = data.compute(seti, row_name, corr_ptr, check);
 	    auto r2 = stat.r2(result);
 	    auto mse = stat.mse(result);
 	    auto sigma_distance = stat.sigma_distance(result);
@@ -297,16 +297,17 @@ public:
   using VarIncompleteCorrStatus =
     //   ok      y                                    
     tuple<bool, DynList<double>, const Correlation*,
-	  DynList<const Correlation*>, // Correlation completing missins pars
+	  DynList<const Correlation*>, // Correlation completing missings pars
 	  double, double, double, // r2, mse, sigma-dist 
 	  string>; // error message
 
   DynList<VarIncompleteCorrStatus>
   best_incomplete_correlations(const DynList<const Correlation*> & l,
-			       const string & row_name, bool check = true) const
+			       size_t seti, const string & col_name,
+			       bool check = true) const
   {
     const string corr_name  = l.get_first()->target_name();
-    CorrStat stat(data.values(0, corr_name));
+    CorrStat stat(data.values(seti, corr_name));
 
     DynList<VarIncompleteCorrStatus> ret;
     for (auto it = l.get_it(); it.has_curr(); it.next())
@@ -321,23 +322,64 @@ public:
 	    throw domain_error(s.str()); 
 	  }
 
-	auto missing_pars = data.missing_parameters(corr_ptr);
-	if (not missing_pars.is_empty())
-	  {
-	    
-	  }
+	auto pars_lists =
+	  data.generate_samples_by_name(corr_ptr, seti, col_name,
+					numeric_limits<double>::min(),
+					numeric_limits<double>::max());
 
-	// Todo: considerar que a l le puedan faltr parámetros
+	// pars_lists.for_each([] (const auto & l)
+        //   {
+	//     l.for_each([] (auto p)
+	// 	       {
+	// 		 cout << p.first << " = " << p.second << " ";
+	// 	       });
+	//     cout << endl;
+	//   });
+
+	DynList<tuple<string, const Correlation*, double>> missing_values;
+	DynList<string> missing_pars = data.missing_parameters(corr_ptr);
+	if (not missing_pars.is_empty())
+	  missing_values = compute_required_values(missing_pars);
+
+	cout << "Missing size = " << missing_values.size() << endl;
+	missing_values.for_each([] (auto t)
+				{
+				  cout << get<0>(t) << " = " << get<2>(t) << " "
+				       << get<1>(t)->call_string() << endl;
+				});
 	
 	try
 	  {
-	    auto result = data.compute(0, row_name, corr_ptr, check);
+	    for (auto val_it = missing_values.get_it(); val_it.has_curr();
+		 val_it.next())
+	      {
+		auto t = val_it.get_curr();
+		auto val = make_pair(get<0>(t), get<2>(t));
+		auto corr = get<1>(t);
+		cout << corr->name << endl;
+		for (auto par_it = pars_lists.get_it(); par_it.has_curr();
+		     par_it.next())
+		  {
+		    cout << "****" << endl;
+		    auto & l = par_it.get_curr();
+		    l.insert(val);
+		    l.for_each([] (auto p)
+			       { cout << p.first << " = " << p.second << " "; });
+		    cout << endl;
+		    l.remove_first();
+		  }
+		
+
+		pars_lists.remove_first();
+
+	    auto result = data.compute(seti, col_name, corr_ptr, check);
 	    auto r2 = stat.r2(result);
 	    auto mse = stat.mse(result);
 	    auto sigma_distance = stat.sigma_distance(result);
 	    ret.append(make_tuple(true, move(result), corr_ptr,
 				  DynList<const Correlation*>(),
 				  r2, mse, sigma_distance, ""));
+	      }
 	  }
 	catch (exception & e) { /* ignore it! */ }
       }
@@ -347,12 +389,12 @@ public:
 
   DynList<VarCorrStatus> best_rs_correlations(bool check = true) const
   {
-    return best_correlations(rs_valid_correlations(), "p", check);
+    return best_correlations(rs_valid_correlations(), 0, "p", check);
   }
 
   DynList<VarCorrStatus> best_bob_correlations(bool check = true) const
   {
-    return best_correlations(bob_valid_correlations(), "rs", check);
+    return best_correlations(bob_valid_correlations(), 0, "rs", check);
   }
 
   using VarCorrLFit =
