@@ -581,6 +581,29 @@ struct EmpiricalData
     num_const++;
   }
 
+  void remove_last_const(const string & name)
+  {
+    if (not contains_name(name))
+      {
+	ostringstream s;
+	s << "EmpiricalData::remove_const(): name " << name << " is not defined";
+	throw domain_error(s.str());
+      }
+
+    if (const_names.get_last() != name)
+      {
+	ostringstream s;
+	s << "EmpiricalData::remove_const(): name " << name << " is not the last";
+	throw domain_error(s.str());
+      }
+
+    const_names.remove_last();
+    const_vals.remove_last();
+    const_units.remove_last();
+    const_table.remove(name);
+    num_const--;
+  }
+
 private:
 
   static const Unit * search_unit(const string & name)

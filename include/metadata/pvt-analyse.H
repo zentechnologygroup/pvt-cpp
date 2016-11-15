@@ -161,27 +161,24 @@ public:
     return missing_pars.keys();
   }
 
-  DynList<tuple<string, const Correlation*, double>>
-    compute_required_values(const DynList<string> & required_names,
-			      bool check = true) const
+  /// Return the uod values according to the set of available and
+  /// computable correlations
+  DynList<pair<const Correlation*, double>>
+    compute_required_uod(bool check = true) const
   {
-    DynList<tuple<string, const Correlation*, double>> ret;
-    for (auto it = required_names.get_it(); it.has_curr(); it.next())
-      {
-	const string & name = it.get_curr();
-	Correlation::array().filter
-	  ([&name] (auto p) { return p->target_name() == name; }).
-	  for_each([&ret, this, &name, check] (auto p)
-            {
-	      if (not data.can_be_applied(p))
-		return;
-	      try
-		{
-		  ret.append(make_tuple(name, p, data.compute(p, check)));
-		}
-	      catch (...) { /* ignore it */ }
-	    });
-      }
+    DynList<pair<const Correlation*, double>> ret;
+    Correlation::array().filter
+      ([] (auto p) { return p->target_name() == "uod"; }).
+      for_each([&ret, this, check] (auto p)
+	       {
+		 if (not data.can_be_applied(p))
+		   return;
+		 try
+		   {
+		     ret.append(make_pair(p, data.compute(p, check)));
+		   }
+		 catch (...) { /* ignore it */ }
+	       });
 
     return ret;
   }
@@ -294,97 +291,63 @@ public:
     return sort(ret, [] (auto t1, auto t2) { return get<3>(t1) < get<3>(t2); });
   }
 
-  using VarIncompleteCorrStatus =
-    //   ok      y                                    
-    tuple<bool, DynList<double>, const Correlation*,
-	  DynList<const Correlation*>, // Correlation completing missings pars
-	  double, double, double, // r2, mse, sigma-dist 
-	  string>; // error message
+  //                       uob correlation,   uod correlation
+  using UobStatus = tuple<const Correlation*, const Correlation*,
+			  DynList<double>, // values
+   //                     r2,      mse,   sigma dist
+			  double, double, double,
+			  CorrStat::LFit>;
 
-  DynList<VarIncompleteCorrStatus>
-  best_incomplete_correlations(const DynList<const Correlation*> & l,
-			       size_t seti, const string & col_name,
-			       bool check = true) const
+  DynList<UobStatus> uob_correlations_lfits(bool check = true)
   {
-    const string corr_name  = l.get_first()->target_name();
-    CorrStat stat(data.values(seti, corr_name));
+    DynList<UobStatus> ret;
 
-    DynList<VarIncompleteCorrStatus> ret;
-    for (auto it = l.get_it(); it.has_curr(); it.next())
+    DynList<const Correlation*> complete_uob = uob_valid_correlations();
+    if (not complete_uob.is_empty())
       {
-	auto corr_ptr = it.get_curr();
-	if (corr_ptr->target_name() != corr_name)
+	DynList<VarCorrStatus> complete_status =
+	  best_correlations(complete_uob, 0, "p", check);
+	DynList<VarCorrLFit> complete_fits =
+	  correlations_lfits(complete_uob, 0, "p", check);
+
+	for (auto it = get_zip_it(complete_status, complete_fits); it.has_curr();
+	     it.next())
 	  {
-	    ostringstream s;
-	    s << "PvtAnalyzer::best_incomplete_correlations(): Correlation "
-	      << corr_ptr->name << " target name " << corr_ptr->target_name()
-	      << " contained in list is not the name " << corr_name;
-	    throw domain_error(s.str()); 
+	    auto curr = it.get_curr();
+	    VarCorrStatus corr_status = get<0>(curr);
+	    VarCorrLFit corr_lfit = get<1>(curr);
+	    ret.append(make_tuple(get<2>(corr_status), nullptr, get<1>(corr_lfit),
+				  get<3>(corr_status), get<4>(corr_status),
+				  get<5>(corr_status), get<4>(corr_lfit)));
 	  }
-
-	auto pars_lists =
-	  data.generate_samples_by_name(corr_ptr, seti, col_name,
-					numeric_limits<double>::min(),
-					numeric_limits<double>::max());
-
-	// pars_lists.for_each([] (const auto & l)
-        //   {
-	//     l.for_each([] (auto p)
-	// 	       {
-	// 		 cout << p.first << " = " << p.second << " ";
-	// 	       });
-	//     cout << endl;
-	//   });
-
-	DynList<tuple<string, const Correlation*, double>> missing_values;
-	DynList<string> missing_pars = data.missing_parameters(corr_ptr);
-	if (not missing_pars.is_empty())
-	  missing_values = compute_required_values(missing_pars);
-
-	cout << "Missing size = " << missing_values.size() << endl;
-	missing_values.for_each([] (auto t)
-				{
-				  cout << get<0>(t) << " = " << get<2>(t) << " "
-				       << get<1>(t)->call_string() << endl;
-				});
-	
-	try
-	  {
-	    for (auto val_it = missing_values.get_it(); val_it.has_curr();
-		 val_it.next())
-	      {
-		auto t = val_it.get_curr();
-		auto val = make_pair(get<0>(t), get<2>(t));
-		auto corr = get<1>(t);
-		cout << corr->name << endl;
-		for (auto par_it = pars_lists.get_it(); par_it.has_curr();
-		     par_it.next())
-		  {
-		    cout << "****" << endl;
-		    auto & l = par_it.get_curr();
-		    l.insert(val);
-		    l.for_each([] (auto p)
-			       { cout << p.first << " = " << p.second << " "; });
-		    cout << endl;
-		    l.remove_first();
-		  }
-		
-
-		pars_lists.remove_first();
-
-	    auto result = data.compute(seti, col_name, corr_ptr, check);
-	    auto r2 = stat.r2(result);
-	    auto mse = stat.mse(result);
-	    auto sigma_distance = stat.sigma_distance(result);
-	    ret.append(make_tuple(true, move(result), corr_ptr,
-				  DynList<const Correlation*>(),
-				  r2, mse, sigma_distance, ""));
-	      }
-	  }
-	catch (exception & e) { /* ignore it! */ }
       }
 
-    return sort(ret, [] (auto t1, auto t2) { return get<4>(t1) < get<4>(t2); });
+    // Todas estas correlaciones de uod están en el rango de aplicación
+    auto uods = uod_valid_correlations().
+      maps<pair<const Correlation*, double>>([&] (auto p)
+      { // todo exception handler
+	return make_pair(p, data.compute(p, check));
+      });
+
+    for (auto it = uods.get_it(); it.has_curr(); it.next())
+      {
+	auto uod_pair = it.get_curr();
+	data.def_const("uod", uod_pair.second, &uod_pair.first->unit);
+
+	// uob que contengan al parámetro uod
+	auto corr_list = uob_valid_correlations().filter([&] (auto p)
+          {
+	    return p->names().exists([] (const auto & s) { return s == "uod"; });
+	  });
+
+	cout << "For " << uod_pair.first->name << endl;
+	corr_list.for_each([] (auto p) { cout << p->call_string() << endl; });
+	cout << endl;
+
+	data.remove_last_const("uod");
+      }
+
+    return ret;
   }
 
   DynList<VarCorrStatus> best_rs_correlations(bool check = true) const
