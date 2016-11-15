@@ -916,7 +916,7 @@ public:
   }
 
   /// return true if correlation correlation_ptr could be applied to
-  /// the empirical data including contants and the variable set `seti`
+  /// the empirical data including constants and the variable set `seti`
   bool can_be_applied(size_t seti, const Correlation * correlation_ptr) const
   {
     return
@@ -927,6 +927,8 @@ public:
       });
   }
 
+  /// return true if correlation correlation_ptr could be applied to
+  /// the empirical data including constants and the variable set `set_name`
   bool can_be_applied(const string &set_name,
 		      const Correlation * correlation_ptr) const
   {
@@ -1089,8 +1091,8 @@ public:
 
   using InvalidRange = pair<string, DynList<double>>;
 
-  /// given `correlaion_ptr` and the var set `seti`, it returns a list
-  /// of names and their values which are not inside in te correlation range
+  /// given `correlation_ptr` and the var set `seti`, it returns a list
+  /// of names and its values which are not inside in the correlation range
   DynList<InvalidRange>
   invalid_parameters_values(size_t seti,
 			    const Correlation * correlation_ptr) const
@@ -1278,8 +1280,7 @@ public:
   /// lesser than max_val
   DynList<DynList<Correlation::ParByName>>
   generate_samples_by_name(const Correlation * correlation_ptr,
-			   size_t seti,
-			   size_t col,
+			   size_t seti, size_t col,
 			   double min_val, double max_val) const
   {
     if (not (max_val >= min_val))
@@ -1420,8 +1421,7 @@ public:
 
   DynList<DynList<Correlation::ParByName>>
   generate_samples_by_name(const Correlation * correlation_ptr,
-			   size_t seti,
-			   const string & col_name,
+			   size_t seti, const string & col_name,
 			   double min_val, double max_val) const
   {
     auto var_set = var_sets[seti];
@@ -1567,15 +1567,6 @@ public:
     samples.for_each([&ret] (auto p) { ret.append(p.second); });
     return ret;
   }
-
-  // DynList<double> compute(const DefinedCorrelation & correlation,
-  // 			   const string & var_name, 
-  // 			   DynList<size_t> sets) const
-  // {
-  //   return generate_samples_by_name(correlation, var_name, sets).
-  //     maps<double>([
-			    
-			  
 
   /// returns a column of correlation outputs for the values stored in
   /// this data set

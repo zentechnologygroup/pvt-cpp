@@ -121,11 +121,14 @@ int main(int argc, char *argv[])
        << endl
        << "Available correlations" << endl;
 
-  pvt.compute_uob_required_values(required).for_each([] (auto t)
+  pvt.compute_required_values(required).for_each([] (auto t)
     {
       cout << get<0>(t) << " = " << get<2>(t) << " " << get<1>(t)->call_string()
 	   << endl;
     });
 
+  auto uob_correlations = pvt.uob_incomplete_correlations();
+  cout << "rows:" << endl;
+  pvt.best_incomplete_correlations(uob_correlations, 0, "p");
 }
 
