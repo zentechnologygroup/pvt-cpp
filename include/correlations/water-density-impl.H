@@ -2,63 +2,37 @@
 # define WATER_DENSITY_IMPL_H
 
 # include <correlations/water-density.H>
-
+# include <correlations/spivey-dry.H>
 
 inline Quantity<Gr_cm3>
 PwSpiveyMN::impl(const Quantity<Celsius> & t,
 		 const Quantity<mPascal> & p,
 		 const Quantity<Molality_NaCl> & nacl_concentration) const
 {
+  const double m = nacl_concentration.raw();
+
   // Transformation from °F to °K
   const double tk = Quantity<Kelvin>(t).raw();
-        
+
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  constexpr double tc = 647.096; // °K
-  constexpr double pc = 22.064; // MPa
+  const double pv =
+    PvSpiveyMN::get_instance().impl(tk).raw();
 
-  const double v = 1 - (tk/tc);
-  const double v2 = v*v;
-  const double v3 = v2*v;
-  const double v4 = v3*v;
-        
-  const double lnpv = ((tc/tk) * (-7.85951783*v + 1.84408259*pow(v, 1.5) +
-				  -11.7866497*v3 + 22.6807411*pow(v, 3.5) +
-				  -15.9618719*v4 + 1.80122502 * pow(v, 7.5))) +
-    log(pc);
-
-  const double pv = exp(lnpv);
   if (p < pv)
     {
       ostringstream s;
       s << "PwSpiveyMN::impl: received pressure " << p
-	<< " is less than computed vapour pressure " << pv << " "
+	<< " is less than computed vapor pressure " << pv << " "
 	<< p.unit.name;
       throw domain_error(s.str());
     }
-
-  const double t100 = t.raw()/100;
-  const double t100_2 = t100*t100;
-  const double log_p_pv = log(p.raw() - pv);
-  const double p2 = pow2(p);
-  
-  // Solubility of methane in pure water
-  const double a = -0.007751*t100_2 + 0.013624*t100 + -0.0781;
-  const double b = 0.01193*t100_2 + 0.0851*t100 + 1.02766;
-  const double c = (1.8316*t100_2 + -7.8119*t100 + -3.6231) /
-    (-0.10733*t100_2 + 1.09192*t100 + 1);
-  const double m = nacl_concentration.raw();
-  const double m2 = m*m;
-
-  const double mch4pw = exp(a*log_p_pv*log_p_pv + b*log_p_pv + c);
             
-  // Solubility of methane in brine
-  const double c1 = 7.015e-2 + 1.074e-4*tk + 2.260e-1*p.raw()/tk + -1.227e-3*p2/tk;
-  constexpr double c2 = -6.28e-3;
 
-  // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] AT THE
-  // TEMPERATURE AND PRESSURE OF EVALUATION 
-  const double mch4w = mch4pw * exp(-2*c1*m - c2*m2);
-            
+  // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
+  // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
+  const double mch4w =
+    MwSpiveyMN::get_instance().impl(t, p, pv, m).raw();
+
   // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE
   // TEMPERATURE AND PRESSURE OF EVALUATION
   
@@ -149,8 +123,9 @@ PwMcCain::impl(const Quantity<Dissolved_Salt_Percent> & s,
 	       const Quantity<RB_STB> & bw) const
 {
   const double s2 = s.raw()*s.raw();
+  // Water density at standard conditions
   const double pwl = 62.368 + 0.438603*s.raw() + 1.60074e-3*s2;
-        
+  // Water density at P and T
   const double pw = pwl/bw.raw();
 
   return Quantity<Lb_ft3>(pw);
@@ -163,11 +138,11 @@ PpwSpiveyMN::impl(const Quantity<Celsius> & t,
   const double t100 = t.raw()/100;
   const double t100_2 = t100*t100;
 
-  // Densidad del agua pura [g/cm³] a la presion de referencia 70Mpa
+  // Pure water density at the reference pressure (70 Mpa) [g/cm³]
   const double ppwr = (-0.127213*t100_2 + 0.645486*t100 + 1.03265) /
     (-0.070291*t100_2 + 0.639589*t100 + 1);
         
-  // Coeficientes de densidad del agua pura [g/cm³] segun Spivey
+  // The coefficients of pure water density, expressed as functions of temperature
   const double epw = (4.221*t100_2 + -3.478*t100 + 6.221) /
     (0.5182*t100_2 + -0.4405*t100 + 1);
      
@@ -177,7 +152,7 @@ PpwSpiveyMN::impl(const Quantity<Celsius> & t,
   const double ipwr = (1/epw)*log(fabs(epw + fpw));
   const double ipw = (1/epw)*log(fabs((epw * (p.raw()/70))+ fpw));
         
-  // Densidad del agua pura [g/cm³]
+  // Pure water density [g/cm³]
   const double ppw = ppwr * exp(ipw - ipwr);
         
   return Quantity<Gr_cm3>(ppw);

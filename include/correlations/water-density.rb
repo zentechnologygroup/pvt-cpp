@@ -24,7 +24,7 @@ add_parameter("t", "Celsius", "Temperature",  0,  275)
 add_parameter("p", "mPascal", "Pressure",  0.1,  200)
 add_parameter("nacl_concentration", "Molality_NaCl",
               "Dissolved salt concentration", 0, 5.7)
-add_author("Spivey, McCain & North (Methane-free)")
+add_author("Spivey, McCain & North (Methane-Free)")
 add_ref("spivey:2004")
 add_ref("mcCain:2011")
 add_note("Spivey, McCain & North (2004) used the IAPWS-95 international standard equation of state for water to determine the coefficients of the correlation for pure water density.")
