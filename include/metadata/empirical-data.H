@@ -1614,17 +1614,6 @@ public:
 		   {
 		     return correlation_ptr->tuned_compute(l, c, m, check);
 		   });
-
-    auto vals = correlation_values(seti, correlation_ptr);
-
-    DynList<double> ret;
-
-    for_each_perm(vals, [&ret, correlation_ptr, check, c, m] (const auto & pars)
-      {
-	ret.append(correlation_ptr->tuned_compute(pars, c, m, check));
-      });
-    
-    return ret;
   }
 
   DynList<double> compute(const string & set_name, 
