@@ -161,27 +161,24 @@ public:
     return missing_pars.keys();
   }
 
-  DynList<tuple<string, const Correlation*, double>>
-    compute_required_values(const DynList<string> & required_names,
-			      bool check = true) const
+  /// Return the uod values according to the set of available and
+  /// computable correlations
+  DynList<pair<const Correlation*, double>>
+    compute_required_uod(bool check = true) const
   {
-    DynList<tuple<string, const Correlation*, double>> ret;
-    for (auto it = required_names.get_it(); it.has_curr(); it.next())
-      {
-	const string & name = it.get_curr();
-	Correlation::array().filter
-	  ([&name] (auto p) { return p->target_name() == name; }).
-	  for_each([&ret, this, &name, check] (auto p)
-            {
-	      if (not data.can_be_applied(p))
-		return;
-	      try
-		{
-		  ret.append(make_tuple(name, p, data.compute(p, check)));
-		}
-	      catch (...) { /* ignore it */ }
-	    });
-      }
+    DynList<pair<const Correlation*, double>> ret;
+    Correlation::array().filter
+      ([] (auto p) { return p->target_name() == "uod"; }).
+      for_each([&ret, this, check] (auto p)
+	       {
+		 if (not data.can_be_applied(p))
+		   return;
+		 try
+		   {
+		     ret.append(make_pair(p, data.compute(p, check)));
+		   }
+		 catch (...) { /* ignore it */ }
+	       });
 
     return ret;
   }
@@ -258,10 +255,10 @@ public:
     return Aleph::to_string(format_string(lines));
   }
 
-  /// Returns the rs correlations sorted by the statistical `name`
+  /// Returns the rs correlations sorted by the correlation name
   DynList<VarCorrStatus>
   best_correlations(const DynList<const Correlation*> & l, size_t seti,
-		    const string & row_name, bool check = true) const
+		    bool check = true) const
   {
     const string corr_name  = l.get_first()->target_name();
     CorrStat stat(data.values(seti, corr_name));
@@ -281,7 +278,7 @@ public:
 
 	try
 	  {
-	    auto result = data.compute(seti, row_name, corr_ptr, check);
+	    auto result = data.compute(seti, corr_ptr, check);
 	    auto r2 = stat.r2(result);
 	    auto mse = stat.mse(result);
 	    auto sigma_distance = stat.sigma_distance(result);
@@ -291,110 +288,105 @@ public:
 	catch (exception & e) { /* ignore it! */ }
       }
 
-    return sort(ret, [] (auto t1, auto t2) { return get<3>(t1) < get<3>(t2); });
+    return sort(ret, [] (auto t1, auto t2)
+		{ return get<2>(t1)->name < get<2>(t2)->name; });
   }
 
-  using VarIncompleteCorrStatus =
-    //   ok      y                                    
-    tuple<bool, DynList<double>, const Correlation*,
-	  DynList<const Correlation*>, // Correlation completing missings pars
-	  double, double, double, // r2, mse, sigma-dist 
-	  string>; // error message
+  //                       uob correlation,   uod correlation
+  using UobStatus = tuple<const Correlation*, const Correlation*,
+			  DynList<double>, // values
+   //                     r2,      mse,   sigma dist
+			  double, double, double,
+			  CorrStat::LFit>;
 
-  DynList<VarIncompleteCorrStatus>
-  best_incomplete_correlations(const DynList<const Correlation*> & l,
-			       size_t seti, const string & col_name,
-			       bool check = true) const
+  DynList<UobStatus> uob_correlations_lfits(bool check = true)
   {
-    const string corr_name  = l.get_first()->target_name();
-    CorrStat stat(data.values(seti, corr_name));
+    DynList<UobStatus> ret;
 
-    DynList<VarIncompleteCorrStatus> ret;
-    for (auto it = l.get_it(); it.has_curr(); it.next())
+    DynList<const Correlation*> complete_uob = uob_valid_correlations();
+    if (not complete_uob.is_empty())
       {
-	auto corr_ptr = it.get_curr();
-	if (corr_ptr->target_name() != corr_name)
+	DynList<VarCorrStatus> complete_status =
+	  best_correlations(complete_uob, 0, check);
+	DynList<VarCorrLFit> complete_fits =
+	  correlations_lfits(complete_uob, 0, check);
+
+	for (auto it = get_zip_it(complete_status, complete_fits); it.has_curr();
+	     it.next())
 	  {
-	    ostringstream s;
-	    s << "PvtAnalyzer::best_incomplete_correlations(): Correlation "
-	      << corr_ptr->name << " target name " << corr_ptr->target_name()
-	      << " contained in list is not the name " << corr_name;
-	    throw domain_error(s.str()); 
+	    auto curr = it.get_curr();
+	    VarCorrStatus corr_status = get<0>(curr);
+	    VarCorrLFit corr_lfit = get<1>(curr);
+	    ret.append(make_tuple(get<2>(corr_status), nullptr,
+				  get<1>(corr_lfit),
+				  get<3>(corr_status), get<4>(corr_status),
+				  get<5>(corr_status), get<4>(corr_lfit)));
 	  }
-
-	auto pars_lists =
-	  data.generate_samples_by_name(corr_ptr, seti, col_name,
-					numeric_limits<double>::min(),
-					numeric_limits<double>::max());
-
-	// pars_lists.for_each([] (const auto & l)
-        //   {
-	//     l.for_each([] (auto p)
-	// 	       {
-	// 		 cout << p.first << " = " << p.second << " ";
-	// 	       });
-	//     cout << endl;
-	//   });
-
-	DynList<tuple<string, const Correlation*, double>> missing_values;
-	DynList<string> missing_pars = data.missing_parameters(corr_ptr);
-	if (not missing_pars.is_empty())
-	  missing_values = compute_required_values(missing_pars);
-
-	cout << "Missing size = " << missing_values.size() << endl;
-	missing_values.for_each([] (auto t)
-				{
-				  cout << get<0>(t) << " = " << get<2>(t) << " "
-				       << get<1>(t)->call_string() << endl;
-				});
-	
-	try
-	  {
-	    for (auto val_it = missing_values.get_it(); val_it.has_curr();
-		 val_it.next())
-	      {
-		auto t = val_it.get_curr();
-		auto val = make_pair(get<0>(t), get<2>(t));
-		auto corr = get<1>(t);
-		cout << corr->name << endl;
-		for (auto par_it = pars_lists.get_it(); par_it.has_curr();
-		     par_it.next())
-		  {
-		    cout << "****" << endl;
-		    auto & l = par_it.get_curr();
-		    l.insert(val);
-		    l.for_each([] (auto p)
-			       { cout << p.first << " = " << p.second << " "; });
-		    cout << endl;
-		    l.remove_first();
-		  }
-		
-
-		pars_lists.remove_first();
-
-	    auto result = data.compute(seti, col_name, corr_ptr, check);
-	    auto r2 = stat.r2(result);
-	    auto mse = stat.mse(result);
-	    auto sigma_distance = stat.sigma_distance(result);
-	    ret.append(make_tuple(true, move(result), corr_ptr,
-				  DynList<const Correlation*>(),
-				  r2, mse, sigma_distance, ""));
-	      }
-	  }
-	catch (exception & e) { /* ignore it! */ }
       }
 
-    return sort(ret, [] (auto t1, auto t2) { return get<4>(t1) < get<4>(t2); });
+    // Todas estas correlaciones de uod están en el rango de aplicación
+    auto uods = uod_valid_correlations().
+      maps<pair<const Correlation*, double>>([&] (auto p)
+      { // todo exception handler
+	return make_pair(p, data.compute(p, check));
+      });
+
+    for (auto it = uods.get_it(); it.has_curr(); it.next())
+      {
+	auto uod_pair = it.get_curr();
+	auto uod_corr = uod_pair.first;
+	
+	data.def_const("uod", uod_pair.second, &uod_pair.first->unit);
+
+	// uob que contengan al parámetro uod
+	auto corr_list = uob_valid_correlations().filter([&] (auto p)
+          {
+	    return p->names().exists([] (const auto & s) { return s == "uod"; });
+	  });
+
+	if (corr_list.is_empty())
+	  cout << "No uob correlations for " << uod_corr->name << endl;
+
+	DynList<VarCorrStatus> complete_status =
+	  best_correlations(corr_list, 0, check);
+
+	if (complete_status.is_empty())
+	  cout << "complete status is empty" << endl;
+
+	DynList<VarCorrLFit> complete_fits =
+	  correlations_lfits(corr_list, 0, check);
+
+	if (complete_fits.is_empty())
+	  cout << "complete fits is empty" << endl;
+
+	for (auto zit = get_zip_it(complete_status, complete_fits);
+	     zit.has_curr(); zit.next())
+	  {
+	    auto curr = zit.get_curr();
+	    VarCorrStatus corr_status = get<0>(curr);
+	    VarCorrLFit corr_lfit = get<1>(curr);
+	    cout << get<2>(corr_status)->name << get<2>(corr_lfit)->name << endl;
+	    assert(get<2>(corr_status) == get<2>(corr_lfit));
+	    ret.append(make_tuple(get<2>(corr_status), uod_corr,
+				  get<1>(corr_lfit),
+				  get<3>(corr_status), get<4>(corr_status),
+				  get<5>(corr_status), get<4>(corr_lfit)));
+	  }
+
+	data.remove_last_const("uod");
+      }
+
+    return ret;
   }
 
   DynList<VarCorrStatus> best_rs_correlations(bool check = true) const
   {
-    return best_correlations(rs_valid_correlations(), 0, "p", check);
+    return best_correlations(rs_valid_correlations(), 0, check);
   }
 
   DynList<VarCorrStatus> best_bob_correlations(bool check = true) const
   {
-    return best_correlations(bob_valid_correlations(), 0, "rs", check);
+    return best_correlations(bob_valid_correlations(), 0, check);
   }
 
   using VarCorrLFit =
@@ -437,14 +429,14 @@ public:
   /// Performs a linear regression fit for the `correlation_ptr`
   /// taking as data the onst names and the varables stored in the var
   /// set `seti`. The used samples for doing the fit are taken from
-  /// row `row_name` in the var set `seti`
+  /// the var set `seti`
   CorrStat::LFit lfit(const Correlation * correlation_ptr, size_t seti,
-		       const string & row_name, bool check = true) const
+		      bool check = true) const
   {
     const string & var_name = correlation_ptr->target_name();
     CorrStat stat(data.values(seti, var_name));
 
-    auto result = data.compute(seti, row_name, correlation_ptr, check);
+    auto result = data.compute(seti, correlation_ptr, check);
     return stat.linear_fit(result);
   }
 
@@ -460,7 +452,7 @@ public:
       }
     
     CorrStat stat(data.values(0, "rs"));
-    return stat.linear_fit(data.compute(0, "p", corr_ptr, check));
+    return stat.linear_fit(data.compute(0, corr_ptr, check));
   }
 
   CorrStat::LFit
@@ -475,7 +467,7 @@ public:
       }
     
     CorrStat stat(data.values(0, "bob"));
-    return stat.linear_fit(data.compute(0, "rs", corr_ptr, check));
+    return stat.linear_fit(data.compute(0, corr_ptr, check));
   }
 
   CorrStat::LFit
@@ -490,13 +482,12 @@ public:
       }
     
     CorrStat stat(data.values(1, "boa"));
-    return stat.linear_fit(data.compute(1, "p", corr_ptr, check));
+    return stat.linear_fit(data.compute(1, corr_ptr, check));
   }
 
   DynList<VarCorrLFit>
   correlations_lfits(const DynList<const Correlation*> & corr_list,
-		     size_t seti, const string & row_name,
-		     bool check = true) const
+		     size_t seti, bool check = true) const
   {
     const string & var_name = corr_list.get_first()->target_name();
     CorrStat stat(data.values(seti, var_name));
@@ -505,7 +496,7 @@ public:
       {
 	try
 	  {
-	    auto result = data.compute(seti, row_name, ptr, check);
+	    auto result = data.compute(seti, ptr, check);
 	    auto fit = stat.linear_fit(result);
 	    return make_tuple(true, move(result), ptr, "", fit);
 	  }
@@ -517,61 +508,58 @@ public:
       });
 
     return sort(ret, [] (auto t1, auto t2)
-		{ return get<4>(t1).sumsq < get<4>(t2).sumsq; });
+		{ return get<2>(t1)->name < get<2>(t2)->name; });
   }
 
   DynList<VarCorrLFit> rs_correlations_lfits(bool check = true) const
   {
-    return correlations_lfits(rs_valid_correlations(), 0, "p", check);
+    return correlations_lfits(rs_valid_correlations(), 0, check);
   }
 
   DynList<pair<string, DynList<double>>>
-   lfits_list(const DynList<VarCorrLFit> & l, size_t seti,
-	      const string & row_name) const
+   lfits_list(const DynList<VarCorrLFit> & l, size_t seti) const
   {
-    return l.maps<pair<string, DynList<double>>>
-      ([this, &row_name, seti] (auto t)
+    return l.maps<pair<string, DynList<double>>>([this, seti] (auto t)
     {
       auto r = get<4>(t);
       auto ptr = get<2>(t);
-      auto values = data.tuned_compute(seti, row_name, ptr, r.c, r.m);
+      auto values = data.tuned_compute(seti, ptr, r.c, r.m);
       return make_pair(ptr->name, move(values));
     });
   }
 
   DynList<pair<string, DynList<double>>>
-  lfits_list(const DynList<VarCorrLFit> & l, const string & set_name,
-	     const string & row_name) const
+  lfits_list(const DynList<VarCorrLFit> & l, const string & set_name) const
   {
-    return lfits_list(l, data.set_index(set_name), row_name);
+    return lfits_list(l, data.set_index(set_name));
   }
 
   DynList<pair<string, DynList<double>>>
 	 rs_lfits_list(const DynList<VarCorrLFit> & l) const
   {
-    return lfits_list(l, 0, "p");
+    return lfits_list(l, 0);
   }
 
   DynList<VarCorrLFit> bob_correlations_lfits(bool check = true) const
   {
-    return correlations_lfits(bob_valid_correlations(), 0, "rs", check);
+    return correlations_lfits(bob_valid_correlations(), 0, check);
   }
 
   DynList<VarCorrLFit> boa_correlations_lfits(bool check = true) const
   {
-    return correlations_lfits(boa_valid_correlations(), 1, "p", check);
+    return correlations_lfits(boa_valid_correlations(), 1, check);
   }
 
   DynList<pair<string, DynList<double>>>
   bob_lfits_list(const DynList<VarCorrLFit> & l) const
   {
-    return lfits_list(l, 0, "rs");
+    return lfits_list(l, 0);
   }  
 
   DynList<pair<string, DynList<double>>>
   boa_lfits_list(const DynList<VarCorrLFit> & l) const
   {
-    return lfits_list(l, 1, "p");
+    return lfits_list(l, 1);
   }  
 
   string to_R(const Array<double> & lab_data,

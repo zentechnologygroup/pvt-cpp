@@ -581,6 +581,29 @@ struct EmpiricalData
     num_const++;
   }
 
+  void remove_last_const(const string & name)
+  {
+    if (not contains_name(name))
+      {
+	ostringstream s;
+	s << "EmpiricalData::remove_const(): name " << name << " is not defined";
+	throw domain_error(s.str());
+      }
+
+    if (const_names.get_last() != name)
+      {
+	ostringstream s;
+	s << "EmpiricalData::remove_const(): name " << name << " is not the last";
+	throw domain_error(s.str());
+      }
+
+    const_names.remove_last();
+    const_vals.remove_last();
+    const_units.remove_last();
+    const_table.remove(name);
+    num_const--;
+  }
+
 private:
 
   static const Unit * search_unit(const string & name)
@@ -1040,18 +1063,8 @@ public:
   // Return a list of permutations inputs for `correlation_ptr` built
   // according to column index `col`
   DynList<DynList<double>>
-  correlation_perms(size_t seti, const Correlation * correlation_ptr,
-		    const string & par_name) const
+  correlation_perms(size_t seti, const Correlation * correlation_ptr) const
   {
-    auto pos = correlation_ptr->parameter_pos(par_name);
-    if (pos >= correlation_ptr->get_num_pars())
-      {
-	ostringstream s;
-	s << "EmpiricalData::correlation_perms(): parameter name " << par_name
-	  << " not found";
-	throw domain_error(s.str());
-      }
-
     const size_t & num_rows = var_sets[seti].samples.size();
     return transpose(correlation_values(seti, correlation_ptr).
       maps<DynList<double>>([&] (const auto & l)
@@ -1570,13 +1583,11 @@ public:
 
   /// returns a column of correlation outputs for the values stored in
   /// this data set
-  DynList<double> compute(size_t seti, const string & row_name,
-			  const Correlation * correlation_ptr,
+  DynList<double> compute(size_t seti, const Correlation * correlation_ptr,
 			  bool check = true) const
   {
     return
-      correlation_perms(seti, correlation_ptr, row_name).
-      maps<double>([&](const auto & l)
+      correlation_perms(seti, correlation_ptr).maps<double>([&](const auto & l)
 		   {
 		     return correlation_ptr->compute(l, check);
 		   });
@@ -1593,14 +1604,13 @@ public:
     return ret;
   }
 
-  DynList<double> tuned_compute(size_t seti, const string & row_name,
+  DynList<double> tuned_compute(size_t seti,
 				const Correlation * correlation_ptr,
 				double c, double m,
 				bool check = true) const
   {
     return
-      correlation_perms(seti, correlation_ptr, row_name).
-      maps<double>([&](const auto & l)
+      correlation_perms(seti, correlation_ptr).maps<double>([&](const auto & l)
 		   {
 		     return correlation_ptr->tuned_compute(l, c, m, check);
 		   });
@@ -1617,21 +1627,20 @@ public:
     return ret;
   }
 
-  DynList<double> compute(const string & set_name, const string & row_name,
+  DynList<double> compute(const string & set_name, 
 			  const Correlation * correlation_ptr,
 			  bool check = true) const
   {
-    return compute(set_index(set_name), row_name, correlation_ptr, check);
+    return compute(set_index(set_name), correlation_ptr, check);
   }
 
   DynList<double> tuned_compute(const string & set_name,
-				const string & row_name,
 				const Correlation * correlation_ptr,
 				double c, double m,
 				bool check = true) const
   {
     return
-      tuned_compute(set_index(set_name), row_name, correlation_ptr, c, m, check);
+      tuned_compute(set_index(set_name), correlation_ptr, c, m, check);
   }
 
   /// Builds a parameter list for correlation `corr_ptr` extracting the
