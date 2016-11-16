@@ -1611,224 +1611,47 @@ def CgPapayCorrelation(Tr, P, Tpc, Ppc, Z):
     CgPapay = Cg
     return CgPapay 
 
-def PwSpiveyMNCorrelation(T, P, S):
-    P = 1.0*P/1000000 # Transformacion de pascal a MPA
-    ppwr = (((-0.127213) * ((T/100.) ** 2)) + ((0.645486) * (T/100.)) + (1.03265))/(((-0.070291) * ((T/100.) ** 2)) + ((0.639589) * (T/100.)) + 1)
-    Epw = (((4.221) * ((T/100.) ** 2)) + ((-3.478) * (T/100.)) + (6.221))/(((0.5182) * ((T/100.) ** 2)) + ((-0.4405) * (T/100.)) + 1)
-    Fpw = (((-11.403) * ((T/100.) ** 2)) + ((29.932) * (T/100.)) + (27.952))/(((0.20684) * ((T/100.) ** 2)) + ((0.3768) * (T/100.)) + 1)
-    m = (1000 * (S/100.))/(58.4428 * (1 - (S/100.)))
-    D1 = (((-1.1149e-4) * ((T/100.) ** 2)) + ((1.7105e-4) * (T/100.)) + (-4.3766e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    D2 = (((-8.878e-4) * ((T/100.) ** 2)) + ((-1.388e-4) * (T/100.)) + (-2.96318e-3))/(((0) * ((T/100.) ** 2)) + ((0.51103) * (T/100.)) + 1)
-    D3 = (((2.1466e-3) * ((T/100.) ** 2)) + ((1.2427e-2) * (T/100.)) + (4.2648e-2))/(((-8.1009e-2) * ((T/100.) ** 2)) + ((0.525417) * (T/100.)) + 1)
-    D4 = (((2.356e-4) * ((T/100.) ** 2)) + ((-3.636e-4) * (T/100.)) + (-2.278e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    pgfwr = ppwr + (D1 * (m ** 2)) + (D2 * (m ** (3./2))) + (D3 * m) + (D4 * (m ** (1./2)))
-    E = (((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + (0.1249))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    F1 = (((-0.617) * ((T/100.) ** 2)) + ((-0.747) * (T/100.)) + (-0.4339))/(((0) * ((T/100.) ** 2)) + ((10.26) * (T/100.)) + 1)
-    F2 = (((0) * ((T/100.) ** 2)) + ((9.917) * (T/100.)) + (5.1128))/(((0) * ((T/100.) ** 2)) + ((3.892) * (T/100.)) + 1)
-    F3 = (((0.0365) * ((T/100.) ** 2)) + ((-0.0369) * (T/100.)) + (0))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    Ew = Epw + (E * m)
-    Fw = Fpw + (F1 * (m ** (3./2))) + (F2 * (m)) + (F3 * (m ** (1./2)))
-    Iwr = (1/Ew) * log(fabs(Ew + Fw))
-    Iw = (1/Ew) * log(fabs((Ew * (P/70.))+ Fw))
-    pgfw = pgfwr * exp(Iw - Iwr)
-    vgfw = 1/pgfw
-    m = (1000 * (S/100.))/(58.4428 * (1 - (S/100.)))
-    Tc = 647.096 # K
+def PwSpiveyMNCorrelation(T, P, m):
+    # Transformation from °C to °K
+    Tk = T + 273.15
+
+    # Vapor pressure of pure water, calculated from the IAWPS-95 formulation
+    Tc = 647.096 # °K
     Pc = 22.064 # MPa
-    v = 1 - ((T + 273.15)/Tc)
-    lnPv = ((Tc/(T + 273.15)) * (((-7.85951783) * v) + ((1.84408259) * (v ** 1.5)) + ((-11.7866497) * (v ** 3)) + ((22.6807411) * (v ** 3.5)) + ((-15.9618719) * (v ** 4)) + ((1.80122502) * (v ** 7.5)))) + log(Pc)
-    Pv = exp(lnPv)
-    A = (((0) * ((T/100.) ** 2)) + ((-0.004462) * (T/100.)) + (-0.06763))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    B = (((-0.03602) * ((T/100.) ** 2)) + ((0.18917) * (T/100.)) + (0.97242))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    C = (((0.6855) * ((T/100.) ** 2)) + ((-3.1992) * (T/100.)) + (-3.7968))/(((0.07711) * ((T/100.) ** 2)) + ((0.2229) * (T/100.)) + 1)
-    mathDomain = P - Pv
-    mCH4pw = exp((A * ((log(P - Pv)) ** 2)) + (B * log (P - Pv)) + (C))
-    C1 = (-0.80898) + ((1.0827e-3) * (T + 273.15)) + ((183.85)/(T + 273.15)) + ((3.924e-4) * P) + ((-1.97e-6) * (P ** 2))
-    C2 = (-3.89e-3)
-    mCH4w = mCH4pw * exp(((-2) * C1 * m) - (C2 * (m ** 2)))
-    C3 = (7.698589e-2) + ((-5.0253331e-5) * (T + 273.15)) + ((-30.092013)/(T + 273.15)) + ((4.8468502e+3)/((T + 273.15) ** 2))  
-    C4 = (3.924e-4) + (2 * (-1.97e-6) * P)
-    C5 = 0
-    VMCH4w = 8.314467 * (T + 273.15) * ((C3) + ((2 * m) * C4) + ((m ** 2) * C5))
-    pw = ((1000) + (m * 58.4428) + (mCH4w * 16.043))/((((1000) + (m * 58.4428)) * vgfw) + (16.043 * VMCH4w))
-    pwSpiveyMN = pw
-    return pwSpiveyMN
 
-def PwSpiveyMNGasFreeCorrelation(T, P, S):
-    P = P/1000000 # Transformacion de pascal a MPA
-    ppwr = (((-0.127213) * ((T/100.) ** 2)) + ((0.645486) * (T/100.)) + (1.03265))/(((-0.070291) * ((T/100.) ** 2)) + ((0.639589) * (T/100.)) + 1)
-    Epw = (((4.221) * ((T/100.) ** 2)) + ((-3.478) * (T/100.)) + (6.221))/(((0.5182) * ((T/100.) ** 2)) + ((-0.4405) * (T/100.)) + 1)
-    Fpw = (((-11.403) * ((T/100.) ** 2)) + ((29.932) * (T/100.)) + (27.952))/(((0.20684) * ((T/100.) ** 2)) + ((0.3768) * (T/100.)) + 1)
-    m = (1000 * (S/100.))/(58.4428 * (1 - (S/100.)))
-    D1 = (((-1.1149e-4) * ((T/100.) ** 2)) + ((1.7105e-4) * (T/100.)) + (-4.3766e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    D2 = (((-8.878e-4) * ((T/100.) ** 2)) + ((-1.388e-4) * (T/100.)) + (-2.96318e-3))/(((0) * ((T/100.) ** 2)) + ((0.51103) * (T/100.)) + 1)
-    D3 = (((2.1466e-3) * ((T/100.) ** 2)) + ((1.2427e-2) * (T/100.)) + (4.2648e-2))/(((-8.1009e-2) * ((T/100.) ** 2)) + ((0.525417) * (T/100.)) + 1)
-    D4 = (((2.356e-4) * ((T/100.) ** 2)) + ((-3.636e-4) * (T/100.)) + (-2.278e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    pgfwr = ppwr + (D1 * (m ** 2)) + (D2 * (m ** (1.5))) + (D3 * m) + (D4 * (m ** (1/2)))
-    E = (((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + (0.1249))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    F1 = (((-0.617) * ((T/100.) ** 2)) + ((-0.747) * (T/100.)) + (-0.4339))/(((0) * ((T/100.) ** 2)) + ((10.26) * (T/100.)) + 1)
-    F2 = (((0) * ((T/100.) ** 2)) + ((9.917) * (T/100.)) + (5.1128))/(((0) * ((T/100.) ** 2)) + ((3.892) * (T/100.)) + 1)
-    F3 = (((0.0365) * ((T/100.) ** 2)) + ((-0.0369) * (T/100.)) + (0))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    Ew = Epw + (E * m)
-    Fw = Fpw + (F1 * (m ** (1.5))) + (F2 * (m)) + (F3 * (m ** (0.5)))
-    Iwr = (1/Ew) * log(fabs(Ew + Fw))
-    Iw = (1/Ew) * log(fabs((Ew * (P/70.))+ Fw))
-    pgfw = pgfwr * exp(Iw - Iwr)
-    pwSpiveyMNGasFree = pgfw
-    return pwSpiveyMNGasFree
-        
-def PwMcCainCorrelation(S, Bw):
-    pwl = 62.368 + (0.438603 * S) + (1.60074e-3 * (S ** 2))
-    pw = pwl/Bw
-    pwMcCain = pw
-    return pwMcCain
-
-def UwMaoDuanCorrelation(T, P, S):
-    T=1.0*T
-    P=1.0*P
-    S=1.0*S
-    ppwr = (((-0.127213) * ((T/100) ** 2)) + ((0.645486) * (T/100)) + 1.03265)/(((-0.070291) * ((T/100) ** 2)) + ((0.639589) * (T/100)) + 1)
-    Epw = ((4.221 * ((T/100) ** 2)) + ((-3.478) * (T/100)) + 6.221)/((0.5182 * ((T/100) ** 2)) + ((-0.4405) * (T/100)) + 1)
-    Fpw = (((-11.403) * ((T/100) ** 2)) + ((29.932) * (T/100)) + 27.952)/((0.20684 * ((T/100) ** 2)) + ((0.3768) * (T/100)) + 1)
-    Ipwr = (1/Epw) * log(fabs(Epw + Fpw))
-    Ipw = (1/Epw) * log(fabs((Epw * (P/70))+ Fpw))
-    ppw = ppwr * exp(Ipw - Ipwr)
-    Upw = exp((((0.28853170e7) * ((T + 273) ** (-2))) + ((-0.11072577e5) * ((T + 273) ** (-1))) + ((-0.90834095e1) * ((T + 273) ** (0))) + ((0.30925651e-1) * ((T + 273) ** (1))) + ((-0.27407100e-4) * ((T + 273) ** (2)))) + (ppw * (((-0.19283851e7) * ((T + 273) ** (-2))) + ((0.56216046e4) * ((T + 273) ** (-1))) + ((0.13827250e2) * ((T + 273) ** (0))) + ((-0.47609523e-1) * ((T + 273) ** (1))) + ((0.35545041e-4) * ((T + 273) ** (2))))))
-    A = (-0.21319213) + ((0.13651589e-2) * (T + 273)) + ((-0.12191756e-5) * ((T + 273) ** 2))
-    B = (0.69161945e-1) + ((-0.27292263e-3) * (T + 273)) + ((0.20852448e-6) * ((T + 273) ** 2))
-    C = (-0.25988855e-2) + ((0.77989227e-5) * (T + 273))
-    m = (1000 * (S/100))/(58.4428 * (1 - (S/100)))
-    Uwr = exp((A * m) + (B * (m ** 2)) + (C * (m ** 3)))
-    Uw = Uwr * Upw 
-    UwMaoDuan = Uw
-    return UwMaoDuan
-
-
-def UwVanWingenCorrelation(T):
-    Uw = exp(1.003 - (1.479e-2 * T) + (1.982e-5 * (T ** 2)))
-    UwVanWingen = Uw
-    return UwVanWingen
-        
-
-def UwMatthewsRusselCorrelation(T, P, S):
-    A = -0.04518 + (0.009313 * S) - (0.000393 * (S ** 2))
-    B = 70.634 + (0.09576 * (S ** 2))
-    Uwat = A + (B/T)
-    Uw = Uwat * (1 + (3.5e-12 * (P ** 2) * (T - 40)))
-    UwMatthewsRussel = Uw
-    return UwMatthewsRussel
-
-def UwMcCainCorrelation(T, P, S):
-    A = 109.574 - (8.40564 * S) + (0.313314 * (S ** 2)) + (8.72213e-3 * (S ** 3))
-    B = -1.12166 + (2.63951e-2 * S) - (6.79461e-4 * (S ** 2)) - (5.47119e-5 * (S ** 3)) + (1.55586e-6 * (S ** 4))
-    Uwat = A * (T ** B)
-    Uw = Uwat * (0.9994 + (4.0295e-5 * P) + (3.1062e-9 * (P ** 2)))
-    UwMcCain = Uw
-    return UwMcCain
-
-def UwMcCoyCorrelation(T, S):
-    Uwp = 0.02414 * (10 ** (247.8/(((0.555555556 * T) + 255.37) - 140)))
-    Uw =  Uwp * (1 - (1.87e-3 * (S ** 0.5)) + (2.18e-4 * (S ** 2.5)) + (((T ** 0.5) - (1.35e-2 * T)) * ((2.76e-3 * S) - (3.44e-4 * (S ** 1.5)))))
-    UwMcCoy = Uw
-    return UwMcCoy
-
-def BwSpiveyMNCorrelation(T, P, S):
-    ppwr = (((-0.127213) * ((T/100.) ** 2)) + ((0.645486) * (T/100.)) + 1.03265)/(((-0.070291) * ((T/100.) ** 2)) + ((0.639589) * (T/100.)) + 1)
-    Epw = ((4.221 * ((T/100.) ** 2)) + ((-3.478) * (T/100.)) + 6.221)/((0.5182 * ((T/100.) ** 2)) + ((-0.4405) * (T/100.)) + 1)
-    Fpw = (((-11.403) * ((T/100.) ** 2)) + ((29.932) * (T/100.)) + 27.952)/((0.20684 * ((T/100.) ** 2)) + ((0.3768) * (T/100.)) + 1)
-    m = (1000 * (S/100.))/(58.4428 * (1 - (S/100.)))
-    D1 = (((-1.1149e-4) * ((T/100.) ** 2)) + ((1.7105e-4) * (T/100.)) + (-4.3766e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    D2 = (((-8.878e-4) * ((T/100.) ** 2)) + ((-1.388e-4) * (T/100.)) + (-2.96318e-3))/(((0) * ((T/100.) ** 2)) + ((0.51103) * (T/100.)) + 1)
-    D3 = (((2.1466e-3) * ((T/100.) ** 2)) + ((1.2427e-2) * (T/100.)) + (4.2648e-2))/(((-8.1009e-2) * ((T/100.) ** 2)) + ((0.525417) * (T/100.)) + 1)
-    D4 = (((2.356e-4) * ((T/100.) ** 2)) + ((-3.636e-4) * (T/100.)) + (-2.278e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    pgfwr = ppwr + (D1 * (m ** 2)) + (D2 * (m ** (3./2))) + (D3 * m) + (D4 * (m ** (1./2)))
-    E = (((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + (0.1249))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    F1 = (((-0.617) * ((T/100.) ** 2)) + ((-0.747) * (T/100.)) + (-0.4339))/(((0) * ((T/100.) ** 2)) + ((10.26) * (T/100.)) + 1)
-    F2 = (((0) * ((T/100.) ** 2)) + ((9.917) * (T/100.)) + (5.1128))/(((0) * ((T/100.) ** 2)) + ((3.892) * (T/100.)) + 1)
-    F3 = (((0.0365) * ((T/100.) ** 2)) + ((-0.0369) * (T/100.)) + (0))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    Ew = Epw + (E * m)
-    Fw = Fpw + (F1 * (m ** (3./2))) + (F2 * (m)) + (F3 * (m ** (1./2)))
-    Iwr = (1/Ew) * log(fabs(Ew + Fw))
-    Iw = (1/Ew) * log(fabs((Ew * (P/70.))+ Fw))
-    pgfw = pgfwr * exp(Iw - Iwr)
-    vgfw = 1/pgfw
-    Tstd = 15.555556 #ºC
-    Pstd = 0.101325 #MPa
-    ppwrstd = (((-0.127213) * ((Tstd/100) ** 2)) + ((0.645486) * (Tstd/100)) + 1.03265)/(((-0.070291) * ((Tstd/100) ** 2)) + ((0.639589) * (Tstd/100)) + 1)
-    Epwstd = ((4.221 * ((Tstd/100.) ** 2)) + ((-3.478) * (Tstd/100.)) + 6.221)/((0.5182 * ((Tstd/100.) ** 2)) + ((-0.4405) * (Tstd/100.)) + 1)
-    Fpwstd = (((-11.403) * ((Tstd/100.) ** 2)) + ((29.932) * (Tstd/100.)) + 27.952)/((0.20684 * ((Tstd/100.) ** 2)) + ((0.3768) * (Tstd/100.)) + 1)
-    m = (1000 * (S/100.))/(58.4428 * (1 - (S/100.)))
-    D1std = (((-1.1149e-4) * ((Tstd/100.) ** 2)) + ((1.7105e-4) * (Tstd/100.)) + (-4.3766e-4))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
-    D2std = (((-8.878e-4) * ((Tstd/100.) ** 2)) + ((-1.388e-4) * (Tstd/100.)) + (-2.96318e-3))/(((0) * ((Tstd/100.) ** 2)) + ((0.51103) * (Tstd/100.)) + 1)
-    D3std = (((2.1466e-3) * ((Tstd/100.) ** 2)) + ((1.2427e-2) * (Tstd/100.)) + (4.2648e-2))/(((-8.1009e-2) * ((Tstd/100.) ** 2)) + ((0.525417) * (Tstd/100.)) + 1)
-    D4std = (((2.356e-4) * ((Tstd/100.) ** 2)) + ((-3.636e-4) * (Tstd/100.)) + (-2.278e-4))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
-    pgfwrstd = ppwrstd + (D1std * (m ** 2)) + (D2std * (m ** (3./2))) + (D3std * m) + (D4std * (m ** (1./2)))
-    Estd = (((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + (0.1249))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
-    F1std = (((-0.617) * ((Tstd/100.) ** 2)) + ((-0.747) * (Tstd/100.)) + (-0.4339))/(((0) * ((Tstd/100.) ** 2)) + ((10.26) * (Tstd/100.)) + 1)
-    F2std = (((0) * ((Tstd/100.) ** 2)) + ((9.917) * (Tstd/100.)) + (5.1128))/(((0) * ((Tstd/100.) ** 2)) + ((3.892) * (Tstd/100.)) + 1)
-    F3std = (((0.0365) * ((Tstd/100.) ** 2)) + ((-0.0369) * (Tstd/100.)) + (0))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
-    Ewstd = Epwstd + (Estd * m)
-    Fwstd = Fpwstd + (F1std * (m ** (3./2))) + (F2std * (m)) + (F3std * (m ** (1./2)))
-    Iwrstd = (1/Ewstd) * log(fabs(Ewstd + Fwstd))
-    Iwstd = (1/Ewstd) * log(fabs((Ewstd * (Pstd/70.))+ Fwstd))
-    pgfwstd = pgfwrstd * exp(Iwstd - Iwrstd)
-    vgfwstd = 1/pgfwstd
-    C3 = (7.698589e-2) + (-5.0253331e-5 * (T + 273.15)) + (-30.092013/(T + 273.15)) + (4.8468502e3/((T + 273.15) ** 2))  
-    C4 = (3.924e-4) + (2 * (-1.97e-6) * P)
-    C5 = 0
-    VMCH4w = 8.314467 * (T + 273) * ((C3) + (2 * m * C4) + ((m ** 2) * C5))
-    m = (1000 * (S/100.))/(58.4428 * (1 - (S/100.)))
-    Tc = 647.096 # K
-    Pc = 22.064 # MPa
-    v = 1 - ((T + 273.15)/Tc)
-    lnPv = ((Tc/(T + 273.15)) * (((-7.85951783) * v) + ((1.84408259) * (v ** 1.5)) + ((-11.7866497) * (v ** 3)) + ((22.6807411) * (v ** 3.5)) + ((-15.9618719) * (v ** 4)) + ((1.80122502) * (v ** 7.5)))) + log(Pc)
-    Pv = exp(lnPv)
-    A = (((0) * ((T/100.) ** 2)) + ((-0.004462) * (T/100.)) + (-0.06763))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    B = (((-0.03602) * ((T/100.) ** 2)) + ((0.18917) * (T/100.)) + (0.97242))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
-    C = (((0.6855) * ((T/100.) ** 2)) + ((-3.1992) * (T/100.)) + (-3.7968))/(((0.07711) * ((T/100.) ** 2)) + ((0.2229) * (T/100.)) + 1)
-    mathDomain = P - Pv
-    if mathDomain > 0:        
-        mCH4pw = exp((A * ((log(P - Pv)) ** 2)) + (B * log (P - Pv)) + (C))
-        C1 = (-0.80898) + (1.0827e-3 * (T + 273.15)) + ((183.85)/(T + 273.15)) + ((3.924e-4) * P) + ((-1.97e-6) * (P ** 2))
-        C2 = -3.89e-3
-        mCH4w = mCH4pw * exp(((-2) * C1 * m) - (C2 * (m ** 2)))
-        Bw = (((1000 + (m * 58.4428)) * vgfw) + (mCH4w * VMCH4w))/(((1000 + (m * 58.4428)) * vgfwstd))
-    else: 
-        Bw = None
-    BwSpiveyMN = Bw 
-    return BwSpiveyMN
-        
-def BwMcCainCorrelation(T, P):
-    dVwT = -1.0001e-2 + (1.33391e-4 * T) + (5.50654e-7 * (T ** 2)) # Cambio de volumen por efecto de la temperatura
-    dVwP = (-1.95301e-9 * P * T) - (1.72834e-13 * (P ** 2) * T) - (3.58922e-7 * P) - (2.25341e-10 * (P ** 2)) # Cambio de volumen por efecto de la presión
-    Bw = (1 + dVwP) * (1 + dVwT)
-    BwMcCain = Bw 
-    return BwMcCain 
-
-def SgwJenningsNewmanCorrelation(T, P):
-    A = 79.1618 - (0.118978 * T)
-    B = -5.28473e-3 + (9.87913e-6 * T)
-    C = (2.33814 - (4.57194e-4 * T) - (7.52678e-6 * (T ** 2))) * 1e-7
-    sgw = A + (B * P) + (C * (P ** 2))
-    sgwJenningsNewman = sgw
-    return sgwJenningsNewman
+    v = 1 - (Tk/Tc)
     
+    lnPv = ((Tc/Tk) * (((-7.85951783) * v) + ((1.84408259) * (v ** 1.5)) + ((-11.7866497) * (v ** 3)) + ((22.6807411) * (v ** 3.5)) + ((-15.9618719) * (v ** 4)) + ((1.80122502) * (v ** 7.5)))) + log(Pc)
+    Pv = exp(lnPv)
+    
+    if P - Pv > 0: # Domain validation of the mathematical equation
+    
+        # Solubility of methane in pure water
+        A = (((-0.007751) * ((T/100) ** 2)) + ((0.013624) * (T/100)) + (-0.0781))/(((0) * ((T/100) ** 2)) + ((0) * (T/100)) + 1)
+        B = (((0.01193) * ((T/100) ** 2)) + ((0.0851) * (T/100)) + (1.02766))/(((0) * ((T/100) ** 2)) + ((0) * (T/100)) + 1)
+        C = (((1.8316) * ((T/100) ** 2)) + ((-7.8119) * (T/100)) + (-3.6231))/(((-0.10733) * ((T/100) ** 2)) + ((1.09192) * (T/100)) + 1)
 
-def pwSpiveyMNGasFree(T, P, saltConcentration):
-        S = saltConcentration
-        # Transformation from Salinity [weight percent] to Molality of NaCl [mol NaCl/kg]
-        m = (1000 * (S/100))/(58.4428 * (1 - (S/100)))
+        mCH4pw = exp((A * ((log(P - Pv)) ** 2)) + (B * log(P - Pv)) + C)
         
-        measure_Unit = measureUnity.MeasureUnity()
-        unit_Converter = unityConverter.UnityConverter()
+        # Solubility of methane in brine
+        C1 = 7.015e-2 + 1.074e-4 * Tk + 2.260e-1 * P/Tk + (-1.227e-3 * (P ** 2))/Tk
+        C2 = -6.28e-3
+
+        # mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] AT THE TEMPERATURE AND PRESSURE OF EVALUATION            
+        mCH4w = mCH4pw * exp((-2 * C1 * m) - (C2 * (m ** 2)))
         
-        # Transformation from °F to °C
-        T = float(unit_Converter.convertTemperatureUnits(T, measure_Unit.fahrenheit, measure_Unit.celsius))
+        # VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE TEMPERATURE AND PRESSURE OF EVALUATION 
+        # Derivatives with respect to P
+        C3 = -8.5658e-2 + 1.31961e-2 * log(Tk) + 7.338/Tk + 9.05e-2/(680 - Tk) + 2 * (0) * P/Tk  
+        C4 = 2.260e-1/Tk + 2 * -1.227e-3 * P/Tk
+        C5 = 0
         
-        # Transformation from psia to pascal
-        P = float(unit_Converter.convertPressureUnits(P, measure_Unit.absolutePoundForcePerSquareInch, measure_Unit.pascal))
-        P = P/1000000 # Transformation from pascal to MPa
-        # <- Conversion of units
+        R = 8.314467 # Universal gas constant [MPa cm³/gmol K] (McCain et al., 2011)
+        
+        # Partial molar volume of methane in brine
+        VMCH4w = R * Tk * (C3 + (2 * m * C4) + (m ** 2) * C5)
+        
+        # pw: DENSITY OF BRINE WITH DISSOLVED METHANE
         
         # Pure water density [g/cm³] at the reference pressure (70 Mpa) and evaluation temperature
         ppwr = (((-0.127213) * ((T/100.) ** 2)) + ((0.645486) * (T/100.)) + (1.03265))/(((-0.070291) * ((T/100.) ** 2)) + ((0.639589) * (T/100.)) + 1)
@@ -1860,15 +1683,361 @@ def pwSpiveyMNGasFree(T, P, saltConcentration):
         
         # Density of gas-free brine [g/cm³] at the temperature and pressure of evaluation
         pgfw = pgfwr * exp(Iw - Iwr)
-        
-        # -> Conversion of units               
-        # Transformation from [gr/cm³] to [lb/ft³]       
-        pgfw = float(unit_Converter.convertDensityUnits(pgfw, measure_Unit.gramPerCubicCentimeter, measure_Unit.poundPerCubicFoot))
         # <- Conversion of units
         
-        pwSpiveyMNGasFree = pgfw
+        # Specific volume of the gas-free brine [cm³/g]
+        vgfw = 1.0/pgfw
         
-        return pwSpiveyMNGasFree
+        # Molecular weights MNaCl: 58.4428 g/gmol; MCH4: 16.043 g/gmol 
+        # Density of brine with dissolved methane [g/cm³] (pw = mass/volume)
+        mass = 1000 + (m * 58.4428) + (mCH4w * 16.043)
+        volume = (1000 + m * 58.4428) * vgfw + mCH4w * VMCH4w
+        pw = mass/volume
+        
+    else:
+        pw = None
+    
+    pwSpiveyMN = pw
+    
+    return pwSpiveyMN
+
+def PwSpiveyMNGasFreeCorrelation(T, P, saltConcentration):
+    
+    m = saltConcentration
+
+    # Pure water density [g/cm³] at the reference pressure (70 Mpa) and evaluation temperature
+    ppwr = (((-0.127213) * ((T/100.) ** 2)) + ((0.645486) * (T/100.)) + (1.03265))/(((-0.070291) * ((T/100.) ** 2)) + ((0.639589) * (T/100.)) + 1)
+    
+    # Coefficients of compressibility of pure water 
+    Epw = (((4.221) * ((T/100.) ** 2)) + ((-3.478) * (T/100.)) + (6.221))/(((0.5182) * ((T/100.) ** 2)) + ((-0.4405) * (T/100.)) + 1)
+    Fpw = (((-11.403) * ((T/100.) ** 2)) + ((29.932) * (T/100.)) + (27.952))/(((0.20684) * ((T/100.) ** 2)) + ((0.3768) * (T/100.)) + 1)
+    
+    # Coefficients of gas-free brine density at the temperature of evaluation and the reference pressure of 70 MPa
+    D1 = (((-7.925e-5) * ((T/100.) ** 2)) + ((-1.93e-6) * (T/100.)) + (-3.4254e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+    D2 = (((1.0998e-3) * ((T/100.) ** 2)) + ((-2.8755e-3) * (T/100.)) + (-3.5819e-3))/(((-0.72877) * ((T/100.) ** 2)) + ((1.92016) * (T/100.)) + 1)
+    D3 = (((-7.6402e-3) * ((T/100.) ** 2)) + ((3.6963e-2) * (T/100.)) + (4.36083e-2))/(((-0.333661) * ((T/100.) ** 2)) + ((1.185685) * (T/100.)) + 1)
+    D4 = (((3.746e-4) * ((T/100.) ** 2)) + ((-3.328e-4) * (T/100.)) + (-3.346e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+    
+    # Density of gas-free brine
+    pgfwr = ppwr + (D1 * (m ** 2)) + (D2 * (m ** (3/2))) + (D3 * m) + (D4 * (m ** (1/2)))
+    
+    # Coefficients of gas-free brine compressibility
+    E = (((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + (0.1353))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+    F1 = (((-1.409) * ((T/100.) ** 2)) + ((-0.361) * (T/100.)) + (-0.2532))/(((0) * ((T/100.) ** 2)) + ((9.216) * (T/100.)) + 1)
+    F2 = (((0) * ((T/100.) ** 2)) + ((5.614) * (T/100.)) + (4.6782))/(((-0.307) * ((T/100.) ** 2)) + ((2.6069) * (T/100.)) + 1)
+    F3 = (((-0.1127) * ((T/100.) ** 2)) + ((0.2047) * (T/100.)) + (-0.0452))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+    
+    Ew = Epw + E * m
+    Fw = Fpw + F1 * m ** (3/2) + F2 * m + F3 * m ** (1/2)
+    
+    Iwr = (1/Ew) * log(fabs(Ew + Fw))
+    Iw = (1/Ew) * log(fabs((Ew * (P/70.))+ Fw))
+    
+    # Density of gas-free brine [g/cm³] at the temperature and pressure of evaluation
+    pgfw = pgfwr * exp(Iw - Iwr)
+    
+    pwSpiveyMNGasFree = pgfw
+    
+    return pwSpiveyMNGasFree
+        
+def PwMcCainCorrelation(S, Bw):
+    # Water density at standard conditions
+    pwl = 62.368 + (0.438603 * S) + (1.60074e-3 * (S ** 2))
+    # Water density at P and T
+    pw = pwl/Bw
+    pwMcCain = pw
+    return pwMcCain
+
+def PpwSpiveyMNCorrelation(T, P):
+    # Pure water density at the reference pressure (70 Mpa) [g/cm³]
+    ppwr = (((-0.127213) * ((T/100) ** 2)) + ((0.645486) * (T/100)) + 1.03265)/(((-0.070291) * ((T/100) ** 2)) + ((0.639589) * (T/100)) + 1)
+    # The coefficients of pure water density, expressed as functions of temperature
+    Epw = ((4.221 * ((T/100) ** 2)) + ((-3.478) * (T/100)) + 6.221)/((0.5182 * ((T/100) ** 2)) + ((-0.4405) * (T/100)) + 1)
+    Fpw = (((-11.403) * ((T/100) ** 2)) + ((29.932) * (T/100)) + 27.952)/((0.20684 * ((T/100) ** 2)) + ((0.3768) * (T/100)) + 1)
+    Ipwr = (1/Epw) * log(fabs(Epw + Fpw))
+    Ipw = (1/Epw) * log(fabs((Epw * (P/70))+ Fpw))
+    # Pure water density [g/cm³]
+    ppw = ppwr * exp(Ipw - Ipwr)
+    return ppw
+
+def UwMaoDuanCorrelation(T, saltConcentration, ppw):
+    m = saltConcentration   
+    # Viscosity of pure water [Pa.s]
+    Upw = exp((((0.28853170e7) * (T ** (-2))) + ((-0.11072577e5) * (T ** (-1))) + ((-0.90834095e1) * (T ** (0))) + ((0.30925651e-1) * (T ** (1))) + ((-0.27407100e-4) * (T ** (2)))) + (ppw * (((-0.19283851e7) * (T ** (-2))) + ((0.56216046e4) * (T ** (-1))) + ((0.13827250e2) * (T ** (0))) + ((-0.47609523e-1) * (T ** (1))) + ((0.35545041e-4) * (T ** (2))))))
+    # Calculation of the coefficients (salinity of sodium chloride)
+    A = (-0.21319213) + ((0.13651589e-2) * T) + ((-0.12191756e-5) * (T ** 2))
+    B = (0.69161945e-1) + ((-0.27292263e-3) * T) + ((0.20852448e-6) * (T ** 2))
+    C = (-0.25988855e-2) + ((0.77989227e-5) * T)
+    # Relative viscosity
+    Uwr = exp((A * m) + (B * (m ** 2)) + (C * (m ** 3)))
+    # Viscosity of the solution [Pa.s]
+    Uw = Uwr * Upw 
+    UwMaoDuan = Uw
+    return UwMaoDuan
+
+
+def UwVanWingenCorrelation(T):
+    Uw = exp(1.003 - (1.479e-2 * T) + (1.982e-5 * (T ** 2)))
+    UwVanWingen = Uw
+    return UwVanWingen
+        
+
+def UwMatthewsRusselCorrelation(T, P, S):
+    A = -0.04518 + (0.009313 * S) - (0.000393 * (S ** 2))
+    B = 70.634 + (0.09576 * (S ** 2))
+    Uwat = A + (B/T)
+    Uw = Uwat * (1 + (3.5e-12 * (P ** 2) * (T - 40)))
+    UwMatthewsRussel = Uw
+    return UwMatthewsRussel
+
+def UwMcCainCorrelation(T, P, S):
+    A = 109.574 - (8.40564 * S) + (0.313314 * (S ** 2)) + (8.72213e-3 * (S ** 3))
+    B = -1.12166 + (2.63951e-2 * S) - (6.79461e-4 * (S ** 2)) - (5.47119e-5 * (S ** 3)) + (1.55586e-6 * (S ** 4))
+    Uwat = A * (T ** B)
+    Uw = Uwat * (0.9994 + (4.0295e-5 * P) + (3.1062e-9 * (P ** 2)))
+    UwMcCain = Uw
+    return UwMcCain
+
+def UwMcCoyCorrelation(T, S):
+    Uwp = 0.02414 * 10 ** (247.8/(T - 140))
+    Uw =  Uwp * (1 - (1.87e-3 * (S ** 0.5)) + (2.18e-4 * (S ** 2.5)) + (((T ** 0.5) - (1.35e-2 * T)) * ((2.76e-3 * S) - (3.44e-4 * (S ** 1.5)))))
+    UwMcCoy = Uw
+    return UwMcCoy
+
+def BwbSpiveyMNCorrelation(T, P, m):
+    # Transformation from °C to °K
+    Tk = T + 273.15
+    # Vapor pressure of pure water, calculated from the IAWPS-95 formulation
+    Tc = 647.096 # °K
+    Pc = 22.064 # MPa
+    v = 1 - (Tk/Tc)
+    lnPv = ((Tc/Tk) * (((-7.85951783) * v) + ((1.84408259) * (v ** 1.5)) + ((-11.7866497) * (v ** 3)) + ((22.6807411) * (v ** 3.5)) + ((-15.9618719) * (v ** 4)) + ((1.80122502) * (v ** 7.5)))) + log(Pc)
+    Pv = exp(lnPv)
+    
+    if P - Pv > 0: # Domain validation of the mathematical equation
+        # vgfw: SPECIFIC VOLUME OF METHANE-FREE BRINE
+        # Density of methane-free brine at the temperature and pressure of evaluation
+        # pgfw = WaterDensity.pwSpiveyMNGasFree(T, P, saltConcentration) # [lb/ft³], for C++: [g/cm³] 
+
+        # Pure water density [g/cm³] at the reference pressure (70 Mpa) and evaluation temperature
+        ppwr = (((-0.127213) * ((T/100.) ** 2)) + ((0.645486) * (T/100.)) + (1.03265))/(((-0.070291) * ((T/100.) ** 2)) + ((0.639589) * (T/100.)) + 1)      
+        # Coefficients of compressibility of pure water 
+        Epw = (((4.221) * ((T/100.) ** 2)) + ((-3.478) * (T/100.)) + (6.221))/(((0.5182) * ((T/100.) ** 2)) + ((-0.4405) * (T/100.)) + 1)
+        Fpw = (((-11.403) * ((T/100.) ** 2)) + ((29.932) * (T/100.)) + (27.952))/(((0.20684) * ((T/100.) ** 2)) + ((0.3768) * (T/100.)) + 1)
+        # Coefficients of gas-free brine density at the temperature of evaluation and the reference pressure of 70 MPa
+        D1 = (((-7.925e-5) * ((T/100.) ** 2)) + ((-1.93e-6) * (T/100.)) + (-3.4254e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        D2 = (((1.0998e-3) * ((T/100.) ** 2)) + ((-2.8755e-3) * (T/100.)) + (-3.5819e-3))/(((-0.72877) * ((T/100.) ** 2)) + ((1.92016) * (T/100.)) + 1)
+        D3 = (((-7.6402e-3) * ((T/100.) ** 2)) + ((3.6963e-2) * (T/100.)) + (4.36083e-2))/(((-0.333661) * ((T/100.) ** 2)) + ((1.185685) * (T/100.)) + 1)
+        D4 = (((3.746e-4) * ((T/100.) ** 2)) + ((-3.328e-4) * (T/100.)) + (-3.346e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        # Density of gas-free brine
+        pgfwr = ppwr + (D1 * (m ** 2)) + (D2 * (m ** (3/2))) + (D3 * m) + (D4 * (m ** (1/2)))
+        # Coefficients of gas-free brine compressibility
+        E = (((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + (0.1353))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        F1 = (((-1.409) * ((T/100.) ** 2)) + ((-0.361) * (T/100.)) + (-0.2532))/(((0) * ((T/100.) ** 2)) + ((9.216) * (T/100.)) + 1)
+        F2 = (((0) * ((T/100.) ** 2)) + ((5.614) * (T/100.)) + (4.6782))/(((-0.307) * ((T/100.) ** 2)) + ((2.6069) * (T/100.)) + 1)
+        F3 = (((-0.1127) * ((T/100.) ** 2)) + ((0.2047) * (T/100.)) + (-0.0452))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        Ew = Epw + E * m
+        Fw = Fpw + F1 * m ** (3./2.) + F2 * m + F3 * m ** (1./2.)
+        Iwr = (1/Ew) * log(fabs(Ew + Fw))
+        Iw = (1/Ew) * log(fabs((Ew * (P/70.))+ Fw))
+        # Density of gas-free brine [g/cm³] at the temperature and pressure of evaluation
+        pgfw = pgfwr * exp(Iw - Iwr)
+        # Specific volume of methane-free brine [cm³/g]
+        vgfw = 1.0/pgfw        
+        # mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] AT THE TEMPERATURE AND PRESSURE OF EVALUATION                        
+        A = (((-0.007751) * ((T/100) ** 2)) + ((0.013624) * (T/100)) + (-0.0781))/(((0) * ((T/100) ** 2)) + ((0) * (T/100)) + 1)
+        B = (((0.01193) * ((T/100) ** 2)) + ((0.0851) * (T/100)) + (1.02766))/(((0) * ((T/100) ** 2)) + ((0) * (T/100)) + 1)
+        C = (((1.8316) * ((T/100) ** 2)) + ((-7.8119) * (T/100)) + (-3.6231))/(((-0.10733) * ((T/100) ** 2)) + ((1.09192) * (T/100)) + 1)
+        # Solubility of methane in pure water
+        mCH4pw = exp((A * ((log(P - Pv)) ** 2)) + (B * log(P - Pv)) + C) 
+        C1 = 7.015e-2 + 1.074e-4 * Tk + 2.260e-1 * P/Tk + (-1.227e-3 * (P ** 2))/Tk
+        C2 = -6.28e-3
+        mCH4w = mCH4pw * exp((-2 * C1 * m) - (C2 * (m ** 2)))          
+        # VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE TEMPERATURE AND PRESSURE OF EVALUATION 
+        # Derivatives with respect to P
+        C3 = -8.5658e-2 + 1.31961e-2 * log(Tk) + 7.338/Tk + 9.05e-2/(680 - Tk) + 2 * (0) * P/Tk  
+        C4 = 2.260e-1/Tk + 2 * -1.227e-3 * P/Tk
+        C5 = 0
+        R = 8.314467 # Universal gas constant [MPa cm³/gmol K] (McCain et al., 2011)
+        # Partial molar volume of methane in brine
+        VMCH4w = R * Tk * (C3 + (2 * m * C4) + (m ** 2) * C5)
+        # vgfwstd: SPECIFIC VOLUME OF METHANE-FREE BRINE
+        Tstd = 15.555556 # °C (60 °F)  
+        Pstd = 0.101352 # MPa (14.7 psia)
+        # Density of methane-free brine [g/cm³] at standard temperature and pressure
+        # pgfwstd = WaterDensity.pwSpiveyMNGasFree(Tstd, Pstd, saltConcentration)  # [lb/ft³], for C++: [g/cm³] 
+
+        # Pure water density [g/cm³] at the reference pressure (70 Mpa) and evaluation temperature
+        ppwrstd = (((-0.127213) * ((Tstd/100.) ** 2)) + ((0.645486) * (Tstd/100.)) + (1.03265))/(((-0.070291) * ((Tstd/100.) ** 2)) + ((0.639589) * (Tstd/100.)) + 1)
+        # Coefficients of compressibility of pure water 
+        Epw = (((4.221) * ((Tstd/100.) ** 2)) + ((-3.478) * (Tstd/100.)) + (6.221))/(((0.5182) * ((Tstd/100.) ** 2)) + ((-0.4405) * (Tstd/100.)) + 1)
+        Fpw = (((-11.403) * ((Tstd/100.) ** 2)) + ((29.932) * (Tstd/100.)) + (27.952))/(((0.20684) * ((Tstd/100.) ** 2)) + ((0.3768) * (Tstd/100.)) + 1)
+        # Coefficients of gas-free brine density at the temperature of evaluation and the reference pressure of 70 MPa
+        D1 = (((-7.925e-5) * ((Tstd/100.) ** 2)) + ((-1.93e-6) * (Tstd/100.)) + (-3.4254e-4))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
+        D2 = (((1.0998e-3) * ((Tstd/100.) ** 2)) + ((-2.8755e-3) * (Tstd/100.)) + (-3.5819e-3))/(((-0.72877) * ((Tstd/100.) ** 2)) + ((1.92016) * (Tstd/100.)) + 1)
+        D3 = (((-7.6402e-3) * ((Tstd/100.) ** 2)) + ((3.6963e-2) * (Tstd/100.)) + (4.36083e-2))/(((-0.333661) * ((Tstd/100.) ** 2)) + ((1.185685) * (Tstd/100.)) + 1)
+        D4 = (((3.746e-4) * ((Tstd/100.) ** 2)) + ((-3.328e-4) * (Tstd/100.)) + (-3.346e-4))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
+    
+        # Density of gas-free brine
+        pgfwrstd = ppwrstd + (D1 * (m ** 2)) + (D2 * (m ** (3./2.))) + (D3 * m) + (D4 * (m ** (1./2.)))        
+        # Coefficients of gas-free brine compressibility
+        E = (((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + (0.1353))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
+        F1 = (((-1.409) * ((Tstd/100.) ** 2)) + ((-0.361) * (Tstd/100.)) + (-0.2532))/(((0) * ((Tstd/100.) ** 2)) + ((9.216) * (Tstd/100.)) + 1)
+        F2 = (((0) * ((Tstd/100.) ** 2)) + ((5.614) * (Tstd/100.)) + (4.6782))/(((-0.307) * ((Tstd/100.) ** 2)) + ((2.6069) * (Tstd/100.)) + 1)
+        F3 = (((-0.1127) * ((Tstd/100.) ** 2)) + ((0.2047) * (Tstd/100.)) + (-0.0452))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
+        Ew = Epw + E * m
+        Fw = Fpw + F1 * m ** (3/2) + F2 * m + F3 * m ** (1/2)
+        Iwr = (1/Ew) * log(fabs(Ew + Fw))
+        Iw = (1/Ew) * log(fabs((Ew * (Pstd/70.))+ Fw))
+        # Density of gas-free brine [g/cm³] at the temperature and pressure of evaluation
+        pgfwstd = pgfwrstd * exp(Iw - Iwr)
+        # Specific volume of methane-free brine [cm³/g]
+        vgfwstd = 1.0/pgfwstd            
+        # Bw: FORMATION VOLUME FACTOR        
+        # Molecular weight MNaCl: 58.4428 g/gmol
+        n = (1000 + m * 58.4428) * vgfw + mCH4w * VMCH4w    # Volume at reservoir conditions
+        d = (1000 + m * 58.4428) * vgfwstd                  # Volume at stock tank conditions
+        Bw = n/d
+        
+    else: 
+        
+        Bw = None
+        
+    BwSpiveyMN = Bw 
+    return BwSpiveyMN  
+  
+def BwaSpiveyMNCorrelation(T, P, m):
+    # Transformation from °C to °K
+    Tk = T + 273.15
+    # Vapor pressure of pure water, calculated from the IAWPS-95 formulation
+    Tc = 647.096 # °K
+    Pc = 22.064 # MPa
+    v = 1 - (Tk/Tc)
+    lnPv = ((Tc/Tk) * (((-7.85951783) * v) + ((1.84408259) * (v ** 1.5)) + ((-11.7866497) * (v ** 3)) + ((22.6807411) * (v ** 3.5)) + ((-15.9618719) * (v ** 4)) + ((1.80122502) * (v ** 7.5)))) + log(Pc)
+    Pv = exp(lnPv)
+    
+    if P - Pv > 0: # Domain validation of the mathematical equation
+        # vgfw: SPECIFIC VOLUME OF METHANE-FREE BRINE
+        # Density of methane-free brine at the temperature and pressure of evaluation
+        # pgfw = WaterDensity.pwSpiveyMNGasFree(T, P, saltConcentration) # [lb/ft³], for C++: [g/cm³] 
+
+        # Pure water density [g/cm³] at the reference pressure (70 Mpa) and evaluation temperature
+        ppwr = (((-0.127213) * ((T/100.) ** 2)) + ((0.645486) * (T/100.)) + (1.03265))/(((-0.070291) * ((T/100.) ** 2)) + ((0.639589) * (T/100.)) + 1)      
+        # Coefficients of compressibility of pure water 
+        Epw = (((4.221) * ((T/100.) ** 2)) + ((-3.478) * (T/100.)) + (6.221))/(((0.5182) * ((T/100.) ** 2)) + ((-0.4405) * (T/100.)) + 1)
+        Fpw = (((-11.403) * ((T/100.) ** 2)) + ((29.932) * (T/100.)) + (27.952))/(((0.20684) * ((T/100.) ** 2)) + ((0.3768) * (T/100.)) + 1)
+        # Coefficients of gas-free brine density at the temperature of evaluation and the reference pressure of 70 MPa
+        D1 = (((-7.925e-5) * ((T/100.) ** 2)) + ((-1.93e-6) * (T/100.)) + (-3.4254e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        D2 = (((1.0998e-3) * ((T/100.) ** 2)) + ((-2.8755e-3) * (T/100.)) + (-3.5819e-3))/(((-0.72877) * ((T/100.) ** 2)) + ((1.92016) * (T/100.)) + 1)
+        D3 = (((-7.6402e-3) * ((T/100.) ** 2)) + ((3.6963e-2) * (T/100.)) + (4.36083e-2))/(((-0.333661) * ((T/100.) ** 2)) + ((1.185685) * (T/100.)) + 1)
+        D4 = (((3.746e-4) * ((T/100.) ** 2)) + ((-3.328e-4) * (T/100.)) + (-3.346e-4))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        # Density of gas-free brine
+        pgfwr = ppwr + (D1 * (m ** 2)) + (D2 * (m ** (3/2))) + (D3 * m) + (D4 * (m ** (1/2)))
+        # Coefficients of gas-free brine compressibility
+        E = (((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + (0.1353))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        F1 = (((-1.409) * ((T/100.) ** 2)) + ((-0.361) * (T/100.)) + (-0.2532))/(((0) * ((T/100.) ** 2)) + ((9.216) * (T/100.)) + 1)
+        F2 = (((0) * ((T/100.) ** 2)) + ((5.614) * (T/100.)) + (4.6782))/(((-0.307) * ((T/100.) ** 2)) + ((2.6069) * (T/100.)) + 1)
+        F3 = (((-0.1127) * ((T/100.) ** 2)) + ((0.2047) * (T/100.)) + (-0.0452))/(((0) * ((T/100.) ** 2)) + ((0) * (T/100.)) + 1)
+        Ew = Epw + E * m
+        Fw = Fpw + F1 * m ** (3./2.) + F2 * m + F3 * m ** (1./2.)
+        Iwr = (1/Ew) * log(fabs(Ew + Fw))
+        Iw = (1/Ew) * log(fabs((Ew * (P/70.))+ Fw))
+        # Density of gas-free brine [g/cm³] at the temperature and pressure of evaluation
+        pgfw = pgfwr * exp(Iw - Iwr)
+        # Specific volume of methane-free brine [cm³/g]
+        vgfw = 1.0/pgfw        
+        # mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] AT THE TEMPERATURE AND PRESSURE OF EVALUATION                        
+        A = (((-0.007751) * ((T/100) ** 2)) + ((0.013624) * (T/100)) + (-0.0781))/(((0) * ((T/100) ** 2)) + ((0) * (T/100)) + 1)
+        B = (((0.01193) * ((T/100) ** 2)) + ((0.0851) * (T/100)) + (1.02766))/(((0) * ((T/100) ** 2)) + ((0) * (T/100)) + 1)
+        C = (((1.8316) * ((T/100) ** 2)) + ((-7.8119) * (T/100)) + (-3.6231))/(((-0.10733) * ((T/100) ** 2)) + ((1.09192) * (T/100)) + 1)
+        # Solubility of methane in pure water
+        mCH4pw = exp((A * ((log(P - Pv)) ** 2)) + (B * log(P - Pv)) + C) 
+        C1 = 7.015e-2 + 1.074e-4 * Tk + 2.260e-1 * P/Tk + (-1.227e-3 * (P ** 2))/Tk
+        C2 = -6.28e-3
+        mCH4w = mCH4pw * exp((-2 * C1 * m) - (C2 * (m ** 2)))          
+        # VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE TEMPERATURE AND PRESSURE OF EVALUATION 
+        # Derivatives with respect to P
+        C3 = -8.5658e-2 + 1.31961e-2 * log(Tk) + 7.338/Tk + 9.05e-2/(680 - Tk) + 2 * (0) * P/Tk  
+        C4 = 2.260e-1/Tk + 2 * -1.227e-3 * P/Tk
+        C5 = 0
+        R = 8.314467 # Universal gas constant [MPa cm³/gmol K] (McCain et al., 2011)
+        # Partial molar volume of methane in brine
+        VMCH4w = R * Tk * (C3 + (2 * m * C4) + (m ** 2) * C5)
+        # vgfwstd: SPECIFIC VOLUME OF METHANE-FREE BRINE
+        Tstd = 15.555556 # °C (60 °F)  
+        Pstd = 0.101352 # MPa (14.7 psia)
+        # Density of methane-free brine [g/cm³] at standard temperature and pressure
+        # pgfwstd = WaterDensity.pwSpiveyMNGasFree(Tstd, Pstd, saltConcentration)  # [lb/ft³], for C++: [g/cm³] 
+
+        # Pure water density [g/cm³] at the reference pressure (70 Mpa) and evaluation temperature
+        ppwrstd = (((-0.127213) * ((Tstd/100.) ** 2)) + ((0.645486) * (Tstd/100.)) + (1.03265))/(((-0.070291) * ((Tstd/100.) ** 2)) + ((0.639589) * (Tstd/100.)) + 1)
+        # Coefficients of compressibility of pure water 
+        Epw = (((4.221) * ((Tstd/100.) ** 2)) + ((-3.478) * (Tstd/100.)) + (6.221))/(((0.5182) * ((Tstd/100.) ** 2)) + ((-0.4405) * (Tstd/100.)) + 1)
+        Fpw = (((-11.403) * ((Tstd/100.) ** 2)) + ((29.932) * (Tstd/100.)) + (27.952))/(((0.20684) * ((Tstd/100.) ** 2)) + ((0.3768) * (Tstd/100.)) + 1)
+        # Coefficients of gas-free brine density at the temperature of evaluation and the reference pressure of 70 MPa
+        D1 = (((-7.925e-5) * ((Tstd/100.) ** 2)) + ((-1.93e-6) * (Tstd/100.)) + (-3.4254e-4))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
+        D2 = (((1.0998e-3) * ((Tstd/100.) ** 2)) + ((-2.8755e-3) * (Tstd/100.)) + (-3.5819e-3))/(((-0.72877) * ((Tstd/100.) ** 2)) + ((1.92016) * (Tstd/100.)) + 1)
+        D3 = (((-7.6402e-3) * ((Tstd/100.) ** 2)) + ((3.6963e-2) * (Tstd/100.)) + (4.36083e-2))/(((-0.333661) * ((Tstd/100.) ** 2)) + ((1.185685) * (Tstd/100.)) + 1)
+        D4 = (((3.746e-4) * ((Tstd/100.) ** 2)) + ((-3.328e-4) * (Tstd/100.)) + (-3.346e-4))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
+    
+        # Density of gas-free brine
+        pgfwrstd = ppwrstd + (D1 * (m ** 2)) + (D2 * (m ** (3./2.))) + (D3 * m) + (D4 * (m ** (1./2.)))        
+        # Coefficients of gas-free brine compressibility
+        E = (((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + (0.1353))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
+        F1 = (((-1.409) * ((Tstd/100.) ** 2)) + ((-0.361) * (Tstd/100.)) + (-0.2532))/(((0) * ((Tstd/100.) ** 2)) + ((9.216) * (Tstd/100.)) + 1)
+        F2 = (((0) * ((Tstd/100.) ** 2)) + ((5.614) * (Tstd/100.)) + (4.6782))/(((-0.307) * ((Tstd/100.) ** 2)) + ((2.6069) * (Tstd/100.)) + 1)
+        F3 = (((-0.1127) * ((Tstd/100.) ** 2)) + ((0.2047) * (Tstd/100.)) + (-0.0452))/(((0) * ((Tstd/100.) ** 2)) + ((0) * (Tstd/100.)) + 1)
+        Ew = Epw + E * m
+        Fw = Fpw + F1 * m ** (3/2) + F2 * m + F3 * m ** (1/2)
+        Iwr = (1/Ew) * log(fabs(Ew + Fw))
+        Iw = (1/Ew) * log(fabs((Ew * (Pstd/70.))+ Fw))
+        # Density of gas-free brine [g/cm³] at the temperature and pressure of evaluation
+        pgfwstd = pgfwrstd * exp(Iw - Iwr)
+        # Specific volume of methane-free brine [cm³/g]
+        vgfwstd = 1.0/pgfwstd            
+        # Bw: FORMATION VOLUME FACTOR        
+        # Molecular weight MNaCl: 58.4428 g/gmol
+        n = (1000 + m * 58.4428) * vgfw + mCH4w * VMCH4w    # Volume at reservoir conditions
+        d = (1000 + m * 58.4428) * vgfwstd                  # Volume at stock tank conditions
+        Bw = n/d
+        
+    else: 
+        
+        Bw = None
+        
+    BwSpiveyMN = Bw 
+    return BwSpiveyMN
+      
+def BwbMcCainCorrelation(T, P):
+    dVwT = -1.0001e-2 + (1.33391e-4 * T) + (5.50654e-7 * (T ** 2)) # Volume change as an effect of temperature
+    dVwP = (-1.95301e-9 * P * T) - (1.72834e-13 * (P ** 2) * T) - (3.58922e-7 * P) - (2.25341e-10 * (P ** 2)) # Volume change as an effect of pressure
+    Bw = (1 + dVwP) * (1 + dVwT)
+    BwMcCain = Bw 
+    return BwMcCain 
+
+def BwaMcCainCorrelation(P, Pb, Bwb, Cw):
+    Bwa = Bwb * exp(Cw * (Pb - P))
+    BwaMcCain = Bwa 
+    return BwaMcCain
+
+def BwbMcCoyCorrelation(T, P, S):
+    # Coefficients for the calculation of Bw for pure water saturated with gas
+    A = 0.9911 + 6.35e-5 * T + 8.5e-7 * (T ** 2)
+    B = -1.093e-6 - 3.497e-9 * T + 4.57e-12 * (T ** 2)
+    C = -5e-11 + 6.429e-13 * T - 1.43e-15 * (T ** 2)
+    Bpw = A + B * P + C * (P ** 2) # Solubility of gas in pure water
+    # Correction due to salinity
+    Bw = Bpw * (1 + S * (5.1e-8 * P + (5.47e-6 - 1.95e-10 * P) * (T - 60) - (3.23e-8 - 8.5e-13 * P) * (T - 60) ** 2))
+    BwMcCoy = Bw 
+    return BwMcCoy
+
+def SgwJenningsNewmanCorrelation(T, P):
+    A = 79.1618 - (0.118978 * T)
+    B = -5.28473e-3 + (9.87913e-6 * T)
+    C = (2.33814 - (4.57194e-4 * T) - (7.52678e-6 * (T ** 2))) * 1e-7
+    sgw = A + B * P + C * (P ** 2)
+    sgwJenningsNewman = sgw
+    return sgwJenningsNewman
 
 
 def CwbSpiveyMNCorrelation(T, P, m, Z):
@@ -2229,33 +2398,24 @@ def RswSpiveyMNCorrelation(T, P, saltConcentration):
 
 
 def RswCulbersonMcKettaCorrelation(T, P, saltConcentration):
-    
     A = 8.15839 - 6.12265e-2 * T + 1.91663e-4 * (T ** 2) - 2.1654e-7 * (T ** 3)
     B = 1.01021e-2 - 7.44241e-5 * T + 3.05553e-7 * (T **2) - 2.94883e-10 * (T ** 3)
     C = (-9.02505 + 0.130237 * T - 8.53425e-4 * (T ** 2) + 2.34122e-6 * (T ** 3) - 2.37049e-9 * (T ** 4)) * 1e-7
-    
     Rspw = A + B * P + C * (P ** 2) # Solubility of gas in pure water
-    
     Rsw = Rspw * 10 ** (-0.0840655 * saltConcentration * T ** (-0.285854)) # Solubility of gas in brine
-    
     RswCulbersonMcKetta = Rsw 
-    
     return RswCulbersonMcKetta
 
 
 def RswMcCoyCorrelation(T, P, saltConcentration):
-    
     A = 2.12 + (3.45e-3 * T) - (3.59e-5 * (T ** 2)) 
     B = 0.0107 - (5.26e-5 * T) + (1.48e-7 * (T **2))
     C = -8.75e-7 + (3.9e-9 * T) - (1.02e-11 * (T ** 2))
-    
     Rswp = A + B * P + C * (P ** 2) # Solubility of gas in pure water
-    
     Rsw = Rswp * (1 - (0.0753 - 1.73e-4 * T) * saltConcentration)
-    
     RswMcCoy = Rsw 
-    
     return RswMcCoy
+
 
 # Tests
 
@@ -2268,4 +2428,24 @@ def RswMcCoyCorrelation(T, P, saltConcentration):
 # RswSpiveyMNCorrelation(93.3333, 34.4738, 0.349199)
 # RswCulbersonMcKettaCorrelation(200, 5000, 2)
 # RswMcCoyCorrelation(200, 5000, 2)
+
+# PwSpiveyMNCorrelation(93.3333, 34.4738, 0.349199)
+# PwSpiveyMNGasFreeCorrelation(93.3333, 34.4738, 0.349199)
+# PwMcCainCorrelation(2, 1.02806)
+# PpwSpiveyMNCorrelation(93.3333, 34.4738)
+
+# SgwJenningsNewmanCorrelation(200, 5000)
+
+# UwMaoDuanCorrelation(366.483, 0.349199, 0.978164)
+# UwVanWingenCorrelation(200)
+# UwMatthewsRusselCorrelation(200, 5000, 2)
+# UwMcCainCorrelation(200, 5000, 2)
+# UwMcCoyCorrelation(366.483, 2)
+
+# BwbSpiveyMNCorrelation(93.3333, 34.4738, 0.349199)
+# BwbMcCainCorrelation(200, 5000) 
+# BwbMcCoyCorrelation(200, 5000, 2)
+# BwaSpiveyMNCorrelation(93.3333, 34.4738, 0.349199)
+# BwaMcCainCorrelation(7000, 5000, 5, 0.0001)
+
 

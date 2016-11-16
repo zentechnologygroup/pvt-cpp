@@ -197,7 +197,7 @@ public:
 
   DynList<const Correlation*> uoa_valid_correlations() const
   {
-    return data.valid_correlations(0).
+    return data.valid_correlations(1).
       filter([] (auto ptr) { return ptr->target_name() == "uoa"; });
   }
 
@@ -256,6 +256,7 @@ public:
   }
 
   /// Returns the rs correlations sorted by the correlation name
+  /// TODO: borrar luego. Esta version es por backward 
   DynList<VarCorrStatus>
   best_correlations(const DynList<const Correlation*> & l, size_t seti,
 		    bool check = true) const
@@ -292,37 +293,56 @@ public:
 		{ return get<2>(t1)->name < get<2>(t2)->name; });
   }
 
-  //                       uob correlation,   uod correlation
-  using UobStatus = tuple<const Correlation*, const Correlation*,
-			  DynList<double>, // values
-   //                     r2,      mse,   sigma dist
-			  double, double, double,
-			  CorrStat::LFit>;
+  //                                      values          statistics     error msg
+  using Desc = tuple<const Correlation*, DynList<double>, CorrStat::Desc, string>;
 
-  DynList<UobStatus> uob_correlations_lfits(bool check = true)
+  DynList<Desc>
+  correlations_stats(const DynList<const Correlation*> & l, size_t seti,
+		     bool check = true) const
   {
-    DynList<UobStatus> ret;
+    DynList<Desc> ret;
+    if (l.is_empty())
+      return ret;
+    
+    const string corr_name  = l.get_first()->target_name();
+    CorrStat stat(data.values(seti, corr_name));
+
+    for (auto it = l.get_it(); it.has_curr(); it.next())
+      {
+	auto corr_ptr = it.get_curr();
+	if (corr_ptr->target_name() != corr_name)
+	  {
+	    ostringstream s;
+	    s << "PvtAnalyzer::best_correlations(): Correlation "
+	      << corr_ptr->name << " target name " << corr_ptr->target_name()
+	      << " contained in list is not the name " << corr_name;
+	    throw domain_error(s.str()); 
+	  }
+
+	try
+	  {
+	    auto result = data.compute(seti, corr_ptr, check);
+	    auto stats = stat.stats(result);
+	    ret.append(make_tuple(corr_ptr, move(result), stats, ""));
+	  }
+	catch (exception & e) { /* ignore it! */ }
+      }
+
+    return sort(ret, [] (auto t1, auto t2)
+		{ return get<0>(t1)->name < get<0>(t2)->name; });
+  }
+
+  //                  used uod correlation (nullptr ==> there is no uod_corr
+  DynList<pair<Desc, const Correlation*>>
+  uob_correlations_lfits(bool check = true)
+  {
+    using P = pair<Desc, const Correlation*>;
+    DynList<P> ret;
 
     DynList<const Correlation*> complete_uob = uob_valid_correlations();
     if (not complete_uob.is_empty())
-      {
-	DynList<VarCorrStatus> complete_status =
-	  best_correlations(complete_uob, 0, check);
-	DynList<VarCorrLFit> complete_fits =
-	  correlations_lfits(complete_uob, 0, check);
-
-	for (auto it = get_zip_it(complete_status, complete_fits); it.has_curr();
-	     it.next())
-	  {
-	    auto curr = it.get_curr();
-	    VarCorrStatus corr_status = get<0>(curr);
-	    VarCorrLFit corr_lfit = get<1>(curr);
-	    ret.append(make_tuple(get<2>(corr_status), nullptr,
-				  get<1>(corr_lfit),
-				  get<3>(corr_status), get<4>(corr_status),
-				  get<5>(corr_status), get<4>(corr_lfit)));
-	  }
-      }
+      ret.append(correlations_stats(complete_uob, 0, check).maps<P>
+		 ([] (const Desc & desc) { return make_pair(desc, nullptr); }));
 
     // Todas estas correlaciones de uod están en el rango de aplicación
     auto uods = uod_valid_correlations().
@@ -334,9 +354,9 @@ public:
     for (auto it = uods.get_it(); it.has_curr(); it.next())
       {
 	auto uod_pair = it.get_curr();
-	auto uod_corr = uod_pair.first;
+	const Correlation * uod_corr = uod_pair.first;
 	
-	data.def_const("uod", uod_pair.second, &uod_pair.first->unit);
+	data.def_const("uod", uod_pair.second, &uod_corr->unit);
 
 	// uob que contengan al parámetro uod
 	auto corr_list = uob_valid_correlations().filter([&] (auto p)
@@ -344,39 +364,19 @@ public:
 	    return p->names().exists([] (const auto & s) { return s == "uod"; });
 	  });
 
-	if (corr_list.is_empty())
-	  cout << "No uob correlations for " << uod_corr->name << endl;
-
-	DynList<VarCorrStatus> complete_status =
-	  best_correlations(corr_list, 0, check);
-
-	if (complete_status.is_empty())
-	  cout << "complete status is empty" << endl;
-
-	DynList<VarCorrLFit> complete_fits =
-	  correlations_lfits(corr_list, 0, check);
-
-	if (complete_fits.is_empty())
-	  cout << "complete fits is empty" << endl;
-
-	for (auto zit = get_zip_it(complete_status, complete_fits);
-	     zit.has_curr(); zit.next())
-	  {
-	    auto curr = zit.get_curr();
-	    VarCorrStatus corr_status = get<0>(curr);
-	    VarCorrLFit corr_lfit = get<1>(curr);
-	    cout << get<2>(corr_status)->name << get<2>(corr_lfit)->name << endl;
-	    assert(get<2>(corr_status) == get<2>(corr_lfit));
-	    ret.append(make_tuple(get<2>(corr_status), uod_corr,
-				  get<1>(corr_lfit),
-				  get<3>(corr_status), get<4>(corr_status),
-				  get<5>(corr_status), get<4>(corr_lfit)));
-	  }
+	ret.append(correlations_stats(corr_list, 0, check).maps<P>
+		   ([uod_corr] (const Desc & desc)
+		    { return make_pair(desc, uod_corr); }));
 
 	data.remove_last_const("uod");
       }
 
     return ret;
+  }
+
+  DynList<Desc> uoa_correlations_lfits(bool check = true) const
+  {
+    return correlations_stats(uoa_valid_correlations(), 1, check);    
   }
 
   DynList<VarCorrStatus> best_rs_correlations(bool check = true) const

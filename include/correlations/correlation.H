@@ -994,6 +994,8 @@ Declare_Correlation_Subtype(WaterDensity, WaterCorrelation);
 Declare_Correlation_Subtype(PureWaterDensity, WaterCorrelation);
 Declare_Correlation_Subtype(WaterViscosity, WaterCorrelation);
 Declare_Correlation_Subtype(WaterVolumeFactor, WaterCorrelation);
+Declare_Correlation_Subtype(SaturatedWaterVolumeFactor, WaterCorrelation);
+Declare_Correlation_Subtype(UndersaturatedWaterVolumeFactor, WaterCorrelation);
 Declare_Correlation_Subtype(WaterInterfacialTension, WaterCorrelation);
 Declare_Correlation_Subtype(WaterIsothermalCompressibility, WaterCorrelation);
 Declare_Correlation_Subtype(SaturatedWaterIsothermalCompressibility, WaterCorrelation);

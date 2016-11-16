@@ -114,26 +114,27 @@ int main(int argc, char *argv[])
       cout << endl;
     });
 
-  auto fits = sort(pvt.uob_correlations_lfits(), [] (auto t1, auto t2)
-		   //		   { return get<3>(t1) > get<3>(t2); }); // r2
-		   //{ return get<4>(t1) < get<4>(t2); }); // mse
-		   { return get<6>(t1).sumsq < get<6>(t2).sumsq; });
+  auto fits = sort(pvt.uob_correlations_lfits(), [] (auto p1, auto p2)
+   {
+     const auto & d1 = p1.first;
+     const auto & d2 = p2.first;
+     return get<3>(get<2>(d1)).sumsq < get<3>(get<2>(d2)).sumsq;
+   });
 
-  auto fit_list = fits.maps<DynList<string>>([] (auto t)
+  auto fit_list = fits.maps<DynList<string>>([] (auto p)
     {
-      CorrStat::LFit lfit = get<6>(t);
+      PvtAnalyzer::Desc t = p.first;
+      CorrStat::Desc desc = get<2>(t);
+      CorrStat::LFit lfit = get<3>(desc);
       DynList<string> ret = { get<0>(t)->name,
-			      get<1>(t) ? get<1>(t)->name : "null",
-			      to_string(get<3>(t)), to_string(get<4>(t)),
-			      to_string(get<5>(t)), to_string(lfit.c),
+			      p.second ? p.second->name : "null",
+			      to_string(get<0>(desc)), to_string(get<1>(desc)),
+			      to_string(get<2>(desc)), to_string(lfit.c),
 			      to_string(lfit.m), to_string(lfit.sumsq) };
       return ret;      
     });
   fit_list.insert({"uob", "uod", "r2", "mse", "sigma", "c", "m", "sumsq"});
   cout << to_string(format_string(fit_list)) << endl;
-
-  auto p = pvt.get_data().values(0, "p");
-  auto uob = pvt.get_data().values(0, "uob");
 
   bool uod_set = false;
   auto best_uod = get<1>(fits.get_first());
@@ -148,18 +149,72 @@ int main(int argc, char *argv[])
   cout << "uod = " << VtlQuantity(*get<2>(uod), get<1>(uod)) << endl
        << "by " << best_uod->name << endl;
   
-  auto best_corr = get<0>(fits.get_first());
+  auto best_uob_corr = get<0>(fits.get_first().first);
+  auto stats = get<2>(fits.get_first().first);
+  auto fit_pars = get<3>(stats);
 
-  auto best_uob_vals = pvt.get_data().compute(0, best_corr);
+  auto best_uob_vals = pvt.get_data().compute(0, best_uob_corr);
   auto tuned_best_uob_vals =
-    pvt.get_data().tuned_compute(0, best_corr, get<6>(fits.get_first()).c,
-				 get<6>(fits.get_first()).m);
+    pvt.get_data().tuned_compute(0, best_uob_corr, fit_pars.c, fit_pars.m);
+
+  auto uobp = tuned_best_uob_vals.get_last();
+
+  pvt.get_data().def_const("uobp", uobp, &best_uob_corr->unit);
+
+  cout << "All uoa correlations:" << endl;
+  Correlation::array().filter([] (auto p) { return p->target_name() == "uoa"; }).
+    for_each([] (auto p)
+    {
+      cout << p->call_string() << endl;
+    });
+
+  auto uoa_fits = pvt.uoa_correlations_lfits();
+
+  auto uoa_list = uoa_fits.maps<DynList<string>>([] (auto d)
+    {
+      CorrStat::Desc desc = get<2>(d);
+      CorrStat::LFit lfit = get<3>(desc);
+      DynList<string> ret = { get<0>(d)->name,
+			      to_string(get<0>(desc)), to_string(get<1>(desc)),
+			      to_string(get<2>(desc)), to_string(lfit.c),
+			      to_string(lfit.m), to_string(lfit.sumsq) };
+      return ret;      
+    });
+  uoa_list.insert({"uob", "r2", "mse", "sigma", "c", "m", "sumsq"});
+  cout << to_string(format_string(uoa_list)) << endl;
+
+  auto best_uoa = uoa_fits.get_first();
+
+  auto best_uoa_corr = get<0>(best_uoa);
+  auto best_uoa_fit = get<3>(get<2>(best_uoa));
+
+  auto p_below = pvt.get_data().values(0, "p");
+  auto p_above = pvt.get_data().values(1, "p");
+  auto uob = pvt.get_data().values(0, "uob");
+
+  auto p = to_dynlist(p_below);
+  p.append(to_dynlist(p_above));
+  
+  DefinedCorrelation defcorr("p");
+  defcorr.add_tuned_correlation(best_uob_corr, p_below.get_first(),
+				p_below.get_first(), fit_pars.c, fit_pars.m);
+  defcorr.add_tuned_correlation(best_uoa_corr, p_above.get_first(),
+				p_above.get_first(),
+				best_uoa_fit.c, best_uoa_fit.m);
+
+  auto values = samples.maps<double>([&defcorr] (const auto & pars)
+    {
+      return defcorr.compute_by_names(pars);
+    });
+
 
   cout << Rvector("P", p) << endl
        << Rvector("uob", uob) << endl
-       << Rvector(best_corr->name, best_uob_vals) << endl
-       << Rvector("tuned." + best_corr->name, tuned_best_uob_vals) << endl;
-			   
+       << Rvector(best_uob_corr->name, best_uob_vals) << endl
+       << Rvector("tuned." + best_uob_corr->name, tuned_best_uob_vals) << endl;
+
+  
+
   if (uod_set)
     pvt.get_data().remove_last_const("uod");
 
