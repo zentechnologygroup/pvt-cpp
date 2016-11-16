@@ -149,6 +149,8 @@ public:
     return LFit(y, yc);
   }
 
+  // TODO una sola función que haga todo
+
   struct NlFit
   {
     double c = 0;
