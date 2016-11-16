@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     {
       auto r = get<4>(t);
       auto ptr = get<2>(t);
-      auto values = pvt.get_data().tuned_compute(0, "p", ptr, r.c, r.m);
+      auto values = pvt.get_data().tuned_compute(0, ptr, r.c, r.m);
       return make_pair(ptr->name, move(values));
     });
 

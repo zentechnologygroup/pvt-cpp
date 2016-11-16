@@ -114,6 +114,54 @@ int main(int argc, char *argv[])
       cout << endl;
     });
 
-  auto fits = pvt.uob_correlations_lfits();
+  auto fits = sort(pvt.uob_correlations_lfits(), [] (auto t1, auto t2)
+		   //		   { return get<3>(t1) > get<3>(t2); }); // r2
+		   //{ return get<4>(t1) < get<4>(t2); }); // mse
+		   { return get<6>(t1).sumsq < get<6>(t2).sumsq; });
+
+  auto fit_list = fits.maps<DynList<string>>([] (auto t)
+    {
+      CorrStat::LFit lfit = get<6>(t);
+      DynList<string> ret = { get<0>(t)->name,
+			      get<1>(t) ? get<1>(t)->name : "null",
+			      to_string(get<3>(t)), to_string(get<4>(t)),
+			      to_string(get<5>(t)), to_string(lfit.c),
+			      to_string(lfit.m), to_string(lfit.sumsq) };
+      return ret;      
+    });
+  fit_list.insert({"uob", "uod", "r2", "mse", "sigma", "c", "m", "sumsq"});
+  cout << to_string(format_string(fit_list)) << endl;
+
+  auto p = pvt.get_data().values(0, "p");
+  auto uob = pvt.get_data().values(0, "uob");
+
+  bool uod_set = false;
+  auto best_uod = get<1>(fits.get_first());
+  if (best_uod)
+    {
+      pvt.get_data().def_const("uod", pvt.get_data().compute(best_uod),
+			       &best_uod->unit);
+      uod_set = true;
+    }
+
+  auto uod = pvt.get_data().find_const("uod");
+  cout << "uod = " << VtlQuantity(*get<2>(uod), get<1>(uod)) << endl
+       << "by " << best_uod->name << endl;
+  
+  auto best_corr = get<0>(fits.get_first());
+
+  auto best_uob_vals = pvt.get_data().compute(0, best_corr);
+  auto tuned_best_uob_vals =
+    pvt.get_data().tuned_compute(0, best_corr, get<6>(fits.get_first()).c,
+				 get<6>(fits.get_first()).m);
+
+  cout << Rvector("P", p) << endl
+       << Rvector("uob", uob) << endl
+       << Rvector(best_corr->name, best_uob_vals) << endl
+       << Rvector("tuned." + best_corr->name, tuned_best_uob_vals) << endl;
+			   
+  if (uod_set)
+    pvt.get_data().remove_last_const("uod");
+
 }
 

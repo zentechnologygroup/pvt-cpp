@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
 
   boa_valid.for_each([&pvt] (auto t)
     {
-      cout << Rvector(t->name, pvt.get_data().compute(1, "p", t)) << endl;
+      cout << Rvector(t->name, pvt.get_data().compute(1, t)) << endl;
     });
 
   auto boa_lfits_list = pvt.boa_lfits_list(boa_fits);
