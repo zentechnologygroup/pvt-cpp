@@ -241,7 +241,6 @@ struct CorrelationInstantiater
 
     SgwJenningsNewman::get_instance();
 
-    CwSpiveyMN::get_instance();
     CwbSpiveyMN::get_instance();
     CwaSpiveyMN::get_instance();
     CwaDodsonStanding::get_instance();
