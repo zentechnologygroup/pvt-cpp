@@ -90,4 +90,74 @@ CgfwSpiveyMN::impl(const Quantity<Celsius> & t,
   return Quantity<mPa_1>(cgfw);
 }
 
+
+inline Quantity<Sm3_Sm3>
+BwSpiveyMNDry::impl(const Quantity<Celsius> & t,
+		    const Quantity<mPascal> & p,
+		    const Quantity<mPascal> & pv,
+		    const Quantity<Molality_NaCl> & nacl_concentration) const
+{
+  const double m = nacl_concentration.raw();
+
+  // Transformation from °C to °K
+  const double tk = Quantity<Kelvin>(t).raw();
+
+  if (p < pv)
+    {
+      ostringstream s;
+      s << "BwSpiveyMN::impl: received pressure " << p
+	<< " is less than computed vapor pressure " << pv << " "
+	<< p.unit.name;
+      throw domain_error(s.str());
+    }
+
+  // pw: DENSITY OF BRINE WITH DISSOLVED METHANE
+  // Density of methane-free brine at the temperature and pressure of
+  // evaluation 
+  const double pgfw =
+    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl_concentration).raw();
+
+  // Specific volume of the gas-free brine [cm³/g]
+  const double vgfw = 1.0/pgfw;
+
+  // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
+  // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
+  const double mch4w =
+    MwSpiveyMN::get_instance().impl(t, p, pv, nacl_concentration).raw();
+
+  // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE
+  // TEMPERATURE AND PRESSURE OF EVALUATION
+  
+  // Derivatives with respect to P
+  const double c3 = -8.5658e-2 + 1.31961e-2*log(tk) + 7.338/tk +
+    9.05e-2/(680 - tk);
+  
+  const double c4 = 2.260e-1/tk + 2 * -1.227e-3 * p.raw()/tk;
+
+  constexpr double R = 8.314467; // Universal gas constant [MPa
+				 // cm³/gmol K] (McCain et al., 2011) 
+            
+  // Partial molar volume of methane in brine
+  const double vmch4w = R*tk*(c3 + 2*m*c4);
+
+  const Quantity<Celsius> Tstd = 15.555556; // °C (60 °F)  
+  constexpr double Pstd = 0.101352; // MPa (14.7 psia)
+
+  // Density of methane-free brine [g/cm³] at standard temperature and pressure
+  const double pgfwstd =
+    PwSpiveyMNGasFree::get_instance().impl(Tstd, Pstd, nacl_concentration).raw();
+
+  // Specific volume of methane-free brine [cm³/g]
+  const double vgfwstd = 1.0/pgfwstd;
+
+  // Bw: FORMATION VOLUME FACTOR [res cm³/ST cm³]       
+  // Molecular weight MNaCl: 58.4428 g/gmol
+  const double n = (1000 + m * 58.4428) * vgfw + mch4w * vmch4w;    // Volume at reservoir conditions
+  const double d = (1000 + m * 58.4428) * vgfwstd;                  // Volume at stock tank conditions
+  const double bw = n/d;
+
+  return Quantity<Sm3_Sm3>(bw);
+}
+
+
 #endif // SPIVEY_DRY_IMPL_H

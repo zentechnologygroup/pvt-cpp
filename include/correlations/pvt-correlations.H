@@ -25,6 +25,8 @@
 # include "water-density.H"
 # include "water-viscosity.H"
 # include "water-volume-factor.H"
+# include "saturated-water-volume-factor.H"
+# include "undersaturated-water-volume-factor.H"
 # include "water-interfacial-tension.H"
 # include "water-isothermal-compressibility.H"
 # include "saturated-water-isothermal-compressibility.H"
@@ -56,6 +58,8 @@
 # include "water-density-impl.H"
 # include "water-viscosity-impl.H"
 # include "water-volume-factor-impl.H"
+# include "saturated-water-volume-factor-impl.H"
+# include "undersaturated-water-volume-factor-impl.H"
 # include "water-interfacial-tension-impl.H"
 # include "water-isothermal-compressibility-impl.H"
 # include "saturated-water-isothermal-compressibility-impl.H"
@@ -251,6 +255,14 @@ struct CorrelationInstantiater
     PvSpiveyMN::get_instance();
     MwSpiveyMN::get_instance();
     CgfwSpiveyMN::get_instance();
+
+    BwbSpiveyMN::get_instance();
+    BwbMcCain::get_instance();
+    BwbMcCoy::get_instance();
+    BwaSpiveyMN::get_instance();
+    BwaMcCain::get_instance();
+
+    BwSpiveyMNDry::get_instance();
 
   }
 };
