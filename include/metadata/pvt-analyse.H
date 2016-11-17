@@ -54,6 +54,23 @@ public:
     return data.matching_const_valid_correlations("pb");
   }
 
+  //                                // value error
+  DynList<tuple<const Correlation*, double, double>>
+    pb_best_correlations() const
+  {
+    using T = tuple<const Correlation*, double, double>;
+
+    double pb = get_pb();
+
+    auto ret = pb_valid_correlations().maps<T>([pb, this] (auto p)
+      {
+	auto val = data.compute(p, false);
+	return make_tuple(p, val, fabs(val - pb));
+      });
+
+    return sort(ret, [] (auto t1, auto t2) { return get<2>(t1) < get<2>(t2); });
+  }
+
   DynList<const Correlation*> rs_correlations() const
   {
     return data.matching_correlations("Below Pb").
