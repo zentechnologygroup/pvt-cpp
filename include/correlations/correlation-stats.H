@@ -149,9 +149,6 @@ public:
     return LFit(y, yc);
   }
 
-<<<<<<< HEAD
-  // TODO una sola función que haga todo
-=======
   //                  r2       mse   sigma
   using Desc = tuple<double, double, double, LFit>;
 
@@ -164,7 +161,6 @@ public:
 
     return make_tuple(r2, mse, sigma, fit);
   }
->>>>>>> 4ce4bf91bbf2a1ff5998e157d71748c590985265
 
   struct NlFit
   {
