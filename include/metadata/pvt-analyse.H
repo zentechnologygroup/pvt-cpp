@@ -616,11 +616,6 @@ public:
     return s.str();
   }
 
-  // string to_R(const string & prefix,  DynList<pair<string, DynList<double>>> && l)
-  // {
-  //   return to_R(prefix, l);
-  // }
-
   PvtAnalyzer() {}
 
   PvtAnalyzer(istream & input)
