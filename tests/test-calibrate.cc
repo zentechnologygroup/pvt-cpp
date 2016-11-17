@@ -47,6 +47,8 @@ ValueArg<string> output_type = { "t", "output-type", "output type", false,
 MultiArg<string> corr_names = { "n", "name", "add correlation name", false,
 				"add correlation name to computations", cmd };
 
+// TODO definit bobp uobp
+
 PvtAnalyzer load_pvt_data(istream & input)
 {
   return PvtAnalyzer(input);
