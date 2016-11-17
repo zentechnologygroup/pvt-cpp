@@ -32,6 +32,7 @@
 
 ## 11. usar bitex con estilo bobliografico
 - Created at   2016-10-15 09:52:38 -0400
+- Completed at 2016-11-17 13:51:28 -0400
 
 ## 12. manejar excepciones en lectura del json
 - Created at   2016-10-18 21:45:06 -0400
@@ -42,6 +43,7 @@
 
 ## 14. pone en test-corr que se imprima nota tecnica
 - Created at   2016-10-21 14:54:17 -0400
+- Completed at 2016-11-17 13:51:22 -0400
 
 ## 15. eliminar uso de gsl para versiones standalone por ser de licencia gpl
 - Created at   2016-10-23 10:22:32 -0400
@@ -49,9 +51,6 @@
 ## 16. flag en test-conversion que liste unidades dada magnitud física
 - Created at   2016-10-31 17:25:29 -0400
 
-## 17. llamadas a matching_correlations valid_correlations pueden ser factorizadas y con eso acelarar computo
-- Created at   2016-11-13 11:35:43 -0400
-
-## 18. Intervalos de correlación por partes deben estar completos y no separados como actualmente ocurre
+## 17. Intervalos de correlación por partes deben estar completos y no separados como actualmente ocurre
 - Created at   2016-11-16 20:10:58 -0400
 

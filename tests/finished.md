@@ -358,3 +358,9 @@
 - Comment      
 - Finished     
 
+## 61. llamadas a matching_correlations valid_correlations pueden ser factorizadas y con eso acelarar computo
+- Created at   2016-11-13 11:35:43 -0400
+- Completed at 
+- Comment      
+- Finished     
+
