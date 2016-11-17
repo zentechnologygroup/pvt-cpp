@@ -190,33 +190,29 @@ int main(int argc, char *argv[])
 
   auto p_below = pvt.get_data().values(0, "p");
   auto p_above = pvt.get_data().values(1, "p");
-  auto uob = pvt.get_data().values(0, "uob");
+  auto uo = to_dynlist(pvt.get_data().values(0, "uob"));
+  uo.append(to_dynlist(pvt.get_data().values(1, "uoa")));
 
   auto p = to_dynlist(p_below);
   p.append(to_dynlist(p_above));
   
   DefinedCorrelation defcorr("p");
   defcorr.add_tuned_correlation(best_uob_corr, p_below.get_first(),
-				p_below.get_first(), fit_pars.c, fit_pars.m);
+				p_below.get_last(), fit_pars.c, fit_pars.m);
   defcorr.add_tuned_correlation(best_uoa_corr, p_above.get_first(),
-				p_above.get_first(),
+				p_above.get_last(),
 				best_uoa_fit.c, best_uoa_fit.m);
 
+  auto samples = pvt.get_data().samples_by_name(defcorr, "p", { 0, 1 } );
   auto values = samples.maps<double>([&defcorr] (const auto & pars)
     {
       return defcorr.compute_by_names(pars);
     });
 
-
   cout << Rvector("P", p) << endl
-       << Rvector("uob", uob) << endl
-       << Rvector(best_uob_corr->name, best_uob_vals) << endl
-       << Rvector("tuned." + best_uob_corr->name, tuned_best_uob_vals) << endl;
+       << Rvector("Uo.Lab", uo) << endl
+       << Rvector("Uo", values) << endl;
 
   
-
-  if (uod_set)
-    pvt.get_data().remove_last_const("uod");
-
 }
 
