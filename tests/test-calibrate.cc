@@ -176,14 +176,16 @@ OutputType get_output_type(const string & type)
 string tuned_name(const PvtAnalyzer::Desc & desc)
 {
   ostringstream s;
-  s << "tuned_" << PvtAnalyzer::c(desc) << "_"
-    << PvtAnalyzer::m(desc) << "_"
-    << PvtAnalyzer::correlation(desc)->name;
+  s << "tuned." << PvtAnalyzer::correlation(desc)->name;
   return s.str();
 }
 
+//                     name    tuned    c       m
+using CorrDesc = tuple<string, bool, double, double>;
+
 // TODO: hacer la misma versión pero para DefinedCorrelation
-pair<DynList<string>, DynList<DynList<double>>>
+
+pair<DynList<CorrDesc>, DynList<DynList<double>>>
 eval_correlations(const DynList<PvtAnalyzer::Desc> & l,
 		  const string & set_name,
 		  const string & col_name,
@@ -206,7 +208,8 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & l,
       ret.append(DynList<double>( { get<0>(t), get<1>(t) } ));
     }
 
-  DynList<string> header = { "p", target_name };
+  DynList<CorrDesc> header = { make_tuple("p", false, 0, 0),
+			       make_tuple(target_name, false, 0, 0) };
 
   switch (eval_type)
     {
@@ -221,7 +224,8 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & l,
 	      row.append(it.get_curr());
 	      it.next();
 	    });
-	  header.append(PvtAnalyzer::correlation(desc)->name);
+	  header.append(make_tuple(PvtAnalyzer::correlation(desc)->name, false,
+				   0, 0));
 	}
 	break;
     case EvalType::Calibrated:
@@ -238,7 +242,8 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & l,
 	      row.append(it.get_curr());
 	      it.next();
 	    });
-	  header.append(tuned_name(desc));
+	  header.append(make_tuple(tuned_name(desc), true,
+				   PvtAnalyzer::c(desc), PvtAnalyzer::m(desc)));
 	}
       break;
     case EvalType::Both:
@@ -259,8 +264,10 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & l,
 				 vit.next();
 				 tit.next();
 			       });
-	  header.append(PvtAnalyzer::correlation(desc)->name);
-	  header.append(tuned_name(desc));
+	  header.append(make_tuple(PvtAnalyzer::correlation(desc)->name, false,
+				   0, 0));
+	  header.append(make_tuple(tuned_name(desc), true,
+				   PvtAnalyzer::c(desc), PvtAnalyzer::m(desc)));
 	}
       break;
     default:
@@ -300,33 +307,33 @@ void process_pb(PvtAnalyzer & pvt)
     }
 }
 
-string mat_format(const pair<DynList<string>, DynList<DynList<double>>> & dmat)
+DynList<DynList<string>>
+string_mat(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
 {
   auto mat = dmat.second.maps<DynList<string>>([] (const auto & row)
     {
       return row.template maps<string>([] (auto v) { return to_string(v); });
     });
-  mat.insert(dmat.first);
+  mat.insert(dmat.first.maps<string>([] (auto t) { return get<0>(t); }));
 
-  ostringstream s;
-  s << to_string(format_string(mat));
-  return s.str();
+  return mat;
 }
 
-string csv_format(const pair<DynList<string>, DynList<DynList<double>>> & dmat)
+string mat_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
 {
-  auto mat = dmat.second.maps<DynList<string>>([] (const auto & row)
-    {
-      return row.template maps<string>([] (auto v) { return to_string(v); });
-    });
-  mat.insert(dmat.first);
-
   ostringstream s;
-  s << to_string(format_string_csv(mat));
+  s << to_string(format_string(string_mat(dmat)));
   return s.str();
 }
 
-string r_format(const pair<DynList<string>, DynList<DynList<double>>> & dmat)
+string csv_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
+{
+  ostringstream s;
+  s << to_string(format_string_csv(string_mat(dmat)));
+  return s.str();
+}
+
+string r_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
 {
   ostringstream s;
 
@@ -334,14 +341,14 @@ string r_format(const pair<DynList<string>, DynList<DynList<double>>> & dmat)
   for (auto it = get_zip_it(dmat.first, values); it.has_curr(); it.next())
     {
       auto t = it.get_curr();
-      s << Rvector(get<0>(t), get<1>(t)) << endl;
+      s << Rvector(get<0>(get<0>(t)), get<1>(t)) << endl;
     }
 
   return s.str();
 }
 
 string
-json_format(const pair<DynList<string>, DynList<DynList<double>>> & dmat)
+json_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
 {
   json j;
 
@@ -349,10 +356,10 @@ json_format(const pair<DynList<string>, DynList<DynList<double>>> & dmat)
   for (auto it = get_zip_it(dmat.first, values); it.has_curr(); it.next())
     {
       auto t = it.get_curr();
-      s << Rvector(get<0>(t), get<1>(t)) << endl;
+      //s << Rvector(get<0>(t), get<1>(t)) << endl;
     }
 
-  return s.str();
+  return j.dump();
 }
 
 void process_rs(PvtAnalyzer & pvt)
