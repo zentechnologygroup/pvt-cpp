@@ -340,6 +340,21 @@ string r_format(const pair<DynList<string>, DynList<DynList<double>>> & dmat)
   return s.str();
 }
 
+string
+json_format(const pair<DynList<string>, DynList<DynList<double>>> & dmat)
+{
+  json j;
+
+  auto values = transpose(dmat.second);
+  for (auto it = get_zip_it(dmat.first, values); it.has_curr(); it.next())
+    {
+      auto t = it.get_curr();
+      s << Rvector(get<0>(t), get<1>(t)) << endl;
+    }
+
+  return s.str();
+}
+
 void process_rs(PvtAnalyzer & pvt)
 {
   if (corr_all.isSet())
