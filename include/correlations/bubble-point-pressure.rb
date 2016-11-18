@@ -23,7 +23,7 @@ add_parameter("yo", "Sg_do", "Oil specific gravity", "Quantity<Api>(63.7)",  "Qu
 add_synonym("yo", "api", "api")
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  6,  3298.6)
 add_parameter("t", "Fahrenheit", "Temperature",  74,  341.6)
-add_db("Based on a total of 1709 data sets (1661 data sets from 13 different published literature papers and 48 data sets originated from Kuwait reservoirs from unpublished sources.")
+add_db("Based on a total of 1709 data sets (1661 data sets from 13 different published literature papers and 48 data sets originated from Kuwait reservoirs from unpublished sources).")
 add_ref("alShammasi:1999")
 add_author("Al-Shammasi")
 add_eq("P_b={\\gamma_o}^{5.527215}\\cdot\\,\\exp^{\\left({-1.841408\\,\\cdot\\,[\\gamma_o*\\gamma_g]}\\right)}\\cdot{\\left[R_s\\cdot(T + 460)\\cdot\\gamma_g\\right]}^{0.783716}")
