@@ -436,6 +436,12 @@ struct EmpiricalData
     return Array<double>();
   }
 
+  // return a list of stored values for the symbol name of the vars set set_name
+  Array<double> values(const string & set_name, const string & name) const
+  {
+    return values(set_index(set_name), name);
+  }
+
   // return a list of stored values for the symbol name in the vars
   // sets contained in sets
   Array<double> values(const DynList<size_t> & sets, const string & name) const
@@ -479,11 +485,6 @@ struct EmpiricalData
   quantities(const string & set_name, const string & var_name) const
   {
     return quantities(set_index(set_name), var_name);
-  }
-
-  Array<double> values(const string & set_name, const string & name) const
-  {
-    return values(set_index(set_name), name);
   }
 
   string to_string() const

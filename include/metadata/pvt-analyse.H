@@ -22,7 +22,9 @@ public:
       : correlation(ptr), c(c), m(m), is_calibrated(c != 0 or m != 1) {}
   };
 
-  EmpiricalData & get_data() { return data; }
+  EmpiricalData & get_data() noexcept { return data; }
+
+  const EmpiricalData & get_data() const noexcept { return data; }
 
   void check_sorted(const string & set_name, const string & col_name,
 		    bool ascending = true) const
