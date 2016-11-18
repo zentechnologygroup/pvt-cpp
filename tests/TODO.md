@@ -54,3 +54,9 @@
 ## 17. Intervalos de correlación por partes deben estar completos y no separados como actualmente ocurre
 - Created at   2016-11-16 20:10:58 -0400
 
+## 18. bobp y uobp están en la matrix ==> vrificar matrix y determinar los valores
+- Created at   2016-11-17 21:20:33 -0400
+
+## 19. script R para plot
+- Created at   2016-11-17 21:21:01 -0400
+
