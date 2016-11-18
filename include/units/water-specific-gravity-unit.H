@@ -52,7 +52,7 @@ Declare_Unit(CgL, "g_NaCl/L", R"DESC(Total solid disolved in a brine
 Declare_Unit(Dissolved_Salt_Fraction, "disolvedSaltFraction", 
        R"DESC(Unit used to measure salinity of a brine
        in normal conditions in fraction of disolved salt)DESC",
-       0, 0.3);
+	     WaterSpecicGravity, 0, 0.3);
 
 
 // To pwl_lb/ft3

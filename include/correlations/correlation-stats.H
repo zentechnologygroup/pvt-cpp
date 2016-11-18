@@ -149,6 +149,19 @@ public:
     return LFit(y, yc);
   }
 
+  //                  r2       mse   sigma
+  using Desc = tuple<double, double, double, LFit>;
+
+  Desc stats(const Array<double> & yc) const
+  {
+    double r2 = this->r2(yc);
+    double mse = this->mse(yc);
+    double sigma = sigma_distance(yc);
+    LFit fit = linear_fit(yc);
+
+    return make_tuple(r2, mse, sigma, fit);
+  }
+
   struct NlFit
   {
     double c = 0;

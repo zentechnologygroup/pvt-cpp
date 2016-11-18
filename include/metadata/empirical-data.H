@@ -581,6 +581,29 @@ struct EmpiricalData
     num_const++;
   }
 
+  void remove_last_const(const string & name)
+  {
+    if (not contains_name(name))
+      {
+	ostringstream s;
+	s << "EmpiricalData::remove_const(): name " << name << " is not defined";
+	throw domain_error(s.str());
+      }
+
+    if (const_names.get_last() != name)
+      {
+	ostringstream s;
+	s << "EmpiricalData::remove_const(): name " << name << " is not the last";
+	throw domain_error(s.str());
+      }
+
+    const_names.remove_last();
+    const_vals.remove_last();
+    const_units.remove_last();
+    const_table.remove(name);
+    num_const--;
+  }
+
 private:
 
   static const Unit * search_unit(const string & name)
@@ -916,7 +939,7 @@ public:
   }
 
   /// return true if correlation correlation_ptr could be applied to
-  /// the empirical data including contants and the variable set `seti`
+  /// the empirical data including constants and the variable set `seti`
   bool can_be_applied(size_t seti, const Correlation * correlation_ptr) const
   {
     return
@@ -927,6 +950,8 @@ public:
       });
   }
 
+  /// return true if correlation correlation_ptr could be applied to
+  /// the empirical data including constants and the variable set `set_name`
   bool can_be_applied(const string &set_name,
 		      const Correlation * correlation_ptr) const
   {
@@ -935,9 +960,9 @@ public:
 
   /// Return a list of missing parameters needed for computing the
   /// correlation `correlation_ptr` according to the constants stored
-  /// in all he data set and variables stored in the variables set `seti`
+  /// in all the data set and variables stored in the variables set `seti`
   DynList<string>
-  missing_parameters(size_t seti,  const Correlation * correlation_ptr) const
+  missing_parameters(size_t seti, const Correlation * correlation_ptr) const
   {
     DynList<string> ret;
     for (auto it = correlation_ptr->get_preconditions().get_it();
@@ -949,6 +974,26 @@ public:
 		       return this->exists_const_name(s.first) or
 			 this->exists_var_name(seti, s.first);
 		     })))
+	  ret.append(par.name);
+      }
+    return ret;
+  }
+
+  /// Return a list of missing parameters needed for computing the
+  /// correlation `correlation_ptr` according to the constants stored
+  /// in the data set
+  DynList<string>
+  missing_parameters(const Correlation * correlation_ptr) const
+  {
+    DynList<string> ret;
+    for (auto it = correlation_ptr->get_preconditions().get_it();
+	 it.has_curr(); it.next())
+      {
+	const auto & par = it.get_curr();
+	if (not (par.names().exists([this] (const auto & s)
+				    {
+				      return this->exists_const_name(s.first);
+				    })))
 	  ret.append(par.name);
       }
     return ret;
@@ -1018,18 +1063,8 @@ public:
   // Return a list of permutations inputs for `correlation_ptr` built
   // according to column index `col`
   DynList<DynList<double>>
-  correlation_perms(size_t seti, const Correlation * correlation_ptr,
-		    const string & par_name) const
+  correlation_perms(size_t seti, const Correlation * correlation_ptr) const
   {
-    auto pos = correlation_ptr->parameter_pos(par_name);
-    if (pos >= correlation_ptr->get_num_pars())
-      {
-	ostringstream s;
-	s << "EmpiricalData::correlation_perms(): parameter name " << par_name
-	  << " not found";
-	throw domain_error(s.str());
-      }
-
     const size_t & num_rows = var_sets[seti].samples.size();
     return transpose(correlation_values(seti, correlation_ptr).
       maps<DynList<double>>([&] (const auto & l)
@@ -1069,8 +1104,8 @@ public:
 
   using InvalidRange = pair<string, DynList<double>>;
 
-  /// given `correlaion_ptr` and the var set `seti`, it returns a list
-  /// of names and their values which are not inside in te correlation range
+  /// given `correlation_ptr` and the var set `seti`, it returns a list
+  /// of names and its values which are not inside in the correlation range
   DynList<InvalidRange>
   invalid_parameters_values(size_t seti,
 			    const Correlation * correlation_ptr) const
@@ -1258,8 +1293,7 @@ public:
   /// lesser than max_val
   DynList<DynList<Correlation::ParByName>>
   generate_samples_by_name(const Correlation * correlation_ptr,
-			   size_t seti,
-			   size_t col,
+			   size_t seti, size_t col,
 			   double min_val, double max_val) const
   {
     if (not (max_val >= min_val))
@@ -1400,8 +1434,7 @@ public:
 
   DynList<DynList<Correlation::ParByName>>
   generate_samples_by_name(const Correlation * correlation_ptr,
-			   size_t seti,
-			   const string & col_name,
+			   size_t seti, const string & col_name,
 			   double min_val, double max_val) const
   {
     auto var_set = var_sets[seti];
@@ -1548,24 +1581,13 @@ public:
     return ret;
   }
 
-  // DynList<double> compute(const DefinedCorrelation & correlation,
-  // 			   const string & var_name, 
-  // 			   DynList<size_t> sets) const
-  // {
-  //   return generate_samples_by_name(correlation, var_name, sets).
-  //     maps<double>([
-			    
-			  
-
   /// returns a column of correlation outputs for the values stored in
   /// this data set
-  DynList<double> compute(size_t seti, const string & row_name,
-			  const Correlation * correlation_ptr,
+  DynList<double> compute(size_t seti, const Correlation * correlation_ptr,
 			  bool check = true) const
   {
     return
-      correlation_perms(seti, correlation_ptr, row_name).
-      maps<double>([&](const auto & l)
+      correlation_perms(seti, correlation_ptr).maps<double>([&](const auto & l)
 		   {
 		     return correlation_ptr->compute(l, check);
 		   });
@@ -1582,45 +1604,32 @@ public:
     return ret;
   }
 
-  DynList<double> tuned_compute(size_t seti, const string & row_name,
+  DynList<double> tuned_compute(size_t seti,
 				const Correlation * correlation_ptr,
 				double c, double m,
 				bool check = true) const
   {
     return
-      correlation_perms(seti, correlation_ptr, row_name).
-      maps<double>([&](const auto & l)
+      correlation_perms(seti, correlation_ptr).maps<double>([&](const auto & l)
 		   {
 		     return correlation_ptr->tuned_compute(l, c, m, check);
 		   });
-
-    auto vals = correlation_values(seti, correlation_ptr);
-
-    DynList<double> ret;
-
-    for_each_perm(vals, [&ret, correlation_ptr, check, c, m] (const auto & pars)
-      {
-	ret.append(correlation_ptr->tuned_compute(pars, c, m, check));
-      });
-    
-    return ret;
   }
 
-  DynList<double> compute(const string & set_name, const string & row_name,
+  DynList<double> compute(const string & set_name, 
 			  const Correlation * correlation_ptr,
 			  bool check = true) const
   {
-    return compute(set_index(set_name), row_name, correlation_ptr, check);
+    return compute(set_index(set_name), correlation_ptr, check);
   }
 
   DynList<double> tuned_compute(const string & set_name,
-				const string & row_name,
 				const Correlation * correlation_ptr,
 				double c, double m,
 				bool check = true) const
   {
     return
-      tuned_compute(set_index(set_name), row_name, correlation_ptr, c, m, check);
+      tuned_compute(set_index(set_name), correlation_ptr, c, m, check);
   }
 
   /// Builds a parameter list for correlation `corr_ptr` extracting the

@@ -2,7 +2,7 @@
 
 begin_correlation("PwSpiveyMN", "WaterDensity", "Gr_cm3")
 add_title("SPIVEY, McCAIN & NORTH CORRELATION, CALCULATION OF WATER DENSITY")
-add_db("The brine density correlation was obtained by combining the correlations developed by Spivey et al., for density of methane-free sodium chloride brine and solubility of methane in sodium chloride brines, with published correlations for specific volume and partial molar volume of methane in brine.")
+add_db("The brine density correlation was obtained by combining the correlations developed by Spivey, McCain & North (2004), for density of methane-free sodium chloride brine and solubility of methane in sodium chloride brines, with published correlations for specific volume and partial molar volume of methane in brine.")
 add_db("The methane solubility correlation is based on 1039 data points from a database of volumetric properties of sodium chloride brine.")
 add_parameter("t", "Celsius", "Temperature",  0,  275) 
 add_parameter("p", "mPascal", "Pressure",  0.9,  200)
@@ -24,7 +24,7 @@ add_parameter("t", "Celsius", "Temperature",  0,  275)
 add_parameter("p", "mPascal", "Pressure",  0.1,  200)
 add_parameter("nacl_concentration", "Molality_NaCl",
               "Dissolved salt concentration", 0, 5.7)
-add_author("Spivey, McCain & North (Methane-free)")
+add_author("Spivey, McCain & North (Methane-Free)")
 add_ref("spivey:2004")
 add_ref("mcCain:2011")
 add_note("Spivey, McCain & North (2004) used the IAPWS-95 international standard equation of state for water to determine the coefficients of the correlation for pure water density.")
