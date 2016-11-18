@@ -21,11 +21,11 @@ ValueArg<string> property =
 ValueArg<double> value = { "v", "value", "value for property", false, 0,
 			   "value for the given property", cmd };
   
-SwitchArg corr_List = { "l", "list", "list matching correlations", cmd };
+SwitchArg corr_list = { "l", "list", "list matching correlations", cmd };
 
-SwitchArg corr_list = { "L", "List", "list all associated correlations", cmd };
+SwitchArg corr_all = { "a", "all", "list all associated correlations", cmd };
 
-SwitchArg corr_best = { "B", "best", "list best correlations", cmd };
+SwitchArg corr_best = { "b", "best", "list best correlations", cmd };
   
 SwitchArg set_val = { "s", "set-value", "puts given value in data set", cmd };
 
@@ -34,6 +34,10 @@ ValueArg<string> set_corr = { "S", "set-correlation", "set correlation",
 			      "set correlation for the given property", cmd };
 
 SwitchArg calibrate = { "c", "calibrate", "calibrate given correlation", cmd };
+
+SwitchArg plot = { "p", "plot", "generate plot data", cmd };
+
+SwitchArg r = { "R", "R", "generate R script", cmd };
 
 ValueArg<string> unit = { "u", "unit", "unit", false, "",
 			  "unit for the given value", cmd };
@@ -56,10 +60,6 @@ MultiArg<string> corr_names = { "n", "name", "add correlation name", false,
 ValueArg<string> file =
   { "f", "file", "file name", false, "", "file name", cmd };
 
-ValueArg<double> bobp =
-  { "", "bobp", "bobp value", false, 0, "bobp value", cmd };
-ValueArg<double> uobp =
-  { "", "uobp", "uobp value", false, 0, "uobp value", cmd };
 ValueArg<double> uod =
   { "", "uod", "uod value", false, 0, "uod value", cmd };
 
@@ -73,6 +73,66 @@ void list_correlations(const DynList<const Correlation*> & l)
   l.for_each([] (auto p) { cout << p->call_string() << endl; });
 }
 
+auto cmp_r2 = [] (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
+{
+  const CorrStat::Desc & s1 = get<2>(d1);
+  const CorrStat::Desc & s2 = get<2>(d2);
+  const auto & r2_1 = get<0>(s1);
+  const auto & r2_2 = get<0>(s2);
+  return r2_1 > r2_2;
+};
+
+auto cmp_mse = [] (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
+{
+  const CorrStat::Desc & s1 = get<2>(d1);
+  const CorrStat::Desc & s2 = get<2>(d2);
+  const auto & mse1 = get<1>(s1);
+  const auto & mse2 = get<1>(s2);
+  return mse1 < mse2;
+};
+
+auto cmp_dist = [] (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
+{
+  const CorrStat::Desc & s1 = get<2>(d1);
+  const CorrStat::Desc & s2 = get<2>(d2);
+  const auto & sigma1 = get<2>(s1);
+  const auto & sigma2 = get<2>(s2);
+  return sigma1 < sigma2;
+};
+
+auto cmp_sumsq = [] (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
+{
+  const CorrStat::Desc & s1 = get<2>(d1);
+  const CorrStat::Desc & s2 = get<2>(d2);
+  const CorrStat::LFit & f1 = get<3>(s1);
+  const CorrStat::LFit & f2 = get<3>(s2);
+  return f1.sumsq < f2.sumsq;
+};
+
+auto get_cmp(const string & sort_type)
+  -> bool (*)(const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
+{
+  if (sort_type == "r2") return cmp_r2;
+  if (sort_type == "sumsq") return cmp_sumsq;
+  if (sort_type == "distance") return cmp_dist;
+  if (sort_type == "mse") return cmp_mse;
+  cout << "Invalid sort type " << sort_type << endl;
+  abort();
+}
+
+void list_correlations(const DynList<PvtAnalyzer::Desc> & l,
+		       const string & sort_type)
+{
+  auto f = sort(l, get_cmp(sort_type)).maps<DynList<string>>([] (auto d)
+    {
+      return DynList<string>({PvtAnalyzer::correlation(d)->call_string(),
+	    to_string(PvtAnalyzer::r2(d)), to_string(PvtAnalyzer::mse(d)),
+	    to_string(PvtAnalyzer::sigma(d)), to_string(PvtAnalyzer::sumsq(d))});
+    });
+  f.insert(DynList<string>({"Correlation", "r2", "mse", "distance", "sumsq"}));
+  cout << to_string(format_string(f)) << endl;
+}
+
 void error_msg(const string & msg = "Not yet implemented")
 {
   cout << msg << endl;
@@ -81,15 +141,15 @@ void error_msg(const string & msg = "Not yet implemented")
 
 void process_pb(PvtAnalyzer & pvt)
 {
-  if (corr_list.isSet())
+  if (corr_all.isSet())
     {
-      list_correlations(pvt.pb_correlations());
+      list_correlations(pvt.rs_correlations());
       exit(0);
     }
 
-  if (corr_List.isSet())
+  if (corr_list.isSet())
     {
-      list_correlations(pvt.pb_valid_correlations());
+      list_correlations(pvt.rs_valid_correlations());
       exit(0);
     }
 
@@ -98,12 +158,12 @@ void process_pb(PvtAnalyzer & pvt)
       double pb = pvt.get_pb();
       auto l = pvt.pb_best_correlations().maps<DynList<string>>([pb] (auto t)
         {
-	  auto per = get<2>(t)/get<1>(t) * 100;
+	  int per = round(get<2>(t)/get<1>(t) * 100);
 	  return DynList<string>( { get<0>(t)->call_string(),
 		to_string(get<1>(t)), to_string(get<2>(t)), to_string(per) });
 	});
       l.insert({"Correlation", "Value",
-	    "Error respect to pb = " + to_string(pvt.get_pb()), "%"});
+	    "Error (pb = " + to_string(pvt.get_pb()) + ")", "%"});
       cout << to_string(format_string(l)) << endl;
       exit(0);
     }
@@ -111,7 +171,23 @@ void process_pb(PvtAnalyzer & pvt)
 
 void process_rs(PvtAnalyzer & pvt)
 {
-  error_msg();
+  if (corr_all.isSet())
+    {
+      list_correlations(pvt.rs_correlations());
+      exit(0);
+    }
+
+  if (corr_list.isSet())
+    {
+      list_correlations(pvt.rs_valid_correlations());
+      exit(0);
+    }
+
+  if (corr_best.isSet())
+    {
+      list_correlations(pvt.rs_best_correlations(), sort_type.getValue());
+      exit(0);
+    }
 }
 
 void process_bob(PvtAnalyzer & pvt)
@@ -174,7 +250,7 @@ int main(int argc, char *argv[])
 {
   init_dispatcher();
 
-  //cmd.xorAdd(corr_list, corr_List);
+  //cmd.xorAdd(corr_list, corr_best);
   cmd.parse(argc, argv);
 
   PvtAnalyzer pvt;

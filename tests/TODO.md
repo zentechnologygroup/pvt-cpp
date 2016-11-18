@@ -60,3 +60,12 @@
 ## 19. script R para plot
 - Created at   2016-11-17 21:21:01 -0400
 
+## 20. test-corr podría recibir c y m para calibración
+- Created at   2016-11-18 09:02:50 -0400
+
+## 21. test-calibrate podría recibir una matrix de muestras
+- Created at   2016-11-18 09:25:41 -0400
+
+## 22. erificar matrix calibración
+- Created at   2016-11-18 09:33:39 -0400
+

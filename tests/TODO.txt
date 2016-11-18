@@ -17,3 +17,6 @@ flag en test-conversion que liste unidades dada magnitud física,2016-10-31 17:2
 Intervalos de correlación por partes deben estar completos y no separados como actualmente ocurre,2016-11-16 20:10:58 -0400,,
 bobp y uobp están en la matrix ==> vrificar matrix y determinar los valores,2016-11-17 21:20:33 -0400,,
 script R para plot,2016-11-17 21:21:01 -0400,,
+test-corr podría recibir c y m para calibración,2016-11-18 09:02:50 -0400,,
+test-calibrate podría recibir una matrix de muestras,2016-11-18 09:25:41 -0400,,
+erificar matrix calibración,2016-11-18 09:33:39 -0400,,

@@ -1,6 +1,7 @@
 # ifndef PVT_CALIBRATE_H
 # define PVT_CALIBRATE_H
 
+# include <ahSort.H>
 # include <correlations/correlation-stats.H>
 # include "empirical-data.H"
 
@@ -23,6 +24,30 @@ public:
 
   EmpiricalData & get_data() { return data; }
 
+  void check_sorted(const string & set_name, const string & col_name,
+		    bool ascending = true) const
+  {
+    if (ascending)
+      {
+	if (not is_sorted(data.values(set_name, col_name)))
+	  {
+	    ostringstream s;
+	    s << "Column " << col_name << " of variable data set " << set_name
+	      << " is not sorted";
+	    throw domain_error(s.str());
+	  }
+	return;
+      }
+
+    if (not is_inversely_sorted(data.values(set_name, col_name)))
+      {
+	ostringstream s;
+	s << "Column " << col_name << " of variable data set " << set_name
+	  << " is not inversely sorted";
+	throw domain_error(s.str());
+      }
+  }
+
   void check_data() const
   {
     data.check_constant("t", Temperature::get_instance());
@@ -40,6 +65,15 @@ public:
     data.check_variable("Above Pb", "rs", GORGLRvolumeRatio::get_instance());
     data.check_variable("Above Pb", "boa", FVFvolumeRatio::get_instance());
     data.check_variable("Above Pb", "uoa", DinamicViscosity::get_instance());
+
+    check_sorted("Below Pb", "p");
+    check_sorted("Above Pb", "p");
+    check_sorted("Below Pb", "rs");
+    check_sorted("Above Pb", "rs");
+    check_sorted("Below Pb", "bob");
+    check_sorted("Above Pb", "boa", false);
+    check_sorted("Below Pb", "uob", false);
+    check_sorted("Above Pb", "uoa");
   }
 
   double get_pb() const { return get<1>(data.find_const("pb")); }
@@ -81,6 +115,60 @@ public:
   {
     return data.valid_correlations("Below Pb").
       filter([] (auto ptr) { return ptr->target_name() == "rs"; });
+  }
+    
+  using Desc =                // values          statistics     error msg
+  tuple<const Correlation*, DynList<double>, CorrStat::Desc, string>;
+
+  static const Correlation * correlation(const Desc & d) { return get<0>(d); }
+  static DynList<double> values(const Desc & d) { return get<1>(d); }
+  static const CorrStat::Desc & stats(const Desc & d) { return get<2>(d); }
+  static double r2(const Desc & d) { return CorrStat::r2(stats(d)); }
+  static double mse(const Desc & d) { return CorrStat::mse(stats(d)); }
+  static double sigma(const Desc & d) { return CorrStat::sigma(stats(d)); }
+  static double sumsq(const Desc & d) { return CorrStat::sumsq(stats(d)); }
+  static double c(const Desc & d) { return CorrStat::c(stats(d)); }
+  static double m(const Desc & d) { return CorrStat::m(stats(d)); }
+
+  DynList<Desc>
+  correlations_stats(const DynList<const Correlation*> & l, size_t seti,
+		     bool check = true) const
+  {
+    DynList<Desc> ret;
+    if (l.is_empty())
+      return ret;
+    
+    const string corr_name  = l.get_first()->target_name();
+    CorrStat stat(data.values(seti, corr_name));
+
+    for (auto it = l.get_it(); it.has_curr(); it.next())
+      {
+	auto corr_ptr = it.get_curr();
+	if (corr_ptr->target_name() != corr_name)
+	  {
+	    ostringstream s;
+	    s << "PvtAnalyzer::best_correlations(): Correlation "
+	      << corr_ptr->name << " target name " << corr_ptr->target_name()
+	      << " contained in list is not the name " << corr_name;
+	    throw domain_error(s.str()); 
+	  }
+
+	try
+	  {
+	    auto result = data.compute(seti, corr_ptr, check);
+	    auto stats = stat.stats(result);
+	    ret.append(make_tuple(corr_ptr, move(result), stats, ""));
+	  }
+	catch (exception & e) { /* ignore it! */ }
+      }
+
+    return sort(ret, [] (auto t1, auto t2)
+		{ return get<0>(t1)->name < get<0>(t2)->name; });
+  }
+
+  DynList<Desc> rs_best_correlations() const
+  {
+    return correlations_stats(rs_valid_correlations(), 0);
   }
 
   DynList<const Correlation*> cob_correlations() const
@@ -308,45 +396,6 @@ public:
 
     return sort(ret, [] (auto t1, auto t2)
 		{ return get<2>(t1)->name < get<2>(t2)->name; });
-  }
-
-  //                                      values          statistics     error msg
-  using Desc = tuple<const Correlation*, DynList<double>, CorrStat::Desc, string>;
-
-  DynList<Desc>
-  correlations_stats(const DynList<const Correlation*> & l, size_t seti,
-		     bool check = true) const
-  {
-    DynList<Desc> ret;
-    if (l.is_empty())
-      return ret;
-    
-    const string corr_name  = l.get_first()->target_name();
-    CorrStat stat(data.values(seti, corr_name));
-
-    for (auto it = l.get_it(); it.has_curr(); it.next())
-      {
-	auto corr_ptr = it.get_curr();
-	if (corr_ptr->target_name() != corr_name)
-	  {
-	    ostringstream s;
-	    s << "PvtAnalyzer::best_correlations(): Correlation "
-	      << corr_ptr->name << " target name " << corr_ptr->target_name()
-	      << " contained in list is not the name " << corr_name;
-	    throw domain_error(s.str()); 
-	  }
-
-	try
-	  {
-	    auto result = data.compute(seti, corr_ptr, check);
-	    auto stats = stat.stats(result);
-	    ret.append(make_tuple(corr_ptr, move(result), stats, ""));
-	  }
-	catch (exception & e) { /* ignore it! */ }
-      }
-
-    return sort(ret, [] (auto t1, auto t2)
-		{ return get<0>(t1)->name < get<0>(t2)->name; });
   }
 
   //                  used uod correlation (nullptr ==> there is no uod_corr
@@ -640,6 +689,7 @@ public:
     stringstream s;
     s << input.rdbuf();
     data.set_from_json(s.str());
+    check_data();
   }
 };
 

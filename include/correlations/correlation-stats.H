@@ -152,6 +152,13 @@ public:
   //                  r2       mse   sigma
   using Desc = tuple<double, double, double, LFit>;
 
+  static double r2(const Desc & d) { return get<0>(d); }
+  static double mse(const Desc & d) { return get<1>(d); }
+  static double sigma(const Desc & d) { return get<2>(d); }
+  static double sumsq(const Desc & d) { return get<3>(d).sumsq; }
+  static double c(const Desc & d) { return get<3>(d).c; }
+  static double m(const Desc & d) { return get<3>(d).m; }
+
   Desc stats(const Array<double> & yc) const
   {
     double r2 = this->r2(yc);
