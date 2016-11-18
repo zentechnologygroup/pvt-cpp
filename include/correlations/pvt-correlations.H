@@ -24,11 +24,9 @@
 # include "gas-volume-factor.H"
 # include "water-density.H"
 # include "water-viscosity.H"
-# include "water-volume-factor.H"
 # include "saturated-water-volume-factor.H"
 # include "undersaturated-water-volume-factor.H"
 # include "water-interfacial-tension.H"
-# include "water-isothermal-compressibility.H"
 # include "saturated-water-isothermal-compressibility.H"
 # include "undersaturated-water-isothermal-compressibility.H"
 # include "solution-gas-water-relation.H"
@@ -57,11 +55,9 @@
 # include "gas-volume-factor-impl.H"
 # include "water-density-impl.H"
 # include "water-viscosity-impl.H"
-# include "water-volume-factor-impl.H"
 # include "saturated-water-volume-factor-impl.H"
 # include "undersaturated-water-volume-factor-impl.H"
 # include "water-interfacial-tension-impl.H"
-# include "water-isothermal-compressibility-impl.H"
 # include "saturated-water-isothermal-compressibility-impl.H"
 # include "undersaturated-water-isothermal-compressibility-impl.H"
 # include "solution-gas-water-relation-impl.H"
@@ -234,10 +230,6 @@ struct CorrelationInstantiater
     UwMatthewsRussel::get_instance();
     UwMcCain::get_instance();
     UwMcCoy::get_instance();
-
-    BwSpiveyMN::get_instance();
-    BwMcCain::get_instance();
-    BwMcCoy::get_instance();
 
     SgwJenningsNewman::get_instance();
 
