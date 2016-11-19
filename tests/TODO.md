@@ -69,3 +69,12 @@
 ## 22. erificar matrix calibración
 - Created at   2016-11-18 09:33:39 -0400
 
+## 23. test-calibrate reciba entrada csv y comandos
+- Created at   2016-11-19 13:39:02 -0400
+
+## 24. correlaciones con hidden en tru no deben ser mostradas por test-calibrate
+- Created at   2016-11-19 13:44:15 -0400
+
+## 25. validar que la fila de pb se corresponda con los valores de pb y rsb
+- Created at   2016-11-19 17:30:21 -0400
+

@@ -30,6 +30,9 @@ public:
   {
     auto pearson_corr = gsl_stats_correlation(&y.base(), 1,
 					      &yc.base(), 1, y.size());
+    if (isnan(pearson_corr))
+      return 1;
+    
     return pearson_corr*pearson_corr;
   }
 
@@ -125,6 +128,12 @@ public:
     {
       gsl_fit_linear(&yc.base(), 1, &y.base(), 1, yc.size(), &c, &m,
 		     &cov00, &cov01, &cov11, &sumsq);
+      if (isnan(c))
+	c = 0;
+      if (isnan(m))
+	m = 1;
+      if (isnan(sumsq))
+	sumsq = 0;
     }
 
     string to_string() const

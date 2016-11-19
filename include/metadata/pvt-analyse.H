@@ -107,6 +107,15 @@ public:
     return sort(ret, [] (auto t1, auto t2) { return get<2>(t1) < get<2>(t2); });
   }
 
+  DynList<const Correlation*>
+  valid_correlations(const string & target_name,
+		     const string & set_name) const
+  {
+    return data.matching_correlations(set_name).
+      filter([&target_name] (auto ptr)
+	     { return ptr->target_name() == target_name; });
+  }
+
   DynList<const Correlation*> rs_correlations() const
   {
     return data.matching_correlations("Below Pb").

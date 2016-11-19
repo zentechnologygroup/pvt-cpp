@@ -1,4 +1,4 @@
-
+ 
 # ifndef EMPIRICAL_DATA_H
 # define EMPIRICAL_DATA_H 1
 
@@ -78,8 +78,16 @@ struct EmpiricalData
 
     size_t name_index(const string & name) const noexcept
     {
-      return
+      size_t ret =
 	var_names.find_index([&name] (const auto & s) { return s == name; });
+      if (ret > var_names.size())
+	  {
+	    ostringstream s;
+	    s << "Variable name " << name << " was not found in var set "
+	      << name;
+	    throw domain_error(s.str());
+	  }
+      return ret;
     }
 
     json to_json() const
@@ -436,6 +444,17 @@ struct EmpiricalData
     return Array<double>();
   }
 
+  // return a list of stored values for the symbol name of column
+  // col_id in the vars set set_idx
+  Array<double> values(size_t set_idx, size_t col_idx) const
+  {
+    const auto & var_set = var_sets[set_idx];
+    Array<double> ret(var_set.num_samples);
+    for (size_t j = 0; j < var_set.num_samples; ++j)
+      ret.append(var_set.samples(j)(col_idx));
+    return ret;
+  }
+
   // return a list of stored values for the symbol name of the vars set set_name
   Array<double> values(const string & set_name, const string & name) const
   {
@@ -452,6 +471,19 @@ struct EmpiricalData
 	auto a = this->values(i, name);
 	a.for_each([&ret] (auto v) { ret.append(v); });
       });
+    return ret;
+  }
+
+  // return a list of stored values for the symbol name in the vars
+  // sets contained in sets
+  Array<double> values(const DynList<size_t> & sets, size_t col_idx) const
+  {
+    Array<double> ret;
+    sets.for_each([&] (size_t i)
+		  {
+		    auto a = this->values(i, col_idx);
+		    a.for_each([&ret] (auto v) { ret.append(v); });
+		  });
     return ret;
   }
 
@@ -1445,6 +1477,14 @@ public:
       generate_samples_by_name(correlation_ptr, seti, col, min_val, max_val);
   }
 
+  /// Return the column index of column name `col_name` in the
+  /// variable data set `set_name`
+  size_t name_index(const string & set_name, const string & col_name) const
+  {
+    const auto & varset = var_sets[set_index(set_name)];
+    return varset.name_index(col_name);      
+  }
+
   DynList<pair<const Correlation *, DynList<DynList<Correlation::ParByName>>>>
   generate_samples_by_name(const DefinedCorrelation & correlation,
 			   const string & var_name, 
@@ -1459,12 +1499,6 @@ public:
 	const auto & var_set = var_sets[i];
 	auto col = var_set.name_index(var_name);
 
-	if (col >= var_set.var_names.size())
-	  {
-	    ostringstream s;
-	    s << "Variable name " << name << " was not found in var set " << i;
-	    throw domain_error(s.str());
-	  }
 	// TODO: verificar que coluna esté ordenada
 	return make_tuple(var_set.samples.get_first()(col),
 			  var_set.samples.get_last()(col), i, col);

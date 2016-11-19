@@ -471,4 +471,21 @@ RsManucciRosales::impl(const Quantity<Sgg> & yg,
   return Quantity<SCF_STB>(rs);
 }
 
+Quantity<SCF_STB>
+RsAbovePb::impl(const Quantity<psia> & pb,
+	  const Quantity<psia> & p,
+	  const Quantity<SCF_STB> & rsb) const
+{
+  if (p <= pb)
+    {
+      ostringstream s;
+      s << "Rsa::impl: pressure" << p << " is less than bubble point pressure "
+	<< pb;
+      throw domain_error(s.str());
+    }
+
+  return rsb;
+}
+
+
 # endif // SOLUTION_GAS_OIL_RELATION_IMPL_H

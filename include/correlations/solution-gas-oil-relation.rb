@@ -273,3 +273,12 @@ add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 16 2016.")
 set_hidden()
 end_correlation()
+
+begin_correlation("RsAbovePb", "SolutionGasOilRelation", "SCF_STB")
+add_title("Faked constant for internal computations above bubble point")
+add_parameter("pb", "psia", "Bubble point pressure")
+add_parameter("p", "psia", "Pressure")
+add_parameter("rsb", "SCF_STB", "Solution GOR at Pb", 102, 1808)
+set_hidden()
+end_correlation()
+

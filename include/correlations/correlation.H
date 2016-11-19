@@ -894,7 +894,7 @@ Declare_Correlation_Type(GasCorrelation);
 Declare_Correlation_Type(GasFunction);
 Declare_Correlation_Type(WaterCorrelation);
 
-# define Header_Correlation_Subtype(subtype_name, type_name, is_hidden)	\
+# define Header_Correlation_Subtype(subtype_name, type_name, is_hidden) \
   struct subtype_name : public type_name			\
   {								\
     subtype_name(const string & name, const Unit & result_unit,	\
@@ -919,7 +919,7 @@ Declare_Correlation_Type(WaterCorrelation);
 # define Declare_Correlation_Subtype(subtype_name, type_name)	\
   Header_Correlation_Subtype(subtype_name, type_name, false);
 
-# define Declare_Hidden_Correlation_Subtype(subtype_name, type_name)	\
+# define Declare_Hidden_Correlation_Subtype(subtype_name, type_name) \
   Header_Correlation_Subtype(subtype_name, type_name, true);
 
 template <typename F> struct compute_arity;
