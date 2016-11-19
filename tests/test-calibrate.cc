@@ -143,13 +143,14 @@ void error_msg(const string & msg = "Not yet implemented")
 void list_correlations(const DynList<PvtAnalyzer::Desc> & l,
 		       const string & sort_type)
 {
-  auto f = sort(l, get_cmp(sort_type)).maps<DynList<string>>([] (auto d)
+  auto mat = sort(l, get_cmp(sort_type)).maps<DynList<string>>([] (auto d)
     {
       return DynList<string>({PvtAnalyzer::correlation(d)->call_string(),
 	    to_string(PvtAnalyzer::r2(d)), to_string(PvtAnalyzer::mse(d)),
 	    to_string(PvtAnalyzer::sigma(d)), to_string(PvtAnalyzer::sumsq(d))});
     });
-  f.insert(DynList<string>({"Correlation", "r2", "mse", "distance", "sumsq"}));
+  mat.insert(DynList<string>({"Correlation", "r2", "mse", "distance", "sumsq"}));
+  cout << to_string(format_string(mat));
 }
 
 enum class EvalType { Single, Calibrated, Both };
@@ -347,19 +348,33 @@ string r_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
   return s.str();
 }
 
+json to_json(const pair<CorrDesc, DynList<double>> & sample)
+{
+  json j;
+  j["name"] = get<0>(sample.first);
+  j["calibrated"] = get<1>(sample.first);
+  j["c"] = get<2>(sample.first);
+  j["m"] = get<3>(sample.first);
+  j["values"] = to_vector(sample.second);
+  return j;
+}
+
 string
 json_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
 {
-  json j;
-
+  DynList<pair<CorrDesc, DynList<double>>> samples;
   auto values = transpose(dmat.second);
   for (auto it = get_zip_it(dmat.first, values); it.has_curr(); it.next())
     {
       auto t = it.get_curr();
-      //s << Rvector(get<0>(t), get<1>(t)) << endl;
+      samples.append(make_pair(get<0>(t), get<1>(t)));
     }
 
-  return j.dump();
+  json j;
+  j["data sets"] =
+    to_vector(samples.maps<json>([] (const auto & s) { return to_json(s); }));
+  
+  return j.dump(2);
 }
 
 void process_rs(PvtAnalyzer & pvt)
@@ -423,6 +438,8 @@ void process_rs(PvtAnalyzer & pvt)
       cout << r_format(dmat);
       break;
     case OutputType::json:
+      cout << json_format(dmat);
+      break;
     default:
       error_msg("Invalid outout type value");
     }
