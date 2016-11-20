@@ -50,7 +50,20 @@ public:
       }
   }
 
-  void check_data(float error = 0.5) const
+  static double get_epsilon(double min_val, double max_val, double error = .01)
+  {
+    assert(min_val < max_val);
+    assert(error > 0 and error < 1);
+    return (max_val - min_val)*error;
+  }
+
+  static bool check_values(double v1, double v2, double epsilon)
+  {
+    cout << "check " << v1 << " " << v2 << " " << epsilon << endl;
+    return fabs(v1 - v2) < epsilon;
+  }
+
+  void check_data(float error = 0.05) 
   {
     data.check_constant("t", Temperature::get_instance());
     data.check_constant("pb", Pressure::get_instance());
@@ -78,10 +91,45 @@ public:
     check_sorted("Above Pb", "uoa");
 
     const auto & bp_row = data.var_sets(0).samples.get_last();
-    const double & p = bp_row(0);
-    const double & rsb = bp_row(1);
-    const double & bobp = bp_row(2);
-    const double & uobp = bp_row(3);
+
+    {
+      const double & min_p = data.var_sets(0).samples.get_first()(0);
+      const double & max_p = data.var_sets(0).samples.get_last()(0);
+      const double & pb = bp_row(0);
+      const double defined_pb = get<1>(data.find_const("pb"));
+      if (not check_values(defined_pb, pb, get_epsilon(min_p, max_p, error)))
+	{
+	  ostringstream s;
+	  s << "Defined pb value " << defined_pb
+	    << " is not close enough to the stored value in the matrix " << pb;
+	  throw domain_error(s.str());
+	}
+    }
+
+    {
+      const double & rsb = bp_row(1);
+      const double & min_rs = data.var_sets(0).samples.get_first()(1);
+      const double & max_rs = data.var_sets(1).samples.get_last()(1);
+      const double & rs = bp_row(1);
+      const double defined_rsb = get<1>(data.find_const("rsb"));
+      if (not check_values(defined_rsb, rs, get_epsilon(min_rs, max_rs, error)))
+	{
+	  ostringstream s;
+	  s << "Defined rsb value " << defined_rsb
+	    << " is not close enough to the stored value in the matrix " << rsb;
+	  throw domain_error(s.str());
+	}
+    }
+
+    {
+      const double & bobp = bp_row(2);
+      data.def_const("bobp", bobp, data.var_sets(0).var_units(2));
+    }
+
+    {
+      const double & uobp = bp_row(3);
+      data.def_const("uobp", uobp, data.var_sets(0).var_units(3));
+    }
   }
 
   double get_pb() const { return get<1>(data.find_const("pb")); }
@@ -186,6 +234,26 @@ public:
   DynList<Desc> rs_best_correlations() const
   {
     return correlations_stats(rs_valid_correlations(), 0);
+  }
+
+  DynList<Desc> bob_best_correlations() const
+  {
+    return correlations_stats(bob_valid_correlations(), 0);
+  }
+
+  DynList<Desc> boa_best_correlations() const
+  {
+    return correlations_stats(boa_valid_correlations(), 1);
+  }
+
+  DynList<Desc> uob_best_correlations() const
+  {
+    return correlations_stats(uob_valid_correlations(), 0);
+  }
+
+  DynList<Desc> uoa_best_correlations() const
+  {
+    return correlations_stats(uoa_valid_correlations(), 1);
   }
 
   DynList<const Correlation*> cob_correlations() const

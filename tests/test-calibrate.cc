@@ -33,6 +33,12 @@ ValueArg<string> set_corr = { "S", "set-correlation", "set correlation",
 			      false, "",
 			      "set correlation for the given property", cmd };
 
+ValueArg<string> below_corr = { "B", "below", "below correlation name", false,
+				"", "set below correlation", cmd };
+
+ValueArg<string> above_corr = { "A", "above", "above correlation name", false,
+				"", "set above correlation", cmd };
+
 SwitchArg plot = { "p", "plot", "generate plot data", cmd };
 
 vector<string> compute_types = { "single", "calibrated", "both" };
@@ -121,17 +127,6 @@ auto get_cmp(const string & sort_type)
   if (sort_type == "mse") return cmp_mse;
   cout << "Invalid sort type " << sort_type << endl;
   abort();
-}
-
-DynList<double> extract_col(const PvtAnalyzer & pvt,
-			    const string & set_name, const string col_name)
-{
-  return to_dynlist(pvt.get_data().values(set_name, col_name));
-}
-
-DynList<double> p_all(const PvtAnalyzer & pvt)
-{
-  
 }
 
 void error_msg(const string & msg = "Not yet implemented")
@@ -336,22 +331,17 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
 	  const auto & above_desc = get<1>(t);
 	  const auto & below_values = PvtAnalyzer::values(below_desc);
 	  const auto & above_values = PvtAnalyzer::values(above_desc);
-	  {
-	    auto it = below_values.get_it();
-	    ret.mutable_for_each([&it] (auto & row)
-              {
-		row.append(it.get_curr());
-		it.next();
-	      });
-	  }
-	  {
-	    auto it = above_values.get_it();
-	    ret.mutable_for_each([&it] (auto & row)
-              {
-		row.append(it.get_curr());
-		it.next();
-	      });
-	  }
+	  
+	  auto ret_it = ret.get_it();
+
+	  for (auto it = below_values.get_it(); it.has_curr();
+	       it.next(), ret_it.next())
+	    ret_it.get_curr().append(it.get_curr());
+	      
+	  for (auto it = above_values.get_it(); it.has_curr();
+	       it.next(), ret_it.next())
+	    ret_it.get_curr().append(it.get_curr());
+
 	  header.append(make_tuple(PvtAnalyzer::correlation(below_desc)->name
 				   + "_" +
 				   PvtAnalyzer::correlation(above_desc)->name,
@@ -403,36 +393,33 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
 	  auto above_corr = PvtAnalyzer::correlation(above_desc);
 	  const auto & below_values = PvtAnalyzer::values(below_desc);
 	  const auto & above_values = PvtAnalyzer::values(above_desc);
-	  const auto & below_tuned_values =
+	  auto below_tuned_values =
 	    pvt.get_data().tuned_compute(0, below_corr,
 					 PvtAnalyzer::c(below_desc),
 					 PvtAnalyzer::m(below_desc));
-	  const auto & above_tuned_values =
+	  auto above_tuned_values =
 	    pvt.get_data().tuned_compute(1, above_corr,
 					 PvtAnalyzer::c(above_desc),
 					 PvtAnalyzer::m(above_desc));
-	  {
-	    auto vit = below_values.get_it();
-	    auto tit = below_tuned_values.get_it();
-	    ret.mutable_for_each([&vit, &tit] (auto & row)
-				 {
-				   row.append(vit.get_curr());
-				   row.append(tit.get_curr());
-				   vit.next();
-				   tit.next();
-				 });
-	  }
-	  {
-	    auto vit = above_values.get_it();
-	    auto tit = above_tuned_values.get_it();
-	    ret.mutable_for_each([&vit, &tit] (auto & row)
-				 {
-				   row.append(vit.get_curr());
-				   row.append(tit.get_curr());
-				   vit.next();
-				   tit.next();
-				 });
-	  }
+
+	  auto ret_it = ret.get_it();
+
+	  for (auto it = get_zip_it(below_values, below_tuned_values);
+	       it.has_curr(); it.next(), ret_it.next())
+	    {
+	      auto t = it.get_curr();
+	      ret_it.get_curr().append(get<0>(t));
+	      ret_it.get_curr().append(get<1>(t));
+	    }
+	      
+	  for (auto it = get_zip_it(above_values, above_tuned_values);
+	       it.has_curr(); it.next(), ret_it.next())
+	    {
+	      auto t = it.get_curr();
+	      ret_it.get_curr().append(get<0>(t));
+	      ret_it.get_curr().append(get<1>(t));
+	    }	      
+
 	  header.append(make_tuple(PvtAnalyzer::correlation(below_desc)->name
 				   + "_" +
 				   PvtAnalyzer::correlation(above_desc)->name,
@@ -759,25 +746,245 @@ void process_rsa(PvtAnalyzer & pvt)
 
 void process_bob(PvtAnalyzer & pvt)
 {
-  error_msg();
+  if (corr_all.isSet())
+    {
+      list_correlations(pvt.bob_correlations());
+      exit(0);
+    }
+
+  if (corr_list.isSet())
+    {
+      list_correlations(pvt.bob_valid_correlations());
+      exit(0);
+    }
+
+  if (corr_best.isSet())
+    {
+      list_correlations(pvt.bob_best_correlations(), sort_type.getValue());
+      exit(0);
+    }
+
+  if (not plot.isSet())
+    error_msg("Not plot option (-p) has not been set");
+
+  if (not corr_names.isSet())
+    error_msg("specific correlations have not been defined (option -n)");
+
+  DynList<const Correlation*> corr_list =
+    read_correlation_from_command_line(pvt, "bob", "Below Pb");
+
+  auto dmat = eval_correlations(pvt.correlations_stats(corr_list, 0),
+				"Below Pb", "bob", pvt,
+				get_eval_type(compute_type.getValue()));
+
+  switch (get_output_type(output_type.getValue()))
+    {
+    case OutputType::mat:
+      cout << mat_format(dmat);
+      break;
+    case OutputType::csv:
+      cout << csv_format(dmat);
+      break;
+    case OutputType::R:
+      cout << r_format(dmat);
+      break;
+    case OutputType::json:
+      cout << json_format(dmat);
+      break;
+    default:
+      error_msg("Invalid outout type value");
+    }
 }
 
 void process_boa(PvtAnalyzer & pvt)
 {
-  error_msg();
+  if (corr_all.isSet())
+    {
+      list_correlations(pvt.boa_correlations());
+      exit(0);
+    }
+
+  if (corr_list.isSet())
+    {
+      list_correlations(pvt.boa_valid_correlations());
+      exit(0);
+    }
+
+  if (corr_best.isSet())
+    {
+      list_correlations(pvt.boa_best_correlations(), sort_type.getValue());
+      exit(0);
+    }
+
+  if (not plot.isSet())
+    error_msg("Not plot option (-p) has not been set");
+
+  if (not corr_names.isSet())
+    error_msg("specific correlations have not been defined (option -n)");
+
+  DynList<const Correlation*> corr_list =
+    read_correlation_from_command_line(pvt, "boa", "Above Pb");
+
+  auto dmat = eval_correlations(pvt.correlations_stats(corr_list, 1),
+				"Above Pb", "boa", pvt,
+				get_eval_type(compute_type.getValue()));
+
+  switch (get_output_type(output_type.getValue()))
+    {
+    case OutputType::mat:
+      cout << mat_format(dmat);
+      break;
+    case OutputType::csv:
+      cout << csv_format(dmat);
+      break;
+    case OutputType::R:
+      cout << r_format(dmat);
+      break;
+    case OutputType::json:
+      cout << json_format(dmat);
+      break;
+    default:
+      error_msg("Invalid outout type value");
+    }
 }
+
 void process_bo(PvtAnalyzer & pvt)
 {
-  error_msg();
+  if (corr_all.isSet())
+    error_msg("-" + corr_all.getFlag() + " option is not allowed with -" +
+	      property.getFlag() + " " + property.getValue() + " option");
+
+  if (corr_list.isSet())
+    error_msg("-" + corr_list.getFlag() + " option is not allowed with -" +
+	      property.getFlag() + " " + property.getValue() + " option");
+
+  if (corr_best.isSet())
+    error_msg("-" + corr_best.getFlag() + " option is not allowed with -" +
+	      property.getFlag() + " " + property.getValue() + " option");
+
+  if (not plot.isSet())
+    error_msg("Not plot option (-p) has not been set");
+
+  if (corr_names.isSet())
+    error_msg("option -p is not allowed with -P bo");
+
+  if (not below_corr.isSet())
+    error_msg("Below correlation has not been set (-B option)");
+
+  if (not above_corr.isSet())
+    error_msg("Above correlation has not been set (-A option)");
+
+  auto below_corr_ptr = Correlation::search_by_name(below_corr.getValue());
+  if (below_corr_ptr == nullptr)
+    error_msg("Below correlation " + below_corr.getValue() + " not found");
+  if (below_corr_ptr->target_name() != "bob")
+    error_msg("Below correlation " + below_corr.getValue() + " is not for bob");
+  {
+    if (not pvt.valid_correlations("bob", "Below Pb").
+	exists([below_corr_ptr] (auto p) { return p == below_corr_ptr; }))
+      error_msg("Below correlation " + below_corr.getValue() +
+		" is not inside the development ranges");
+  }
+
+  auto above_corr_ptr = Correlation::search_by_name(above_corr.getValue());
+  if (above_corr_ptr == nullptr)
+    error_msg("Above correlation " + above_corr.getValue() + " not found");
+  if (above_corr_ptr->target_name() != "boa")
+    error_msg("Above correlation " + above_corr.getValue() + " is not for boa");
+  {
+    if (not pvt.valid_correlations("boa", "Above Pb").
+	exists([above_corr_ptr] (auto p) { return p == above_corr_ptr; }))
+      error_msg("Above correlation " + above_corr.getValue() +
+		" is not inside the development ranges");
+  }
+
+  DynList<const Correlation*> below_corr_list = { below_corr_ptr };
+  DynList<const Correlation*> above_corr_list = { above_corr_ptr };
+
+  auto dmat = eval_correlations(pvt.correlations_stats(below_corr_list, 0),
+				pvt.correlations_stats(above_corr_list, 1),
+				pvt.get_data().name_index("Below Pb", "bob"), pvt,
+				get_eval_type(compute_type.getValue()));
+
+  switch (get_output_type(output_type.getValue()))
+    {
+    case OutputType::mat:
+      cout << mat_format(dmat);
+      break;
+    case OutputType::csv:
+      cout << csv_format(dmat);
+      break;
+    case OutputType::R:
+      cout << r_format(dmat);
+      break;
+    case OutputType::json:
+      cout << json_format(dmat);
+      break;
+    default:
+      error_msg("Invalid outout type value");
+    }
 }
+
 void process_uob(PvtAnalyzer & pvt)
 {
-  error_msg();
+  if (corr_all.isSet())
+    {
+      list_correlations(pvt.uob_correlations());
+      exit(0);
+    }
+
+  if (corr_list.isSet())
+    {
+      list_correlations(pvt.uob_valid_correlations());
+      exit(0);
+    }
+
+  if (corr_best.isSet())
+    {
+      list_correlations(pvt.uob_best_correlations(), sort_type.getValue());
+      exit(0);
+    }
+
+  if (not plot.isSet())
+    error_msg("Not plot option (-p) has not been set");
+
+  if (not corr_names.isSet())
+    error_msg("specific correlations have not been defined (option -n)");
+
+  DynList<const Correlation*> corr_list =
+    read_correlation_from_command_line(pvt, "uob", "Below Pb");
+
+  auto dmat = eval_correlations(pvt.correlations_stats(corr_list, 0),
+				"Below Pb", "uob", pvt,
+				get_eval_type(compute_type.getValue()));
+
+  // calcular el mejor uod y ponerlo o verificar si uod está definido
+  // como comando o es parte de la data
+
+  switch (get_output_type(output_type.getValue()))
+    {
+    case OutputType::mat:
+      cout << mat_format(dmat);
+      break;
+    case OutputType::csv:
+      cout << csv_format(dmat);
+      break;
+    case OutputType::R:
+      cout << r_format(dmat);
+      break;
+    case OutputType::json:
+      cout << json_format(dmat);
+      break;
+    default:
+      error_msg("Invalid outout type value");
+    }
 }
+
 void process_uoa(PvtAnalyzer & pvt)
 {
   error_msg();
 }
+
 void process_uo(PvtAnalyzer & pvt)
 {
   error_msg();
