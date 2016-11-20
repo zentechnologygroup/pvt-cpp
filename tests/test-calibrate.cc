@@ -153,7 +153,7 @@ void list_correlations(const DynList<PvtAnalyzer::Desc> & l,
   cout << to_string(format_string(mat));
 }
 
-enum class EvalType { Single, Calibrated, Both };
+enum class EvalType { Single, Calibrated, Both, Undefined };
 
 EvalType get_eval_type(const string & type)
 {
@@ -161,9 +161,10 @@ EvalType get_eval_type(const string & type)
   if (type == "calibrated") return EvalType::Calibrated;
   if (type == "both") return EvalType::Both;
   error_msg("Invalid compute type " + type);
+  return EvalType::Undefined;
 }
 
-enum class OutputType { mat, csv, R, json };
+enum class OutputType { mat, csv, R, json, undefined };
 
 OutputType get_output_type(const string & type)
 {
@@ -172,6 +173,7 @@ OutputType get_output_type(const string & type)
   if (type == "R") return OutputType::R;
   if (type == "json") return OutputType::json;
   error_msg("Invalid output type " + type);
+  return OutputType::undefined;
 }
     
 string tuned_name(const PvtAnalyzer::Desc & desc)

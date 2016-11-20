@@ -50,7 +50,7 @@ public:
       }
   }
 
-  void check_data() const
+  void check_data(float error = 0.5) const
   {
     data.check_constant("t", Temperature::get_instance());
     data.check_constant("pb", Pressure::get_instance());
@@ -76,6 +76,12 @@ public:
     check_sorted("Above Pb", "boa", false);
     check_sorted("Below Pb", "uob", false);
     check_sorted("Above Pb", "uoa");
+
+    const auto & bp_row = data.var_sets(0).samples.get_last();
+    const double & p = bp_row(0);
+    const double & rsb = bp_row(1);
+    const double & bobp = bp_row(2);
+    const double & uobp = bp_row(3);
   }
 
   double get_pb() const { return get<1>(data.find_const("pb")); }
