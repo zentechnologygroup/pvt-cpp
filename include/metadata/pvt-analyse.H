@@ -483,7 +483,7 @@ public:
 		{ return get<2>(t1)->name < get<2>(t2)->name; });
   }
 
-  //                  used uod correlation (nullptr ==> there is no uod_corr
+  //                  used uod correlation (nullptr ==> there is no uod_corr)
   DynList<pair<Desc, const Correlation*>>
   uob_correlations_lfits(bool check = true)
   {
@@ -494,6 +494,9 @@ public:
     if (not complete_uob.is_empty())
       ret.append(correlations_stats(complete_uob, 0, check).maps<P>
 		 ([] (const Desc & desc) { return make_pair(desc, nullptr); }));
+
+    if (get<0>(data.search_const("uod")))
+      return ret; // if uod defined ==> there is no incomplete uob correlations
 
     // Todas estas correlaciones de uod están en el rango de aplicación
     auto uods = uod_valid_correlations().

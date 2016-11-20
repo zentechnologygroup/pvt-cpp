@@ -148,6 +148,32 @@ void list_correlations(const DynList<PvtAnalyzer::Desc> & l,
   cout << to_string(format_string(mat));
 }
 
+void list_correlations
+(const DynList<pair<PvtAnalyzer::Desc, const Correlation*>> & l,
+ const string & sort_type)
+{
+  auto mat = sort(l, [sort_type] (auto p1, auto p2)
+		  {
+		    return (*get_cmp(sort_type))(p1.first, p2.first);
+		  }).maps<DynList<string>>([] (auto p)
+    {
+      const auto & d = p.first;
+      auto uod_corr = p.second;
+      if (uod_corr == nullptr)
+	return DynList<string>({PvtAnalyzer::correlation(d)->call_string(),
+	      to_string(PvtAnalyzer::r2(d)), to_string(PvtAnalyzer::mse(d)),
+	      to_string(PvtAnalyzer::sigma(d)),
+	      to_string(PvtAnalyzer::sumsq(d))});
+      return DynList<string>({PvtAnalyzer::correlation(d)->call_string() + "." +
+	    p.second->name,
+	    to_string(PvtAnalyzer::r2(d)), to_string(PvtAnalyzer::mse(d)),
+	    to_string(PvtAnalyzer::sigma(d)),
+	    to_string(PvtAnalyzer::sumsq(d))});
+    });
+  mat.insert(DynList<string>({"Correlation", "r2", "mse", "distance", "sumsq"}));
+  cout << to_string(format_string(mat));
+}
+
 enum class EvalType { Single, Calibrated, Both, Undefined };
 
 EvalType get_eval_type(const string & type)
@@ -941,7 +967,7 @@ void process_uob(PvtAnalyzer & pvt)
 
   if (corr_best.isSet())
     {
-      list_correlations(pvt.uob_best_correlations(), sort_type.getValue());
+      list_correlations(pvt.uob_correlations_lfits(), sort_type.getValue());
       exit(0);
     }
 
