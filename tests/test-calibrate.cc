@@ -1015,13 +1015,15 @@ void process_uob(PvtAnalyzer & pvt)
   for (auto it = get_zip_it(uod_list, uob_with_uod); it.has_curr(); it.next())
     {
       auto t = it.get_curr();
-      auto uod_corr = get<0>(t);
-      auto uob_corr = get<1>(t);
+      const auto & uod_corr = get<0>(t);
+      auto uob_corr_list = DynList<const Correlation*>({get<1>(t)});
       pvt.get_data().def_const("uod", pvt.get_data().compute(uod_corr),
 			       &uod_corr->unit);
-      dmat = eval_correlations(pvt.correlations_stats(uob_corr, 0),
-			       "Below Pb", "uob", pvt,
-			       get_eval_type(compute_type.getValue()));
+      auto m = eval_correlations(pvt.correlations_stats(uob_corr_list, 0),
+				 "Below Pb", "uob", pvt,
+				 get_eval_type(compute_type.getValue()));
+      // concatenar de alguna forma con dmat
+      pvt.get_data().remove_last_const("uod");
     }
 
   // calcular el mejor uod y ponerlo o verificar si uod está definido
