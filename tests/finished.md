@@ -364,3 +364,45 @@
 - Comment      
 - Finished     
 
+## 62. usar bitex con estilo bobliografico
+- Created at   2016-10-15 09:52:38 -0400
+- Completed at 2016-11-17 13:51:28 -0400
+- Comment      
+- Finished     
+
+## 63. estudio de rangos de aplicación de correlaciones vs data set
+- Created at   2016-10-13 09:00:56 -0400
+- Completed at 2016-11-12 17:34:28 -0400
+- Comment      
+- Finished     
+
+## 64. pone en test-corr que se imprima nota tecnica
+- Created at   2016-10-21 14:54:17 -0400
+- Completed at 2016-11-17 13:51:22 -0400
+- Comment      
+- Finished     
+
+## 65. Mejorar performance de matching_const_correlations
+- Created at   2016-10-20 19:20:41 -0400
+- Completed at 2016-11-11 08:06:27 -0400
+- Comment      
+- Finished     
+
+## 66. bobp y uobp están en la matrix ==> vrificar matrix y determinar los valores
+- Created at   2016-11-17 21:20:33 -0400
+- Completed at 2016-11-20 21:45:02 -0400
+- Comment      
+- Finished     
+
+## 67. script R para plot
+- Created at   2016-11-17 21:21:01 -0400
+- Completed at 2016-11-20 21:45:21 -0400
+- Comment      
+- Finished     
+
+## 68. validar que la fila de pb se corresponda con los valores de pb y rsb
+- Created at   2016-11-19 17:30:21 -0400
+- Completed at 2016-11-20 21:44:42 -0400
+- Comment      
+- Finished     
+

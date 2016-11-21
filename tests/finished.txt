@@ -59,3 +59,10 @@ apagar check de rangos en parametros mediante parámetro en compute, el cual por
 conversion unidad uno a uno,2016-10-21 16:58:32 -0400,2016-11-07 16:48:16 -0400,,2016-11-07 16:48:22 -0400
 Por cada parámetro de corelaciión saber si hay o no límites puestos por el autor y ello proparglo al json,2016-11-10 15:04:01 -0400,2016-11-11 08:06:00 -0400,,2016-11-11 08:06:03 -0400
 llamadas a matching_correlations valid_correlations pueden ser factorizadas y con eso acelarar computo,2016-11-13 11:35:43 -0400,,,2016-11-17 13:51:08 -0400
+usar bitex con estilo bobliografico,2016-10-15 09:52:38 -0400,2016-11-17 13:51:28 -0400,,2016-11-20 21:45:20 -0400
+estudio de rangos de aplicación de correlaciones vs data set,2016-10-13 09:00:56 -0400,2016-11-12 17:34:28 -0400,,2016-11-20 21:45:49 -0400
+pone en test-corr que se imprima nota tecnica,2016-10-21 14:54:17 -0400,2016-11-17 13:51:22 -0400,,2016-11-20 21:46:06 -0400
+Mejorar performance de matching_const_correlations,2016-10-20 19:20:41 -0400,2016-11-11 08:06:27 -0400,,2016-11-20 21:46:17 -0400
+bobp y uobp están en la matrix ==> vrificar matrix y determinar los valores,2016-11-17 21:20:33 -0400,2016-11-20 21:45:02 -0400,,2016-11-20 21:46:37 -0400
+script R para plot,2016-11-17 21:21:01 -0400,2016-11-20 21:45:21 -0400,,2016-11-20 21:46:38 -0400
+validar que la fila de pb se corresponda con los valores de pb y rsb,2016-11-19 17:30:21 -0400,2016-11-20 21:44:42 -0400,,2016-11-20 21:46:58 -0400

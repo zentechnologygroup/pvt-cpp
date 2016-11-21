@@ -112,8 +112,6 @@ int main(int argc, char *argv[])
 
   auto uobp = tuned_best_uob_vals.get_last();
 
-  pvt.get_data().def_const("uobp", uobp, &best_uob_corr->unit);
-
   cout << "All uoa correlations:" << endl;
   Correlation::array().filter([] (auto p) { return p->target_name() == "uoa"; }).
     for_each([] (auto p)

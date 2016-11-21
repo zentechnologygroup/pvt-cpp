@@ -26,55 +26,30 @@
 ## 9. corregir sutton et al en presion
 - Created at   2016-09-21 16:21:49 -0400
 
-## 10. estudio de rangos de aplicación de correlaciones vs data set
-- Created at   2016-10-13 09:00:56 -0400
-- Completed at 2016-11-12 17:34:28 -0400
-
-## 11. usar bitex con estilo bobliografico
-- Created at   2016-10-15 09:52:38 -0400
-- Completed at 2016-11-17 13:51:28 -0400
-
-## 12. manejar excepciones en lectura del json
+## 10. manejar excepciones en lectura del json
 - Created at   2016-10-18 21:45:06 -0400
 
-## 13. Mejorar performance de matching_const_correlations
-- Created at   2016-10-20 19:20:41 -0400
-- Completed at 2016-11-11 08:06:27 -0400
-
-## 14. pone en test-corr que se imprima nota tecnica
-- Created at   2016-10-21 14:54:17 -0400
-- Completed at 2016-11-17 13:51:22 -0400
-
-## 15. eliminar uso de gsl para versiones standalone por ser de licencia gpl
+## 11. eliminar uso de gsl para versiones standalone por ser de licencia gpl
 - Created at   2016-10-23 10:22:32 -0400
 
-## 16. flag en test-conversion que liste unidades dada magnitud física
+## 12. flag en test-conversion que liste unidades dada magnitud física
 - Created at   2016-10-31 17:25:29 -0400
 
-## 17. Intervalos de correlación por partes deben estar completos y no separados como actualmente ocurre
+## 13. Intervalos de correlación por partes deben estar completos y no separados como actualmente ocurre
 - Created at   2016-11-16 20:10:58 -0400
 
-## 18. bobp y uobp están en la matrix ==> vrificar matrix y determinar los valores
-- Created at   2016-11-17 21:20:33 -0400
-
-## 19. script R para plot
-- Created at   2016-11-17 21:21:01 -0400
-
-## 20. test-corr podría recibir c y m para calibración
+## 14. test-corr podría recibir c y m para calibración
 - Created at   2016-11-18 09:02:50 -0400
 
-## 21. test-calibrate podría recibir una matrix de muestras
+## 15. test-calibrate podría recibir una matrix de muestras
 - Created at   2016-11-18 09:25:41 -0400
 
-## 22. erificar matrix calibración
+## 16. erificar matrix calibración
 - Created at   2016-11-18 09:33:39 -0400
 
-## 23. test-calibrate reciba entrada csv y comandos
+## 17. test-calibrate reciba entrada csv y comandos
 - Created at   2016-11-19 13:39:02 -0400
 
-## 24. correlaciones con hidden en tru no deben ser mostradas por test-calibrate
+## 18. correlaciones con hidden en tru no deben ser mostradas por test-calibrate
 - Created at   2016-11-19 13:44:15 -0400
-
-## 25. validar que la fila de pb se corresponda con los valores de pb y rsb
-- Created at   2016-11-19 17:30:21 -0400
 

@@ -27,12 +27,6 @@ SwitchArg corr_all = { "a", "all", "list all associated correlations", cmd };
 
 SwitchArg corr_best = { "b", "best", "list best correlations", cmd };
   
-SwitchArg set_val = { "s", "set-value", "puts given value in data set", cmd };
-
-ValueArg<string> set_corr = { "S", "set-correlation", "set correlation",
-			      false, "",
-			      "set correlation for the given property", cmd };
-
 ValueArg<string> below_corr = { "B", "below", "below correlation name", false,
 				"", "set below correlation", cmd };
 
@@ -47,9 +41,6 @@ ValueArg<string> compute_type = { "c", "compute-type", "compute type", false,
 				 "single", &allowed_compute, cmd };
 
 SwitchArg r = { "R", "R", "generate R script", cmd };
-
-ValueArg<string> unit = { "u", "unit", "unit", false, "",
-			  "unit for the given value", cmd };
 
 vector<string> sort_values = { "r2", "sumsq", "mse", "distance" };
 ValuesConstraint<string> allow_sort = sort_values;
@@ -66,11 +57,12 @@ ValueArg<string> output_type = { "t", "output-type", "output type", false,
 MultiArg<string> corr_names = { "n", "name", "add correlation name", false,
 				"add correlation name to computations", cmd };
 
+MultiArg<string> uod_names = { "u", "uod-name", "add uod correlation name", false,
+			       "add uod correlation name to computations", cmd };
+
 ValueArg<string> file =
   { "f", "file", "file name", false, "", "file name", cmd };
 
-ValueArg<double> uod =
-  { "", "uod", "uod value", false, 0, "uod value", cmd };
 
 PvtAnalyzer load_pvt_data(istream & input)
 {
@@ -641,14 +633,15 @@ json_format(const pair<DynList<MixedCorrDesc>, DynList<DynList<double>>> & dmat)
 }
 
 DynList<const Correlation*>
-read_correlation_from_command_line(PvtAnalyzer & pvt,
+read_correlation_from_command_line(MultiArg<string> & cnames,
+				   PvtAnalyzer & pvt,
 				   const string & target_name,
 				   const string & set_name)
 {
   auto valid_correlations = pvt.valid_correlations(target_name, set_name);
 
   DynList<const Correlation*> corr_list;
-  for (auto corr_name : corr_names.getValue())
+  for (auto corr_name : cnames.getValue())
     {
       auto p = Correlation::search_by_name(corr_name);
       if (p == nullptr)
@@ -656,6 +649,31 @@ read_correlation_from_command_line(PvtAnalyzer & pvt,
       if (p->target_name() != target_name)
 	error_msg("Correlation name " + corr_name + " is not for " +
 		  target_name + " property");
+      if (not valid_correlations.exists([&corr_name] (auto p)
+					{ return p->name == corr_name; }))
+	error_msg("Correlation name " + corr_name + " development range does "
+		  "not fit the data associated to the given fluid");
+
+      corr_list.append(p);
+    }
+  return corr_list;
+}
+
+DynList<const Correlation*>
+read_uob_correlations_from_command_line(MultiArg<string> & cnames,
+					PvtAnalyzer & pvt)
+{
+  auto valid_correlations = pvt.uob_correlations_lfits().
+    maps<const Correlation*>([] (auto p) { return get<0>(p.first); });
+
+  DynList<const Correlation*> corr_list;
+  for (auto corr_name : cnames.getValue())
+    {
+      auto p = Correlation::search_by_name(corr_name);
+      if (p == nullptr)
+	error_msg("Correlation name " + corr_name + " not found");
+      if (p->target_name() != "uob")
+	error_msg("Correlation name " + corr_name + " is not for uob property");
       if (not valid_correlations.exists([&corr_name] (auto p)
 					{ return p->name == corr_name; }))
 	error_msg("Correlation name " + corr_name + " development range does "
@@ -693,7 +711,7 @@ void process_rs(PvtAnalyzer & pvt)
     error_msg("specific correlations have not been defined (option -n)");
 
   DynList<const Correlation*> corr_list =
-    read_correlation_from_command_line(pvt, "rs", "Below Pb");
+    read_correlation_from_command_line(corr_names, pvt, "rs", "Below Pb");
 
   auto dmat = eval_correlations(pvt.correlations_stats(corr_list, 0),
 				"Below Pb", "rs", pvt,
@@ -739,7 +757,7 @@ void process_rsa(PvtAnalyzer & pvt)
     error_msg("specific correlations have not been defined (option -n)");
 
   DynList<const Correlation*> below_corr_list =
-    read_correlation_from_command_line(pvt, "rs", "Below Pb");
+    read_correlation_from_command_line(corr_names, pvt, "rs", "Below Pb");
 
   auto above_corr_list = below_corr_list.maps<const Correlation*>([] (auto)
     {
@@ -797,7 +815,7 @@ void process_bob(PvtAnalyzer & pvt)
     error_msg("specific correlations have not been defined (option -n)");
 
   DynList<const Correlation*> corr_list =
-    read_correlation_from_command_line(pvt, "bob", "Below Pb");
+    read_correlation_from_command_line(corr_names, pvt, "bob", "Below Pb");
 
   auto dmat = eval_correlations(pvt.correlations_stats(corr_list, 0),
 				"Below Pb", "bob", pvt,
@@ -849,7 +867,7 @@ void process_boa(PvtAnalyzer & pvt)
     error_msg("specific correlations have not been defined (option -n)");
 
   DynList<const Correlation*> corr_list =
-    read_correlation_from_command_line(pvt, "boa", "Above Pb");
+    read_correlation_from_command_line(corr_names, pvt, "boa", "Above Pb");
 
   auto dmat = eval_correlations(pvt.correlations_stats(corr_list, 1),
 				"Above Pb", "boa", pvt,
@@ -977,12 +995,34 @@ void process_uob(PvtAnalyzer & pvt)
   if (not corr_names.isSet())
     error_msg("specific correlations have not been defined (option -n)");
 
-  DynList<const Correlation*> corr_list =
-    read_correlation_from_command_line(pvt, "uob", "Below Pb");
+  DynList<const Correlation*> uod_list =
+    read_correlation_from_command_line(uod_names, pvt, "uod", "Below Pb");
 
-  auto dmat = eval_correlations(pvt.correlations_stats(corr_list, 0),
+  DynList<const Correlation*> uob_list =
+    read_uob_correlations_from_command_line(corr_names, pvt);
+
+  auto p = uob_list.partition([] (auto p)
+    { return p->synonyms().exists([] (auto p)
+    { return p.first == "uod"; }); });
+
+  const DynList<const Correlation*> & uob_with_uod = p.first;
+  const DynList<const Correlation*> & uob_without_uod = p.second;
+
+  auto dmat = eval_correlations(pvt.correlations_stats(uob_without_uod, 0),
 				"Below Pb", "uob", pvt,
 				get_eval_type(compute_type.getValue()));
+
+  for (auto it = get_zip_it(uod_list, uob_with_uod); it.has_curr(); it.next())
+    {
+      auto t = it.get_curr();
+      auto uod_corr = get<0>(t);
+      auto uob_corr = get<1>(t);
+      pvt.get_data().def_const("uod", pvt.get_data().compute(uod_corr),
+			       &uod_corr->unit);
+      dmat = eval_correlations(pvt.correlations_stats(uob_corr, 0),
+			       "Below Pb", "uob", pvt,
+			       get_eval_type(compute_type.getValue()));
+    }
 
   // calcular el mejor uod y ponerlo o verificar si uod está definido
   // como comando o es parte de la data
