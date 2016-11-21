@@ -24,3 +24,10 @@ funcion que imprima famila de correlaciones en filas con nombres de parameros y 
 json con unidades,2016-10-10 19:21:55 -0400,2016-11-07 16:51:04 -0400,,2016-11-07 16:51:15 -0400
 implementar un método de sobrecarga de correlación,2016-10-07 11:25:16 -0400,,,2016-11-07 16:51:39 -0400
 añadir en add_parameter la posibilidad de poner una nota adicional sobre el parámetro,2016-10-04 09:37:02 -0400,2016-10-07 07:50:34 -0400,,2016-11-07 16:51:49 -0400
+si una correlación oil-compre recibe p>pb +==> excepción,2016-10-07 15:42:41 -0400,2016-11-20 21:49:29 -0400,usar presión si es requerida,2016-11-20 21:49:33 -0400
+oil-compressibility: sacar a McCain de las otras correlaciones,2016-10-07 15:41:29 -0400,2016-11-07 16:51:33 -0400,,2016-11-20 21:49:42 -0400
+parámetro s de salinidad debe set porcentual para que no dé una raíz negativa,2016-10-04 21:31:03 -0400,2016-10-08 09:20:50 -0400,,2016-11-20 21:49:45 -0400
+hacer regresión,2016-09-30 10:15:00 -0400,2016-11-04 15:23:00 -0400,,2016-11-20 21:50:00 -0400
+recibir una data experimental y seleccionar las correlaciones que aplican,2016-09-30 10:15:28 -0400,2016-11-20 21:52:40 -0400,,2016-11-20 21:52:43 -0400
+tabla de correlaciones y protocolo de llamada con manejo de errores,2016-09-27 11:02:41 -0400,2016-11-20 21:52:53 -0400,,2016-11-20 21:53:00 -0400
+manejag mPascal en water-density.rb,2016-09-29 10:17:52 -0400,2016-11-20 21:52:57 -0400,,2016-11-20 21:53:00 -0400
