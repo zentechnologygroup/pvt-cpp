@@ -57,8 +57,10 @@ ValueArg<string> output_type = { "t", "output-type", "output type", false,
 MultiArg<string> corr_names = { "n", "name", "add correlation name", false,
 				"add correlation name to computations", cmd };
 
-MultiArg<string> uod_names = { "u", "uod-name", "add uod correlation name", false,
-			       "add uod correlation name to computations", cmd };
+ValueArg<string> uod_name = { "u", "uod-name", "uod correlation name", false,
+			      "",
+			      "uod correlation to be used for computations",
+			      cmd };
 
 ValueArg<string> file =
   { "f", "file", "file name", false, "", "file name", cmd };
@@ -945,10 +947,11 @@ void process_bo(PvtAnalyzer & pvt)
   DynList<const Correlation*> below_corr_list = { below_corr_ptr };
   DynList<const Correlation*> above_corr_list = { above_corr_ptr };
 
-  auto dmat = eval_correlations(pvt.correlations_stats(below_corr_list, 0),
-				pvt.correlations_stats(above_corr_list, 1),
-				pvt.get_data().name_index("Below Pb", "bob"), pvt,
-				get_eval_type(compute_type.getValue()));
+  auto dmat =
+    eval_correlations(pvt.correlations_stats(below_corr_list, 0),
+		      pvt.correlations_stats(above_corr_list, 1),
+		      pvt.get_data().name_index("Below Pb", "bob"), pvt,
+		      get_eval_type(compute_type.getValue()));
 
   switch (get_output_type(output_type.getValue()))
     {
@@ -995,39 +998,31 @@ void process_uob(PvtAnalyzer & pvt)
   if (not corr_names.isSet())
     error_msg("specific correlations have not been defined (option -n)");
 
-  DynList<const Correlation*> uod_list =
-    read_correlation_from_command_line(uod_names, pvt, "uod", "Below Pb");
+  auto & pvtdata = pvt.get_data();
 
-  DynList<const Correlation*> uob_list =
-    read_uob_correlations_from_command_line(corr_names, pvt);
+  const Correlation * uod_corr = nullptr;
+  if (uod_name.isSet())
+    {
+      if (get<0>(pvtdata.search_const("uod")))
+	error_msg("-u option (for uod) is not allowed if data "
+		  "set already contains uod");
+      uod_corr = Correlation::search_by_name(uod_name.getValue());
+      if (uod_corr == nullptr)
+	error_msg("Correlation " + uod_name.getValue() +  " not found");
+      if (uod_corr->target_name() != "uod")
+	error_msg("Correlation " + uod_name.getValue() +  " is not for uod");
+      pvtdata.def_const("uod", pvtdata.compute(uod_corr), &uod_corr->unit);
+    }
 
-  auto p = uob_list.partition([] (auto p)
-    { return p->synonyms().exists([] (auto p)
-    { return p.first == "uod"; }); });
+  DynList<const Correlation*> corr_list =
+    read_correlation_from_command_line(corr_names, pvt, "uob", "Below Pb");
 
-  const DynList<const Correlation*> & uob_with_uod = p.first;
-  const DynList<const Correlation*> & uob_without_uod = p.second;
-
-  auto dmat = eval_correlations(pvt.correlations_stats(uob_without_uod, 0),
+  auto dmat = eval_correlations(pvt.correlations_stats(corr_list, 0),
 				"Below Pb", "uob", pvt,
 				get_eval_type(compute_type.getValue()));
 
-  for (auto it = get_zip_it(uod_list, uob_with_uod); it.has_curr(); it.next())
-    {
-      auto t = it.get_curr();
-      const auto & uod_corr = get<0>(t);
-      auto uob_corr_list = DynList<const Correlation*>({get<1>(t)});
-      pvt.get_data().def_const("uod", pvt.get_data().compute(uod_corr),
-			       &uod_corr->unit);
-      auto m = eval_correlations(pvt.correlations_stats(uob_corr_list, 0),
-				 "Below Pb", "uob", pvt,
-				 get_eval_type(compute_type.getValue()));
-      // concatenar de alguna forma con dmat
-      pvt.get_data().remove_last_const("uod");
-    }
-
-  // calcular el mejor uod y ponerlo o verificar si uod está definido
-  // como comando o es parte de la data
+  if (uod_corr) // if uod was computed ==> delete from data set
+    pvtdata.remove_last_const("uod");
 
   switch (get_output_type(output_type.getValue()))
     {
@@ -1050,17 +1045,151 @@ void process_uob(PvtAnalyzer & pvt)
 
 void process_uoa(PvtAnalyzer & pvt)
 {
-  error_msg();
+  if (corr_all.isSet())
+    {
+      list_correlations(pvt.uoa_correlations());
+      exit(0);
+    }
+
+  if (corr_list.isSet())
+    {
+      list_correlations(pvt.uoa_valid_correlations());
+      exit(0);
+    }
+
+  if (corr_best.isSet())
+    {
+      list_correlations(pvt.uoa_best_correlations(), sort_type.getValue());
+      exit(0);
+    }
+
+  if (not plot.isSet())
+    error_msg("Not plot option (-p) has not been set");
+
+  if (not corr_names.isSet())
+    error_msg("specific correlations have not been defined (option -n)");
+
+  DynList<const Correlation*> corr_list =
+    read_correlation_from_command_line(corr_names, pvt, "uoa", "Above Pb");
+
+  auto dmat = eval_correlations(pvt.correlations_stats(corr_list, 1),
+				"Above Pb", "uoa", pvt,
+				get_eval_type(compute_type.getValue()));
+
+  switch (get_output_type(output_type.getValue()))
+    {
+    case OutputType::mat:
+      cout << mat_format(dmat);
+      break;
+    case OutputType::csv:
+      cout << csv_format(dmat);
+      break;
+    case OutputType::R:
+      cout << r_format(dmat);
+      break;
+    case OutputType::json:
+      cout << json_format(dmat);
+      break;
+    default:
+      error_msg("Invalid outout type value");
+    }
 }
 
 void process_uo(PvtAnalyzer & pvt)
 {
-  error_msg();
-}
+  if (corr_all.isSet())
+    error_msg("-" + corr_all.getFlag() + " option is not allowed with -" +
+	      property.getFlag() + " " + property.getValue() + " option");
 
-void process_uod(PvtAnalyzer & pvt)
-{
-  error_msg();
+  if (corr_list.isSet())
+    error_msg("-" + corr_list.getFlag() + " option is not allowed with -" +
+	      property.getFlag() + " " + property.getValue() + " option");
+
+  if (corr_best.isSet())
+    error_msg("-" + corr_best.getFlag() + " option is not allowed with -" +
+	      property.getFlag() + " " + property.getValue() + " option");
+
+  if (not plot.isSet())
+    error_msg("Not plot option (-p) has not been set");
+
+  if (corr_names.isSet())
+    error_msg("option -p is not allowed with -P bo");
+
+  if (not below_corr.isSet())
+    error_msg("Below correlation has not been set (-B option)");
+
+  if (not above_corr.isSet())
+    error_msg("Above correlation has not been set (-A option)");
+
+  auto & pvtdata = pvt.get_data();
+
+  const Correlation * uod_corr = nullptr;
+  if (uod_name.isSet())
+    {
+      if (get<0>(pvtdata.search_const("uod")))
+	error_msg("-u option (for uod) is not allowed if data "
+		  "set already contains uod");
+      uod_corr = Correlation::search_by_name(uod_name.getValue());
+      if (uod_corr == nullptr)
+	error_msg("Correlation " + uod_name.getValue() +  " not found");
+      if (uod_corr->target_name() != "uod")
+	error_msg("Correlation " + uod_name.getValue() +  " is not for uod");
+      pvtdata.def_const("uod", pvtdata.compute(uod_corr), &uod_corr->unit);
+    }
+
+  auto below_corr_ptr = Correlation::search_by_name(below_corr.getValue());
+  if (below_corr_ptr == nullptr)
+    error_msg("Below correlation " + below_corr.getValue() + " not found");
+  if (below_corr_ptr->target_name() != "uob")
+    error_msg("Below correlation " + below_corr.getValue() + " is not for uob");
+  {
+    if (not pvt.valid_correlations("uob", "Below Pb").
+	exists([below_corr_ptr] (auto p) { return p == below_corr_ptr; }))
+      error_msg("Below correlation " + below_corr.getValue() +
+		" is not inside the development ranges");
+  }
+
+  auto above_corr_ptr = Correlation::search_by_name(above_corr.getValue());
+  if (above_corr_ptr == nullptr)
+    error_msg("Above correlation " + above_corr.getValue() + " not found");
+  if (above_corr_ptr->target_name() != "uoa")
+    error_msg("Above correlation " + above_corr.getValue() + " is not for boa");
+  {
+    if (not pvt.valid_correlations("uoa", "Above Pb").
+	exists([above_corr_ptr] (auto p) { return p == above_corr_ptr; }))
+      error_msg("Above correlation " + above_corr.getValue() +
+		" is not inside the development ranges");
+  }
+
+  DynList<const Correlation*> below_corr_list = { below_corr_ptr };
+  DynList<const Correlation*> above_corr_list = { above_corr_ptr };
+
+  auto dmat =
+    eval_correlations(pvt.correlations_stats(below_corr_list, 0),
+		      pvt.correlations_stats(above_corr_list, 1),
+		      pvt.get_data().name_index("Below Pb", "uob"), pvt,
+		      get_eval_type(compute_type.getValue()));
+
+  if (uod_corr) // if uod was computed ==> delete from data set
+    pvtdata.remove_last_const("uod");
+
+  switch (get_output_type(output_type.getValue()))
+    {
+    case OutputType::mat:
+      cout << mat_format(dmat);
+      break;
+    case OutputType::csv:
+      cout << csv_format(dmat);
+      break;
+    case OutputType::R:
+      cout << r_format(dmat);
+      break;
+    case OutputType::json:
+      cout << json_format(dmat);
+      break;
+    default:
+      error_msg("Invalid outout type value");
+    }
 }
 
 using OptionPtr = void (*)(PvtAnalyzer&);
@@ -1078,7 +1207,6 @@ void init_dispatcher()
   dispatch_tbl.insert("uob", process_uob);
   dispatch_tbl.insert("uoa", process_uoa);
   dispatch_tbl.insert("uo", process_uo);
-  dispatch_tbl.insert("uod", process_uod);
 }
 
 void dispatch_option(const string & op, PvtAnalyzer & pvt)

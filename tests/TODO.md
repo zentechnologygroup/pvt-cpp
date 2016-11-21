@@ -53,3 +53,6 @@
 ## 18. correlaciones con hidden en tru no deben ser mostradas por test-calibrate
 - Created at   2016-11-19 13:44:15 -0400
 
+## 19. script que modifique fuentes ruby y ponga los sómbolos de parámetros
+- Created at   2016-11-21 15:23:07 -0400
+

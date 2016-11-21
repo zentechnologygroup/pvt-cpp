@@ -875,8 +875,8 @@ extern long exec_correlation_call(long proxy_id);
 /// free the proxy 
 extern long free_correlation_call(long proxy_id);
 
-# define Declare_Correlation_Type(type_name)	\
-  struct type_name : public Correlation		\
+# define Header_Correlation_Type(type_name, hidden)	\
+struct type_name : public Correlation		\
   {						\
     type_name(const string & subtype_name, const string & name,		\
 	      const Unit & result_unit, double min_val, double max_val)	\
@@ -884,17 +884,25 @@ extern long free_correlation_call(long proxy_id);
 		    min_val, max_val) {}				\
     virtual ~type_name() = 0;						\
     using Correlation::add_parameter;					\
+    bool is_hidden = hidden;						\
   };									\
 									\
   inline type_name::~type_name() {}
 
+# define Declare_Correlation_Type(type_name)	\
+  Header_Correlation_Type(type_name, false)
+
+# define Declare_Hidden_Correlation_Type(type_name)	\
+  Header_Correlation_Type(type_name, true)
+
+Declare_Hidden_Correlation_Type(TmpFunction)
 Declare_Correlation_Type(OilFunction)
 Declare_Correlation_Type(OilCorrelation);
 Declare_Correlation_Type(GasCorrelation);
 Declare_Correlation_Type(GasFunction);
 Declare_Correlation_Type(WaterCorrelation);
 
-# define Header_Correlation_Subtype(subtype_name, type_name, is_hidden) \
+# define Declare_Correlation_Subtype(subtype_name, type_name) \
   struct subtype_name : public type_name			\
   {								\
     subtype_name(const string & name, const Unit & result_unit,	\
@@ -907,20 +915,11 @@ Declare_Correlation_Type(WaterCorrelation);
     subtype_name(const string & name, const Unit & unit)		\
       : type_name(#subtype_name, name, unit, unit.min_val, unit.max_val) {} \
     virtual ~subtype_name() = 0;					\
-									\
-    bool hidden = is_hidden;						\
-									\
   protected:								\
     using type_name::add_parameter;					\
   };									\
 									\
   inline subtype_name::~subtype_name() {}
-
-# define Declare_Correlation_Subtype(subtype_name, type_name)	\
-  Header_Correlation_Subtype(subtype_name, type_name, false);
-
-# define Declare_Hidden_Correlation_Subtype(subtype_name, type_name) \
-  Header_Correlation_Subtype(subtype_name, type_name, true);
 
 template <typename F> struct compute_arity;
 
@@ -961,6 +960,8 @@ decltype(auto) call_compute(Func&& f, const DynList<T>& pars)
   									\
 private:
 
+Declare_Correlation_Subtype(TmpCorrelation, TmpFunction);
+
     // correlations & functions associated to oil
 Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
 Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation);
@@ -998,8 +999,10 @@ Declare_Correlation_Subtype(SaturatedWaterVolumeFactor, WaterCorrelation);
 Declare_Correlation_Subtype(UndersaturatedWaterVolumeFactor, WaterCorrelation);
 Declare_Correlation_Subtype(WaterInterfacialTension, WaterCorrelation);
 Declare_Correlation_Subtype(WaterIsothermalCompressibility, WaterCorrelation);
-Declare_Correlation_Subtype(SaturatedWaterIsothermalCompressibility, WaterCorrelation);
-Declare_Correlation_Subtype(UndersaturatedWaterIsothermalCompressibility, WaterCorrelation);
+Declare_Correlation_Subtype(SaturatedWaterIsothermalCompressibility,
+			    WaterCorrelation);
+Declare_Correlation_Subtype(UndersaturatedWaterIsothermalCompressibility,
+			    WaterCorrelation);
 Declare_Correlation_Subtype(SolutionGasWaterRelation, WaterCorrelation);
 
 # endif // CORRELATION_H

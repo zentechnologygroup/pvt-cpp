@@ -50,7 +50,7 @@ public:
       }
   }
 
-  static double get_epsilon(double min_val, double max_val, double error = .01)
+  static double get_epsilon(double min_val, double max_val, double error)
   {
     assert(min_val < max_val);
     assert(error > 0 and error < 1);
@@ -59,11 +59,10 @@ public:
 
   static bool check_values(double v1, double v2, double epsilon)
   {
-    cout << "check " << v1 << " " << v2 << " " << epsilon << endl;
     return fabs(v1 - v2) < epsilon;
   }
 
-  void check_data(float error = 0.05) 
+  void check_data(float error = 0.1) 
   {
     data.check_constant("t", Temperature::get_instance());
     data.check_constant("pb", Pressure::get_instance());

@@ -64,6 +64,7 @@ string Correlation::to_json()
   DynMapTree<string, DynMapTree<string, DynList<const Correlation * const>>>
     tree;
 
+  // insert all correlations in the tree
   for (auto it = tbl.get_it(); it.has_curr(); it.next())
     {
       auto corr_ptr = it.get_curr().second;
