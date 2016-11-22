@@ -32,6 +32,17 @@ $par_symbols =
     'ppw' => "\\\\rho_{pw}",
     'pw' => "\\\\rho_{w}",
     'bw' => "B_{w}",
-    'cw' => "c_{w}"
+    'cw' => "c_{w}",
+    'bg' => "B_{g}",
+    'bwbp' => "B_{wbp}",
+    'co' => "c_{o}",
+    'cwa' => "c_{wa}",
+    'pobp' => "\\\\rho_{obp}",
+    'ppc' => "P_{pc}",
+    'pv' => "P_{v}",
+    'rsw' => "R_{sw}",
+    'tpc' => "T_{pc}",
+    'uobp' => "\\\\mu_{obp}",
+    'yghc' => "\\\\gamma_{gHC}"
   }
 
