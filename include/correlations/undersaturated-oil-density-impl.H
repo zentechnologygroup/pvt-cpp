@@ -5,10 +5,7 @@
 
 
 inline Quantity<Lb_ft3>
-PoaBradley::impl(const Quantity<Sgg> & yg,
-		 const Quantity<SCF_STB> & rsb,
-		 const Quantity<RB_STB> & bobp,
-		 const Quantity<Sgg> & yo,
+PoaBradley::impl(const Quantity<Lb_ft3> & pobp,
 		 const Quantity<psia> & p,
 		 const Quantity<psia> & pb,
 		 const Quantity<psia_1> & co) const
@@ -19,11 +16,8 @@ PoaBradley::impl(const Quantity<Sgg> & yg,
       s << "PoaBradley::impl: pressure " << p << " is less than pb" << pb;
       throw domain_error(s.str());
     }
-  
-  const double pob =
-    (350*yo.raw() + 0.0764*yg.raw()*rsb.raw())/(5.615*bobp.raw());
 
-  const double po = pob * exp(co.raw() * (p.raw() - pb.raw()));
+  const double po = pobp.raw() * exp(co.raw() * (p.raw() - pb.raw()));
 
   return Quantity<Lb_ft3>(po);
 }

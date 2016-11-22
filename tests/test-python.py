@@ -893,13 +893,12 @@ def CoMillanArciaCorrelation(API, Rsb, T, P, Pb):
     CoMillanArcia = Co
     return CoMillanArcia
 
-def PoBradleyCorrelation (Yg, Rs, Bo, Yo, P, Pb, Co):
-    if P < Pb:
-        po = (350*Yo + 0.0764*Yg*Rs)/(5.615*Bo)
-    else:
-        Bob = Bo/exp(Co * (Pb - P))
-        pob = (350*Yo + 0.0764*Yg*Rs)/(5.615*Bob)
-        po = pob * exp(Co * (P - Pb))
+def PobBradleyCorrelation (Yg, Rs, Bo, Yo):
+    po = (350*Yo + 0.0764*Yg*Rs)/(5.615*Bo)
+    return po
+
+def PoaBradleyCorrelation (pob, P, Pb, Co):
+    po = pob * exp(Co * (P - Pb))
     return po
 
 def UodBealCorrelation (API, T):
@@ -1112,7 +1111,7 @@ def PbGlasoCorrelation(Yg, Rsb, API, T, n2Concentration, co2Concentration, h2sCo
     co2Effect = 1 - 693.8 * co2Concentration * T **-1.553
     h2sEffect = 1 - (0.9035 + 0.0015 * API) * h2sConcentration + 0.019 * (45 - API) *  h2sConcentration **2
     Pb = PbHC * n2Effect * co2Effect * h2sEffect
-    PbGlaso = Pbd
+    PbGlaso = Pb
     return PbGlaso
 
 def SgoBakerSwerdloffCorrelation(T,API,P):
@@ -2447,5 +2446,4 @@ def RswMcCoyCorrelation(T, P, saltConcentration):
 # BwbMcCoyCorrelation(200, 5000, 2)
 # BwaSpiveyMNCorrelation(93.3333, 34.4738, 0.349199)
 # BwaMcCainCorrelation(7000, 5000, 5, 0.0001)
-
 
