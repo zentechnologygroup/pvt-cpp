@@ -3,7 +3,7 @@
 begin_correlation("PvSpiveyMN", "WaterIsothermalCompressibility", "mPascal")
 add_title("SPIVEY, McCAIN & NORTH, CALCULATION OF VAPOR PRESSURE")
 add_db("Vapor pressure of pure water, calculated from the IAWPS-95 formulation.")
-add_parameter("tk", "Kelvin", "Temperature") 
+add_parameter("t", "Kelvin", "Temperature") 
 add_author("Spivey, McCain & North")
 add_ref("spivey:2004")
 add_ref("mcCain:2011")
