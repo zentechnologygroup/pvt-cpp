@@ -22,8 +22,9 @@ struct CorrelationPar
   const Unit & unit;
   const VtlQuantity min_val;
   const VtlQuantity max_val;
-  bool min_from_author = true;
-  bool max_from_author = true;
+  mutable bool min_from_author = true;
+  mutable bool max_from_author = true;
+  mutable string latex_symbol = "NO SYMBOL";
 
 private:
 
@@ -63,6 +64,11 @@ public:
 	throw domain_error(s.str());
       }
     add_synonym(name, *ptr);
+  }
+
+  void def_latex_symbol(const string & latex_symbol)
+  {
+    this->latex_symbol = latex_symbol;
   }
 
   const DynList<P> & get_synonyms() const noexcept { return synonyms; }
@@ -137,8 +143,9 @@ struct Correlation
 {
   const string type_name;
   const string subtype_name;
-  const string name;
-  mutable string author;
+  const string name = "NOT DEFINED";
+  mutable string latex_symbol = "NO LATEX SYMBOL";
+  mutable string author = "NOT DEFINED";
   const Unit & unit;
   const double min_val;
   const double max_val;
@@ -221,8 +228,21 @@ public:
     return build_perms(ret);
   }
 
-  void add_par_synonym(const string & par_name, const string & synonym,
-		       const string & unit_name)
+  const CorrelationPar * search_par_name(const string & name) const
+  {
+    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+      {
+	const auto & par = it.get_curr();
+	if (par.names().exists([&name] (const auto & p)
+			       { return p.first == name; }))
+	  return &par;
+      }
+    return nullptr;
+  }
+
+private:
+  
+  CorrelationPar * search_parameter(const string & par_name) const
   {
     auto par_ptr = preconditions.find_ptr([&par_name] (auto p)
 					  { return p.name == par_name; });
@@ -234,7 +254,36 @@ public:
 	throw domain_error(s.str());
       }
 
+    return const_cast<CorrelationPar*>(par_ptr);
+  }
+
+  public:
+
+  static DynList<pair<string, string>> latex_symbols()
+  {
+    DynMapTree<string, string> sbltbl;
+    correlations_tbl.for_each([&sbltbl] (auto p)
+      {
+	p->get_preconditions().for_each([&sbltbl] (const auto & par)
+          {
+	    sbltbl.emplace(par.name, par.latex_symbol);
+	  });
+      });
+    return sbltbl.items();
+  }
+
+  void add_par_synonym(const string & par_name, const string & synonym,
+		       const string & unit_name)
+  {
+    auto par_ptr = search_parameter(par_name);
     par_ptr->add_synonym(synonym, unit_name);
+  }
+
+  void def_parameter_latex_symbol(const string & par_name,
+				  const string & latex_symbol)
+  {
+    auto par_ptr = search_parameter(par_name);
+    par_ptr->def_latex_symbol(latex_symbol);
   }
 
   void set_hidden() { hidden = true; }
@@ -257,18 +306,6 @@ public:
   const DynList<CorrelationPar> & get_preconditions() const noexcept
   {
     return preconditions;
-  }
-
-  const CorrelationPar * search_par_name(const string & name) const
-  {
-    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
-      {
-	const auto & par = it.get_curr();
-	if (par.names().exists([&name] (const auto & p)
-			       { return p.first == name; }))
-	  return &par;
-      }
-    return nullptr;
   }
 
   const DynList<const CorrelationPar * const> preconditions_list() const 

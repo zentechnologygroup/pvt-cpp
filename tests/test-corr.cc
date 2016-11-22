@@ -416,7 +416,21 @@ void test(int argc, char *argv[])
 
   SwitchArg list_Corr = { "L", "List", "detailed list of correlations", cmd };
 
+  SwitchArg symbols = { "s", "latex-symbols", "latex symbols", cmd };
+
   cmd.parse(argc, argv);
+
+  if (symbols.getValue())
+    {
+      auto l =
+	Correlation::latex_symbols().maps<DynList<string>>([] (auto p)
+          {
+	    return DynList<string>({p.first, p.second});
+	  });
+      l.insert(DynList<string>({"parameter name", "latex symbol"}));
+      cout << to_string(format_string(l)) << endl;
+      exit(0);
+    }
 
   if (list_corr.getValue())
     {

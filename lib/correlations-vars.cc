@@ -28,6 +28,7 @@ static json to_json(const CorrelationPar & p)
   j["maximum value unit"] = p.min_val.unit.symbol;
   j["min from author"] = p.min_from_author;
   j["max from author"] = p.max_from_author;
+  j["latex symbol"] = p.latex_symbol;
   return j;
 }
 
@@ -44,6 +45,7 @@ static json to_json(const Correlation & c)
   j["data bank"] = to_vector(c.db);
   j["title"] = c.title;
   j["author"] = c.author;
+  j["latex symbol"] = c.latex_symbol;
   j["subtype"] = c.subtype_name;
   j["type"] = c.type_name;
   j["name"] = c.name;

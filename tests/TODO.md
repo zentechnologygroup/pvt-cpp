@@ -56,3 +56,6 @@
 ## 19. script que modifique fuentes ruby y ponga los sómbolos de parámetros
 - Created at   2016-11-21 15:23:07 -0400
 
+## 20. nuevo programa que evalue correlacion recibiendo un arreglo
+- Created at   2016-11-22 10:40:29 -0400
+

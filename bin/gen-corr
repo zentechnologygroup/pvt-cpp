@@ -5,6 +5,8 @@ require 'fileutils'
 require 'optparse'
 require 'calculus.rb'
 
+load 'symbols'
+
 class CorrelationGen
 
   class Parameter
@@ -24,6 +26,7 @@ class CorrelationGen
       s += ", #{@min}" if @min
       s += ", #{@max}" if @max
       s += ");\n"
+      s += "def_parameter_latex_symbol(\"#{@name}\", \"#{$par_symbols[@name]}\");\n" if $par_symbols[@name]
       s
     end
   end
@@ -84,6 +87,7 @@ class CorrelationGen
 
   def add_parameter(name, unit, desc, min = nil, max = nil)
     @pars << Parameter.new(name, unit, desc, min, max)
+    @latex_symbol = $par_symbols[name]
   end
 
   def add_synonym(par_name, syn_name, unit_name)
@@ -208,6 +212,7 @@ class CorrelationGen
     @synonyms.each do |syn|
       s += "add_par_synonym(\"#{syn[0]}\", \"#{syn[1]}\", \"#{syn[2]}\");\n"
     end
+    #s += "add_latex_symbol("  \"#{par_symbols[@latex_symbol]}\""
     s += "}\n"\
          "\n"
     s += "#{gen_impl_declaration};\n"\
