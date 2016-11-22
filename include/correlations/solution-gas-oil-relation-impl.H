@@ -438,7 +438,7 @@ inline Quantity<SCF_STB> RsPerezML::impl(const Quantity<psia> & pb,
   const double raw_pb = pb.get_value();
   const double raw_p  = p.get_value();
 
-  const double rs = (rsb.get_value()/1.031) * pow((raw_p/raw_pb), 0.83);
+  const double rs = rsb.get_value() * pow((raw_p/raw_pb), 0.881);
 
   return Quantity<SCF_STB>(rs);
 }
