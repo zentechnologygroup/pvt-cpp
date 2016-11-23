@@ -111,13 +111,13 @@ struct CorrelationInstantiater
     BobDeGhetto::get_instance();
     BobDindorukChristman::get_instance();
     BobDoklaOsman::get_instance();
+    BobGlaso::get_instance();
     BobHanafy::get_instance();
     BobKartoatmodjo::get_instance();
     BobPetroskyFarshad::get_instance();
     BobStanding::get_instance();
     BobTotalCFP::get_instance();
     BobVasquezBeggs::get_instance();
-    BobPerezML::get_instance();
     BobPerezML::get_instance();
     BobVelardeMcCain::get_instance();
     BobMillanArcia::get_instance();
