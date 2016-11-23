@@ -26,6 +26,9 @@ SwitchArg corr_list = { "l", "list", "list matching correlations", cmd };
 SwitchArg corr_all = { "a", "all", "list all associated correlations", cmd };
 
 SwitchArg corr_best = { "b", "best", "list best correlations", cmd };
+
+SwitchArg force_corr =
+  { "j", "join", "join by correlation value instead of sexperimental point", cmd };
   
 ValueArg<string> below_corr = { "B", "below", "below correlation name", false,
 				"", "set below correlation", cmd };
@@ -316,7 +319,7 @@ pair<DynList<MixedCorrDesc>, DynList<DynList<double>>>
 eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
 		  const DynList<PvtAnalyzer::Desc> & la, // above pb
 		  size_t col_idx, // respect to below set
-		  const PvtAnalyzer & pvt,
+		  PvtAnalyzer & pvt,
 		  EvalType eval_type = EvalType::Single)
 {
   if (lb.is_empty())
@@ -351,7 +354,7 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
 	  const auto & above_desc = get<1>(t);
 	  const auto & below_values = PvtAnalyzer::values(below_desc);
 	  const auto & above_values = PvtAnalyzer::values(above_desc);
-	  
+
 	  auto ret_it = ret.get_it();
 
 	  for (auto it = below_values.get_it(); it.has_curr();
@@ -381,6 +384,17 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
 	    pvt.get_data().tuned_compute("Below Pb", below_corr,
 					 PvtAnalyzer::c(below_desc),
 					 PvtAnalyzer::m(below_desc));
+	  if (force_corr.getValue())
+	    {
+	      auto & data = pvt.get_data();
+	      auto row = data.var_sets(0).samples.size() - 1;
+	      const double bobp = data.tuned_compute(0, row, below_corr,
+						     PvtAnalyzer::c(below_desc),
+						     PvtAnalyzer::m(below_desc));
+	      data.var_sets(1).samples(0)(2) = bobp;
+	      cout << "bobp = " << bobp << endl;
+	    }
+	  
 	  auto above_values =
 	    pvt.get_data().tuned_compute("Above Pb", above_corr,
 					 PvtAnalyzer::c(above_desc),
@@ -931,6 +945,11 @@ void process_bo(PvtAnalyzer & pvt)
       error_msg("Below correlation " + below_corr.getValue() +
 		" is not inside the development ranges");
   }
+
+  // if (force_corr.getValue()
+  //   {
+  //     const double bobp = pvt.get_data()
+  // 	}
 
   auto above_corr_ptr = Correlation::search_by_name(above_corr.getValue());
   if (above_corr_ptr == nullptr)

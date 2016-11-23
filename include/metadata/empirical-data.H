@@ -441,7 +441,7 @@ struct EmpiricalData
 						     { return s == name; }); });
   }
 
-  // return a list of stored values for the symbol name of the vars set set_idx
+  /// return a list of stored values for the symbol name of the vars set set_idx
   Array<double> values(size_t set_idx, const string & name) const
   {
     for (size_t i = 0; i < const_names.size(); ++i)
@@ -464,6 +464,23 @@ struct EmpiricalData
 	}
 
     return Array<double>();
+  }
+
+  /// return the value of name between the onstant and the vars set `set_idx`
+  tuple<bool, double, const Unit*>
+  value(size_t set_idx, size_t row, const string & name) const
+  {
+    for (size_t i = 0; i < const_names.size(); ++i)
+      if (const_names(i) == name)
+	return make_tuple(true, const_vals(i), const_units(i));
+
+    const auto & var_set = var_sets[set_idx];
+    const auto & var_names = var_set.var_names;
+    for (size_t i = 0; i < var_names.size(); ++i)
+      if (var_names(i) == name)
+	return make_tuple(true, var_set.samples[row](i), var_set.var_units(i));
+
+    return make_tuple(false, 0.0, nullptr);
   }
 
   // return a list of stored values for the symbol name of column
@@ -1062,7 +1079,7 @@ public:
   {
     DynList<DynList<double>> ret; // this is the return value
 
-    // traverse all correlation parameter and get from the data set a
+    // traverse all correlation parameters and get from the data set a
     // column of data
     for (auto it = correlation_ptr->get_preconditions().get_it(); it.has_curr();
 	 it.next())
@@ -1110,6 +1127,60 @@ public:
 	  }
 
 	ret.append(vals);
+      }
+
+    return ret;
+  }
+
+  DynList<double>
+  correlation_values(size_t seti, size_t row,
+		     const Correlation * correlation_ptr) const
+  {
+    DynList<double> ret; // this is the return value
+
+    // traverse all correlation parameters and get from the data set a
+    // column of data
+    for (auto it = correlation_ptr->get_preconditions().get_it(); it.has_curr();
+	 it.next())
+      {
+	auto par = it.get_curr();
+	auto t = value(seti, row, par.name);
+	if (get<0>(t))
+	  {
+	    ret.append(get<1>(t));
+	    continue;
+	  }
+
+	// p.first is false, then it could exist a synonym in the
+	// correlation that matches with par_name. So we traverse the
+	// par_name synonyms and search through the data
+	bool found = false;
+	for (auto it_syn = par.get_synonyms().get_it(); it_syn.has_curr();
+	     it.next())
+	  {
+	    auto syn = it_syn.get_curr();
+	    const auto & syn_name = syn.first;
+	    auto t = value(seti, row, syn_name);
+	    if (get<0>(t))
+	      { // a synomym was found for par_name in the
+		// correlation. Now we convert the values to the synonym unit
+		const Unit * syn_unit = syn.second;
+		VtlQuantity vsyn(*syn_unit, get<1>(t));
+		ret.append(VtlQuantity(par.unit, vsyn).raw());
+		found = true;
+		break;
+	      }
+	  }
+	
+	if (not found)
+	  { // here definitely there is no data for the parameter
+	    // inside the data set
+	    ostringstream s;
+	    s << "EmpiricalData::correlation_values(): parameter " << par.name
+	      << " of correlation " << correlation_ptr->name
+	      << " does not match with any name of data set";
+	    throw domain_error(s.str());
+	  }
       }
 
     return ret;
@@ -1671,6 +1742,27 @@ public:
 		   {
 		     return correlation_ptr->tuned_compute(l, c, m, check);
 		   });
+  }
+
+  /// returns a column of correlation outputs for the values stored in
+  /// this data set
+  double compute(size_t seti, const size_t row,
+		 const Correlation * correlation_ptr, bool check = true) const
+  {
+    return correlation_ptr->compute(correlation_values(seti, row,
+						       correlation_ptr), check);
+  }
+
+  double tuned_compute(size_t seti, size_t row,
+		       const Correlation * correlation_ptr,
+		       double c, double m, bool check = true) const
+  {
+    auto vals = correlation_values(seti, row, correlation_ptr);
+    cout << "vals =";
+    vals.for_each([] (auto v) { cout << " " << v; });
+    cout << endl
+	 << "c = " << c << " m = " << m << endl;
+    return correlation_ptr->tuned_compute(vals, c, m, check);
   }
 
   DynList<double> compute(const string & set_name, 
