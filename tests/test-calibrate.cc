@@ -462,13 +462,13 @@ void process_pb(PvtAnalyzer & pvt)
 {
   if (corr_all.isSet())
     {
-      list_correlations(pvt.rs_correlations());
+      list_correlations(pvt.pb_correlations());
       exit(0);
     }
 
   if (corr_list.isSet())
     {
-      list_correlations(pvt.rs_valid_correlations());
+      list_correlations(pvt.pb_valid_correlations());
       exit(0);
     }
 

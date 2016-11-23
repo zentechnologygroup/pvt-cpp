@@ -59,3 +59,9 @@
 ## 20. nuevo programa que evalue correlacion recibiendo un arreglo
 - Created at   2016-11-22 10:40:29 -0400
 
+## 21. Revisar por qué no aparece DeGhetto en cerro-negro
+- Created at   2016-11-22 16:28:25 -0400
+
+## 22. Revisar yo y api en test-calibarte
+- Created at   2016-11-22 16:28:54 -0400
+

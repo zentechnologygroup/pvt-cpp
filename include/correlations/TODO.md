@@ -11,3 +11,8 @@
 ## 4. Alertar sobre lo sinónimos de parámetros; es el medio que tiene el sistema para identificar correlaciones automáticamente
 - Created at   2016-11-12 14:05:50 -0400
 
+## 5. correlaciones con símbolos faltantes: SaturatedWaterVolumeFactor
+- Created at    UndersaturatedWaterVolumeFactor
+- Completed at  SaturatedWaterIsothermalCompressibility
+- Comment       UndersaturatedWaterIsothermalCompressibility
+

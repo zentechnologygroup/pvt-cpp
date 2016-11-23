@@ -24,7 +24,7 @@ struct CorrelationPar
   const VtlQuantity max_val;
   mutable bool min_from_author = true;
   mutable bool max_from_author = true;
-  mutable string latex_symbol = "NO SYMBOL";
+  mutable string latex_symbol = "NOT-DEFINED";
 
 private:
 
@@ -143,9 +143,9 @@ struct Correlation
 {
   const string type_name;
   const string subtype_name;
-  const string name = "NOT DEFINED";
-  mutable string latex_symbol = "NO LATEX SYMBOL";
-  mutable string author = "NOT DEFINED";
+  const string name = "NOT-DEFINED";
+  mutable string latex_symbol = "NOT-DEFINED";
+  mutable string author = "NOT-DEFINED";
   const Unit & unit;
   const double min_val;
   const double max_val;
@@ -468,10 +468,12 @@ private:
 protected:
 
   Correlation(const string & type_name, const string & subtype_name,
-	      const string & name, const Unit & result_unit,
+	      const string & name, const string & latex_symbol,
+	      const Unit & result_unit,
 	      double min_val, double max_val)
     : type_name(type_name), subtype_name(subtype_name), name(name),
-      unit(result_unit), min_val(min_val), max_val(max_val)
+      latex_symbol(latex_symbol), unit(result_unit),
+      min_val(min_val), max_val(max_val)
   {
     if (tbl.has(name))
       {
@@ -486,14 +488,16 @@ protected:
   }
 
   Correlation(const string & type_name, const string & subtype_name,
-	      const string & name, const Unit & result_unit)
-    : Correlation(type_name, subtype_name, name, result_unit,
+	      const string & name, const string & latex_symbol,
+	      const Unit & result_unit)
+    : Correlation(type_name, subtype_name, name, latex_symbol, result_unit,
 		  result_unit.min_val, result_unit.max_val) {}
 
   Correlation(const string & type_name, const string & subtype_name,
-	      const string & name, const Unit & result_unit, double min_val)
-    : Correlation(type_name, subtype_name, name, result_unit,
-		  min_val, result_unit.max_val) {}
+	      const string & name, const string & latex_symbol,
+	      const Unit & result_unit, double min_val)
+    : Correlation(type_name, subtype_name, name, latex_symbol,
+		  result_unit, min_val, result_unit.max_val) {}
 
   virtual ~Correlation() = 0; // Correlation is abstract
 
@@ -913,12 +917,13 @@ extern long exec_correlation_call(long proxy_id);
 extern long free_correlation_call(long proxy_id);
 
 # define Header_Correlation_Type(type_name, hidden)	\
-struct type_name : public Correlation		\
-  {						\
-    type_name(const string & subtype_name, const string & name,		\
+  struct type_name : public Correlation				\
+  {									\
+    type_name(const string & subtype_name,				\
+	      const string & name, const string & latex_symbol,		\
 	      const Unit & result_unit, double min_val, double max_val)	\
-      : Correlation(#type_name, subtype_name, name, result_unit,	\
-		    min_val, max_val) {}				\
+      : Correlation(#type_name, subtype_name, name, latex_symbol,	\
+		    result_unit, min_val, max_val) {}			\
     virtual ~type_name() = 0;						\
     using Correlation::add_parameter;					\
     bool is_hidden = hidden;						\
@@ -939,18 +944,19 @@ Declare_Correlation_Type(GasCorrelation);
 Declare_Correlation_Type(GasFunction);
 Declare_Correlation_Type(WaterCorrelation);
 
-# define Declare_Correlation_Subtype(subtype_name, type_name) \
-  struct subtype_name : public type_name			\
-  {								\
-    subtype_name(const string & name, const Unit & result_unit,	\
-		 double min_val, double max_val)	\
-      : type_name(#subtype_name, name, result_unit, min_val, max_val) {} \
+# define Declare_Correlation_Subtype(subtype_name, type_name, symbol)	\
+  struct subtype_name : public type_name				\
+  {									\
+    subtype_name(const string & name, const Unit & result_unit,		\
+		 double min_val, double max_val)			\
+      : type_name(#subtype_name, name, symbol, result_unit, min_val, max_val) {} \
 									\
     subtype_name(const string & name, const Unit & unit, double min_val) \
-      : type_name(#subtype_name, name, unit, min_val, unit.max_val) {} \
+      : type_name(#subtype_name, name, symbol, unit, min_val, unit.max_val) {} \
 									\
     subtype_name(const string & name, const Unit & unit)		\
-      : type_name(#subtype_name, name, unit, unit.min_val, unit.max_val) {} \
+      : type_name(#subtype_name, name, symbol, unit, unit.min_val,	\
+		  unit.max_val) {}					\
     virtual ~subtype_name() = 0;					\
   protected:								\
     using type_name::add_parameter;					\
@@ -974,14 +980,14 @@ decltype(auto)
   return std::forward<Func>(f)(v.at(Is)...);
 }
  
-template <typename Func, typename T>
-decltype(auto) call_compute(Func&& f, const DynList<T>& pars)
-{
-  constexpr std::size_t N =
-    compute_arity<std::remove_pointer_t<std::decay_t<Func>>>::value;
-  return
-    call_compute(std::forward<Func>(f), pars, std::make_index_sequence<N>());
-}
+// template <typename Func, typename T>
+// decltype(auto) call_compute(Func&& f, const DynList<T>& pars)
+// {
+//   constexpr std::size_t N =
+//     Compute_arity<std::remove_pointer_t<std::decay_t<Func>>>::value;
+//   return
+//     call_compute(std::forward<Func>(f), pars, std::make_index_sequence<N>());
+// }
 
 # define Correlation_Singleton(name)					\
   public:								\
@@ -997,49 +1003,61 @@ decltype(auto) call_compute(Func&& f, const DynList<T>& pars)
   									\
 private:
 
-Declare_Correlation_Subtype(TmpCorrelation, TmpFunction);
+Declare_Correlation_Subtype(TmpCorrelation, TmpFunction, "");
 
     // correlations & functions associated to oil
-Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation);
-Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation);
+Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation, "P_b");
+Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation, "R_s");
 Declare_Correlation_Subtype(UndersaturatedOilFormationVolumeFactor,
-			    OilCorrelation);
-Declare_Correlation_Subtype(SaturatedOilFormationVolumeFactor, OilCorrelation);
-Declare_Correlation_Subtype(SaturatedOilViscosity, OilCorrelation);
-Declare_Correlation_Subtype(UndersaturatedOilViscosity, OilCorrelation);
-Declare_Correlation_Subtype(SaturatedOilCompressibility, OilCorrelation);
-Declare_Correlation_Subtype(UndersaturatedOilCompressibility, OilCorrelation);
-Declare_Correlation_Subtype(SaturatedOilDensity, OilFunction);
-Declare_Correlation_Subtype(UndersaturatedOilDensity, OilFunction);
-Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation);
-Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation);
+			    OilCorrelation, "c_{oa}");
+Declare_Correlation_Subtype(SaturatedOilFormationVolumeFactor, OilCorrelation,
+			    "c_{ob}");
+Declare_Correlation_Subtype(SaturatedOilViscosity, OilCorrelation, "\\mu_{ob}");
+Declare_Correlation_Subtype(UndersaturatedOilViscosity, OilCorrelation,
+			    "\\mu_{ob}");
+Declare_Correlation_Subtype(SaturatedOilCompressibility, OilCorrelation,
+			    "c_{ob}");
+Declare_Correlation_Subtype(UndersaturatedOilCompressibility, OilCorrelation,
+			    "c_{oa}");
+Declare_Correlation_Subtype(SaturatedOilDensity, OilFunction, "\\rho_{ob}");
+Declare_Correlation_Subtype(UndersaturatedOilDensity, OilFunction, "\\rho_{oa}");
+Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation, "\\sigma_{go}");
+Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation, "\\mu_{od}");
 
     // correlations & functions associated to gas
-Declare_Correlation_Subtype(GasPseudocriticalPressure, GasCorrelation);
-Declare_Correlation_Subtype(GasPseudocriticalPressureC7, GasCorrelation);
-Declare_Correlation_Subtype(GasViscosity, GasCorrelation);
-Declare_Correlation_Subtype(GasDensity, GasFunction)
-Declare_Correlation_Subtype(GasVolumeFactor, GasFunction);
-Declare_Correlation_Subtype(GasCompressibility, GasCorrelation);
-Declare_Correlation_Subtype(GasPseudocriticalTemperature, GasCorrelation);
-Declare_Correlation_Subtype(GasSpecificGravity, GasCorrelation);
-Declare_Correlation_Subtype(GasIsothermalCompressibility, GasCorrelation);
-Declare_Correlation_Subtype(GasPseudoreducedPressure, GasFunction);
-Declare_Correlation_Subtype(GasPseudoreducedTemperature, GasFunction);
+Declare_Correlation_Subtype(GasPseudocriticalPressure, GasCorrelation, "P_{pc}");
+Declare_Correlation_Subtype(GasPseudocriticalPressureC7, GasCorrelation,
+			    "P_{pcC_7+}");
+Declare_Correlation_Subtype(GasViscosity, GasCorrelation, "\\mu_{g}");
+Declare_Correlation_Subtype(GasDensity, GasFunction, "\\rho_{g}")
+Declare_Correlation_Subtype(GasVolumeFactor, GasFunction, "");
+Declare_Correlation_Subtype(GasCompressibility, GasCorrelation, "Z\\ factor");
+Declare_Correlation_Subtype(GasPseudocriticalTemperature, GasCorrelation,
+			    "T_{pr}");
+Declare_Correlation_Subtype(GasSpecificGravity, GasCorrelation, "\\gamma_g");
+Declare_Correlation_Subtype(GasIsothermalCompressibility, GasCorrelation,
+			    "c_{g}");
+Declare_Correlation_Subtype(GasPseudoreducedPressure, GasFunction, "P_{pr}");
+Declare_Correlation_Subtype(GasPseudoreducedTemperature, GasFunction, "T_{pr}");
 
     // correlations & functions associated to water
-Declare_Correlation_Subtype(WaterDensity, WaterCorrelation);
-Declare_Correlation_Subtype(PureWaterDensity, WaterCorrelation);
-Declare_Correlation_Subtype(WaterViscosity, WaterCorrelation);
-Declare_Correlation_Subtype(WaterVolumeFactor, WaterCorrelation);
-Declare_Correlation_Subtype(SaturatedWaterVolumeFactor, WaterCorrelation);
-Declare_Correlation_Subtype(UndersaturatedWaterVolumeFactor, WaterCorrelation);
-Declare_Correlation_Subtype(WaterInterfacialTension, WaterCorrelation);
-Declare_Correlation_Subtype(WaterIsothermalCompressibility, WaterCorrelation);
+Declare_Correlation_Subtype(WaterDensity, WaterCorrelation, "\\rho_{w}");
+Declare_Correlation_Subtype(PureWaterDensity, WaterCorrelation, "\\rho_{pw}");
+Declare_Correlation_Subtype(WaterViscosity, WaterCorrelation, "\\mu_{w}");
+Declare_Correlation_Subtype(WaterVolumeFactor, WaterCorrelation, "B_{w}");
+Declare_Correlation_Subtype(SaturatedWaterVolumeFactor, WaterCorrelation,
+			    "B_{w_b}");
+Declare_Correlation_Subtype(UndersaturatedWaterVolumeFactor, WaterCorrelation,
+			    "B_{w_a}");
+Declare_Correlation_Subtype(WaterInterfacialTension, WaterCorrelation,
+			    "\\sigma_{gw}");
+Declare_Correlation_Subtype(WaterIsothermalCompressibility, WaterCorrelation,
+			    "c_{w}");
 Declare_Correlation_Subtype(SaturatedWaterIsothermalCompressibility,
-			    WaterCorrelation);
+			    WaterCorrelation, "c_{w_b}");
 Declare_Correlation_Subtype(UndersaturatedWaterIsothermalCompressibility,
-			    WaterCorrelation);
-Declare_Correlation_Subtype(SolutionGasWaterRelation, WaterCorrelation);
+			    WaterCorrelation, "c_{w_a}");
+Declare_Correlation_Subtype(SolutionGasWaterRelation, WaterCorrelation,
+			    "R_{sw}");
 
 # endif // CORRELATION_H

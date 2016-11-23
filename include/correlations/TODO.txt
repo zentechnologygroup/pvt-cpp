@@ -2,3 +2,4 @@ Revisar Densidad del agua pura. Consierar posibilidad de que tener varias correl
 Revisar los rangos de salida de correlaciones Boa,2016-11-01 09:40:08 -0400,,
 Los subtipos de correlación deben tener la posibilidad de ser hidden,2016-11-08 17:52:46 -0400,,
 Alertar sobre lo sinónimos de parámetros; es el medio que tiene el sistema para identificar correlaciones automáticamente,2016-11-12 14:05:50 -0400,,
+correlaciones con símbolos faltantes: SaturatedWaterVolumeFactor, UndersaturatedWaterVolumeFactor, SaturatedWaterIsothermalCompressibility, UndersaturatedWaterIsothermalCompressibility,2016-11-22 20:24:07 -0400,,

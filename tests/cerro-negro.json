@@ -18,12 +18,22 @@
     {
       "name": "rsb",
       "unit": "scf/STB",
-      "value": 74.9
+      "value": 79
     },
     {
       "name": "yg",
       "unit": "Sgg",
       "value": 0.6927
+    },
+    {
+      "name": "tsep",
+      "unit": "degF",
+      "value": 100
+    },
+    {
+      "name": "psep",
+      "unit": "psia",
+	"value": 114.7
     }
   ],
   "description": "Campo Cerro Negro",
