@@ -34,7 +34,7 @@ struct EmpiricalData
   Array<double> const_vals;
   Array<const Unit*> const_units;
 
-  DynMapTree<string, pair<double, const Unit*>> const_table;
+  DynMapTree<string, pair<double*, const Unit*>> const_table;
 
   struct VarSet
   {
@@ -276,7 +276,29 @@ struct EmpiricalData
     if (p == nullptr)
       return make_tuple(false, 0.0, &Unit::null_unit);
 
-    return make_tuple(true, p->second.first, p->second.second);
+    return make_tuple(true, *p->second.first, p->second.second);
+  }
+
+  /// modifies the already defined constant `name` to the value `val`
+  void set_const(const string & name, double val)
+  {
+    auto p = const_table.search(name);
+    if (p == nullptr)
+      {
+	ostringstream s;
+	s << "Empiricaldata:: set_const(); " << name << " not found";
+	throw domain_error(s.str());
+      }
+
+    if (not BaseQuantity::is_valid(val, *p->second.second))
+      {
+	ostringstream s;
+	s << "Empiricaldata:: set_const(" << name << "): value " << val
+	  << " is out of the range of the unit";
+	throw domain_error(s.str());
+      }
+
+    *p->second.first = val;
   }
 
   void check_constant(const string & name, const PhysicalQuantity & pq) const
@@ -302,7 +324,7 @@ struct EmpiricalData
 
     try
       {
-	VtlQuantity q(*p->second.second, p->second.first);
+	VtlQuantity q(*p->second.second, *p->second.first);
 	return;
       }
     catch (exception &e)
@@ -608,9 +630,9 @@ struct EmpiricalData
       }
 
     const_names.append(name);
-    const_vals.append(val);
+    auto & v = const_vals.append(val);
     const_units.append(unit);
-    const_table.insert(name, make_pair(val, unit));
+    const_table.insert(name, make_pair(&v, unit));
     num_const++;
   }
 
@@ -1379,7 +1401,7 @@ public:
 	    if (alias.first == col_name)
 	      col_name_seen = true;
 
-	    VtlQuantity val = { *p->second.second, p->second.first };
+	    VtlQuantity val = { *p->second.second, *p->second.first };
 	    VtlQuantity result = { par.unit, val };
 	    get<1>(t) = result.raw();
 	    get<2>(t) = &par.unit;
@@ -1821,8 +1843,8 @@ public:
 	const double value = item["value"];
 	const Unit * unit = search_unit(item["unit"]);
 	const_names.append(name);
-	const_table.insert(name, make_pair(value, unit));
-	const_vals.append(value);
+	auto & val = const_vals.append(value);
+	const_table.insert(name, make_pair(&val, unit));
 	const_units.append(unit);
       }
 

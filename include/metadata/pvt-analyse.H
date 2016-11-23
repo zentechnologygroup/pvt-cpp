@@ -91,6 +91,9 @@ public:
 
     const auto & bp_row = data.var_sets(0).samples.get_last();
 
+    // insert a new row in Above data set that is a copy oof the pb row
+    data.var_sets(1).samples.insert(bp_row);
+
     {
       const double & min_p = data.var_sets(0).samples.get_first()(0);
       const double & max_p = data.var_sets(0).samples.get_last()(0);
@@ -105,8 +108,9 @@ public:
 	}
     }
 
+    const double & rsb = bp_row(1);
+
     {
-      const double & rsb = bp_row(1);
       const double & min_rs = data.var_sets(0).samples.get_first()(1);
       const double & max_rs = data.var_sets(1).samples.get_last()(1);
       const double & rs = bp_row(1);
@@ -119,6 +123,12 @@ public:
 	  throw domain_error(s.str());
 	}
     }
+
+    const auto & above_set = data.var_sets(1);
+    const auto & last_row = above_set.samples.get_last();
+    const auto & highest_rs = last_row(1);
+
+    data.set_const("rsb", highest_rs);
 
     {
       const double & bobp = bp_row(2);

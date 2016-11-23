@@ -617,16 +617,28 @@ protected:
   BaseQuantity(const Unit & __unit) : unit(__unit), value(unit.min_val) {}
   
   BaseQuantity(const Unit & __unit, double val) : unit(__unit), value(val) {}
+
+public:
+
+  static bool is_valid(double value, const Unit & unit)
+  {
+    if (value >= unit.min_val and value <= unit.max_val)
+      return true;
+
+    if (fabs(value - unit.min_val) <= unit.get_epsilon() or
+	fabs(value - unit.max_val) <= unit.get_epsilon())
+      return true;
+
+    return false;
+  }
+
+protected:
   
   // helper for validating that value is in [min_val, max_val]. It
   // throws range_error if value is not in the interval
   void check_value()
   {
-    if (value >= unit.min_val and value <= unit.max_val)
-      return;
-
-    if (abs(value - unit.min_val) <= unit.get_epsilon() or
-	abs(value - unit.max_val) <= unit.get_epsilon())
+    if (is_valid(value, unit))
       return;
 
     ostringstream s;
