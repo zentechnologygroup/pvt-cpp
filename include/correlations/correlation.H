@@ -1046,17 +1046,17 @@ Declare_Correlation_Subtype(PureWaterDensity, WaterCorrelation, "\\rho_{pw}");
 Declare_Correlation_Subtype(WaterViscosity, WaterCorrelation, "\\mu_{w}");
 Declare_Correlation_Subtype(WaterVolumeFactor, WaterCorrelation, "B_{w}");
 Declare_Correlation_Subtype(SaturatedWaterVolumeFactor, WaterCorrelation,
-			    "B_{w_b}");
+			    "B_{wb}");
 Declare_Correlation_Subtype(UndersaturatedWaterVolumeFactor, WaterCorrelation,
-			    "B_{w_a}");
+			    "B_{wa}");
 Declare_Correlation_Subtype(WaterInterfacialTension, WaterCorrelation,
 			    "\\sigma_{gw}");
 Declare_Correlation_Subtype(WaterIsothermalCompressibility, WaterCorrelation,
 			    "c_{w}");
 Declare_Correlation_Subtype(SaturatedWaterIsothermalCompressibility,
-			    WaterCorrelation, "c_{w_b}");
+			    WaterCorrelation, "c_{wb}");
 Declare_Correlation_Subtype(UndersaturatedWaterIsothermalCompressibility,
-			    WaterCorrelation, "c_{w_a}");
+			    WaterCorrelation, "c_{wa}");
 Declare_Correlation_Subtype(SolutionGasWaterRelation, WaterCorrelation,
 			    "R_{sw}");
 
