@@ -62,6 +62,11 @@ public:
     return fabs(v1 - v2) < epsilon;
   }
 
+  void insert_row(size_t seti, size_t row, const DynList<double> & vals)
+  {
+    
+  }
+
   void check_data(float error = 0.1) 
   {
     data.check_constant("t", Temperature::get_instance());

@@ -65,3 +65,7 @@
 ## 22. Revisar yo y api en test-calibarte
 - Created at   2016-11-22 16:28:54 -0400
 
+## 23. evaular correlation por partes dando rango
+- Created at    salto y correlaciones y con posibilidad de ajuste
+- Completed at 2016-11-23 19:20:47 -0400
+

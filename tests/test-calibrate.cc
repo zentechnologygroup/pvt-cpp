@@ -391,7 +391,7 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
 	      const double bobp = data.tuned_compute(0, row, below_corr,
 						     PvtAnalyzer::c(below_desc),
 						     PvtAnalyzer::m(below_desc));
-	      data.var_sets(1).samples(0)(2) = bobp;
+	      data.var_sets(1).samples(0)(2) = bobp;+
 	      cout << "bobp = " << bobp << endl;
 	    }
 	  

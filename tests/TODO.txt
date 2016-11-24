@@ -20,3 +20,4 @@ script que modifique fuentes ruby y ponga los sómbolos de parámetros,2016-11-2
 nuevo programa que evalue correlacion recibiendo un arreglo,2016-11-22 10:40:29 -0400,,
 Revisar por qué no aparece DeGhetto en cerro-negro,2016-11-22 16:28:25 -0400,,
 Revisar yo y api en test-calibarte,2016-11-22 16:28:54 -0400,,
+evaular correlation por partes dando rango, salto y correlaciones y con posibilidad de ajuste,2016-11-23 19:20:47 -0400,,
