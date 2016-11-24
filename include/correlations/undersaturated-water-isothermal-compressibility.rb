@@ -26,9 +26,9 @@ add_parameter("rsw", "SCF_STB", "Solution gas-water ratio")
 add_parameter("nacl_concentration", "Dissolved_Salt_Percent", "Dissolved salt concentration",  0.08, 3.5)
 add_author("Dodson & Standing")
 add_ref("dodson:1944")
-add_ref("banzer:1996")
 add_ref("meehan:1980")
 add_ref("numbere:1977")
+# add_ref("banzer:1996") Secondary reference
 add_note("This correlation is for calculating the isothermal compressibility of water at pressures above the bubble point.")
 add_internal_note("The original reference (Meehan, 1980) is not available. The correlation was verified by using Bánzer (1996) as a secondary reference. Date: October 21 2016.")
 end_correlation()
@@ -47,7 +47,7 @@ add_internal_note("A difference was found between the conversion of units sugges
 add_internal_note("Pure water density at oilfield standard conditions (60 °F and 14.7 psia): http://www.engineeringtoolbox.com/water-properties-d_1258.html")
 add_author("Osif")
 add_ref("osif:1988")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()
 
 ################################################################

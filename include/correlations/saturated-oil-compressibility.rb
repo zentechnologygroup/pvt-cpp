@@ -11,5 +11,5 @@ add_parameter("p", "psia", "Pressure",  500,  5300)
 add_parameter("pb", "psia", "Bubble point pressure",  763,  5300)
 add_author("McCain, Rollins & Villena")
 add_ref("mcCain:1988")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()

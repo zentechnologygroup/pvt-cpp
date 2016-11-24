@@ -5,7 +5,7 @@ begin_correlation("BobAlmarhoun", "SaturatedOilFormationVolumeFactor", "RB_STB",
 add_title("AL-MARHOUN CORRELATION, CALCULATION OF SATURATED OIL FORMATION VOLUME FACTOR")
 add_db("Based on 69 bottomhole fluid samples from 69 Middle East oil reservoirs.")
 add_ref("alMarhoun:1988")
-add_ref("banzer:1996")                  
+# add_ref("banzer:1996") Secondary reference                 
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.752,  1.367)
 add_parameter("yo", "Sg_do", "Oil specific gravity",  "Quantity<Api>(44.6)",  "Quantity<Api>(19.4)")
 add_synonym("yo", "api", "Api")
@@ -77,7 +77,7 @@ add_parameter("rs",  "SCF_STB", "Solution GOR", 181, 2266)
 add_parameter("t", "Rankine", "Temperature",  "Quantity<Fahrenheit>(190)",  "Quantity<Fahrenheit>(275)") 
 add_author("Dokla & Osman")
 add_ref("dokla:1992")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The range assigned for Rs was taken from the range expressed by the authors for Rsb.")
 end_correlation()
 
@@ -94,7 +94,7 @@ add_parameter("rs", "SCF_STB", "Solution GOR",  90,  2637)
 add_parameter("t", "Fahrenheit", "Temperature",  80,  280)
 add_author("Glaso")
 add_ref("glaso:1980")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()
 
 
@@ -195,7 +195,7 @@ add_parameter("psep", "psia", "Separator pressure",  60,  565)
 add_author("Vazquez & Beggs")
 add_ref("vazquez:1980")
 add_ref("alShammasi:2001")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()
 
 ################################################################

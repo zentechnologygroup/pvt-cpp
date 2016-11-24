@@ -10,5 +10,5 @@ add_internal_note("The correlation was verified by using secondary references (B
 add_author("Baker & Swerdloff")
 add_ref("baker:1956")
 add_ref("beggs:1987")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()

@@ -11,7 +11,7 @@ add_parameter("h2s_concentration",  "MoleFraction", "H2S concentration")
 add_author("Wichert & Aziz (Gas Gravity Correction)")
 add_ref("wichert:1972")
 add_ref("standing:1977")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()
 
 ################################################################
@@ -27,7 +27,7 @@ add_author("Kay (Mixing Rule)")
 add_ref("kay:1936")
 add_ref("whitson:2000")
 add_ref("standing:1977")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The original reference is not available. The correlation was verified by using secondary references: Whitson & Brulé (2000), Standing (1977) and Bánzer (1996). Date: September 12 2016.")
 end_correlation()
 
@@ -56,7 +56,7 @@ add_internal_note("The original reference is not available. The correlation was 
 add_ref("kay:1936")
 add_ref("whitson:2000")
 add_ref("standing:1977")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_parameter("tpchc",  "psia", "Gas pseudocritical temperature of the hydrocarbon portion")
 add_parameter("n2_concentration",  "MoleFraction", "N2 concentration")
 add_parameter("co2_concentration",  "MoleFraction", "CO2 concentration")

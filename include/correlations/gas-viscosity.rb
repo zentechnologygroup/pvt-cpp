@@ -14,8 +14,8 @@ add_db("Carr, Kobayashi & Burrows (1954) developed charts that are the most wide
 add_ref("carr:1954")
 add_ref("dempsey:1965")
 add_ref("standing:1977")
-add_ref("banzer:1996")
 add_ref("petroWiki:2016:2")
+# add_ref("banzer:1996") Secondary reference
 add_note("Carr et al. (1954) presented the graphs of the correlation. Dempsey (1965) expressed them in a mathematical form.")
 add_internal_note("A linear effect of concentration was assumed to apply over the concentration range from 0 to 15 mol percent of non-hydrocarbon components.")
 add_internal_note("The equation was verified by using secondary references: Bánzer (1996) and Standing (1977). Date: September 29 2016.")
@@ -33,7 +33,7 @@ add_parameter("yg", "Sgg", "Gas specific gravity")
 add_parameter("z", "ZFactor", "Gas compressibility factor")
 add_author("Lee, Gonzalez & Eakin")
 add_ref("lee:1966")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_db("Based on experimental viscosity and density data of four natural gases. The samples were furnished by the Atlantic Richfield Co., the Continental Oil Co. and the Pan American Petroleum Corp.")
 add_internal_note("The correlation was verified by using the original reference and a secondary one: Bánzer (1996). Date: October 03 2016.")
 end_correlation()

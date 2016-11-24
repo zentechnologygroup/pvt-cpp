@@ -24,8 +24,8 @@ add_parameter("uod", "CP", "Dead oil viscosity",  0.377,  100)
 add_parameter("rs", "SCF_STB", "Solution GOR",  0,  1600)
 add_author("Chew & Connally")
 add_ref("chew:1959")
-add_ref("banzer:1996")
 add_ref("ahmed:2010")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()
 
 ################################################################

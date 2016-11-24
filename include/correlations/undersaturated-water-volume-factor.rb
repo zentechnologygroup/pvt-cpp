@@ -24,7 +24,7 @@ add_parameter("bwbp", "RB_STB", "Water formation volume factor at Pb")
 add_parameter("cw",  "psia_1", "Water isothermal compressibility")
 add_author("McCain")
 add_ref("mcCain:1990")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_note("This correlation determines the water formation volume factor for pressures above the bubble point pressure.")
 add_internal_note("The correlation was verified by using the original reference and Bánzer (1996) as a secondary reference. Date: October 26 2016.")
 end_correlation()

@@ -79,7 +79,7 @@ add_db("Based on 26 samples from the North Sea (collected from wells in the regi
 add_internal_note("P must be strictly greater than zero for the calculation of the logarithm.")
 add_author("Glaso")
 add_ref("glaso:1980")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()
 
 ################################################################
@@ -148,10 +148,9 @@ add_parameter("p", "psia", "Pressure")
 add_parameter("api", "Api", "API oil gravity", 16.5, 63.8)
 add_parameter("t", "Fahrenheit", "Temperature", 100, 258)
 add_db("Based on 105 experimentally determined bubble point pressures from 22 different Californian crude-oil-natural-gas mixtures.")
-add_ref("banzer:1996")
 add_author("Standing")
 add_ref("standing:1947")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()
 
 ################################################################    
@@ -187,7 +186,7 @@ add_parameter("psep", "psia", "Separator pressure", 60, 565)
 add_author("Vazquez & Beggs")
 add_ref("vazquez:1980")
 add_ref("alShammasi:2001")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()
 
 ################################################################<

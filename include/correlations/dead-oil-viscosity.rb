@@ -6,7 +6,7 @@ add_title("BEAL CORRELATION, CALCULATION OF DEAD OIL VISCOSITY")
 add_db("Based on 98 samples of gas-free crude oil measured at temperatures above 100 °F and 655 samples measured at 100 °F obtained from 492 different oil fields, of which 358 are in the United States.")
 add_ref("beal:1946")
 add_ref("standing:1977")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_note("Beal (1946) presented a graphical correlation showing the effects of both oil gravity and temperature on dead-oil viscosity. The equation is presented by Standing (1977).")
 add_eq("\\mu_{od}\\,=\\,{\\left[{0.32}+{\\frac{1.8\\cdot{10^{7}}}{{\\gamma_{API}}^{4.53}}} \\right]}\\cdot{{\\left[\\frac{360}{T+200}\\right]}^{a}}")
 add_eq("a\\,=\\,antilog{\\left({0.43}+{\\frac{8.33}{\\gamma_{API}}}\\right)}")

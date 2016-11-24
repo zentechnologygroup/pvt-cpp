@@ -9,8 +9,8 @@ add_db("Standing recommends using the \\\"California\\\" curves for surface gase
 add_ref("standing:1977")
 add_ref("brown:1948")
 add_ref("ahmed:1989")
-add_ref("banzer:1996")
 add_ref("whitson:2000")
+# add_ref("banzer:1996") Secondary reference
 add_eq("{P_{scHC}}\\,=\\,{677}\\,+\\,{15\\cdot{\\gamma_{gHC}}}\\,-\\,{37.5\\cdot{{\\gamma_{gHC}}^{\\,2}}}")
 add_note("Brown et al. (1948) presented the graphical correlation. Standing (1977) expressed it in a mathematical form.")
 add_note("The correlation was developed with samples containing concentrations of nitrogen, carbon dioxide, and hydrogen sulfide, up to 5 mol %, 2 mol %, and 2 mol %, respectively.")

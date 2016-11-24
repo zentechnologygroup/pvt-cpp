@@ -46,7 +46,8 @@ add_parameter("p", "psia", "Pressure",  24.7,  6014.7)
 add_parameter("psep", "psia", "Separator pressure",  14.7,  1414.7)
 add_author("Kartoatmodjo & Schmidt")
 add_ref("kartoatmodjo:1991")
-add_ref("banzer:1996")
+add_ref("kartoatmodjo:1994")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The range for Rsb is presented by Kartoatmodjo and Schmidt as the range for Rsf (flash gas-oil ratio expressed as cubic feet of separator and stock tank gas at any pressure less than the bubble point pressure in one stock tank barrel oil).")
 add_internal_note("In the original reference, the pressure is a multiplicative variable. However, an error was detected in the order of magnitude when testing (in the equation the pressure value must divide instead of multiply). See Bánzer (1996).")
 end_correlation()
@@ -87,7 +88,7 @@ add_parameter("p", "psia", "Pressure",  141,  9515)
 add_parameter("psep", "psia", "Separator pressure",  60,  565)
 add_author("Vazquez & Beggs")
 add_ref("vazquez:1980")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The development ranges are presented by Bánzer (1996).")
 end_correlation()
 

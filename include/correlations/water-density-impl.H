@@ -119,12 +119,13 @@ PwSpiveyMNGasFree::impl(const Quantity<Celsius> & t,
 
 
 inline Quantity<Lb_ft3>
-PwMcCain::impl(const Quantity<Dissolved_Salt_Percent> & s,
+PwMcCain::impl(const Quantity<Dissolved_Salt_Percent> & nacl_concentration,
 	       const Quantity<RB_STB> & bw) const
-{
-  const double s2 = s.raw()*s.raw();
+{ 
+  const double s = nacl_concentration.raw();
+  const double s2 = s*s;
   // Water density at standard conditions
-  const double pwl = 62.368 + 0.438603*s.raw() + 1.60074e-3*s2;
+  const double pwl = 62.368 + 0.438603*s + 1.60074e-3*s2;
   // Water density at P and T
   const double pw = pwl/bw.raw();
 

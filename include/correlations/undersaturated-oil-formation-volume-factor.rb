@@ -4,7 +4,7 @@ add_title("McCAIN CORRELATION, CALCULATION OF UNDERSATURATED OIL FORMATION VOLUM
 add_db("Based on the equation presented by McCain (1990).")
 add_db("The volume factor at bubble point pressure is adjusted to higher pressures through the use of the coefficient of isothermal compresibility.")
 add_ref("mcCain:1990")  
-add_ref("banzer:1996")                 
+# add_ref("banzer:1996") Secondary reference                 
 add_parameter("bobp", "RB_STB", "Oil formation volume factor at Pb")
 add_parameter("p", "psia", "Pressure")
 add_parameter("pb", "psia", "Bubble point pressure")
@@ -121,7 +121,7 @@ add_parameter("psep", "psia", "Separator pressure",  60,  565)
 add_author("Vazquez & Beggs")
 add_ref("vazquez:1980")
 add_ref("alShammasi:2001")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("McCain's correlation for Boa is evaluated with the Coa value obtained from the Vazquez & Beggs correlation.")
 set_hidden()
 end_correlation()

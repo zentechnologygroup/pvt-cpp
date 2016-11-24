@@ -181,7 +181,7 @@ add_author("Vazquez & Beggs")
 add_ref("vazquez:1980")
 add_ref("beggs:1987")
 add_ref("alShammasi:2001")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The gas gravity is corrected if it resulted from a first-stage separation at a pressure other than 100 psig (approximately 114.7 psia).")
 end_correlation()
 

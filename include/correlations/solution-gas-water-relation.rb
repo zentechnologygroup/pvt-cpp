@@ -25,7 +25,7 @@ add_parameter("nacl_concentration", "Dissolved_Salt_Percent", "Dissolved salt co
 add_author("Culberson & McKetta")
 add_ref("culberson:1951")
 add_ref("mcCain:1990")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_note("Culberson & McKetta (1951) developed the graphical correlation and McCain (1990) presented it in a mathematical form.")
 add_internal_note("The data bank information was obtained from the original reference.")
 add_internal_note("The equation was verified by using McCain (1990) and Bánzer (1996) as secondary references. Date: October 17 2016.")
@@ -40,7 +40,7 @@ add_parameter("p", "psia", "Pressure")
 add_parameter("nacl_concentration", "Dissolved_Salt_Percent", "Dissolved salt concentration")
 add_author("McCoy")
 add_ref("mcCoy:1983")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The original reference is not available. The correlation was verified by using Bánzer (1996) as a secondary reference. Date: October 17 2016.")
 end_correlation()
 

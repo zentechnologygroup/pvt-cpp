@@ -14,8 +14,8 @@ add_internal_note("Brown et al.'s reference is not available. The correlation wa
 add_ref('standing:1977')
 add_ref('brown:1948')
 add_ref('ahmed:1989')
-add_ref('banzer:1996')
 add_ref("whitson:2000")
+# add_ref("banzer:1996") Secondary reference
 add_parameter('yghc', 'Sgg', "Gas gravity of the hydrocarbon portion",  0.55,  1.67)
 add_author("Standing (HC Portion)")
 end_correlation()
@@ -35,7 +35,7 @@ add_internal_note("Brown et al.'s reference is not available. The correlation wa
 add_ref('standing:1977')
 add_ref('brown:1948')
 add_ref('ahmed:1989')
-add_ref('banzer:1996')
+# add_ref("banzer:1996") Secondary reference
 add_parameter('yghc', 'Sgg', "Gas gravity of the hydrocarbon portion",  0.58,  1.3)
 add_note("The correlation was developed with samples containing concentrations of nitrogen, carbon dioxide, and hydrogen sulfide, up to 5 mol %, 2 mol %, and 2 mol %, respectively.") 
 add_author("Standing (HC Portion for Heavier Fractions)")

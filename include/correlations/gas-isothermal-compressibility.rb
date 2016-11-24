@@ -9,7 +9,7 @@ add_db("The correlation is based on the partial derivative of the Z-factor equat
 add_db("The Z-factor equation was obtained by using Legendre polynomials of up to five degree to fit the Standing-Katz curves.")
 add_ref("sarem:1961")
 add_ref("standing:1942")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_author("Sarem")
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 26 2016.")
 end_correlation()
@@ -29,7 +29,7 @@ add_db("The equation is solved by using the Newton-Raphson iteration method.")
 add_ref("hall:1973")
 add_ref("yarborough:1974")
 add_ref("standing:1942")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 27 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
 end_correlation()
@@ -49,7 +49,7 @@ add_ref("mattar:1975")
 add_ref("dranchuk:1973")
 add_ref("standing:1942")
 add_ref("takacs:1989")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 27 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
 end_correlation()
@@ -67,8 +67,8 @@ add_db("The Z-factor equations presented by Gopal were obtained by fitting the S
 add_author("Gopal")
 add_ref("gopal:1977")
 add_ref("standing:1942")
-add_ref("banzer:1996")
 add_ref("takacs:1989")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 27 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
 end_correlation()
@@ -86,7 +86,7 @@ add_db("The Z-factor correlation was obtained by applying adjustment methods to 
 add_author("Brill & Beggs")
 add_ref("brill:1974")
 add_ref("standing:1942")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 27 2016.")
 end_correlation()
 
@@ -104,6 +104,6 @@ add_author("Pápay")
 add_ref("papay:1968")
 add_ref("standing:1942")
 add_ref("takacs:1989")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()
 

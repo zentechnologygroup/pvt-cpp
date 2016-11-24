@@ -8,6 +8,6 @@ add_parameter("z",  "ZFactor", "Gas compressibility factor")
 add_author("Standard Equation")
 add_db("The calculation is based on the Real Gas Law.")
 add_ref("takacs:2005")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The equation was verified by using a secondary reference: Bánzer (1996). Date: September 28 2016.")
 end_correlation()

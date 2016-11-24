@@ -45,7 +45,7 @@ add_parameter("pb", "psia", "Bubble point pressure",  "Quantity<psig>(125)",  "Q
 add_author("Beal")
 add_ref("beal:1946")
 add_ref("standing:1977")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()
 
 ################################################################
@@ -60,7 +60,7 @@ add_parameter("p", "psia", "Pressure",  141,  9515)
 add_parameter("pb",  "psia", "Bubble point pressure")
 add_author("Vazquez & Beggs")
 add_ref("vazquez:1980")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 end_correlation()
 
 ################################################################

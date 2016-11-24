@@ -21,7 +21,7 @@ add_parameter("t", "Fahrenheit", "Temperature",  0,  350)
 add_author("Van Wingen")
 add_ref("vanWingen:1950")
 add_ref("brill:1974")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: October 6 2016.")
 end_correlation()
 
@@ -35,7 +35,7 @@ add_parameter("nacl_concentration", "Dissolved_Salt_Percent", "Dissolved salt co
 add_author("Matthews & Russell")
 add_ref("matthews:1967")
 add_ref("meehan:1980")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The original reference (Meehan, 1980) is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: October 6 2016.")
 add_internal_note("Matthews & Russell (1967) presented the graphical correlation (from Chesnut, unpublished, Shell Development Co.).")
 add_internal_note("The ranges were taken from the graphical correlation.")
@@ -62,6 +62,6 @@ add_parameter("t",  "Kelvin", "Temperature")
 add_parameter("nacl_concentration",  "Dissolved_Salt_Percent", "Dissolved salt concentration")
 add_author("McCoy")
 add_ref("mcCoy:1983")
-add_ref("banzer:1996")
+# add_ref("banzer:1996") Secondary reference
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: October 7 2016.")
 end_correlation()
