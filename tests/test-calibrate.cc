@@ -139,9 +139,11 @@ void list_correlations(const DynList<PvtAnalyzer::Desc> & l,
     {
       return DynList<string>({PvtAnalyzer::correlation(d)->call_string(),
 	    to_string(PvtAnalyzer::r2(d)), to_string(PvtAnalyzer::mse(d)),
-	    to_string(PvtAnalyzer::sigma(d)), to_string(PvtAnalyzer::sumsq(d))});
+	    to_string(PvtAnalyzer::sigma(d)), to_string(PvtAnalyzer::sumsq(d)),
+	    to_string(PvtAnalyzer::c(d)), to_string(PvtAnalyzer::m(d))});
     });
-  mat.insert(DynList<string>({"Correlation", "r2", "mse", "distance", "sumsq"}));
+  mat.insert(DynList<string>({"Correlation", "r2", "mse", "distance", "sumsq",
+	  "c", "m"}));
   cout << to_string(format_string(mat));
 }
 
@@ -331,8 +333,17 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
   auto first = lb.get_first();
   auto target_name = PvtAnalyzer::correlation(first)->target_name();
 
-  auto pressure = pvt.get_data().values(DynList<size_t>({0, 1}), "p");
-  auto lab = pvt.get_data().values(DynList<size_t>({0, 1}), col_idx);
+  const auto & data = pvt.get_data();
+  const auto & above_set = data.var_sets(1);
+
+  auto pressure = data.values(0, "p");
+  auto lab = data.values(0, col_idx);
+  const auto & n_above = above_set.samples.size();
+  for (size_t i = 1; i < n_above; ++i) // omite 1ra fila
+    {
+      pressure.append(above_set.samples(i)(0));
+      lab.append(above_set.samples(i)(col_idx));
+    }
 
   DynList<DynList<double>> ret;
   for (auto it = get_zip_it(pressure, lab); it.has_curr(); it.next())
@@ -353,7 +364,7 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
 	  const auto & below_desc = get<0>(t);
 	  const auto & above_desc = get<1>(t);
 	  const auto & below_values = PvtAnalyzer::values(below_desc);
-	  const auto & above_values = PvtAnalyzer::values(above_desc);
+	  const auto & above_values = PvtAnalyzer::values(above_desc).drop(1);
 
 	  auto ret_it = ret.get_it();
 
@@ -384,21 +395,24 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
 	    pvt.get_data().tuned_compute("Below Pb", below_corr,
 					 PvtAnalyzer::c(below_desc),
 					 PvtAnalyzer::m(below_desc));
-	  if (force_corr.getValue())
-	    {
-	      auto & data = pvt.get_data();
-	      auto row = data.var_sets(0).samples.size() - 1;
-	      const double bobp = data.tuned_compute(0, row, below_corr,
-						     PvtAnalyzer::c(below_desc),
-						     PvtAnalyzer::m(below_desc));
-	      data.var_sets(1).samples(0)(2) = bobp;+
-	      cout << "bobp = " << bobp << endl;
-	    }
+
+	  auto & data = pvt.get_data();
+	  auto row = data.var_sets(0).samples.size() - 1;
+	  const double bobp = data.tuned_compute(0, row, below_corr,
+						 PvtAnalyzer::c(below_desc),
+						 PvtAnalyzer::m(below_desc));
+	  
+	  cout << "pb = " << pvt.get_pb() << endl
+		   << "bobp = " << bobp << endl
+		   << "bobp next = " << 
+		data.tuned_compute(1, 0, below_corr,
+				   PvtAnalyzer::c(above_desc),
+				   PvtAnalyzer::m(above_desc)) << endl;
 	  
 	  auto above_values =
 	    pvt.get_data().tuned_compute("Above Pb", above_corr,
 					 PvtAnalyzer::c(above_desc),
-					 PvtAnalyzer::m(above_desc));
+					 PvtAnalyzer::m(above_desc)).drop(1);
 
 	  auto ret_it = ret.get_it();
 
@@ -426,7 +440,7 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
 	  auto below_corr = PvtAnalyzer::correlation(below_desc);
 	  auto above_corr = PvtAnalyzer::correlation(above_desc);
 	  const auto & below_values = PvtAnalyzer::values(below_desc);
-	  const auto & above_values = PvtAnalyzer::values(above_desc);
+	  const auto & above_values = PvtAnalyzer::values(above_desc).drop(1);
 	  auto below_tuned_values =
 	    pvt.get_data().tuned_compute(0, below_corr,
 					 PvtAnalyzer::c(below_desc),
@@ -434,7 +448,7 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
 	  auto above_tuned_values =
 	    pvt.get_data().tuned_compute(1, above_corr,
 					 PvtAnalyzer::c(above_desc),
-					 PvtAnalyzer::m(above_desc));
+					 PvtAnalyzer::m(above_desc)).drop(1);
 
 	  auto ret_it = ret.get_it();
 
@@ -946,11 +960,6 @@ void process_bo(PvtAnalyzer & pvt)
 		" is not inside the development ranges");
   }
 
-  // if (force_corr.getValue()
-  //   {
-  //     const double bobp = pvt.get_data()
-  // 	}
-
   auto above_corr_ptr = Correlation::search_by_name(above_corr.getValue());
   if (above_corr_ptr == nullptr)
     error_msg("Above correlation " + above_corr.getValue() + " not found");
@@ -966,9 +975,35 @@ void process_bo(PvtAnalyzer & pvt)
   DynList<const Correlation*> below_corr_list = { below_corr_ptr };
   DynList<const Correlation*> above_corr_list = { above_corr_ptr };
 
+  auto below_stats = pvt.correlations_stats(below_corr_list, 0);
+  const auto & below_desc = below_stats.get_first();
+
+  cout << "pb = " << pvt.get_pb() << endl
+       << "bobp = " << pvt.get_data().var_sets(1).samples(0)(2) << endl;
+
+  if (force_corr.getValue())
+    {
+      cout << "Done!" << endl;
+      auto & data = pvt.get_data();
+      auto row = data.var_sets(0).samples.size() - 1;
+      const double bobp = data.tuned_compute(0, row, below_corr_ptr,
+					     PvtAnalyzer::c(below_desc),
+					     PvtAnalyzer::m(below_desc));
+      data.var_sets(1).samples(0)(2) = bobp;
+    }
+
+  auto above_stats = pvt.correlations_stats(above_corr_list, 1);
+  const auto & above_desc = above_stats.get_first();
+	      
+  cout << "bobp next = "
+       << pvt.get_data().tuned_compute(1, 0, above_corr_ptr,
+				       PvtAnalyzer::c(above_desc),
+				       PvtAnalyzer::m(above_desc)) << endl
+       << "above c = " << PvtAnalyzer::c(above_desc) << endl
+       << "above m = " << PvtAnalyzer::m(above_desc) << endl;
+  
   auto dmat =
-    eval_correlations(pvt.correlations_stats(below_corr_list, 0),
-		      pvt.correlations_stats(above_corr_list, 1),
+    eval_correlations(below_stats, above_stats, 
 		      pvt.get_data().name_index("Below Pb", "bob"), pvt,
 		      get_eval_type(compute_type.getValue()));
 
