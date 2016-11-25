@@ -412,3 +412,9 @@
 - Comment      
 - Finished     
 
+## 70. reporte de bo está mostrando bob
+- Created at    corregir
+- Completed at 2016-11-25 09:19:47 -0400
+- Comment      
+- Finished     
+

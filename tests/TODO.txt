@@ -21,4 +21,5 @@ Revisar por qué no aparece DeGhetto en cerro-negro,2016-11-22 16:28:25 -0400,20
 Revisar yo y api en test-calibarte,2016-11-22 16:28:54 -0400,2016-11-24 18:08:54 -0400,
 evaular correlation por partes dando rango, salto y correlaciones y con posibilidad de ajuste,2016-11-23 19:20:47 -0400,
 valgrind a con todos los tests,2016-11-24 16:18:58 -0400,,
-option -j a boa, uoa y uo,2016-11-24 18:45:59 -0400,,
+option -j a boa, uoa y uo,2016-11-24 18:45:59 -0400,
+bo y uo deben de alguna forma imprimir c y m,2016-11-25 09:05:46 -0400,,

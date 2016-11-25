@@ -75,3 +75,6 @@
 - Created at    uoa y uo
 - Completed at 2016-11-24 18:45:59 -0400
 
+## 25. bo y uo deben de alguna forma imprimir c y m
+- Created at   2016-11-25 09:05:46 -0400
+

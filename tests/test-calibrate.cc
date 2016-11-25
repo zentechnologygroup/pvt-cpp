@@ -161,15 +161,16 @@ void list_correlations
       if (uod_corr == nullptr)
 	return DynList<string>({PvtAnalyzer::correlation(d)->call_string(),
 	      to_string(PvtAnalyzer::r2(d)), to_string(PvtAnalyzer::mse(d)),
-	      to_string(PvtAnalyzer::sigma(d)),
-	      to_string(PvtAnalyzer::sumsq(d))});
+	      to_string(PvtAnalyzer::sigma(d)), to_string(PvtAnalyzer::sumsq(d)),
+	      to_string(PvtAnalyzer::c(d)), to_string(PvtAnalyzer::m(d))});
       return DynList<string>({PvtAnalyzer::correlation(d)->call_string() + "." +
 	    p.second->name,
 	    to_string(PvtAnalyzer::r2(d)), to_string(PvtAnalyzer::mse(d)),
-	    to_string(PvtAnalyzer::sigma(d)),
-	    to_string(PvtAnalyzer::sumsq(d))});
+	    to_string(PvtAnalyzer::sigma(d)), to_string(PvtAnalyzer::sumsq(d)),
+	    to_string(PvtAnalyzer::c(d)), to_string(PvtAnalyzer::m(d))});
     });
-  mat.insert(DynList<string>({"Correlation", "r2", "mse", "distance", "sumsq"}));
+  mat.insert(DynList<string>({"Correlation", "r2", "mse", "distance", "sumsq",
+	  "c", "m"}));
   cout << to_string(format_string(mat));
 }
 
@@ -396,19 +397,6 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
 					 PvtAnalyzer::c(below_desc),
 					 PvtAnalyzer::m(below_desc));
 
-	  auto & data = pvt.get_data();
-	  auto row = data.var_sets(0).samples.size() - 1;
-	  const double bobp = data.tuned_compute(0, row, below_corr,
-						 PvtAnalyzer::c(below_desc),
-						 PvtAnalyzer::m(below_desc));
-	  
-	  cout << "pb = " << pvt.get_pb() << endl
-		   << "bobp = " << bobp << endl
-		   << "bobp next = " << 
-		data.tuned_compute(1, 0, below_corr,
-				   PvtAnalyzer::c(above_desc),
-				   PvtAnalyzer::m(above_desc)) << endl;
-	  
 	  auto above_values =
 	    pvt.get_data().tuned_compute("Above Pb", above_corr,
 					 PvtAnalyzer::c(above_desc),
@@ -978,12 +966,8 @@ void process_bo(PvtAnalyzer & pvt)
   auto below_stats = pvt.correlations_stats(below_corr_list, 0);
   const auto & below_desc = below_stats.get_first();
 
-  cout << "pb = " << pvt.get_pb() << endl
-       << "bobp = " << pvt.get_data().var_sets(1).samples(0)(2) << endl;
-
   if (force_corr.getValue())
     {
-      cout << "Done!" << endl;
       auto & data = pvt.get_data();
       auto row = data.var_sets(0).samples.size() - 1;
       const double bobp = data.tuned_compute(0, row, below_corr_ptr,
@@ -993,19 +977,10 @@ void process_bo(PvtAnalyzer & pvt)
     }
 
   auto above_stats = pvt.correlations_stats(above_corr_list, 1);
-  const auto & above_desc = above_stats.get_first();
 	      
-  cout << "bobp next = "
-       << pvt.get_data().tuned_compute(1, 0, above_corr_ptr,
-				       PvtAnalyzer::c(above_desc),
-				       PvtAnalyzer::m(above_desc)) << endl
-       << "above c = " << PvtAnalyzer::c(above_desc) << endl
-       << "above m = " << PvtAnalyzer::m(above_desc) << endl;
-  
-  auto dmat =
-    eval_correlations(below_stats, above_stats, 
-		      pvt.get_data().name_index("Below Pb", "bob"), pvt,
-		      get_eval_type(compute_type.getValue()));
+  auto dmat = eval_correlations(below_stats, above_stats, 
+				pvt.get_data().name_index("Below Pb", "bob"), pvt,
+				get_eval_type(compute_type.getValue()));
 
   switch (get_output_type(output_type.getValue()))
     {
@@ -1207,7 +1182,7 @@ void process_uo(PvtAnalyzer & pvt)
   if (above_corr_ptr == nullptr)
     error_msg("Above correlation " + above_corr.getValue() + " not found");
   if (above_corr_ptr->target_name() != "uoa")
-    error_msg("Above correlation " + above_corr.getValue() + " is not for boa");
+    error_msg("Above correlation " + above_corr.getValue() + " is not for uoa");
   {
     if (not pvt.valid_correlations("uoa", "Above Pb").
 	exists([above_corr_ptr] (auto p) { return p == above_corr_ptr; }))
@@ -1218,11 +1193,23 @@ void process_uo(PvtAnalyzer & pvt)
   DynList<const Correlation*> below_corr_list = { below_corr_ptr };
   DynList<const Correlation*> above_corr_list = { above_corr_ptr };
 
-  auto dmat =
-    eval_correlations(pvt.correlations_stats(below_corr_list, 0),
-		      pvt.correlations_stats(above_corr_list, 1),
-		      pvt.get_data().name_index("Below Pb", "uob"), pvt,
-		      get_eval_type(compute_type.getValue()));
+  auto below_stats = pvt.correlations_stats(below_corr_list, 0);
+  const auto & below_desc = below_stats.get_first();
+
+  if (force_corr.getValue())
+    {
+      auto & data = pvt.get_data();
+      auto row = data.var_sets(0).samples.size() - 1;
+      const double uobp = data.tuned_compute(0, row, below_corr_ptr,
+					     PvtAnalyzer::c(below_desc),
+					     PvtAnalyzer::m(below_desc));
+      data.var_sets(1).samples(0)(3) = uobp;
+    }
+
+  auto dmat = eval_correlations(pvt.correlations_stats(below_corr_list, 0),
+				pvt.correlations_stats(above_corr_list, 1),
+				pvt.get_data().name_index("Below Pb", "uob"), pvt,
+				get_eval_type(compute_type.getValue()));
 
   if (uod_corr) // if uod was computed ==> delete from data set
     pvtdata.remove_last_const("uod");
