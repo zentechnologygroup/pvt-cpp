@@ -53,9 +53,17 @@ class DefinedCorrelation
       return correlation_ptr->compute(pars, check);
     }
 
-    VtlQuantity
-    compute(const DynList<Correlation::ParByName> & pars,
-	    bool check = true) const
+    VtlQuantity compute(const DynList<Correlation::ParByName> & pars,
+			bool check = true) const
+    {
+      if (tuned)
+	return correlation_ptr->tuned_compute_by_names(pars, c, m, check);
+
+      return correlation_ptr->compute_by_names(pars, check);
+    }
+
+    VtlQuantity compute(const DynList<Correlation::NamedPar> & pars,
+			bool check = true) const
     {
       if (tuned)
 	return correlation_ptr->tuned_compute_by_names(pars, c, m, check);
@@ -171,15 +179,32 @@ public:
     return interval_ptr->compute(pars, check).raw();
   }
 
-  // DynList<double>
-  // compute_by_names(const DynList<DynList<Correlation::ParByName>> & pars,
-  // 		   bool check = true) const
-  // {
-  //   return pars.maps<double>([this, check] (const auto & par)
-  //     {
-  // 	return this->compute_by_names(par, check).raw();
-  //     });
-  // }
+  double compute_by_names(const DynList<Correlation::NamedPar> & pars,
+			  bool check = true) const
+  {
+    auto main_par_ptr =
+      pars.find_ptr([this] (auto t) { return get<1>(t) == main_par_name; });
+    if (main_par_ptr == nullptr)
+      {
+	ostringstream s;
+	s << "DefinedCorrelation: main parameter name " << main_par_name
+	  << " was not found in parameter list";
+	throw domain_error(s.str());
+      }
+
+    double main_val = get<2>(*main_par_ptr);
+
+    Interval * interval_ptr = search_interval(main_val);
+    if (interval_ptr == nullptr)
+      {
+	ostringstream s;
+	s << "DefinedCorrelation: value " << main_val
+	  << " was not found in any interval";
+	throw domain_error(s.str());
+      }
+
+    return interval_ptr->compute(pars, check).raw();
+  }
 };
 
 

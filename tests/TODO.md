@@ -78,3 +78,6 @@
 ## 25. bo y uo deben de alguna forma imprimir c y m
 - Created at   2016-11-25 09:05:46 -0400
 
+## 26. Revisar en compute_by_names que se puedan pasar también unidades
+- Created at   2016-11-25 16:34:16 -0400
+
