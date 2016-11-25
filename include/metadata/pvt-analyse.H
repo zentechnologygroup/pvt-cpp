@@ -62,11 +62,6 @@ public:
     return fabs(v1 - v2) < epsilon;
   }
 
-  void insert_row(size_t seti, size_t row, const DynList<double> & vals)
-  {
-    
-  }
-
   void check_data(float error = 0.1) 
   {
     data.check_constant("t", Temperature::get_instance());
@@ -85,6 +80,10 @@ public:
     data.check_variable("Above Pb", "boa", FVFvolumeRatio::get_instance());
     data.check_variable("Above Pb", "uoa", DinamicViscosity::get_instance());
 
+    // insert a new row in Above data set that is a copy oof the pb row
+    const auto & bp_row = data.var_sets(0).samples.get_last();
+    data.var_sets(1).samples.insert(bp_row);
+    
     check_sorted("Below Pb", "p");
     check_sorted("Above Pb", "p");
     check_sorted("Below Pb", "rs");
@@ -93,11 +92,6 @@ public:
     check_sorted("Above Pb", "boa", false);
     check_sorted("Below Pb", "uob", false);
     check_sorted("Above Pb", "uoa");
-
-    const auto & bp_row = data.var_sets(0).samples.get_last();
-
-    // insert a new row in Above data set that is a copy oof the pb row
-    data.var_sets(1).samples.insert(bp_row);
 
     {
       const double & min_p = data.var_sets(0).samples.get_first()(0);

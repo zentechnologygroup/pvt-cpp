@@ -53,19 +53,25 @@
 ## 18. correlaciones con hidden en tru no deben ser mostradas por test-calibrate
 - Created at   2016-11-19 13:44:15 -0400
 
-## 19. script que modifique fuentes ruby y ponga los sómbolos de parámetros
-- Created at   2016-11-21 15:23:07 -0400
-
-## 20. nuevo programa que evalue correlacion recibiendo un arreglo
+## 19. nuevo programa que evalue correlacion recibiendo un arreglo
 - Created at   2016-11-22 10:40:29 -0400
 
-## 21. Revisar por qué no aparece DeGhetto en cerro-negro
+## 20. Revisar por qué no aparece DeGhetto en cerro-negro
 - Created at   2016-11-22 16:28:25 -0400
+- Completed at 2016-11-24 18:08:56 -0400
 
-## 22. Revisar yo y api en test-calibarte
+## 21. Revisar yo y api en test-calibarte
 - Created at   2016-11-22 16:28:54 -0400
+- Completed at 2016-11-24 18:08:54 -0400
 
-## 23. evaular correlation por partes dando rango
+## 22. evaular correlation por partes dando rango
 - Created at    salto y correlaciones y con posibilidad de ajuste
 - Completed at 2016-11-23 19:20:47 -0400
+
+## 23. valgrind a con todos los tests
+- Created at   2016-11-24 16:18:58 -0400
+
+## 24. option -j a boa
+- Created at    uoa y uo
+- Completed at 2016-11-24 18:45:59 -0400
 

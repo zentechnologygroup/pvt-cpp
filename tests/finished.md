@@ -406,3 +406,9 @@
 - Comment      
 - Finished     
 
+## 69. script que modifique fuentes ruby y ponga los sómbolos de parámetros
+- Created at   2016-11-21 15:23:07 -0400
+- Completed at 
+- Comment      
+- Finished     
+

@@ -48,7 +48,6 @@ struct EmpiricalData
     size_t num_var = 0;
     Array<string> var_names; // pressure Rs bo uo
     Array<const Unit*> var_units; // of above names
-    size_t num_samples = 0;
     Array<Array<double>> samples; // must have the same number of
                                   // columns than var_names
 
@@ -63,6 +62,8 @@ struct EmpiricalData
 	    << this->name;
 	  throw domain_error(s.str());
 	}
+
+      const auto & num_samples = samples.size();
 
       Array<double> ret(var_names.size());
       for (size_t j = 0; j < num_samples; ++j)
@@ -96,7 +97,7 @@ struct EmpiricalData
       j["name"] = name;
       j["description"] = desc;
       j["num vars"] = num_var;
-      j["num samples"] = num_samples;
+      j["num samples"] = samples.size();
       j["variables"] = to_vector(t_zip(var_names, var_units).
 	maps<json>([] (const auto & t)
 		  {
@@ -140,7 +141,7 @@ struct EmpiricalData
       name = j["name"];
       desc = j["description"];
       num_var = j["num vars"];
-      num_samples = j["num samples"];
+      const size_t num_samples = j["num samples"];
       for (const auto & item : j["variables"])
 	{
 	  var_names.append(item["name"]);
@@ -457,8 +458,9 @@ struct EmpiricalData
     for (size_t i = 0; i < var_names.size(); ++i)
       if (var_names(i) == name)
 	{
-	  Array<double> ret(var_set.num_samples);
-	  for (size_t j = 0; j < var_set.num_samples; ++j)
+	  const auto & num_samples = var_set.samples.size();
+	  Array<double> ret(num_samples);
+	  for (size_t j = 0; j < num_samples; ++j)
 	    ret.append(var_set.samples(j)(i));
 	  return ret;
 	}
@@ -488,8 +490,9 @@ struct EmpiricalData
   Array<double> values(size_t set_idx, size_t col_idx) const
   {
     const auto & var_set = var_sets[set_idx];
-    Array<double> ret(var_set.num_samples);
-    for (size_t j = 0; j < var_set.num_samples; ++j)
+    const auto & num_samples = var_set.samples.size();
+    Array<double> ret(num_samples);
+    for (size_t j = 0; j < num_samples; ++j)
       ret.append(var_set.samples(j)(col_idx));
     return ret;
   }
@@ -543,8 +546,9 @@ struct EmpiricalData
     for (size_t i = 0; i < var_names.size(); ++i)
       if (var_names(i) == name)
 	{
-	  Array<double> ret(var_set.num_samples);
-	  for (size_t j = 0; j < var_set.num_samples; ++j)
+	  const auto & num_samples = var_set.samples.size();
+	  Array<double> ret(num_samples);
+	  for (size_t j = 0; j < num_samples; ++j)
 	    ret.append(var_set.samples(j)(i));
 	  return make_pair(ret, var_set.var_units(i));
 	}
@@ -614,7 +618,7 @@ struct EmpiricalData
       {
 	const auto & vset = var_sets(i);
 
-	s << "Samples set " << i + 1 << " (" << vset.num_samples << "):"
+	s << "Samples set " << i + 1 << " (" << vset.samples.size() << "):"
 	  << "  " << vset.name << endl
 	  << "  " << vset.desc << endl;
 
@@ -762,8 +766,6 @@ public:
 	auto t = it.get_curr();
 	auto & row = varset.samples(get<1>(t));
 	row.append(get<0>(t));
-	row.for_each([] (auto v) { cout << " " << v; });
-	cout << endl;
       }
     
     // TODO: hay que recorrer todas las filas y añadir la nueva
@@ -834,7 +836,7 @@ public:
 	vset.num_var++;
       }
 
-    for (size_t linenum = 2; input.good(); ++vset.num_samples, linenum++)
+    for (size_t linenum = 2; input.good(); linenum++)
       {
 	auto row = csv_read_row(input, ',');
 	if (row.size() != vset.num_var)
@@ -1100,10 +1102,8 @@ public:
 	{
 	  auto syn = it_syn.get_curr();
 	  const auto & syn_name = syn.first;
-	  vals = to_DynList(values(seti, syn_name)); // verify if
-						     // there are
-						     // values in data
-						     // set
+	  vals = to_dynlist(values(seti, syn_name)); // verify if there are
+						     // values in data set
 	  if (not vals.is_empty())
 	    { // a synomym was found for par_name in the
 	      // correlation. Now we convert the values to the synonym unit
@@ -1191,9 +1191,9 @@ public:
   DynList<DynList<double>>
   correlation_perms(size_t seti, const Correlation * correlation_ptr) const
   {
-    const size_t & num_rows = var_sets[seti].samples.size();
+    const auto & num_rows = var_sets[seti].samples.size();
     return transpose(correlation_values(seti, correlation_ptr).
-      maps<DynList<double>>([&] (const auto & l)
+      maps<DynList<double>>([&num_rows] (const auto & l)
         {
 	  return l.is_unitarian() ? rep<double>(num_rows, l.get_first()) : l;
 	}));
@@ -1597,11 +1597,6 @@ public:
 			  var_set.samples.get_last()(col), i, col);
       });
 
-    cout << "Set ranges:" << endl;
-    sets_ranges.for_each([] (auto p) { cout << "[" << get<0>(p) << ", "
-					    << get<1>(p) << "] "; });
-    cout << endl;
-
     // Luego según los rangos determinar las correlaciones
     using CRange = tuple<double, double, const Correlation*>;
     auto corr_ranges =
@@ -1609,11 +1604,6 @@ public:
       {
 	return make_tuple(i.start, i.end, i.correlation_ptr);
       });
-
-    cout << "Corr ranges:" << endl;
-    corr_ranges.for_each([] (auto p) { cout << "[" << get<0>(p) << ", "
-					    << get<1>(p) << "] "; });
-    cout << endl;
 
     if (not (get<0>(sets_ranges.get_first()) >= get<0>(corr_ranges.get_first())
 	     and
@@ -1719,17 +1709,6 @@ public:
 		   {
 		     return correlation_ptr->compute(l, check);
 		   });
-    
-    auto vals = correlation_values(seti, correlation_ptr);
-
-    DynList<double> ret;
-
-    for_each_perm(vals, [&ret, correlation_ptr, check] (const auto & pars)
-      {
-	ret.append(correlation_ptr->compute(pars, check));		       
-      });
-    
-    return ret;
   }
 
   DynList<double> tuned_compute(size_t seti,
@@ -1758,10 +1737,6 @@ public:
 		       double c, double m, bool check = true) const
   {
     auto vals = correlation_values(seti, row, correlation_ptr);
-    cout << "vals =";
-    vals.for_each([] (auto v) { cout << " " << v; });
-    cout << endl
-	 << "c = " << c << " m = " << m << endl;
     return correlation_ptr->tuned_compute(vals, c, m, check);
   }
 
@@ -1794,7 +1769,6 @@ public:
 	  {
 	    auto syn = it.get_curr();
 	    const auto & name = syn.first;
-	    cout << "Searching " << name << " for " << par.name << endl;
 	    try
 	      {
 		auto values = this->quantities(seti, name);
