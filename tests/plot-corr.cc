@@ -195,8 +195,9 @@ void set_p_range()
 {
   const auto & range = p_range.getValue();
   const auto & step = range.step();
+  cout << "p step == " << step << endl;
   for (double val = range.min; val < range.max; val += step)
-    t_values.append(make_tuple(true, "p", val, &psia::get_instance()));
+    p_values.append(make_tuple(true, "p", val, &psia::get_instance()));
 }
 
 ValueArg<double> cb = { "", "cb", "c for below range", false, 0,
@@ -220,14 +221,34 @@ void set_below_corr()
 {
   below_corr_ptr = Correlation::search_by_name(below_corr_arg.getValue());
   if (below_corr_ptr == nullptr)
-    error_msg(below_corr_arg.getValue() + " not found");
+    error_msg(below_corr_arg.getValue() + " below correlation not found");
   target_name = below_corr_ptr->target_name();
-  if (target_name != "rs" and target_name != "bo" and target_name != "uo")
-    error_msg(below_corr_arg.getValue() + " must be rs, bo or uo family");
+  if (target_name != "rs" and target_name != "bob" and target_name != "uob")
+    error_msg(below_corr_arg.getValue() +
+	      " below correlation has an invalid target name"
+	      " (must be rs, bob or uob family)");
 }
 
 ValueArg<string> above_corr_arg = { "", "above", "above correlation name", false,
 				    "", "above correlation name", cmd };
+const Correlation * above_corr_ptr = nullptr;
+void set_above_corr()
+{
+  above_corr_ptr = Correlation::search_by_name(above_corr_arg.getValue());
+  if (above_corr_ptr == nullptr)
+    error_msg(above_corr_arg.getValue() + " above correlation not found");
+  target_name = above_corr_ptr->target_name();
+  if (target_name != "rs" and target_name != "boa" and target_name != "uoa")
+    error_msg(above_corr_arg.getValue() +
+	      " above correlation has an invalid target name"
+	      " (must be rs, boa or uoa family)");
+}
+
+DefinedCorrelation define_correlation()
+{
+
+}
+
 DynList<Correlation::ParByName> const_parameters;
 
 int main(int argc, char *argv[])
@@ -241,4 +262,13 @@ int main(int argc, char *argv[])
   set_psep();
   set_t_range();
   set_p_range();
+  set_below_corr();
+
+  cout << "T =";
+  t_values.for_each([] (auto t) { cout << " " << get<2>(t); });
+  cout << endl;
+
+  cout << "P =";
+  p_values.for_each([] (auto t) { cout << " " << get<2>(t); });
+  cout << endl;
 }
