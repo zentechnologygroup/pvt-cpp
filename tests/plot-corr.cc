@@ -99,15 +99,20 @@ ValueArg<double> c_pb_arg = { "", "c-pb", "pb adjustment", false, 0,
 ValueArg<string> pb_arg = { "", "pb", "correlation for pb", true, "",
 			    "correlation for pb in psia", cmd };
 const Correlation * pb_corr = nullptr;
-DynList<Correlation::NamedPar> pb_pars = { yg_par, rsb_par, api_par };
+DynList<Correlation::NamedPar> pb_pars;
 void set_pb()
 {
+  assert(yg_arg.isSet() and rsb_arg.isSet() and api_arg.isSet());
   pb_corr = Correlation::search_by_name(pb_arg.getValue());
   if (pb_corr == nullptr)
     error_msg(pb_arg.getValue() + " correlation not found");
 
   if (pb_corr->target_name() != "pb")
     error_msg(pb_arg.getValue() + " correlation is not for pb");
+
+  pb_pars.append(yg_par);
+  pb_pars.append(rsb_par);
+  pb_pars.append(api_par);
 
   if (tsep_arg.isSet())
     pb_pars.append(tsep_par);
@@ -244,12 +249,40 @@ void set_above_corr()
 	      " (must be rs, boa or uoa family)");
 }
 
-DefinedCorrelation define_correlation()
+DefinedCorrelation define_correlation(const double pb_val)
 {
+  double max_p = psia::get_instance().max_val;
+  DefinedCorrelation ret("p");
+  ret.add_correlation(below_corr_ptr, psia::get_instance().min_val, pb_val);
+  ret.add_correlation(above_corr_ptr, nextafter(pb_val, max_p), max_p);
+  return ret;
+}
 
+void generate_plots()
+{
+  cout << "Pc corr = " << pb_corr->name << endl;
+  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
+    {
+      auto t_par = t_it.get_curr();
+      pb_pars.insert(t_par);
+      auto pb_val =
+	pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, false);
+
+      auto def_corr = define_correlation(pb_val.raw());
+
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
+	{
+	  auto p_par = p_it.get_curr();
+	  
+	}
+
+      pb_pars.remove_first(); // remove t_par
+    }
 }
 
 DynList<Correlation::ParByName> const_parameters;
+
+
 
 int main(int argc, char *argv[])
 {
@@ -260,6 +293,7 @@ int main(int argc, char *argv[])
   set_yg();
   set_tsep();
   set_psep();
+  set_pb();
   set_t_range();
   set_p_range();
   set_below_corr();
@@ -271,4 +305,6 @@ int main(int argc, char *argv[])
   cout << "P =";
   p_values.for_each([] (auto t) { cout << " " << get<2>(t); });
   cout << endl;
+
+  generate_plots();
 }

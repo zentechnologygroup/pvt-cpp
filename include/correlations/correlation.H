@@ -95,6 +95,13 @@ public:
     return (max_val.raw() - min_val.raw()) / n;
   }
 
+  string to_string() const
+  {
+    ostringstream s;
+    s << name << " " << unit.symbol;
+    return s.str();
+  }
+
   DynList<string> to_list_string() const
   {
     return { name, unit.symbol, min_val.to_string(), max_val.to_string() };
@@ -689,8 +696,14 @@ public:
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
       {
 	const auto & par = it.get_curr();
-	auto ptr_val =
-	  pair_list.find_ptr([&par] (auto p) { return p.first == par.name; });
+	auto ptr_val = pair_list.find_ptr([&par] (auto p)
+          {
+	    return par.names().exists([&p] (const auto & pp)
+	      {
+		return p.first == pp.first;
+	      });
+
+	  });
 	if (ptr_val == nullptr)
 	  {
 	    ostringstream s;
@@ -711,11 +724,17 @@ public:
 		   bool check = true) const
   {
     DynList<VtlQuantity> vals;
+    preconditions.for_each([] (auto p) { cout << p.to_string() << endl; } );
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
       {
 	const auto & par = it.get_curr();
-	auto ptr_val =
-	  pair_list.find_ptr([&par] (auto t) { return get<1>(t) == par.name; });
+	auto ptr_val = pair_list.find_ptr([&par] (auto t)
+          {
+	    return par.names().exists([&t] (const auto & p)
+	      {
+		return p.first == get<1>(t); 
+	      });
+	  });
 	if (ptr_val == nullptr)
 	  {
 	    ostringstream s;
@@ -730,6 +749,7 @@ public:
 	      << ": parameter name " << par.name << " is not set";
 	    throw domain_error(s.str());
 	  }
+	cout << "Put " << VtlQuantity(*get<3>(*ptr_val), get<2>(*ptr_val)) << endl;
 	vals.append(VtlQuantity(*get<3>(*ptr_val), get<2>(*ptr_val)));
       }
 

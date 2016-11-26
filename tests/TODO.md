@@ -81,3 +81,6 @@
 ## 26. Revisar en compute_by_names que se puedan pasar también unidades
 - Created at   2016-11-25 16:34:16 -0400
 
+## 27. evaluación de correlación por partes se puede aceltar notablemente si se ven los parámyteros y en lugar de pasar por nombre se construyen los arreglos
+- Created at   2016-11-26 16:08:21 -0400
+
