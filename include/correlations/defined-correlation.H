@@ -87,19 +87,28 @@ class DefinedCorrelation
 
 public:
 
-  /// Returns a list union of all parameters
-  DynList<string> parameter_list() const
+  /// Returns a list union of all parameters. Each item is a pair with
+  /// the parameter name and a list of parameter synonyms
+  DynList<pair<string, DynList<string>>> parameter_list() const
   {
-    DynSetTree<string> pars;
+    using P = pair<string, DynList<string>>;
+    DynMapTree<string, DynList<string>> pars;
     intervals.for_each([&pars] (const auto & i)
       {
 	i.correlation_ptr->get_preconditions().
 	  for_each([&pars] (const auto & par)
           {
-	    pars.insert(par.name);
+	    auto ptr = pars.insert(make_pair(par.name, DynList<string>()));
+	    par.get_synonyms().for_each([ptr] (const auto & p)
+              {
+		ptr->second.append(p.first);
+	      });
 	  });
       });
-    return pars.keys();
+    return pars.items_ptr().maps<P>([] (auto ptr)
+      {
+	return make_pair(ptr->first, ptr->second);
+      });
   }
 
   Interval * search_interval(double val) const

@@ -258,9 +258,31 @@ DefinedCorrelation define_correlation(const double pb_val)
   return ret;
 }
 
+void test_parameter(const DynList<string> & required_pars,
+		    const Correlation::NamedPar & par,
+		    DynList<Correlation::NamedPar> & pars_list)
+{
+  // if (required_pars.exists([&par] (const auto & s) { return s == name; }))
+  //   pars_list.append(
+}
+
 void generate_plots()
 {
   cout << "Pc corr = " << pb_corr->name << endl;
+
+  DynList<Correlation::NamedPar> pars;
+  { 
+    auto t_par = t_values.get_first();
+    pb_pars.insert(t_par);
+    auto pb_val =
+      pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, false);
+    pb_pars.remove_first();
+    auto required_pars = define_correlation(pb_val.raw()).parameter_list();
+    // if (required_pars.exists([] (const auto & s) { return s == "pb"; }))
+    //   pars.append(pb_pars);
+    // if (required_pars.exi
+  }
+
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       auto t_par = t_it.get_curr();
@@ -276,7 +298,7 @@ void generate_plots()
 	  
 	}
 
-      pb_pars.remove_first(); // remove t_par
+      pb_pars.remove_first(); // remove t_paru
     }
 }
 
