@@ -394,21 +394,25 @@ DynList<DynList<double>> generate_values()
   return vals;
 }
 
+auto cmp_p = [] (const DynList<double> & row1, const DynList<double> & row2)
+{
+  return row1.nth(1) < row2.nth(1);
+};
+
+auto cmp_t = [] (const DynList<double> & row1, const DynList<double> & row2)
+{
+  return row1.get_last() < row2.get_last();
+};
+
 void sort(DynList<DynList<double>> & vals, SortType type)
 {
   switch (type)
     {
     case SortType::Pressure:
-      in_place_sort(vals, [] (const auto & row1, const auto & row2)
-		    {
-		      return row1.nth(1) < row2.nth(1);
-		    });
+      in_place_sort(vals, cmp_p);
       break;
     case SortType::Temperature:
-      in_place_sort(vals, [] (const auto & row1, const auto & row2)
-		    {
-		      return row1.get_last() < row2.get_last();
-		    });
+      in_place_sort(vals, cmp_t);
       break;
     case SortType::Value:
             in_place_sort(vals, [] (const auto & row1, const auto & row2)
@@ -446,7 +450,17 @@ string csv_format(const DynList<DynList<double>> & vals)
 
 string R_format(const DynList<DynList<double>> & vals)
 {
+  auto values = transpose(sort(vals, cmp_t));
+  auto v = values.get_first();
+  auto p = values.nth(1);
+  auto t = values.get_last();
 
+  ostringstream s;
+  for (auto it = t.get_it(); it.has_curr(); it.next())
+    {
+      
+    }
+  return s.str();
 }
 
 
