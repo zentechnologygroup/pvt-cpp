@@ -433,6 +433,22 @@ string mat_format(const DynList<DynList<double>> & vals)
   return to_string(format_string(mat)); 
 }
 
+string csv_format(const DynList<DynList<double>> & vals)
+{
+ DynList<DynList<string>> mat = vals.maps<DynList<string>>([] (const auto & row)
+  {
+    return row.template maps<string>([] (auto v) { return to_string(v); }).rev();
+  });
+  mat.insert({"t", "p", target_name});
+
+  return to_string(format_string_csv(mat));
+}
+
+string R_format(const DynList<DynList<double>> & vals)
+{
+
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -453,5 +469,19 @@ int main(int argc, char *argv[])
 
   sort(vals, get_sort_type(sort_type.getValue()));
 
-  cout << mat_format(vals) << endl;
+  switch (get_output_type(output_type.getValue()))
+    {
+    case OutputType::mat:
+      cout << mat_format(vals) << endl;
+      break;
+    case OutputType::csv:
+      cout << csv_format(vals) << endl;
+    case OutputType::json:
+      error_msg("json not yet implemented");
+      break;
+    case OutputType::R:
+      break;
+    default:
+      error_msg("Invalid output type");
+    }
 }
