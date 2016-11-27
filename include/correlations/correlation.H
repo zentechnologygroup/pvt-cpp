@@ -724,7 +724,6 @@ public:
 		   bool check = true) const
   {
     DynList<VtlQuantity> vals;
-    preconditions.for_each([] (auto p) { cout << p.to_string() << endl; } );
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
       {
 	const auto & par = it.get_curr();
@@ -749,7 +748,6 @@ public:
 	      << ": parameter name " << par.name << " is not set";
 	    throw domain_error(s.str());
 	  }
-	cout << "Put " << VtlQuantity(*get<3>(*ptr_val), get<2>(*ptr_val)) << endl;
 	vals.append(VtlQuantity(*get<3>(*ptr_val), get<2>(*ptr_val)));
       }
 

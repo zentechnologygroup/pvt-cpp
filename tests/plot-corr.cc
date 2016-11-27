@@ -1,6 +1,7 @@
 
 # include <tclap/CmdLine.h>
 
+# include <correlations/pvt-correlations.H>
 # include <correlations/defined-correlation.H>
 
 using namespace std;
@@ -205,16 +206,16 @@ void set_p_range()
     p_values.append(make_tuple(true, "p", val, &psia::get_instance()));
 }
 
-ValueArg<double> cb = { "", "cb", "c for below range", false, 0,
-			"c for below range", cmd };
+ValueArg<double> cb_arg = { "", "cb", "c for below range", false, 0,
+			    "c for below range", cmd };
 
-ValueArg<double> mb_arg = { "", "mb", "m for below range", false, 0,
+ValueArg<double> mb_arg = { "", "mb", "m for below range", false, 1,
 			    "m for below range", cmd };
 
 ValueArg<double> ca_arg = { "", "ca", "m for above range", false, 0,
 			    "c for above range", cmd };
 
-ValueArg<double> ma_arg = { "", "ma", "m for above range", false, 0,
+ValueArg<double> ma_arg = { "", "ma", "m for above range", false, 1,
 			    "c for above range", cmd };
 
 string target_name;
@@ -239,38 +240,94 @@ ValueArg<string> above_corr_arg = { "", "above", "above correlation name", false
 const Correlation * above_corr_ptr = nullptr;
 void set_above_corr()
 {
+  if (target_name != "rs" and not above_corr_arg.isSet())
+    error_msg("Above correlation has not been specified");
+  else
+    {
+      above_corr_ptr = &RsAbovePb::get_instance();
+      return;
+    }
+  
   above_corr_ptr = Correlation::search_by_name(above_corr_arg.getValue());
   if (above_corr_ptr == nullptr)
     error_msg(above_corr_arg.getValue() + " above correlation not found");
-  target_name = above_corr_ptr->target_name();
-  if (target_name != "rs" and target_name != "boa" and target_name != "uoa")
-    error_msg(above_corr_arg.getValue() +
-	      " above correlation has an invalid target name"
-	      " (must be rs, boa or uoa family)");
+  
+  const string above_target_name = above_corr_ptr->target_name();
+  if (above_target_name == "boa")
+    if (target_name != "bob")
+      error_msg("Above target " + above_target_name + " cannot be combined with "
+		"below correlation " + below_corr_ptr->name);
+    else
+      return;
+
+  if (above_target_name != "uoa" and target_name == "uob")
+    return;
+  
+  error_msg("Above target " + above_target_name + " cannot be combined with "
+	    "below correlation " + below_corr_ptr->name);
+}
+
+vector<string> out_type = { "csv", "mat", "json", "R" };
+ValuesConstraint<string> allowed_out_type = out_type;
+ValueArg<string> output_type = { "t", "output-type", "output type", false,
+				 "mat", &allowed_out_type, cmd };
+
+enum class OutputType { mat, csv, R, json, undefined };
+
+OutputType get_output_type(const string & type)
+{
+  if (type == "mat") return OutputType::mat;
+  if (type == "csv") return OutputType::csv;
+  if (type == "R") return OutputType::R;
+  if (type == "json") return OutputType::json;
+  error_msg("Invalid output type " + type);
+  return OutputType::undefined;
+}
+
+vector<string> sort_values = { "p", "t", "value"};
+ValuesConstraint<string> allow_sort = sort_values;
+ValueArg<string> sort_type = { "s", "sort", "output sorting type", false,
+			       "p", &allow_sort, cmd };
+
+enum class SortType { Pressure, Temperature, Value, Undefined };
+
+SortType get_sort_type(const string & type)
+{
+  if (type == "p") return SortType::Pressure;
+  if (type == "t") return SortType::Temperature;
+  if (type == "value") return SortType::Value;
+  error_msg("Invalid sort type");
+  return SortType::Undefined;
 }
 
 DefinedCorrelation define_correlation(const double pb_val)
 {
   double max_p = psia::get_instance().max_val;
   DefinedCorrelation ret("p");
-  ret.add_correlation(below_corr_ptr, psia::get_instance().min_val, pb_val);
-  ret.add_correlation(above_corr_ptr, nextafter(pb_val, max_p), max_p);
+  ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min_val, pb_val,
+			    cb_arg.getValue(), mb_arg.getValue());
+  ret.add_tuned_correlation(above_corr_ptr, nextafter(pb_val, max_p), max_p,
+			    ca_arg.getValue(), ma_arg.getValue());
   return ret;
 }
 
-void test_parameter(const DynList<string> & required_pars,
-		    const Correlation::NamedPar & par,
-		    DynList<Correlation::NamedPar> & pars_list)
+void
+test_parameter(const DynList<pair<string, DynList<string>>> & required,
+	       const Correlation::NamedPar & par,
+	       DynList<Correlation::NamedPar> & pars_list)
 {
-  // if (required_pars.exists([&par] (const auto & s) { return s == name; }))
-  //   pars_list.append(
+  if (required.exists([&par] (const auto & p) { return p.first == get<1>(par) or
+      p.second.exists([&par] (const auto & s) { return s == get<1>(par); }); }))
+    pars_list.append(par);
 }
 
-void generate_plots()
+/// target, p, t
+DynList<DynList<double>> generate_values()
 {
   cout << "Pc corr = " << pb_corr->name << endl;
 
-  DynList<Correlation::NamedPar> pars;
+  DynList<Correlation::NamedPar> pars_list;
+
   { 
     auto t_par = t_values.get_first();
     pb_pars.insert(t_par);
@@ -278,32 +335,103 @@ void generate_plots()
       pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, false);
     pb_pars.remove_first();
     auto required_pars = define_correlation(pb_val.raw()).parameter_list();
-    // if (required_pars.exists([] (const auto & s) { return s == "pb"; }))
-    //   pars.append(pb_pars);
-    // if (required_pars.exi
+    test_parameter(required_pars, api_par, pars_list);
+    test_parameter(required_pars, rsb_par, pars_list);
+    test_parameter(required_pars, yg_par, pars_list);
+    test_parameter(required_pars, tsep_par, pars_list);
+    test_parameter(required_pars, psep_par, pars_list);
+    test_parameter(required_pars, n2_concentration_par, pars_list);
+    test_parameter(required_pars, co2_concentration_par, pars_list);
+    test_parameter(required_pars, h2s_concentration_par, pars_list);
   }
+
+  DynList<DynList<double>> vals; /// target, p, t
+  DynList<double> row;
 
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       auto t_par = t_it.get_curr();
       pb_pars.insert(t_par);
+      pars_list.insert(t_par);
+      row.insert(get<2>(t_par));
+
       auto pb_val =
 	pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, false);
+
+      pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
 
       auto def_corr = define_correlation(pb_val.raw());
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  auto p_par = p_it.get_curr();
+	  pars_list.insert(p_par);
+	  row.insert(get<2>(p_par));
+
+	  pars_list.for_each([] (auto p)
+			     {
+			       cout << get<1>(p) << " = " << get<2>(p) << " ";
+			     });
+	  cout << endl;
+
+	  auto val = def_corr.compute_by_names(pars_list, false);
+	  row.insert(val);
+	  vals.append(row);
+	  row.remove_first(); // val
 	  
+	  row.remove_first(); // p_par
+	  pars_list.remove_first(); // p_par
 	}
 
-      pb_pars.remove_first(); // remove t_paru
+      row.remove_first(); // t_par
+
+      pars_list.remove_first(); // pb_val
+      pars_list.remove_first(); // t_par
+
+      pb_pars.remove_first(); // remove t_par
     }
+
+  return vals;
 }
 
-DynList<Correlation::ParByName> const_parameters;
+void sort(DynList<DynList<double>> & vals, SortType type)
+{
+  switch (type)
+    {
+    case SortType::Pressure:
+      in_place_sort(vals, [] (const auto & row1, const auto & row2)
+		    {
+		      return row1.nth(1) < row2.nth(1);
+		    });
+      break;
+    case SortType::Temperature:
+      in_place_sort(vals, [] (const auto & row1, const auto & row2)
+		    {
+		      return row1.get_last() < row2.get_last();
+		    });
+      break;
+    case SortType::Value:
+            in_place_sort(vals, [] (const auto & row1, const auto & row2)
+		    {
+		      return row1.get_first() < row2.get_first();
+		    });
+	    break;
+    default:
+      error_msg("Invalid sort type");
+      break;
+  }
+}
 
+string mat_format(const DynList<DynList<double>> & vals)
+{
+ DynList<DynList<string>> mat = vals.maps<DynList<string>>([] (const auto & row)
+  {
+    return row.template maps<string>([] (auto v) { return to_string(v); }).rev();
+  });
+  mat.insert({"t", "p", target_name});
+
+  return to_string(format_string(mat)); 
+}
 
 
 int main(int argc, char *argv[])
@@ -319,14 +447,11 @@ int main(int argc, char *argv[])
   set_t_range();
   set_p_range();
   set_below_corr();
+  set_above_corr();
 
-  cout << "T =";
-  t_values.for_each([] (auto t) { cout << " " << get<2>(t); });
-  cout << endl;
+  auto vals = generate_values();
 
-  cout << "P =";
-  p_values.for_each([] (auto t) { cout << " " << get<2>(t); });
-  cout << endl;
+  sort(vals, get_sort_type(sort_type.getValue()));
 
-  generate_plots();
+  cout << mat_format(vals) << endl;
 }

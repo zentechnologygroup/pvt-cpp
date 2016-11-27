@@ -84,3 +84,6 @@
 ## 27. evaluación de correlación por partes se puede aceltar notablemente si se ven los parámyteros y en lugar de pasar por nombre se construyen los arreglos
 - Created at   2016-11-26 16:08:21 -0400
 
+## 28. sinónimos de parámetros deben ser globales
+- Created at   2016-11-26 20:14:31 -0400
+
