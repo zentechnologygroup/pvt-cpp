@@ -30,7 +30,7 @@ public:
   {
     auto pearson_corr = gsl_stats_correlation(&y.base(), 1,
 					      &yc.base(), 1, y.size());
-    if (isnan(pearson_corr))
+    if (std::isnan(pearson_corr))
       return 1;
     
     return pearson_corr*pearson_corr;
@@ -128,11 +128,11 @@ public:
     {
       gsl_fit_linear(&yc.base(), 1, &y.base(), 1, yc.size(), &c, &m,
 		     &cov00, &cov01, &cov11, &sumsq);
-      if (isnan(c))
+      if (std::isnan(c))
 	c = 0;
-      if (isnan(m))
+      if (std::isnan(m))
 	m = 1;
-      if (isnan(sumsq))
+      if (std::isnan(sumsq))
 	sumsq = 0;
     }
 
