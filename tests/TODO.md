@@ -37,6 +37,7 @@
 
 ## 13. Intervalos de correlación por partes deben estar completos y no separados como actualmente ocurre
 - Created at   2016-11-16 20:10:58 -0400
+- Completed at 2016-11-28 17:24:15 -0400
 
 ## 14. test-corr podría recibir c y m para calibración
 - Created at   2016-11-18 09:02:50 -0400
@@ -56,37 +57,36 @@
 ## 19. nuevo programa que evalue correlacion recibiendo un arreglo
 - Created at   2016-11-22 10:40:29 -0400
 
-## 20. Revisar por qué no aparece DeGhetto en cerro-negro
-- Created at   2016-11-22 16:28:25 -0400
-- Completed at 2016-11-24 18:08:56 -0400
-
-## 21. Revisar yo y api en test-calibarte
-- Created at   2016-11-22 16:28:54 -0400
-- Completed at 2016-11-24 18:08:54 -0400
-
-## 22. evaular correlation por partes dando rango
-- Created at    salto y correlaciones y con posibilidad de ajuste
-- Completed at 2016-11-23 19:20:47 -0400
-
-## 23. valgrind a con todos los tests
+## 20. valgrind a con todos los tests
 - Created at   2016-11-24 16:18:58 -0400
 
-## 24. option -j a boa
-- Created at    uoa y uo
-- Completed at 2016-11-24 18:45:59 -0400
-
-## 25. bo y uo deben de alguna forma imprimir c y m
+## 21. bo y uo deben de alguna forma imprimir c y m
 - Created at   2016-11-25 09:05:46 -0400
 
-## 26. Revisar en compute_by_names que se puedan pasar también unidades
+## 22. Revisar en compute_by_names que se puedan pasar también unidades
 - Created at   2016-11-25 16:34:16 -0400
 
-## 27. evaluación de correlación por partes se puede aceltar notablemente si se ven los parámyteros y en lugar de pasar por nombre se construyen los arreglos
+## 23. evaluación de correlación por partes se puede aceltar notablemente si se ven los parámyteros y en lugar de pasar por nombre se construyen los arreglos
 - Created at   2016-11-26 16:08:21 -0400
 
-## 28. sinónimos de parámetros deben ser globales
+## 24. sinónimos de parámetros deben ser globales
 - Created at   2016-11-26 20:14:31 -0400
 
-## 29. plot-corr tiene opción check de rango el por omisión es false
+## 25. plot-corr tiene opción check de rango el por omisión es false
 - Created at   2016-11-27 20:29:31 -0400
+
+## 26. test-clibrate debe ordenat por m
+- Created at   2016-11-28 17:02:51 -0400
+
+## 27. Falta R format por presión
+- Created at   2016-11-28 17:42:51 -0400
+
+## 28. en Range n podría ser 0
+- Created at   2016-11-28 17:52:06 -0400
+
+## 29. en Range n podría ser 0
+- Created at   2016-11-28 17:53:16 -0400
+
+## 30. error con rangos
+- Created at   2016-11-28 18:02:37 -0400
 

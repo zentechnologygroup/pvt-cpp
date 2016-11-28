@@ -146,20 +146,20 @@ Correlation::NamedPar compute_pb(const double t)
   return make_tuple(true, "pb", ret.raw(), &ret.unit);
 }
 
-ValueArg<string> c_rsb_arg = { "", "c-rsb", "rsb c", false, 0, "rsb c", cmd };
-ValueArg<string> m_rsb_arg = { "", "m-rsb", "rsb m", false, 1, "rsb m", cmd };
-ValueArg<string> rsb_arg = { "", "rsb", "correlation for rsb", false, "",
-			     "correlation for rsb", cmd };
-const Correlation * rsb_corr = nullptr;
-void set_rsb()
+ValueArg<double> c_rs_arg = { "", "c-rs", "rs c", false, 0, "rs c", cmd };
+ValueArg<double> m_rs_arg = { "", "m-rs", "rs m", false, 1, "rs m", cmd };
+ValueArg<string> rs_corr_arg = { "", "rs", "correlation for rs", false, "",
+				 "correlation for rs", cmd };
+const Correlation * rs_corr = nullptr;
+void set_rs_corr()
 {
-  if (not rsb_arg.isSet())
+  if (not rs_corr_arg.isSet())
     return;
-  rsb_corr == Correlation::search_by_name(rsb_arg.getValue());
-  if (rsb_corr == nullptr)
-    error_msg("Correlation for rsb " + rsb_arg.getValue() +  " not found");
-  if (rsb_corr->target_name() != "rsb")
-    error_msg("Correlation " + rsb_corr->name + " is not for rsb");
+  rs_corr = Correlation::search_by_name(rs_corr_arg.getValue());
+  if (rs_corr == nullptr)
+    error_msg("Correlation for rs " + rs_corr_arg.getValue() +  " not found");
+  if (rs_corr->target_name() != "rs")
+    error_msg("Correlation " + rs_corr->name + " is not for rs");
 }
 
 struct RangeDesc
@@ -183,7 +183,7 @@ struct RangeDesc
     return *this;
   }
 
-  double step() const noexcept { return (max - min) / (n - 1); }
+  double step() const noexcept { return (max - min) / n - 1; }
 
   friend ostream & operator << (ostream & os, const RangeDesc & d)
   {
@@ -221,9 +221,12 @@ void set_p_range()
 {
   const auto & range = p_range.getValue();
   const auto & step = range.step();
-  cout << "p step == " << step << endl;
+  cout << range.min << " " << range.max << " " << step << endl;
   for (double val = range.min; val <= range.max; val += step)
+    {
+      cout << val << " <= " << range.max << " " << (val <= range.max) << endl;
     p_values.append(make_tuple(true, "p", val, &psia::get_instance()));
+    }
 }
 
 ValueArg<double> cb_arg = { "", "cb", "c for below range", false, 0,
@@ -381,15 +384,6 @@ DynList<DynList<double>> generate_values()
   DynList<Correlation::NamedPar> pars_list = load_constant_parameters();
 
   unique_ptr<DefinedCorrelation> defined_rs_corr;
-  if (plot_type != PlotType::rs)
-    {
-      defined_rs_corr =
-	make_unique<DefinedCorrelation>(new DefinedCorrelation("p"));
-      const Unit & rsb_unit = rsb_corr->unit;
-      double vmin = rsb_unit.min_val;
-      double vmax = rsb_unit.max_val;
-      
-      defined_rs_corr->add_tuned_correlation(rsb_corr, 
 
   DynList<DynList<double>> vals; /// target, p, t
   DynList<double> row;
@@ -408,13 +402,36 @@ DynList<DynList<double>> generate_values()
 
       auto def_corr = define_correlation(pb_val.raw());
 
+      if (plot_type == PlotType::rs)
+	{
+	  defined_rs_corr = make_unique<DefinedCorrelation>("p");
+	  const Unit & rs_unit = rs_corr->unit;
+	  const double vmin = rs_unit.min_val;
+	  const double vmax = rs_unit.max_val;
+	  defined_rs_corr->add_tuned_correlation(rs_corr, vmin, pb_val.raw(),
+						 c_rs_arg.getValue(),
+						 m_rs_arg.getValue());
+	  defined_rs_corr->add_correlation(&RsAbovePb::get_instance(),
+					   nextafter(pb_val.raw(), vmax), vmax);
+	}
+
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  auto p_par = p_it.get_curr();
 	  pars_list.insert(p_par);
 	  row.insert(get<2>(p_par));
+	  
+	  if (plot_type == PlotType::rs)
+	    {
+	      auto rs = defined_rs_corr->compute_by_names(pars_list, false);
+	      pars_list.insert(make_tuple(true, "rs", rs, &rs_corr->unit));
+	    }
 
 	  auto val = def_corr.compute_by_names(pars_list, false);
+
+	  if (plot_type == PlotType::rs)
+	    pars_list.remove_first();
+
 	  row.insert(val);
 	  vals.append(row);
 	  row.remove_first(); // val
@@ -598,10 +615,14 @@ int main(int argc, char *argv[])
   set_tsep();
   set_psep();
   set_pb();
+  set_rs_corr();
   set_t_range();
   set_p_range();
   set_below_corr();
   set_above_corr();
+
+  cout << "size t_range = " << t_values.size() << endl
+       << "size p_range = " << p_values.size() << endl;
 
   auto vals = generate_values();
 

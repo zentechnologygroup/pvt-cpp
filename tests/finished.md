@@ -418,3 +418,27 @@
 - Comment      
 - Finished     
 
+## 71. Revisar yo y api en test-calibarte
+- Created at   2016-11-22 16:28:54 -0400
+- Completed at 2016-11-24 18:08:54 -0400
+- Comment      
+- Finished     
+
+## 72. option -j a boa
+- Created at    uoa y uo
+- Completed at 2016-11-24 18:45:59 -0400
+- Comment      
+- Finished     
+
+## 73. evaular correlation por partes dando rango
+- Created at    salto y correlaciones y con posibilidad de ajuste
+- Completed at 2016-11-23 19:20:47 -0400
+- Comment      
+- Finished     
+
+## 74. Revisar por qué no aparece DeGhetto en cerro-negro
+- Created at   2016-11-22 16:28:25 -0400
+- Completed at 2016-11-24 18:08:56 -0400
+- Comment      
+- Finished     
+

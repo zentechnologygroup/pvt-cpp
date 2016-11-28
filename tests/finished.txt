@@ -68,3 +68,7 @@ script R para plot,2016-11-17 21:21:01 -0400,2016-11-20 21:45:21 -0400,,2016-11-
 validar que la fila de pb se corresponda con los valores de pb y rsb,2016-11-19 17:30:21 -0400,2016-11-20 21:44:42 -0400,,2016-11-20 21:46:58 -0400
 script que modifique fuentes ruby y ponga los sómbolos de parámetros,2016-11-21 15:23:07 -0400,,,2016-11-24 18:09:07 -0400
 reporte de bo está mostrando bob, corregir,2016-11-25 09:19:47 -0400,,2016-11-25 09:19:50 -0400
+Revisar yo y api en test-calibarte,2016-11-22 16:28:54 -0400,2016-11-24 18:08:54 -0400,,2016-11-28 17:21:35 -0400
+option -j a boa, uoa y uo,2016-11-24 18:45:59 -0400,,2016-11-28 17:21:46 -0400
+evaular correlation por partes dando rango, salto y correlaciones y con posibilidad de ajuste,2016-11-23 19:20:47 -0400,,2016-11-28 17:21:55 -0400
+Revisar por qué no aparece DeGhetto en cerro-negro,2016-11-22 16:28:25 -0400,2016-11-24 18:08:56 -0400,,2016-11-28 17:22:11 -0400
