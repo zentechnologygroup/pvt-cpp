@@ -87,3 +87,6 @@
 ## 28. sinónimos de parámetros deben ser globales
 - Created at   2016-11-26 20:14:31 -0400
 
+## 29. plot-corr tiene opción check de rango el por omisión es false
+- Created at   2016-11-27 20:29:31 -0400
+

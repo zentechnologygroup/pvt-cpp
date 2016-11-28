@@ -189,7 +189,7 @@ void set_t_range()
 {
   const auto & range = t_range.getValue();
   const auto & step = range.step();
-  for (double val = range.min; val < range.max; val += step)
+  for (double val = range.min; val <= range.max; val += step)
     t_values.append(make_tuple(true, "t", val, &Fahrenheit::get_instance()));
 }
 
@@ -202,7 +202,7 @@ void set_p_range()
   const auto & range = p_range.getValue();
   const auto & step = range.step();
   cout << "p step == " << step << endl;
-  for (double val = range.min; val < range.max; val += step)
+  for (double val = range.min; val <= range.max; val += step)
     p_values.append(make_tuple(true, "p", val, &psia::get_instance()));
 }
 
@@ -368,12 +368,6 @@ DynList<DynList<double>> generate_values()
 	  pars_list.insert(p_par);
 	  row.insert(get<2>(p_par));
 
-	  pars_list.for_each([] (auto p)
-			     {
-			       cout << get<1>(p) << " = " << get<2>(p) << " ";
-			     });
-	  cout << endl;
-
 	  auto val = def_corr.compute_by_names(pars_list, false);
 	  row.insert(val);
 	  vals.append(row);
@@ -396,12 +390,20 @@ DynList<DynList<double>> generate_values()
 
 auto cmp_p = [] (const DynList<double> & row1, const DynList<double> & row2)
 {
-  return row1.nth(1) < row2.nth(1);
+  const auto & p1 = row1.nth(1);
+  const auto & p2 = row2.nth(1);
+  if (p1 == p2)
+    return row1.get_last() < row2.get_last();
+  return p1 < p2;
 };
 
 auto cmp_t = [] (const DynList<double> & row1, const DynList<double> & row2)
 {
-  return row1.get_last() < row2.get_last();
+  const auto & t1 = row1.get_last();
+  const auto & t2 = row2.get_last();
+  if (t1 == t2)
+    return row1.nth(1) < row2.nth(1);
+  return t1 < t2;
 };
 
 void sort(DynList<DynList<double>> & vals, SortType type)
@@ -458,7 +460,7 @@ string R_format(const DynList<DynList<double>> & vals)
   ostringstream s;
   for (auto it = t.get_it(); it.has_curr(); it.next())
     {
-      
+      auto t = it.get_curr();
     }
   return s.str();
 }
