@@ -1,4 +1,6 @@
 
+# include <memory>
+
 # include <tclap/CmdLine.h>
 
 # include <ah-zip.H>
@@ -100,7 +102,7 @@ void set_h2s_concentration()
 ValueArg<double> c_pb_arg = { "", "c-pb", "pb adjustment", false, 0,
 			      "pb adjustment", cmd };
 ValueArg<string> pb_arg = { "", "pb", "correlation for pb", true, "",
-			    "correlation for pb in psia", cmd };
+			    "correlation for pb", cmd };
 const Correlation * pb_corr = nullptr;
 DynList<Correlation::NamedPar> pb_pars;
 void set_pb()
@@ -142,6 +144,22 @@ Correlation::NamedPar compute_pb(const double t)
 					     c_pb_arg.getValue(), 0);
   pb_pars.remove_first();
   return make_tuple(true, "pb", ret.raw(), &ret.unit);
+}
+
+ValueArg<string> c_rsb_arg = { "", "c-rsb", "rsb c", false, 0, "rsb c", cmd };
+ValueArg<string> m_rsb_arg = { "", "m-rsb", "rsb m", false, 1, "rsb m", cmd };
+ValueArg<string> rsb_arg = { "", "rsb", "correlation for rsb", false, "",
+			     "correlation for rsb", cmd };
+const Correlation * rsb_corr = nullptr;
+void set_rsb()
+{
+  if (not rsb_arg.isSet())
+    return;
+  rsb_corr == Correlation::search_by_name(rsb_arg.getValue());
+  if (rsb_corr == nullptr)
+    error_msg("Correlation for rsb " + rsb_arg.getValue() +  " not found");
+  if (rsb_corr->target_name() != "rsb")
+    error_msg("Correlation " + rsb_corr->name + " is not for rsb");
 }
 
 struct RangeDesc
@@ -237,6 +255,9 @@ void set_below_corr()
 	      " (must be rs, bob or uob family)");
 }
 
+enum class PlotType { rs, bo, uo, undefined };
+PlotType plot_type = PlotType::undefined;
+
 ValueArg<string> above_corr_arg = { "", "above", "above correlation name", false,
 				    "", "above correlation name", cmd };
 const Correlation * above_corr_ptr = nullptr;
@@ -246,6 +267,7 @@ void set_above_corr()
     error_msg("Above correlation has not been specified");
   else
     {
+      plot_type = PlotType::rs;
       above_corr_ptr = &RsAbovePb::get_instance();
       return;
     }
@@ -256,14 +278,23 @@ void set_above_corr()
   
   const string above_target_name = above_corr_ptr->target_name();
   if (above_target_name == "boa")
-    if (target_name != "bob")
-      error_msg("Above target " + above_target_name + " cannot be combined with "
-		"below correlation " + below_corr_ptr->name);
-    else
-      return;
+    {
+      if (target_name != "bob")
+	error_msg("Above target " + above_target_name +
+		  " cannot be combined with below correlation " +
+		  below_corr_ptr->name);
+      else
+	{
+	  plot_type = PlotType::bo;
+	  return;
+	}
+    }
 
   if (above_target_name != "uoa" and target_name == "uob")
-    return;
+    {
+      plot_type = PlotType::uo;
+      return;
+    }
   
   error_msg("Above target " + above_target_name + " cannot be combined with "
 	    "below correlation " + below_corr_ptr->name);
@@ -348,6 +379,17 @@ DynList<Correlation::NamedPar> load_constant_parameters()
 DynList<DynList<double>> generate_values()
 {
   DynList<Correlation::NamedPar> pars_list = load_constant_parameters();
+
+  unique_ptr<DefinedCorrelation> defined_rs_corr;
+  if (plot_type != PlotType::rs)
+    {
+      defined_rs_corr =
+	make_unique<DefinedCorrelation>(new DefinedCorrelation("p"));
+      const Unit & rsb_unit = rsb_corr->unit;
+      double vmin = rsb_unit.min_val;
+      double vmax = rsb_unit.max_val;
+      
+      defined_rs_corr->add_tuned_correlation(rsb_corr, 
 
   DynList<DynList<double>> vals; /// target, p, t
   DynList<double> row;
