@@ -1,6 +1,8 @@
 
 # include <tclap/CmdLine.h>
 
+# include <ah-zip.H>
+
 # include <correlations/pvt-correlations.H>
 # include <correlations/defined-correlation.H>
 
@@ -321,29 +323,31 @@ test_parameter(const DynList<pair<string, DynList<string>>> & required,
     pars_list.append(par);
 }
 
+DynList<Correlation::NamedPar> load_constant_parameters()
+{
+  DynList<Correlation::NamedPar> pars_list;
+  auto t_par = t_values.get_first();
+  pb_pars.insert(t_par);
+  auto pb_val =
+    pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, false);
+  pb_pars.remove_first();
+  auto required_pars = define_correlation(pb_val.raw()).parameter_list();
+  test_parameter(required_pars, api_par, pars_list);
+  test_parameter(required_pars, rsb_par, pars_list);
+  test_parameter(required_pars, yg_par, pars_list);
+  test_parameter(required_pars, tsep_par, pars_list);
+  test_parameter(required_pars, psep_par, pars_list);
+  test_parameter(required_pars, n2_concentration_par, pars_list);
+  test_parameter(required_pars, co2_concentration_par, pars_list);
+  test_parameter(required_pars, h2s_concentration_par, pars_list);
+
+  return pars_list;
+}
+
 /// target, p, t
 DynList<DynList<double>> generate_values()
 {
-  cout << "Pc corr = " << pb_corr->name << endl;
-
-  DynList<Correlation::NamedPar> pars_list;
-
-  { 
-    auto t_par = t_values.get_first();
-    pb_pars.insert(t_par);
-    auto pb_val =
-      pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, false);
-    pb_pars.remove_first();
-    auto required_pars = define_correlation(pb_val.raw()).parameter_list();
-    test_parameter(required_pars, api_par, pars_list);
-    test_parameter(required_pars, rsb_par, pars_list);
-    test_parameter(required_pars, yg_par, pars_list);
-    test_parameter(required_pars, tsep_par, pars_list);
-    test_parameter(required_pars, psep_par, pars_list);
-    test_parameter(required_pars, n2_concentration_par, pars_list);
-    test_parameter(required_pars, co2_concentration_par, pars_list);
-    test_parameter(required_pars, h2s_concentration_par, pars_list);
-  }
+  DynList<Correlation::NamedPar> pars_list = load_constant_parameters();
 
   DynList<DynList<double>> vals; /// target, p, t
   DynList<double> row;
@@ -450,18 +454,94 @@ string csv_format(const DynList<DynList<double>> & vals)
   return to_string(format_string_csv(mat));
 }
 
-string R_format(const DynList<DynList<double>> & vals)
+string R_format(const DynList<DynList<double>> & mat)
 {
-  auto values = transpose(sort(vals, cmp_t));
-  auto v = values.get_first();
-  auto p = values.nth(1);
-  auto t = values.get_last();
+  auto values = transpose(mat);
+  auto vals = values.get_first();
+  auto pressure = values.nth(1);
+  auto temperature = values.get_last();
+
+  auto min_v = numeric_limits<double>::max();
+  auto max_v = numeric_limits<double>::min();
 
   ostringstream s;
-  for (auto it = t.get_it(); it.has_curr(); it.next())
+
+  if (get_sort_type(sort_type.getValue()) == SortType::Temperature)
     {
-      auto t = it.get_curr();
+      const size_t num_samples = p_range.getValue().n;
+      auto min_p = numeric_limits<double>::max();
+      auto max_p = numeric_limits<double>::min();
+      Array<DynList<double>> p_array;
+      Array<DynList<double>> v_array;
+      DynList<string> suffix;
+      for (auto it = get_zip_it(temperature, pressure, vals); it.has_curr();)
+	{
+	  auto t = it.get_curr();
+	  suffix.append(to_string(get<0>(t)));
+	  DynList<double> p;
+	  DynList<double> v;
+
+	  for (size_t i = 0; i < num_samples; ++i, it.next())
+	    {
+	      auto tt = it.get_curr();
+	      auto p_val = get<1>(tt);
+	      auto v_val = get<2>(tt);
+	      p.append(p_val);
+	      v.append(v_val);
+	      min_p = min(min_p, p_val);
+	      max_p = max(max_p, p_val);
+	      min_v = min(min_v, v_val);
+	      max_v = max(max_v, v_val);
+	    }
+	  p_array.append(move(p));
+	  v_array.append(move(v));
+	}
+
+      DynList<string> p_names, v_names, t_names;
+      for (auto it = get_zip_it(suffix, p_array, v_array);
+	   it.has_curr(); it.next())
+	{
+	  auto t = it.get_curr();	  
+	  string p_name = "p_" + get<0>(t);
+	  string v_name = "v_" + get<0>(t);
+	  string t_name = "\"T = " + get<0>(t) + "\"";
+	  s << Rvector(p_name, get<1>(t)) << endl
+	    << Rvector(v_name, get<2>(t)) << endl;
+	  p_names.append(move(p_name));
+	  v_names.append(move(v_name));
+	  t_names.append(move(t_name));
+	}
+      s << "plot(0, type=\"n\", xlim=c(" << min_p << "," << max_p << "),ylim=c("
+	<< min_v << "," << max_v << "))" << endl;
+      for (auto it = get_enum_zip_it(p_names, v_names); it.has_curr(); it.next())
+	{
+	  auto t = it.get_curr();
+	  s << "lines(" << get<0>(t) << "," << get<1>(t) << ",col="
+	    << get<2>(t) + 1 << ")" << endl;
+	}
+      s << Rvector("cnames", t_names) << endl
+	<< Rvector("cols", range<size_t>(1, p_array.size())) << endl
+	<< "legend(\"topleft\", legend=cnames, lty=1, col=cols)";
+      return s.str();
     }
+
+  const size_t num_samples = t_range.getValue().n;
+  for (auto it = get_zip_it(temperature, pressure, vals); it.has_curr();)
+    {
+      auto p = it.get_curr();
+      const string suffix = to_string(get<1>(p));
+      DynList<double> t;
+      DynList<double> v;
+      for (size_t i = 0; i < num_samples; ++i, it.next())
+	{
+	  auto p = it.get_curr();
+	  t.append(get<0>(p));
+	  v.append(get<2>(p));
+	}
+      s << Rvector("t_" + suffix, t) << endl
+	<< Rvector("v_" + suffix, v) << endl;
+    }
+
   return s.str();
 }
 
@@ -492,10 +572,12 @@ int main(int argc, char *argv[])
       break;
     case OutputType::csv:
       cout << csv_format(vals) << endl;
+      break;
     case OutputType::json:
       error_msg("json not yet implemented");
       break;
     case OutputType::R:
+      cout << R_format(vals) << endl;
       break;
     default:
       error_msg("Invalid output type");
