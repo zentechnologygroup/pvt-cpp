@@ -90,3 +90,6 @@
 ## 30. error con rangos
 - Created at   2016-11-28 18:02:37 -0400
 
+## 31. dry sobre load_constant_parameters()
+- Created at   2016-11-28 21:27:03 -0400
+

@@ -201,14 +201,14 @@ namespace TCLAP
   template<> struct ArgTraits<RangeDesc> { typedef StringLike ValueCategory; };
 }
 
-void set_range(const RangeDesc & range, const Unit & unit,
-	       DynList<Correlation::NamedPar> & l)
+void set_range(const RangeDesc & range, const string & name,
+	       const Unit & unit, DynList<Correlation::NamedPar> & l)
 {
   assert(l.is_empty());
   const auto & step = range.step();
   double val = range.min;
   for (size_t i = 0; i < range.n; ++i, val += step)
-    l.append(make_tuple(true, "t", val, &unit));
+    l.append(make_tuple(true, name, val, &unit));
 }
 
 ValueArg<RangeDesc> t_range =
@@ -217,7 +217,7 @@ ValueArg<RangeDesc> t_range =
 DynList<Correlation::NamedPar> t_values;
 void set_t_range()
 {
-  set_range(t_range.getValue(), Fahrenheit::get_instance(), t_values);
+  set_range(t_range.getValue(), "t", Fahrenheit::get_instance(), t_values);
 }
 
 ValueArg<RangeDesc> p_range =
@@ -226,7 +226,7 @@ ValueArg<RangeDesc> p_range =
 DynList<Correlation::NamedPar> p_values;
 void set_p_range()
 {
-  set_range(p_range.getValue(), psia::get_instance(), p_values);
+  set_range(p_range.getValue(), "p", psia::get_instance(), p_values);
 }
 
 ValueArg<double> cb_arg = { "", "cb", "c for below range", false, 0,
@@ -266,15 +266,18 @@ ValueArg<string> above_corr_arg = { "", "above", "above correlation name", false
 const Correlation * above_corr_ptr = nullptr;
 void set_above_corr()
 {
-  if (target_name != "rs" and not above_corr_arg.isSet())
-    error_msg("Above correlation has not been specified");
-  else
+  if (target_name == "rs")
     {
-      plot_type = PlotType::rs;
-      above_corr_ptr = &RsAbovePb::get_instance();
-      return;
+      if (not above_corr_arg.isSet())
+	{
+	  plot_type = PlotType::rs;
+	  above_corr_ptr = &RsAbovePb::get_instance();
+	  return;
+	}
+      else
+	error_msg("Above correlation must not be defined for rs");
     }
-  
+
   above_corr_ptr = Correlation::search_by_name(above_corr_arg.getValue());
   if (above_corr_ptr == nullptr)
     error_msg(above_corr_arg.getValue() + " above correlation not found");
@@ -383,6 +386,10 @@ DynList<DynList<double>> generate_values()
 {
   DynList<Correlation::NamedPar> pars_list = load_constant_parameters();
 
+  cout << "constants:";
+  pars_list.for_each([] (auto p) { cout << " " << get<1>(p); });
+  cout << endl;
+
   unique_ptr<DefinedCorrelation> defined_rs_corr;
 
   DynList<DynList<double>> vals; /// target, p, t
@@ -402,7 +409,7 @@ DynList<DynList<double>> generate_values()
 
       auto def_corr = define_correlation(pb_val.raw());
 
-      if (plot_type == PlotType::rs)
+      if (plot_type != PlotType::rs)
 	{
 	  defined_rs_corr = make_unique<DefinedCorrelation>("p");
 	  const Unit & rs_unit = rs_corr->unit;
@@ -421,7 +428,7 @@ DynList<DynList<double>> generate_values()
 	  pars_list.insert(p_par);
 	  row.insert(get<2>(p_par));
 	  
-	  if (plot_type == PlotType::rs)
+	  if (plot_type != PlotType::rs)
 	    {
 	      auto rs = defined_rs_corr->compute_by_names(pars_list, false);
 	      pars_list.insert(make_tuple(true, "rs", rs, &rs_corr->unit));
@@ -429,7 +436,7 @@ DynList<DynList<double>> generate_values()
 
 	  auto val = def_corr.compute_by_names(pars_list, false);
 
-	  if (plot_type == PlotType::rs)
+	  if (plot_type != PlotType::rs)
 	    pars_list.remove_first();
 
 	  row.insert(val);
