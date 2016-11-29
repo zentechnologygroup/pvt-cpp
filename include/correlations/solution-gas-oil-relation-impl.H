@@ -5,11 +5,12 @@
 # include <correlations/solution-gas-oil-relation.H>
 
 inline Quantity<SCF_STB>
-RsAlShammasi::impl(const Quantity<Sgg> & yg,
+RsAlMarhoun::impl(const Quantity<Sgg> & yg,
 		   const Quantity<psia> & p,
 		   const Quantity<Sg_do> & yo,
-		   const Quantity<Fahrenheit> & t) const
+		   const Quantity<Rankine> & t) const
 {
+  cout << "Entrando" << endl;
   constexpr double c1 = 0.00538088;
   constexpr double c2 = -1.87784;
   constexpr double c3 = 3.1437;
@@ -19,15 +20,17 @@ RsAlShammasi::impl(const Quantity<Sgg> & yg,
   const double rs =
     pow(p.get_value() / c1*pow(yg, c2)*pow(yo, c3)*pow(t, c4), c5);
 
+  cout << "rs = " << rs << endl;
+
   return Quantity<SCF_STB>(rs);
 }
 
 
 inline Quantity<SCF_STB>
-RsAlMarhoun::impl(const Quantity<Sgg> & yg,
+RsAlShammasi::impl(const Quantity<Sgg> & yg,
 		  const Quantity<psia> & p,
 		  const Quantity<Sg_do> & yo,
-		  const Quantity<Rankine> & t) const
+		  const Quantity<Fahrenheit> & t) const
 {
   constexpr double c1 = 5.527215;
   constexpr double c2 = -1.841408;

@@ -466,3 +466,27 @@
 - Comment      
 - Finished     
 
+## 79. lista de unidades
+- Created at   2016-11-29 12:13:23 -0400
+- Completed at 2016-11-29 17:00:26 -0400
+- Comment      
+- Finished     
+
+## 80. Falta R format por presión
+- Created at   2016-11-28 17:42:51 -0400
+- Completed at 2016-11-29 12:11:26 -0400
+- Comment      
+- Finished     
+
+## 81. test-clibrate debe ordenat por m
+- Created at   2016-11-28 17:02:51 -0400
+- Completed at 2016-11-29 12:11:38 -0400
+- Comment      
+- Finished     
+
+## 82. Intervalos de correlación por partes deben estar completos y no separados como actualmente ocurre
+- Created at   2016-11-16 20:10:58 -0400
+- Completed at 2016-11-28 17:24:15 -0400
+- Comment      
+- Finished     
+

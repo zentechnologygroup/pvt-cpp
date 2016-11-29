@@ -170,6 +170,38 @@ void set_rs_corr()
     error_msg("Correlation " + rs_corr->name + " is not for rs");
 }
 
+ValueArg<double> c_bob_arg = { "", "c-bob", "ob c", false, 0, "bob c", cmd };
+ValueArg<double> m_bob_arg = { "", "m-bob", "bob m", false, 1, "bob m", cmd };
+ValueArg<string> bob_corr_arg = { "", "bob", "correlation for bob", false, "",
+				  "correlation for bob", cmd };
+const Correlation * bob_corr = nullptr;
+void set_bob_corr()
+{
+  if (not bob_corr_arg.isSet())
+    return;
+  bob_corr = Correlation::search_by_name(rs_corr_arg.getValue());
+  if (bob_corr == nullptr)
+    error_msg("Correlation for bob " + bob_corr_arg.getValue() +  " not found");
+  if (bob_corr->target_name() != "bob")
+    error_msg("Correlation " + bob_corr->name + " is not for bob");
+}
+
+ValueArg<double> c_boa_arg = { "", "c-boa", "ob c", false, 0, "boa c", cmd };
+ValueArg<double> m_boa_arg = { "", "m-boa", "boa m", false, 1, "boa m", cmd };
+ValueArg<string> boa_corr_arg = { "", "boa", "correlation for boa", false, "",
+				  "correlation for boa", cmd };
+const Correlation * boa_corr = nullptr;
+void set_boa_corr()
+{
+  if (not boa_corr_arg.isSet())
+    return;
+  boa_corr = Correlation::search_by_name(rs_corr_arg.getValue());
+  if (boa_corr == nullptr)
+    error_msg("Correlation for boa " + boa_corr_arg.getValue() +  " not found");
+  if (boa_corr->target_name() != "boa")
+    error_msg("Correlation " + boa_corr->name + " is not for boa");
+}
+
 ValueArg<double> c_uod_arg = { "", "c-uod", "uod c", false, 0, "uod c", cmd };
 ValueArg<double> m_uod_arg = { "", "m-ruod", "uod m", false, 1, "uod m", cmd };
 ValueArg<string> uod_corr_arg = { "", "uod", "correlation for uod", false, "",
@@ -182,7 +214,7 @@ void set_uod_corr()
   uod_corr = Correlation::search_by_name(uod_corr_arg.getValue());
   if (uod_corr == nullptr)
     error_msg("Correlation for uod " + uod_corr_arg.getValue() +  " not found");
-  if (rs_corr->target_name() != "uod")
+  if (uod_corr->target_name() != "uod")
     error_msg("Correlation " + uod_corr->name + " is not for uod");
 }
 
@@ -280,6 +312,14 @@ void set_below_corr()
     error_msg(below_corr_arg.getValue() +
 	      " below correlation has an invalid target name"
 	      " (must be rs, bob or uob family)");
+  if ((target_name == "bob" or target_name == "uob") and not rs_corr_arg.isSet())
+    error_msg("Correlation for rs has not been specified");
+  if (target_name == "uob" and not bob_corr_arg.isSet())
+    error_msg("Correlation for bob has not been specified");
+  if (target_name == "uob" and not boa_corr_arg.isSet())
+    error_msg("Correlation for boa has not been specified");
+  if (target_name == "uob" and not uod_corr_arg.isSet())
+    error_msg("Correlation for uod has not been specified");
 }
 
 enum class PlotType { rs, bo, uo, undefined };
@@ -320,7 +360,9 @@ void set_above_corr()
 	}
     }
 
-  if (above_target_name != "uoa" and target_name == "uob")
+  cout << "Above target name = " << above_target_name << endl;
+
+  if (above_target_name == "uoa" and target_name == "uob")
     {
       plot_type = PlotType::uo;
       return;
@@ -363,7 +405,7 @@ SortType get_sort_type(const string & type)
   return SortType::Undefined;
 }
 
-DefinedCorrelation define_correlation(const double pb_val)
+DefinedCorrelation target_correlation(const double pb_val)
 {
   double max_p = psia::get_instance().max_val;
   DefinedCorrelation ret("p");
@@ -392,7 +434,7 @@ DynList<Correlation::NamedPar> compute_pb_and_load_constant_parameters()
   auto pb_val =
     pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, check);
   pb_pars.remove_first();
-  auto required_pars = define_correlation(pb_val.raw()).parameter_list();
+  auto required_pars = target_correlation(pb_val.raw()).parameter_list();
   test_parameter(required_pars, api_par, pars_list);
   test_parameter(required_pars, rsb_par, pars_list);
   test_parameter(required_pars, yg_par, pars_list);
@@ -417,16 +459,17 @@ DynList<DynList<double>> generate_rs_values()
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       auto t_par = t_it.get_curr();
-      pb_pars.insert(t_par);
       pars_list.insert(t_par);
       row.insert(get<2>(t_par));
 
+      pb_pars.insert(t_par);
       auto pb_val =
 	pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, check);
+      pb_pars.remove_first(); // remove t_par
 
       pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
 
-      auto def_corr = define_correlation(pb_val.raw());
+      auto def_corr = target_correlation(pb_val.raw());
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
@@ -448,18 +491,16 @@ DynList<DynList<double>> generate_rs_values()
 
       pars_list.remove_first(); // pb_val
       pars_list.remove_first(); // t_par
-
-      pb_pars.remove_first(); // remove t_par
     }
 
   return vals;
 }
 
-DynList<Correlation::NamedPar> rs_load_constant_parameters()
+DynList<Correlation::NamedPar>
+load_constant_parameters(const DynList<const Correlation*> & l)
 {
   DynList<Correlation::NamedPar> pars_list;
-  auto required_pars =
-    DefinedCorrelation::parameter_list({rs_corr, &RsAbovePb::get_instance()});
+  auto required_pars = DefinedCorrelation::parameter_list(l);
 				    
   test_parameter(required_pars, api_par, pars_list);
   test_parameter(required_pars, rsb_par, pars_list);
@@ -481,7 +522,7 @@ DynList<DynList<double>> generate_bo_values()
     compute_pb_and_load_constant_parameters();
   
   DynList<Correlation::NamedPar> rs_pars_list =
-    rs_load_constant_parameters();
+    load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
 
   unique_ptr<DefinedCorrelation> defined_rs_corr;
   const Unit & rs_unit = rs_corr->unit;
@@ -494,18 +535,19 @@ DynList<DynList<double>> generate_bo_values()
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       auto t_par = t_it.get_curr();
-      pb_pars.insert(t_par);
       bo_pars_list.insert(t_par);
       rs_pars_list.insert(t_par);
       row.insert(get<2>(t_par));
 
+      pb_pars.insert(t_par);
       auto pb_val =
 	pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, check);
+      pb_pars.remove_first(); // remove t_par
 
       bo_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
       rs_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
 
-      auto def_corr = define_correlation(pb_val.raw());
+      auto def_corr = target_correlation(pb_val.raw());
       defined_rs_corr = make_unique<DefinedCorrelation>("p");
       defined_rs_corr->add_tuned_correlation(rs_corr, rmin, pb_val.raw(),
 					     c_rs_arg.getValue(),
@@ -555,8 +597,6 @@ DynList<DynList<double>> generate_bo_values()
       bo_pars_list.remove_first(); // bobp
       bo_pars_list.remove_first(); // pb_val
       bo_pars_list.remove_first(); // t_par
-
-      pb_pars.remove_first(); // remove t_par
     }
 
   return vals;
@@ -566,11 +606,14 @@ DynList<DynList<double>> generate_bo_values()
 DynList<DynList<double>> generate_uo_values()
 {
   assert(rs_corr);
-  DynList<Correlation::NamedPar> bo_pars_list =
+  DynList<Correlation::NamedPar> uo_pars_list =
     compute_pb_and_load_constant_parameters();
   
   DynList<Correlation::NamedPar> rs_pars_list =
-    rs_load_constant_parameters();
+    load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
+
+  DynList<Correlation::NamedPar> uod_pars_list =
+    load_constant_parameters({uod_corr});
 
   unique_ptr<DefinedCorrelation> defined_rs_corr;
   const Unit & rs_unit = rs_corr->unit;
@@ -583,18 +626,24 @@ DynList<DynList<double>> generate_uo_values()
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       auto t_par = t_it.get_curr();
-      pb_pars.insert(t_par);
-      bo_pars_list.insert(t_par);
+      uo_pars_list.insert(t_par);
       rs_pars_list.insert(t_par);
       row.insert(get<2>(t_par));
 
+      pb_pars.insert(t_par);
       auto pb_val =
 	pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, check);
+      pb_pars.remove_first(); // remove t_par
 
-      bo_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
+      uod_pars_list.insert(t_par);
+      auto uod_val = uod_corr->compute_by_names(uod_pars_list, check);
+      uod_pars_list.remove_first();
+
+      uo_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
+      uo_pars_list.insert(make_tuple(true, "uod", uod_val.raw(), &uod_val.unit));
       rs_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
 
-      auto def_corr = define_correlation(pb_val.raw());
+      auto def_corr = target_correlation(pb_val.raw());
       defined_rs_corr = make_unique<DefinedCorrelation>("p");
       defined_rs_corr->add_tuned_correlation(rs_corr, rmin, pb_val.raw(),
 					     c_rs_arg.getValue(),
@@ -602,38 +651,38 @@ DynList<DynList<double>> generate_uo_values()
       defined_rs_corr->add_correlation(&RsAbovePb::get_instance(),
 				       nextafter(pb_val.raw(), rmax), rmax);
 
-      bo_pars_list.insert(make_tuple(true, "p", pb_val.raw(), &pb_val.unit));
-      bo_pars_list.insert(make_tuple(true, "rs",
+      uo_pars_list.insert(make_tuple(true, "p", pb_val.raw(), &pb_val.unit));
+      uo_pars_list.insert(make_tuple(true, "rs",
 				     get<2>(rsb_par), get<3>(rsb_par)));
-      auto bobp =
-	below_corr_ptr->tuned_compute_by_names(bo_pars_list, ca_arg.getValue(),
-					       ma_arg.getValue(), check);
-      bo_pars_list.remove_first(); // rs
-      bo_pars_list.remove_first(); // p
-      bo_pars_list.insert(make_tuple(true, "bobp", bobp.raw(), &bobp.unit));
+      auto uobp =
+	below_corr_ptr->tuned_compute_by_names(uo_pars_list, cb_arg.getValue(),
+					       mb_arg.getValue(), check);
+      uo_pars_list.remove_first(); // rs
+      uo_pars_list.remove_first(); // p
+      uo_pars_list.insert(make_tuple(true, "uobp", uobp.raw(), &uobp.unit));
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  auto p_par = p_it.get_curr();
-	  bo_pars_list.insert(p_par);
+	  uo_pars_list.insert(p_par);
 	  rs_pars_list.insert(p_par);
 	  row.insert(get<2>(p_par));
 
 	  auto rs = defined_rs_corr->compute_by_names(rs_pars_list, check);
 	  rs_pars_list.remove_first(); // remove p_par
 	  
-	  bo_pars_list.insert(make_tuple(true, "rs", rs, &rs_corr->unit));
+	  uo_pars_list.insert(make_tuple(true, "rs", rs, &rs_corr->unit));
 
-	  auto bo = def_corr.compute_by_names(bo_pars_list, check);
+	  auto uo = def_corr.compute_by_names(uo_pars_list, check);
 
-	  row.insert(bo);
+	  row.insert(uo);
 	  vals.append(row);
 	  
 	  row.remove_first(); // val
 	  row.remove_first(); // p_par
 	  
-	  bo_pars_list.remove_first(); // rs
-	  bo_pars_list.remove_first(); // p_par
+	  uo_pars_list.remove_first(); // rs
+	  uo_pars_list.remove_first(); // p_par
 	}
 
       row.remove_first(); // t_par
@@ -641,11 +690,10 @@ DynList<DynList<double>> generate_uo_values()
       rs_pars_list.remove_first(); // pb_par
       rs_pars_list.remove_first(); // t_par
 
-      bo_pars_list.remove_first(); // bobp
-      bo_pars_list.remove_first(); // pb_val
-      bo_pars_list.remove_first(); // t_par
-
-      pb_pars.remove_first(); // remove t_par
+      uo_pars_list.remove_first(); // uobp
+      uo_pars_list.remove_first(); // pb_val
+      uo_pars_list.remove_first(); // uod_val
+      uo_pars_list.remove_first(); // t_par
     }
 
   return vals;
@@ -659,6 +707,7 @@ void init_dispatcher()
 {
   dispatch_tbl.insert("rs", generate_rs_values);
   dispatch_tbl.insert("bob", generate_bo_values);
+  dispatch_tbl.insert("uob", generate_uo_values);
 }
 
 DynList<DynList<double>> dispatch_option(const string & op)

@@ -232,7 +232,14 @@ public:
 	    auto stats = stat.stats(result);
 	    ret.append(make_tuple(corr_ptr, move(result), stats, ""));
 	  }
-	catch (exception & e) { /* ignore it! */ }
+	catch (exception & e)
+	  {
+	    ostringstream s;
+	    s << "PvtAnalyzer::correlations_stats: evaluating correlation "
+	      << corr_ptr->name << ": " << e.what();
+	    throw;
+	    /* ignore it! */
+	  }
       }
 
     return sort(ret, [] (auto t1, auto t2)
