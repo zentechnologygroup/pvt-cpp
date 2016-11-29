@@ -562,6 +562,95 @@ DynList<DynList<double>> generate_bo_values()
   return vals;
 }
 
+/// target, p, t
+DynList<DynList<double>> generate_uo_values()
+{
+  assert(rs_corr);
+  DynList<Correlation::NamedPar> bo_pars_list =
+    compute_pb_and_load_constant_parameters();
+  
+  DynList<Correlation::NamedPar> rs_pars_list =
+    rs_load_constant_parameters();
+
+  unique_ptr<DefinedCorrelation> defined_rs_corr;
+  const Unit & rs_unit = rs_corr->unit;
+  const double rmin = rs_unit.min_val;
+  const double rmax = rs_unit.max_val;
+
+  DynList<DynList<double>> vals; /// target, p, t
+  DynList<double> row;
+
+  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
+    {
+      auto t_par = t_it.get_curr();
+      pb_pars.insert(t_par);
+      bo_pars_list.insert(t_par);
+      rs_pars_list.insert(t_par);
+      row.insert(get<2>(t_par));
+
+      auto pb_val =
+	pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, check);
+
+      bo_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
+      rs_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
+
+      auto def_corr = define_correlation(pb_val.raw());
+      defined_rs_corr = make_unique<DefinedCorrelation>("p");
+      defined_rs_corr->add_tuned_correlation(rs_corr, rmin, pb_val.raw(),
+					     c_rs_arg.getValue(),
+					     m_rs_arg.getValue());
+      defined_rs_corr->add_correlation(&RsAbovePb::get_instance(),
+				       nextafter(pb_val.raw(), rmax), rmax);
+
+      bo_pars_list.insert(make_tuple(true, "p", pb_val.raw(), &pb_val.unit));
+      bo_pars_list.insert(make_tuple(true, "rs",
+				     get<2>(rsb_par), get<3>(rsb_par)));
+      auto bobp =
+	below_corr_ptr->tuned_compute_by_names(bo_pars_list, ca_arg.getValue(),
+					       ma_arg.getValue(), check);
+      bo_pars_list.remove_first(); // rs
+      bo_pars_list.remove_first(); // p
+      bo_pars_list.insert(make_tuple(true, "bobp", bobp.raw(), &bobp.unit));
+
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
+	{
+	  auto p_par = p_it.get_curr();
+	  bo_pars_list.insert(p_par);
+	  rs_pars_list.insert(p_par);
+	  row.insert(get<2>(p_par));
+
+	  auto rs = defined_rs_corr->compute_by_names(rs_pars_list, check);
+	  rs_pars_list.remove_first(); // remove p_par
+	  
+	  bo_pars_list.insert(make_tuple(true, "rs", rs, &rs_corr->unit));
+
+	  auto bo = def_corr.compute_by_names(bo_pars_list, check);
+
+	  row.insert(bo);
+	  vals.append(row);
+	  
+	  row.remove_first(); // val
+	  row.remove_first(); // p_par
+	  
+	  bo_pars_list.remove_first(); // rs
+	  bo_pars_list.remove_first(); // p_par
+	}
+
+      row.remove_first(); // t_par
+
+      rs_pars_list.remove_first(); // pb_par
+      rs_pars_list.remove_first(); // t_par
+
+      bo_pars_list.remove_first(); // bobp
+      bo_pars_list.remove_first(); // pb_val
+      bo_pars_list.remove_first(); // t_par
+
+      pb_pars.remove_first(); // remove t_par
+    }
+
+  return vals;
+}
+
 using OptionPtr = DynList<DynList<double>> (*)();
 
 DynMapTree<string, OptionPtr> dispatch_tbl;

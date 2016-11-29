@@ -11,10 +11,12 @@ void list_all_units()
     {
       rows.append(pq->units().template maps<DynList<string>>([&pq] (auto p)
         {
-	  return DynList<string>({ pq->name, pq->symbol, p->name, p->symbol });
+	  return DynList<string>({ pq->name, pq->symbol, p->latex_symbol,
+		p->name, p->symbol, p->latex_symbol });
 	}));
     });
-  rows.insert({"Physical Quantity", "symbol", "Unit name", "Unit symbol"});
+  rows.insert({"Physical-Quantity", "symbol", "LaTeX symbol", "Unit name",
+	"Unit symbol", "LaTeX symbol"});
   cout << to_string(format_string(rows)) << endl;
 }
 
