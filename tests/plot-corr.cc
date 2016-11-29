@@ -183,7 +183,7 @@ struct RangeDesc
     return *this;
   }
 
-  double step() const noexcept { return (max - min) / n - 1; }
+  double step() const noexcept { return (max - min) / (n - 1); }
 
   friend ostream & operator << (ostream & os, const RangeDesc & d)
   {
@@ -201,16 +201,23 @@ namespace TCLAP
   template<> struct ArgTraits<RangeDesc> { typedef StringLike ValueCategory; };
 }
 
+void set_range(const RangeDesc & range, const Unit & unit,
+	       DynList<Correlation::NamedPar> & l)
+{
+  assert(l.is_empty());
+  const auto & step = range.step();
+  double val = range.min;
+  for (size_t i = 0; i < range.n; ++i, val += step)
+    l.append(make_tuple(true, "t", val, &unit));
+}
+
 ValueArg<RangeDesc> t_range =
   { "", "t", "range spec for temperature", true, RangeDesc(),
     "range spec \"min max n\" for temperature", cmd };
 DynList<Correlation::NamedPar> t_values;
 void set_t_range()
 {
-  const auto & range = t_range.getValue();
-  const auto & step = range.step();
-  for (double val = range.min; val <= range.max; val += step)
-    t_values.append(make_tuple(true, "t", val, &Fahrenheit::get_instance()));
+  set_range(t_range.getValue(), Fahrenheit::get_instance(), t_values);
 }
 
 ValueArg<RangeDesc> p_range =
@@ -219,14 +226,7 @@ ValueArg<RangeDesc> p_range =
 DynList<Correlation::NamedPar> p_values;
 void set_p_range()
 {
-  const auto & range = p_range.getValue();
-  const auto & step = range.step();
-  cout << range.min << " " << range.max << " " << step << endl;
-  for (double val = range.min; val <= range.max; val += step)
-    {
-      cout << val << " <= " << range.max << " " << (val <= range.max) << endl;
-    p_values.append(make_tuple(true, "p", val, &psia::get_instance()));
-    }
+  set_range(p_range.getValue(), psia::get_instance(), p_values);
 }
 
 ValueArg<double> cb_arg = { "", "cb", "c for below range", false, 0,
