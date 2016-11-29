@@ -183,7 +183,7 @@ void set_uod_corr()
   if (uod_corr == nullptr)
     error_msg("Correlation for uod " + uod_corr_arg.getValue() +  " not found");
   if (rs_corr->target_name() != "uod")
-    error_msg("Correlation " + rs_corr->name + " is not for uod");
+    error_msg("Correlation " + uod_corr->name + " is not for uod");
 }
 
 struct RangeDesc
