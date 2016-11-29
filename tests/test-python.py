@@ -252,17 +252,14 @@ def RsAlShammasiCorrelation(Yg, Pb, P, Yo, T, Rsb):
     return RsAlShammasi
 
 
-def RsAlMarhounCorrelation(Yg, Pb, P, Yo, T, Rsb):
+def RsAlMarhounCorrelation(Yg, P, Yo, T):
     c1 = 5.38088 * 10 ** -3
     c2 = -1.87784
     c3 = 3.1437
     c4 = 1.32657
     c5 = 1 / 0.715082
         
-    if P >= Pb: # Logical condition
-        Rs = Rsb
-    else:
-        Rs = (P / (c1 * Yg ** c2 * Yo ** c3 * T ** c4)) ** c5
+    Rs = (P / (c1 * Yg ** c2 * Yo ** c3 * T ** c4)) ** c5
     RsAlMarhoun = Rs
     return RsAlMarhoun
 

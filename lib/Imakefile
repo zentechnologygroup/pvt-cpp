@@ -31,7 +31,8 @@ CORRDIR=$(TOP)/include/correlations/
 CORRS=$(shell ls $(CORRDIR)*.rb)
 
 CALLS =	$(CORRS:.rb=.cc)
-HCORR =	$(CORRS:.rb=.H) $(shell ls $(UNITSDIR)*-unit.H)
+HCORR =	$(CORRS:.rb=.H) $(shell ls $(UNITSDIR)*-unit.H) \
+	$(shell ls $(CORRDIR)*-impl.H)
 
 HIMPL = $(shell ls $(CORRDIR)*-impl.H)
 

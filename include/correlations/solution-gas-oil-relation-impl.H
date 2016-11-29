@@ -10,17 +10,14 @@ RsAlMarhoun::impl(const Quantity<Sgg> & yg,
 		   const Quantity<Sg_do> & yo,
 		   const Quantity<Rankine> & t) const
 {
-  cout << "Entrando" << endl;
   constexpr double c1 = 0.00538088;
   constexpr double c2 = -1.87784;
   constexpr double c3 = 3.1437;
   constexpr double c4 = 1.32657;
-  constexpr double c5 = 1 / 0.715082;
-        
-  const double rs =
-    pow(p.get_value() / c1*pow(yg, c2)*pow(yo, c3)*pow(t, c4), c5);
+  constexpr double c5 = 1.0 / 0.715082;
 
-  cout << "rs = " << rs << endl;
+  const double rs =
+    pow(p.raw() / (c1 * pow(yg, c2) * pow(yo, c3) * pow(t, c4)), c5);
 
   return Quantity<SCF_STB>(rs);
 }
