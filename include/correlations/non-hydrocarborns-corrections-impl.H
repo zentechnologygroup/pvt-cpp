@@ -56,8 +56,8 @@ AdjustedPscMWichertAziz::impl(const Quantity<psia> & ppcm,
 }
 
 
-inline Quantity<psia>
-TscMKayMixingRule::impl(const Quantity<psia> & tpchc,
+inline Quantity<Rankine>
+TscMKayMixingRule::impl(const Quantity<Rankine> & tpchc,
 			const Quantity<MoleFraction> & n2_concentration,
 			const Quantity<MoleFraction> & co2_concentration,
 			const Quantity<MoleFraction> & h2s_concentration) const
@@ -68,10 +68,10 @@ TscMKayMixingRule::impl(const Quantity<psia> & tpchc,
   const double tpcm = (1 - n2 - co2 - h2s)*tpchc.raw() + 227*n2 + 548*co2 +
     672*h2s;
 
-  return Quantity<psia>(tpcm);
+  return Quantity<Rankine>(tpcm);
 }
 
-inline Quantity<psia>
+inline Quantity<Rankine>
 AdjustedTscMWichertAziz::impl(const Quantity<Rankine> & tpcm,
 			      const Quantity<MoleFraction> & co2_concentration,
 			      const Quantity<MoleFraction> & h2s_concentration)
@@ -86,7 +86,7 @@ AdjustedTscMWichertAziz::impl(const Quantity<Rankine> & tpcm,
 
   const double ret = tpcm.raw() - e;
 
-  return Quantity<psia>(ret);
+  return Quantity<Rankine>(ret);
 }
 
 
