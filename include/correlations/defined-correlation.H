@@ -111,6 +111,30 @@ public:
       });
   }
 
+    /// Returns a list union of all parameters. Each item is a pair with
+  /// the parameter name and a list of parameter synonyms
+  static DynList<pair<string, DynList<string>>>
+    parameter_list(const DynList<const Correlation*> & l)
+  {
+    using P = pair<string, DynList<string>>;
+    DynMapTree<string, DynList<string>> pars;
+    l.for_each([&pars] (const auto & p)
+      {
+	p->get_preconditions().for_each([&pars] (const auto & par)
+          {
+	    auto ptr = pars.insert(make_pair(par.name, DynList<string>()));
+	    par.get_synonyms().for_each([ptr] (const auto & p)
+              {
+		ptr->second.append(p.first);
+	      });
+	  });
+      });
+    return pars.items_ptr().maps<P>([] (auto ptr)
+      {
+	return make_pair(ptr->first, ptr->second);
+      });
+  }
+
   Interval * search_interval(double val) const
   {
     Interval i(nullptr, val, val);

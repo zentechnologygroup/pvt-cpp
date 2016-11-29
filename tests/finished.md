@@ -442,3 +442,27 @@
 - Comment      
 - Finished     
 
+## 75. dry sobre load_constant_parameters()
+- Created at   2016-11-28 21:27:03 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 76. en Range n podría ser 0
+- Created at   2016-11-28 17:53:16 -0400
+- Completed at 2016-11-29 08:29:57 -0400
+- Comment      
+- Finished     
+
+## 77. error con rangos
+- Created at   2016-11-28 18:02:37 -0400
+- Completed at 2016-11-29 08:29:54 -0400
+- Comment      
+- Finished     
+
+## 78. en Range n podría ser 0
+- Created at   2016-11-28 17:52:06 -0400
+- Completed at 
+- Comment      
+- Finished     
+

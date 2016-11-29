@@ -77,19 +77,15 @@
 
 ## 26. test-clibrate debe ordenat por m
 - Created at   2016-11-28 17:02:51 -0400
+- Completed at 2016-11-29 12:11:38 -0400
 
 ## 27. Falta R format por presión
 - Created at   2016-11-28 17:42:51 -0400
+- Completed at 2016-11-29 12:11:26 -0400
 
-## 28. en Range n podría ser 0
-- Created at   2016-11-28 17:52:06 -0400
+## 28. Buscar parámetro yo y asegurar que exista sinónimo api. Análogamente para api
+- Created at   2016-11-29 10:23:50 -0400
 
-## 29. en Range n podría ser 0
-- Created at   2016-11-28 17:53:16 -0400
-
-## 30. error con rangos
-- Created at   2016-11-28 18:02:37 -0400
-
-## 31. dry sobre load_constant_parameters()
-- Created at   2016-11-28 21:27:03 -0400
+## 29. lista de unidades
+- Created at   2016-11-29 12:13:23 -0400
 

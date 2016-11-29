@@ -90,7 +90,7 @@ add_db("Producing areas from Galveston Island, eastward, through Main Pass are r
 add_db("Many Gulf of Mexico crudes can be characterized as naphthenic or biodegraded oils.")
 add_parameter("bobp", "RB_STB", "Oil formation volume factor at Pb") 
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.5781,  0.8519)
-add_parameter("yo", "Sg_do", "Oil specific gravity",  "Quantity<Api>(45)",  "Quantity<Api>(16.3)")
+add_parameter("yo", "Sg_do", "Oil specific gravity", "Quantity<Api>(45)", "Quantity<Api>(16.3)")
 add_synonym("yo", "api", "Api")
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  217,  1406)
 add_parameter("t", "Fahrenheit", "Temperature",  114,  288)

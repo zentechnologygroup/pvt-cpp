@@ -45,7 +45,7 @@ ValueArg<string> compute_type = { "c", "compute-type", "compute type", false,
 
 SwitchArg r = { "R", "R", "generate R script", cmd };
 
-vector<string> sort_values = { "r2", "sumsq", "mse", "distance" };
+vector<string> sort_values = { "r2", "sumsq", "mse", "distance", "m" };
 ValuesConstraint<string> allow_sort = sort_values;
 ValueArg<string> sort_type = { "o", "order", "output order type", false,
 			       "sumsq", &allow_sort, cmd };
@@ -67,7 +67,6 @@ ValueArg<string> uod_name = { "u", "uod-name", "uod correlation name", false,
 
 ValueArg<string> file =
   { "f", "file", "file name", false, "", "file name", cmd };
-
 
 PvtAnalyzer load_pvt_data(istream & input)
 {
@@ -115,6 +114,15 @@ auto cmp_sumsq = [] (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
   return f1.sumsq < f2.sumsq;
 };
 
+auto cmp_m = [] (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
+{
+  const CorrStat::Desc & s1 = get<2>(d1);
+  const CorrStat::Desc & s2 = get<2>(d2);
+  const CorrStat::LFit & f1 = get<3>(s1);
+  const CorrStat::LFit & f2 = get<3>(s2);
+  return fabs(1 - f1.m) < fabs(1 - f2.m);
+};
+
 auto get_cmp(const string & sort_type)
   -> bool (*)(const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
 {
@@ -122,6 +130,7 @@ auto get_cmp(const string & sort_type)
   if (sort_type == "sumsq") return cmp_sumsq;
   if (sort_type == "distance") return cmp_dist;
   if (sort_type == "mse") return cmp_mse;
+  if (sort_type == "m") return cmp_m;
   cout << "Invalid sort type " << sort_type << endl;
   abort();
 }

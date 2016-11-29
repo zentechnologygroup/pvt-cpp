@@ -1,4 +1,4 @@
-./plot-corr --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --rs RsVelarde --c-rs -98.676172 --m-rs 1.048913 --t "100 500 5" --p "1000 12000 10"
+./plot-corr --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --below RsVelarde --cb -98.676172 --mb 1.048913 --t "100 500 5" --p "1000 12000 10" -t R -s p
 
 ./plot-corr --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --rs RsVelarde --c-rs -98.676172 --m-rs 1.048913 --t "100 500 5" --p "1000 12000 10" --below BobTotalCFP --cb 0.162549 --mb 0.988207 --above BoaHanafy --ca 0.580289 --ma 0.666618
 

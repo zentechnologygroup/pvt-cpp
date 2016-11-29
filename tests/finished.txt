@@ -72,3 +72,7 @@ Revisar yo y api en test-calibarte,2016-11-22 16:28:54 -0400,2016-11-24 18:08:54
 option -j a boa, uoa y uo,2016-11-24 18:45:59 -0400,,2016-11-28 17:21:46 -0400
 evaular correlation por partes dando rango, salto y correlaciones y con posibilidad de ajuste,2016-11-23 19:20:47 -0400,,2016-11-28 17:21:55 -0400
 Revisar por qué no aparece DeGhetto en cerro-negro,2016-11-22 16:28:25 -0400,2016-11-24 18:08:56 -0400,,2016-11-28 17:22:11 -0400
+dry sobre load_constant_parameters(),2016-11-28 21:27:03 -0400,,,2016-11-29 08:29:39 -0400
+en Range n podría ser 0,2016-11-28 17:53:16 -0400,2016-11-29 08:29:57 -0400,,2016-11-29 08:30:14 -0400
+error con rangos,2016-11-28 18:02:37 -0400,2016-11-29 08:29:54 -0400,,2016-11-29 08:30:15 -0400
+en Range n podría ser 0,2016-11-28 17:52:06 -0400,,,2016-11-29 12:11:21 -0400
