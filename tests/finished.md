@@ -490,3 +490,75 @@
 - Comment      
 - Finished     
 
+## 83. sinónimos de parámetros deben ser globales
+- Created at   2016-11-26 20:14:31 -0400
+- Completed at 2016-11-29 21:30:01 -0400
+- Comment      
+- Finished     
+
+## 84. eliminar PloType de plot-orr
+- Created at   2016-11-29 16:32:33 -0400
+- Completed at 2016-11-30 09:47:47 -0400
+- Comment      
+- Finished     
+
+## 85. bo y uo deben de alguna forma imprimir c y m
+- Created at   2016-11-25 09:05:46 -0400
+- Completed at 2016-11-30 09:48:23 -0400
+- Comment      
+- Finished     
+
+## 86. flag en test-conversion que liste unidades dada magnitud física
+- Created at   2016-10-31 17:25:29 -0400
+- Completed at 2016-11-30 09:56:17 -0400
+- Comment      
+- Finished     
+
+## 87. plot-corr tiene opción check de rango el por omisión es false
+- Created at   2016-11-27 20:29:31 -0400
+- Completed at 2016-11-30 10:15:17 -0400
+- Comment      
+- Finished     
+
+## 88. valgrind a con todos los tests
+- Created at   2016-11-24 16:18:58 -0400
+- Completed at 2016-11-30 10:15:33 -0400
+- Comment      
+- Finished     
+
+## 89. test-calibrate podría recibir una matrix de muestras
+- Created at   2016-11-18 09:25:41 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 90. manejar excepciones en lectura del json
+- Created at   2016-10-18 21:45:06 -0400
+- Completed at 2016-11-30 09:56:08 -0400
+- Comment      
+- Finished     
+
+## 91. Revisar en compute_by_names que se puedan pasar también unidades
+- Created at   2016-11-25 16:34:16 -0400
+- Completed at 2016-11-30 10:31:09 -0400
+- Comment      
+- Finished     
+
+## 92. revisar valor de epsilon en reporte de unidad
+- Created at   2016-09-12 15:49:09 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 93. Revisar los test oginales de unidades
+- Created at   2016-09-02 11:07:32 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 94. erificar matrix calibración
+- Created at   2016-11-18 09:33:39 -0400
+- Completed at 2016-11-30 10:32:17 -0400
+- Comment      
+- Finished     
+

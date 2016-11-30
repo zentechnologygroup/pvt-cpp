@@ -154,69 +154,90 @@ Correlation::NamedPar compute_pb(const double t)
   return make_tuple(true, "pb", ret.raw(), &ret.unit);
 }
 
+void set_correlation(ValueArg<string> & corr_name_arg,
+		     const string & target_name,
+		     const Correlation *& corr_ptr,
+		     bool force_set = false)
+{
+  if (force_set and not corr_name_arg.isSet())
+    error_msg("Correlation fo "+ target_name +
+	      " has not been specified in command line");
+  if (not corr_name_arg.isSet())
+    return;
+  const string & corr_name = corr_name_arg.getValue();
+  corr_ptr = Correlation::search_by_name(corr_name);
+  if (corr_ptr == nullptr)
+    error_msg("Correlation for rs " + corr_name +  " not found");
+  if (corr_ptr->target_name() != target_name)
+    error_msg("Correlation " + corr_ptr->name + " is not for " + target_name);
+}
+
+
 ValueArg<double> c_rs_arg = { "", "c-rs", "rs c", false, 0, "rs c", cmd };
 ValueArg<double> m_rs_arg = { "", "m-rs", "rs m", false, 1, "rs m", cmd };
 ValueArg<string> rs_corr_arg = { "", "rs", "correlation for rs", false, "",
 				 "correlation for rs", cmd };
 const Correlation * rs_corr = nullptr;
-void set_rs_corr()
-{
-  if (not rs_corr_arg.isSet())
-    return;
-  rs_corr = Correlation::search_by_name(rs_corr_arg.getValue());
-  if (rs_corr == nullptr)
-    error_msg("Correlation for rs " + rs_corr_arg.getValue() +  " not found");
-  if (rs_corr->target_name() != "rs")
-    error_msg("Correlation " + rs_corr->name + " is not for rs");
-}
+void set_rs_corr(bool force = true)
+{ set_correlation(rs_corr_arg, "rs", rs_corr, force); }
 
 ValueArg<double> c_bob_arg = { "", "c-bob", "ob c", false, 0, "bob c", cmd };
 ValueArg<double> m_bob_arg = { "", "m-bob", "bob m", false, 1, "bob m", cmd };
 ValueArg<string> bob_corr_arg = { "", "bob", "correlation for bob", false, "",
 				  "correlation for bob", cmd };
 const Correlation * bob_corr = nullptr;
-void set_bob_corr()
-{
-  if (not bob_corr_arg.isSet())
-    return;
-  bob_corr = Correlation::search_by_name(rs_corr_arg.getValue());
-  if (bob_corr == nullptr)
-    error_msg("Correlation for bob " + bob_corr_arg.getValue() +  " not found");
-  if (bob_corr->target_name() != "bob")
-    error_msg("Correlation " + bob_corr->name + " is not for bob");
-}
+void set_bob_corr(bool force = true)
+{ set_correlation(bob_corr_arg, "bob", bob_corr, force); }
 
 ValueArg<double> c_boa_arg = { "", "c-boa", "ob c", false, 0, "boa c", cmd };
 ValueArg<double> m_boa_arg = { "", "m-boa", "boa m", false, 1, "boa m", cmd };
 ValueArg<string> boa_corr_arg = { "", "boa", "correlation for boa", false, "",
 				  "correlation for boa", cmd };
 const Correlation * boa_corr = nullptr;
-void set_boa_corr()
-{
-  if (not boa_corr_arg.isSet())
-    return;
-  boa_corr = Correlation::search_by_name(rs_corr_arg.getValue());
-  if (boa_corr == nullptr)
-    error_msg("Correlation for boa " + boa_corr_arg.getValue() +  " not found");
-  if (boa_corr->target_name() != "boa")
-    error_msg("Correlation " + boa_corr->name + " is not for boa");
-}
+void set_boa_corr(bool force = true)
+{ set_correlation(boa_corr_arg, "boa", boa_corr, force); }
 
 ValueArg<double> c_uod_arg = { "", "c-uod", "uod c", false, 0, "uod c", cmd };
 ValueArg<double> m_uod_arg = { "", "m-ruod", "uod m", false, 1, "uod m", cmd };
 ValueArg<string> uod_corr_arg = { "", "uod", "correlation for uod", false, "",
 				 "correlation for ruod", cmd };
 const Correlation * uod_corr = nullptr;
-void set_uod_corr()
-{
-  if (not uod_corr_arg.isSet())
-    return;
-  uod_corr = Correlation::search_by_name(uod_corr_arg.getValue());
-  if (uod_corr == nullptr)
-    error_msg("Correlation for uod " + uod_corr_arg.getValue() +  " not found");
-  if (uod_corr->target_name() != "uod")
-    error_msg("Correlation " + uod_corr->name + " is not for uod");
-}
+void set_uod_corr(bool force = true)
+{ set_correlation(uod_corr_arg, "uod", uod_corr, force); }
+
+ValueArg<double> c_cob_arg = { "", "c-cob", "cob c", false, 0, "cob c", cmd };
+ValueArg<double> m_cob_arg = { "", "m-cob", "cob m", false, 1, "cob m", cmd };
+ValueArg<string> cob_corr_arg = { "", "cob", "correlation for cob", false, "",
+				  "correlation for cob", cmd };
+const Correlation * cob_corr = nullptr;
+void set_cob_corr(bool force = true)
+{ set_correlation(cob_corr_arg, "cob", cob_corr, force); }
+
+ValueArg<double> c_coa_arg = { "", "c-coa", "coa c", false, 0, "coa c", cmd };
+ValueArg<double> m_coa_arg = { "", "m-coa", "coa m", false, 1, "coa m", cmd };
+ValueArg<string> coa_corr_arg = { "", "coa", "correlation for coa", false, "",
+				  "correlation for coa", cmd };
+const Correlation * coa_corr = nullptr;
+void set_coa_corr(bool force = true)
+{ set_correlation(coa_corr_arg, "coa", coa_corr, force); }
+
+ValueArg<double> c_uob_arg = { "", "c-uob", "uob c", false, 0, "uob c", cmd };
+ValueArg<double> m_uub_arg = { "", "m-uob", "uob m", false, 1, "uob m", cmd };
+ValueArg<string> uob_corr_arg = { "", "uob", "correlation for uob", false, "",
+				  "correlation for uob", cmd };
+const Correlation * uob_corr = nullptr;
+void set_uob_corr(bool force = true)
+{ set_correlation(uob_corr_arg, "uob", uob_corr, force); }
+
+ValueArg<double> c_uoa_arg = { "", "c-uoa", "uoa c", false, 0, "uoa c", cmd };
+ValueArg<double> m_uua_arg = { "", "m-uoa", "uoa m", false, 1, "uoa m", cmd };
+ValueArg<string> uoa_corr_arg = { "", "uoa", "correlation for uoa", false, "",
+				  "correlation for uoa", cmd };
+const Correlation * uoa_corr = nullptr;
+void set_uoa_corr(bool force = true)
+{ set_correlation(uoa_corr_arg, "uoa", uoa_corr, force); }
+
+SwitchArg grid_arg = { "", "grid", "generate grid for all", cmd };
 
 struct RangeDesc
 {
@@ -304,6 +325,8 @@ ValueArg<string> below_corr_arg = { "", "below", "below correlation name", true,
 const Correlation * below_corr_ptr = nullptr;
 void set_below_corr()
 {
+  if (grid_arg.isSet())
+    error_msg("grid option is incompatible with below option");
   below_corr_ptr = Correlation::search_by_name(below_corr_arg.getValue());
   if (below_corr_ptr == nullptr)
     error_msg(below_corr_arg.getValue() + " below correlation not found");
@@ -322,19 +345,17 @@ void set_below_corr()
     error_msg("Correlation for uod has not been specified");
 }
 
-enum class PlotType { rs, bo, uo, undefined };
-PlotType plot_type = PlotType::undefined;
-
 ValueArg<string> above_corr_arg = { "", "above", "above correlation name", false,
 				    "", "above correlation name", cmd };
 const Correlation * above_corr_ptr = nullptr;
 void set_above_corr()
 {
+  if (grid_arg.isSet())
+    error_msg("grid option is incompatible with above option");
   if (target_name == "rs")
     {
       if (not above_corr_arg.isSet())
 	{
-	  plot_type = PlotType::rs;
 	  above_corr_ptr = &RsAbovePb::get_instance();
 	  return;
 	}
@@ -354,19 +375,11 @@ void set_above_corr()
 		  " cannot be combined with below correlation " +
 		  below_corr_ptr->name);
       else
-	{
-	  plot_type = PlotType::bo;
-	  return;
-	}
+	return;
     }
-
-  cout << "Above target name = " << above_target_name << endl;
 
   if (above_target_name == "uoa" and target_name == "uob")
-    {
-      plot_type = PlotType::uo;
-      return;
-    }
+    return;
   
   error_msg("Above target " + above_target_name + " cannot be combined with "
 	    "below correlation " + below_corr_ptr->name);
@@ -699,6 +712,127 @@ DynList<DynList<double>> generate_uo_values()
   return vals;
 }
 
+DynList<DynList<double>> generate_grid()
+{
+  set_check();
+  set_api();
+  set_rsb();
+  set_yg();
+  set_tsep();
+  set_psep();
+  set_pb();
+  set_rs_corr(true);
+  set_bob_corr(true);
+  set_boa_corr(true);
+  set_uod_corr(true);
+  set_cob_corr(true);
+  set_coa_corr(true);
+  set_uob_corr(true);
+  set_uoa_corr(true);
+  set_t_range();
+  set_p_range();
+  set_below_corr();
+  set_above_corr();
+
+  DynList<Correlation::NamedPar> pb_pars_list =
+    compute_pb_and_load_constant_parameters();
+  
+  DynList<Correlation::NamedPar> rs_pars_list =
+    load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
+
+  DynList<Correlation::NamedPar> uod_pars_list =
+    load_constant_parameters({uod_corr});
+
+  DynList<Correlation::NamedPar> co_pars_list =
+    load_constant_parameters({cob_corr, coa_corr});
+
+  DynList<Correlation::NamedPar> uo_pars_list =
+    load_constant_parameters({uob_corr, uoa_corr});
+
+  unique_ptr<DefinedCorrelation> defined_rs_corr;
+  const Unit & rs_unit = rs_corr->unit;
+  const double rmin = rs_unit.min_val;
+  const double rmax = rs_unit.max_val;
+
+  DynList<DynList<double>> vals; /// target, p, t
+  DynList<double> row;
+
+  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
+    {
+      auto t_par = t_it.get_curr();
+      uo_pars_list.insert(t_par);
+      rs_pars_list.insert(t_par);
+      row.insert(get<2>(t_par));
+
+      pb_pars.insert(t_par);
+      auto pb_val =
+	pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, check);
+      pb_pars.remove_first(); // remove t_par
+
+      uod_pars_list.insert(t_par);
+      auto uod_val = uod_corr->compute_by_names(uod_pars_list, check);
+      uod_pars_list.remove_first();
+
+      uo_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
+      uo_pars_list.insert(make_tuple(true, "uod", uod_val.raw(), &uod_val.unit));
+      rs_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
+
+      auto def_corr = target_correlation(pb_val.raw());
+      defined_rs_corr = make_unique<DefinedCorrelation>("p");
+      defined_rs_corr->add_tuned_correlation(rs_corr, rmin, pb_val.raw(),
+					     c_rs_arg.getValue(),
+					     m_rs_arg.getValue());
+      defined_rs_corr->add_correlation(&RsAbovePb::get_instance(),
+				       nextafter(pb_val.raw(), rmax), rmax);
+
+      uo_pars_list.insert(make_tuple(true, "p", pb_val.raw(), &pb_val.unit));
+      uo_pars_list.insert(make_tuple(true, "rs",
+				     get<2>(rsb_par), get<3>(rsb_par)));
+      auto uobp =
+	below_corr_ptr->tuned_compute_by_names(uo_pars_list, cb_arg.getValue(),
+					       mb_arg.getValue(), check);
+      uo_pars_list.remove_first(); // rs
+      uo_pars_list.remove_first(); // p
+      uo_pars_list.insert(make_tuple(true, "uobp", uobp.raw(), &uobp.unit));
+
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
+	{
+	  auto p_par = p_it.get_curr();
+	  uo_pars_list.insert(p_par);
+	  rs_pars_list.insert(p_par);
+	  row.insert(get<2>(p_par));
+
+	  auto rs = defined_rs_corr->compute_by_names(rs_pars_list, check);
+	  rs_pars_list.remove_first(); // remove p_par
+	  
+	  uo_pars_list.insert(make_tuple(true, "rs", rs, &rs_corr->unit));
+
+	  auto uo = def_corr.compute_by_names(uo_pars_list, check);
+
+	  row.insert(uo);
+	  vals.append(row);
+	  
+	  row.remove_first(); // val
+	  row.remove_first(); // p_par
+	  
+	  uo_pars_list.remove_first(); // rs
+	  uo_pars_list.remove_first(); // p_par
+	}
+
+      row.remove_first(); // t_par
+
+      rs_pars_list.remove_first(); // pb_par
+      rs_pars_list.remove_first(); // t_par
+
+      uo_pars_list.remove_first(); // uobp
+      uo_pars_list.remove_first(); // pb_val
+      uo_pars_list.remove_first(); // uod_val
+      uo_pars_list.remove_first(); // t_par
+    }
+
+  return vals;
+}
+
 using OptionPtr = DynList<DynList<double>> (*)();
 
 DynMapTree<string, OptionPtr> dispatch_tbl;
@@ -928,9 +1062,6 @@ int main(int argc, char *argv[])
   set_p_range();
   set_below_corr();
   set_above_corr();
-
-  cout << "size t_range = " << t_values.size() << endl
-       << "size p_range = " << p_values.size() << endl;
 
   auto vals = dispatch_option(target_name);
 

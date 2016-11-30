@@ -1,0 +1,2 @@
+#!/bin/bash
+make OPTFLAGS="-Ofast -DNDEBUG" -j4 all

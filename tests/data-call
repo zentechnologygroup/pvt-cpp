@@ -2,6 +2,6 @@
 
 ./plot-corr --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --rs RsVelarde --c-rs -98.676172 --m-rs 1.048913 --t "100 500 5" --p "1000 12000 10" --below BobTotalCFP --cb 0.162549 --mb 0.988207 --above BoaHanafy --ca 0.580289 --ma 0.666618
 
-./plot-corr --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --rs RsVelarde --c-rs -98.676172 --m-rs 1.048913 --t "100 500 5" --p "1000 12000 10" --bob BobTotalCFP --c-bob 0.162549 --m-bob 0.988207 --boa BoaHanafy --c-boa 0.580289 --m-boa 0.666618 --uod UodNaseri --below UobBeggsRobinson --cb 0.002675 --mb 0.002675 --above UoaDindorukChristman --ca -0.186460 --ma 1.606960
+./plot-corr --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --rs RsVelarde --c-rs -98.676172 --m-rs 1.048913 --t "180 280 10" --p "1000 12000 100" --bob BobTotalCFP --c-bob 0.162549 --m-bob 0.988207 --boa BoaHanafy --c-boa 0.591597 --m-boa 0.659989 --uod UodNaseri --below UobBeggsRobinson --cb 0.002675 --mb 0.554547 --above UoaDindorukChristman --ca -0.198390 --ma 1.642573
 
 

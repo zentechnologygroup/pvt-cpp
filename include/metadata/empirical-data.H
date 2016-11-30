@@ -1707,7 +1707,6 @@ public:
     return
       correlation_perms(seti, correlation_ptr).maps<double>([&](const auto & l)
 		   {
-		     cout << correlation_ptr->name << endl;
 		     return correlation_ptr->compute(l, check);
 		   });
   }

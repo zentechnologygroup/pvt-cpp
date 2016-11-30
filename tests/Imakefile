@@ -11,8 +11,10 @@ INCLUDES = -I../include -I$(ALEPHW)
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
 	-Wno-parentheses
 
-OPTFLAGS = -std=c++14 $(WARN) -Ofast -DNDEBUG
-FLAGS = -std=c++14 $(WARN) -O0 -g
+
+#OPTFLAGS = -Ofast -DNDEBUG
+OPTFLAGS = -O0 -g
+FLAGS = -std=c++14 $(WARN) $(OPTFLAGS)
 #FLAGS = -std=c++14 $(WARN) -Ofast -DNDEBUG
 
 OPTIONS = $(FLAGS)
@@ -39,7 +41,6 @@ NormalProgramTarget(test-conversion,test-conversion.o,$(DEPLIBS),$(LOCAL_LIBRARI
 
 AllTarget(test-corr)
 NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
-
 AllTarget(test-all-units-1)
 NormalProgramTarget(test-all-units-1,test-all-units-1.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
