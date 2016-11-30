@@ -587,7 +587,7 @@ DynList<DynList<double>> generate_bo_values()
 
 	  auto rs = defined_rs_corr->compute_by_names(rs_pars_list, check);
 	  rs_pars_list.remove_first(); // remove p_par
-	  
+
 	  bo_pars_list.insert(make_tuple(true, "rs", rs, &rs_corr->unit));
 
 	  auto bo = def_corr.compute_by_names(bo_pars_list, check);

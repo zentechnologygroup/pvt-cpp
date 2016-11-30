@@ -15,3 +15,4 @@ Buscar parámetro yo y asegurar que exista sinónimo api. Análogamente para api
 opción all que reciba las correlaciones y calcule el grid,2016-11-29 21:31:05 -0400,,
 lib y optimización de pase de parámetros por nombre,2016-11-30 09:55:34 -0400,,
 calibrar co,2016-11-30 10:30:58 -0400,,
+apagar rangos de entrada en test-corr,2016-11-30 16:21:11 -0400,,

@@ -50,3 +50,6 @@
 ## 17. calibrar co
 - Created at   2016-11-30 10:30:58 -0400
 
+## 18. apagar rangos de entrada en test-corr
+- Created at   2016-11-30 16:21:11 -0400
+

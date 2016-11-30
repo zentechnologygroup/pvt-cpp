@@ -800,18 +800,18 @@ public:
   }
 
   // direct copy constructor
-  Quantity(const Quantity & q) noexcept : BaseQuantity(q.unit, q.get_value()) {}
+  //Quantity(const Quantity & q) noexcept : BaseQuantity(q.unit, q.get_value()) {}
 
   // direct copy assignment 
-  Quantity & operator = (const Quantity & q) noexcept
-  {
-    if (&q == this)
-      return *this;
+  // Quantity & operator = (const Quantity & q) noexcept
+  // {
+  //   if (&q == this)
+  //     return *this;
 
-    value = q.get_value();
+  //   value = q.get_value();
 
-    return *this;
-  }
+  //   return *this;
+  // }
 
   /// Inter unit constructor. Perform the conversion
   template <class SrcUnit>
@@ -1335,19 +1335,28 @@ inline bool operator != (double lhs, const VtlQuantity & rhs) noexcept
 
 template <class UnitName>
 Quantity<UnitName>::Quantity(const VtlQuantity & q)
-  : BaseQuantity(q.unit, q.get_value()) {}
+  : BaseQuantity(UnitName::get_instance())
+{
+  if (&unit == &q.unit)
+    {
+      value = q.get_value();
+      return;
+    }
+  value = unit_convert_name_to_name(q.unit.name, q.get_value(), unit.name);
+  check_value();
+}
 
 template <class UnitName>
 Quantity<UnitName> & Quantity<UnitName>::operator = (const VtlQuantity & q)
 {
-  if (&unit.physical_quantity == &q.unit.physical_quantity)
+  if (&unit == &q.unit)
     {
       value = q.get_value();
       return *this;
     }
   
   value = unit_convert_name_to_name(q.unit.name, q.get_value(), unit.name);
-
+  check_value();
   return *this;
 }
 
