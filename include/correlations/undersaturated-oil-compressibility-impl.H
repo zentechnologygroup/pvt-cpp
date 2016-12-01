@@ -74,9 +74,6 @@ CoaPetroskyFarshad::impl(const Quantity<Sgg> & yg,
 {
   const double co = 1.705e-7 * pow(rsb, 0.69357) * pow(yg, 0.1885) *
     pow(api, 0.3272) * pow(t, 0.6729) * pow(p, -0.5906);
-
-  cout << name << "(" << yg << ", " << api << ", " << rsb << ", " << t
-       << ", " << p << ") = " << Quantity<psia_1>(co) << endl;
   return Quantity<psia_1>(co);
 }
 

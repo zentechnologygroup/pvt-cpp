@@ -513,11 +513,15 @@ public:
     if (get<0>(data.search_const("uod")))
       return ret; // if uod defined ==> there is no incomplete uob correlations
 
-    // Todas estas correlaciones de uod están en el rango de aplicación
-    auto uods = uod_valid_correlations().
-      maps<pair<const Correlation*, double>>([&] (auto p)
-      { // todo exception handler
-	return make_pair(p, data.compute(p, check));
+    // Todas estas correlaciones de uod deberían estár en el rango de aplicación
+    DynList<pair<const Correlation*, double>> uods;
+    uod_valid_correlations().for_each([&] (auto p)
+      {
+	try
+	  {
+	    uods.append(make_pair(p, data.compute(p, check)));
+	  }
+	catch (...) { /* ignore it; simply do not put it into the list */ }
       });
 
     for (auto it = uods.get_it(); it.has_curr(); it.next())

@@ -560,7 +560,7 @@ DynList<DynList<double>> generate_bo_values()
       bo_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
       rs_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
 
-      auto def_corr = target_correlation(pb_val.raw());
+      auto bo_corr = target_correlation(pb_val.raw());
       defined_rs_corr = make_unique<DefinedCorrelation>("p");
       defined_rs_corr->add_tuned_correlation(rs_corr, rmin, pb_val.raw(),
 					     c_rs_arg.getValue(),
@@ -568,12 +568,14 @@ DynList<DynList<double>> generate_bo_values()
       defined_rs_corr->add_correlation(&RsAbovePb::get_instance(),
 				       nextafter(pb_val.raw(), rmax), rmax);
 
+      // calcula el último bo de la correlación bob. Este será el
+      // punto de partida de boa
       bo_pars_list.insert(make_tuple(true, "p", pb_val.raw(), &pb_val.unit));
       bo_pars_list.insert(make_tuple(true, "rs",
 				     get<2>(rsb_par), get<3>(rsb_par)));
       auto bobp =
-	below_corr_ptr->tuned_compute_by_names(bo_pars_list, ca_arg.getValue(),
-					       ma_arg.getValue(), check);
+	below_corr_ptr->tuned_compute_by_names(bo_pars_list, cb_arg.getValue(),
+					       mb_arg.getValue(), check);
       bo_pars_list.remove_first(); // rs
       bo_pars_list.remove_first(); // p
       bo_pars_list.insert(make_tuple(true, "bobp", bobp.raw(), &bobp.unit));
@@ -590,7 +592,7 @@ DynList<DynList<double>> generate_bo_values()
 
 	  bo_pars_list.insert(make_tuple(true, "rs", rs, &rs_corr->unit));
 
-	  auto bo = def_corr.compute_by_names(bo_pars_list, check);
+	  auto bo = bo_corr.compute_by_names(bo_pars_list, check);
 
 	  row.insert(bo);
 	  vals.append(row);

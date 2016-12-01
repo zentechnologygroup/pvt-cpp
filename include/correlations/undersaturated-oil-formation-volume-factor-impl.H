@@ -11,6 +11,7 @@ BoaMcCain::impl(const Quantity<RB_STB> & bobp,
 		const Quantity<psia_1> & co) const
 
 {
+  
   const double bwa = bobp.raw() * exp(co.raw() * (pb.raw() - p.raw()));
 
   return Quantity<RB_STB>(bwa);
@@ -70,7 +71,6 @@ BoaPetroskyFarshad::impl(const Quantity<RB_STB> & bobp,
 			 const Quantity<psia> & p,
 			 const Quantity<psia> & pb) const
 {
-
   auto co = CoaPetroskyFarshad::get_instance().impl(yg, yo, rsb, t, p);
 
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);

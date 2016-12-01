@@ -788,7 +788,6 @@ public:
   double tuned_compute(const DynList<double> & values, double c, double m,
 		       bool check = true) const
   {
-    cout << name << " c = " << c << " m = " << m << endl;
     DynList<VtlQuantity> pars;
     auto it = get_pair_it(preconditions, values);
     for (;it.has_curr(); it.next())
@@ -807,7 +806,7 @@ public:
 	throw domain_error(s.str());
       }
 
-    VtlQuantity ret = { unit, c + m*compute(pars, check).raw() }; 
+    VtlQuantity ret = { unit, c + m*compute(pars, check).raw() };
     return ret.raw();
   }
 
@@ -822,8 +821,6 @@ public:
   tuned_compute_by_names(const DynList<NamedPar> & pair_list,
 			 double c, double m, bool check = true) const
   {
-    cout << name << " c = " << c << " m = " << m << endl;
-
     return VtlQuantity(unit, c + m*compute_by_names(pair_list, check).raw());
   }
 

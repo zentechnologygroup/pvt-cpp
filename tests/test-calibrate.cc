@@ -60,7 +60,7 @@ ValueArg<string> output_type = { "t", "output-type", "output type", false,
 MultiArg<string> corr_names = { "n", "name", "add correlation name", false,
 				"add correlation name to computations", cmd };
 
-ValueArg<string> uod_name = { "u", "uod-name", "uod correlation name", false,
+ValueArg<string> uod_name = { "u", "uod", "uod correlation name", false,
 			      "",
 			      "uod correlation to be used for computations",
 			      cmd };

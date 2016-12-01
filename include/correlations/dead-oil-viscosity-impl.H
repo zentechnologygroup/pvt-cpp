@@ -84,7 +84,9 @@ UodSattarinEtAl::impl(const Quantity<Api> & api,
       b = -1.51*t.raw() + 568.84;
       uod = a * exp(b/raw_api)/raw_api;
     }
-        
+
+  cout << name << "(" << api << ", " << Quantity<Fahrenheit>(t) << ")" << endl;
+       
   return Quantity<CP>(uod); 
 }
 

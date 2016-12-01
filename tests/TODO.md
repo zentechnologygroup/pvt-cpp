@@ -59,3 +59,9 @@
 ## 20. profiling (quiza con google-pprof
 - Created at   2016-12-01 11:44:25 -0400
 
+## 21. compute en empirical_data 1405: se puede acer más raṕido
+- Created at   2016-12-01 17:30:02 -0400
+
+## 22. correlations en hidden no deben aparecer en test-calibrate ni plot-corr
+- Created at   2016-12-01 17:48:58 -0400
+
