@@ -1,6 +1,6 @@
 # coding: utf-8
 
-begin_correlation("YgHCWichertAziz", "GasSpecificGravity", "Sgg", 0.55)
+begin_correlation("YgHCWichertAziz", "HydrocarbonGasSpecificGravity", "Sgg", 0.55)
 add_title("METHOD OF WICHERT & AZIZ FOR THE CALCULATION OF THE GAS GRAVITY OF THE HYDROCARBON PORTION")
 add_note("Method of Wichert & Aziz for the calculation of the gas gravity of the hydrocarbon portion.")
 add_internal_note("The original reference is not available. The correlation was verified by using secondary references: Standing (1977) and Bánzer (1996). Date: September 12 2016.")
