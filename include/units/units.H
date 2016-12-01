@@ -799,19 +799,19 @@ public:
     check_value(); // value must be inside the specified range
   }
 
-  // direct copy constructor
-  //Quantity(const Quantity & q) noexcept : BaseQuantity(q.unit, q.get_value()) {}
+  /// direct copy constructor
+  Quantity(const Quantity & q) noexcept : BaseQuantity(q.unit, q.get_value()) {}
 
-  // direct copy assignment 
-  // Quantity & operator = (const Quantity & q) noexcept
-  // {
-  //   if (&q == this)
-  //     return *this;
+  /// direct copy assignment 
+  Quantity & operator = (const Quantity & q) noexcept
+  {
+    if (&q == this)
+      return *this;
 
-  //   value = q.get_value();
+    value = q.get_value();
 
-  //   return *this;
-  // }
+    return *this;
+  }
 
   /// Inter unit constructor. Perform the conversion
   template <class SrcUnit>

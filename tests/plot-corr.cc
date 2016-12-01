@@ -178,7 +178,7 @@ ValueArg<double> m_rs_arg = { "", "m-rs", "rs m", false, 1, "rs m", cmd };
 ValueArg<string> rs_corr_arg = { "", "rs", "correlation for rs", false, "",
 				 "correlation for rs", cmd };
 const Correlation * rs_corr = nullptr;
-void set_rs_corr(bool force = true)
+void set_rs_corr(bool force = false)
 { set_correlation(rs_corr_arg, "rs", rs_corr, force); }
 
 ValueArg<double> c_bob_arg = { "", "c-bob", "ob c", false, 0, "bob c", cmd };
@@ -186,7 +186,7 @@ ValueArg<double> m_bob_arg = { "", "m-bob", "bob m", false, 1, "bob m", cmd };
 ValueArg<string> bob_corr_arg = { "", "bob", "correlation for bob", false, "",
 				  "correlation for bob", cmd };
 const Correlation * bob_corr = nullptr;
-void set_bob_corr(bool force = true)
+void set_bob_corr(bool force = false)
 { set_correlation(bob_corr_arg, "bob", bob_corr, force); }
 
 ValueArg<double> c_boa_arg = { "", "c-boa", "ob c", false, 0, "boa c", cmd };
@@ -194,7 +194,7 @@ ValueArg<double> m_boa_arg = { "", "m-boa", "boa m", false, 1, "boa m", cmd };
 ValueArg<string> boa_corr_arg = { "", "boa", "correlation for boa", false, "",
 				  "correlation for boa", cmd };
 const Correlation * boa_corr = nullptr;
-void set_boa_corr(bool force = true)
+void set_boa_corr(bool force = false)
 { set_correlation(boa_corr_arg, "boa", boa_corr, force); }
 
 ValueArg<double> c_uod_arg = { "", "c-uod", "uod c", false, 0, "uod c", cmd };
@@ -202,7 +202,7 @@ ValueArg<double> m_uod_arg = { "", "m-ruod", "uod m", false, 1, "uod m", cmd };
 ValueArg<string> uod_corr_arg = { "", "uod", "correlation for uod", false, "",
 				 "correlation for ruod", cmd };
 const Correlation * uod_corr = nullptr;
-void set_uod_corr(bool force = true)
+void set_uod_corr(bool force = false)
 { set_correlation(uod_corr_arg, "uod", uod_corr, force); }
 
 ValueArg<double> c_cob_arg = { "", "c-cob", "cob c", false, 0, "cob c", cmd };
@@ -210,7 +210,7 @@ ValueArg<double> m_cob_arg = { "", "m-cob", "cob m", false, 1, "cob m", cmd };
 ValueArg<string> cob_corr_arg = { "", "cob", "correlation for cob", false, "",
 				  "correlation for cob", cmd };
 const Correlation * cob_corr = nullptr;
-void set_cob_corr(bool force = true)
+void set_cob_corr(bool force = false)
 { set_correlation(cob_corr_arg, "cob", cob_corr, force); }
 
 ValueArg<double> c_coa_arg = { "", "c-coa", "coa c", false, 0, "coa c", cmd };
@@ -218,7 +218,7 @@ ValueArg<double> m_coa_arg = { "", "m-coa", "coa m", false, 1, "coa m", cmd };
 ValueArg<string> coa_corr_arg = { "", "coa", "correlation for coa", false, "",
 				  "correlation for coa", cmd };
 const Correlation * coa_corr = nullptr;
-void set_coa_corr(bool force = true)
+void set_coa_corr(bool force = false)
 { set_correlation(coa_corr_arg, "coa", coa_corr, force); }
 
 ValueArg<double> c_uob_arg = { "", "c-uob", "uob c", false, 0, "uob c", cmd };
@@ -226,7 +226,7 @@ ValueArg<double> m_uub_arg = { "", "m-uob", "uob m", false, 1, "uob m", cmd };
 ValueArg<string> uob_corr_arg = { "", "uob", "correlation for uob", false, "",
 				  "correlation for uob", cmd };
 const Correlation * uob_corr = nullptr;
-void set_uob_corr(bool force = true)
+void set_uob_corr(bool force = false)
 { set_correlation(uob_corr_arg, "uob", uob_corr, force); }
 
 ValueArg<double> c_uoa_arg = { "", "c-uoa", "uoa c", false, 0, "uoa c", cmd };
@@ -234,7 +234,7 @@ ValueArg<double> m_uua_arg = { "", "m-uoa", "uoa m", false, 1, "uoa m", cmd };
 ValueArg<string> uoa_corr_arg = { "", "uoa", "correlation for uoa", false, "",
 				  "correlation for uoa", cmd };
 const Correlation * uoa_corr = nullptr;
-void set_uoa_corr(bool force = true)
+void set_uoa_corr(bool force = false)
 { set_correlation(uoa_corr_arg, "uoa", uoa_corr, force); }
 
 SwitchArg grid_arg = { "", "grid", "generate grid for all", cmd };

@@ -16,3 +16,5 @@ opción all que reciba las correlaciones y calcule el grid,2016-11-29 21:31:05 -
 lib y optimización de pase de parámetros por nombre,2016-11-30 09:55:34 -0400,,
 calibrar co,2016-11-30 10:30:58 -0400,,
 apagar rangos de entrada en test-corr,2016-11-30 16:21:11 -0400,,
+discutir modificar los rangos de temperatura y presión de las correlaciones,2016-11-30 20:00:06 -0400,,
+profiling (quiza con google-pprof,2016-12-01 11:44:25 -0400,,

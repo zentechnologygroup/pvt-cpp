@@ -9,6 +9,7 @@
 # include <ah-string-utils.H>
 # include <ah-stl-utils.H>
 # include <ah-comb.H>
+# include <ah-zip.H>
 
 # include <utils.H>
 
@@ -508,9 +509,10 @@ protected:
 
   virtual ~Correlation() = 0; // Correlation is abstract
 
-  CorrelationPar & add_parameter(const string & name, const Unit & unit,
-				 const string & description,
-				 const VtlQuantity & min, const VtlQuantity & max)
+  CorrelationPar &
+  add_parameter(const string & name, const Unit & unit,
+		const string & description,
+		const VtlQuantity & min, const VtlQuantity & max)
   {
     auto min_aux = VtlQuantity(unit, min);
     auto max_aux = VtlQuantity(unit, max);
@@ -786,6 +788,7 @@ public:
   double tuned_compute(const DynList<double> & values, double c, double m,
 		       bool check = true) const
   {
+    cout << name << " c = " << c << " m = " << m << endl;
     DynList<VtlQuantity> pars;
     auto it = get_pair_it(preconditions, values);
     for (;it.has_curr(); it.next())
@@ -819,6 +822,8 @@ public:
   tuned_compute_by_names(const DynList<NamedPar> & pair_list,
 			 double c, double m, bool check = true) const
   {
+    cout << name << " c = " << c << " m = " << m << endl;
+
     return VtlQuantity(unit, c + m*compute_by_names(pair_list, check).raw());
   }
 
@@ -838,33 +843,29 @@ public:
   DynList<VtlQuantity>
   verify_preconditions(const DynList<VtlQuantity> & pars) const
   {
-    using PreIt = DynList<CorrelationPar>::Iterator;
-    using ParIt = DynList<VtlQuantity>::Iterator;
-    Pair_Iterator<PreIt, ParIt> it(preconditions.get_it(), pars.get_it());
     DynList<VtlQuantity> ret;
 
-    for (size_t i = 1; it.has_curr(); it.next(), ++i)
+    auto it = get_enum_zip_it(preconditions, pars);
+    for (/* already initialized */; it.has_curr(); it.next())
       {
 	auto p = it.get_curr();
-	auto precondition = p.first;
-	auto par = p.second;
-	try
+	const auto & precondition = get<0>(p);
+	const string & par_name = precondition.name;
+	const auto & par = get<1>(p);
+	VtlQuantity curr_par(precondition.unit, par); // conversion is done
+	if (not (par_name == "p" or par_name == "t") and // TODO lista hash
+	    not precondition.check(curr_par))
 	  {
-	    VtlQuantity curr_par(precondition.unit, par); // conversion is done
-	    precondition.verify(curr_par);
-	    ret.append(curr_par);
-	  }
-	catch (exception & e)
-	  {
+	    auto i = get<2>(p) + 1;
 	    ostringstream s;
-	    s << e.what() << endl
-	      << "Processing parameter " << i << " ("
-	      << preconditions.nth(i - 1).name << ")";
-	    throw domain_error(s.str());
+	    s << "Correlation parameter " << i << " (" << name
+	      << ") does not satisfy bound constraints";
+	      throw domain_error(s.str());
 	  }
+	ret.append(curr_par);
       }
 
-    if (not it.was_traversed())
+    if (not it.completed())
       {
 	ostringstream s;
 	s << "number of preconditions " << preconditions.size()

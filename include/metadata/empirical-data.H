@@ -1211,8 +1211,11 @@ public:
 	 it.has_curr(); it.next())
       {
 	auto p = it.get_curr();
-	auto empirical_samples = p.first;
 	const auto & par = p.second;
+	const string & name = par.name;
+	if (name == "p" or name == "t")
+	  continue;
+	auto empirical_samples = p.first;
 	double min_emp_sample = empirical_samples.get_first();
 	double max_emp_sample = empirical_samples.get_last();
 	if (not par.check(min_emp_sample) or not par.check(max_emp_sample))

@@ -1,519 +1,152 @@
-p = 1000 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1111.11 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1222.22 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1333.33 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1444.44 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1555.56 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1666.67 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1777.78 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1888.89 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2000 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2111.11 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2222.22 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2333.33 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2444.44 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2555.56 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2666.67 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2777.78 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2888.89 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3000 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3111.11 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3222.22 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3333.33 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3444.44 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3555.56 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3666.67 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3777.78 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3888.89 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4000 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4111.11 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4222.22 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4333.33 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4444.44 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4555.56 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4666.67 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4777.78 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4888.89 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5000 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5111.11 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5222.22 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5333.33 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5444.44 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5555.56 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5666.67 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5777.78 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5888.89 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6000 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6111.11 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6222.22 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6333.33 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6444.44 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6555.56 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6666.67 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6777.78 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6888.89 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7000 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7111.11 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7222.22 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7333.33 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7444.44 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7555.56 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7666.67 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7777.78 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7888.89 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8000 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8111.11 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8222.22 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8333.33 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8444.44 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8555.56 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8666.67 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8777.78 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8888.89 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9000 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9111.11 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9222.22 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9333.33 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9444.44 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9555.56 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9666.67 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9777.78 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9888.89 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10000 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10111.1 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10222.2 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10333.3 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10444.4 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10555.6 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10666.7 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10777.8 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10888.9 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11000 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11111.1 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11222.2 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11333.3 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11444.4 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11555.6 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11666.7 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11777.8 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11888.9 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 12000 bobp = 1.14394 pb = 5597.22 t = 180 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1000 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1111.11 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1222.22 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1333.33 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1444.44 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1555.56 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1666.67 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1777.78 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1888.89 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2000 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2111.11 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2222.22 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2333.33 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2444.44 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2555.56 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2666.67 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2777.78 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2888.89 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3000 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3111.11 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3222.22 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3333.33 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3444.44 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3555.56 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3666.67 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3777.78 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3888.89 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4000 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4111.11 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4222.22 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4333.33 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4444.44 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4555.56 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4666.67 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4777.78 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4888.89 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5000 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5111.11 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5222.22 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5333.33 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5444.44 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5555.56 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5666.67 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5777.78 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5888.89 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6000 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6111.11 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6222.22 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6333.33 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6444.44 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6555.56 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6666.67 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6777.78 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6888.89 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7000 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7111.11 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7222.22 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7333.33 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7444.44 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7555.56 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7666.67 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7777.78 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7888.89 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8000 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8111.11 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8222.22 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8333.33 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8444.44 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8555.56 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8666.67 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8777.78 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8888.89 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9000 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9111.11 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9222.22 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9333.33 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9444.44 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9555.56 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9666.67 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9777.78 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9888.89 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10000 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10111.1 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10222.2 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10333.3 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10444.4 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10555.6 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10666.7 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10777.8 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10888.9 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11000 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11111.1 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11222.2 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11333.3 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11444.4 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11555.6 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11666.7 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11777.8 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11888.9 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 12000 bobp = 1.1595 pb = 5899.61 t = 205 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1000 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1111.11 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1222.22 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1333.33 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1444.44 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1555.56 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1666.67 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1777.78 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1888.89 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2000 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2111.11 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2222.22 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2333.33 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2444.44 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2555.56 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2666.67 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2777.78 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2888.89 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3000 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3111.11 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3222.22 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3333.33 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3444.44 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3555.56 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3666.67 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3777.78 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3888.89 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4000 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4111.11 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4222.22 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4333.33 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4444.44 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4555.56 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4666.67 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4777.78 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4888.89 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5000 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5111.11 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5222.22 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5333.33 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5444.44 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5555.56 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5666.67 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5777.78 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5888.89 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6000 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6111.11 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6222.22 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6333.33 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6444.44 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6555.56 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6666.67 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6777.78 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6888.89 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7000 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7111.11 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7222.22 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7333.33 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7444.44 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7555.56 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7666.67 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7777.78 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7888.89 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8000 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8111.11 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8222.22 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8333.33 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8444.44 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8555.56 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8666.67 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8777.78 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8888.89 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9000 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9111.11 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9222.22 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9333.33 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9444.44 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9555.56 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9666.67 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9777.78 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9888.89 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10000 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10111.1 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10222.2 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10333.3 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10444.4 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10555.6 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10666.7 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10777.8 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10888.9 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11000 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11111.1 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11222.2 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11333.3 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11444.4 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11555.6 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11666.7 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11777.8 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11888.9 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 12000 bobp = 1.17525 pb = 6218.26 t = 230 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1000 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1111.11 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1222.22 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1333.33 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1444.44 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1555.56 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1666.67 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1777.78 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1888.89 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2000 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2111.11 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2222.22 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2333.33 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2444.44 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2555.56 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2666.67 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2777.78 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2888.89 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3000 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3111.11 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3222.22 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3333.33 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3444.44 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3555.56 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3666.67 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3777.78 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3888.89 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4000 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4111.11 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4222.22 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4333.33 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4444.44 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4555.56 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4666.67 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4777.78 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4888.89 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5000 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5111.11 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5222.22 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5333.33 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5444.44 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5555.56 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5666.67 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5777.78 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5888.89 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6000 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6111.11 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6222.22 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6333.33 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6444.44 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6555.56 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6666.67 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6777.78 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6888.89 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7000 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7111.11 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7222.22 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7333.33 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7444.44 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7555.56 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7666.67 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7777.78 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7888.89 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8000 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8111.11 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8222.22 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8333.33 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8444.44 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8555.56 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8666.67 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8777.78 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8888.89 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9000 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9111.11 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9222.22 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9333.33 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9444.44 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9555.56 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9666.67 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9777.78 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9888.89 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10000 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10111.1 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10222.2 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10333.3 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10444.4 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10555.6 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10666.7 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10777.8 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10888.9 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11000 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11111.1 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11222.2 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11333.3 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11444.4 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11555.6 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11666.7 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11777.8 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11888.9 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 12000 bobp = 1.19119 pb = 6554.05 t = 255 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1000 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1111.11 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1222.22 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1333.33 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1444.44 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1555.56 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1666.67 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1777.78 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 1888.89 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2000 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2111.11 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2222.22 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2333.33 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2444.44 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2555.56 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2666.67 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2777.78 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 2888.89 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3000 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3111.11 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3222.22 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3333.33 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3444.44 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3555.56 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3666.67 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3777.78 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 3888.89 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4000 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4111.11 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4222.22 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4333.33 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4444.44 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4555.56 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4666.67 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4777.78 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 4888.89 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5000 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5111.11 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5222.22 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5333.33 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5444.44 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5555.56 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5666.67 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5777.78 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 5888.89 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6000 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6111.11 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6222.22 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6333.33 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6444.44 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6555.56 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6666.67 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6777.78 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 6888.89 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7000 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7111.11 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7222.22 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7333.33 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7444.44 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7555.56 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7666.67 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7777.78 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 7888.89 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8000 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8111.11 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8222.22 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8333.33 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8444.44 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8555.56 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8666.67 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8777.78 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 8888.89 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9000 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9111.11 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9222.22 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9333.33 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9444.44 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9555.56 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9666.67 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9777.78 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 9888.89 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10000 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10111.1 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10222.2 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10333.3 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10444.4 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10555.6 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10666.7 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10777.8 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 10888.9 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11000 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11111.1 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11222.2 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11333.3 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11444.4 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11555.6 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11666.7 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11777.8 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 11888.9 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p = 12000 bobp = 1.20731 pb = 6907.9 t = 280 api = 26 rsb = 1110 yg = 0.71 tsep = 100 psep = 100 
-p_180.000000 <- c(1000, 1111.11, 1222.22, 1333.33, 1444.44, 1555.56, 1666.67, 1777.78, 1888.89, 2000, 2111.11, 2222.22, 2333.33, 2444.44, 2555.56, 2666.67, 2777.78, 2888.89, 3000, 3111.11, 3222.22, 3333.33, 3444.44, 3555.56, 3666.67, 3777.78, 3888.89, 4000, 4111.11, 4222.22, 4333.33, 4444.44, 4555.56, 4666.67, 4777.78, 4888.89, 5000, 5111.11, 5222.22, 5333.33, 5444.44, 5555.56, 5666.67, 5777.78, 5888.89, 6000, 6111.11, 6222.22, 6333.33, 6444.44, 6555.56, 6666.67, 6777.78, 6888.89, 7000, 7111.11, 7222.22, 7333.33, 7444.44, 7555.56, 7666.67, 7777.78, 7888.89, 8000, 8111.11, 8222.22, 8333.33, 8444.44, 8555.56, 8666.67, 8777.78, 8888.89, 9000, 9111.11, 9222.22, 9333.33, 9444.44, 9555.56, 9666.67, 9777.78, 9888.89, 10000, 10111.1, 10222.2, 10333.3, 10444.4, 10555.6, 10666.7, 10777.8, 10888.9, 11000, 11111.1, 11222.2, 11333.3, 11444.4, 11555.6, 11666.7, 11777.8, 11888.9, 12000)
-v_180.000000 <- c(1.06795, 1.06936, 1.07081, 1.07229, 1.07379, 1.07532, 1.07688, 1.07846, 1.08006, 1.08169, 1.08334, 1.08501, 1.0867, 1.08842, 1.09015, 1.0919, 1.09367, 1.09546, 1.09726, 1.09909, 1.10093, 1.10279, 1.10466, 1.10655, 1.10846, 1.11038, 1.11232, 1.11427, 1.11624, 1.11822, 1.12022, 1.12223, 1.12426, 1.1263, 1.12836, 1.13043, 1.13251, 1.1346, 1.13671, 1.13884, 1.14097, 1.14312, 1.143, 1.14154, 1.14014, 1.1388, 1.1375, 1.13626, 1.13505, 1.13389, 1.13277, 1.13169, 1.13065, 1.12964, 1.12866, 1.12771, 1.1268, 1.12591, 1.12505, 1.12422, 1.12341, 1.12262, 1.12186, 1.12111, 1.12039, 1.11969, 1.11901, 1.11835, 1.1177, 1.11707, 1.11646, 1.11586, 1.11528, 1.11471, 1.11416, 1.11362, 1.11309, 1.11258, 1.11208, 1.11158, 1.1111, 1.11064, 1.11018, 1.10973, 1.10929, 1.10886, 1.10844, 1.10803, 1.10763, 1.10724, 1.10685, 1.10647, 1.1061, 1.10574, 1.10538, 1.10503, 1.10469, 1.10436, 1.10403, 1.10371)
-p_205.000000 <- c(1000, 1111.11, 1222.22, 1333.33, 1444.44, 1555.56, 1666.67, 1777.78, 1888.89, 2000, 2111.11, 2222.22, 2333.33, 2444.44, 2555.56, 2666.67, 2777.78, 2888.89, 3000, 3111.11, 3222.22, 3333.33, 3444.44, 3555.56, 3666.67, 3777.78, 3888.89, 4000, 4111.11, 4222.22, 4333.33, 4444.44, 4555.56, 4666.67, 4777.78, 4888.89, 5000, 5111.11, 5222.22, 5333.33, 5444.44, 5555.56, 5666.67, 5777.78, 5888.89, 6000, 6111.11, 6222.22, 6333.33, 6444.44, 6555.56, 6666.67, 6777.78, 6888.89, 7000, 7111.11, 7222.22, 7333.33, 7444.44, 7555.56, 7666.67, 7777.78, 7888.89, 8000, 8111.11, 8222.22, 8333.33, 8444.44, 8555.56, 8666.67, 8777.78, 8888.89, 9000, 9111.11, 9222.22, 9333.33, 9444.44, 9555.56, 9666.67, 9777.78, 9888.89, 10000, 10111.1, 10222.2, 10333.3, 10444.4, 10555.6, 10666.7, 10777.8, 10888.9, 11000, 11111.1, 11222.2, 11333.3, 11444.4, 11555.6, 11666.7, 11777.8, 11888.9, 12000)
-v_205.000000 <- c(1.0816, 1.08296, 1.08434, 1.08575, 1.08719, 1.08866, 1.09014, 1.09166, 1.09319, 1.09474, 1.09632, 1.09791, 1.09953, 1.10116, 1.10281, 1.10448, 1.10617, 1.10787, 1.10959, 1.11132, 1.11308, 1.11484, 1.11663, 1.11842, 1.12024, 1.12206, 1.1239, 1.12576, 1.12763, 1.12951, 1.13141, 1.13332, 1.13524, 1.13718, 1.13913, 1.14109, 1.14306, 1.14505, 1.14705, 1.14906, 1.15108, 1.15311, 1.15516, 1.15722, 1.15929, 1.15812, 1.15664, 1.15521, 1.15384, 1.15252, 1.15124, 1.15001, 1.14882, 1.14767, 1.14656, 1.14548, 1.14444, 1.14342, 1.14244, 1.14149, 1.14057, 1.13968, 1.13881, 1.13796, 1.13714, 1.13635, 1.13557, 1.13481, 1.13408, 1.13336, 1.13267, 1.13199, 1.13133, 1.13068, 1.13005, 1.12944, 1.12884, 1.12825, 1.12768, 1.12712, 1.12658, 1.12604, 1.12552, 1.12501, 1.12451, 1.12403, 1.12355, 1.12308, 1.12262, 1.12218, 1.12174, 1.12131, 1.12089, 1.12047, 1.12007, 1.11967, 1.11929, 1.1189, 1.11853, 1.11816)
-p_230.000000 <- c(1000, 1111.11, 1222.22, 1333.33, 1444.44, 1555.56, 1666.67, 1777.78, 1888.89, 2000, 2111.11, 2222.22, 2333.33, 2444.44, 2555.56, 2666.67, 2777.78, 2888.89, 3000, 3111.11, 3222.22, 3333.33, 3444.44, 3555.56, 3666.67, 3777.78, 3888.89, 4000, 4111.11, 4222.22, 4333.33, 4444.44, 4555.56, 4666.67, 4777.78, 4888.89, 5000, 5111.11, 5222.22, 5333.33, 5444.44, 5555.56, 5666.67, 5777.78, 5888.89, 6000, 6111.11, 6222.22, 6333.33, 6444.44, 6555.56, 6666.67, 6777.78, 6888.89, 7000, 7111.11, 7222.22, 7333.33, 7444.44, 7555.56, 7666.67, 7777.78, 7888.89, 8000, 8111.11, 8222.22, 8333.33, 8444.44, 8555.56, 8666.67, 8777.78, 8888.89, 9000, 9111.11, 9222.22, 9333.33, 9444.44, 9555.56, 9666.67, 9777.78, 9888.89, 10000, 10111.1, 10222.2, 10333.3, 10444.4, 10555.6, 10666.7, 10777.8, 10888.9, 11000, 11111.1, 11222.2, 11333.3, 11444.4, 11555.6, 11666.7, 11777.8, 11888.9, 12000)
-v_230.000000 <- c(1.09556, 1.09685, 1.09818, 1.09952, 1.1009, 1.10229, 1.10371, 1.10516, 1.10662, 1.1081, 1.1096, 1.11112, 1.11266, 1.11421, 1.11579, 1.11737, 1.11898, 1.1206, 1.12224, 1.12389, 1.12555, 1.12723, 1.12893, 1.13064, 1.13236, 1.13409, 1.13584, 1.1376, 1.13938, 1.14116, 1.14296, 1.14478, 1.1466, 1.14843, 1.15028, 1.15214, 1.15401, 1.15589, 1.15779, 1.15969, 1.16161, 1.16353, 1.16547, 1.16742, 1.16938, 1.17135, 1.17332, 1.1752, 1.17364, 1.17214, 1.17068, 1.16928, 1.16793, 1.16662, 1.16536, 1.16414, 1.16295, 1.1618, 1.16069, 1.15961, 1.15856, 1.15755, 1.15656, 1.1556, 1.15467, 1.15377, 1.15289, 1.15203, 1.1512, 1.15038, 1.14959, 1.14882, 1.14807, 1.14734, 1.14663, 1.14593, 1.14525, 1.14459, 1.14394, 1.14331, 1.14269, 1.14208, 1.14149, 1.14091, 1.14035, 1.1398, 1.13926, 1.13873, 1.13821, 1.1377, 1.13721, 1.13672, 1.13624, 1.13577, 1.13532, 1.13487, 1.13443, 1.134, 1.13357, 1.13316)
-p_255.000000 <- c(1000, 1111.11, 1222.22, 1333.33, 1444.44, 1555.56, 1666.67, 1777.78, 1888.89, 2000, 2111.11, 2222.22, 2333.33, 2444.44, 2555.56, 2666.67, 2777.78, 2888.89, 3000, 3111.11, 3222.22, 3333.33, 3444.44, 3555.56, 3666.67, 3777.78, 3888.89, 4000, 4111.11, 4222.22, 4333.33, 4444.44, 4555.56, 4666.67, 4777.78, 4888.89, 5000, 5111.11, 5222.22, 5333.33, 5444.44, 5555.56, 5666.67, 5777.78, 5888.89, 6000, 6111.11, 6222.22, 6333.33, 6444.44, 6555.56, 6666.67, 6777.78, 6888.89, 7000, 7111.11, 7222.22, 7333.33, 7444.44, 7555.56, 7666.67, 7777.78, 7888.89, 8000, 8111.11, 8222.22, 8333.33, 8444.44, 8555.56, 8666.67, 8777.78, 8888.89, 9000, 9111.11, 9222.22, 9333.33, 9444.44, 9555.56, 9666.67, 9777.78, 9888.89, 10000, 10111.1, 10222.2, 10333.3, 10444.4, 10555.6, 10666.7, 10777.8, 10888.9, 11000, 11111.1, 11222.2, 11333.3, 11444.4, 11555.6, 11666.7, 11777.8, 11888.9, 12000)
-v_255.000000 <- c(1.10979, 1.11103, 1.11229, 1.11357, 1.11488, 1.11622, 1.11757, 1.11894, 1.12034, 1.12175, 1.12318, 1.12462, 1.12609, 1.12757, 1.12906, 1.13057, 1.1321, 1.13364, 1.1352, 1.13676, 1.13835, 1.13994, 1.14155, 1.14317, 1.14481, 1.14646, 1.14812, 1.14979, 1.15147, 1.15317, 1.15487, 1.15659, 1.15832, 1.16006, 1.16181, 1.16357, 1.16534, 1.16713, 1.16892, 1.17072, 1.17254, 1.17436, 1.17619, 1.17804, 1.17989, 1.18175, 1.18363, 1.18551, 1.1874, 1.1893, 1.19117, 1.18958, 1.18805, 1.18657, 1.18514, 1.18375, 1.18241, 1.18111, 1.17985, 1.17863, 1.17744, 1.17629, 1.17517, 1.17409, 1.17304, 1.17201, 1.17102, 1.17005, 1.1691, 1.16819, 1.16729, 1.16642, 1.16557, 1.16474, 1.16394, 1.16315, 1.16238, 1.16163, 1.1609, 1.16018, 1.15948, 1.1588, 1.15813, 1.15748, 1.15684, 1.15622, 1.15561, 1.15501, 1.15442, 1.15385, 1.15329, 1.15274, 1.1522, 1.15167, 1.15116, 1.15065, 1.15015, 1.14966, 1.14919, 1.14872)
-p_280.000000 <- c(1000, 1111.11, 1222.22, 1333.33, 1444.44, 1555.56, 1666.67, 1777.78, 1888.89, 2000, 2111.11, 2222.22, 2333.33, 2444.44, 2555.56, 2666.67, 2777.78, 2888.89, 3000, 3111.11, 3222.22, 3333.33, 3444.44, 3555.56, 3666.67, 3777.78, 3888.89, 4000, 4111.11, 4222.22, 4333.33, 4444.44, 4555.56, 4666.67, 4777.78, 4888.89, 5000, 5111.11, 5222.22, 5333.33, 5444.44, 5555.56, 5666.67, 5777.78, 5888.89, 6000, 6111.11, 6222.22, 6333.33, 6444.44, 6555.56, 6666.67, 6777.78, 6888.89, 7000, 7111.11, 7222.22, 7333.33, 7444.44, 7555.56, 7666.67, 7777.78, 7888.89, 8000, 8111.11, 8222.22, 8333.33, 8444.44, 8555.56, 8666.67, 8777.78, 8888.89, 9000, 9111.11, 9222.22, 9333.33, 9444.44, 9555.56, 9666.67, 9777.78, 9888.89, 10000, 10111.1, 10222.2, 10333.3, 10444.4, 10555.6, 10666.7, 10777.8, 10888.9, 11000, 11111.1, 11222.2, 11333.3, 11444.4, 11555.6, 11666.7, 11777.8, 11888.9, 12000)
-v_280.000000 <- c(1.12429, 1.12546, 1.12666, 1.12789, 1.12914, 1.1304, 1.13169, 1.133, 1.13433, 1.13567, 1.13703, 1.1384, 1.1398, 1.1412, 1.14262, 1.14406, 1.14551, 1.14697, 1.14845, 1.14994, 1.15145, 1.15296, 1.15449, 1.15603, 1.15758, 1.15914, 1.16072, 1.1623, 1.1639, 1.16551, 1.16712, 1.16875, 1.17039, 1.17204, 1.1737, 1.17537, 1.17705, 1.17873, 1.18043, 1.18214, 1.18386, 1.18558, 1.18732, 1.18906, 1.19081, 1.19258, 1.19435, 1.19613, 1.19791, 1.19971, 1.20152, 1.20333, 1.20515, 1.20698, 1.20597, 1.2044, 1.20288, 1.20141, 1.19999, 1.19861, 1.19727, 1.19597, 1.19471, 1.19349, 1.1923, 1.19114, 1.19002, 1.18893, 1.18786, 1.18683, 1.18582, 1.18483, 1.18388, 1.18294, 1.18203, 1.18114, 1.18028, 1.17943, 1.1786, 1.1778, 1.17701, 1.17624, 1.17549, 1.17475, 1.17403, 1.17333, 1.17264, 1.17197, 1.17131, 1.17066, 1.17003, 1.16941, 1.1688, 1.16821, 1.16762, 1.16705, 1.16649, 1.16594, 1.16541, 1.16488)
-plot(0, type="n", xlim=c(1000,12000),ylim=c(1.06795,1.20698))
+PbManucciRosales c = 0 m = 1
+PbManucciRosales c = 0 m = 1
+BobStanding c = -1.34378 m = 1.75461
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+RsAlShammasi c = 114.044 m = 5.4739
+BobStanding c = -0.011345 m = 1.12983
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+BoaPetroskyFarshad c = -1.34378 m = 1.75461
+p_180.000000 <- c(400, 486.869, 573.737, 660.606, 747.475, 834.343, 921.212, 1008.08, 1094.95, 1181.82, 1268.69, 1355.56, 1442.42, 1529.29, 1616.16, 1703.03, 1789.9, 1876.77, 1963.64, 2050.51, 2137.37, 2224.24, 2311.11, 2397.98, 2484.85, 2571.72, 2658.59, 2745.45, 2832.32, 2919.19, 3006.06, 3092.93, 3179.8, 3266.67, 3353.54, 3440.4, 3527.27, 3614.14, 3701.01, 3787.88, 3874.75, 3961.62, 4048.48, 4135.35, 4222.22, 4309.09, 4395.96, 4482.83, 4569.7, 4656.57, 4743.43, 4830.3, 4917.17, 5004.04, 5090.91, 5177.78, 5264.65, 5351.52, 5438.38, 5525.25, 5612.12, 5698.99, 5785.86, 5872.73, 5959.6, 6046.46, 6133.33, 6220.2, 6307.07, 6393.94, 6480.81, 6567.68, 6654.55, 6741.41, 6828.28, 6915.15, 7002.02, 7088.89, 7175.76, 7262.63, 7349.49, 7436.36, 7523.23, 7610.1, 7696.97, 7783.84, 7870.71, 7957.58, 8044.44, 8131.31, 8218.18, 8305.05, 8391.92, 8478.79, 8565.66, 8652.53, 8739.39, 8826.26, 8913.13, 9000)
+v_180.000000 <- c(1.26203, 1.26953, 1.27745, 1.28577, 1.29445, 1.30348, 1.31282, 1.32247, 1.33242, 1.34265, 1.35315, 1.36391, 1.37493, 1.38621, 1.39772, 1.40947, 1.42146, 1.43367, 1.4461, 1.45876, 1.47162, 1.4847, 1.49799, 1.51147, 1.52516, 1.53905, 1.55313, 1.56741, 1.58187, 1.59652, 1.61136, 1.62637, 1.64157, 1.65695, 1.6725, 1.68822, 1.70412, 1.72019, 1.73642, 1.75283, 1.7694, 1.78613, 1.18826, 1.18511, 1.18204, 1.17905, 1.17613, 1.17327, 1.17049, 1.16776, 1.1651, 1.1625, 1.15995, 1.15745, 1.155, 1.1526, 1.15025, 1.14795, 1.14568, 1.14346, 1.14128, 1.13914, 1.13703, 1.13497, 1.13293, 1.13093, 1.12896, 1.12702, 1.12511, 1.12324, 1.12139, 1.11956, 1.11777, 1.116, 1.11425, 1.11253, 1.11084, 1.10916, 1.10751, 1.10588, 1.10427, 1.10268, 1.10111, 1.09957, 1.09803, 1.09652, 1.09503, 1.09355, 1.09209, 1.09065, 1.08922, 1.08781, 1.08642, 1.08504, 1.08367, 1.08232, 1.08099, 1.07966, 1.07835, 1.07706)
+plot(0, type="n", xlim=c(400,9000),ylim=c(1.07706,1.78613))
 lines(p_180.000000,v_180.000000,col=1)
-lines(p_205.000000,v_205.000000,col=2)
-lines(p_230.000000,v_230.000000,col=3)
-lines(p_255.000000,v_255.000000,col=4)
-lines(p_280.000000,v_280.000000,col=5)
-cnames <- c("T = 180.000000", "T = 205.000000", "T = 230.000000", "T = 255.000000", "T = 280.000000")
-cols <- c(1, 2, 3, 4, 5)
+cnames <- c("T = 180.000000")
+cols <- c(1)
 legend("topleft", legend=cnames, lty=1, col=cols)

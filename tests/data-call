@@ -7,3 +7,4 @@
 ./plot-corr --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --rs RsVelarde --c-rs -98.676172 --m-rs 1.048913 --t "140 200 6" --p "400 9000 40" --below BobStanding --c-bob -0.011345 --m-bob 1.129827 --above BoaHanafy --c-boa 0.580289 --m-boa 0.666618 --uod UodNaseri
 
 
+./plot-corr --t "140 200 6" --p "400 9000 100" --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --below RsAlShammasi 

@@ -987,9 +987,10 @@ void process_bo(PvtAnalyzer & pvt)
 
   auto above_stats = pvt.correlations_stats(above_corr_list, 1);
 	      
-  auto dmat = eval_correlations(below_stats, above_stats, 
-				pvt.get_data().name_index("Below Pb", "bob"), pvt,
-				get_eval_type(compute_type.getValue()));
+  auto dmat =
+    eval_correlations(below_stats, above_stats, 
+		      pvt.get_data().name_index("Below Pb", "bob"), pvt,
+		      get_eval_type(compute_type.getValue()));
 
   switch (get_output_type(output_type.getValue()))
     {

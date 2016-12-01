@@ -99,10 +99,11 @@ public:
 	  for_each([&pars] (const auto & par)
           {
 	    auto ptr = pars.insert(make_pair(par.name, DynList<string>()));
-	    par.get_synonyms().for_each([ptr] (const auto & p)
-              {
-		ptr->second.append(p.first);
-	      });
+	    if (ptr)
+	      par.get_synonyms().for_each([ptr] (const auto & p)
+                {
+		  ptr->second.append(p.first);
+		});	    
 	  });
       });
     return pars.items_ptr().maps<P>([] (auto ptr)

@@ -53,3 +53,9 @@
 ## 18. apagar rangos de entrada en test-corr
 - Created at   2016-11-30 16:21:11 -0400
 
+## 19. discutir modificar los rangos de temperatura y presión de las correlaciones
+- Created at   2016-11-30 20:00:06 -0400
+
+## 20. profiling (quiza con google-pprof
+- Created at   2016-12-01 11:44:25 -0400
+
