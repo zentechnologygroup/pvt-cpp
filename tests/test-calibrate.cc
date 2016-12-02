@@ -555,16 +555,32 @@ string r_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
 {
   ostringstream s;
 
+  double ymin = numeric_limits<double>::max();
+  double ymax = numeric_limits<double>::min();
   auto values = transpose(dmat.second);
   for (auto it = get_zip_it(dmat.first, values); it.has_curr(); it.next())
     {
       auto t = it.get_curr();
-      s << Rvector(get<0>(get<0>(t)), get<1>(t)) << endl;
+      const string & name = get<0>(get<0>(t));
+      const DynList<double> & y = get<1>(t);
+      s << Rvector(name, y) << endl;
+      if (name != "p")
+	{
+	  ymin = min(ymin, y.fold(ymin, [] (const auto & a, const auto & v)
+	    {
+	      return min(a, v);
+	    }));
+	  ymax = max(ymax, y.fold(ymax, [] (const auto & a, const auto & v)
+	    {
+	      return max(a, v);
+	    }));
+	}
     }
 
   auto second_name = get<0>(dmat.first.nth(1));
 
-  s << "plot(p, " << second_name << ")" << endl;
+  s << "plot(p, " << second_name << ",ylim=c(" << ymin << "," << ymax << "))"
+  << endl;
 
   size_t col = 1;
   DynList<string> colnames;
@@ -1218,7 +1234,8 @@ void process_uo(PvtAnalyzer & pvt)
 
   auto dmat = eval_correlations(pvt.correlations_stats(below_corr_list, 0),
 				pvt.correlations_stats(above_corr_list, 1),
-				pvt.get_data().name_index("Below Pb", "uob"), pvt,
+				pvt.get_data().name_index("Below Pb", "uob"),
+				pvt,
 				get_eval_type(compute_type.getValue()));
 
   if (uod_corr) // if uod was computed ==> delete from data set
