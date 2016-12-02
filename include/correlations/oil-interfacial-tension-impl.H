@@ -21,11 +21,12 @@ SgoBakerSwerdloff::impl(const Quantity<Fahrenheit> & t,
     sgoT = sgo100;
   else
     // Linear interpolation between the values obtained at 68 and 100 °F
-    sgoT = sgo68 - (t.raw() - 68)*(sgo68 - sgo100)/32;
+    sgoT = sgo68 - (t.raw() - 68)*(sgo68 - sgo100)/32.0;
             
   // Effect of dissolved gas on the dead oil interfacial tension
-  const double c = 1 - 0.024*pow(p, 0.45);
-        
+  
+  const double c = exp(-8.6306e-4 * p);
+      
   const double sgop = c*sgoT; // Interfacial tension at any pressure
         
   return Quantity<dynes_cm>(sgop);    

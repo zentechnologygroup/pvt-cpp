@@ -377,6 +377,14 @@ PbGlaso::impl(const Quantity<Sgg> & yg,
 	      const Quantity<MoleFraction> & co2_concentration,
 	      const Quantity<MoleFraction> & h2s_concentration) const
 {
+
+  if (n2_concentration.raw() + co2_concentration.raw() + h2s_concentration.raw() >= 1)
+    {
+      ostringstream s;
+      s << "In PbGlaso::impl: invalid values for nonhydrocarbon concentrations.";
+      throw domain_error(s.str());
+    }
+
   const double x = pow(rsb.raw()/yg.raw(), 0.816)*pow(t, 0.172)/pow(api, 0.989);
 
   const double log10x = log10(x);

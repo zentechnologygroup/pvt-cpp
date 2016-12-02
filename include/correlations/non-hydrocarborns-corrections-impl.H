@@ -9,6 +9,14 @@ YgHCWichertAziz::impl(const Quantity<Sgg> & yg,
 		      const Quantity<MoleFraction> & co2_concentration,
 		      const Quantity<MoleFraction> & h2s_concentration) const
 {
+
+  if (n2_concentration.raw() + co2_concentration.raw() + h2s_concentration.raw() >= 1)
+    {
+      ostringstream s;
+      s << "In YgHCWichertAziz::impl: invalid values for nonhydrocarbon concentrations.";
+      throw domain_error(s.str());
+    }
+
   const double n2 = n2_concentration.raw();
   const double co2 = co2_concentration.raw();
   const double h2s = h2s_concentration.raw();
@@ -24,6 +32,14 @@ PscMKayMixingRule::impl(const Quantity<psia> & ppchc,
 			const Quantity<MoleFraction> & co2_concentration,
 			const Quantity<MoleFraction> & h2s_concentration) const
 {
+
+  if (n2_concentration.raw() + co2_concentration.raw() + h2s_concentration.raw() >= 1)
+    {
+      ostringstream s;
+      s << "In PscMKayMixingRule::impl: invalid values for nonhydrocarbon concentrations.";
+      throw domain_error(s.str());
+    }
+
   const double n2 = n2_concentration.raw();
   const double co2 = co2_concentration.raw();
   const double h2s = h2s_concentration.raw();
@@ -42,6 +58,14 @@ AdjustedPscMWichertAziz::impl(const Quantity<psia> & ppcm,
 			      const Quantity<MoleFraction> & h2s_concentration)
   const
 {
+
+  if (co2_concentration.raw() + h2s_concentration.raw() >= 1)
+    {
+      ostringstream s;
+      s << "In AdjustedPscMWichertAziz::impl: invalid values for nonhydrocarbon concentrations.";
+      throw domain_error(s.str());
+    }
+
   const double a = co2_concentration.raw() + h2s_concentration.raw();
   const double b = h2s_concentration.raw();
         
@@ -62,6 +86,14 @@ TscMKayMixingRule::impl(const Quantity<Rankine> & tpchc,
 			const Quantity<MoleFraction> & co2_concentration,
 			const Quantity<MoleFraction> & h2s_concentration) const
 {
+
+  if (n2_concentration.raw() + co2_concentration.raw() + h2s_concentration.raw() >= 1)
+    {
+      ostringstream s;
+      s << "In TscMKayMixingRule::impl: invalid values for nonhydrocarbon concentrations.";
+      throw domain_error(s.str());
+    }
+
   const double n2 = n2_concentration.raw();
   const double co2 = co2_concentration.raw();
   const double h2s = h2s_concentration.raw();
@@ -77,6 +109,14 @@ AdjustedTscMWichertAziz::impl(const Quantity<Rankine> & tpcm,
 			      const Quantity<MoleFraction> & h2s_concentration)
   const
 {
+
+  if (co2_concentration.raw() + h2s_concentration.raw() >= 1)
+    {
+      ostringstream s;
+      s << "In AdjustedTscMWichertAziz::impl: invalid values for nonhydrocarbon concentrations.";
+      throw domain_error(s.str());
+    }
+
   const double a = co2_concentration.raw() + h2s_concentration.raw();
   const double b = h2s_concentration.raw();
   const double b4 = b*b*b*b;
