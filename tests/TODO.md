@@ -70,3 +70,6 @@
 ## 23. eliminar defined_rs_corr y ponerlo como variable local
 - Created at   2016-12-02 10:29:44 -0400
 
+## 24. DefinedCorrelation poner mínimo y máximos
+- Created at   2016-12-02 13:10:30 -0400
+

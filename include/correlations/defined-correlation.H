@@ -83,7 +83,10 @@ class DefinedCorrelation
   DynSetTree<Interval, Avl_Tree, Cmp> intervals;
   string main_par_name;
       // store all the parameter names for all correlations
-  DynSetTree<string> par_names; 
+  DynSetTree<string> par_names;
+
+  double min_val = 0;
+  double max_val = numeric_limits<double>::max();
 
 public:
 
@@ -184,6 +187,10 @@ public:
       << end << "] is already inserted";
     throw domain_error(s.str());
   }
+
+  void set_min(double min_val) { this->min_val = min_val; }
+
+  void set_max(double max_val) { this->max_val = max_val; }
 
   double
   compute_by_names(const DynList<Correlation::ParByName> & pars,

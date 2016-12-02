@@ -550,11 +550,6 @@ DynList<DynList<double>> generate_bo_values()
   DynList<Correlation::NamedPar> rs_pars_list =
     load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
 
-  unique_ptr<DefinedCorrelation> defined_rs_corr;
-  const Unit & rs_unit = rs_corr->unit;
-  const double rmin = rs_unit.min_val;
-  const double rmax = rs_unit.max_val;
-
   DynList<DynList<double>> vals; /// target, p, t
   DynList<double> row;
 
@@ -574,12 +569,11 @@ DynList<DynList<double>> generate_bo_values()
       rs_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
 
       auto bo_corr = target_correlation(pb_val.raw());
-      defined_rs_corr = make_unique<DefinedCorrelation>("p");
-      defined_rs_corr->add_tuned_correlation(rs_corr, rmin, pb_val.raw(),
-					     c_rs_arg.getValue(),
-					     m_rs_arg.getValue());
-      defined_rs_corr->add_correlation(&RsAbovePb::get_instance(),
-				       nextafter(pb_val.raw(), rmax), rmax);
+
+      auto rs_corr =
+	define_correlation(pb_val.raw(), ::rs_corr,
+			   c_rs_arg.getValue(), m_rs_arg.getValue(),
+			   &RsAbovePb::get_instance());
 
       // calcula el último bo de la correlación bob. Este será el
       // punto de partida de boa
@@ -600,10 +594,10 @@ DynList<DynList<double>> generate_bo_values()
 	  rs_pars_list.insert(p_par);
 	  row.insert(get<2>(p_par));
 
-	  auto rs = defined_rs_corr->compute_by_names(rs_pars_list, check);
+	  auto rs = rs_corr.compute_by_names(rs_pars_list, check);
 	  rs_pars_list.remove_first(); // remove p_par
 
-	  bo_pars_list.insert(make_tuple(true, "rs", rs, &rs_corr->unit));
+	  bo_pars_list.insert(make_tuple(true, "rs", rs, &::rs_corr->unit));
 
 	  auto bo = bo_corr.compute_by_names(bo_pars_list, check);
 

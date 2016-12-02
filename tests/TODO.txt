@@ -21,3 +21,4 @@ compute en empirical_data 1405: se puede acer más raṕido,2016-12-01 17:30:02 
 correlations en hidden no deben aparecer en test-calibrate ni plot-corr,2016-12-01 17:48:58 -0400,,
 verificar que unidades de salida de correlaciones por partes sean las mismas,2016-12-02 09:34:20 -0400,,podría ser en defindecorr
 eliminar defined_rs_corr y ponerlo como variable local,2016-12-02 10:29:44 -0400,,
+DefinedCorrelation poner mínimo y máximos,2016-12-02 13:10:30 -0400,,
