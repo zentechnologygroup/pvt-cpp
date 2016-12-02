@@ -7,7 +7,10 @@
 ./plot-corr --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --rs RsVelarde --c-rs -98.676172 --m-rs 1.048913 --t "140 200 6" --p "400 9000 40" --below BobStanding --c-bob -0.011345 --m-bob 1.129827 --above BoaHanafy --c-boa 0.580289 --m-boa 0.666618 --uod UodNaseri
 
 
+./plot-corr --t "180 280 10" --p "1000 1000 40" --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --rs RsAlShammasi --c-rs 114.043678 --m-rs 5.473902 --below BobStanding --cb -0.011345 --mb 1.129827 --above BoaPetroskyFarshad --ca -1.343780 --ma 1.754613 -t R
+
+
+./test-calibrate -f data.json -P uo -p --uod UodEgbogahNg --below UobDindorukChristman --above UoaPetroskyFarshad  -c both -t R
+
+
 ./plot-corr --t "180 180 1" --p "1000 1000 10" --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --rs RsAlShammasi --c-rs 114.043678 --m-rs 5.473902 --below BobStanding --cb -0.011345 --mb 1.129827 --above BoaPetroskyFarshad --ca -1.343780 --ma 1.754613
-
-
-./test-calibrate -f data.json -P uo -p --uod UodEgbogahNg -B UobDindorukChristman -A UoaPetroskyFarshad  -t R

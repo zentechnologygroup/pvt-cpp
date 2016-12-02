@@ -92,3 +92,4 @@ Revisar en compute_by_names que se puedan pasar también unidades,2016-11-25 16:
 revisar valor de epsilon en reporte de unidad,2016-09-12 15:49:09 -0400,,,2016-11-30 10:31:36 -0400
 Revisar los test oginales de unidades,2016-09-02 11:07:32 -0400,,,2016-11-30 10:31:52 -0400
 erificar matrix calibración,2016-11-18 09:33:39 -0400,2016-11-30 10:32:17 -0400,,2016-11-30 10:32:20 -0400
+discutir modificar los rangos de temperatura y presión de las correlaciones,2016-11-30 20:00:06 -0400,2016-12-02 08:55:19 -0400,,2016-12-02 08:55:24 -0400

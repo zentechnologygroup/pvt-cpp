@@ -222,7 +222,7 @@ void set_coa_corr(bool force = false)
 { set_correlation(coa_corr_arg, "coa", coa_corr, force); }
 
 ValueArg<double> c_uob_arg = { "", "c-uob", "uob c", false, 0, "uob c", cmd };
-ValueArg<double> m_uub_arg = { "", "m-uob", "uob m", false, 1, "uob m", cmd };
+ValueArg<double> m_uob_arg = { "", "m-uob", "uob m", false, 1, "uob m", cmd };
 ValueArg<string> uob_corr_arg = { "", "uob", "correlation for uob", false, "",
 				  "correlation for uob", cmd };
 const Correlation * uob_corr = nullptr;
@@ -230,7 +230,7 @@ void set_uob_corr(bool force = false)
 { set_correlation(uob_corr_arg, "uob", uob_corr, force); }
 
 ValueArg<double> c_uoa_arg = { "", "c-uoa", "uoa c", false, 0, "uoa c", cmd };
-ValueArg<double> m_uua_arg = { "", "m-uoa", "uoa m", false, 1, "uoa m", cmd };
+ValueArg<double> m_uoa_arg = { "", "m-uoa", "uoa m", false, 1, "uoa m", cmd };
 ValueArg<string> uoa_corr_arg = { "", "uoa", "correlation for uoa", false, "",
 				  "correlation for uoa", cmd };
 const Correlation * uoa_corr = nullptr;
@@ -418,16 +418,29 @@ SortType get_sort_type(const string & type)
   return SortType::Undefined;
 }
 
-DefinedCorrelation target_correlation(const double pb_val)
+DefinedCorrelation
+define_correlation(double pb_val,
+		   const Correlation * below_corr_ptr, double cb, double mb,
+		   const Correlation * above_corr_ptr,
+		   double ca = 0, double ma = 1)
 {
   double max_p = psia::get_instance().max_val;
   DefinedCorrelation ret("p");
   ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min_val, pb_val,
-			    cb_arg.getValue(), mb_arg.getValue());
+			    cb, mb);
   ret.add_tuned_correlation(above_corr_ptr, nextafter(pb_val, max_p), max_p,
-			    ca_arg.getValue(), ma_arg.getValue());
+			    ca, ma);
   return ret;
 }
+
+DefinedCorrelation target_correlation(double pb_val)
+{
+  return define_correlation(pb_val, below_corr_ptr,
+			    cb_arg.getValue(), mb_arg.getValue(),
+			    above_corr_ptr, 
+			    ca_arg.getValue(), ma_arg.getValue());
+}
+
 
 void
 test_parameter(const DynList<pair<string, DynList<string>>> & required,
@@ -482,7 +495,7 @@ DynList<DynList<double>> generate_rs_values()
 
       pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
 
-      auto def_corr = target_correlation(pb_val.raw());
+      auto rs_corr = target_correlation(pb_val.raw());
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
@@ -490,7 +503,7 @@ DynList<DynList<double>> generate_rs_values()
 	  pars_list.insert(p_par);
 	  row.insert(get<2>(p_par));
 	  
-	  auto val = def_corr.compute_by_names(pars_list, check);
+	  auto val = rs_corr.compute_by_names(pars_list, check);
 
 	  row.insert(val);
 	  vals.append(row);
@@ -658,7 +671,7 @@ DynList<DynList<double>> generate_uo_values()
       uo_pars_list.insert(make_tuple(true, "uod", uod_val.raw(), &uod_val.unit));
       rs_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
 
-      auto def_corr = target_correlation(pb_val.raw());
+      auto uo_corr = target_correlation(pb_val.raw());
       defined_rs_corr = make_unique<DefinedCorrelation>("p");
       defined_rs_corr->add_tuned_correlation(rs_corr, rmin, pb_val.raw(),
 					     c_rs_arg.getValue(),
@@ -688,7 +701,7 @@ DynList<DynList<double>> generate_uo_values()
 	  
 	  uo_pars_list.insert(make_tuple(true, "rs", rs, &rs_corr->unit));
 
-	  auto uo = def_corr.compute_by_names(uo_pars_list, check);
+	  auto uo = uo_corr.compute_by_names(uo_pars_list, check);
 
 	  row.insert(uo);
 	  vals.append(row);
@@ -714,7 +727,7 @@ DynList<DynList<double>> generate_uo_values()
   return vals;
 }
 
-DynList<DynList<double>> generate_grid()
+void generate_grid()
 {
   set_check();
   set_api();
@@ -751,14 +764,17 @@ DynList<DynList<double>> generate_grid()
   DynList<Correlation::NamedPar> uo_pars_list =
     load_constant_parameters({uob_corr, uoa_corr});
 
-  unique_ptr<DefinedCorrelation> defined_rs_corr;
-  const Unit & rs_unit = rs_corr->unit;
+  unique_ptr<DefinedCorrelation> rs_corr;
+  const Unit & rs_unit = ::rs_corr->unit;
   const double rmin = rs_unit.min_val;
   const double rmax = rs_unit.max_val;
 
-  DynList<DynList<double>> vals; /// target, p, t
-  DynList<double> row;
+  cout << "pb " << pb_corr->unit.symbol << "rs " << ::rs_corr->unit.symbol
+       << "uod " << uod_corr->unit.symbol << "co " << cob_corr->unit.symbol
+       << "bo " << bob_corr->unit.symbol << "uo " << uob_corr->unit.symbol
+       << endl;
 
+  DynList<double> row;
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       auto t_par = t_it.get_curr();
@@ -769,6 +785,7 @@ DynList<DynList<double>> generate_grid()
       pb_pars.insert(t_par);
       auto pb_val =
 	pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, check);
+      auto pb = pb_val.raw();
       pb_pars.remove_first(); // remove t_par
 
       uod_pars_list.insert(t_par);
@@ -779,14 +796,24 @@ DynList<DynList<double>> generate_grid()
       uo_pars_list.insert(make_tuple(true, "uod", uod_val.raw(), &uod_val.unit));
       rs_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
 
-      auto def_corr = target_correlation(pb_val.raw());
-      defined_rs_corr = make_unique<DefinedCorrelation>("p");
-      defined_rs_corr->add_tuned_correlation(rs_corr, rmin, pb_val.raw(),
-					     c_rs_arg.getValue(),
-					     m_rs_arg.getValue());
-      defined_rs_corr->add_correlation(&RsAbovePb::get_instance(),
-				       nextafter(pb_val.raw(), rmax), rmax);
+      auto rs_corr = define_correlation(pb, ::rs_corr, c_rs_arg.getValue(),
+					m_rs_arg.getValue(),
+					&RsAbovePb::get_instance());
 
+      auto co_corr =
+	define_correlation(pb,
+			   cob_corr, c_cob_arg.getValue(), m_cob_arg.getValue(),
+			   coa_corr, c_coa_arg.getValue(), m_coa_arg.getValue());
+      auto bo_corr =
+	define_correlation(pb,
+			   bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
+			   boa_corr, c_boa_arg.getValue(), m_boa_arg.getValue());
+      
+      auto uo_corr =
+	define_correlation(pb,
+			   uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
+			   uoa_corr, c_uoa_arg.getValue(), m_uoa_arg.getValue());
+      
       uo_pars_list.insert(make_tuple(true, "p", pb_val.raw(), &pb_val.unit));
       uo_pars_list.insert(make_tuple(true, "rs",
 				     get<2>(rsb_par), get<3>(rsb_par)));
@@ -804,15 +831,15 @@ DynList<DynList<double>> generate_grid()
 	  rs_pars_list.insert(p_par);
 	  row.insert(get<2>(p_par));
 
-	  auto rs = defined_rs_corr->compute_by_names(rs_pars_list, check);
+	  auto rs = rs_corr.compute_by_names(rs_pars_list, check);
 	  rs_pars_list.remove_first(); // remove p_par
 	  
-	  uo_pars_list.insert(make_tuple(true, "rs", rs, &rs_corr->unit));
+	  uo_pars_list.insert(make_tuple(true, "rs", rs, &::rs_corr->unit));
 
-	  auto uo = def_corr.compute_by_names(uo_pars_list, check);
+	  auto uo = uo_corr.compute_by_names(uo_pars_list, check);
 
 	  row.insert(uo);
-	  vals.append(row);
+	  // vals.append(row); AQUI se imprime
 	  
 	  row.remove_first(); // val
 	  row.remove_first(); // p_par
@@ -831,8 +858,6 @@ DynList<DynList<double>> generate_grid()
       uo_pars_list.remove_first(); // uod_val
       uo_pars_list.remove_first(); // t_par
     }
-
-  return vals;
 }
 
 using OptionPtr = DynList<DynList<double>> (*)();
