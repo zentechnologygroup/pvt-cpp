@@ -54,11 +54,13 @@ UwMatthewsRussel::impl(const Quantity<Fahrenheit> & t,
 {
   const double s = nacl_concentration.raw();
   const double s2 = s*s;
+
+  // Calculation of water viscosity at atmospheric pressure
   const double a = -0.04518 + 0.009313*s - 0.000393*s2;
   const double b = 70.634 + 0.09576*s2;
   const double uwat = a + b/t.raw();
         
-  // calculo de la viscosidad del agua corregida por presion
+  // Calculation of water viscosity corrected for pressure
   const double uw = uwat*(1 + 3.5e-12*p.raw()*p.raw()*(t.raw() - 40));
 
   return Quantity<CP>(uw);
