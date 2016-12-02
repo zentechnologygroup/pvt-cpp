@@ -1121,7 +1121,8 @@ def SgoBakerSwerdloffCorrelation(T,API,P):
     else:
         sgoT = sgo68 - (T-68)*(sgo68-sgo100)/32 # Linear interpolation between the values obtained at 68 and 100 °F
     # Effect of dissolved gas on the dead oil interfacial tension
-    C = 1 - 0.024 * P**0.45
+    # C = 1 - 0.024 * P**0.45
+    C = exp(-8.6306e-4 * P)
     sgoP = C*sgoT # Interfacial tension at any pressure
     sgo= sgoP    
     sgoBakerSwerdloff = sgo
