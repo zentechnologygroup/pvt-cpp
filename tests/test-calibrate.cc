@@ -504,10 +504,9 @@ void process_pb(PvtAnalyzer & pvt)
         {
 	  int per = round(get<2>(t)/get<1>(t) * 100);
 	  return DynList<string>( { get<0>(t)->call_string(),
-		to_string(get<1>(t)), to_string(get<2>(t)), to_string(per) });
+		to_string(get<1>(t)), to_string(-get<2>(t)), to_string(per) });
 	});
-      l.insert({"Correlation", "Value",
-	    "Error (pb = " + to_string(pvt.get_pb()) + ")", "%"});
+      l.insert({"Correlation", "Value", "c", "%"});
       cout << to_string(format_string(l)) << endl;
       exit(0);
     }

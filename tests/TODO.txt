@@ -16,7 +16,8 @@ opción all que reciba las correlaciones y calcule el grid,2016-11-29 21:31:05 -
 lib y optimización de pase de parámetros por nombre,2016-11-30 09:55:34 -0400,,
 calibrar co,2016-11-30 10:30:58 -0400,,
 apagar rangos de entrada en test-corr,2016-11-30 16:21:11 -0400,,
-discutir modificar los rangos de temperatura y presión de las correlaciones,2016-11-30 20:00:06 -0400,,
 profiling (quiza con google-pprof,2016-12-01 11:44:25 -0400,,
 compute en empirical_data 1405: se puede acer más raṕido,2016-12-01 17:30:02 -0400,,
 correlations en hidden no deben aparecer en test-calibrate ni plot-corr,2016-12-01 17:48:58 -0400,,
+verificar que unidades de salida de correlaciones por partes sean las mismas,2016-12-02 09:34:20 -0400,,podría ser en defindecorr
+eliminar defined_rs_corr y ponerlo como variable local,2016-12-02 10:29:44 -0400,,

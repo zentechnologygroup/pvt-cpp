@@ -53,15 +53,20 @@
 ## 18. apagar rangos de entrada en test-corr
 - Created at   2016-11-30 16:21:11 -0400
 
-## 19. discutir modificar los rangos de temperatura y presión de las correlaciones
-- Created at   2016-11-30 20:00:06 -0400
-
-## 20. profiling (quiza con google-pprof
+## 19. profiling (quiza con google-pprof
 - Created at   2016-12-01 11:44:25 -0400
 
-## 21. compute en empirical_data 1405: se puede acer más raṕido
+## 20. compute en empirical_data 1405: se puede acer más raṕido
 - Created at   2016-12-01 17:30:02 -0400
 
-## 22. correlations en hidden no deben aparecer en test-calibrate ni plot-corr
+## 21. correlations en hidden no deben aparecer en test-calibrate ni plot-corr
 - Created at   2016-12-01 17:48:58 -0400
+
+## 22. verificar que unidades de salida de correlaciones por partes sean las mismas
+- Created at   2016-12-02 09:34:20 -0400
+- Completed at 
+- Comment      podría ser en defindecorr
+
+## 23. eliminar defined_rs_corr y ponerlo como variable local
+- Created at   2016-12-02 10:29:44 -0400
 
