@@ -11,6 +11,14 @@ CobMcCainEtAl::impl(const Quantity<Api> & api,
 		    const Quantity<psia> & p,
 		    const Quantity<psia> & pb) const
 {
+
+  if (p > pb)
+    {
+      ostringstream s;
+      s << "CobMcCainEtAl::impl: pressure " << p << " is greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+
   const double co = exp(-7.573 - 1.450*log(p) - 0.383*log(pb) + 1.402*log(t) +
 			0.256*log(api) + 0.449*log(rsb));
   return Quantity<psia_1>(co);

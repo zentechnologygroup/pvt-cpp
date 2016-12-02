@@ -38,6 +38,13 @@ UobKhan::impl(const Quantity<SCF_STB> & rsb,
 	      const Quantity<psia> & pb) const
 {
 
+  if (p > pb)
+    {
+      ostringstream s;
+      s << "UobKhan::impl: pressure " << p << " is greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+
   const double tr = (t.raw() + 459.67)/459.67; // Relative Temperature
         
   const double a = 0.09*sqrt(yg);

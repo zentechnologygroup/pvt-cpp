@@ -13,7 +13,7 @@ PoaBradley::impl(const Quantity<Lb_ft3> & pobp,
   if (not (p > pb))
     {
       ostringstream s;
-      s << "PoaBradley::impl: pressure " << p << " is less than pb" << pb;
+      s << "PoaBradley::impl: pressure " << p << " is not greater than pb" << pb;
       throw domain_error(s.str());
     }
 

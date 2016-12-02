@@ -11,6 +11,13 @@ BoaMcCain::impl(const Quantity<RB_STB> & bobp,
 		const Quantity<psia_1> & co) const
 
 {
+
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "BoaMcCain::impl: pressure " << p << " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
   
   const double bwa = bobp.raw() * exp(co.raw() * (pb.raw() - p.raw()));
 
@@ -28,6 +35,13 @@ BoaDeGhetto::impl(const Quantity<RB_STB> & bobp,
 		  const Quantity<psia> & pb,
 		  const Quantity<psia> & psep) const
 {
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "BoaDeGhetto::impl: pressure " << p << " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+
   auto co = CoaDeGhetto::get_instance().impl(yg, api, rsb, t, tsep, p, psep);
         
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
@@ -39,6 +53,13 @@ BoaHanafy::impl(const Quantity<RB_STB> & bobp,
 		const Quantity<psia> & p,
 		const Quantity<psia> & pb) const
 {
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "BoaHanafy::impl: pressure " << p << " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+
   const double pob = 1 / (2.366 - 1.358/bobp.raw()); // Bubble point oil density
   const double co = 1e-6 * exp(2.582/pob - 0.990);
 
@@ -56,6 +77,13 @@ BoaKartoatmodjo::impl(const Quantity<RB_STB> & bobp,
 		      const Quantity<psia> & pb,
 		      const Quantity<psia> & psep) const
 {
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "BoaKartoatmodjo::impl: pressure " << p << " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+
   auto co = CoaKartoatmodjoSchmidt::get_instance().impl(yg, yo, rsb, t, tsep,
 							p, psep);
   
@@ -71,6 +99,13 @@ BoaPetroskyFarshad::impl(const Quantity<RB_STB> & bobp,
 			 const Quantity<psia> & p,
 			 const Quantity<psia> & pb) const
 {
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "BoaPetroskyFarshad::impl: pressure " << p << " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+
   auto co = CoaPetroskyFarshad::get_instance().impl(yg, yo, rsb, t, p);
 
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
@@ -88,6 +123,13 @@ BoaVasquezBeggs::impl(const Quantity<RB_STB> & bobp,
 		      const Quantity<psia> & pb,
 		      const Quantity<psia> & psep) const
 {
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "BoaVasquezBeggs::impl: pressure " << p << " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+
   auto co =
     CoaVasquezBeggs::get_instance().impl(yg, api, rsb, t, tsep, p, psep);
 
@@ -103,6 +145,13 @@ BoaPerezML::impl(const Quantity<RB_STB> & bobp,
 		 const Quantity<psia> & p,
 		 const Quantity<psia> & pb) const
 {
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "BoaPerezML::impl: pressure " << p << " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+
   auto co = CoaPerezML::get_instance().impl(yg, yo, rsb, t, p, pb);
 
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
@@ -116,6 +165,13 @@ BoaMillanArcia::impl(const Quantity<RB_STB> & bobp,
 		     const Quantity<psia> & p,
 		     const Quantity<psia> & pb) const 
 {
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "BoaMillanArcia::impl: pressure " << p << " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+
   auto co = CoaMillanArcia::get_instance().impl(api, rsb, t, p, pb);
 
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);

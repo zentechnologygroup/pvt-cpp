@@ -108,7 +108,14 @@ CoaPerezML::impl(const Quantity<Sgg> & yg,
 		const Quantity<psia> & p,
 		const Quantity<psia> & pb) const
 {
-            
+      
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "CoaPerezML::impl: pressure " << p << " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+      
   const double cob = 2.856e-7 * pow(rsb, 0.69357) * pow(yg, 0.1885) *
     pow(api, 0.3272) * pow(t, 0.6729) * pow(pb, -0.5906);
   
@@ -124,6 +131,13 @@ CoaMillanArcia::impl(const Quantity<Api> & api,
 		    const Quantity<psia> & p,
 		    const Quantity<psia> & pb) const
 {
+
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "CoaMillanArcia::impl: pressure " << p << " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
 
   const double cob = 2.075883e-6 * pow(api, 0.5307) * pow(t, -0.1143) *
     exp(2.0523e-4*pb.raw() + 4.0568e-4*rsb.raw());

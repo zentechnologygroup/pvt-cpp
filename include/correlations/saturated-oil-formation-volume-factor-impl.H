@@ -284,6 +284,14 @@ BobPerezML::impl(const Quantity<Sgg> & yg,
 		const Quantity<psia> & p,
 		const Quantity<psia> & pb) const
 {
+
+  if (p > pb)
+    {
+      ostringstream s;
+      s << "BobPerezML::impl: pressure " << p << " is greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+
   const double raw_rsb = rsb.get_value();
   const double raw_t = t.get_value();
   const double yg_yo = yg.get_value()/yo.get_value();
@@ -354,6 +362,14 @@ BobMillanArcia::impl(const Quantity<Api> & api,
 		    const Quantity<psia> & p,
 		    const Quantity<psia> & pb) const
 {
+
+  if (p > pb)
+    {
+      ostringstream s;
+      s << "BobMillanArcia::impl: pressure " << p << " is greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
   const double raw_api = api.get_value();
