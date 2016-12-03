@@ -80,9 +80,23 @@ public:
     data.check_variable("Above Pb", "boa", FVFvolumeRatio::get_instance());
     data.check_variable("Above Pb", "uoa", DinamicViscosity::get_instance());
 
-    // insert a new row in Above data set that is a copy oof the pb row
+    // insert a new row in Above data set that is a copy oof the pb
+    // row lightly increased
     const auto & bp_row = data.var_sets(0).samples.get_last();
-    data.var_sets(1).samples.insert(bp_row);
+    {
+      Array<double> next_row =
+	{ nextafter(bp_row(0), numeric_limits<double>::max()),
+	  bp_row(1),
+	  nextafter(bp_row(2), numeric_limits<double>::max()),
+	  nextafter(bp_row(3), numeric_limits<double>::min())
+	};
+      assert(next_row(0) > bp_row(0));
+      assert(next_row(1) == bp_row(1));
+      assert(next_row(2) > bp_row(2));
+      assert(next_row(3) < bp_row(3));
+      //      data.var_sets(1).samples.insert(bp_row);
+      data.var_sets(1).samples.insert(next_row);
+    }
     
     check_sorted("Below Pb", "p");
     check_sorted("Above Pb", "p");
@@ -94,15 +108,13 @@ public:
     check_sorted("Above Pb", "uoa");
 
     {
-      const double & min_p = data.var_sets(0).samples.get_first()(0);
-      const double & max_p = data.var_sets(0).samples.get_last()(0);
       const double & pb = bp_row(0);
       const double defined_pb = get<1>(data.find_const("pb"));
-      if (not check_values(defined_pb, pb, get_epsilon(min_p, max_p, error)))
+      if (defined_pb != pb)
 	{
 	  ostringstream s;
 	  s << "Defined pb value " << defined_pb
-	    << " is not close enough to the stored value in the matrix " << pb;
+	    << " is not equal to the stored value in the matrix " << pb;
 	  throw domain_error(s.str());
 	}
     }
@@ -110,15 +122,13 @@ public:
     const double & rsb = bp_row(1);
 
     {
-      const double & min_rs = data.var_sets(0).samples.get_first()(1);
-      const double & max_rs = data.var_sets(1).samples.get_last()(1);
       const double & rs = bp_row(1);
       const double defined_rsb = get<1>(data.find_const("rsb"));
-      if (not check_values(defined_rsb, rs, get_epsilon(min_rs, max_rs, error)))
+      if (defined_rsb != rs)
 	{
 	  ostringstream s;
 	  s << "Defined rsb value " << defined_rsb
-	    << " is not close enough to the stored value in the matrix " << rsb;
+	    << " is not equal to the stored value in the matrix " << rsb;
 	  throw domain_error(s.str());
 	}
     }

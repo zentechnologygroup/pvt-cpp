@@ -9,7 +9,6 @@ BoaMcCain::impl(const Quantity<RB_STB> & bobp,
 		const Quantity<psia> & p,
 		const Quantity<psia> & pb,
 		const Quantity<psia_1> & co) const
-
 {
 
   if (not (p > pb))
@@ -55,6 +54,7 @@ BoaHanafy::impl(const Quantity<RB_STB> & bobp,
 {
   if (not (p > pb))
     {
+      cout << fabs(p.raw() - pb.raw()) << " " << " " << (p < pb) << endl;
       ostringstream s;
       s << "BoaHanafy::impl: pressure " << p << " is not greater than pb " << pb;
       throw domain_error(s.str());

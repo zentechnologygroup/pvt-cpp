@@ -441,6 +441,15 @@ DefinedCorrelation target_correlation(double pb_val)
 			    ca_arg.getValue(), ma_arg.getValue());
 }
 
+DefinedCorrelation
+set_rs_correlation(double pb_val, double rsb, const Correlation * rs_corr,
+		   double c, double m)
+{
+  DefinedCorrelation ret = define_correlation(pb_val, rs_corr, c, m,
+					      &RsAbovePb::get_instance());
+  ret.set_max(rsb);
+  return ret;
+}
 
 void
 test_parameter(const DynList<pair<string, DynList<string>>> & required,
@@ -495,7 +504,9 @@ DynList<DynList<double>> generate_rs_values()
 
       pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
 
-      auto rs_corr = target_correlation(pb_val.raw());
+      auto rs_corr =
+	set_rs_correlation(pb_val.raw(), rsb_arg.getValue(), below_corr_ptr,
+			   cb_arg.getValue(), mb_arg.getValue());
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
@@ -570,10 +581,11 @@ DynList<DynList<double>> generate_bo_values()
 
       auto bo_corr = target_correlation(pb_val.raw());
 
-      auto rs_corr =
-	define_correlation(pb_val.raw(), ::rs_corr,
-			   c_rs_arg.getValue(), m_rs_arg.getValue(),
-			   &RsAbovePb::get_instance());
+       auto rs_corr = define_correlation(pb_val.raw(), ::rs_corr,
+					 c_rs_arg.getValue(), m_rs_arg.getValue(),
+					 &RsAbovePb::get_instance());
+      // auto rs_corr = set_rs_correlation(pb_val.raw(), rsb_arg.getValue(), ::rs_corr,
+      // 					c_rs_arg.getValue(), m_rs_arg.getValue());
 
       // calcula el último bo de la correlación bob. Este será el
       // punto de partida de boa

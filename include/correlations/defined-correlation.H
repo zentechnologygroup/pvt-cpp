@@ -217,7 +217,12 @@ public:
 	throw domain_error(s.str());
       }
 
-    return interval_ptr->compute(pars, check).raw();
+    double val = interval_ptr->compute(pars, check).raw();
+    if (val < min_val)
+      return min_val;
+    if (val > max_val)
+      return max_val;
+    return val;
   }
 
   double compute_by_names(const DynList<Correlation::NamedPar> & pars,
@@ -244,7 +249,12 @@ public:
 	throw domain_error(s.str());
       }
 
-    return interval_ptr->compute(pars, check).raw();
+    double val = interval_ptr->compute(pars, check).raw();
+    if (val < min_val)
+      return min_val;
+    if (val > max_val)
+      return max_val;
+    return val;
   }
 };
 
