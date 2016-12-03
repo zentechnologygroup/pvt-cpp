@@ -131,6 +131,7 @@ struct CorrelationInstantiater
     BoaPetroskyFarshad::get_instance();
     BoaVasquezBeggs::get_instance();
 
+    CobMcCainEtAl::get_instance();
     CoaDeGhetto::get_instance();
     CoaHanafy::get_instance();
     CoaKartoatmodjoSchmidt::get_instance();
@@ -253,8 +254,8 @@ struct CorrelationInstantiater
     BwaSpiveyMN::get_instance();
     BwaMcCain::get_instance();
 
+    // Al no ejecutarse esta instanci ==> la correlació no se incluye en tabla
     BwSpiveyMNDry::get_instance();
-
   }
 };
 

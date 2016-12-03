@@ -17,11 +17,13 @@
 
 ## Rs de prueba
 
-./plot-corr --t "200 500 10" --p "1000 10000 100" --tsep 100 --psep 100 --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --below RsAlShammasi --cb 114.043678 --mb 5.473902 -t R > test.Rw
+./plot-corr --t "200 500 10" --p "1000 10000 100" --tsep 100 --psep 100 --yg 0.71 --api 26 --rsb 1110 --pb PbManucciRosales --c-pb -191.095596 --below RsAlShammasi --cb 114.043678 --mb 5.473902 -t R > test.R
 
 ## Bo
 
 ./plot-corr --t "200 300 10" --p "1000 10000 100" --tsep 100 --psep 100 --yg 0.71 --api 26 --rsb 1110 --pb PbStanding --c-pb -1859.370394 --rs RsStanding --c-rs 73.384937 --m-rs 1.443112 --below BobStanding --cb 0.024074 --mb 1.102581 --above BoaPetroskyFarshad --ca -1.343799 --ma 1.754624 -t R > plot.R
 
-./plot-corr --t "200 300 10" --p "1000 10000 100" --tsep 100 --psep 100 --yg 0.71 --api 26 --rsb 1110 --pb PbStanding --c-pb -1859.370394 --rs RsStanding --c-rs 73.384937 --m-rs 1.443112 --bob BobStanding --c-bob 0.024074 --m-bob 1.102581 --boa BoaPetroskyFarshad --c-boa -1.343799 --m-boa 1.754624 --uod UodEgbogahNg --below UobGilFonseca --cb -0.070336 --mb 0.264486 --above Uoa UoaBeal --ca -0.181659 --ma 1.618373
+./plot-corr --t "180 300 11" --p "1000 10000 100" --tsep 100 --psep 100 --yg 0.71 --api 26 --rsb 1110 --pb PbStanding --c-pb -1859.370394 --rs RsStanding --c-rs 73.384937 --m-rs 1.443112 --bob BobStanding --c-bob 0.024074 --m-bob 1.102581 --boa BoaPetroskyFarshad --c-boa -1.343799 --m-boa 1.754624 --uod UodEgbogahNg --below UobGilFonseca --cb -0.070336 --mb 0.264486 --above UoaVasquezBeggs --ca 0.007800 --ma 0.991136 -t R > plot.R
+
+./plot-corr --t "180 300 11" --p "1000 10000 100" --tsep 100 --psep 100 --yg 0.71 --api 26 --rsb 1110 --pb PbStanding --c-pb -1859.370394 --rs RsStanding --c-rs 73.384937 --m-rs 1.443112 --bob BobStanding --c-bob 0.024074 --m-bob 1.102581 --boa BoaPetroskyFarshad --c-boa -1.343799 --m-boa 1.754624 --uod UodEgbogahNg --uob UobGilFonseca --c-uob -0.070336 --m-uob 0.264486 --uoa UoaVasquezBeggs --c-uoa 0.007800 --m-uoa 0.991136 --cob CobMcCainEtAl --coa CoaVasquezBeggs --grid
 

@@ -568,3 +568,21 @@
 - Comment      
 - Finished     
 
+## 96. eliminar uso de gsl para versiones standalone por ser de licencia gpl
+- Created at   2016-10-23 10:22:32 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 97. programa scriptque ejecute todos los tests
+- Created at   2016-08-11 14:19:13 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 98. generación de test optimizada
+- Created at   2016-09-02 11:19:53 -0400
+- Completed at 2016-12-03 09:15:35 -0400
+- Comment      
+- Finished     
+
