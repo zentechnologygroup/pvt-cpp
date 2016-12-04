@@ -461,6 +461,15 @@ test_parameter(const DynList<pair<string, DynList<string>>> & required,
     pars_list.append(par);
 }
 
+void print_parameters(const DynList<Correlation::NamedPar> & l)
+{
+  l.for_each([] (const auto & par)
+	     {
+	       cout << get<1>(par) << " = " << get<2>(par) << " ";
+	     });
+  cout << endl;
+}
+
 DynList<Correlation::NamedPar> compute_pb_and_load_constant_parameters()
 {
   DynList<Correlation::NamedPar> pars_list;
@@ -520,7 +529,6 @@ DynList<DynList<double>> generate_rs_values()
 	  vals.append(row);
 	  row.remove_first(); // val
 	  row.remove_first(); // p_par
-
 	}
 
       row.remove_first(); // t_par
@@ -532,6 +540,8 @@ DynList<DynList<double>> generate_rs_values()
   return vals;
 }
 
+/// Retorna la lista de parámetros necesarios por el conjunto de
+/// correlaciones que están en l
 DynList<Correlation::NamedPar>
 load_constant_parameters(const DynList<const Correlation*> & l)
 {
@@ -745,7 +755,7 @@ void generate_grid()
     error_msg("above option is incompatible with grid option");
 
   DynList<Correlation::NamedPar> pb_pars_list =
-    compute_pb_and_load_constant_parameters();
+    load_constant_parameters({pb_corr});
   
   DynList<Correlation::NamedPar> rs_pars_list =
     load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
@@ -762,16 +772,16 @@ void generate_grid()
   DynList<Correlation::NamedPar> uo_pars_list =
     load_constant_parameters({uob_corr, uoa_corr});
 
-  cout << "t " << Fahrenheit::get_instance().symbol
-       << ",pb " << pb_corr->unit.symbol
-       << ",uod " << uod_corr->unit.symbol
-       << ",bobp" << bob_corr->unit.symbol
-       << "uobp" << uob_corr->unit.symbol
-       << ",p" << psia::get_instance().symbol
-       << ",rs " << ::rs_corr->unit.symbol
-       << ",co " << cob_corr->unit.symbol
+  cout << ",uo " << uob_corr->unit.symbol 
        << ",bo " << bob_corr->unit.symbol
-       << ",uo " << uob_corr->unit.symbol
+       << ",co " << cob_corr->unit.symbol
+       << ",rs " << ::rs_corr->unit.symbol
+       << ",p " << psia::get_instance().symbol
+       << ",uobp " << uob_corr->unit.symbol
+       << ",bobp " << bob_corr->unit.symbol
+       << ",uod " << uod_corr->unit.symbol
+       << ",pb " << pb_corr->unit.symbol
+       << "t " << Fahrenheit::get_instance().symbol
        << endl;
 
   DynList<double> row;
@@ -783,6 +793,7 @@ void generate_grid()
       auto pb_val =
 	pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, check);
       auto pb = pb_val.raw();
+      auto pb_par = make_tuple(true, "pb", pb, &pb_val.unit);
       pb_pars.remove_first(); // remove t_par
 
       uod_pars_list.insert(t_par); // cálculo de uod
@@ -790,11 +801,13 @@ void generate_grid()
       uod_pars_list.remove_first();
 
       rs_pars_list.insert(t_par);
-      rs_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
+      rs_pars_list.insert(pb_par);
       auto rs_corr = define_correlation(pb, ::rs_corr, c_rs_arg.getValue(),
 					m_rs_arg.getValue(),
 					&RsAbovePb::get_instance());
 
+      co_pars_list.insert(t_par);
+      co_pars_list.insert(pb_par);
       auto co_corr =
 	define_correlation(pb,
 			   cob_corr, c_cob_arg.getValue(), m_cob_arg.getValue(),
@@ -805,7 +818,7 @@ void generate_grid()
 			   boa_corr, c_boa_arg.getValue(), m_boa_arg.getValue());
 
       uo_pars_list.insert(t_par);
-      uo_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
+      uo_pars_list.insert(pb_par);
       uo_pars_list.insert(make_tuple(true, "uod", uod_val.raw(), &uod_val.unit));
       auto uo_corr =
 	define_correlation(pb,
@@ -813,12 +826,13 @@ void generate_grid()
 			   uoa_corr, c_uoa_arg.getValue(), m_uoa_arg.getValue());
 
       // cálculo de bobp
+      bo_pars_list.insert(t_par);
       bo_pars_list.insert(make_tuple(true, "p", pb_val.raw(), &pb_val.unit));
       bo_pars_list.insert(make_tuple(true, "rs",
 				     get<2>(rsb_par), get<3>(rsb_par)));
       auto bobp =
-	below_corr_ptr->tuned_compute_by_names(bo_pars_list, cb_arg.getValue(),
-					       mb_arg.getValue(), check);
+	bob_corr->tuned_compute_by_names(bo_pars_list, cb_arg.getValue(),
+					 mb_arg.getValue(), check);
       bo_pars_list.remove_first(); // rs
       bo_pars_list.remove_first(); // p
 
@@ -827,12 +841,14 @@ void generate_grid()
       uo_pars_list.insert(make_tuple(true, "rs",
 				     get<2>(rsb_par), get<3>(rsb_par)));
       auto uobp =
-	below_corr_ptr->tuned_compute_by_names(uo_pars_list, cb_arg.getValue(),
-					       mb_arg.getValue(), check);
+	uob_corr->tuned_compute_by_names(uo_pars_list, cb_arg.getValue(),
+					 mb_arg.getValue(), check);
       uo_pars_list.remove_first(); // rs
       uo_pars_list.remove_first(); // pb
 
+      bo_pars_list.insert(pb_par);
       bo_pars_list.insert(make_tuple(true, "bobp", bobp.raw(), &bobp.unit));
+
       uo_pars_list.insert(make_tuple(true, "uobp", uobp.raw(), &uobp.unit));
 
       row.insert(get<2>(t_par)); // valores constantes en row según temperatura
@@ -870,7 +886,9 @@ void generate_grid()
 	  row.insert(co);
 	  row.insert(bo);
 	  row.insert(uo);
-	  
+
+	  assert(row.size() == 10);
+
 	  for (auto it = row.get_it(); it.has_curr(); it.next())
 	    {
 	      const auto & val = it.get_curr();
@@ -896,6 +914,9 @@ void generate_grid()
 
       rs_pars_list.remove_first(); // pb_par
       rs_pars_list.remove_first(); // t_par
+
+      co_pars_list.remove_first(); // pb_par
+      co_pars_list.remove_first(); // t_par
 
       bo_pars_list.remove_first(); // bobp
       bo_pars_list.remove_first(); // pb_val

@@ -586,3 +586,33 @@
 - Comment      
 - Finished     
 
+## 99. DefinedCorrelation poner mínimo y máximos
+- Created at   2016-12-02 13:10:30 -0400
+- Completed at 2016-12-04 11:47:19 -0400
+- Comment      
+- Finished     
+
+## 100. eliminar defined_rs_corr y ponerlo como variable local
+- Created at   2016-12-02 10:29:44 -0400
+- Completed at 2016-12-04 12:54:04 -0400
+- Comment      
+- Finished     
+
+## 101. verificar que unidades de salida de correlaciones por partes sean las mismas
+- Created at   2016-12-02 09:34:20 -0400
+- Completed at 2016-12-04 12:45:27 -0400
+- Comment      podría ser en defindecorr
+- Finished     podría ser en defindecorr
+
+## 102. apagar rangos de entrada en test-corr
+- Created at   2016-11-30 16:21:11 -0400
+- Completed at 2016-12-04 12:54:19 -0400
+- Comment      
+- Finished     
+
+## 103. opción all que reciba las correlaciones y calcule el grid
+- Created at   2016-11-29 21:31:05 -0400
+- Completed at 2016-12-04 13:49:10 -0400
+- Comment      
+- Finished     
+

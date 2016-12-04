@@ -12,6 +12,8 @@
 
 using namespace TCLAP;
 
+bool check = false;
+
 DynList<DynList<double>>
 generate_pars_values(const Correlation * const corr_ptr, size_t n)
 {
@@ -108,16 +110,16 @@ void full_mat(const Correlation * const corr_ptr, size_t n,
 	  string ret;
 	  try
 	    {
-	      ret = to_string(corr_ptr->compute_and_check(sample));
+	      ret = to_string(corr_ptr->compute_and_check(sample, check));
 	    }
 	  catch (exception & e)
 	    {
-	      ret = to_string(corr_ptr->compute(sample));
+	      ret = to_string(corr_ptr->compute(sample, check));
 	    }
 	  return ret;
 	}
       else
-	return to_string(corr_ptr->compute_and_check(sample));
+	return to_string(corr_ptr->compute_and_check(sample, check));
     });
 
   auto mat = zip(samples, results).maps<DynList<string>>([] (auto p)
@@ -162,7 +164,7 @@ void full_mat(const Correlation * const corr_ptr, const DynList<RangeDesc> & l,
       string ret;
       try
 	{
-	  ret = to_string(corr_ptr->compute_and_check(sample));
+	  ret = to_string(corr_ptr->compute_and_check(sample, check));
 	}
       catch (exception & e)
 	{
@@ -191,7 +193,7 @@ void full_mat(const Correlation * const corr_ptr, const DynList<RangeDesc> & l,
       string result;
       try
 	{
-	  result = to_string(corr_ptr->compute_and_check(sample));
+	  result = to_string(corr_ptr->compute_and_check(sample, check));
 	}
       catch (exception & e)
 	{
@@ -224,7 +226,7 @@ void mat_csv(const Correlation * const corr_ptr, size_t n)
       try
 	{
 	  s.for_each([] (auto v) { cout << v << ", "; });
-	  auto r = corr_ptr->compute_and_check(s);
+	  auto r = corr_ptr->compute_and_check(s, check);
 	  cout << r << endl;
 	}
       catch (...)
@@ -251,7 +253,7 @@ void mat_csv(const Correlation * const corr_ptr, const DynList<RangeDesc> & l,
       try
 	{
 	  s.for_each([] (auto v) { cout << v << ", "; });
-	  auto r = corr_ptr->compute_and_check(s);
+	  auto r = corr_ptr->compute_and_check(s, check);
 	  cout << r << endl;
 	}
       catch (...)
@@ -282,7 +284,7 @@ struct Find_Extremes
 
   bool operator () (const DynList<double> & pars) 
   {
-    auto r = corr_ptr->compute(pars);
+    auto r = corr_ptr->compute(pars, check);
     if (r < min_val)
       {
 	if (verbose)
@@ -418,6 +420,9 @@ void test(int argc, char *argv[])
 
   SwitchArg symbols = { "s", "latex-symbols", "latex symbols", cmd };
 
+  SwitchArg check_arg = { "C", "check-ranges", "check correlation input ranges",
+			  cmd };
+
   cmd.parse(argc, argv);
 
   if (symbols.getValue())
@@ -431,6 +436,8 @@ void test(int argc, char *argv[])
       cout << to_string(format_string(l)) << endl;
       exit(0);
     }
+
+  check = check_arg.getValue();
 
   if (list_corr.getValue())
     {
@@ -608,25 +615,17 @@ void test(int argc, char *argv[])
 	  auto vals =
 	    find_extremes(correlation_ptr, ranges.keys(), verbose.getValue());
 	  cout << "min at " << correlation_ptr->call_string(vals.first.second)
-	       << " = " << vals.first.first << " " << correlation_ptr->unit.symbol
-	       <<endl
+	       << " = " << vals.first.first << " "
+	       << correlation_ptr->unit.symbol <<endl
 	       << "max at " << correlation_ptr->call_string(vals.second.second)
-	       << " = " << vals.second.first << " " << correlation_ptr->unit.symbol
-	       << endl
+	       << " = " << vals.second.first << " "
+	       << correlation_ptr->unit.symbol << endl
 	       << endl;
 	  return;
 	}
 
     }
 
-  // if (pars.getValue().size() != correlation_ptr->get_num_pars())
-  //   {
-  //     cout << "Correlation " << correlation_ptr->name << " expects "
-  // 	   << correlation_ptr->get_num_pars() << " parameters but "
-  // 	   << pars.getValue().size() << " were passed" << endl;
-  //     abort();
-  //   }
-  
   Array<const Unit*> params = correlation_ptr->get_par_types(); 
   for (const auto & p : arg_unit.getValue())
     {
@@ -668,12 +667,12 @@ void test(int argc, char *argv[])
 
   if (ignore.getValue())
     {
-      auto ret = correlation_ptr->compute(pars_list);
+      auto ret = correlation_ptr->compute(pars_list, check);
       cout << correlation_ptr->call_string(pars_list) << " = " << ret << endl;
     }
   else
     {
-      auto ret = correlation_ptr->compute_and_check(pars_list);
+      auto ret = correlation_ptr->compute_and_check(pars_list, check);
       cout << correlation_ptr->call_string(pars_list) << " = " << ret << endl;
     }
 

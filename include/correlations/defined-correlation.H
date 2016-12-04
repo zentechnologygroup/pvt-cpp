@@ -14,6 +14,8 @@ class DefinedCorrelation
     double c, m; // set if the correlation is tuned
     bool tuned = false;
 
+    const Unit * result_unit = nullptr;
+
     Interval() {}
 
     Interval(const Correlation * ptr, double start, double end)
@@ -34,41 +36,39 @@ class DefinedCorrelation
       this->m = m;
     }
 
+    VtlQuantity to_result_unit(const VtlQuantity & val) const
+    {
+      if (result_unit == &val.unit)
+	return val;
+      return VtlQuantity(*result_unit, val);
+    }
+
     VtlQuantity
     compute_and_check(const DynList<VtlQuantity> & pars,
 		      bool check = true) const
     {
-      if (tuned)
-	return correlation_ptr->tuned_compute_and_check(pars, c, m, check);
-
-      return correlation_ptr->compute_and_check(pars, check);
-    }
-
-    double
-    compute(const DynList<double> & pars, bool check = true) const
-    {
-      if (tuned)
-	return correlation_ptr->tuned_compute(pars, c, m, check);
-
-      return correlation_ptr->compute(pars, check);
+      auto val = tuned ?
+	correlation_ptr->tuned_compute_and_check(pars, c, m, check) :
+	correlation_ptr->compute_and_check(pars, check);
+      return to_result_unit(val);
     }
 
     VtlQuantity compute(const DynList<Correlation::ParByName> & pars,
 			bool check = true) const
     {
-      if (tuned)
-	return correlation_ptr->tuned_compute_by_names(pars, c, m, check);
-
-      return correlation_ptr->compute_by_names(pars, check);
+      auto val = tuned ?
+	correlation_ptr->tuned_compute_by_names(pars, c, m, check) :
+	correlation_ptr->compute_by_names(pars, check);
+      return to_result_unit(val);
     }
 
     VtlQuantity compute(const DynList<Correlation::NamedPar> & pars,
 			bool check = true) const
     {
-      if (tuned)
-	return correlation_ptr->tuned_compute_by_names(pars, c, m, check);
-
-      return correlation_ptr->compute_by_names(pars, check);
+      auto val = tuned ?
+	correlation_ptr->tuned_compute_by_names(pars, c, m, check) :
+	correlation_ptr->compute_by_names(pars, check);
+      return to_result_unit(val);
     }
   };
 
@@ -87,6 +87,9 @@ class DefinedCorrelation
 
   double min_val = 0;
   double max_val = numeric_limits<double>::max();
+
+  const Unit * result_unit = nullptr; // it will be the result unit of
+				      // the first defined correlation
 
 public:
 
@@ -127,10 +130,11 @@ public:
 	p->get_preconditions().for_each([&pars] (const auto & par)
           {
 	    auto ptr = pars.insert(make_pair(par.name, DynList<string>()));
-	    par.get_synonyms().for_each([ptr] (const auto & p)
-              {
-		ptr->second.append(p.first);
-	      });
+	    if (ptr)
+	      par.get_synonyms().for_each([ptr] (const auto & p)
+                {
+		  ptr->second.append(p.first);
+		});
 	  });
       });
     return pars.items_ptr().maps<P>([] (auto ptr)
@@ -152,30 +156,15 @@ public:
   DefinedCorrelation(const string & main_par_name)
     : main_par_name(main_par_name) {}
 
-  void add_correlation(const Correlation * correlation_ptr,
-		       double start, double end)
-  {
-    auto result = intervals.insert(Interval(correlation_ptr, start, end));
-    if (result)
-      {
-	correlation_ptr->get_preconditions().for_each([this] (const auto & par)
-				  {
-				    par_names.insert(par.name);
-				  });
-	return;
-      }
-    ostringstream s;
-    s << "DefinedCorrelation::add_correlation: interval [" << start << ", "
-      << end << "] is already inserted";
-    throw domain_error(s.str());
-  }
-  
   void add_tuned_correlation(const Correlation * correlation_ptr,
 			     double start, double end, double c, double m)
   {
     auto result = intervals.insert(Interval(correlation_ptr, start, end, c, m));
     if (result)
       {
+	if (result_unit == nullptr)
+	  result_unit = &correlation_ptr->unit;
+	result->result_unit = result_unit;
 	correlation_ptr->get_preconditions().for_each([this] (const auto & par)
           {
 	    par_names.insert(par.name);
@@ -188,9 +177,15 @@ public:
     throw domain_error(s.str());
   }
 
+  void add_correlation(const Correlation * correlation_ptr,
+		       double start, double end)
+  {
+    intervals.insert(Interval(correlation_ptr, start, end, 0, 1));
+  }
+
   void set_min(double min_val) { this->min_val = min_val; }
 
-  void set_max(double max_val) { this->max_val = max_val; }
+  void set_max(double max_val) { this->max_val = max_val; } 
 
   double
   compute_by_names(const DynList<Correlation::ParByName> & pars,

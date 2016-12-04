@@ -33,38 +33,21 @@
 ## 11. Buscar parámetro yo y asegurar que exista sinónimo api. Análogamente para api
 - Created at   2016-11-29 10:23:50 -0400
 
-## 12. opción all que reciba las correlaciones y calcule el grid
-- Created at   2016-11-29 21:31:05 -0400
-
-## 13. lib y optimización de pase de parámetros por nombre
+## 12. lib y optimización de pase de parámetros por nombre
 - Created at   2016-11-30 09:55:34 -0400
 
-## 14. calibrar co
+## 13. calibrar co
 - Created at   2016-11-30 10:30:58 -0400
 
-## 15. apagar rangos de entrada en test-corr
-- Created at   2016-11-30 16:21:11 -0400
-
-## 16. profiling (quiza con google-pprof
+## 14. profiling (quiza con google-pprof
 - Created at   2016-12-01 11:44:25 -0400
 
-## 17. compute en empirical_data 1405: se puede acer más raṕido
+## 15. compute en empirical_data 1405: se puede acer más raṕido
 - Created at   2016-12-01 17:30:02 -0400
 
-## 18. correlations en hidden no deben aparecer en test-calibrate ni plot-corr
+## 16. correlations en hidden no deben aparecer en test-calibrate ni plot-corr
 - Created at   2016-12-01 17:48:58 -0400
 
-## 19. verificar que unidades de salida de correlaciones por partes sean las mismas
-- Created at   2016-12-02 09:34:20 -0400
-- Completed at 
-- Comment      podría ser en defindecorr
-
-## 20. eliminar defined_rs_corr y ponerlo como variable local
-- Created at   2016-12-02 10:29:44 -0400
-
-## 21. DefinedCorrelation poner mínimo y máximos
-- Created at   2016-12-02 13:10:30 -0400
-
-## 22. ajustar uod en test-calibrate
+## 17. ajustar uod en test-calibrate
 - Created at   2016-12-03 09:07:15 -0400
 
