@@ -51,3 +51,6 @@
 ## 17. ajustar uod en test-calibrate
 - Created at   2016-12-03 09:07:15 -0400
 
+## 18. búsqueda de unidades por tabla hash óptima
+- Created at   2016-12-05 08:24:35 -0400
+

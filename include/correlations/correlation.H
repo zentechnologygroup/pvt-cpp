@@ -41,6 +41,29 @@ private:
   
 public:
 
+  static string ruby_class()
+  {
+    return R"Ruby(
+       class CorrelationPar
+       attr_reader :name, :unit, :min_val, :max_val
+       def initialize(name, unit, min_val, max_val)
+         @name = name
+         @unit = name
+         @min_val = min_val
+         @max_val = max_val
+       end
+     end
+    )Ruby";
+  }
+
+  string to_ruby_class() const
+  {
+    ostringstream s;
+    s << "CorrelationPar.new(" << name << ", " << unit.name << ", "
+      << min_val.raw() << ", " << max_val.raw() << ")";
+    return s.str();
+  }
+
   void add_synonym(const string & name, const Unit & unit)
   {
     if (not this->unit.is_sibling(unit))
@@ -583,7 +606,54 @@ public:
       << "  Parameters (" << get_num_pars() << "):" << endl
       << ::to_string(mat);
 
-    
+    return s.str();
+  }
+
+  static string ruby_class()
+  {
+    ostringstream s;
+    s << "class Correlation" << endl
+      << "attr_reader :name, :unit, :min_val, :max_val, :pars" << endl
+      << "def initialize(name, unit, min_val, max_val)" << endl
+      << "@name = name" << endl
+      << "@unit = name" << endl
+      << "@min_val = min_val" << endl
+      << "@max_val = max_val" << endl
+      << "@pars = *args" << endl
+      << "end" << endl
+      << "end";
+    return s.str();
+  }
+
+  static string to_ruby_def() 
+  {
+    ostringstream s;
+
+    s << CorrelationPar::ruby_class() << endl
+      << endl
+      << ruby_class() << endl
+      << endl
+      << "$correlations_tbl = " << endl
+      << "  { " << endl;
+
+    for (auto corr_it = correlations_tbl.get_it();
+	 corr_it.has_curr(); corr_it.next())
+      {
+	auto corr = corr_it.get_curr();
+	s << "'" << corr->name << "' => Correlation.new('" << corr->name << "', "
+	  << "'" << corr->unit.name << "', " << corr->min_val << ", "
+	  << corr->max_val;
+	for (auto it = corr->preconditions.get_it(); it.has_curr(); it.next())
+	  {
+	    const auto & par = it.get_curr();
+	    s << ", " << par.to_ruby_class();
+	  }
+	s << ")" << endl;
+	if (corr != correlations_tbl.get_last())
+	  s << ", ";
+      }
+
+    s << "  }" << endl;
 
     return s.str();
   }

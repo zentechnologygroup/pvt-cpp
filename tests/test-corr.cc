@@ -420,10 +420,18 @@ void test(int argc, char *argv[])
 
   SwitchArg symbols = { "s", "latex-symbols", "latex symbols", cmd };
 
-  SwitchArg check_arg = { "C", "check-ranges", "check correlation input ranges",
-			  cmd };
+  SwitchArg check_arg = { "", "disable-ranges-check",
+			  "disable checking of correlation input ranges", cmd };
+
+  SwitchArg ruby = { "R", "ruby-hash", "generate ruby hash", cmd };
 
   cmd.parse(argc, argv);
+
+  if (ruby.getValue())
+    {
+      cout << Correlation::to_ruby_def() << endl;
+      exit(0);
+    }
 
   if (symbols.getValue())
     {
