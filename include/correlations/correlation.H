@@ -59,7 +59,7 @@ public:
   string to_ruby_class() const
   {
     ostringstream s;
-    s << "CorrelationPar.new(" << name << ", " << unit.name << ", "
+    s << "CorrelationPar.new('" << name << "', '" << unit.name << "', "
       << min_val.raw() << ", " << max_val.raw() << ")";
     return s.str();
   }
@@ -614,7 +614,7 @@ public:
     ostringstream s;
     s << "class Correlation" << endl
       << "attr_reader :name, :unit, :min_val, :max_val, :pars" << endl
-      << "def initialize(name, unit, min_val, max_val)" << endl
+      << "def initialize(name, unit, min_val, max_val, *args)" << endl
       << "@name = name" << endl
       << "@unit = name" << endl
       << "@min_val = min_val" << endl
@@ -636,6 +636,7 @@ public:
       << "$correlations_tbl = " << endl
       << "  { " << endl;
 
+    auto last_corr = correlations_tbl.get_last();
     for (auto corr_it = correlations_tbl.get_it();
 	 corr_it.has_curr(); corr_it.next())
       {
@@ -648,9 +649,9 @@ public:
 	    const auto & par = it.get_curr();
 	    s << ", " << par.to_ruby_class();
 	  }
-	s << ")" << endl;
-	if (corr != correlations_tbl.get_last())
-	  s << ", ";
+	s << ")";
+	if (corr != last_corr)
+	  s << ", " << endl;
       }
 
     s << "  }" << endl;
