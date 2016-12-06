@@ -8,20 +8,11 @@ load 'correlations.rb'
 def test_preamble(name)
 <<~HEREDOC
 # include <cassert>
-# include <tclap/CmdLine.h>
-# include <correlations/test-utils.H>
+# include <correlations/unittest-utils.H>
+# include <correlations/pvt-correlations.H>
 
-using namespace TCLAP;
-
-CmdLine cmd(#{name}, ' ', "0");
-ValueArg<double> epsilon_arg = 
-  { "e", "epsilon", "epsilon", false, 1e-3, "epsilon", cmd };
-
-int main(int argc, char *argv[])
-{
-  cmd.parse(argc, argv);
-  double epsilon = epsilon_arg.getValue();
-  
+int main()
+{  
 HEREDOC
 end
 
@@ -37,8 +28,11 @@ def gen_test_corr(csv_row, correlation, line)
     
   result_unit = csv_row["result unit"]
   error_msg "result unit", corr_name, line unless result_unit
+
+  epsilon = csv_row['epsilon'] || 1e-1
   
-  s = "assert(are_equal(#{corr_name}::get_instance().impl(\n"
+  s = "correlation_test(\"#{corr_name}\", #{line},\n"\
+      "#{corr_name}::get_instance().impl(\n"
   
   correlation.pars.each do |par|
     par_name = par.name
@@ -53,7 +47,9 @@ def gen_test_corr(csv_row, correlation, line)
     s += "," if par != correlation.pars.last
     s += "\n"
   end
-  s += "), Quantity<#{result_unit}>(#{test_result.to_f}), epsilon));\n"
+  s += "),\n"\
+       "Quantity<#{result_unit}>(#{test_result.to_f}),\n"\
+       "#{epsilon}\n);\n"
 end
 
 def test_epilogue

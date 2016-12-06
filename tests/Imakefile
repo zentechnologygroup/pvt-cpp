@@ -6,13 +6,12 @@ DEPEND = sh ./depend.sh
 SUBDIRS = unittests
 
 MakeSubdirs($(SUBDIRS))
-DependSubdirs($(SUBDIRS))
 
 CXXPATH=$(shell echo $$CLANGPATH)
 
 #CXX = $(CXXPATH)/bin/clang++  
 
-INCLUDES = -I../include -I$(ALEPHW) 
+INCLUDES = -I$(TOP)/include -I$(ALEPHW) 
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
 	-Wno-parentheses
 
