@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'optionparser'
+
+load 'correlations.rb'
+
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-t CORRNAME', '--test CORRNAME', 
+          'Correlation name to be tested') do |corr_name|
+    options[:file_name] = corr_name
+  end
+
+end
+
+options_parser.parse!
