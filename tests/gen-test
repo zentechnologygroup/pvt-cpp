@@ -6,15 +6,26 @@ require 'optionparser'
 load 'correlations.rb'
 
 def test_preamble
-%Q{
+<<~HEREDOC
 # include <cassert>
 # include <correlations/correlation.H>
 
 int main()
 {
-}
+HEREDOC
 end
 
+def gen_test_corr(csv_row, correlation)
+  s = "assert(#{correlation.name}::get_instance().impl(\n"
+  correlation.pars.each do |par|
+    s += "Quantity<#{}"
+  end
+  s += ");"
+end
+
+def test_epilogue
+  "}"
+end
 
 options = {}
 options_parser = OptionParser.new do |opts|
