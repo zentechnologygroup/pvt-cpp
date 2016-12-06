@@ -1,7 +1,12 @@
-		DEPEND = sh ./depend.sh
+DEPEND = sh ./depend.sh
 
-# KLEE=/home/lrleon/klee/Release+Asserts/bin
-# CLANGCPP=/home/lrleon/LLVM-3.4.2/bin/clang++ -I$(KLEE)/include
+# define IHaveSubdirs
+# define PassCDebugFlags
+
+SUBDIRS = unittests
+
+MakeSubdirs($(SUBDIRS))
+DependSubdirs($(SUBDIRS))
 
 CXXPATH=$(shell echo $$CLANGPATH)
 

@@ -48,7 +48,7 @@ public:
        attr_reader :name, :unit, :min_val, :max_val
        def initialize(name, unit, min_val, max_val)
          @name = name
-         @unit = name
+         @unit = unit
          @min_val = min_val
          @max_val = max_val
        end
