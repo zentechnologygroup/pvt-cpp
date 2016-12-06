@@ -1,4 +1,4 @@
-# ifndef UITTEST_UTILS_H
+# ifndef UNITTEST_UTILS_H
 # define UNITTEST_UTILS_H
 
 # include <cmath>
@@ -18,13 +18,15 @@ inline void correlation_test(const string & name,
   if (fabs(result.raw() - expected.raw()) <= epsilon)
     return;
 
-  cout << "Test for correlation " << name << " failed in csv line " << csv_line
+  cout << "Test for correlation " << name << " csv line " << csv_line
        << " failed" << endl
        << "    Result   = " << result << endl
        << "    Expected = " << expected << endl
        << "    epsilon  = " << epsilon << endl
        << endl;
 }
+
+
 
 
 inline void __zen__test(bool pred, const char * exp_text,

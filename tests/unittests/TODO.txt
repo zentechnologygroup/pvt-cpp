@@ -1,0 +1,1 @@
+test debe expresar la invocación lista para test-corr, de modo que usuario pueda verificar,2016-12-06 17:32:16 -0400,,
