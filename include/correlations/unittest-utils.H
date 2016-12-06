@@ -8,6 +8,8 @@
 
 using namespace std;
 
+
+
 template <class Unit1, class Unit2>
 inline void correlation_test(const string & name,
 			     size_t csv_line,
@@ -25,8 +27,6 @@ inline void correlation_test(const string & name,
        << "    epsilon  = " << epsilon << endl
        << endl;
 }
-
-
 
 
 inline void __zen__test(bool pred, const char * exp_text,
