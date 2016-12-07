@@ -4,25 +4,25 @@
 # include <strings.h>
 
 /* FOREGROUND */
-# define RST  "\x1B[0m"
-# define KRED  "\x1B[31m"
-# define KGRN  "\x1B[32m"
-# define KYEL  "\x1B[33m"
-# define KBLU  "\x1B[34m"
-# define KMAG  "\x1B[35m"
-# define KCYN  "\x1B[36m"
-# define KWHT  "\x1B[37m"
+# define COLOR_RESET  "\x1B[0m"
+# define COLOR_RED  "\x1B[31m"
+# define COLOR_GRN  "\x1B[32m"
+# define COLOR_YEL  "\x1B[33m"
+# define COLOR_BLU  "\x1B[34m"
+# define COLOR_MAG  "\x1B[35m"
+# define COLOR_CYN  "\x1B[36m"
+# define COLOR_WHT  "\x1B[37m"
 
-# define FRED(x) KRED x RST
-# define FGREENN(x) KGRN x RST
-# define FYELLOW(x) KYEL x RST
-# define FBLUE(x) KBLU x RST
-# define FMAGENTA(x) KMAG x RST
-# define FCYAN(x) KCYN x RST
-# define FWHITE(x) KWHT x RST
+# define COLOR_FRED(x) COLOR_RED x COLOR_RESET
+# define COLOR_FGREEN(x) COLOR_GRN x COLOR_RESET
+# define COLOR_FYELLOW(x) COLOR_YEL x COLOR_RESET
+# define COLOR_FBLUE(x) COLOR_BLU x COLOR_RESET
+# define COLOR_FMAGENTA(x) COLOR_MAG x COLOR_RESET
+# define COLOR_FCYAN(x) COLOR_CYN x COLOR_RESET
+# define COLOR_FWHITE(x) COLOR_WHT x COLOR_RESET
 
-# define BOLD(x)	"\x1B[1m" x RST
-# define UNDL(x)	"\x1B[4m" x RST
+# define COLOR_BOLD(x)	"\x1B[1m" x RST
+# define COLOR_UNDL(x)	"\x1B[4m" x RST
 
 /*
 const std::string red("\033[0;31m");

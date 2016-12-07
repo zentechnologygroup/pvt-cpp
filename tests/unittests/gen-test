@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # -*- coding: iso-8859-1 -*-
 
-require 'optionparser'
+require 'optparse'
 
 load 'correlations.rb'
 
