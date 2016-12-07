@@ -156,7 +156,10 @@ struct CorrelationTester
 	    ++success_counter;
 	    continue;
 	  }
-	//cout << "In " << test
+	cout << test.corr_ptr->name << endl
+	     << "    " << test.backend_call() << endl
+	     << "    " << test.python_call() << endl
+	     << endl;
       }
   }
 };

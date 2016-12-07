@@ -86,6 +86,7 @@ def gen_test(csv_row, correlation, line)
 end
 
 def test_epilogue
+  "tester.summary();\n"\
   "}"
 end
 
