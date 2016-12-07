@@ -20,7 +20,7 @@ void __put_in_list(DynList<VtlQuantity> & l, const VtlQuantity & q,
   __put_in_list(l, args ...);
 }
 
-# define CORRELATION_BACKEND_NAME "./test-corr -P"
+# define CORRELATION_BACKEND_NAME "../test-corr -C"
 
 struct CorrelationTester
 {
@@ -31,10 +31,13 @@ struct CorrelationTester
     bool passed = false;
     DynList<VtlQuantity> parameters;
     pair<double, const Unit*> expected;
+    DynList<string> refs;
+    string note;
 
-    Test(size_t line, const Correlation & correlation, const VtlQuantity & expected)
+    Test(size_t line, const Correlation & correlation,
+	 const VtlQuantity & expected, const DynList<string> & refs)
       : line(line), corr_ptr(&correlation),
-	expected(make_pair(expected.raw(), &expected.unit)) {}
+	expected(make_pair(expected.raw(), &expected.unit)), refs(refs) {}
     
     Test() {}
 
@@ -72,7 +75,7 @@ struct CorrelationTester
     {
       DynList<pair<size_t, const Unit *>> unit_changes;
       ostringstream s;
-      s << CORRELATION_BACKEND_NAME << corr_ptr->name;
+      s << CORRELATION_BACKEND_NAME << " " << corr_ptr->name;
       for (auto it = get_enum_zip_it(corr_ptr->get_preconditions(), parameters);
 	   it.has_curr(); it.next())
 	{
@@ -98,13 +101,14 @@ struct CorrelationTester
   inline void test(size_t csv_line,
 		   const Quantity<RefUnit> & expected,
 		   double epsilon,
+		   const DynList<string> & refs,
 		   const CorrClass & correlation,
 		   Args ... args)
   {
     cout << "Testing " << correlation.name << " from csv line " << csv_line
 	 << endl;
 
-    Test test(csv_line, correlation, expected);
+    Test test(csv_line, correlation, expected, refs);
     auto result = correlation.impl(args...);
 
     // In order to correctly compare, we must have the values in the

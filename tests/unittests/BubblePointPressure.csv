@@ -1,4 +1,4 @@
-,disabled,yg,yg unit,yo,yo unit,api,api unit,rsb,rsb unit,t,t unit,tsep,tsep unit,psep,psep unit,n2_concentration,n2_concentration unit,co2_concentration,co2_concentration unit,h2s_concentration,h2s_concentration unit,result,result unit,epsilon,Note,"""banzer:1996""","""ahmed:2010""","""petroWiki:2016:3""","""dokla:1992""","""glaso:1980""","""petroleumOffice:2016"""
+,disabled,yg,yg unit,yo,yo unit,api,api unit,rsb,rsb unit,t,t unit,tsep,tsep unit,psep,psep unit,n2_concentration,n2_concentration unit,co2_concentration,co2_concentration unit,h2s_concentration,h2s_concentration unit,result,result unit,epsilon,Note,"ref ""banzer:1996""","ref ""ahmed:2010""","ref ""petroWiki:2016:3""","ref ""dokla:1992""","ref ""glaso:1980""","ref ""petroleumOffice:2016"""
 PbAlMarhoun,,0.95,Sgg,31,Api,,,675,SCF_STB,180,Fahrenheit,,,,,,,,,,,2137,psia,1,,1,,,,,
 PbKartoatmodjoSchmidt,,0.95,Sgg,,,31,Api,675,SCF_STB,180,Fahrenheit,85,Fahrenheit,100,psia,,,,,,,3014,psia,1,API > 30,1,,,,,
 PbPetroskyFarshad,,0.95,Sgg,,,31,Api,675,SCF_STB,180,Fahrenheit,,,,,,,,,,,2680,psia,1,,1,,,,,

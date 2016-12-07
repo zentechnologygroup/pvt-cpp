@@ -1,4 +1,4 @@
-,disabled,api,api unit,t,t unit,pb,pb unit,rsb,rsb unit,result,result unit,epsilon,Note,"""banzer:1996""","""ahmed:1989""","""ahmed:2010""","""petroWiki:2016:3"""
+,disabled,api,api unit,t,t unit,pb,pb unit,rsb,rsb unit,result,result unit,epsilon,Note,"ref ""banzer:1996""","ref ""ahmed:1989""","ref ""ahmed:2010""","ref ""petroWiki:2016:3"""
 UodBeal,,31,Api,180,Fahrenheit,,,,,2.65,CP,,,1,,,
 UodBeggsRobinson,,31,Api,180,Fahrenheit,,,,,3.04,CP,,,1,,,
 UodGlaso,,31,Api,180,Fahrenheit,,,,,2.76,CP,,,1,,,
