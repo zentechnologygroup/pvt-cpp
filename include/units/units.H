@@ -787,6 +787,8 @@ class Quantity : public BaseQuantity
 
 public:
 
+  VtlQuantity to_VtlQuantity() const;
+
   Quantity(double val) 
     : BaseQuantity(UnitName::get_instance(), val)
   {
@@ -1331,6 +1333,12 @@ inline bool operator == (double lhs, const VtlQuantity & rhs) noexcept
 inline bool operator != (double lhs, const VtlQuantity & rhs) noexcept
 {
   return lhs != rhs.get_value();
+}
+
+template <class UnitName>
+VtlQuantity Quantity<UnitName>::to_VtlQuantity() const
+{
+  return VtlQuantity(unit, value);
 }
 
 template <class UnitName>

@@ -8,7 +8,11 @@
 
 using namespace std;
 
-
+template <class CorrClass, typename ... Args>
+VtlQuantity call_compute(Args... args)
+{
+  return CorrClass(args...).to_VtlQuantity();
+}
 
 template <class Unit1, class Unit2>
 inline void correlation_test(const string & name,
