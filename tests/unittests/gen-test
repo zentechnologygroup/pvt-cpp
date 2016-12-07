@@ -6,7 +6,7 @@ require 'optparse'
 load 'correlations.rb'
 
 def test_preamble(name)
-<<~HEREDOC
+%(
 # include <cassert>
 # include <correlations/unittest-utils.H>
 # include <correlations/pvt-correlations.H>
@@ -14,7 +14,7 @@ def test_preamble(name)
 int main()
 {
   CorrelationTester tester;
-HEREDOC
+)
 end
 
   def error_msg(msg, name, line)
