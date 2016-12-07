@@ -28,7 +28,7 @@ correlations.rb: ../test-corr
 
 TESTSRC = $(CSVSRC:.csv=.cc)
 
-all:: $(TESTSRC)
+all:: correlations.rb
 
 clean::
 	$(RM) $(TESTSRC)
