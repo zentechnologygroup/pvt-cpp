@@ -14,6 +14,8 @@ VtlQuantity call_compute(Args... args)
   return CorrClass(args...).to_VtlQuantity();
 }
 
+// TODO: recibe correlación como template e imprime parámetros
+// TODO: tal vez desde ruby se genera la impresión de la llamada
 template <class Unit1, class Unit2>
 inline void correlation_test(const string & name,
 			     size_t csv_line,
