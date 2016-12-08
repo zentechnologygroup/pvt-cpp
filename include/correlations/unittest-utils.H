@@ -150,6 +150,7 @@ struct CorrelationTester
       << COLOR_YEL << "    " << test_ref.call_string() << " = "
       << result << endl << COLOR_RESET
       << "    Expected = " << expected_result;
+    
     if (&expected.unit != &result.unit)
       s << " (" << expected << ")";
 
@@ -157,6 +158,7 @@ struct CorrelationTester
       << fixed << setprecision(2)
       << "    Tolerance = " << tolerance << " %" << endl
       << "    Error     = " << error << " %";
+    
     if (not refs.is_empty())
       {
 	s << endl

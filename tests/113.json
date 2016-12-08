@@ -1,0 +1,170 @@
+{
+  "constants": [
+    {
+      "name": "t",
+      "unit": "degF",
+      "value": 189
+    },
+    {
+      "name": "api",
+      "unit": "api",
+      "value": 26
+    },
+    {
+      "name": "pb",
+      "unit": "psig",
+      "value": 3891.81
+    },
+    {
+      "name": "rsb",
+      "unit": "scf/STB",
+      "value": 1121
+    },
+    {
+      "name": "yg",
+      "unit": "Sgg",
+      "value": 0.7
+    },
+    {
+      "name": "tsep",
+      "unit": "degF",
+      "value": 100
+    },
+    {
+      "name": "psep",
+      "unit": "psig",
+      "value": 60
+    },
+      {
+	  "name": "h2s_concentration",
+	  "unit": "MolePercent",
+	  "value": 1.2
+      },
+      {
+	  "name": "co2_concentration",
+	  "unit": "MolePercent",
+	  "value": 0.5
+      },
+      {
+	  "name": "n2_concentration",
+	  "unit": "MolePercent",
+	  "value": 0.1
+      }
+  ],
+  "description": "Usado para pruebas, aparentemente de un pozo en Monagas",
+  "name": "Test de Alberto Valderrama",
+  "varsets": [
+    {
+      "description": "Points below the bubble point",
+      "name": "Below Pb",
+      "num samples": 6,
+      "num vars": 4,
+      "samples": {
+        "bob": [
+          1.32591,
+          1.45799,
+          1.61047,
+          1.70097,
+          1.70942,
+          1.77922
+        ],
+        "p": [
+          1000,
+          2000,
+          3000,
+          3500,
+          3602.9,
+          3891.81
+        ],
+        "rs": [
+          287.701,
+          521.132,
+          801.125,
+          967.446,
+          982.957,
+          1121
+        ],
+        "uob": [
+          0.67126,
+          0.48274,
+          0.36049,
+          0.36049,
+          0.31097,
+          0.29139
+        ]
+      },
+      "variables": [
+        {
+          "name": "p",
+          "unit": "psig"
+        },
+        {
+          "name": "rs",
+          "unit": "scf/STB"
+        },
+        {
+          "name": "bob",
+          "unit": "RB/STB"
+        },
+        {
+          "name": "uob",
+          "unit": "cP"
+        }
+      ]
+    },
+    {
+      "description": "Points above the bubble point",
+      "name": "Above Pb",
+      "num samples": 5,
+      "num vars": 4,
+      "samples": {
+        "boa": [
+            1.71573,
+            1.66876,
+            1.63281,
+            1.60415,
+            1.58063
+        ],
+        "p": [
+          5500,
+          7500,
+          9000,
+          10500,
+          11500
+        ],
+        "rs": [
+          1121,
+          1121,
+          1121,
+          1121,
+          1121
+        ],
+        "uoa": [
+            0.35165,
+            0.40976,
+            0.46485,
+            0.5341,
+            0.5671
+        ]
+      },
+      "variables": [
+        {
+          "name": "p",
+          "unit": "psig"
+        },
+        {
+          "name": "rs",
+          "unit": "scf/STB"
+        },
+        {
+          "name": "boa",
+          "unit": "RB/STB"
+        },
+        {
+          "name": "uoa",
+          "unit": "cP"
+        }
+      ]
+    }
+  ]
+}
