@@ -8,12 +8,21 @@ load 'correlations.rb'
 def test_preamble(name)
 %Q(
 # include <cassert>
+# include <tclap/CmdLine.h>
 # include <correlations/unittest-utils.H>
 # include <correlations/pvt-correlations.H>
 
-int main()
+using namespace TCLAP;
+
+CmdLine cmd = { \"#{name}\", ' ', \"0\" };
+
+SwitchArg with_call = { "c", "calls", "print calls for failed tests", cmd };
+
+int main(int argc, char *argv[])
 {
   CorrelationTester tester;
+
+  cmd.parse(argc, argv);
 )
 end
 
@@ -32,22 +41,23 @@ def gen_test(csv_row, correlation, line)
 
   epsilon = csv_row['epsilon'] || 1e-1
   
-  #refs = csv_row.select { |k, v| k.start_with? 'ref' && v }.to_enum
-  
-  # s = "correlation_test(\"#{corr_name}\", #{line},\n"\
-  #     "{"
-  # # refs.each do |k, v|
-  # #   s += k.slice 'ref '
-  # #   s += ', ' if k => v != refs.last
-  # # end
-  # s += "},\n"\
-  #      "#{corr_name}::get_instance().impl(\n"
+  refs = csv_row.to_a.select { |a| a[0] && a[1] && a[0].start_with?('ref ') }.
+         map { |a| a[0].sub('ref ', '').gsub("\"", '') }
+
+  note = csv_row["Note"] || ''
 
   s = "tester.test(#{line},\n"\
       "Quantity<#{result_unit}>(#{test_result.to_f}),\n"\
       "#{epsilon},\n"\
-      "{/*HOLA*/},\n"\
-      "#{corr_name}::get_instance(),\n"
+      "{"
+  refs.each do |ref|
+    s += "\"#{ref}\""
+    s += ", " if ref != refs.last
+  end
+
+  s += "},\n"\
+       "\"#{note}\",\n"\
+       "#{corr_name}::get_instance(),\n"
   
   correlation.pars.each do |par|
     par_name = par.name
@@ -66,7 +76,7 @@ def gen_test(csv_row, correlation, line)
 end
 
 def test_epilogue
-  "tester.summary();\n"\
+  "tester.summary(with_call.getValue());\n"\
   "}"
 end
 
