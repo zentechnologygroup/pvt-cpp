@@ -17,40 +17,36 @@
 ## 6. test-corr podría recibir c y m para calibración
 - Created at   2016-11-18 09:02:50 -0400
 
-## 7. test-calibrate reciba entrada csv y comandos
-- Created at   2016-11-19 13:39:02 -0400
-- Completed at 2016-12-03 09:16:11 -0400
-
-## 8. correlaciones con hidden en tru no deben ser mostradas por test-calibrate
+## 7. correlaciones con hidden en tru no deben ser mostradas por test-calibrate
 - Created at   2016-11-19 13:44:15 -0400
 
-## 9. nuevo programa que evalue correlacion recibiendo un arreglo
+## 8. nuevo programa que evalue correlacion recibiendo un arreglo
 - Created at   2016-11-22 10:40:29 -0400
 
-## 10. evaluación de correlación por partes se puede aceltar notablemente si se ven los parámyteros y en lugar de pasar por nombre se construyen los arreglos
+## 9. evaluación de correlación por partes se puede aceltar notablemente si se ven los parámyteros y en lugar de pasar por nombre se construyen los arreglos
 - Created at   2016-11-26 16:08:21 -0400
 
-## 11. Buscar parámetro yo y asegurar que exista sinónimo api. Análogamente para api
+## 10. Buscar parámetro yo y asegurar que exista sinónimo api. Análogamente para api
 - Created at   2016-11-29 10:23:50 -0400
 
-## 12. lib y optimización de pase de parámetros por nombre
+## 11. lib y optimización de pase de parámetros por nombre
 - Created at   2016-11-30 09:55:34 -0400
 
-## 13. calibrar co
+## 12. calibrar co
 - Created at   2016-11-30 10:30:58 -0400
 
-## 14. profiling (quiza con google-pprof
+## 13. profiling (quiza con google-pprof
 - Created at   2016-12-01 11:44:25 -0400
 
-## 15. compute en empirical_data 1405: se puede acer más raṕido
+## 14. compute en empirical_data 1405: se puede acer más raṕido
 - Created at   2016-12-01 17:30:02 -0400
 
-## 16. correlations en hidden no deben aparecer en test-calibrate ni plot-corr
+## 15. correlations en hidden no deben aparecer en test-calibrate ni plot-corr
 - Created at   2016-12-01 17:48:58 -0400
 
-## 17. ajustar uod en test-calibrate
+## 16. ajustar uod en test-calibrate
 - Created at   2016-12-03 09:07:15 -0400
 
-## 18. búsqueda de unidades por tabla hash óptima
+## 17. búsqueda de unidades por tabla hash óptima
 - Created at   2016-12-05 08:24:35 -0400
 

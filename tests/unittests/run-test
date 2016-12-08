@@ -18,6 +18,10 @@ options_parser = OptionParser.new do |opts|
     options[:list] = true
   end
 
+  opts.on('-c', '--calls', 'print call for failed tests') do
+    options[:calls] = true
+  end
+
 end
 
 options_parser.parse!
@@ -47,20 +51,22 @@ alephw = ENV['ALEPHW']
 
 fail "ALEPHW env var has not been defined" unless alephw
 
-command_line = "c++ -std=c++14 -I../../include -I#{alephw} "\
+compile_line = "c++ -std=c++14 -I../../include -I#{alephw} "\
                "-std=c++14 -Wall -Wextra -Wcast-align -Wno-sign-compare "\
                "-Wno-write-strings -Wno-parentheses -O0 -g #{cpp_name} "\
                "../../lib/libpvt.a -L#{alephw} -lAleph "\
                "-lnlopt -lstdc++ -lgsl -lgslcblas "\
                "-lm -lc -o #{property_name}"
 
-puts command_line
+puts compile_line
 
-compile_status = system(command_line)
+compile_status = system(compile_line)
 
 fail "Test compilation failed" unless compile_status
 
-test_status = system("./#{property_name}")
+command_line = "./#{property_name}"
+command_line += " -c" if options[:calls]
+test_status = system(command_line)
 
 fail "Test has aborted" unless test_status
 

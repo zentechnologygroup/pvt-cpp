@@ -1,3 +1,0 @@
-test debe expresar la invocación lista para test-corr, de modo que usuario pueda verificar,2016-12-06 17:32:16 -0400,,
-imprmir note en test si está presente,2016-12-07 17:15:42 -0400,,
-imprimir referencias,2016-12-07 17:19:17 -0400,,

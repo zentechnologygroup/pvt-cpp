@@ -35,9 +35,11 @@ struct CorrelationTester
     string note;
 
     Test(size_t line, const Correlation & correlation,
-	 const VtlQuantity & expected, const DynList<string> & refs)
+	 const VtlQuantity & expected, const DynList<string> & refs,
+	 const string & note)
       : line(line), corr_ptr(&correlation),
-	expected(make_pair(expected.raw(), &expected.unit)), refs(refs) {}
+	expected(make_pair(expected.raw(), &expected.unit)), refs(refs),
+	note(note) {}
     
     Test() {}
 
@@ -102,13 +104,14 @@ struct CorrelationTester
 		   const Quantity<RefUnit> & expected,
 		   double epsilon,
 		   const DynList<string> & refs,
+		   const string & note,
 		   const CorrClass & correlation,
 		   Args ... args)
   {
     cout << "Testing " << correlation.name << " from csv line " << csv_line
 	 << endl;
 
-    Test test(csv_line, correlation, expected, refs);
+    Test test(csv_line, correlation, expected, refs, note);
     auto result = correlation.impl(args...);
 
     // In order to correctly compare, we must have the values in the
@@ -142,16 +145,26 @@ struct CorrelationTester
     s << endl
       << "    epsilon  = " << epsilon << endl
       << fixed << setprecision(2) << "    error    = " << error << " %";
+    if (not refs.is_empty())
+      {
+	s << endl
+	  << "    Refs:";
+	refs.for_each([&s] (const auto & ref) { s << " " << ref; });
+      }
+
+    if (note.size() > 0)
+      s << endl
+	<< "    Note: " << note;
 
     cout << COLOR_RED << s.str() << COLOR_RESET << endl
 	 << endl;
   }
 
-  void summary() const
+  void summary(bool with_calls = true) const
   {
     size_t success_counter = 0;
     size_t failed_counter = 0;
-    cout << "Failed tests summary:"  << endl;
+    cout << "Failed tests summary:" << endl;
     for (auto it = test_list.get_it(); it.has_curr(); it.next())
       {
 	const auto & test = it.get_curr();
@@ -160,11 +173,17 @@ struct CorrelationTester
 	    ++success_counter;
 	    continue;
 	  }
+	++failed_counter;
+	if (not with_calls)
+	  continue;
+
 	cout << test.corr_ptr->name << endl
 	     << "    " << test.backend_call() << endl
-	     << "    " << test.python_call() << endl
+	     << "    " <<    test.python_call() << endl
 	     << endl;
       }
+    cout << success_counter << " tests passed" << endl
+	 << failed_counter << " tests failed" << endl;
   }
 };
 

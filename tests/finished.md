@@ -616,3 +616,9 @@
 - Comment      
 - Finished     
 
+## 104. test-calibrate reciba entrada csv y comandos
+- Created at   2016-11-19 13:39:02 -0400
+- Completed at 2016-12-03 09:16:11 -0400
+- Comment      
+- Finished     
+
