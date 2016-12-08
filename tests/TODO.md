@@ -50,3 +50,6 @@
 ## 17. búsqueda de unidades por tabla hash óptima
 - Created at   2016-12-05 08:24:35 -0400
 
+## 18. dir backend
+- Created at   2016-12-08 16:30:29 -0400
+

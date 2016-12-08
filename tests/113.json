@@ -12,7 +12,7 @@
     },
     {
       "name": "pb",
-      "unit": "psia",
+      "unit": "psig",
       "value": 3891.81
     },
     {
@@ -25,21 +25,6 @@
       "unit": "Sgg",
       "value": 0.7
     },
-      {
-	  "name": "h2s_concentration",
-	  "unit": "MolePercent",
-	  "value": 1.2
-      },
-      {
-	  "name": "h2co2_concentration",
-	  "unit": "MolePercent",
-	  "value": 0.5
-      },
-      {
-	  "name": "n2_concentration",
-	  "unit": "MolePercent",
-	  "value": 0.1
-      },
     {
       "name": "tsep",
       "unit": "degF",
@@ -47,9 +32,24 @@
     },
     {
       "name": "psep",
-      "unit": "psia",
-      "value": 20
-    }
+      "unit": "psig",
+      "value": 60
+    },
+      {
+	  "name": "h2s_concentration",
+	  "unit": "MolePercent",
+	  "value": 1.2
+      },
+      {
+	  "name": "co2_concentration",
+	  "unit": "MolePercent",
+	  "value": 0.5
+      },
+      {
+	  "name": "n2_concentration",
+	  "unit": "MolePercent",
+	  "value": 0.1
+      }
   ],
   "description": "Usado para pruebas, aparentemente de un pozo en Monagas",
   "name": "Test de Alberto Valderrama",
@@ -88,7 +88,7 @@
           0.67126,
           0.48274,
           0.36049,
-          0.31466,
+          0.36049,
           0.31097,
           0.29139
         ]
@@ -96,7 +96,7 @@
       "variables": [
         {
           "name": "p",
-          "unit": "psia"
+          "unit": "psig"
         },
         {
           "name": "rs",
@@ -115,18 +115,18 @@
     {
       "description": "Points above the bubble point",
       "name": "Above Pb",
-      "num samples": 16,
+      "num samples": 5,
       "num vars": 4,
       "samples": {
         "boa": [
-          1.71573,
-          1.66876,
-          1.63281,
-          1.60415,
-          1.58063
+            1.71573,
+            1.66876,
+            1.63281,
+            1.60415,
+            1.58063
         ],
         "p": [
-          5000,
+          5500,
           7500,
           9000,
           10500,
@@ -140,6 +140,7 @@
           1121
         ],
         "uoa": [
+<<<<<<< HEAD
           0.35165,
           0.40976,
           0.46485,
@@ -150,7 +151,7 @@
       "variables": [
         {
           "name": "p",
-          "unit": "psia"
+          "unit": "psig"
         },
         {
           "name": "rs",

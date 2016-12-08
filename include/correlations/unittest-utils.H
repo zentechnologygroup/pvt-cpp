@@ -102,34 +102,45 @@ struct CorrelationTester
   template <class RefUnit, class CorrClass, typename ... Args>
   inline void test(size_t csv_line,
 		   const Quantity<RefUnit> & expected,
-		   double epsilon,
+		   double tolerance,
 		   const DynList<string> & refs,
 		   const string & note,
 		   const CorrClass & correlation,
 		   Args ... args)
   {
-    cout << "Testing " << correlation.name << " from csv line " << csv_line
-	 << endl;
+    cout << "Testing " << correlation.name << " from csv line " << csv_line;
 
     Test test(csv_line, correlation, expected, refs, note);
+    auto & test_ref = test_list.append(test);
     auto result = correlation.impl(args...);
 
     // In order to correctly compare, we must have the values in the
     // same unit. So, we convert expected to the same unit of
     // correlation return unit
     auto expected_result = VtlQuantity(correlation.unit, expected);
+    auto error =
+      100*fabs(expected_result.raw() - result.raw())/expected_result.raw();
 
-    test.passed = fabs(result.raw() - expected_result.raw()) <= epsilon;
-    auto & test_ref = test_list.append(test);
-    if (test.passed)
+    test_ref.passed = error <= tolerance;
+    if (test_ref.passed)
       {
 	cout << COLOR_FGREEN("  passed") << endl
+	     << fixed << setprecision(2)
+	     << "    Tolerance = " << tolerance << " %" << endl
+	     << "    Error     = " << error << " %";
+	if (not refs.is_empty())
+	  {
+	    cout << endl
+		 << "    Refs:";
+	    refs.for_each([] (const auto & ref) { cout << " " << ref; });
+	  }
+	if (note.size() > 0)
+	  cout << endl
+	       << "    Note: " << note;
+	cout << endl
 	     << endl;
 	return;
       }
-
-    auto error =
-      100*fabs(expected_result.raw() - result.raw())/expected_result.raw();
 
     DynList<VtlQuantity> & l = test_ref.parameters;
     __put_in_list(l, args...);
@@ -139,12 +150,15 @@ struct CorrelationTester
       << COLOR_YEL << "    " << test_ref.call_string() << " = "
       << result << endl << COLOR_RESET
       << "    Expected = " << expected_result;
+    
     if (&expected.unit != &result.unit)
       s << " (" << expected << ")";
 
     s << endl
-      << "    epsilon  = " << epsilon << endl
-      << fixed << setprecision(2) << "    error    = " << error << " %";
+      << fixed << setprecision(2)
+      << "    Tolerance = " << tolerance << " %" << endl
+      << "    Error     = " << error << " %";
+    
     if (not refs.is_empty())
       {
 	s << endl
@@ -173,6 +187,7 @@ struct CorrelationTester
 	    ++success_counter;
 	    continue;
 	  }
+
 	++failed_counter;
 	if (not with_calls)
 	  continue;
@@ -183,7 +198,8 @@ struct CorrelationTester
 	     << endl;
       }
     cout << success_counter << " tests passed" << endl
-	 << failed_counter << " tests failed" << endl;
+	 << failed_counter << " tests failed" << endl
+	 << endl;
   }
 };
 

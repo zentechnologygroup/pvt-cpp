@@ -39,7 +39,7 @@ def gen_test(csv_row, correlation, line)
   result_unit = csv_row["result unit"]
   error_msg "result unit", corr_name, line unless result_unit
 
-  epsilon = csv_row['epsilon'] || 1e-1
+  tolerance = csv_row['tolerance'] || 1e-2
   
   refs = csv_row.to_a.select { |a| a[0] && a[1] && a[0].start_with?('ref ') }.
          map { |a| a[0].sub('ref ', '').gsub("\"", '') }
@@ -48,7 +48,7 @@ def gen_test(csv_row, correlation, line)
 
   s = "tester.test(#{line},\n"\
       "Quantity<#{result_unit}>(#{test_result.to_f}),\n"\
-      "#{epsilon},\n"\
+      "#{tolerance},\n"\
       "{"
   refs.each do |ref|
     s += "\"#{ref}\""
