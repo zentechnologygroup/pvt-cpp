@@ -156,7 +156,7 @@ struct CorrelationTester
     s << endl
       << fixed << setprecision(2)
       << "    Tolerance = " << tolerance << " %" << endl
-      << "    Error     = " << error << " %" << endl;
+      << "    Error     = " << error << " %";
     if (not refs.is_empty())
       {
 	s << endl
