@@ -12,11 +12,13 @@ def PbAlMarhounCorrelation(Yg, Yo, Rsb, T):
     return PbAlMarhoun
 
 def PbAlShammasiCorrelation(Yg, Yo, Rsb, T):
+    Yo = 141.5 / ( API + 131.5) 
+
     c1 = 5.527215
     c2 = -1.841408
     c3 = 0.783716
         
-    Pb = (Yo ** c1) * exp(c2 * floor(Yo * Yg)) * (Rsb * (T + 460) * Yg) ** c3 
+    Pb = (Yo ** c1) * exp(c2 * Yo * Yg) * (Rsb * (T + 460) * Yg) ** c3 
         
     PbAlShammasi = Pb
         

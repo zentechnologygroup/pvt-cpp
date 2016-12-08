@@ -26,7 +26,7 @@ PbAlShammasi::impl(const Quantity<Sgg> & yg,
   constexpr double c3 = 0.783716;
 
   const double r = pow(yo, c1) *
-    exp(c2 * floor(yo.get_value() * yg.get_value())) *
+    exp(c2 * yo.get_value() * yg.get_value()) *
     pow(rsb.get_value() * (t.get_value() + 460) * yg.get_value(), c3);
 
   return Quantity<psia>(r);
