@@ -12,11 +12,13 @@ using namespace TCLAP;
 
 CmdLine cmd = { "test-calibrate", ' ', "0" };
 
+SwitchArg data = { "d", "data", "print data", cmd };
+
 vector<string> properties =
   { "pb", "rs", "rsa", "bob", "boa", "bo", "uob", "uoa", "uo", "uod" };
 ValuesConstraint<string> allowed = properties;
 ValueArg<string> property =
-  { "P", "property", "property", true, "", &allowed, cmd };
+  { "P", "property", "property", false, "", &allowed, cmd };
 
 ValueArg<double> value = { "v", "value", "value for property", false, 0,
 			   "value for the given property", cmd };
@@ -61,8 +63,7 @@ MultiArg<string> corr_names = { "n", "name", "add correlation name", false,
 				"add correlation name to computations", cmd };
 
 ValueArg<string> uod_name = { "u", "uod", "uod correlation name", false,
-			      "",
-			      "uod correlation to be used for computations",
+			      "", "uod correlation to be used for computations",
 			      cmd };
 
 ValueArg<string> file =
@@ -1301,6 +1302,18 @@ int main(int argc, char *argv[])
     }
   else
     pvt = load_pvt_data(cin);
+
+  if (data.getValue())
+    {
+      cout << pvt.get_data().to_string() << endl;
+      exit(0);
+    }
+
+  if (not property.isSet())
+    {
+      cout << "Required argument missing: property" << endl;
+      exit(0);
+    }
 
   dispatch_option(property.getValue(), pvt);
 

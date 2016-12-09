@@ -18,7 +18,7 @@ LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
 
 CSVSRC = $(shell ls $(DIR)*.csv)
 
-correlations.rb: ../test-corr
+correlations.rb:
 	$(RM) $*.rb; 	\	@@\
 	../test-corr -R > correlations.rb
 

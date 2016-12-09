@@ -1120,21 +1120,21 @@ public:
 
   VtlQuantity(const VtlQuantity & q) noexcept : BaseQuantity(q.unit, q.value) {}
 
-  VtlQuantity(const string & unit_name, const VtlQuantity & q)
+  VtlQuantity(const string & unit_name, const BaseQuantity & q)
     : BaseQuantity(unit_given_name(unit_name), q.get_value())
   {
     if (&unit == &q.unit)
-      value = q.value;
+      value = q.raw();
     else
       value = unit_convert_name_to_name(q.unit.name, q.get_value(), unit.name);
     check_value();
   }
 
-  VtlQuantity(const Unit & unit, const VtlQuantity & q)
+  VtlQuantity(const Unit & unit, const BaseQuantity & q)
     : BaseQuantity(unit)
   {
     if (&unit == &q.unit)
-      value = q.value;
+      value = q.raw();
     else
       {
 	value = unit_convert_name_to_name(q.unit.name, q.get_value(), unit.name);
