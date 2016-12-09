@@ -4,6 +4,7 @@
 # verificada con python!
 begin_correlation("PoaBradley", "UndersaturatedOilDensity", "Lb_ft3")
 add_title("CALCULATION OF UNDERSATURATED OIL DENSITY")
+add_db("Calculation of oil density at pressures above the bubble point.")
 add_parameter("pobp", "Lb_ft3", "Oil density at Pb")
 add_parameter("p",  "psia", "Pressure")
 add_parameter("pb",  "psia", "Bubble point pressure")
