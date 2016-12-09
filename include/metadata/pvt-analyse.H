@@ -31,7 +31,7 @@ public:
   {
     if (ascending)
       {
-	if (not is_sorted(data.values(set_name, col_name)))
+	if (not is_sorted(data.values(set_name, col_name).first))
 	  {
 	    ostringstream s;
 	    s << "Column " << col_name << " of variable data set " << set_name
@@ -41,7 +41,7 @@ public:
 	return;
       }
 
-    if (not is_inversely_sorted(data.values(set_name, col_name)))
+    if (not is_inversely_sorted(data.values(set_name, col_name).first))
       {
 	ostringstream s;
 	s << "Column " << col_name << " of variable data set " << set_name
@@ -62,7 +62,7 @@ public:
     return fabs(v1 - v2) < epsilon;
   }
 
-  void check_data(float error = 0.1) 
+  void check_data() 
   {
     data.check_constant("t", Temperature::get_instance());
     data.check_constant("pb", Pressure::get_instance());
@@ -222,7 +222,10 @@ public:
       return ret;
     
     const string corr_name  = l.get_first()->target_name();
-    CorrStat stat(data.values(seti, corr_name));
+    auto p = data.values(seti, corr_name);
+    const auto & vals = p.first;
+    const Unit * lab_unit = p.second;
+    CorrStat stat(vals);
 
     for (auto it = l.get_it(); it.has_curr(); it.next())
       {
@@ -239,6 +242,9 @@ public:
 	try
 	  {
 	    auto result = data.compute(seti, corr_ptr, check);
+	    if (&corr_ptr->unit != lab_unit)
+	      result.mutable_for_each([&] (auto & v)
+                { v = unit_convert(corr_ptr->unit, v, *lab_unit); }); 
 	    auto stats = stat.stats(result);
 	    ret.append(make_tuple(corr_ptr, move(result), stats, ""));
 	  }
@@ -477,7 +483,9 @@ public:
 		    bool check = true) const
   {
     const string corr_name  = l.get_first()->target_name();
-    CorrStat stat(data.values(seti, corr_name));
+    auto p = data.values(seti, corr_name);
+    const Unit * lab_unit = p.second;
+    CorrStat stat(p.first);
 
     DynList<VarCorrStatus> ret;
     for (auto it = l.get_it(); it.has_curr(); it.next())
@@ -495,6 +503,9 @@ public:
 	try
 	  {
 	    auto result = data.compute(seti, corr_ptr, check);
+	    if (&corr_ptr->unit != lab_unit)
+	      result.mutable_for_each([&] (auto & v)
+                { unit_convert(corr_ptr->unit, v, *lab_unit); });
 	    auto r2 = stat.r2(result);
 	    auto mse = stat.mse(result);
 	    auto sigma_distance = stat.sigma_distance(result);

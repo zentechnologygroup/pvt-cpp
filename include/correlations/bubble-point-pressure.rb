@@ -175,7 +175,7 @@ add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  0,  2199)
 add_parameter("api", "Api", "API oil gravity",  15.3,  59.3)
 add_parameter("t", "Fahrenheit", "Temperature", 75,  294)
 add_parameter("tsep",  "Fahrenheit", "Separator temperature", 76, 150)
-add_parameter("psep",  "psia", "Separator pressure", 60, 565)
+add_parameter("psep",  "psia", "Separator pressure", 20, 565) # TODO mínima es 60
 add_db("Based on more than 600 laboratory PVT analyses from fields all over the world.")
 add_author("Vazquez & Beggs")
 add_ref("vazquez:1980")

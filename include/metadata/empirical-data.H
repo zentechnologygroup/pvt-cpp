@@ -51,7 +51,7 @@ struct EmpiricalData
     Array<Array<double>> samples; // must have the same number of
                                   // columns than var_names
 
-    Array<double> values(const string & name) const
+    pair<Array<double>, const Unit *> values(const string & name) const
     {
       auto i = var_names.find_index([&name] (const auto & n)
 				    { return name == n; });
@@ -69,7 +69,7 @@ struct EmpiricalData
       for (size_t j = 0; j < num_samples; ++j)
 	ret.append(samples(j)(i));
 
-      return ret;
+      return make_pair(ret, var_units(i));
     }
 
     bool contains_name(const string & name) const noexcept
@@ -110,7 +110,7 @@ struct EmpiricalData
       for (auto it = var_names.get_it(); it.has_curr(); it.next())
 	{
 	  const auto & var_name = it.get_curr();
-	  j["samples"][var_name] = to_vector(values(var_name));
+	  j["samples"][var_name] = to_vector(values(var_name).first);
 	}
 
       return j;
@@ -358,7 +358,7 @@ struct EmpiricalData
 	    throw domain_error(s.str());
 	  }
 
-	if (not vset.values(name).is_empty())
+	if (not vset.values(name).first.is_empty())
 	  return;
 
 	ostringstream s;
@@ -382,19 +382,18 @@ struct EmpiricalData
   search_variable(size_t seti, const string & name) const
   {
     const auto & vset = var_sets[seti];
-    for (auto it = get_zip_it(vset.var_names, vset.var_units); it.has_curr();
-	 it.next())
+    for (auto it = vset.var_names.get_it(); it.has_curr(); it.next())
       {
-	auto t = it.get_curr();
-	const string & vname = get<0>(t);
+	const string & vname = it.get_curr();
 	if (vname != name)
 	  continue;
 
-	auto vals = vset.values(name);
+	auto p = vset.values(name);
+	auto vals = p.first;
 	if (vals.is_empty())
-	  return make_tuple(true, vals, &Unit::null_unit);
+	  return make_tuple(false, vals, &Unit::null_unit);
 	else
-	  return make_tuple(true, move(vals), get<1>(t));
+	  return make_tuple(true, move(vals), p.second);
       }
 
     return make_tuple(true, Array<double>(), &Unit::null_unit);
@@ -443,14 +442,15 @@ struct EmpiricalData
   }
 
   /// return a list of stored values for the symbol name of the vars set set_idx
-  Array<double> values(size_t set_idx, const string & name) const
+  pair<Array<double>, const Unit*>
+  values(size_t set_idx, const string & name) const
   {
     for (size_t i = 0; i < const_names.size(); ++i)
       if (const_names(i) == name)
 	{
 	  DynList<double> ret;
 	  ret.append(const_vals(i));
-	  return ret;
+	  return make_pair(ret, const_units(i));
 	}
 
     const auto & var_set = var_sets[set_idx];
@@ -462,10 +462,10 @@ struct EmpiricalData
 	  Array<double> ret(num_samples);
 	  for (size_t j = 0; j < num_samples; ++j)
 	    ret.append(var_set.samples(j)(i));
-	  return ret;
+	  return make_pair(ret, var_set.var_units(i));
 	}
 
-    return Array<double>();
+    return make_pair(Array<double>(), &Unit::null_unit);
   }
 
   /// return the value of name between the onstant and the vars set `set_idx`
@@ -487,79 +487,84 @@ struct EmpiricalData
 
   // return a list of stored values for the symbol name of column
   // col_id in the vars set set_idx
-  Array<double> values(size_t set_idx, size_t col_idx) const
+  pair<Array<double>, const Unit*> values(size_t set_idx, size_t col_idx) const
   {
     const auto & var_set = var_sets[set_idx];
     const auto & num_samples = var_set.samples.size();
     Array<double> ret(num_samples);
     for (size_t j = 0; j < num_samples; ++j)
       ret.append(var_set.samples(j)(col_idx));
-    return ret;
+    return make_pair(ret, var_set.var_units(col_idx));
   }
 
   // return a list of stored values for the symbol name of the vars set set_name
-  Array<double> values(const string & set_name, const string & name) const
+  pair<Array<double>, const Unit*>
+  values(const string & set_name, const string & name) const
   {
     return values(set_index(set_name), name);
   }
 
   // return a list of stored values for the symbol name in the vars
-  // sets contained in sets
-  Array<double> values(const DynList<size_t> & sets, const string & name) const
+  // sets contained in sets. The retuened unit is the unit of the first set
+  pair<Array<double>, const Unit*>
+  values(const DynList<size_t> & sets, const string & name) const
   {
+    auto first_set = sets.get_first();
+    auto index_in_first_set = var_sets[first_set].var_names.
+      find_index([&name] (const auto & s) { return s == name; });
+    const Unit * ret_unit = var_sets[first_set].var_units(index_in_first_set);
     Array<double> ret;
     sets.for_each([&] (size_t i)
       {
 	auto a = this->values(i, name);
-	a.for_each([&ret] (auto v) { ret.append(v); });
+	if (a.second == ret_unit)
+	  a.first.for_each([&ret] (auto v) { ret.append(v); });
+	else
+	  a.first.for_each([&] (auto v)
+            {
+	      ret.append(VtlQuantity(*ret_unit, VtlQuantity(*a.second, v)).raw());
+	    });
       });
-    return ret;
+    return make_pair(ret, ret_unit);
   }
 
   // return a list of stored values for the symbol name in the vars
   // sets contained in sets
-  Array<double> values(const DynList<size_t> & sets, size_t col_idx) const
+  pair<Array<double>, const Unit*>
+  values(const DynList<size_t> & sets, size_t col_idx) const
   {
+    auto first_set = sets.get_first();
+    const Unit * ret_unit = var_sets[first_set].var_units[col_idx];
+    const string & col_name = var_sets(first_set).var_names(col_idx);
     Array<double> ret;
     sets.for_each([&] (size_t i)
-		  {
-		    auto a = this->values(i, col_idx);
-		    a.for_each([&ret] (auto v) { ret.append(v); });
-		  });
-    return ret;
-  }
+      {
+	const auto & varset = var_sets[i];
+	if (varset.var_names[col_idx] != col_name)
+	  {
+	    ostringstream s;
+	    s << "EmpiricalData::values({";
+	    sets.for_each([&s, &sets] (const auto & i)
+			  {
+			    s << i;
+			    if (&i != &sets.get_last())
+			      s << ", ";
+			  });
+	    s << "}, " << col_idx
+	      << "): column index refers different column names";
+	    throw domain_error(s.str());
+	  }
 
-  // return a list of stored values for the symbol name of the vars set set_idx
-  pair<Array<double>, const Unit *>
-  quantities(size_t set_idx, const string & name) const
-  {
-    for (size_t i = 0; i < const_names.size(); ++i)
-      if (const_names(i) == name)
-	{
-	  Array<double> ret;
-	  ret.append(const_vals(i));
-	  return make_pair(ret, const_units(i));
-	}
-
-    const auto & var_set = var_sets[set_idx];
-    const auto & var_names = var_set.var_names;
-    for (size_t i = 0; i < var_names.size(); ++i)
-      if (var_names(i) == name)
-	{
-	  const auto & num_samples = var_set.samples.size();
-	  Array<double> ret(num_samples);
-	  for (size_t j = 0; j < num_samples; ++j)
-	    ret.append(var_set.samples(j)(i));
-	  return make_pair(ret, var_set.var_units(i));
-	}
-
-    return make_pair(Array<double>(), nullptr);
-  }
-
-  pair<Array<double>, const Unit *>
-  quantities(const string & set_name, const string & var_name) const
-  {
-    return quantities(set_index(set_name), var_name);
+	auto a = this->values(i, col_idx);
+	if (a.second == ret_unit)
+	  a.first.for_each([&ret] (auto v) { ret.append(v); });
+	else
+	  a.first.for_each([&] (auto v)
+            {
+	      ret.append(VtlQuantity(*ret_unit, VtlQuantity(*a.second, v)).raw());
+	    });
+      });
+    return make_pair(ret, ret_unit);
   }
 
   string to_string() const
@@ -1087,38 +1092,42 @@ public:
 	 it.next())
       {
 	auto par = it.get_curr();
-	DynList<double> vals = to_DynList(values(seti, par.name));
+	auto p = values(seti, par.name);
+	DynList<double> vals = p.second == &par.unit ? to_DynList(p.first) :
+	  p.first.maps([&] (auto v)
+		       { return unit_convert(*p.second, v, par.unit); });
 	if (not vals.is_empty())
 	  {
 	    ret.append(vals);
 	    continue;
 	  }
 
-	// if vals is empty, the it could exist a synonym in the
-	// correlation that matches with par_name. So we traverse the
-	// par_name synonyms
+	// if vals is empty, then it could exist a synonym that
+	// matches with par_name. So we traverse the par_name synonyms 
 	for (auto it_syn = par.get_synonyms().get_it(); it_syn.has_curr();
 	     it.next())
 	{
 	  auto syn = it_syn.get_curr();
 	  const auto & syn_name = syn.first;
-	  vals = to_dynlist(values(seti, syn_name)); // verify if there are
-						     // values in data set
+	  p = values(seti, syn_name);
+	  vals = p.second == &par.unit ? to_DynList(p.first) :
+	    p.first.maps([&] (auto v)
+			 { return unit_convert(*p.second, v, par.unit); });
+
 	  if (not vals.is_empty())
 	    { // a synomym was found for par_name in the
 	      // correlation. Now we convert the values to the synonym unit
 	      const Unit * syn_unit = syn.second;
 	      vals.mutable_for_each([syn_unit, &par] (auto & v)
 				    {
-				      VtlQuantity vsyn(*syn_unit, v);
-				      v = VtlQuantity(par.unit, vsyn).raw();
+				      v = unit_convert(par.unit, v, *syn_unit);
 				    });
 	      break;
 	    }
 	}
 	if (vals.is_empty())
 	  { // here definitely there is no data for the parameter
-	    // inside the data set
+	    // inside the data set. This is an error
 	    ostringstream s;
 	    s << "EmpiricalData::correlation_values(): parameter " << par.name
 	      << " of correlation " << correlation_ptr->name
@@ -1205,6 +1214,8 @@ public:
 			     const Correlation * correlation_ptr) const
   {
     auto vals = correlation_values(seti, correlation_ptr);
+
+    // sort each column in ascendant order
     vals.mutable_for_each([] (auto & l) { in_place_sort(l); });
 
     for (auto it = get_pair_it(vals, correlation_ptr->get_preconditions());
@@ -1757,33 +1768,6 @@ public:
   {
     return
       tuned_compute(set_index(set_name), correlation_ptr, c, m, check);
-  }
-
-  /// Builds a parameter list for correlation `corr_ptr` extracting the
-  /// values from the var_set with index `seti` and the column number `col`
-  DynList<Correlation::NamedPar>
-  get_last_row_named_pars(const Correlation * corr_ptr, size_t seti) const
-  {
-    return corr_ptr->get_preconditions().
-      maps<Correlation::NamedPar>([this, seti] (const auto & par)
-      {
-	auto par_alias = par.names();
-	for (auto it = par_alias.get_it(); it.has_curr(); it.next())
-	  {
-	    auto syn = it.get_curr();
-	    const auto & name = syn.first;
-	    try
-	      {
-		auto values = this->quantities(seti, name);
-		if (values.first.is_empty())
-		  continue;
-		return make_tuple(true, par.name,
-				  values.first.get_last(), syn.second);
-	    }
-	  catch (...) { /* ignore it! it could be in another synonym */ }
-	}
-      return make_tuple(false, par.name, 0.0, &Unit::null_unit);
-    });
   }
 
   using CorrRow = tuple<DynList<double>, double>;

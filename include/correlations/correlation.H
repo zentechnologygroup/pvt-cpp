@@ -143,9 +143,13 @@ public:
 
   bool check(const BaseQuantity & val) const noexcept
   {
-    return val.get_value() >= min_val.raw() - epsilon and
-      val.get_value() <= max_val.raw() + epsilon and
-      &val.unit == &unit;
+    if (&val.unit == &unit)
+      return val.raw() >= min_val.raw() - epsilon and
+	val.raw() <= max_val.raw() + epsilon;
+
+    VtlQuantity real_val(unit, val); // convert to unit for val.unit
+    return real_val.raw() >= min_val.raw() - epsilon and
+	real_val.raw() <= max_val.raw() + epsilon;
   }
 
   bool check(double val) const { return check(VtlQuantity(unit, val)); }
