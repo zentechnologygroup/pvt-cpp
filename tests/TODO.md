@@ -53,3 +53,8 @@
 ## 18. dir backend
 - Created at   2016-12-08 16:30:29 -0400
 
+## 19. Hay que verificar que cuando se extrae data las unidades sean convertidas a las esperadas
+- Created at   2016-12-10 15:39:22 -0400
+- Completed at 
+- Comment      para ello hay que revisar las llamadas a values()
+

@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
   auto rs_best_mse = sort(pvt.best_rs_correlations("mse"), cmp);
 
-  cout << Rvector("rs", pvt.get_data().values(0, "rs")) << endl;
+  cout << Rvector("rs", pvt.get_data().values(0, "rs").first) << endl;
 
   rs_best_mse.for_each([] (auto t)
     {
@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
   cout << endl
        << to_string(format_string(best_list)) << endl;
   
-  cout << pvt.to_R(pvt.get_data().values(0, "rs"),
-		   pvt.get_data().values(0, "p"), "Pressure", "Rs",
+  cout << pvt.to_R(pvt.get_data().values(0, "rs").first,
+		   pvt.get_data().values(0, "p").first, "Pressure", "Rs",
 		   rs_best_mse) << endl;
 
   auto best_lfits = pvt.rs_correlations_lfits();
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 
   cout << pvt.to_R("ltuned.", l_tuned) << endl;
 
-  CorrStat stat(pvt.get_data().values(0, "rs"));
+  CorrStat stat(pvt.get_data().values(0, "rs").first);
   auto all_tuned =
     l_tuned.maps<pair<string, DynList<double>>>([] (auto p)
       {

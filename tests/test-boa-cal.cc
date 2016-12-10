@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
   cout << pvt.get_data().full_desc() << endl;
 
-  auto boa_samples = pvt.get_data().values("Above Pb", "boa");
+  auto boa_samples = pvt.get_data().values("Above Pb", "boa").first;
   cout << Rvector("boa", boa_samples) << endl;
 
   auto boa_corr = Correlation::array().filter([] (auto p)
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   auto c = boa_valid.get_first();
   cout << c->call_string() << endl << endl;
 
-  auto p = pvt.get_data().values("Above Pb", "p");
+  auto p = pvt.get_data().values("Above Pb", "p").first;
 
   cout << Rvector("p", p) << endl;
 
@@ -92,11 +92,11 @@ int main(int argc, char *argv[])
 
   cout << pvt.to_R("tuned.", boa_lfits_list) << endl;
 
-  auto p_below = pvt.get_data().values("Below Pb", "p");
+  auto p_below = pvt.get_data().values("Below Pb", "p").first;
   auto best_bob_correlation = &BobStanding::get_instance();
   auto below_fit = pvt.bob_lfit(best_bob_correlation);
 
-  auto p_above = pvt.get_data().values("Above Pb", "p");
+  auto p_above = pvt.get_data().values("Above Pb", "p").first;
   auto best_boa_correlation = get<2>(boa_fits.get_first());
   auto above_fit = pvt.boa_lfit(best_boa_correlation);
 
@@ -153,9 +153,9 @@ int main(int argc, char *argv[])
       return defcorr.compute_by_names(pars);
     });
 
-  auto pressure = pvt.get_data().values(DynList<size_t>({0, 1}), "p");
-  auto bo = to_dynlist(pvt.get_data().values(0, "bob"));
-  bo.append(to_dynlist(pvt.get_data().values(1, "boa")));
+  auto pressure = pvt.get_data().values(DynList<size_t>({0, 1}), "p").first;
+  auto bo = to_dynlist(pvt.get_data().values(0, "bob").first);
+  bo.append(to_dynlist(pvt.get_data().values(1, "boa").first));
 
   cout << Rvector("P", pressure) << endl
        << Rvector("Bo", values) << endl

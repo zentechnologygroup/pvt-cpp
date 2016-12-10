@@ -1109,21 +1109,15 @@ public:
 	{
 	  auto syn = it_syn.get_curr();
 	  const auto & syn_name = syn.first;
+	  const Unit * syn_unit = syn.second;
 	  p = values(seti, syn_name);
 	  vals = p.second == &par.unit ? to_DynList(p.first) :
 	    p.first.maps([&] (auto v)
 			 { return unit_convert(*p.second, v, par.unit); });
 
 	  if (not vals.is_empty())
-	    { // a synomym was found for par_name in the
-	      // correlation. Now we convert the values to the synonym unit
-	      const Unit * syn_unit = syn.second;
-	      vals.mutable_for_each([syn_unit, &par] (auto & v)
-				    {
-				      v = unit_convert(par.unit, v, *syn_unit);
-				    });
-	      break;
-	    }
+	     // a synomym was found for par_name in the correlation
+	    break;
 	}
 	if (vals.is_empty())
 	  { // here definitely there is no data for the parameter
@@ -1213,7 +1207,7 @@ public:
   bool fits_parameter_ranges(size_t seti,
 			     const Correlation * correlation_ptr) const
   {
-    auto vals = correlation_values(seti, correlation_ptr);
+    DynList<DynList<double>> vals = correlation_values(seti, correlation_ptr);
 
     // sort each column in ascendant order
     vals.mutable_for_each([] (auto & l) { in_place_sort(l); });
@@ -1768,6 +1762,33 @@ public:
   {
     return
       tuned_compute(set_index(set_name), correlation_ptr, c, m, check);
+  }
+
+  /// Builds a parameter list for correlation `corr_ptr` extracting the
+  /// values from the var_set with index `seti` and the column number `col`
+  DynList<Correlation::NamedPar>
+  get_last_row_named_pars(const Correlation * corr_ptr, size_t seti) const
+  {
+    return corr_ptr->get_preconditions().
+      maps<Correlation::NamedPar>([this, seti] (const auto & par)
+      {
+	auto par_alias = par.names();
+	for (auto it = par_alias.get_it(); it.has_curr(); it.next())
+	  {
+	    auto syn = it.get_curr();
+	    const auto & name = syn.first;
+	    try
+	      {
+		auto values = this->values(seti, name);
+		if (values.first.is_empty())
+		  continue;
+		return make_tuple(true, par.name,
+				  values.first.get_last(), values.second);
+	    }
+	  catch (...) { /* ignore it! it could be in another synonym */ }
+	}
+      return make_tuple(false, par.name, 0.0, &Unit::null_unit);
+    });
   }
 
   using CorrRow = tuple<DynList<double>, double>;
