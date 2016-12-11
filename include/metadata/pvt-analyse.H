@@ -213,6 +213,8 @@ public:
   static double c(const Desc & d) { return CorrStat::c(stats(d)); }
   static double m(const Desc & d) { return CorrStat::m(stats(d)); }
 
+  /// Compute statistic for each correlation contained in `l`. The
+  /// unit of results is the unit of stored data
   DynList<Desc>
   correlations_stats(const DynList<const Correlation*> & l, size_t seti,
 		     bool check = true) const

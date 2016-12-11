@@ -58,3 +58,9 @@
 - Completed at 
 - Comment      para ello hay que revisar las llamadas a values()
 
+## 20. verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos
+- Created at   2016-12-10 18:26:26 -0400
+
+## 21. poner cambio de unidades en plot-corr y test-calibrate
+- Created at   2016-12-10 18:26:50 -0400
+
