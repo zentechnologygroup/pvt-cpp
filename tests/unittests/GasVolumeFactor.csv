@@ -1,0 +1,4 @@
+,disabled,t,t unit,p,p unit,z,z unit,result,result unit,tolerance,Note,"""banzer:1996""","""petroWiki:2016:5"""
+Bg,,194,Fahrenheit,3810,psia,0.78,ZFactor,0.00379,RCF_SCF,1,,1,
+Bg,,75,Fahrenheit,2010,psia,0.772,ZFactor,0.00581,RCF_SCF,1,,,1
+Bg,TRUE,,,,,,,,,,,,
