@@ -1,0 +1,15 @@
+,disabled,yg,yg unit,yo,yo unit,api,api unit,rsb,rsb unit,t ,t unit,tsep,tsep unit,p,p unit,psep,psep unit,result,result unit,tolerance,Note,"""banzer:1996""","""ahmed:1989""","""ahmed:2010"""
+CoaKartoatmodjoSchmidt,,0.95,Sgg,,,31,Api,,,180,Fahrenheit,,,4000,psia,,,07.300e-06,psia_1,1,,1,,
+CoaPetroskyFarshad,,0.95,Sgg,,,31,Api,,,180,Fahrenheit,,,4000,psia,,,11.080e-06,psia_1,1,,1,,
+CoaVasquezBeggs,,0.95,Sgg,,,31,Api,,,180,Fahrenheit,,,4000,psia,,,09.610e-06,psia_1,1,,1,,
+CoaVasquezBeggs,,0.8,Sgg,,,45,Api,600,SCF_STB,212,Fahrenheit,100,Fahrenheit,2000,psia,114.7,psia,24.184e-06,psia_1,1,The gas gravity correction is null when the reference separator pressure is used.,,1,
+CoaPetroskyFarshad,,0.848,Sgg,,,27.3,Api,807,SCF_STB,180,Fahrenheit,173,Fahrenheit,4370,psig,85,psig,11.770e-06,psia_1,1,Oil 6,,,1
+CoaVasquezBeggs,,0.848,Sgg,,,27.3,Api,807,SCF_STB,180,Fahrenheit,173,Fahrenheit,4370,psig,85,psig,11.540e-06,psia_1,1,Oil 6,,,1
+CoaDeGhetto,TRUE,,,,,,,,,,,,,,,,,,,,API <= 10,,,
+CoaDeGhetto,TRUE,,,,,,,,,,,,,,,,,,,,10< API <=22.3,,,
+CoaHanafy,TRUE,,,,,,,,,,,,,,,,,,,,,,,
+CoaKartoatmodjoSchmidt,TRUE,,,,,,,,,,,,,,,,,,,,,,,
+CoaPetroskyFarshad,TRUE,,,,,,,,,,,,,,,,,,,,,,,
+CoaVasquezBeggs,TRUE,,,,,,,,,,,,,,,,,,,,,,,
+CoaPerezML,TRUE,,,,,,,,,,,,,,,,,,,,,,,
+CoaMillanArcia,TRUE,,,,,,,,,,,,,,,,,,,,,,,

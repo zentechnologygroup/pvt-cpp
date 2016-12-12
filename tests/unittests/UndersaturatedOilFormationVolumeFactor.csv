@@ -1,0 +1,5 @@
+,disabled,bobp,bobp unit,p,p unit,pb,pb unit,co,co unit,result,result unit,tolerance,Note,"""banzer:1996""","""petroWiki:2016:3""","""mcCain:1990"""
+BoaMcCain,,1.41258,RB_STB,3000,psia,2500,psia,09.61e-06,psia_1,1.40581,RB_STB,1,,1,,
+BoaMcCain,,1.377,RB_STB,4500,psia,2251,psia,10.09e-06,psia_1,1.346,RB_STB,1,,,1,
+BoaMcCain,,1.467,RB_STB,5015,psia,2635,psia,15.40e-06,psia_1,1.414,RB_STB,1,,,,1
+BoaMcCain,TRUE,,,,,,,,,,,,,,,

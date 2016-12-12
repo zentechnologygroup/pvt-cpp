@@ -1,0 +1,4 @@
+,disabled,api,api unit,rsb,rsb unit,t ,t unit,p,p unit,pb,pb unit,result,result unit,tolerance,Note,"""banzer:1996""","""ahmed:2010"""
+CobMcCainEtAl,,31,Api,516,SCF_STB,180,Fahrenheit,2000,psia,2500,psia,143.60e-06,psia_1,1,,1,
+CobMcCainEtAl,,47.1,Api,451,SCF_STB,710,Fahrenheit,1665,psia,2392,psia,290.30e-06,psia_1,1,,,1
+CobMcCainEtAl,TRUE,,,,,,,,,,,,,,,,
