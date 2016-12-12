@@ -1,4 +1,4 @@
-,disabled,yg,yg unit,pb,pb unit,t,t unit,p,p unit,z,z unit,result,result unit,tolerance,Note,"""petroWiki:2016:5""","""danesh:1998"""
+,disabled,yg,yg unit,pb,pb unit,t,t unit,p,p unit,z,z unit,result,result unit,tolerance,Note,"ref ""petroWiki:2016:5""","ref ""danesh:1998"""
 Pg,,0.7,Sgg,2500,psia,75,Fahrenheit,2010,psia,0.772,ZFactor,9.2,Lb_ft3,1,pb was assigned in order for it to be greater than p,1,
 Pg,,0.65,Sgg,3500,psig,380.3,Kelvin,3000,psig,0.85,ZFactor,146,Kg_m3,1,pb was assigned in order for it to be greater than p,,1
 Pg,TRUE,,,,,,,,,,,,,,,,

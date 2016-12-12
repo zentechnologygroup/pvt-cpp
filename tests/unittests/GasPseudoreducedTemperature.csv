@@ -1,3 +1,3 @@
-,disabled,t,t unit,tpc,tpc unit,result,result unit,tolerance,Note,"""ahmed:2010"""
+,disabled,t,t unit,tpc,tpc unit,result,result unit,tolerance,Note,"ref ""ahmed:2010"""
 Tpr,,640,Rankine,383.38,Rankine,1.67,PseudoReducedTemperature,1,,1
 Tpr,TRUE,,,,,,,,,

@@ -1,4 +1,4 @@
-,disabled,tpchc,tpchc unit ,tpcm,tpcm unit,n2_concentration,n2_concentration unit,co2_concentration,co2_concentration unit,h2s_concentration,h2s_concentration unit,result,result unit,tolerance,Note,"""ahmed:1989""","""ahmed:2010"""
+,disabled,tpchc,tpchc unit ,tpcm,tpcm unit,n2_concentration,n2_concentration unit,co2_concentration,co2_concentration unit,h2s_concentration,h2s_concentration unit,result,result unit,tolerance,Note,"ref ""ahmed:1989""","ref ""ahmed:2010"""
 AdjustedTscMWichertAziz,,,,427.72,Rankine,,,0.1,MoleFraction,0.2,MoleFraction,397.86,Rankine,1,,1,
 AdjustedTscMWichertAziz,,,,389.38,Rankine,,,0.05,MoleFraction,0.1,MoleFraction,368.64,Rankine,1,,,1
 TscMKayMixingRule,TRUE,,,,,,,,,,,,,,,,

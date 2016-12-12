@@ -1,4 +1,4 @@
-,disabled,t,t unit,tpr,tpr unit,tpc,tpc unit,p,p unit,ppr,ppr unit,ppc,ppc unit,yg,yg unit,z,z unit,n2_concentration,n2_concentration unit,co2_concentration,co2_concentration unit,h2s_concentration,h2s_concentration unit,result,result unit,tolerance,Note,"""banzer:1996""","""ahmed:2010""","""gawish:2005""","""ahmed:1989"""
+,disabled,t,t unit,tpr,tpr unit,tpc,tpc unit,p,p unit,ppr,ppr unit,ppc,ppc unit,yg,yg unit,z,z unit,n2_concentration,n2_concentration unit,co2_concentration,co2_concentration unit,h2s_concentration,h2s_concentration unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""ahmed:2010""","ref ""gawish:2005""","ref ""ahmed:1989"""
 UgCarrKB,,194,Fahrenheit,1.35,PseudoReducedTemperature,,,,,5.6,PseudoReducedPressure,,,1.242,Sgg,,,0.0051,MoleFraction,0.1101,MoleFraction,0.0491,MoleFraction,0.03363,CP,1,,1,,,
 UgLeeGE,,654,Rankine,,,,,3810,psia,,,,,1.242,Sgg,0.78,ZFactor,,,,,,,0.05475,CP,1,,1,,,
 UgLeeGE,,600,Rankine,,,,,2000,psia,,,,,0.72,Sgg,0.78,ZFactor,,,,,,,0.0173,CP,1,,,1,,

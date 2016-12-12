@@ -1,4 +1,4 @@
-,disabled,tpr,tpr unit ,ppr,ppr unit,ppc,ppc unit,z,z unit,result,result unit,tolerance,Note,"""banzer:1996"""
+,disabled,tpr,tpr unit ,ppr,ppr unit,ppc,ppc unit,z,z unit,result,result unit,tolerance,Note,"ref ""banzer:1996"""
 CgSarem,,1.35,PseudoReducedTemperature,5.6,PseudoReducedPressure,680,psia,0.77343,ZFactor,131.10e-06,psia_1,1,,1
 CgHallYarborough,,1.35,PseudoReducedTemperature,5.6,PseudoReducedPressure,680,psia,0.78686,ZFactor,121.60e-06,psia_1,1,,1
 CgMattarBA,,1.35,PseudoReducedTemperature,5.6,PseudoReducedPressure,680,psia,0.7897,ZFactor,127.80e-06,psia_1,1,,1
