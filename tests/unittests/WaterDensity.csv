@@ -1,0 +1,7 @@
+,disabled,t,t unit,p,p unit,nacl_concentration,nacl_concentration unit,bw,bw unit,result,result unit,tolerance,Note,"ref ""mcCain:1990""","ref ""banzer:1996"""
+PwMcCain,,,,,,6.8,Dissolved_Salt_Percent,1.022,RB_STB,64,Lb_ft3,1,,1,
+PwMcCain,,,,,,20000,Dissolved_Salt_PPM,1.02806,RB_STB,61.52,Lb_ft3,1,,,1
+PwSpiveyMN,TRUE,,,,,,,,,,,,,,
+PwSpiveyMNGasFree,TRUE,,,,,,,,,,,,,,
+PwMcCain,TRUE,,,,,,,,,,,,,,
+PpwSpiveyMN,TRUE,,,,,,,,,,,,,,
