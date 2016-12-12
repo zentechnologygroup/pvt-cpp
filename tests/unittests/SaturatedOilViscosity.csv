@@ -1,4 +1,4 @@
-,disabled,uod,uod unit,rs,rs unit,yo,yo unit,api,api unit,rsb,rsb unit,yg,yg unit,t,t unit,p,p unit,pb,pb unit,result,result unit,tolerance,Note,"""banzer:1996""","""ahmed:2010""","""ahmed:1989""","""petroWiki:2016:3"""
+,disabled,uod,uod unit,rs,rs unit,yo,yo unit,api,api unit,rsb,rsb unit,yg,yg unit,t,t unit,p,p unit,pb,pb unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""ahmed:2010""","ref ""ahmed:1989""","ref ""petroWiki:2016:3"""
 UobBeggsRobinson,,2.65,CP,675,SCF_STB,,,,,,,,,,,,,,,0.6,CP,1,,1,,,
 UobChewConnally,,2.65,CP,675,SCF_STB,,,,,,,,,,,,,,,0.74,CP,1,,1,,,
 UobKartoatmodjoSchmidt,,2.65,CP,675,SCF_STB,,,,,,,,,,,,,,,0.67,CP,1,,1,,,

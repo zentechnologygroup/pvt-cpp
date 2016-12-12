@@ -1,4 +1,4 @@
-,disabled,yg,yg unit,yo,yo unit,api,api unit,p,p unit,pb,pb unit,psep,psep unit,t,t unit,tsep,tsep unit,rsb,rsb unit,result,result unit,tolerance,Note,"""banzer:1996""","""ahmed:1989""","""ahmed:2010""","""petroleumOffice:2016"""
+,disabled,yg,yg unit,yo,yo unit,api,api unit,p,p unit,pb,pb unit,psep,psep unit,t,t unit,tsep,tsep unit,rsb,rsb unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""ahmed:1989""","ref ""ahmed:2010""","ref ""petroleumOffice:2016"""
 RsAlMarhoun,,0.95,Sgg,31,Api,,,2000,psia,,,,,180,Fahrenheit,,,,,615,SCF_STB,1,,1,,,
 RsDoklaOsman,,0.95,Sgg,31,Api,,,2000,psia,,,,,180,Fahrenheit,,,,,648,SCF_STB,1,,1,,,
 RsGlaso,,0.95,Sgg,,,31,Api,2000,psia,,,,,180,Fahrenheit,,,,,433,SCF_STB,1,,1,,,

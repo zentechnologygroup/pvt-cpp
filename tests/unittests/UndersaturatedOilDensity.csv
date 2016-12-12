@@ -1,3 +1,3 @@
-,disabled,pobp,pobp unit,p,p unit,pb,pb unit,co,co unit,result,result unit,tolerance,Note,"""mcCain:1990"""
+,disabled,pobp,pobp unit,p,p unit,pb,pb unit,co,co unit,result,result unit,tolerance,Note,"ref ""mcCain:1990"""
 PoaBradley,,40.53,Lb_ft3,5015,psia,2635,psia,15.40e-06,psia_1,42.04,Lb_ft3,1,,1
 PoaBradley,TRUE,,,,,,,,,,,,,

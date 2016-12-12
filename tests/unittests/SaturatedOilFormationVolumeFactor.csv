@@ -1,4 +1,4 @@
-,disabled,yg,yg unit,yo,yo unit,api,api unit,rs,rs unit,t,t unit,tsep,tsep unit,p,p unit,pb,pb unit,psep,psep unit,result,result unit,tolerance,Note,"""banzer:1996""","""ahmed:1989""","""ahmed:2010""","""petroWiki:2016:3""","""glaso:1980""","""petroleumOffice:2016"""
+,disabled,yg,yg unit,yo,yo unit,api,api unit,rs,rs unit,t,t unit,tsep,tsep unit,p,p unit,pb,pb unit,psep,psep unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""ahmed:1989""","ref ""ahmed:2010""","ref ""petroWiki:2016:3""","ref ""glaso:1980""","ref ""petroleumOffice:2016"""
 BobAlmarhoun,,0.95,Sgg,0.871,Sg_do,,,615,SCF_STB,640,Rankine,,,,,,,,,1.35804,RB_STB,1,,1,,,,,
 BobDoklaOsman,,0.95,Sgg,0.871,Sg_do,,,648,SCF_STB,640,Rankine,,,,,,,,,1.38152,RB_STB,1,,1,,,,,
 BobGlaso,,0.95,Sgg,0.871,Sg_do,,,433,SCF_STB,180,Fahrenheit,,,,,,,,,1.25031,RB_STB,1,,1,,,,,

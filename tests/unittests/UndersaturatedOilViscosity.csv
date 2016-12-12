@@ -1,4 +1,4 @@
-,disabled,uobp,uobp unit,p,p unit,pb,pb unit,uod,uod unit,yo,yo unit,api,api unit,rsb,rsb unit,result,result unit,tolerance,Note,"""banzer:1996""","""ahmed:2010""","""ahmed:1989""","""petroWiki:2016:3"""
+,disabled,uobp,uobp unit,p,p unit,pb,pb unit,uod,uod unit,yo,yo unit,api,api unit,rsb,rsb unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""ahmed:2010""","ref ""ahmed:1989""","ref ""petroWiki:2016:3"""
 UoaKartoatmodjoSchmidt,,0.74,CP,4000,psia,2500,psia,,,,,,,,,0.77,CP,1,,1,,,
 UoaBeal,,0.74,CP,4000,psia,2500,psia,,,,,,,,,0.81,CP,1,,1,,,
 UoaVasquezBeggs,,0.74,CP,4000,psia,2500,psia,,,,,,,,,0.87,CP,1,,1,,,
