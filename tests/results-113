@@ -15,3 +15,36 @@ RsVasquezBeggs(yg, p, api, t, tsep, psep) 0.994460 386.215731 131.121182 2783.35
 
 ./test-calibrate -f 113.json -P rsa -p -n RsVasquezBeggs -t R -c both
 
+# Selección de bob
+
+./test-calibrate -f 113.json -P bob -b
+
+# Selección de boa
+
+./test-calibrate -f 113.json -P boa -b
+
+# Generar gráficas de bo
+
+./test-calibrate -f 113.json -P bo --below BobVasquezBeggs --above BoaVasquezBeggs -p -c both -t R
+
+# Selección de uob
+
+./test-calibrate -f 113.json -P uob -b -o m | grep Beggs
+
+# Selección de uoa
+
+./test-calibrate -f 113.json -P uoa -b -o m
+
+# generar gráficas de uo
+
+./test-calibrate -f 113.json -P uo --below UobBeggsRobinson --above UoaVasquezBeggs --uod UodNaseri -p -c both -t R
+
+# generación del gráficos de rs con correlaciones sin calibrar
+
+./plot-corr --t "100 250 5" --p "114.696 15014.7 40"  --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --below RsVasquezBeggs -t R > 113.R
+3328,0$ ./plot-corr --t "100 250 5" --p "114.696 15014.7 40"  --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --below RsVasquezBeggs -t R > 113.R
+
+# generación del gráficos de rs con correlaciones calibradas
+
+./plot-corr --t "100 250 5" --p "114.696 15014.7 40"  --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --below RsVasquezBeggs --cb -0.395214 --mb 1.442216 -t R > 113.R
+

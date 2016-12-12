@@ -27,6 +27,64 @@ void set_check()
   check = check_arg.getValue();
 }
 
+struct ArgUnit
+{
+  string par_name;
+  string symbol;
+
+  ArgUnit & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> par_name >> symbol))
+      throw TCLAP::ArgParseException(str + " is not a pair par-name unit");
+
+    return *this;
+  }
+
+  ArgUnit() {}
+
+  friend ostream& operator << (ostream &os, const ArgUnit & a) 
+  {
+    return os << a.par_name << " " << a.symbol;
+  }
+};
+
+namespace TCLAP
+{
+  template<> struct ArgTraits<ArgUnit> { typedef StringLike ValueCategory; };
+}
+
+MultiArg<ArgUnit> unit = { "", "unit", "unit \"par-name unit\"", false,
+			   "unit \"par-name unit\"", cmd };
+DynSetTree<string> par_name_tbl =
+  { "api", "rsb", "yg", "tsep", "t", "p", "psep", "h2s-concentration",
+    "co2-concentration", "n2-concentration" };
+const Unit * test_unit_change(const string & par_name)
+{
+  if (not par_name_tbl.contains(par_name))
+    {
+      cout << "for option --unit " << par_name << ": invalid parameter name"
+	   << endl;
+      abort();
+    }
+  
+  const Unit * ret = &Unit::null_unit;
+  for (const auto & par : unit.getValue())
+    if (par.par_name == par_name)
+      {
+	const Unit * ret = Unit::search_by_symbol(par.symbol);
+	if (ret == nullptr)
+	  {
+	    cout << "In unit change for " << par_name << ": unit symbol "
+		 << par.symbol << " not found" << endl;
+	    abort();
+	  }
+	return ret;
+      }
+  return ret;
+}
+				    
+
 // Mandatory command arguments
 
 ValueArg<double> api_arg = { "", "api", "api", true, 0, "api", cmd };
@@ -40,6 +98,11 @@ ValueArg<double> rsb_arg = { "", "rsb", "rsb", true, 0, "rsb in scf/STB", cmd };
 Correlation::NamedPar rsb_par;
 void set_rsb()
 {
+  auto rsb_unit = test_unit_change("rsb");
+  if (rsb_unit != &Unit::null_unit)
+    {
+      if (SCF_STB::ge
+    }
   rsb_par = make_tuple(true, "rsb", rsb_arg.getValue(),
 		       &SCF_STB::get_instance());
 }
@@ -594,7 +657,7 @@ DynList<DynList<double>> generate_bo_values()
       rs_pars_list.insert(t_par);
       rs_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
 
-       // calcula el último bo de la correlación bob. Este será el
+      // calcula el último bo de la correlación bob. Este será el
       // punto de partida de boa
       bo_pars_list.insert(make_tuple(true, "p", pb_val.raw(), &pb_val.unit));
       bo_pars_list.insert(make_tuple(true, "rs",
