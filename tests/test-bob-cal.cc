@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 
   pvt.check_data();
 
-  auto bob_samples = pvt.get_data().values(0, "bob");
+  auto bob_samples = pvt.get_data().values(0, "bob").first;
   cout << Rvector("bob", bob_samples) << endl;
 
   auto bob_valid = pvt.bob_valid_correlations();
@@ -40,8 +40,8 @@ int main(int argc, char *argv[])
   auto corr = bob_valid.get_first();
   cout << corr->call_string() << endl << endl;
 
-  auto p = pvt.get_data().values(0, "p");
-  auto rs = pvt.get_data().values(0, "rs");
+  auto p = pvt.get_data().values(0, "p").first;
+  auto rs = pvt.get_data().values(0, "rs").first;
 
   cout << Rvector("rs", rs) << endl
        << Rvector("p", p) << endl;
@@ -79,8 +79,8 @@ int main(int argc, char *argv[])
 
   cout << pvt.to_R("tuned.", bob_lfits_list) << endl;
 
-  cout << pvt.to_R(pvt.get_data().values(0, "bob"),
-   		   pvt.get_data().values(0, "p"), "p", "Bob",
+  cout << pvt.to_R(pvt.get_data().values(0, "bob").first,
+   		   pvt.get_data().values(0, "p").first, "p", "Bob",
 		   pvt.best_bob_correlations()) << endl;
 
   auto best_fit = bob_lfits.get_first();
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 	  cout << "Searching " << name << " for " << par.name << endl;
 	  try
 	    {
-	      auto values = pvt.get_data().quantities("Below Pb", name);
+	      auto values = pvt.get_data().values("Below Pb", name);
 	      if (values.first.is_empty())
 		continue;
 	      return make_tuple(true, par.name,

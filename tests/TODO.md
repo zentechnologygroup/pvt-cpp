@@ -53,3 +53,14 @@
 ## 18. dir backend
 - Created at   2016-12-08 16:30:29 -0400
 
+## 19. Hay que verificar que cuando se extrae data las unidades sean convertidas a las esperadas
+- Created at   2016-12-10 15:39:22 -0400
+- Completed at 
+- Comment      para ello hay que revisar las llamadas a values()
+
+## 20. verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos
+- Created at   2016-12-10 18:26:26 -0400
+
+## 21. poner cambio de unidades en plot-corr y test-calibrate
+- Created at   2016-12-10 18:26:50 -0400
+

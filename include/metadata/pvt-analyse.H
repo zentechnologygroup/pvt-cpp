@@ -213,6 +213,8 @@ public:
   static double c(const Desc & d) { return CorrStat::c(stats(d)); }
   static double m(const Desc & d) { return CorrStat::m(stats(d)); }
 
+  /// Compute statistic for each correlation contained in `l`. The
+  /// unit of results is the unit of stored data
   DynList<Desc>
   correlations_stats(const DynList<const Correlation*> & l, size_t seti,
 		     bool check = true) const
@@ -619,6 +621,33 @@ public:
 
     return s.str();
   }
+  
+  Array<double>
+  load_values(const Correlation * corr_ptr, const string & corr_base_name,
+	      size_t seti) const
+  {
+    if (corr_ptr->target_name() != corr_base_name)
+      {
+	ostringstream s;
+	s << "PvtAnalyzer::load_value: correlation " << corr_ptr->name
+	  << " has not " << corr_base_name << " rs as target name";
+	throw domain_error(s.str());
+      }
+
+    auto p = data.values(seti, corr_base_name);
+    auto & vals = p.first;
+    if (p.second != &corr_ptr->unit)
+      vals.mutable_for_each([&] (auto & v)
+        { v = unit_convert(*p.second, v, corr_ptr->unit); });
+    
+    return move(vals);
+  }
+
+  Array<double>
+  load_values(const Correlation * correlation_ptr, size_t seti) const
+  {
+    return load_values(correlation_ptr, correlation_ptr->target_name(), seti);
+  }
 
   /// Performs a linear regression fit for the `correlation_ptr`
   /// taking as data the onst names and the varables stored in the var
@@ -627,9 +656,7 @@ public:
   CorrStat::LFit lfit(const Correlation * correlation_ptr, size_t seti,
 		      bool check = true) const
   {
-    const string & var_name = correlation_ptr->target_name();
-    CorrStat stat(data.values(seti, var_name));
-
+    CorrStat stat(load_values(correlation_ptr, seti));
     auto result = data.compute(seti, correlation_ptr, check);
     return stat.linear_fit(result);
   }
@@ -637,45 +664,21 @@ public:
   CorrStat::LFit
   rs_lfit(const Correlation * corr_ptr, bool check = true) const
   {
-    if (corr_ptr->target_name() != "rs")
-      {
-	ostringstream s;
-	s << "PvtAnalyzer::rs_lfit: correlation " << corr_ptr->name
-	  << " has not rs as target name";
-	throw domain_error(s.str());
-      }
-    
-    CorrStat stat(data.values(0, "rs"));
+    CorrStat stat(load_values(corr_ptr, "rs", 0));
     return stat.linear_fit(data.compute(0, corr_ptr, check));
   }
 
   CorrStat::LFit
   bob_lfit(const Correlation * corr_ptr, bool check = true) const
   {
-    if (corr_ptr->target_name() != "bob")
-      {
-	ostringstream s;
-	s << "PvtAnalyzer::bob_lfit: correlation " << corr_ptr->name
-	  << " has not bob as target name";
-	throw domain_error(s.str());
-      }
-    
-    CorrStat stat(data.values(0, "bob"));
+    CorrStat stat(load_values(corr_ptr, "bob", 0));
     return stat.linear_fit(data.compute(0, corr_ptr, check));
   }
 
   CorrStat::LFit
   boa_lfit(const Correlation * corr_ptr, bool check = true) const
   {
-    if (corr_ptr->target_name() != "boa")
-      {
-	ostringstream s;
-	s << "PvtAnalyzer::boa_lfit: correlation " << corr_ptr->name
-	  << " has not bob as target name";
-	throw domain_error(s.str());
-      }
-    
-    CorrStat stat(data.values(1, "boa"));
+    CorrStat stat(load_values(corr_ptr, "boa", 1));
     return stat.linear_fit(data.compute(1, corr_ptr, check));
   }
 
@@ -684,13 +687,19 @@ public:
 		     size_t seti, bool check = true) const
   {
     const string & var_name = corr_list.get_first()->target_name();
-    CorrStat stat(data.values(seti, var_name));
+    auto p = data.values(seti, var_name);
+    auto & vals = p.first;
+    const Unit * lab_unit = p.second;
+    CorrStat stat(vals);
 
     DynList<VarCorrLFit> ret = corr_list.maps<VarCorrLFit>([&] (auto ptr)
       {
 	try
 	  {
 	    auto result = data.compute(seti, ptr, check);
+	    if (&ptr->unit != lab_unit)
+	      result.mutable_for_each([&] (auto & v)
+                { v = unit_convert(ptr->unit, v, *lab_unit); } );
 	    auto fit = stat.linear_fit(result);
 	    return make_tuple(true, move(result), ptr, "", fit);
 	  }

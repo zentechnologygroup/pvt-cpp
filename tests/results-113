@@ -1,0 +1,17 @@
+# Selección de pb
+
+ ./test-calibrate -f 113.json -P pb -b
+
+  PbVasquezBeggs(yg, rsb, api, t, tsep, psep) 7081.093453 -3189.283453 45 
+
+
+# Selección de rs
+
+./test-calibrate -f 113.json -P rs -b
+
+RsVasquezBeggs(yg, p, api, t, tsep, psep) 0.994460 386.215731 131.121182 2783.355389   24.597553 1.812277 
+
+# generar gráficas de rs
+
+./test-calibrate -f 113.json -P rsa -p -n RsVasquezBeggs -t R -c both
+

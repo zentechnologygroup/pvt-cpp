@@ -16,3 +16,6 @@ correlations en hidden no deben aparecer en test-calibrate ni plot-corr,2016-12-
 ajustar uod en test-calibrate,2016-12-03 09:07:15 -0400,,
 búsqueda de unidades por tabla hash óptima,2016-12-05 08:24:35 -0400,,
 dir backend,2016-12-08 16:30:29 -0400,,
+Hay que verificar que cuando se extrae data las unidades sean convertidas a las esperadas,2016-12-10 15:39:22 -0400,,para ello hay que revisar las llamadas a values()
+verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos,2016-12-10 18:26:26 -0400,,
+poner cambio de unidades en plot-corr y test-calibrate,2016-12-10 18:26:50 -0400,,

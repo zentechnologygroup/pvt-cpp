@@ -241,8 +241,8 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & l,
   auto first = l.get_first();
   auto target_name = PvtAnalyzer::correlation(first)->target_name();
 
-  auto pressure = pvt.get_data().values(set_name, "p");
-  auto lab = pvt.get_data().values(set_name, col_name);
+  auto pressure = pvt.get_data().values(set_name, "p").first;
+  auto lab = pvt.get_data().values(set_name, col_name).first;
 
   DynList<DynList<double>> ret;
   for (auto it = get_zip_it(pressure, lab); it.has_curr(); it.next())
@@ -347,8 +347,8 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
   const auto & data = pvt.get_data();
   const auto & above_set = data.var_sets(1);
 
-  auto pressure = data.values(0, "p");
-  auto lab = data.values(0, col_idx);
+  auto pressure = data.values(0, "p").first;
+  auto lab = data.values(0, col_idx).first;
   const auto & n_above = above_set.samples.size();
   for (size_t i = 1; i < n_above; ++i) // omite 1ra fila
     {

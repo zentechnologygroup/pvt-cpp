@@ -139,10 +139,10 @@ int main(int argc, char *argv[])
   auto best_uoa_corr = get<0>(best_uoa);
   auto best_uoa_fit = get<3>(get<2>(best_uoa));
 
-  auto p_below = pvt.get_data().values(0, "p");
-  auto p_above = pvt.get_data().values(1, "p");
-  auto uo = to_dynlist(pvt.get_data().values(0, "uob"));
-  uo.append(to_dynlist(pvt.get_data().values(1, "uoa")));
+  auto p_below = pvt.get_data().values(0, "p").first;
+  auto p_above = pvt.get_data().values(1, "p").first;
+  auto uo = to_dynlist(pvt.get_data().values(0, "uob").first);
+  uo.append(to_dynlist(pvt.get_data().values(1, "uoa").first));
 
   auto p = to_dynlist(p_below);
   p.append(to_dynlist(p_above));
