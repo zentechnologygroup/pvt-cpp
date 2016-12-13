@@ -49,8 +49,8 @@ static json to_json(const Unit * unit_ptr)
   j["name"] = unit_ptr->name;
   j["description"] = unit_ptr->description;
   j["symbol"] = unit_ptr->symbol;
-  j["minimum value"] = unit_ptr->min_val;
-  j["maximum value"] = unit_ptr->max_val;
+  j["minimum_value"] = unit_ptr->min_val;
+  j["maximum_value"] = unit_ptr->max_val;
   j["epsilon"] = unit_ptr->get_epsilon();
   return j;
 }
@@ -70,7 +70,7 @@ static json to_json(const PhysicalQuantity * const pq)
 string units_json()
 {
   json j;
-  j["Zen physical quantities"] =
+  j["Zen_physical_quantities"] =
     to_vector(PhysicalQuantity::quantities().maps<json>([] (auto p)
     { return to_json(p); }));
   return j.dump(2);

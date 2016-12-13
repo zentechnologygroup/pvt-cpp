@@ -21,14 +21,14 @@ static json to_json(const CorrelationPar & p)
   j["name"] = p.name;
   j["description"] = p.description;
   j["unit"] = p.unit.symbol;
-  j["physical quantity"] = p.unit.physical_quantity.name;
-  j["minimum value"] = p.min_val.get_value();
-  j["minimum value unit"] = p.min_val.unit.symbol;
-  j["maximum value"] = p.max_val.get_value();
-  j["maximum value unit"] = p.min_val.unit.symbol;
-  j["min from author"] = p.min_from_author;
-  j["max from author"] = p.max_from_author;
-  j["latex symbol"] = p.latex_symbol;
+  j["physical_quantity"] = p.unit.physical_quantity.name;
+  j["minimum_value"] = p.min_val.get_value();
+  j["minimum_value)unit"] = p.min_val.unit.symbol;
+  j["maximum_value"] = p.max_val.get_value();
+  j["maximum_value_unit"] = p.min_val.unit.symbol;
+  j["min_from_author"] = p.min_from_author;
+  j["max_from_author"] = p.max_from_author;
+  j["latex_symbol"] = p.latex_symbol;
   return j;
 }
 
@@ -36,16 +36,16 @@ static json to_json(const CorrelationPar & p)
 static json to_json(const Correlation & c) 
 {
   json j;
-  j["Result maximum value"] = c.max_val;
-  j["Result minimum value"] = c.min_val;
-  j["Result unit"] = c.unit.symbol;
+  j["Result_maximum_value"] = c.max_val;
+  j["Result_minimum_value"] = c.min_val;
+  j["Result_unit"] = c.unit.symbol;
   j["refs"] = to_vector(c.refs.maps<string>([] (const auto & r)
     { return r->to_string(); }));
   j["notes"] = to_vector(c.notes);
-  j["data bank"] = to_vector(c.db);
+  j["data_bank"] = to_vector(c.db);
   j["title"] = c.title;
   j["author"] = c.author;
-  j["latex symbol"] = c.latex_symbol;
+  j["latex_symbol"] = c.latex_symbol;
   j["subtype"] = c.subtype_name;
   j["type"] = c.type_name;
   j["name"] = c.name;
@@ -56,7 +56,7 @@ static json to_json(const Correlation & c)
 					       { return ::to_json(par); });
   auto pars = to_vector(jpars);
   j["parameters"] = pars;
-  j["number of parameters"] = pars.size();  
+  j["number_of_parameters"] = pars.size();  
 
   return j;
 }
@@ -83,7 +83,7 @@ string Correlation::to_json()
       auto type_name = p.first;
 
       json j;
-      j["Relation type"] = type_name;
+      j["Relation_type"] = type_name;
       vector<json> properties;
 
       auto subtree = p.second;
@@ -103,20 +103,20 @@ string Correlation::to_json()
 	      corrs.push_back(::to_json(*corr_ptr));
 	    }
 
-	  physical_property["number of relations"] = corrs.size();
+	  physical_property["number_of_relations"] = corrs.size();
 	  physical_property["Relations"] = corrs;
 	  properties.push_back(physical_property);
 	}
 
-      j["number of properties"] = properties.size();
-      j["Physical property"] = properties;
+      j["number_of_properties"] = properties.size();
+      j["Physical_property"] = properties;
       jl.append(j);
     }
 
   auto properties = to_vector(jl);
   json j;
-  j["Physical properties"] = properties;
-  j["total physical properties"] = properties.size();
+  j["Physical_properties"] = properties;
+  j["total_physical_properties"] = properties.size();
 
   return j.dump(2);
 }
