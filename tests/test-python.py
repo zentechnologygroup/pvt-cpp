@@ -302,7 +302,7 @@ def RsDoklaOsmanCorrelation(Yg, Pb, P, Yo, T, Rsb):
     if P >= Pb: # Logical condition
         Rs = Rsb
     else: 
-        Rs = ((1/0.836386 * 10 **4) * P * Yg ** 1.01049 * Yo ** -0.107991 * T ** 0.952584) ** (1/0.724047)
+        Rs = ((0.11956202 * 10 ** -3) * P * Yg ** 1.01049 * Yo ** -0.107991 * T ** 0.952584) ** (1/0.724047)
     RsDoklaOsman = Rs
     return RsDoklaOsman       
 
@@ -2294,7 +2294,7 @@ def CwbMcCainCorrelation(T, P, saltConcentration, Bg, Bw, Cwa):
         
         # Correction of the derivative, due to dissolved solids
         dRswdP = dRswdPs * 10 ** (-0.0840655 * saltConcentration * T ** -0.285854)
-
+	
         # Isothermal compressibility
         Cwb = Cwa + Bg/Bw * dRswdP
            
