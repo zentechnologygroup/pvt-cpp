@@ -27,6 +27,9 @@ void set_check()
   check = check_arg.getValue();
 }
 
+DynSetTree<string> par_name_tbl =
+  { "api", "rsb", "yg", "tsep", "t", "p", "psep", "h2s-concentration",
+    "co2-concentration", "n2-concentration" };
 struct ArgUnit
 {
   string par_name;
@@ -37,6 +40,9 @@ struct ArgUnit
     istringstream iss(str);
     if (not (iss >> par_name >> symbol))
       throw TCLAP::ArgParseException(str + " is not a pair par-name unit");
+
+    if (not par_name_tbl.contains(par_name))
+      throw TCLAP::ArgParseException(par_name + " is an invalid parameter name");
 
     return *this;
   }
@@ -56,10 +62,7 @@ namespace TCLAP
 
 MultiArg<ArgUnit> unit = { "", "unit", "unit \"par-name unit\"", false,
 			   "unit \"par-name unit\"", cmd };
-DynSetTree<string> par_name_tbl =
-  { "api", "rsb", "yg", "tsep", "t", "p", "psep", "h2s-concentration",
-    "co2-concentration", "n2-concentration" };
-const Unit * test_unit_change(const string & par_name)
+const Unit * test_unit_change(const string & par_name, const Unit & ref_unit)
 {
   if (not par_name_tbl.contains(par_name))
     {
@@ -68,8 +71,8 @@ const Unit * test_unit_change(const string & par_name)
       abort();
     }
   
-  const Unit * ret = &Unit::null_unit;
-  for (const auto & par : unit.getValue())
+  const Unit * ret = &ref_unit;
+  for (const auto & par : unit.getValue()) 
     if (par.par_name == par_name)
       {
 	const Unit * ret = Unit::search_by_symbol(par.symbol);
@@ -79,11 +82,18 @@ const Unit * test_unit_change(const string & par_name)
 		 << par.symbol << " not found" << endl;
 	    abort();
 	  }
+
+	if (&ref_unit.physical_quantity != &ret->physical_quantity)
+	  {
+	    cout << "For " << par_name << " unit: physical quantity "
+		 << ret->physical_quantity.name << " is invalid" << endl;
+	    abort();
+	  }
 	return ret;
       }
+  
   return ret;
 }
-				    
 
 // Mandatory command arguments
 
@@ -91,27 +101,24 @@ ValueArg<double> api_arg = { "", "api", "api", true, 0, "api", cmd };
 Correlation::NamedPar api_par;
 void set_api()
 {
-  api_par = make_tuple(true, "api", api_arg.getValue(), &Api::get_instance());
+  auto api_unit = test_unit_change("api", Api::get_instance());
+  api_par = make_tuple(true, "api", api_arg.getValue(), api_unit);
 }
 
 ValueArg<double> rsb_arg = { "", "rsb", "rsb", true, 0, "rsb in scf/STB", cmd };
 Correlation::NamedPar rsb_par;
 void set_rsb()
 {
-  auto rsb_unit = test_unit_change("rsb");
-  if (rsb_unit != &Unit::null_unit)
-    {
-      if (SCF_STB::ge
-    }
-  rsb_par = make_tuple(true, "rsb", rsb_arg.getValue(),
-		       &SCF_STB::get_instance());
+  auto rsb_unit = test_unit_change("rsb", SCF_STB::get_instance());
+  rsb_par = make_tuple(true, "rsb", rsb_arg.getValue(), rsb_unit);
 }
 
 ValueArg<double> yg_arg = { "", "yg", "yg", true, 0, "yg in Sgg", cmd };
 Correlation::NamedPar yg_par;
 void set_yg()
 {
-  yg_par = make_tuple(true, "yg", yg_arg.getValue(), &Sgg::get_instance());
+  auto yg_unit = test_unit_change("yg", Sgg::get_instance());
+  yg_par = make_tuple(true, "yg", yg_arg.getValue(), yg_unit);
 }
 
 // optional command arguments
@@ -121,8 +128,9 @@ ValueArg<double> tsep_arg = { "", "tsep", "separator temperature", false, 0,
 Correlation::NamedPar tsep_par;
 void set_tsep()
 {
+  auto tsep_unit = test_unit_change("tsep", Fahrenheit::get_instance());
   tsep_par = make_tuple(tsep_arg.isSet(), "tsep",
-			tsep_arg.getValue(), &Fahrenheit::get_instance());
+			tsep_arg.getValue(), tsep_unit);
 }
 
 ValueArg<double> psep_arg = { "", "psep", "separator pressure", false, 0,
@@ -130,8 +138,9 @@ ValueArg<double> psep_arg = { "", "psep", "separator pressure", false, 0,
 Correlation::NamedPar psep_par;
 void set_psep()
 {
+  auto psep_unit = test_unit_change("psep", psia::get_instance());
   psep_par = make_tuple(psep_arg.isSet(), "psep",
-			psep_arg.getValue(), &psia::get_instance());
+			psep_arg.getValue(), psep_unit);
 }
 
 ValueArg<double> n2_concentration_arg =
@@ -140,10 +149,12 @@ ValueArg<double> n2_concentration_arg =
 Correlation::NamedPar n2_concentration_par;
 void set_n2_concentration()
 {
+  auto n2_concentration_unit = test_unit_change("n2-concentration",
+						MolePercent::get_instance());
   n2_concentration_par = make_tuple(n2_concentration_arg.isSet(),
 				    "n2_concentration",
 				    n2_concentration_arg.getValue(),
-				    &MolePercent::get_instance());
+				    n2_concentration_unit);
 }
 
 ValueArg<double> co2_concentration_arg =
@@ -152,10 +163,12 @@ ValueArg<double> co2_concentration_arg =
 Correlation::NamedPar co2_concentration_par;
 void set_co2_concentration()
 {
+  auto co2_concentration_unit = test_unit_change("co2-concentration",
+						 MolePercent::get_instance());
   co2_concentration_par = make_tuple(co2_concentration_arg.isSet(),
 				     "co2_concentration",
 				     co2_concentration_arg.getValue(),
-				     &MolePercent::get_instance());
+				     co2_concentration_unit);
 }
 
 ValueArg<double> h2s_concentration_arg =
@@ -164,10 +177,12 @@ ValueArg<double> h2s_concentration_arg =
 Correlation::NamedPar h2s_concentration_par;
 void set_h2s_concentration()
 {
+  auto h2s_concentration_unit = test_unit_change("h2s-concentration",
+						 MolePercent::get_instance());
   h2s_concentration_par = make_tuple(h2s_concentration_arg.isSet(),
 				     "h2s_concentration",
 				     h2s_concentration_arg.getValue(),
-				     &MolePercent::get_instance());
+				     h2s_concentration_unit);
 }
 
 ValueArg<double> c_pb_arg = { "", "c-pb", "pb adjustment", false, 0,
@@ -357,7 +372,8 @@ ValueArg<RangeDesc> t_range =
 DynList<Correlation::NamedPar> t_values;
 void set_t_range()
 {
-  set_range(t_range.getValue(), "t", Fahrenheit::get_instance(), t_values);
+  auto t_unit = test_unit_change("t", Fahrenheit::get_instance());
+  set_range(t_range.getValue(), "t", *t_unit, t_values);
 }
 
 ValueArg<RangeDesc> p_range =
@@ -366,7 +382,8 @@ ValueArg<RangeDesc> p_range =
 DynList<Correlation::NamedPar> p_values;
 void set_p_range()
 {
-  set_range(p_range.getValue(), "p", psia::get_instance(), p_values);
+  auto p_unit = test_unit_change("p", psia::get_instance());
+  set_range(p_range.getValue(), "p", *p_unit, p_values);
 }
 
 ValueArg<double> cb_arg = { "", "cb", "c for below range", false, 0,

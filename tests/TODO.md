@@ -64,3 +64,6 @@
 ## 21. poner cambio de unidades en plot-corr y test-calibrate
 - Created at   2016-12-10 18:26:50 -0400
 
+## 22. Resolver: ajustes fueron calculados en una unidad. Cómo asegurar el ajuste si la unidad cambia?
+- Created at   2016-12-12 18:16:56 -0400
+
