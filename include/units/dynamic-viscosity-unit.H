@@ -127,7 +127,7 @@ Declare_Conversion(lb_ftxs, mP, v)
   return unit_convert<Poise, mP>(unit_convert<lb_ftxs, Poise>(v));
 }
 
-Declare_Conversion(CP, mP, v) { return v/1e4; }
+Declare_Conversion(CP, mP, v) { return v*1e4; }
 Declare_Conversion(Paxs, mP, v)
 {
   return unit_convert<Poise, mP>(unit_convert<Paxs, Poise>(v));
