@@ -111,7 +111,7 @@ RsDoklaOsman::impl(const Quantity<Sgg> & yg,
 		   const Quantity<Sg_do> & yo,
 		   const Quantity<Rankine> & t) const
 {
-  constexpr double k = 11956.20204068456430404144; // (1/0.836386 * 10 **4)
+  constexpr double k = 0.11956202e-3; // 1/(0.836386 * 10 **4)
   constexpr double d = 1/0.724047;
 
   const double raw_p = p.get_value();
