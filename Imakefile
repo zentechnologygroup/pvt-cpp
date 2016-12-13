@@ -4,7 +4,7 @@
 
 ALEPHW = $(shell echo $$ALEPHW)
 
-SUBDIRS = include lib units correlations tests
+SUBDIRS = include lib units correlations tests backend
 
 MakeSubdirs($(SUBDIRS))
 DependSubdirs($(SUBDIRS))

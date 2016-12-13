@@ -1,0 +1,43 @@
+DEPEND = sh ./depend.sh
+
+INCLUDES = -I$(TOP)/include -I$(ALEPHW) 
+WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
+	-Wno-parentheses
+
+
+OPTFLAGS = -Ofast -DNDEBUG
+FLAGS = -std=c++14 $(WARN) $(OPTFLAGS)
+
+OPTIONS = $(FLAGS)
+CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
+
+SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lnlopt -lstdc++ -lgsl -lgslcblas -lm -lc
+
+DEPLIBS	= $(TOP)/lib/libpvt.a
+
+LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
+
+TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot-corr.cc
+
+TESTOBJS = $(TESTSRCS:.cc=.o)
+
+SRCS = $(TESTSRCS)
+
+correlations.rb: test-corr
+	./test-corr -R > correlations.rb
+
+clean:: correlations.rb
+
+AllTarget(test-conversion)
+NormalProgramTarget(test-conversion,test-conversion.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(test-corr)
+NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(test-calibrate)
+NormalProgramTarget(test-calibrate,test-calibrate.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(plot-corr)
+NormalProgramTarget(plot-corr,plot-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+DependTarget()
