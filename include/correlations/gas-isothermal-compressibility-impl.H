@@ -85,7 +85,7 @@ CgHallYarborough::impl(const Quantity<PseudoReducedTemperature> & __tpr,
       pr = prprev;
 
       const double pr2 = pr*pr;
-      const double pr3 = pr*pr;
+      const double pr3 = pr2*pr;
       const double pr4 = pr3*pr;
 
       const double f = -a*ppr + (pr + pr2 + pr3 - pr4)/pow(1 - pr, 3)
@@ -101,7 +101,7 @@ CgHallYarborough::impl(const Quantity<PseudoReducedTemperature> & __tpr,
   pr = prf;
 
   const double pr2 = pr*pr;
-  const double pr3 = pr*pr;
+  const double pr3 = pr2*pr;
   const double pr4 = pr3*pr;
 
   const double pr_x_4 = 4*pr;

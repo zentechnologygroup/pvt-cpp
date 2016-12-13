@@ -1504,9 +1504,9 @@ def CgSaremCorrelation(Tr, P, Tpc, Ppc, Z):
     CgSarem = Cg
     return CgSarem
 
-def CgHallYarboroughCorrelation(Tr, P, Tpc, Ppc, Z):
-    Tpr = 1.0*Tr/Tpc
-    Ppr = 1.0*P/Ppc
+def CgHallYarboroughCorrelation(Tpr, Ppr, Ppc, Z):
+    #Tpr = 1.0*Tr/Tpc
+    #Ppr = 1.0*P/Ppc
     A = 0.06125 * (1/Tpr) * exp((-1.2) * ((1 - (1/Tpr)) ** 2))
     B = 14.76 * (1/Tpr) - 9.76 * ((1/Tpr) ** 2) + 4.58 * ((1/Tpr) ** 3)
     C = 90.7 * (1/Tpr) - 242.2 * ((1/Tpr) ** 2) + 42.4 * ((1/Tpr) ** 3)
@@ -2446,4 +2446,3 @@ def RswMcCoyCorrelation(T, P, saltConcentration):
 # BwbMcCoyCorrelation(200, 5000, 2)
 # BwaSpiveyMNCorrelation(93.3333, 34.4738, 0.349199)
 # BwaMcCainCorrelation(7000, 5000, 5, 0.0001)
-
