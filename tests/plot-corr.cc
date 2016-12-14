@@ -861,7 +861,7 @@ void generate_grid()
        << ",bobp " << bob_corr->unit.symbol
        << ",uod " << uod_corr->unit.symbol
        << ",pb " << pb_corr->unit.symbol
-       << "t " << Fahrenheit::get_instance().symbol
+       << ",t " << Fahrenheit::get_instance().symbol
        << endl;
 
   DynList<double> row;

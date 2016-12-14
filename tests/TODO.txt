@@ -20,3 +20,6 @@ Hay que verificar que cuando se extrae data las unidades sean convertidas a las 
 verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos,2016-12-10 18:26:26 -0400,,
 poner cambio de unidades en plot-corr y test-calibrate,2016-12-10 18:26:50 -0400,,
 Resolver: ajustes fueron calculados en una unidad. Cómo asegurar el ajuste si la unidad cambia?,2016-12-12 18:16:56 -0400,,
+csv grid está sacando mal la tag de temperature,2016-12-14 17:48:31 -0400,,
+poner las oras propiedades,2016-12-14 17:48:43 -0400,,
+script que compare grids,2016-12-14 17:56:44 -0400,,

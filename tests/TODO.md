@@ -67,3 +67,12 @@
 ## 22. Resolver: ajustes fueron calculados en una unidad. Cómo asegurar el ajuste si la unidad cambia?
 - Created at   2016-12-12 18:16:56 -0400
 
+## 23. csv grid está sacando mal la tag de temperature
+- Created at   2016-12-14 17:48:31 -0400
+
+## 24. poner las oras propiedades
+- Created at   2016-12-14 17:48:43 -0400
+
+## 25. script que compare grids
+- Created at   2016-12-14 17:56:44 -0400
+
