@@ -40,11 +40,6 @@ TESTOBJS = $(TESTSRCS:.cc=.o)
 
 SRCS = $(TESTSRCS)
 
-correlations.rb: test-corr
-	./test-corr -R > correlations.rb
-
-clean:: correlations.rb
-
 AllTarget(test-conversion)
 NormalProgramTarget(test-conversion,test-conversion.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 

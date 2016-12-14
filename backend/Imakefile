@@ -23,10 +23,27 @@ TESTOBJS = $(TESTSRCS:.cc=.o)
 
 SRCS = $(TESTSRCS)
 
-correlations.rb: test-corr
-	./test-corr -R > correlations.rb
+all:: backend-conversion backend-corr backend-plot backend-calibrate
 
-clean:: correlations.rb
+backend-conversion: test-conversion
+	$(RM) backend-conversion; 	\	@@\
+	$(CP) test-conversion backend-conversion; 	\	@@\
+	upx --best backend-conversion
+
+backend-corr: test-corr
+	$(RM) backend-corr; 	\	@@\
+	$(CP) test-corr backend-corr; 	\	@@\
+	upx --best backend-corr
+
+backend-plot: plot-corr
+	$(RM) backend-plot; 	\	@@\
+	$(CP) plot-corr backend-plot; 	\	@@\
+	upx --best backend-plot
+
+backend-calibrate: test-calibrate
+	$(RM) backend-calibrate; 	\	@@\
+	$(CP) test-calibrate backend-calibrate; 	\	@@\
+	upx --best backend-calibrate
 
 AllTarget(test-conversion)
 NormalProgramTarget(test-conversion,test-conversion.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
