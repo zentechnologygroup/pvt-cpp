@@ -1099,9 +1099,9 @@ Declare_Correlation_Subtype(TmpCorrelation, TmpFunction, "");
     // correlations & functions associated to oil
 Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation, "P_b");
 Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation, "R_s");
-Declare_Correlation_Subtype(UndersaturatedOilFormationVolumeFactor,
+Declare_Correlation_Subtype(UndersaturatedOilVolumeFactor,
 			    OilCorrelation, "B_{oa}");
-Declare_Correlation_Subtype(SaturatedOilFormationVolumeFactor, OilCorrelation,
+Declare_Correlation_Subtype(SaturatedOilVolumeFactor, OilCorrelation,
 			    "B_{ob}");
 Declare_Correlation_Subtype(SaturatedOilViscosity, OilCorrelation, "\\mu_{ob}");
 Declare_Correlation_Subtype(UndersaturatedOilViscosity, OilCorrelation,
