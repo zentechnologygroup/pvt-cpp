@@ -18,7 +18,7 @@ PbStanding,,0.855,Sgg,,,40.7,Api,768,SCF_STB,220,Fahrenheit,,,,,,,,,,,2503,psia,
 PbVasquezBeggs,,0.855,Sgg,,,40.7,Api,768,SCF_STB,220,Fahrenheit,75,Fahrenheit,100,psig,,,,,,,2741,psia,1,Oil 2. API > 30,,,,,,
 PbGlaso,,0.855,Sgg,,,40.7,Api,768,SCF_STB,220,Fahrenheit,,,,,0,MolePercent,0,MolePercent,0,MolePercent,2797,psia,1,Oil 2,,,,,,
 PbAlShammasi,,0.804,Sgg,37.9,Api,,,769,SCF_STB,120,Fahrenheit,,,,,,,,,,,2421,psia,1,,,,1,,,
-PbLasater,,0.804,Sgg,37.9,Api,,,769,SCF_STB,120,Fahrenheit,,,,,,,,,,,2050,psia,1,API <= 40,,,1,,,
+PbLasater,,0.804,Sgg,37.9,Api,,,769,SCF_STB,120,Fahrenheit,,,,,,,,,,,2479,psia,14.7,API <= 40. The expected value is experimental.,,,1,,,
 PbStanding,,0.804,Sgg,,,37.9,Api,769,SCF_STB,120,Fahrenheit,,,,,,,,,,,2316,psia,1,,,,1,,,
 PbVelarde,,0.804,Sgg,,,37.9,Api,769,SCF_STB,120,Fahrenheit,,,,,,,,,,,2411,psia,1,,,,1,,,
 PbGlaso,,0.804,Sgg,,,37.9,Api,769,SCF_STB,120,Fahrenheit,,,,,0,MolePercent,0,MolePercent,0,MolePercent,2725,psia,1,,,,1,,,
@@ -32,6 +32,7 @@ PbGlaso,,0.975,Sgg,,,26.1,Api,891,SCF_STB,200,Fahrenheit,,,,,0,MolePercent,18,Mo
 PbGlaso,,1,Sgg,,,41,Api,1718,SCF_STB,235,Fahrenheit,,,,,0,MolePercent,0,MolePercent,10,MolePercent,4060,psig,1,Sample EB-4,,,,,1,
 PbGlaso,,0.985,Sgg,,,45.2,Api,1344,SCF_STB,248,Fahrenheit,,,,,26,MolePercent,0,MolePercent,0,MolePercent,4815,psig,1,Sample GL-1,,,,,1,
 PbDindorukChristman,,0.95,Sgg,,,31,Api,675,SCF_STB,180,Fahrenheit,,,,,,,,,,,2688.606273,psia,1,Software calculation.,,,,,,1
+PbGlaso,,0.804,Sgg,,,37.9,Api,769,SCF_STB,120,Fahrenheit,,,,,0,MolePercent,0,MolePercent,0,MolePercent,2846.310699,psia,1,Software calculation.,,,,,,1
 PbDoklaOsman,,0.95,Sgg,31,Api,,,675,SCF_STB,180,Fahrenheit,,,,,,,,,,,2060,psia,1,,1,,,,,
 PbLasater,,0.95,Sgg,31,Api,,,675,SCF_STB,180,Fahrenheit,,,,,,,,,,,2521,psia,1,API <= 40. Yg > 0.6.,1,,,,,
 PbAlMarhoun,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
