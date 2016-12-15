@@ -122,10 +122,15 @@ struct CorrelationTester
       100*fabs(expected_result.raw() - result.raw())/expected_result.raw();
 
     test_ref.passed = error <= tolerance;
+    DynList<VtlQuantity> & l = test_ref.parameters;
+    __put_in_list(l, args...);
+
     if (test_ref.passed)
       {
 	cout << COLOR_FGREEN("  passed") << endl
 	     << fixed << setprecision(2)
+	     << test_ref.call_string() << " = " << result << endl
+	     << "    Expected = " << expected_result << endl
 	     << "    Tolerance = " << tolerance << " %" << endl
 	     << "    Error     = " << error << " %";
 	if (not refs.is_empty())
@@ -141,9 +146,6 @@ struct CorrelationTester
 	     << endl;
 	return;
       }
-
-    DynList<VtlQuantity> & l = test_ref.parameters;
-    __put_in_list(l, args...);
 
     ostringstream s;
     s << COLOR_FRED("  failed") << endl

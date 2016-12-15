@@ -852,7 +852,7 @@ void generate_grid()
   DynList<Correlation::NamedPar> uo_pars_list =
     load_constant_parameters({uob_corr, uoa_corr});
 
-  cout << ",uo " << uob_corr->unit.symbol 
+  cout << "uo " << uob_corr->unit.symbol 
        << ",bo " << bob_corr->unit.symbol
        << ",co " << cob_corr->unit.symbol
        << ",rs " << ::rs_corr->unit.symbol

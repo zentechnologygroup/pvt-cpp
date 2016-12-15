@@ -16,3 +16,15 @@
 - Comment      
 - Finished     
 
+## 4. validar por error % en lugar de epsilon
+- Created at   2016-12-08 15:18:58 -0400
+- Completed at 2016-12-15 09:30:06 -0400
+- Comment      
+- Finished     
+
+## 5. paa prubas satsfactorias imprimir llamada y expeted
+- Created at   2016-12-14 16:10:12 -0400
+- Completed at 2016-12-15 09:53:34 -0400
+- Comment      
+- Finished     
+

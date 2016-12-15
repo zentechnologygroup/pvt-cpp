@@ -1,3 +1,5 @@
 test debe expresar la invocación lista para test-corr, de modo que usuario pueda verificar,2016-12-08 09:49:05 -0400,,2016-12-08 10:26:05 -0400
 imprmir note en test si está presente,2016-12-07 17:15:42 -0400,2016-12-08 09:49:09 -0400,,2016-12-08 10:26:06 -0400
 imprimir referencias,2016-12-07 17:19:17 -0400,2016-12-08 10:25:19 -0400,,2016-12-08 10:26:06 -0400
+validar por error % en lugar de epsilon,2016-12-08 15:18:58 -0400,2016-12-15 09:30:06 -0400,,2016-12-15 09:53:37 -0400
+paa prubas satsfactorias imprimir llamada y expeted,2016-12-14 16:10:12 -0400,2016-12-15 09:53:34 -0400,,2016-12-15 09:53:38 -0400

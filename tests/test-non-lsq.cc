@@ -1,6 +1,4 @@
 
-# include <nlopt.h>
-
 # include <iostream>
 
 # include <ah-zip.H>

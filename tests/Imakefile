@@ -24,7 +24,7 @@ FLAGS = -std=c++14 $(WARN) $(OPTFLAGS)
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
-SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lnlopt -lstdc++ -lgsl -lgslcblas -lm -lc
+SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
 
 DEPLIBS	= $(TOP)/lib/libpvt.a
 
@@ -32,7 +32,7 @@ LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
 
 TESTSRCS = test-all-units-1.cc test-conversion.cc test-corr.cc test-seq.cc \
 	test-biblio.cc test-json.cc test-tuning.cc test-analyse.cc \
-	test-empirical-json.cc test-fluid-analysis.cc test-non-lsq.cc \
+	test-empirical-json.cc test-fluid-analysis.cc \
 	test-bob-cal.cc test-boa-cal.cc test-rs-cal.cc test-def-corr.cc \
 	test-uo-cal.cc test-calibrate.cc plot-corr.cc
 
@@ -65,9 +65,6 @@ NormalProgramTarget(test-analyse,test-analyse.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(
 
 AllTarget(test-empirical-json)
 NormalProgramTarget(test-empirical-json,test-empirical-json.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
-
-AllTarget(test-non-lsq)
-NormalProgramTarget(test-non-lsq,test-non-lsq.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(test-bob-cal)
 NormalProgramTarget(test-bob-cal,test-bob-cal.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
