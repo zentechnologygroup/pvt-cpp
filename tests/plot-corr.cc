@@ -852,16 +852,16 @@ void generate_grid()
   DynList<Correlation::NamedPar> uo_pars_list =
     load_constant_parameters({uob_corr, uoa_corr});
 
-  cout << "uo " << uob_corr->unit.symbol 
-       << ",bo " << bob_corr->unit.symbol
-       << ",co " << cob_corr->unit.symbol
-       << ",rs " << ::rs_corr->unit.symbol
-       << ",p " << psia::get_instance().symbol
-       << ",uobp " << uob_corr->unit.symbol
-       << ",bobp " << bob_corr->unit.symbol
-       << ",uod " << uod_corr->unit.symbol
-       << ",pb " << pb_corr->unit.symbol
-       << ",t " << Fahrenheit::get_instance().symbol
+  cout << "uo " << uob_corr->unit.name
+       << ",bo " << bob_corr->unit.name
+       << ",co " << cob_corr->unit.name
+       << ",rs " << ::rs_corr->unit.name
+       << ",p " << psia::get_instance().name
+       << ",uobp " << uob_corr->unit.name
+       << ",bobp " << bob_corr->unit.name
+       << ",uod " << uod_corr->unit.name
+       << ",pb " << pb_corr->unit.name
+       << ",t " << Fahrenheit::get_instance().name
        << endl;
 
   DynList<double> row;

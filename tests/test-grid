@@ -33,7 +33,13 @@ require 'csv'
 zen_rows = CSV.read(zen_name, headers: true)
 pe_rows = CSV.read(pe_name, headers: true)
 
+zen_units = Hash.new
+zen_rows.headers.each do |col|
+  h = col.split
+  h[0] 
+end
 
+#s.split(/"\".*\"/)
 
 puts pe_rows
 

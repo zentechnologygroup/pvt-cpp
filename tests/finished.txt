@@ -102,3 +102,4 @@ verificar que unidades de salida de correlaciones por partes sean las mismas,201
 apagar rangos de entrada en test-corr,2016-11-30 16:21:11 -0400,2016-12-04 12:54:19 -0400,,2016-12-04 13:03:57 -0400
 opción all que reciba las correlaciones y calcule el grid,2016-11-29 21:31:05 -0400,2016-12-04 13:49:10 -0400,,2016-12-04 13:49:21 -0400
 test-calibrate reciba entrada csv y comandos,2016-11-19 13:39:02 -0400,2016-12-03 09:16:11 -0400,,2016-12-08 10:43:09 -0400
+Revisar ./test-calibrate -f 113.json -P uo --below UobBeggsRobinson --above UoaVasquezBeggs ,2016-12-15 16:30:19 -0400,,,2016-12-15 16:32:23 -0400
