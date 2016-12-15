@@ -49,7 +49,7 @@ Declare_Unit(CgL, "g_NaCl/L", R"DESC(Total solid disolved in a brine
        measure in grams of NaCl disolved in one liter of water)DESC",
 	     WaterSpecicGravity, 0, 300.2306536197343);
 
-Declare_Unit(Dissolved_Salt_Fraction, "disolvedSaltFraction", 
+Declare_Unit(Dissolved_Salt_Fraction, "dissolvedSaltFraction", 
        R"DESC(Unit used to measure salinity of a brine
        in normal conditions in fraction of disolved salt)DESC",
 	     WaterSpecicGravity, 0, 0.3);
