@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'optparse'
+require 'fileutils'
+
+load 'correlations.rb'
+
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-z ZENCSV', '--zen ZENCSV', 'csv file by zen') do |property_name|
+    options[:zen_name] = property_name
+  end
+
+  opts.on('-p PCSV', '--pe PCSV',
+          'csv file by Petroleum Experts') do |property_name|
+    options[:pe_name] = property_name
+  end
+
+end
+
+options_parser.parse!
+
+zen_name = options[:zen_name]
+fail 'zen csv file not given' unless zen_name
+
+pe_name = options[:pe_name]
+fail 'pe csv file not given' unless pe_name
+
+require 'csv'
+
+zen_rows = CSV.read(zen_name, headers: true)
+pe_rows = CSV.read(pe_name, headers: true)
+
+
+
+puts pe_rows
+
