@@ -33,13 +33,65 @@ require 'csv'
 zen_rows = CSV.read(zen_name, headers: true)
 pe_rows = CSV.read(pe_name, headers: true)
 
-zen_units = Hash.new
-zen_rows.headers.each do |col|
-  h = col.split
-  h[0] 
+zen_headers = zen_rows.headers
+zen_units = zen_headers.map { |h|l = h.split; [l[0], l[1]] }.to_h
+zen_names = zen_headers.map { |h| [h.split[0], h] }.to_h
+
+pe_headers = pe_rows.headers
+pe_units = pe_headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
+pe_names = pe_headers.map { |h| [h.split[0], h] }.to_h
+
+def map_values(rows, names)
+  vals = rows.map do |row|
+    t = row[names['t']]
+    p = row[names['p']]
+    [[t, p], row]
+  end.to_h  
 end
 
-#s.split(/"\".*\"/)
+def build_table(zen_vals, pe_vals, zen_names, pe_names)
+  zen_vals.map do |pair, row|
+    t = pair[0]
+    p = pair[1]
+    pe_row = pe_vals[pair]
 
-puts pe_rows
+    zen_pb = row[zen_names['pb']].to_f
+    pe_pb = pe_row[pe_names['pb']].to_f
+    pb_error = 100*(pe_pb - zen_pb).abs / pe_pb
 
+    zen_rs = row[zen_names['rs']].to_f
+    pe_rs = pe_row[pe_names['rs']].to_f
+    rs_error = 100*(pe_rs - zen_rs).abs / pe_rs
+
+    zen_bo = row[zen_names['bo']].to_f
+    pe_bo = pe_row[pe_names['bo']].to_f
+    bo_error = 100*(pe_bo - zen_bo).abs / pe_bo
+
+    zen_uo = row[zen_names['uo']].to_f
+    pe_uo = pe_row[pe_names['uo']].to_f
+    uo_error = 100*(pe_uo - zen_uo).abs / pe_uo
+
+    [t, p, zen_pb, pe_pb, pb_error, zen_rs, pe_rs, rs_error,
+     zen_bo, pe_bo, bo_error, zen_uo, pe_uo, uo_error]
+  end
+end
+
+def format_table(table)
+  z = Array.new(table[0].size, 0)
+  lens = table.inject do |acu, l|
+    l.inject(0) { |a, i| [a, i.to_s.size].max }
+    puts "acu is nil" unless acu
+  end
+  puts lens
+end
+  
+# build_table(map_values(zen_rows, zen_names),
+#             map_values(pe_rows, pe_names), zen_names, pe_names).each do |line|
+  
+#   puts
+
+# end
+
+table = build_table(map_values(zen_rows, zen_names),
+                    map_values(pe_rows, pe_names), zen_names, pe_names)
+format_table(table)
