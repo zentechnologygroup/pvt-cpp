@@ -49,26 +49,32 @@ def map_values(rows, names)
   end.to_h  
 end
 
+def access(row, names, name)
+  val = row[names[name]]
+  fail "name #{name} not found" unless val
+  val.to_f
+end
+
 def build_table(zen_vals, pe_vals, zen_names, pe_names)
   zen_vals.map do |pair, row|
-    t = pair[0]
-    p = pair[1]
+    t = pair[0].to_f
+    p = pair[1].to_f
     pe_row = pe_vals[pair]
 
-    zen_pb = row[zen_names['pb']].to_f
-    pe_pb = pe_row[pe_names['pb']].to_f
+    zen_pb = access row, zen_names, 'pb'
+    pe_pb = access pe_row, pe_names, 'pb'
     pb_error = 100*(pe_pb - zen_pb).abs / pe_pb
 
-    zen_rs = row[zen_names['rs']].to_f
-    pe_rs = pe_row[pe_names['rs']].to_f
+    zen_rs = access row, zen_names, 'rs'
+    pe_rs = access pe_row, pe_names, 'rs'
     rs_error = 100*(pe_rs - zen_rs).abs / pe_rs
 
-    zen_bo = row[zen_names['bo']].to_f
-    pe_bo = pe_row[pe_names['bo']].to_f
+    zen_bo = access row, zen_names, 'bo'
+    pe_bo = access pe_row, pe_names, 'bo'
     bo_error = 100*(pe_bo - zen_bo).abs / pe_bo
 
-    zen_uo = row[zen_names['uo']].to_f
-    pe_uo = pe_row[pe_names['uo']].to_f
+    zen_uo = access row, zen_names, 'uo'
+    pe_uo = access pe_row, pe_names, 'uo'
     uo_error = 100*(pe_uo - zen_uo).abs / pe_uo
 
     [t, p, zen_pb, pe_pb, pb_error, zen_rs, pe_rs, rs_error,
@@ -76,21 +82,35 @@ def build_table(zen_vals, pe_vals, zen_names, pe_names)
   end
 end
 
-def format_table(table)
-  z = Array.new(table[0].size, 0)
-  lens = table.inject do |acu, l|
-    l.inject(0) { |a, i| [a, i.to_s.size].max }
+def format_table(table, decs = 3)
+  lens = Array.new(table[0].size, 0)
+  table.each do |l|
+    lens = lens.zip(l).map { |len, i| [len, i.round(decs).to_s.size].max }
   end
-  puts lens
+  header = ["t", "p", "pb zen", "pb_pe", "", "rs zen", "rs pe", "",
+   "bo zen", "bo pe", "", "uo zen", "uo pe", ""].
+    zip(lens).map { |i, len| i.ljust(len) }
+  [header, table.map do |l|
+    l.zip(lens).map { |i, len| i.round(decs).to_s.ljust(len) }
+  end]
 end
   
-# build_table(map_values(zen_rows, zen_names),
-#             map_values(pe_rows, pe_names), zen_names, pe_names).each do |line|
-  
-#   puts
-
-# end
-
 table = build_table(map_values(zen_rows, zen_names),
                     map_values(pe_rows, pe_names), zen_names, pe_names)
-format_table(table)
+
+lines = format_table(table)
+
+lines[0].each do |i|
+  print i
+  print ' ' if i != lines[0].last
+end
+puts
+
+lines[1].each do |l|
+  print "#{l[0]} #{l[1]} "
+  l.drop(2).each_slice(3) do |s|
+    print "#{s[0]} #{s[1]} #{s[2]} %"
+    print ' ' if s != l.last
+  end
+  puts
+end
