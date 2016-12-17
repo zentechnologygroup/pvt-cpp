@@ -6,6 +6,160 @@ require 'fileutils'
 
 load 'correlations.rb'
 
+require 'csv'
+
+class Table
+
+  private
+  
+  def map_values(rows, names)
+    vals = rows.map do |row|
+      t = row[names['t']]
+      p = row[names['p']]
+      [[t, p], row]
+    end.to_h  
+  end
+
+  def access(row, names, name)
+    val = row[names[name]]
+    fail "name #{name} not found" unless val
+    val.to_f
+  end
+
+  def build_table(zen_vals, pe_vals, zen_names, pe_names)
+    zen_vals.map do |pair, row|
+      t = pair[0].to_f
+      p = pair[1].to_f
+      pe_row = pe_vals[pair]
+
+      # TODO: conversion de unidades cuando sean diferentes
+      zen_pb = access row, zen_names, 'pb'
+      pe_pb = access pe_row, pe_names, 'pb'
+      pb_error = 100*(pe_pb - zen_pb).abs / pe_pb
+
+      zen_rs = access row, zen_names, 'rs'
+      pe_rs = access pe_row, pe_names, 'rs'
+      rs_error = 100*(pe_rs - zen_rs).abs / pe_rs
+
+      zen_bo = access row, zen_names, 'bo'
+      pe_bo = access pe_row, pe_names, 'bo'
+      bo_error = 100*(pe_bo - zen_bo).abs / pe_bo
+
+      zen_uo = access row, zen_names, 'uo'
+      pe_uo = access pe_row, pe_names, 'uo'
+      uo_error = 100*(pe_uo - zen_uo).abs / pe_uo
+
+      [[t, p], [zen_pb, pe_pb, pb_error, zen_rs, pe_rs, rs_error,
+       zen_bo, pe_bo, bo_error, zen_uo, pe_uo, uo_error]]
+    end.to_h
+  end
+
+  public
+  
+  attr_reader :table
+
+  def initialize(zen_name, pe_name)
+    zen_rows = CSV.read(zen_name, headers: true)
+    pe_rows = CSV.read(pe_name, headers: true)
+
+    zen_headers = zen_rows.headers
+    @zen_units = zen_headers.map { |h|l = h.split; [l[0], l[1]] }.to_h
+    zen_names = zen_headers.map { |h| [h.split[0], h] }.to_h
+
+    pe_headers = pe_rows.headers
+    @pe_units = pe_headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
+    pe_names = pe_headers.map { |h| [h.split[0], h] }.to_h
+
+    @table = build_table(map_values(zen_rows, zen_names),
+                         map_values(pe_rows, pe_names), zen_names, pe_names)
+  end
+
+  def format(decs = 2)
+    table = @table.map { |k, vals| k + vals }
+    lens = Array.new(table[0].size, 0)
+    table.each do |l|
+      lens = lens.zip(l).map { |len, i| [len, i.round(decs).to_s.size].max }
+    end
+    header = ["t", "p", "pb zen", "pb_pe", "pb %", "rs zen", "rs pe", "rs %",
+              "bo zen", "bo pe", "bo %", "uo zen", "uo pe", "uo %"]
+    grid = table.map { |l| l.map { |i| i.round(decs).to_s } }
+    grid.each { |line| line.drop(2).each_slice(3) { |l| l[2] += ' %' } }
+    grid.unshift header
+    grid.map { |l| l.zip(lens).map { |i, len| i.ljust(len) } }
+  end
+
+  def entry(p, t)
+    @table[[t, p]]
+  end
+
+  private
+  
+  def values(p, t, i)
+    e = entry t, p
+    fail "temperature = #{t} pressure = #{p} pair not found" unless e
+    [e[i], e[i + 1], e[i + 2].round(2)]
+  end
+
+  public
+  
+  def to_s(name, t)
+    " #{name} = #{t[0]} #{t[1]} #{t[2]}"
+  end
+
+  def pb(t, p)
+    values t, p, 0
+  end
+
+  def rs(t, p)
+    values t, p, 3
+  end
+
+  def bo(t, p)
+    values t, p, 6
+  end
+
+  def uo(t, p)
+    values t, p, 9
+  end
+
+  def pb_s(t, p)
+    "#{t} #{p}" + to_s("pb", pb(t, p))
+  end
+
+  def rs_s(t, p)
+     "#{t} #{p}" + to_s("rs", rs(t, p))
+  end
+
+  def bo_s(t, p)
+     "#{t} #{p}" + to_s("bo", bo(t, p))
+  end
+
+  def uo_s(t, p)
+     "#{t} #{p}" + to_s("uo", uo(t, p))
+  end
+
+  def subset(i, per)
+    @table.select { |k, vals| vals[i] >= per }.
+      map { |k, vals| k + [vals[i - 2], vals[i - 1], vals[i]] }
+  end
+
+  def pb_subset(per)
+    subset(2, per)
+  end
+
+  def rs_subset(per)
+    subset(3, per)
+  end
+
+  def bo_subset(per)
+    subset(6, per)
+  end
+
+  def uo_subset(per)
+    subset(9, per)
+  end
+end
+
 options = {}
 options_parser = OptionParser.new do |opts|
 
@@ -18,6 +172,22 @@ options_parser = OptionParser.new do |opts|
     options[:pe_name] = property_name
   end
 
+  opts.on('-T TEMP', '--temp TEMP', 'temperature value') do |temp|
+    options[:temp] = temp
+  end
+
+  opts.on('-P PRESSURE', '--pressure PRESSURE', 'pressure value') do |pressure|
+    options[:pressure] = pressure
+  end
+
+  opts.on('-G PROPERTY', '--get PROPERTY', 'Property name') do |property|
+    options[:property] = property
+  end
+
+  opts.on('-% PERCENTAGE', '--percentage PERCENTAGE',
+          'error percentage') do |per|
+    options[:per] = per
+  end
 end
 
 options_parser.parse!
@@ -27,86 +197,46 @@ fail 'zen csv file not given' unless zen_name
 
 pe_name = options[:pe_name]
 fail 'pe csv file not given' unless pe_name
-
-require 'csv'
-
-zen_rows = CSV.read(zen_name, headers: true)
-pe_rows = CSV.read(pe_name, headers: true)
-
-zen_headers = zen_rows.headers
-zen_units = zen_headers.map { |h|l = h.split; [l[0], l[1]] }.to_h
-zen_names = zen_headers.map { |h| [h.split[0], h] }.to_h
-
-pe_headers = pe_rows.headers
-pe_units = pe_headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
-pe_names = pe_headers.map { |h| [h.split[0], h] }.to_h
-
-def map_values(rows, names)
-  vals = rows.map do |row|
-    t = row[names['t']]
-    p = row[names['p']]
-    [[t, p], row]
-  end.to_h  
-end
-
-def access(row, names, name)
-  val = row[names[name]]
-  fail "name #{name} not found" unless val
-  val.to_f
-end
-
-def build_table(zen_vals, pe_vals, zen_names, pe_names)
-  zen_vals.map do |pair, row|
-    t = pair[0].to_f
-    p = pair[1].to_f
-    pe_row = pe_vals[pair]
-
-    zen_pb = access row, zen_names, 'pb'
-    pe_pb = access pe_row, pe_names, 'pb'
-    pb_error = 100*(pe_pb - zen_pb).abs / pe_pb
-
-    zen_rs = access row, zen_names, 'rs'
-    pe_rs = access pe_row, pe_names, 'rs'
-    rs_error = 100*(pe_rs - zen_rs).abs / pe_rs
-
-    zen_bo = access row, zen_names, 'bo'
-    pe_bo = access pe_row, pe_names, 'bo'
-    bo_error = 100*(pe_bo - zen_bo).abs / pe_bo
-
-    zen_uo = access row, zen_names, 'uo'
-    pe_uo = access pe_row, pe_names, 'uo'
-    uo_error = 100*(pe_uo - zen_uo).abs / pe_uo
-
-    [t, p, zen_pb, pe_pb, pb_error, zen_rs, pe_rs, rs_error,
-     zen_bo, pe_bo, bo_error, zen_uo, pe_uo, uo_error]
-  end
-end
-
-def format_table(table, decs = 3)
-  lens = Array.new(table[0].size, 0)
-  table.each do |l|
-    lens = lens.zip(l).map { |len, i| [len, i.round(decs).to_s.size].max }
-  end
-  header = ["t", "p", "pb zen", "pb_pe", "", "rs zen", "rs pe", "",
-   "bo zen", "bo pe", "", "uo zen", "uo pe", ""].
-    zip(lens).map { |i, len| i.ljust(len) }
-  [header, table.map do |l|
-    l.zip(lens).map { |i, len| i.round(decs).to_s.ljust(len) }
-  end]
-end
   
-table = build_table(map_values(zen_rows, zen_names),
-                    map_values(pe_rows, pe_names), zen_names, pe_names)
+data = Table.new(zen_name, pe_name)
 
-lines = format_table(table)
+t = options[:temp]
+p = options[:pressure]
+missing = (t && !p) || (!t && p)
+value_requested = t && p
 
-lines[0].each do |i|
-  print i
-  print ' ' if i != lines[0].last
+fail "option -T temp and -P pressure must be used together" if missing
+
+if value_requested
+  property = options[:property]
+  fail "Property has not been specified" unless property
+  val = nil
+  case property.downcase
+  when 'pb'
+    val = data.pb_s(t.to_f, p.to_f)
+  when 'rs'
+    val = data.pb_s(t.to_f, p.to_f)
+  when 'bo'
+    val = data.bo_s(t.to_f, p.to_f)
+  when 'uo'
+    val = data.uo_s(t.to_f, p.to_f)
+  else
+    fail "invalid property #{property}"
+  end
+  puts val
+  exit
 end
-puts
 
-lines[1].each do |l|
+per = options[:per]
+if per
+  property = options[:property]
+  fail "Property has not been specified" unless property
+  exit
+end
+
+lines = data.format
+
+lines.each do |l|
   print "#{l[0]} #{l[1]} "
   l.drop(2).each_slice(3) do |s|
     print "#{s[0]} #{s[1]} #{s[2]} %"

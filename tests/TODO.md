@@ -84,3 +84,6 @@
 ## 27. verificar unidades para cada par en test-grid (rutina format_table)
 - Created at   2016-12-16 17:31:36 -0400
 
+## 28. opción % que recupere los valores por sobre un %
+- Created at   2016-12-17 17:56:36 -0400
+
