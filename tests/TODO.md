@@ -78,12 +78,6 @@
 ## 25. script que compare grids
 - Created at   2016-12-14 17:56:44 -0400
 
-## 26. opción csv para opción -b
-- Created at   2016-12-16 17:29:55 -0400
-
-## 27. verificar unidades para cada par en test-grid (rutina format_table)
+## 26. verificar unidades para cada par en test-grid (rutina format_table)
 - Created at   2016-12-16 17:31:36 -0400
-
-## 28. opción % que recupere los valores por sobre un %
-- Created at   2016-12-17 17:56:36 -0400
 

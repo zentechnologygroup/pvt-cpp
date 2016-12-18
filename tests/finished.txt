@@ -103,3 +103,5 @@ apagar rangos de entrada en test-corr,2016-11-30 16:21:11 -0400,2016-12-04 12:54
 opción all que reciba las correlaciones y calcule el grid,2016-11-29 21:31:05 -0400,2016-12-04 13:49:10 -0400,,2016-12-04 13:49:21 -0400
 test-calibrate reciba entrada csv y comandos,2016-11-19 13:39:02 -0400,2016-12-03 09:16:11 -0400,,2016-12-08 10:43:09 -0400
 Revisar ./test-calibrate -f 113.json -P uo --below UobBeggsRobinson --above UoaVasquezBeggs ,2016-12-15 16:30:19 -0400,,,2016-12-15 16:32:23 -0400
+opción % que recupere los valores por sobre un %,2016-12-17 17:56:36 -0400,2016-12-18 16:44:14 -0400,,2016-12-18 16:44:44 -0400
+opción csv para opción -b,2016-12-16 17:29:55 -0400,2016-12-18 16:44:19 -0400,,2016-12-18 16:45:00 -0400

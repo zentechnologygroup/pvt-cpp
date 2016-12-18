@@ -628,3 +628,15 @@
 - Comment      
 - Finished     
 
+## 106. opción % que recupere los valores por sobre un %
+- Created at   2016-12-17 17:56:36 -0400
+- Completed at 2016-12-18 16:44:14 -0400
+- Comment      
+- Finished     
+
+## 107. opción csv para opción -b
+- Created at   2016-12-16 17:29:55 -0400
+- Completed at 2016-12-18 16:44:19 -0400
+- Comment      
+- Finished     
+

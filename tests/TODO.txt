@@ -23,6 +23,4 @@ Resolver: ajustes fueron calculados en una unidad. Cómo asegurar el ajuste si l
 csv grid está sacando mal la tag de temperature,2016-12-14 17:48:31 -0400,,
 poner las oras propiedades,2016-12-14 17:48:43 -0400,,oil density
 script que compare grids,2016-12-14 17:56:44 -0400,,
-opción csv para opción -b,2016-12-16 17:29:55 -0400,,
 verificar unidades para cada par en test-grid (rutina format_table),2016-12-16 17:31:36 -0400,,
-opción % que recupere los valores por sobre un %,2016-12-17 17:56:36 -0400,,
