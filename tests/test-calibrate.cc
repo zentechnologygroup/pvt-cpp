@@ -155,7 +155,7 @@ OutputType get_output_type(const string & type)
   return OutputType::undefined;
 }
 
-json correlation_to_json(const DynList<string> & row)
+json best_corr_to_json(const DynList<string> & row)
 {
   json ret;
   auto it = row.get_it();
@@ -188,7 +188,7 @@ string format_list(const DynList<DynList<string>> & mat, OutputType out_type)
     case OutputType::json:
       {
 	DynList<json> jsons =
-	  mat.maps<json>([] (const auto & l) { return correlation_to_json(l); });
+	  mat.maps<json>([] (const auto & l) { return best_corr_to_json(l); });
 	json j = to_vector(jsons);
 	return j.dump(2);
       }
@@ -549,20 +549,55 @@ void process_pb(PvtAnalyzer & pvt)
       exit(0);
     }
 
-  // TODO: falta formato especial
-  if (corr_best.isSet())
-    {
-      double pb = pvt.get_pb();
-      auto l = pvt.pb_best_correlations().maps<DynList<string>>([pb] (auto t)
+  if (not corr_best.isSet())
+    error_msg("missing combined option -a, -l, or -b with -P pb option");
+
+  double pb = pvt.get_pb();
+  auto l = pvt.pb_best_correlations().maps<DynList<string>>([pb] (auto t)
         {
 	  int per = round(get<2>(t)/get<1>(t) * 100);
 	  return DynList<string>( { get<0>(t)->call_string(),
 		to_string(get<1>(t)), to_string(-get<2>(t)), to_string(per) });
 	});
-      l.insert({"Correlation", "Value", "c", "%"});
+  l.insert({"Correlation", "Value", "c", "%"});
+  switch (get_output_type(output_type.getValue()))
+    {
+    case OutputType::mat:
       cout << to_string(format_string(l)) << endl;
-      exit(0);
+      break;
+    case OutputType::csv:
+      {
+	auto m = l.maps([] (const auto & l)
+	{
+	  DynList<string> ret;
+	  ret.append("\"" + l.get_first() + "\"");
+	  ret.append(l.drop(1));
+	  return ret;
+	});
+	cout << to_string(format_string_csv(m)) << endl;
+      }
+      break;
+    case OutputType::json:
+      {
+	DynList<json> jsons = l.maps<json>([] (const auto & row)
+          {
+	    json j;
+	    auto it = row.get_it();
+	    j["correlation"] = it.get_curr(); it.next();
+	    j["value"] = atof(it.get_curr().c_str()); it.next();
+	    j["c"] = atof(it.get_curr().c_str()); it.next();
+	    j["%"] = atof(it.get_curr().c_str());
+	    return j;
+	  });
+	cout << json(to_vector(jsons)).dump(2) << endl;
+      }
+      break;
+    default:
+      error_msg("process_pb() option " + output_type.getValue() +
+		" is not allowed with -P pb combined with -l, -a or -b");
+      break;
     }
+  exit(0);
 }
 
 DynList<DynList<string>>
