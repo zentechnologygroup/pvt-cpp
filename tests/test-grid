@@ -139,12 +139,13 @@ class Table
   end
 
   def subset(i, per)
-    @table.select { |k, vals| vals[i] >= per }.
-      map { |k, vals| k + [vals[i - 2], vals[i - 1], vals[i]] }
+    list = @table.select { |k, vals| vals[i + 2] >= per }.
+           map { |k, vals| k + [vals[i], vals[i + 1], vals[i + 2]] }.
+           map { |e| "#{e[0]} #{e[1]} #{e[2]} #{e[3]} #{e[4]}" }
   end
 
   def pb_subset(per)
-    subset(2, per)
+    subset(0, per)
   end
 
   def rs_subset(per)
@@ -227,10 +228,24 @@ if value_requested
   exit
 end
 
-per = options[:per]
+per = options[:per].to_f if options[:per]
 if per
   property = options[:property]
   fail "Property has not been specified" unless property
+  fail "% must between 1 and 99" if per < 0.01 || per > 99
+  case property.downcase
+  when 'pb'
+    vals = data.pb_subset(per)
+  when 'rs'
+    vals = data.rs_subset(per)
+  when 'bo'
+    vals = data.bo_subset(per)
+  when 'uo'
+    vals = data.uo_subset(per)
+  else
+    fail "invalid property #{property}"
+  end
+  vals.each { |e| puts e }
   exit
 end
 

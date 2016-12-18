@@ -1,4 +1,6 @@
 
+# include <cstdlib>
+
 # include <tclap/CmdLine.h>
 
 # include <ah-comb.H>
@@ -30,7 +32,8 @@ SwitchArg corr_all = { "a", "all", "list all associated correlations", cmd };
 SwitchArg corr_best = { "b", "best", "list best correlations", cmd };
 
 SwitchArg force_corr =
-  { "j", "join", "join by correlation value instead of sexperimental point", cmd };
+  { "j", "join", "join by correlation value instead of sexperimental point",
+    cmd };
   
 ValueArg<string> below_corr = { "B", "below", "below correlation name", false,
 				"", "set below correlation", cmd };
@@ -44,8 +47,6 @@ vector<string> compute_types = { "single", "calibrated", "both" };
 ValuesConstraint<string> allowed_compute = compute_types;
 ValueArg<string> compute_type = { "c", "compute-type", "compute type", false,
 				 "single", &allowed_compute, cmd };
-
-SwitchArg r = { "R", "R", "generate R script", cmd };
 
 vector<string> sort_values = { "r2", "sumsq", "mse", "distance", "m" };
 ValuesConstraint<string> allow_sort = sort_values;
@@ -124,8 +125,8 @@ auto cmp_m = [] (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
   return fabs(1 - f1.m) < fabs(1 - f2.m);
 };
 
-auto get_cmp(const string & sort_type)
-  -> bool (*)(const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
+auto get_cmp(const string & sort_type) -> bool
+  (*) (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
 {
   if (sort_type == "r2") return cmp_r2;
   if (sort_type == "sumsq") return cmp_sumsq;
@@ -142,8 +143,65 @@ void error_msg(const string & msg = "Not yet implemented")
   abort();
 }
 
+enum class OutputType { mat, csv, R, json, undefined };
+
+OutputType get_output_type(const string & type)
+{
+  if (type == "mat") return OutputType::mat;
+  if (type == "csv") return OutputType::csv;
+  if (type == "R") return OutputType::R;
+  if (type == "json") return OutputType::json;
+  error_msg("Invalid output type " + type);
+  return OutputType::undefined;
+}
+
+json correlation_to_json(const DynList<string> & row)
+{
+  json ret;
+  auto it = row.get_it();
+  ret["correlation"] = it.get_curr(); it.next();
+  ret["r2"] = atof(it.get_curr().c_str()); it.next();
+  ret["mse"] = atof(it.get_curr().c_str()); it.next();
+  ret["distance"] = atof(it.get_curr().c_str()); it.next();
+  ret["sumsq"] = atof(it.get_curr().c_str()); it.next();
+  ret["c"] = atof(it.get_curr().c_str()); it.next();
+  ret["m"] = atof(it.get_curr().c_str());
+  return ret;
+}
+
+string format_list(const DynList<DynList<string>> & mat, OutputType out_type)
+{
+  switch (out_type)
+    {
+    case OutputType::mat: return to_string(format_string(mat));
+    case OutputType::csv:
+      {
+	auto m = mat.maps([] (const auto & l)
+	{
+	  DynList<string> ret;
+	  ret.append("\"" + l.get_first() + "\"");
+	  ret.append(l.drop(1));
+	  return ret;
+	});
+	return to_string(format_string_csv(m));
+      }
+    case OutputType::json:
+      {
+	DynList<json> jsons =
+	  mat.maps<json>([] (const auto & l) { return correlation_to_json(l); });
+	json j = to_vector(jsons);
+	return j.dump(2);
+      }
+    default:
+      error_msg("format type " + to_string((long) out_type) +
+		" not supported for this combination");
+    }
+  error_msg("Fatal: format_list has reached an unexpected point");
+  return "";
+}
+
 void list_correlations(const DynList<PvtAnalyzer::Desc> & l,
-		       const string & sort_type)
+		       const string & sort_type, const string & out_type)
 {
   auto mat = sort(l, get_cmp(sort_type)).maps<DynList<string>>([] (auto d)
     {
@@ -154,12 +212,12 @@ void list_correlations(const DynList<PvtAnalyzer::Desc> & l,
     });
   mat.insert(DynList<string>({"Correlation", "r2", "mse", "distance", "sumsq",
 	  "c", "m"}));
-  cout << to_string(format_string(mat));
+  cout << format_list(mat, get_output_type(out_type));
 }
 
 void list_correlations
 (const DynList<pair<PvtAnalyzer::Desc, const Correlation*>> & l,
- const string & sort_type)
+ const string & sort_type, const string & out_type)
 {
   auto mat = sort(l, [sort_type] (auto p1, auto p2)
 		  {
@@ -171,17 +229,19 @@ void list_correlations
       if (uod_corr == nullptr)
 	return DynList<string>({PvtAnalyzer::correlation(d)->call_string(),
 	      to_string(PvtAnalyzer::r2(d)), to_string(PvtAnalyzer::mse(d)),
-	      to_string(PvtAnalyzer::sigma(d)), to_string(PvtAnalyzer::sumsq(d)),
+	      to_string(PvtAnalyzer::sigma(d)),
+	      to_string(PvtAnalyzer::sumsq(d)),
 	      to_string(PvtAnalyzer::c(d)), to_string(PvtAnalyzer::m(d))});
-      return DynList<string>({PvtAnalyzer::correlation(d)->call_string() + "." +
-	    p.second->name,
+      return DynList<string>({PvtAnalyzer::correlation(d)->call_string() +
+	    "." + p.second->name,
 	    to_string(PvtAnalyzer::r2(d)), to_string(PvtAnalyzer::mse(d)),
-	    to_string(PvtAnalyzer::sigma(d)), to_string(PvtAnalyzer::sumsq(d)),
+	    to_string(PvtAnalyzer::sigma(d)),
+	    to_string(PvtAnalyzer::sumsq(d)),
 	    to_string(PvtAnalyzer::c(d)), to_string(PvtAnalyzer::m(d))});
     });
   mat.insert(DynList<string>({"Correlation", "r2", "mse", "distance", "sumsq",
 	  "c", "m"}));
-  cout << to_string(format_string(mat));
+  cout << format_list(mat, get_output_type(out_type));
 }
 
 enum class EvalType { Single, Calibrated, Both, Undefined };
@@ -195,18 +255,6 @@ EvalType get_eval_type(const string & type)
   return EvalType::Undefined;
 }
 
-enum class OutputType { mat, csv, R, json, undefined };
-
-OutputType get_output_type(const string & type)
-{
-  if (type == "mat") return OutputType::mat;
-  if (type == "csv") return OutputType::csv;
-  if (type == "R") return OutputType::R;
-  if (type == "json") return OutputType::json;
-  error_msg("Invalid output type " + type);
-  return OutputType::undefined;
-}
-    
 string tuned_name(const PvtAnalyzer::Desc & desc)
 {
   ostringstream s;
@@ -295,9 +343,10 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & l,
 	  const auto & desc = itl.get_curr();
 	  auto corr_ptr = PvtAnalyzer::correlation(desc);
 	  const auto & values = PvtAnalyzer::values(desc);
-	  auto tuned_values = pvt.get_data().tuned_compute(set_name, corr_ptr,
-							   PvtAnalyzer::c(desc),
-							   PvtAnalyzer::m(desc));
+	  auto tuned_values =
+	    pvt.get_data().tuned_compute(set_name, corr_ptr,
+					 PvtAnalyzer::c(desc),
+					 PvtAnalyzer::m(desc));
 	  auto vit = values.get_it();
 	  auto tit = tuned_values.get_it();
 	  ret.mutable_for_each([&vit, &tit] (auto & row)
@@ -307,10 +356,11 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & l,
 				 vit.next();
 				 tit.next();
 			       });
-	  header.append(make_tuple(PvtAnalyzer::correlation(desc)->name, false,
-				   0, 0));
+	  header.append(make_tuple(PvtAnalyzer::correlation(desc)->name,
+				   false, 0, 0));
 	  header.append(make_tuple(tuned_name(desc), true,
-				   PvtAnalyzer::c(desc), PvtAnalyzer::m(desc)));
+				   PvtAnalyzer::c(desc),
+				   PvtAnalyzer::m(desc)));
 	}
       break;
     default:
@@ -363,8 +413,9 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
       ret.append(DynList<double>( { get<0>(t), get<1>(t) } ));
     }
 
-  DynList<MixedCorrDesc> header = { make_tuple("p", false, 0, 1, 0, 1),
-				    make_tuple(target_name, false, 0, 1, 0, 1) };
+  DynList<MixedCorrDesc> header =
+    { make_tuple("p", false, 0, 1, 0, 1),
+      make_tuple(target_name, false, 0, 1, 0, 1) };
 
   switch (eval_type)
     {
@@ -498,6 +549,7 @@ void process_pb(PvtAnalyzer & pvt)
       exit(0);
     }
 
+  // TODO: falta formato especial
   if (corr_best.isSet())
     {
       double pb = pvt.get_pb();
@@ -537,21 +589,24 @@ string_mat(const pair<DynList<MixedCorrDesc>, DynList<DynList<double>>> & dmat)
   return mat;
 }
 
-string mat_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
+string
+mat_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
 {
   ostringstream s;
   s << to_string(format_string(string_mat(dmat)));
   return s.str();
 }
 
-string csv_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
+string
+csv_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
 {
   ostringstream s;
   s << to_string(format_string_csv(string_mat(dmat)));
   return s.str();
 }
 
-string r_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
+string
+r_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
 {
   ostringstream s;
 
@@ -616,7 +671,7 @@ string mat_format
 (const pair<DynList<MixedCorrDesc>, DynList<DynList<double>>> & dmat)
 {
   return mat_format(make_pair(dmat.first.maps<CorrDesc>([] (const auto & desc)
-						  { return to_CorrDesc(desc); }),
+                                 { return to_CorrDesc(desc); }),
 			      dmat.second));
 }
 
@@ -632,7 +687,7 @@ string r_format(const pair<DynList<MixedCorrDesc>,
 		DynList<DynList<double>>> & dmat)
 {
   return r_format(make_pair(dmat.first.maps<CorrDesc>([] (const auto & desc)
-					          { return to_CorrDesc(desc); }),
+				          { return to_CorrDesc(desc); }),
 			    dmat.second));
 }
 
@@ -743,7 +798,8 @@ void process_rs(PvtAnalyzer & pvt)
 
   if (corr_best.isSet())
     {
-      list_correlations(pvt.rs_best_correlations(), sort_type.getValue());
+      list_correlations(pvt.rs_best_correlations(), sort_type.getValue(),
+			output_type.getValue());
       exit(0);
     }
 
@@ -847,7 +903,8 @@ void process_bob(PvtAnalyzer & pvt)
 
   if (corr_best.isSet())
     {
-      list_correlations(pvt.bob_best_correlations(), sort_type.getValue());
+      list_correlations(pvt.bob_best_correlations(), sort_type.getValue(),
+			output_type.getValue());
       exit(0);
     }
 
@@ -899,7 +956,8 @@ void process_boa(PvtAnalyzer & pvt)
 
   if (corr_best.isSet())
     {
-      list_correlations(pvt.boa_best_correlations(), sort_type.getValue());
+      list_correlations(pvt.boa_best_correlations(), sort_type.getValue(),
+			output_type.getValue());
       exit(0);
     }
 
@@ -965,7 +1023,8 @@ void process_bo(PvtAnalyzer & pvt)
   if (below_corr_ptr == nullptr)
     error_msg("Below correlation " + below_corr.getValue() + " not found");
   if (below_corr_ptr->target_name() != "bob")
-    error_msg("Below correlation " + below_corr.getValue() + " is not for bob");
+    error_msg("Below correlation " + below_corr.getValue() +
+	      " is not for bob");
   {
     if (not pvt.valid_correlations("bob", "Below Pb").
 	exists([below_corr_ptr] (auto p) { return p == below_corr_ptr; }))
@@ -977,7 +1036,8 @@ void process_bo(PvtAnalyzer & pvt)
   if (above_corr_ptr == nullptr)
     error_msg("Above correlation " + above_corr.getValue() + " not found");
   if (above_corr_ptr->target_name() != "boa")
-    error_msg("Above correlation " + above_corr.getValue() + " is not for boa");
+    error_msg("Above correlation " + above_corr.getValue() +
+	      " is not for boa");
   {
     if (not pvt.valid_correlations("boa", "Above Pb").
 	exists([above_corr_ptr] (auto p) { return p == above_corr_ptr; }))
@@ -1043,7 +1103,8 @@ void process_uob(PvtAnalyzer & pvt)
 
   if (corr_best.isSet())
     {
-      list_correlations(pvt.uob_correlations_lfits(), sort_type.getValue());
+      list_correlations(pvt.uob_correlations_lfits(), sort_type.getValue(),
+			output_type.getValue());
       exit(0);
     }
 
@@ -1114,7 +1175,8 @@ void process_uoa(PvtAnalyzer & pvt)
 
   if (corr_best.isSet())
     {
-      list_correlations(pvt.uoa_best_correlations(), sort_type.getValue());
+      list_correlations(pvt.uoa_best_correlations(), sort_type.getValue(),
+			output_type.getValue());
       exit(0);
     }
 
@@ -1196,7 +1258,8 @@ void process_uo(PvtAnalyzer & pvt)
   if (below_corr_ptr == nullptr)
     error_msg("Below correlation " + below_corr.getValue() + " not found");
   if (below_corr_ptr->target_name() != "uob")
-    error_msg("Below correlation " + below_corr.getValue() + " is not for uob");
+    error_msg("Below correlation " + below_corr.getValue() +
+	      " is not for uob");
   {
     if (not pvt.valid_correlations("uob", "Below Pb").
 	exists([below_corr_ptr] (auto p) { return p == below_corr_ptr; }))
@@ -1208,7 +1271,8 @@ void process_uo(PvtAnalyzer & pvt)
   if (above_corr_ptr == nullptr)
     error_msg("Above correlation " + above_corr.getValue() + " not found");
   if (above_corr_ptr->target_name() != "uoa")
-    error_msg("Above correlation " + above_corr.getValue() + " is not for uoa");
+    error_msg("Above correlation " + above_corr.getValue() +
+	      " is not for uoa");
   {
     if (not pvt.valid_correlations("uoa", "Above Pb").
 	exists([above_corr_ptr] (auto p) { return p == above_corr_ptr; }))
