@@ -105,3 +105,4 @@ test-calibrate reciba entrada csv y comandos,2016-11-19 13:39:02 -0400,2016-12-0
 Revisar ./test-calibrate -f 113.json -P uo --below UobBeggsRobinson --above UoaVasquezBeggs ,2016-12-15 16:30:19 -0400,,,2016-12-15 16:32:23 -0400
 opción % que recupere los valores por sobre un %,2016-12-17 17:56:36 -0400,2016-12-18 16:44:14 -0400,,2016-12-18 16:44:44 -0400
 opción csv para opción -b,2016-12-16 17:29:55 -0400,2016-12-18 16:44:19 -0400,,2016-12-18 16:45:00 -0400
+Hay que verificar que cuando se extrae data las unidades sean convertidas a las esperadas,2016-12-10 15:39:22 -0400,2016-12-18 19:52:05 -0400,para ello hay que revisar las llamadas a values(),2016-12-19 11:46:43 -0400

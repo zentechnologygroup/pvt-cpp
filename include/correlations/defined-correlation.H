@@ -88,10 +88,10 @@ class DefinedCorrelation
   double min_val = 0;
   double max_val = numeric_limits<double>::max();
 
+public:
+
   const Unit * result_unit = nullptr; // it will be the result unit of
 				      // the first defined correlation
-
-public:
 
   /// Returns a list union of all parameters. Each item is a pair with
   /// the parameter name and a list of parameter synonyms

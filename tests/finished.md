@@ -640,3 +640,9 @@
 - Comment      
 - Finished     
 
+## 108. Hay que verificar que cuando se extrae data las unidades sean convertidas a las esperadas
+- Created at   2016-12-10 15:39:22 -0400
+- Completed at 2016-12-18 19:52:05 -0400
+- Comment      para ello hay que revisar las llamadas a values()
+- Finished     para ello hay que revisar las llamadas a values()
+

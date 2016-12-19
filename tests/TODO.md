@@ -53,31 +53,26 @@
 ## 18. dir backend
 - Created at   2016-12-08 16:30:29 -0400
 
-## 19. Hay que verificar que cuando se extrae data las unidades sean convertidas a las esperadas
-- Created at   2016-12-10 15:39:22 -0400
-- Completed at 2016-12-18 19:52:05 -0400
-- Comment      para ello hay que revisar las llamadas a values()
-
-## 20. verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos
+## 19. verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos
 - Created at   2016-12-10 18:26:26 -0400
 
-## 21. poner cambio de unidades en plot-corr y test-calibrate
+## 20. poner cambio de unidades en plot-corr y test-calibrate
 - Created at   2016-12-10 18:26:50 -0400
 
-## 22. Resolver: ajustes fueron calculados en una unidad. Cómo asegurar el ajuste si la unidad cambia?
+## 21. Resolver: ajustes fueron calculados en una unidad. Cómo asegurar el ajuste si la unidad cambia?
 - Created at   2016-12-12 18:16:56 -0400
 
-## 23. csv grid está sacando mal la tag de temperature
+## 22. csv grid está sacando mal la tag de temperature
 - Created at   2016-12-14 17:48:31 -0400
 
-## 24. poner las oras propiedades
+## 23. poner las oras propiedades
 - Created at   2016-12-14 17:48:43 -0400
 - Completed at 
 - Comment      oil density
 
-## 25. script que compare grids
+## 24. script que compare grids
 - Created at   2016-12-14 17:56:44 -0400
 
-## 26. verificar unidades para cada par en test-grid (rutina format_table)
+## 25. verificar unidades para cada par en test-grid (rutina format_table)
 - Created at   2016-12-16 17:31:36 -0400
 

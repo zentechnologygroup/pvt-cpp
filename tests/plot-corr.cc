@@ -513,6 +513,20 @@ define_correlation(double pb_val,
   return ret;
 }
 
+DefinedCorrelation
+define_correlation(double pb_val,
+		   const Correlation * below_corr_ptr, 
+		   const Correlation * above_corr_ptr)
+{
+  double max_p = psia::get_instance().max_val;
+  DefinedCorrelation ret("p");
+  ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min_val, pb_val,
+			    0, 1);
+  ret.add_tuned_correlation(above_corr_ptr, nextafter(pb_val, max_p), max_p,
+			    0, 1);
+  return ret;
+}
+
 DefinedCorrelation target_correlation(double pb_val)
 {
   return define_correlation(pb_val, below_corr_ptr,
@@ -852,6 +866,10 @@ void generate_grid()
   DynList<Correlation::NamedPar> uo_pars_list =
     load_constant_parameters({uob_corr, uoa_corr});
 
+  DynList<Correlation::NamedPar> po_pars_list =
+    load_constant_parameters({&PobBradley::get_instance(),
+	  &PoaBradley::get_instance()});
+
   cout << "uo " << uob_corr->unit.name
        << ",bo " << bob_corr->unit.name
        << ",co " << cob_corr->unit.name
@@ -860,6 +878,7 @@ void generate_grid()
        << ",uobp " << uob_corr->unit.name
        << ",bobp " << bob_corr->unit.name
        << ",uod " << uod_corr->unit.name
+       << ",po " << PobBradley::get_instance().unit.name
        << ",pb " << pb_corr->unit.name
        << ",t " << Fahrenheit::get_instance().name
        << endl;
@@ -905,6 +924,9 @@ void generate_grid()
 			   uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
 			   uoa_corr, c_uoa_arg.getValue(), m_uoa_arg.getValue());
 
+      auto po_corr = define_correlation(pb, &PobBradley::get_instance(),
+					&PoaBradley::get_instance());
+
       // cálculo de bobp
       bo_pars_list.insert(t_par);
       bo_pars_list.insert(make_tuple(true, "p", pb_val.raw(), &pb_val.unit));
@@ -931,6 +953,17 @@ void generate_grid()
 
       uo_pars_list.insert(make_tuple(true, "uobp", uobp.raw(), &uobp.unit));
 
+      // Cálculo de pobp
+      po_pars_list.insert(make_tuple(true, "rs",
+				     get<2>(rsb_par), get<3>(rsb_par)));
+      po_pars_list.insert(make_tuple(true, "bob", bobp.raw(), &bobp.unit));
+      auto pobp = PobBradley::get_instance().compute_by_names(po_pars_list);
+      po_pars_list.remove_first();
+      po_pars_list.remove_first();
+
+      po_pars_list.insert(make_tuple(true, "pb", pb, &pb_val.unit));
+      po_pars_list.insert(make_tuple(true, "pobp", pobp.raw(), &pobp.unit));
+
       row.insert(get<2>(t_par)); // valores constantes en row según temperatura
       row.insert(pb);
       row.insert(uod_val.raw());
@@ -943,31 +976,44 @@ void generate_grid()
 
 	  rs_pars_list.insert(p_par);
 	  auto rs = rs_corr.compute_by_names(rs_pars_list, check);
+	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
 	  rs_pars_list.remove_first(); // remove p_par
 
 	  co_pars_list.insert(p_par);
 	  auto co = co_corr.compute_by_names(co_pars_list, check);
+	  auto co_par = make_tuple(true, "co", co, co_corr.result_unit);
 	  co_pars_list.remove_first();
 
 	  bo_pars_list.insert(p_par);
-	  bo_pars_list.insert(make_tuple(true, "rs", rs, &::rs_corr->unit));
+	  bo_pars_list.insert(rs_par);
 	  auto bo = bo_corr.compute_by_names(bo_pars_list, check);
 	  bo_pars_list.remove_first(); // rs
 	  bo_pars_list.remove_first(); // p_par
 
 	  uo_pars_list.insert(p_par);	  
-	  uo_pars_list.insert(make_tuple(true, "rs", rs, &::rs_corr->unit));
+	  uo_pars_list.insert(rs_par);
 	  auto uo = uo_corr.compute_by_names(uo_pars_list, check);
 	  uo_pars_list.remove_first(); // rs
 	  uo_pars_list.remove_first(); // p_par
+
+	  po_pars_list.insert(p_par);
+	  po_pars_list.insert(rs_par);
+	  po_pars_list.insert(co_par);
+	  po_pars_list.insert(make_tuple(true, "bob", bo, bo_corr.result_unit));
+	  auto po = po_corr.compute_by_names(po_pars_list);
+	  po_pars_list.remove_first();
+	  po_pars_list.remove_first();
+	  po_pars_list.remove_first();
+	  po_pars_list.remove_first();
 
 	  row.insert(get<2>(p_par));
 	  row.insert(rs);
 	  row.insert(co);
 	  row.insert(bo);
 	  row.insert(uo);
+	  row.insert(po);
 
-	  assert(row.size() == 10);
+	  assert(row.size() == 11);
 
 	  for (auto it = row.get_it(); it.has_curr(); it.next())
 	    {
@@ -979,6 +1025,7 @@ void generate_grid()
 	    }
 	  cout << endl;
 
+	  row.remove_first(); // po
 	  row.remove_first(); // uo
 	  row.remove_first(); // bo
 	  row.remove_first(); // uo
@@ -1006,6 +1053,9 @@ void generate_grid()
       uo_pars_list.remove_first(); // pb_val
       uo_pars_list.remove_first(); // uod_val
       uo_pars_list.remove_first(); // t_par
+
+      po_pars_list.remove_first(); // pb
+      po_pars_list.remove_first(); // pobp
     }
 }
 
