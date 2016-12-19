@@ -6,7 +6,7 @@ add_db("The volumetric properties of oilfield brines were obtained by combining 
 add_parameter("t", "Celsius", "Temperature",  0,  275) 
 add_parameter("p", "mPascal", "Pressure",  0.1, 200)
 add_parameter("nacl_concentration", "Molality_NaCl", "Dissolved salt concentration",  0,  5.7)
-add_parameter("z",  "ZFactor", "Gas compressibility factor")
+add_parameter("z",  "Zfactor", "Gas compressibility factor")
 add_author("Spivey, McCain & North")
 add_ref("spivey:2004")
 add_ref("mcCain:2011")

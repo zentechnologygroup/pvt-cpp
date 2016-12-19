@@ -72,7 +72,7 @@ inline Quantity<mP>
 UgLeeGE::impl(const Quantity<Rankine> & t,
 	      const Quantity<psia> & p,
 	      const Quantity<Sgg> & yg,
-	      const Quantity<ZFactor> & z) const
+	      const Quantity<Zfactor> & z) const
 {
   const double mg = 28.96*yg.raw(); // gas molecular weight [lb/lbmol]
             
@@ -93,7 +93,7 @@ UgDeanStiel::impl(const Quantity<Rankine> & t,
 		  const Quantity<Rankine> & tsc,
 		  const Quantity<psia> & psc,
 		  const Quantity<Sgg> & yg,
-		  const Quantity<ZFactor> & z) const
+		  const Quantity<Zfactor> & z) const
 {
   const double tsr = t.raw()/tsc.raw();
   const double psr = p.raw()/psc.raw();

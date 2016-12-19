@@ -9,7 +9,7 @@ Pg::impl(const Quantity<Sgg> & yg,
 	 const Quantity<psia> & pb,
 	 const Quantity<Rankine> & t,
 	 const Quantity<psia> & p,
-	 const Quantity<ZFactor> & z) const
+	 const Quantity<Zfactor> & z) const
 {
   if (p > pb)
     {

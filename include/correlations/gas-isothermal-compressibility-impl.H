@@ -8,7 +8,7 @@ inline Quantity<psia_1>
 CgSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,
 	      const Quantity<PseudoReducedPressure> & ppr,
 	      const Quantity<psia> & ppc,
-	      const Quantity<ZFactor> & z) const
+	      const Quantity<Zfactor> & z) const
 {
   const double tsr = tpr.raw();
   const double psr = ppr.raw();
@@ -61,7 +61,7 @@ inline Quantity<psia_1>
 CgHallYarborough::impl(const Quantity<PseudoReducedTemperature> & __tpr,
 		       const Quantity<PseudoReducedPressure> & __ppr,
 		       const Quantity<psia> & ppc,
-		       const Quantity<ZFactor> & z) const
+		       const Quantity<Zfactor> & z) const
 {
   const double tpr = __tpr.raw();
   const double ppr = __ppr.raw();
@@ -124,7 +124,7 @@ inline Quantity<psia_1>
 CgMattarBA::impl(const Quantity<PseudoReducedTemperature> & __tpr,
 		 const Quantity<PseudoReducedPressure> & __ppr,
 		 const Quantity<psia> & ppc,
-		 const Quantity<ZFactor> & z) const
+		 const Quantity<Zfactor> & z) const
 {
   const double tpr = __tpr.raw();
   const double ppr = __ppr.raw();
@@ -168,7 +168,7 @@ inline Quantity<psia_1>
 CgGopal::impl(const Quantity<PseudoReducedTemperature> & __tpr,
 	      const Quantity<PseudoReducedPressure> & __ppr,
 	      const Quantity<psia> & ppc,
-	      const Quantity<ZFactor> & z) const
+	      const Quantity<Zfactor> & z) const
 {
   const double tpr = __tpr.raw();
   const double ppr = __ppr.raw();
@@ -222,7 +222,7 @@ inline Quantity<psia_1>
 CgBrillBeggs::impl(const Quantity<PseudoReducedTemperature> & __tpr,
 		   const Quantity<PseudoReducedPressure> & __ppr,
 		   const Quantity<psia> & ppc,
-		   const Quantity<ZFactor> & z) const
+		   const Quantity<Zfactor> & z) const
 {
   const double tpr = __tpr.raw();
   const double ppr = __ppr.raw();
@@ -257,7 +257,7 @@ inline Quantity<psia_1>
 CgPapay::impl(const Quantity<PseudoReducedTemperature> & __tpr,
 	      const Quantity<PseudoReducedPressure> & __ppr,
 	      const Quantity<psia> & ppc,
-	      const Quantity<ZFactor> & z) const
+	      const Quantity<Zfactor> & z) const
 {
   const double tpr = __tpr.raw();
   const double ppr = __ppr.raw();

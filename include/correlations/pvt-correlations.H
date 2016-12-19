@@ -199,13 +199,13 @@ struct CorrelationInstantiater
     Tpr::get_instance();
     Ppr::get_instance();
 
-    ZFactorSarem::get_instance();
-    ZFactorHallYarborough::get_instance();
-    ZFactorDranchukPR::get_instance();
-    ZFactorDranchukAK::get_instance();
-    ZFactorGopal::get_instance();
-    ZFactorBrillBeggs::get_instance();
-    ZFactorPapay::get_instance();
+    ZfactorSarem::get_instance();
+    ZfactorHallYarborough::get_instance();
+    ZfactorDranchukPR::get_instance();
+    ZfactorDranchukAK::get_instance();
+    ZfactorGopal::get_instance();
+    ZfactorBrillBeggs::get_instance();
+    ZfactorPapay::get_instance();
 
     TscHCStanding::get_instance();
     TscHCStandingHeavierFractions::get_instance();

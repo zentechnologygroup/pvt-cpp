@@ -55,7 +55,7 @@
 
 ## 19. Hay que verificar que cuando se extrae data las unidades sean convertidas a las esperadas
 - Created at   2016-12-10 15:39:22 -0400
-- Completed at 
+- Completed at 2016-12-18 19:52:05 -0400
 - Comment      para ello hay que revisar las llamadas a values()
 
 ## 20. verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos

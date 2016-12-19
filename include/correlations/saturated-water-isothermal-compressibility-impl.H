@@ -8,7 +8,7 @@ inline Quantity<mPa_1>
 CwbSpiveyMN::impl(const Quantity<Celsius> & t,
 		 const Quantity<mPascal> & p,
 		 const Quantity<Molality_NaCl> & nacl_concentration,
-		 const Quantity<ZFactor> & z) const
+		 const Quantity<Zfactor> & z) const
 {
 
   // Transformation from °C to °K
