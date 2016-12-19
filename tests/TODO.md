@@ -76,3 +76,6 @@
 ## 25. verificar unidades para cada par en test-grid (rutina format_table)
 - Created at   2016-12-16 17:31:36 -0400
 
+## 26. test-grid maneja mal las unidades psia == psig
+- Created at   2016-12-19 18:16:48 -0400
+

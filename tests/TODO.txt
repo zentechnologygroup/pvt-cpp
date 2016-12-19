@@ -23,3 +23,4 @@ csv grid está sacando mal la tag de temperature,2016-12-14 17:48:31 -0400,,
 poner las oras propiedades,2016-12-14 17:48:43 -0400,,oil density
 script que compare grids,2016-12-14 17:56:44 -0400,,
 verificar unidades para cada par en test-grid (rutina format_table),2016-12-16 17:31:36 -0400,,
+test-grid maneja mal las unidades psia == psig,2016-12-19 18:16:48 -0400,,

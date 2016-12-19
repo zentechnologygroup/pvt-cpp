@@ -876,8 +876,8 @@ void generate_grid()
        << ",bo " << bob_corr->unit.name
        << ",co " << cob_corr->unit.name
        << ",rs " << ::rs_corr->unit.name
-       << ",uobp " << uob_corr->unit.name
        << ",p " << get<3>(p_values.get_first())->name
+       << ",uobp " << uob_corr->unit.name
        << ",bobp " << bob_corr->unit.name
        << ",uod " << uod_corr->unit.name
        << ",pb " << pb_corr->unit.name
