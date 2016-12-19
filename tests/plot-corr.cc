@@ -870,17 +870,18 @@ void generate_grid()
     load_constant_parameters({&PobBradley::get_instance(),
 	  &PoaBradley::get_instance()});
 
-  cout << "uo " << uob_corr->unit.name
+  // Nuevo valor tiene que entrar de 1ro aqui
+  cout << "po " << PobBradley::get_instance().unit.name
+       << ",uo " << uob_corr->unit.name
        << ",bo " << bob_corr->unit.name
        << ",co " << cob_corr->unit.name
        << ",rs " << ::rs_corr->unit.name
-       << ",p " << psia::get_instance().name
        << ",uobp " << uob_corr->unit.name
+       << ",p " << get<3>(p_values.get_first())->name
        << ",bobp " << bob_corr->unit.name
        << ",uod " << uod_corr->unit.name
-       << ",po " << PobBradley::get_instance().unit.name
        << ",pb " << pb_corr->unit.name
-       << ",t " << Fahrenheit::get_instance().name
+       << ",t " << get<3>(t_values.get_first())->name
        << endl;
 
   DynList<double> row;
@@ -1012,6 +1013,7 @@ void generate_grid()
 	  row.insert(bo);
 	  row.insert(uo);
 	  row.insert(po);
+	  // nuevo valor tiene que entrar de último aquí
 
 	  assert(row.size() == 11);
 

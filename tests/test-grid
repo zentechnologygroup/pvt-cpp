@@ -26,15 +26,33 @@ class Table
     val.to_f
   end
 
+  def test_convert(name, zen_val)
+    zen_unit = @zen_units[name]
+    pe_unit = @pe_units[name]
+    puts "#{zen_unit} == #{pe_unit}"
+    if zen_unit == pe_unit
+      zen_val
+    else
+      `./test-conversion -S #{zen_unit} -T #{pe_unit} -s #{zen_val}`.to_f
+    end
+  end
+
+  def access_convert(row, names, name)
+    test_convert(name, access(row, names, name))
+  end
+
   def build_table(zen_vals, pe_vals, zen_names, pe_names)
     zen_vals.map do |pair, row|
+      pe_row = pe_vals[pair]
+      fail "pe entry for t = #{pair[0]} p = #{pair[1]} not found" unless pe_row
+
       t = pair[0].to_f
       p = pair[1].to_f
-      pe_row = pe_vals[pair]
 
       # TODO: conversion de unidades cuando sean diferentes
       zen_pb = access row, zen_names, 'pb'
-      pe_pb = access pe_row, pe_names, 'pb'
+      #pe_pb = access pe_row, pe_names, 'pb'
+      pe_pb = access_convert pe_row, pe_names, 'pb'
       pb_error = 100*(pe_pb - zen_pb).abs / pe_pb
 
       zen_rs = access row, zen_names, 'rs'
@@ -83,7 +101,7 @@ class Table
     header = ["t", "p", "pb zen", "pb_pe", "pb %", "rs zen", "rs pe", "rs %",
               "bo zen", "bo pe", "bo %", "uo zen", "uo pe", "uo %"]
     grid = table.map { |l| l.map { |i| i.round(decs).to_s } }
-    grid.each { |line| line.drop(2).each_slice(3) { |l| l[2] += ' %' } }
+    #grid.each { |line| line.drop(2).each_slice(3) { |l| l[2] += ' %' } }
     grid.unshift header
     grid.map { |l| l.zip(lens).map { |i, len| i.ljust(len) } }
   end
@@ -254,7 +272,7 @@ lines = data.format
 lines.each do |l|
   print "#{l[0]} #{l[1]} "
   l.drop(2).each_slice(3) do |s|
-    print "#{s[0]} #{s[1]} #{s[2]} %"
+    print "#{s[0]} #{s[1]} #{s[2]}"
     print ' ' if s != l.last
   end
   puts
