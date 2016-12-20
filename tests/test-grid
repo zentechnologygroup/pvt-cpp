@@ -7,6 +7,9 @@ require 'fileutils'
 load 'correlations.rb'
 
 require 'csv'
+require 'solid_assert'
+
+SolidAssert.enable_assertions
 
 class Table
 
@@ -29,18 +32,30 @@ class Table
     zen_unit = @zen_units[name]
     pe_unit = @pe_units[name]
     if zen_unit != pe_unit
-      v = m[1].join(' ')
-      m[1] = `echo #{v} | ./test-conversion -p -S #{pe_unit} -T #{zen_unit}`.split
+      v = m.map { |e| e[1] }.join ' '
+      #puts "**** #{v}"
+      vc = `echo #{v} | ./test-conversion -p -S #{pe_unit} -T #{zen_unit}`.split
+      m.zip(vc).map { |m, v| [m[0], v.to_f] }.to_h
+    else
+      m.map { |e| [e[0], e[1].to_f] }.to_h
     end
-    m.map { |e| [[e[0][0], e[0][0]], e[1].to_f] }.to_h
   end
 
-  def error(h1, h2)
+  def errors(h1, h2)
     h1.map do |pair, v1|
       v2 = h2[pair]
-      puts "#{pair[0]} #{pair[1]} = #{v1} ~ #{v2}"
-      [pair, 100*(v1-v2).abs / v2]
+      #puts "#{pair[0]} #{pair[1]} = #{v1} ~ #{v2}"
+      [pair, 100*(v1 - v2).abs / v2]
     end.to_h
+  end
+
+  def combine(zen_vals, pe_vals, error_vals)
+    zen_vals.zip(pe_vals, error_vals).map do |e|
+      zv = e[0][1]
+      pv = e[1][1]
+      err = e[2][1]
+      [zv, pv, err]
+    end
   end
 
   def build_table(zen_vals, pe_vals, zen_names, pe_names)
@@ -49,25 +64,50 @@ class Table
       fail "pe entry for t = #{pair[0]} p = #{pair[1]} not found" unless pe_row
       pair
     end
-
+    
     zen_pb = access zen_vals, zen_names, 'pb'
     pe_pb = access_convert pe_vals, pe_names, 'pb'
-    pb_error = error zen_pb, pe_pb
+    error_pb = errors zen_pb, pe_pb
 
     zen_rs = access zen_vals, zen_names, 'rs'
     pe_rs = access_convert pe_vals, pe_names, 'rs'
-    rs_error = error zen_rs.zip, pe_rs
+    error_rs = errors zen_rs, pe_rs
 
+    combine(zen_pb, pe_pb, error_pb).zip(combine(zen_rs, pe_rs, error_rs)).each do |e|
+        puts "#{e[0] + e[1]}"
+      end
+    exit
     zen_bo = access zen_vals, zen_names, 'bo'
     pe_bo = access_convert pe_vals, pe_names, 'bo'
-    bo_error = error zen_bo, pe_bo
+    error_bo = errors zen_bo, pe_bo
 
     zen_uo = access zen_vals, zen_names, 'uo'
     pe_uo = access_convert pe_vals, pe_names, 'uo'
-    uo_error = error zen_bo, pe_uo
+    error_uo = errors zen_bo, pe_uo
 
-    # values = [zen_pb, pe_pb, pb_error, zen_rs, pe_rs, rs_error,
-    #           zen_bo, pe_bo, bo_error, zen_uo, pe_uo, pe_error]
+    zen_po = access zen_vals, zen_names, 'po'
+    pe_po = access_convert pe_vals, pe_names, 'po'
+    error_po = errors zen_po, pe_po
+
+    pb = conbine(zen_pb, pe_pb, error_pb)
+    rs = combine(zen_rs, pe_rs, error_rs)
+    bo = combine(zen_bo, pe_bo, error_bo)
+    values = pb.zip(rs, bo).map { |e| e.inject(:+) }
+    #[0] + e[1] }
+    values.each do |e|
+      puts "#{e}"
+    end
+
+    # values = combine(zen_pb.zip(pe_pb, pb_error, zen_rs, pe_rs, rs_error,
+    #                             zen_bo, pe_bo, bo_error, zen_uo, pe_uo, uo_error,
+    #                             zen_po, pe_po, po_error).each do |e|
+                       
+    #                  end
+      
+    # end
+    # values = [zen_pb.to_a, pe_pb, pb_error, zen_rs, pe_rs, rs_error,
+    #           zen_bo, pe_bo, bo_error, zen_uo, pe_uo, uo_error,
+    #           zen_po, pe_po, po_error].transpose
 
     exit
 
