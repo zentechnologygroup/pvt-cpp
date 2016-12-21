@@ -44,74 +44,42 @@ class Table
   def errors(h1, h2)
     h1.map do |pair, v1|
       v2 = h2[pair]
-      #puts "#{pair[0]} #{pair[1]} = #{v1} ~ #{v2}"
-      [pair, 100*(v1 - v2).abs / v2]
+      err = 100*(v1 - v2).abs / v2
+      #puts "#{pair[0]} #{pair[1]} = #{v1} ~ #{v2} = #{err}"
+      [pair, err]
     end.to_h
   end
 
-  def combine(zen_vals, pe_vals, error_vals)
-    zen_vals.zip(pe_vals, error_vals).map do |e|
-      zv = e[0][1]
-      pv = e[1][1]
-      err = e[2][1]
-      [zv, pv, err]
-    end
+  def combine(zen_hash, pe_hash, error_hash)
+    zen_hash.map { |pair, val| [val, pe_hash[pair], error_hash[pair]] }
+  end
+
+  def get_property(name, zen_vals, pe_vals, zen_names, pe_names)
+    zen_v = access zen_vals, zen_names, name
+    pe_v = access_convert pe_vals, pe_names, name
+    error_v = errors zen_v, pe_v
+    combine zen_v, pe_v, error_v
   end
 
   def build_table(zen_vals, pe_vals, zen_names, pe_names)
     keys = zen_vals.map do |pair, row|
       pe_row = pe_vals[pair]
       fail "pe entry for t = #{pair[0]} p = #{pair[1]} not found" unless pe_row
-      pair
+      [pair[0].to_f, pair[1].to_f]
     end
+
+    pb = get_property 'pb', zen_vals, pe_vals, zen_names, pe_names
+    rs = get_property 'rs', zen_vals, pe_vals, zen_names, pe_names
+    bo = get_property 'bo', zen_vals, pe_vals, zen_names, pe_names
+    uo = get_property 'uo', zen_vals, pe_vals, zen_names, pe_names
+    po = get_property 'po', zen_vals, pe_vals, zen_names, pe_names
     
-    zen_pb = access zen_vals, zen_names, 'pb'
-    pe_pb = access_convert pe_vals, pe_names, 'pb'
-    error_pb = errors zen_pb, pe_pb
+    values = pb.zip(rs, bo, uo, po).map { |e| e.inject(:+) }
+    #values.each do |e|
+     # puts "#{e}"
+    #end
 
-    zen_rs = access zen_vals, zen_names, 'rs'
-    pe_rs = access_convert pe_vals, pe_names, 'rs'
-    error_rs = errors zen_rs, pe_rs
-
-    combine(zen_pb, pe_pb, error_pb).zip(combine(zen_rs, pe_rs, error_rs)).each do |e|
-        puts "#{e[0] + e[1]}"
-      end
-    exit
-    zen_bo = access zen_vals, zen_names, 'bo'
-    pe_bo = access_convert pe_vals, pe_names, 'bo'
-    error_bo = errors zen_bo, pe_bo
-
-    zen_uo = access zen_vals, zen_names, 'uo'
-    pe_uo = access_convert pe_vals, pe_names, 'uo'
-    error_uo = errors zen_bo, pe_uo
-
-    zen_po = access zen_vals, zen_names, 'po'
-    pe_po = access_convert pe_vals, pe_names, 'po'
-    error_po = errors zen_po, pe_po
-
-    pb = conbine(zen_pb, pe_pb, error_pb)
-    rs = combine(zen_rs, pe_rs, error_rs)
-    bo = combine(zen_bo, pe_bo, error_bo)
-    values = pb.zip(rs, bo).map { |e| e.inject(:+) }
-    #[0] + e[1] }
-    values.each do |e|
-      puts "#{e}"
-    end
-
-    # values = combine(zen_pb.zip(pe_pb, pb_error, zen_rs, pe_rs, rs_error,
-    #                             zen_bo, pe_bo, bo_error, zen_uo, pe_uo, uo_error,
-    #                             zen_po, pe_po, po_error).each do |e|
-                       
-    #                  end
-      
-    # end
-    # values = [zen_pb.to_a, pe_pb, pb_error, zen_rs, pe_rs, rs_error,
-    #           zen_bo, pe_bo, bo_error, zen_uo, pe_uo, uo_error,
-    #           zen_po, pe_po, po_error].transpose
-
-    exit
-
-    t.to_h
+    keys.zip(values).to_h
   end
 
   public
@@ -140,63 +108,47 @@ class Table
     table.each do |l|
       lens = lens.zip(l).map { |len, i| [len, i.round(decs).to_s.size].max }
     end
-    header = ["t", "p", "pb zen", "pb_pe", "pb %", "rs zen", "rs pe", "rs %",
-              "bo zen", "bo pe", "bo %", "uo zen", "uo pe", "uo %"]
+    header = ['t', 'p', 'pb zen', 'pb pe', 'pb %', 'rs zen', 'rs pe', 'rs %',
+              'bo zen', 'bo pe', 'bo %', 'uo zen', 'uo pe', 'uo %',
+             'po zen', 'po pe', 'po %']
     grid = table.map { |l| l.map { |i| i.round(decs).to_s } }
-    #grid.each { |line| line.drop(2).each_slice(3) { |l| l[2] += ' %' } }
     grid.unshift header
     grid.map { |l| l.zip(lens).map { |i, len| i.ljust(len) } }
   end
 
-  def entry(p, t)
-    @table[[t, p]]
-  end
+  def get_entry(p, t) @table[[t, p]] end
 
   private
   
   def values(p, t, i)
-    e = entry t, p
+    e = get_entry t, p
     fail "temperature = #{t} pressure = #{p} pair not found" unless e
     [e[i], e[i + 1], e[i + 2].round(2)]
   end
 
   public
   
-  def to_s(name, t)
-    " #{name} = #{t[0]} #{t[1]} #{t[2]}"
-  end
+  def to_s(name, t) " #{name} = #{t[0]} #{t[1]} #{t[2].round(2)}" end
 
-  def pb(t, p)
-    values t, p, 0
-  end
+  def pb(t, p) values t, p, 0 end
 
-  def rs(t, p)
-    values t, p, 3
-  end
+  def rs(t, p) values t, p, 3 end
 
-  def bo(t, p)
-    values t, p, 6
-  end
+  def bo(t, p) values t, p, 6 end
 
-  def uo(t, p)
-    values t, p, 9
-  end
+  def uo(t, p) values t, p, 9 end
 
-  def pb_s(t, p)
-    "#{t} #{p}" + to_s("pb", pb(t, p))
-  end
+  def po(t, p) values t, p, 11 end
 
-  def rs_s(t, p)
-     "#{t} #{p}" + to_s("rs", rs(t, p))
-  end
+  def pb_s(t, p) "#{t} #{p}" + to_s('pb', pb(t, p)) end
 
-  def bo_s(t, p)
-     "#{t} #{p}" + to_s("bo", bo(t, p))
-  end
+  def rs_s(t, p) "#{t} #{p}" + to_s('rs', rs(t, p)) end
 
-  def uo_s(t, p)
-     "#{t} #{p}" + to_s("uo", uo(t, p))
-  end
+  def bo_s(t, p) "#{t} #{p}" + to_s('bo', bo(t, p)) end
+
+  def uo_s(t, p) "#{t} #{p}" + to_s('uo', uo(t, p)) end
+
+  def po_s(t, p) "#{t} #{p}" + to_s('po', po(t, p)) end
 
   def subset(i, per)
     list = @table.select { |k, vals| vals[i + 2] >= per }.
@@ -204,21 +156,15 @@ class Table
            map { |e| "#{e[0]} #{e[1]} #{e[2]} #{e[3]} #{e[4]}" }
   end
 
-  def pb_subset(per)
-    subset(0, per)
-  end
+  def pb_subset(per) subset 0, per end
 
-  def rs_subset(per)
-    subset(3, per)
-  end
+  def rs_subset(per) subset 3, per end
 
-  def bo_subset(per)
-    subset(6, per)
-  end
+  def bo_subset(per) subset 6, per end
 
-  def uo_subset(per)
-    subset(9, per)
-  end
+  def uo_subset(per) subset 9, per end
+
+  def po_subset(per) subset 11, per end
 end
 
 options = {}
@@ -266,21 +212,23 @@ p = options[:pressure]
 missing = (t && !p) || (!t && p)
 value_requested = t && p
 
-fail "option -T temp and -P pressure must be used together" if missing
+fail 'option -T temp and -P pressure must be used together' if missing
 
 if value_requested
   property = options[:property]
-  fail "Property has not been specified" unless property
+  fail 'Property has not been specified' unless property
   val = nil
   case property.downcase
   when 'pb'
     val = data.pb_s(t.to_f, p.to_f)
   when 'rs'
-    val = data.pb_s(t.to_f, p.to_f)
+    val = data.rs_s(t.to_f, p.to_f)
   when 'bo'
     val = data.bo_s(t.to_f, p.to_f)
   when 'uo'
     val = data.uo_s(t.to_f, p.to_f)
+  when 'po'
+    val = data.po_s(t.to_f, p.to_f)
   else
     fail "invalid property #{property}"
   end
@@ -302,6 +250,8 @@ if per
     vals = data.bo_subset(per)
   when 'uo'
     vals = data.uo_subset(per)
+  when 'po'
+    vals = data.po_subset(per)
   else
     fail "invalid property #{property}"
   end
