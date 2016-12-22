@@ -15,12 +15,4 @@ compute en empirical_data 1405: se puede acer más raṕido,2016-12-01 17:30:02 
 correlations en hidden no deben aparecer en test-calibrate ni plot-corr,2016-12-01 17:48:58 -0400,,
 ajustar uod en test-calibrate,2016-12-03 09:07:15 -0400,,
 búsqueda de unidades por tabla hash óptima,2016-12-05 08:24:35 -0400,,
-dir backend,2016-12-08 16:30:29 -0400,,
-verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos,2016-12-10 18:26:26 -0400,,
-poner cambio de unidades en plot-corr y test-calibrate,2016-12-10 18:26:50 -0400,,
-Resolver: ajustes fueron calculados en una unidad. Cómo asegurar el ajuste si la unidad cambia?,2016-12-12 18:16:56 -0400,,
-csv grid está sacando mal la tag de temperature,2016-12-14 17:48:31 -0400,,
 poner las oras propiedades,2016-12-14 17:48:43 -0400,,oil density
-script que compare grids,2016-12-14 17:56:44 -0400,,
-verificar unidades para cada par en test-grid (rutina format_table),2016-12-16 17:31:36 -0400,,
-test-grid maneja mal las unidades psia == psig,2016-12-19 18:16:48 -0400,,

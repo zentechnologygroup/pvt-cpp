@@ -16,7 +16,7 @@ class Table
   private
   
   def map_values(rows, names)
-    vals = rows.map do |row|
+    rows.map do |row|
       t = row[names['t']]
       p = row[names['p']]
       [[t, p], row]
@@ -33,7 +33,6 @@ class Table
     pe_unit = @pe_units[name]
     if zen_unit != pe_unit
       v = m.map { |e| e[1] }.join ' '
-      #puts "**** #{v}"
       vc = `echo #{v} | ./test-conversion -p -S #{pe_unit} -T #{zen_unit}`.split
       m.zip(vc).map { |m, v| [m[0], v.to_f] }.to_h
     else
@@ -45,7 +44,6 @@ class Table
     h1.map do |pair, v1|
       v2 = h2[pair]
       err = 100*(v1 - v2).abs / v2
-      #puts "#{pair[0]} #{pair[1]} = #{v1} ~ #{v2} = #{err}"
       [pair, err]
     end.to_h
   end
@@ -75,9 +73,8 @@ class Table
     po = get_property 'po', zen_vals, pe_vals, zen_names, pe_names
     
     values = pb.zip(rs, bo, uo, po).map { |e| e.inject(:+) }
-    #values.each do |e|
-     # puts "#{e}"
-    #end
+
+    @zen_vals = zen_vals
 
     keys.zip(values).to_h
   end
@@ -92,42 +89,65 @@ class Table
 
     zen_headers = zen_rows.headers
     @zen_units = zen_headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
-    zen_names = zen_headers.map { |h| [h.split[0], h] }.to_h
+    @zen_names = zen_headers.map { |h| [h.split[0], h] }.to_h
 
     pe_headers = pe_rows.headers
     @pe_units = pe_headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
     pe_names = pe_headers.map { |h| [h.split[0], h] }.to_h
 
-    @table = build_table(map_values(zen_rows, zen_names),
-                         map_values(pe_rows, pe_names), zen_names, pe_names)
+    @table = build_table(map_values(zen_rows, @zen_names),
+                         map_values(pe_rows, pe_names), @zen_names, pe_names)
   end
 
-  def format(decs = 2)
-    table = @table.map { |k, vals| k + vals }
-    lens = Array.new(table[0].size, 0)
-    table.each do |l|
-      lens = lens.zip(l).map { |len, i| [len, i.round(decs).to_s.size].max }
-    end
-    header = ['t', 'p', 'pb zen', 'pb pe', 'pb %', 'rs zen', 'rs pe', 'rs %',
+  @@header = ['t', 'p', 'pb zen', 'pb pe', 'pb %', 'rs zen', 'rs pe', 'rs %',
               'bo zen', 'bo pe', 'bo %', 'uo zen', 'uo pe', 'uo %',
-             'po zen', 'po pe', 'po %']
+              'po zen', 'po pe', 'po %']
+
+  def format(thash = @table, decs = 2)
+    table = thash.map { |k, vals| k + vals }
     grid = table.map { |l| l.map { |i| i.round(decs).to_s } }
-    grid.unshift header
-    grid.map { |l| l.zip(lens).map { |i, len| i.ljust(len) } }
+    grid.unshift @@header.map { |h| @zen_units[h.split[0]] || "" }
+    grid.unshift @@header
+    lens = Array.new(grid[0].size, 0)
+    grid.each do |l|
+      lens = lens.zip(l).map { |len, i| [len, i.size].max }
+    end.map { |l| l.zip(lens).map { |i, len| i.ljust(len) } }
   end
 
-  def get_entry(p, t) @table[[t, p]] end
+  def get_entry(t, p)
+    entry = table[[t.to_f, p.to_f]]
+    fail "entry for t = #{t} p = #{p} not found" unless entry
+    entry
+  end
 
-  private
-  
-  def values(p, t, i)
+  def get_zen_entry(t, p)
+    entry = @zen_vals[[t, p]]
+    fail "entry for t = #{t} p = #{p} not found" unless entry
+    grid = [@zen_names.keys, @zen_units.values, entry.map { |_,v| v }]
+    lens = Array.new(@zen_names.size, 0)
+    grid.each do |l|
+      lens = lens.zip(l).map { |len, i| [len, i.size].max }
+    end
+    grid.map { |l| l.zip(lens).map { |i, len| i.ljust(len) } }.each do |l|
+      l.each do |e|
+        print "#{e}" 
+        print ' ' if e != l.last
+      end
+      puts
+    end
+  end
+
+  def entry_s(t, p)
+    row = get_entry t, p
+    a = [[[t.to_f, p.to_f], row]]
+    format a.to_h
+  end
+
+  def values(t, p, i)
     e = get_entry t, p
-    fail "temperature = #{t} pressure = #{p} pair not found" unless e
     [e[i], e[i + 1], e[i + 2].round(2)]
   end
 
-  public
-  
   def to_s(name, t) " #{name} = #{t[0]} #{t[1]} #{t[2].round(2)}" end
 
   def pb(t, p) values t, p, 0 end
@@ -138,7 +158,7 @@ class Table
 
   def uo(t, p) values t, p, 9 end
 
-  def po(t, p) values t, p, 11 end
+  def po(t, p) values t, p, 12 end
 
   def pb_s(t, p) "#{t} #{p}" + to_s('pb', pb(t, p)) end
 
@@ -153,7 +173,7 @@ class Table
   def subset(i, per)
     list = @table.select { |k, vals| vals[i + 2] >= per }.
            map { |k, vals| k + [vals[i], vals[i + 1], vals[i + 2]] }.
-           map { |e| "#{e[0]} #{e[1]} #{e[2]} #{e[3]} #{e[4]}" }
+           map { |e| "#{e[0]} #{e[1]} #{e[2]} #{e[3]} #{e[4].round(2)}" }
   end
 
   def pb_subset(per) subset 0, per end
@@ -164,7 +184,7 @@ class Table
 
   def uo_subset(per) subset 9, per end
 
-  def po_subset(per) subset 11, per end
+  def po_subset(per) subset 12, per end
 end
 
 options = {}
@@ -191,6 +211,10 @@ options_parser = OptionParser.new do |opts|
     options[:property] = property
   end
 
+  opts.on('-Z', '--ZEN', 'Property name') do |property|
+    options[:zen_property] = true
+  end
+
   opts.on('-% PERCENTAGE', '--percentage PERCENTAGE',
           'error percentage') do |per|
     options[:per] = per
@@ -210,56 +234,41 @@ data = Table.new(zen_name, pe_name)
 t = options[:temp]
 p = options[:pressure]
 missing = (t && !p) || (!t && p)
-value_requested = t && p
+property = options[:property]
+property.downcase! if property
+value_requested = t && p && property
 
 fail 'option -T temp and -P pressure must be used together' if missing
 
 if value_requested
-  property = options[:property]
-  fail 'Property has not been specified' unless property
-  val = nil
-  case property.downcase
-  when 'pb'
-    val = data.pb_s(t.to_f, p.to_f)
-  when 'rs'
-    val = data.rs_s(t.to_f, p.to_f)
-  when 'bo'
-    val = data.bo_s(t.to_f, p.to_f)
-  when 'uo'
-    val = data.uo_s(t.to_f, p.to_f)
-  when 'po'
-    val = data.po_s(t.to_f, p.to_f)
-  else
-    fail "invalid property #{property}"
-  end
-  puts val
+  mtd_name = property + '_s'
+  fail "invalid property #{property}" unless data.respond_to? mtd_name
+  puts data.send mtd_name, t, p
   exit
 end
 
 per = options[:per].to_f if options[:per]
 if per
-  property = options[:property]
   fail "Property has not been specified" unless property
   fail "% must between 1 and 99" if per < 0.01 || per > 99
-  case property.downcase
-  when 'pb'
-    vals = data.pb_subset(per)
-  when 'rs'
-    vals = data.rs_subset(per)
-  when 'bo'
-    vals = data.bo_subset(per)
-  when 'uo'
-    vals = data.uo_subset(per)
-  when 'po'
-    vals = data.po_subset(per)
-  else
-    fail "invalid property #{property}"
-  end
-  vals.each { |e| puts e }
+  mtd_name = property + '_subset'
+  fail "invalid property #{property}" unless data.respond_to? mtd_name
+  data.send(mtd_name, per).each { |e| puts e }
   exit
 end
 
-lines = data.format
+zen_property = options[:zen_property]
+
+if t && p
+  if zen_property
+    data.get_zen_entry t, p
+    exit
+  elsif
+    lines = data.entry_s(t, p)
+  end
+else
+  lines = data.format
+end
 
 lines.each do |l|
   print "#{l[0]} #{l[1]} "

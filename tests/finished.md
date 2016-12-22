@@ -646,3 +646,57 @@
 - Comment      para ello hay que revisar las llamadas a values()
 - Finished     para ello hay que revisar las llamadas a values()
 
+## 109. eliminar case property en test-grid y susituir por metallamada
+- Created at   2016-12-21 19:34:34 -0400
+- Completed at 2016-12-22 11:28:52 -0400
+- Comment      
+- Finished     
+
+## 110. test-grid maneja mal las unidades psia == psig
+- Created at   2016-12-19 18:16:48 -0400
+- Completed at 2016-12-22 11:42:54 -0400
+- Comment      
+- Finished     
+
+## 111. verificar unidades para cada par en test-grid (rutina format_table)
+- Created at   2016-12-16 17:31:36 -0400
+- Completed at 2016-12-22 11:43:12 -0400
+- Comment      
+- Finished     
+
+## 112. script que compare grids
+- Created at   2016-12-14 17:56:44 -0400
+- Completed at 2016-12-22 11:43:17 -0400
+- Comment      
+- Finished     
+
+## 113. csv grid está sacando mal la tag de temperature
+- Created at   2016-12-14 17:48:31 -0400
+- Completed at 2016-12-22 11:54:26 -0400
+- Comment      
+- Finished     
+
+## 114. Resolver: ajustes fueron calculados en una unidad. Cómo asegurar el ajuste si la unidad cambia?
+- Created at   2016-12-12 18:16:56 -0400
+- Completed at 2016-12-22 11:54:40 -0400
+- Comment      
+- Finished     
+
+## 115. poner cambio de unidades en plot-corr y test-calibrate
+- Created at   2016-12-10 18:26:50 -0400
+- Completed at 2016-12-22 11:55:15 -0400
+- Comment      
+- Finished     
+
+## 116. dir backend
+- Created at   2016-12-08 16:30:29 -0400
+- Completed at 2016-12-22 11:55:32 -0400
+- Comment      
+- Finished     
+
+## 117. verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos
+- Created at   2016-12-10 18:26:26 -0400
+- Completed at 2016-12-22 11:55:46 -0400
+- Comment      
+- Finished     
+

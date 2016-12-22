@@ -645,7 +645,9 @@ void test(int argc, char *argv[])
 	  abort();
 	}
 
-      auto unit_ptr = Unit::search_by_symbol(p.symbol);
+      auto unit_ptr = Unit::search_by_name(p.symbol);
+      if (unit_ptr == nullptr)
+	unit_ptr = Unit::search_by_symbol(p.symbol);
       if (unit_ptr == nullptr)
 	{
 	  cout << "In specification of unit for parameter number " << p.i

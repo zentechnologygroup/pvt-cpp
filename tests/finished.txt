@@ -106,3 +106,12 @@ Revisar ./test-calibrate -f 113.json -P uo --below UobBeggsRobinson --above UoaV
 opción % que recupere los valores por sobre un %,2016-12-17 17:56:36 -0400,2016-12-18 16:44:14 -0400,,2016-12-18 16:44:44 -0400
 opción csv para opción -b,2016-12-16 17:29:55 -0400,2016-12-18 16:44:19 -0400,,2016-12-18 16:45:00 -0400
 Hay que verificar que cuando se extrae data las unidades sean convertidas a las esperadas,2016-12-10 15:39:22 -0400,2016-12-18 19:52:05 -0400,para ello hay que revisar las llamadas a values(),2016-12-19 11:46:43 -0400
+eliminar case property en test-grid y susituir por metallamada,2016-12-21 19:34:34 -0400,2016-12-22 11:28:52 -0400,,2016-12-22 11:42:49 -0400
+test-grid maneja mal las unidades psia == psig,2016-12-19 18:16:48 -0400,2016-12-22 11:42:54 -0400,,2016-12-22 11:43:00 -0400
+verificar unidades para cada par en test-grid (rutina format_table),2016-12-16 17:31:36 -0400,2016-12-22 11:43:12 -0400,,2016-12-22 11:54:13 -0400
+script que compare grids,2016-12-14 17:56:44 -0400,2016-12-22 11:43:17 -0400,,2016-12-22 11:54:15 -0400
+csv grid está sacando mal la tag de temperature,2016-12-14 17:48:31 -0400,2016-12-22 11:54:26 -0400,,2016-12-22 11:54:28 -0400
+Resolver: ajustes fueron calculados en una unidad. Cómo asegurar el ajuste si la unidad cambia?,2016-12-12 18:16:56 -0400,2016-12-22 11:54:40 -0400,,2016-12-22 11:54:46 -0400
+poner cambio de unidades en plot-corr y test-calibrate,2016-12-10 18:26:50 -0400,2016-12-22 11:55:15 -0400,,2016-12-22 11:55:18 -0400
+dir backend,2016-12-08 16:30:29 -0400,2016-12-22 11:55:32 -0400,,2016-12-22 11:55:35 -0400
+verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos,2016-12-10 18:26:26 -0400,2016-12-22 11:55:46 -0400,,2016-12-22 11:55:50 -0400
