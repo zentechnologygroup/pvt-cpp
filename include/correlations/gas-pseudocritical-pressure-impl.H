@@ -4,22 +4,22 @@
 # include <correlations/gas-pseudocritical-pressure.H>
 
 inline Quantity<psia>
-PscHCStanding::impl(const Quantity<Sgg> & yghc) const
+PpchcStanding::impl(const Quantity<Sgg> & yghc) const
 {
   const double raw_yghc = yghc.raw();
-  const double pschc = 677 + 15*raw_yghc - 37.5*raw_yghc*raw_yghc;
-  return Quantity<psia>(pschc);
+  const double ppchc = 677 + 15*raw_yghc - 37.5*raw_yghc*raw_yghc;
+  return Quantity<psia>(ppchc);
 }
 
 inline Quantity<psia>
-PscHcSutton::impl(const Quantity<Sgg> & yghc) const
+PpchcSutton::impl(const Quantity<Sgg> & yghc) const
 {
-  const double pschc = 756.8 - 131.0 * yghc.raw() - 3.6 * pow(yghc, 2);
-  return Quantity<psia>(pschc);
+  const double ppchc = 756.8 - 131.0 * yghc.raw() - 3.6 * pow(yghc, 2);
+  return Quantity<psia>(ppchc);
 }
 
 inline Quantity<psia>
-PscHCGuoGhalambor::impl(const Quantity<Sgg> & yghc,
+PpchcGuoGhalambor::impl(const Quantity<Sgg> & yghc,
 			const Quantity<MoleFraction> &,
 			const Quantity<MoleFraction> &) const
 {
@@ -31,13 +31,13 @@ PscHCGuoGhalambor::impl(const Quantity<Sgg> & yghc,
   //     throw domain_error(s.str());
   //   }
 
-  const double pschc = 709.604 - 58.718*yghc.raw();
+  const double ppchc = 709.604 - 58.718*yghc.raw();
 
-  return Quantity<psia>(pschc);
+  return Quantity<psia>(ppchc);
 }
 
 inline Quantity<psia>
-PscAhmed::impl(const Quantity<Sgg> & yghc,
+PpcAhmed::impl(const Quantity<Sgg> & yghc,
 	       const Quantity<MoleFraction> & n2_concentration,
 	       const Quantity<MoleFraction> & co2_concentration,
 	       const Quantity<MoleFraction> & h2s_concentration) const
@@ -46,28 +46,28 @@ PscAhmed::impl(const Quantity<Sgg> & yghc,
   if (n2_concentration.raw() + co2_concentration.raw() + h2s_concentration.raw() >= 1)
     {
       ostringstream s;
-      s << "In PscAhmed::impl: invalid values for nonhydrocarbon concentrations.";
+      s << "In PpcAhmed::impl: invalid values for nonhydrocarbon concentrations.";
       throw domain_error(s.str());
     }
 
-  const double psc = 678 - 50*(yghc.raw() - 0.5) - 206.7*n2_concentration.raw() +
+  const double ppc = 678 - 50*(yghc.raw() - 0.5) - 206.7*n2_concentration.raw() +
     440*co2_concentration.raw() + 606.7*h2s_concentration.raw();
 
-  return Quantity<psia>(psc);
+  return Quantity<psia>(ppc);
 }
 
 inline Quantity<psia>
-PscHCStandingHeavierFractions::impl (const Quantity<Sgg> & yghc) const
+PpchcStandingHeavierFractions::impl(const Quantity<Sgg> & yghc) const
 { 
-  const double pschc = 706 - 51.7*yghc.raw() - 11.1*yghc.raw()*yghc.raw();
-  return Quantity<psia>(pschc);
+  const double ppchc = 706 - 51.7*yghc.raw() - 11.1*yghc.raw()*yghc.raw();
+  return Quantity<psia>(ppchc);
 }                                                                                   
 
 inline Quantity<psia>
-PscHCElsharkawyEtAl::impl(const Quantity<Sgg> & yghc) const
+PpchcElsharkawyEtAl::impl(const Quantity<Sgg> & yghc) const
 {
-  const double pschc = 787.06 - 147.34*yghc.raw() - 7.916*yghc.raw()*yghc.raw();
-  return Quantity<psia>(pschc);
+  const double ppchc = 787.06 - 147.34*yghc.raw() - 7.916*yghc.raw()*yghc.raw();
+  return Quantity<psia>(ppchc);
 }
 
 

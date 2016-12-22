@@ -824,24 +824,12 @@ DynList<DynList<double>> generate_uo_values()
   return vals;
 }
 
-void put_in_list(DynList<Correlation::NamedPar> &, size_t &) {}
-
-template <typename ... Args>
-void put_in_list(DynList<Correlation::NamedPar> & l, size_t & n,
-		 const Correlation::NamedPar & par, Args & ... args)
-{
-  l.insert(par);
-  ++n;
-  put_in_list(l, n, args...);
-}
-
 template <typename ... Args>
 VtlQuantity compute(const Correlation * corr_ptr,
 		    double c, double m, bool check,
 		    DynList<Correlation::NamedPar> & pars_list, Args ... args)
 {
-  size_t n = 0;
-  put_in_list(pars_list, n, args ...);
+  size_t n = insert_in_container(pars_list, args...);
   VtlQuantity ret = corr_ptr->tuned_compute_by_names(pars_list, c, m, check);
   for (; n; --n)
     pars_list.remove_first();
@@ -852,12 +840,29 @@ template <typename ... Args>
 double compute(const DefinedCorrelation & corr, bool check,
 	       DynList<Correlation::NamedPar> & pars_list, Args ... args)
 {
-  size_t n = 0;
-  put_in_list(pars_list, n, args ...);
+  size_t n = insert_in_container(pars_list, args ...);
   double ret = corr.compute_by_names(pars_list, check);
   for (; n; --n) 
     pars_list.remove_first();
   return ret;
+}
+
+void print_row(const DynList<double> & row)
+{
+  for (auto it = row.get_it(); it.has_curr(); it.next())
+    {
+      const auto & val = it.get_curr();
+      if (&val != &row.get_last())
+	cout << val << ",";
+      else
+	cout << val;
+    }
+  cout << endl;
+}
+
+inline VtlQuantity par(const Correlation::NamedPar & par)
+{
+  return VtlQuantity(*get<3>(par), get<2>(par));
 }
 
 void generate_grid()
@@ -869,6 +874,9 @@ void generate_grid()
   set_tsep();
   set_psep();
   set_pb();
+  set_h2s_concentration();
+  set_co2_concentration();
+  set_n2_concentration();
   set_rs_corr(true);
   set_bob_corr(true);
   set_boa_corr(true);
@@ -884,27 +892,28 @@ void generate_grid()
   if (above_corr_arg.isSet())
     error_msg("above option is incompatible with grid option");
 
-  DynList<Correlation::NamedPar> pb_pars_list =
-    load_constant_parameters({pb_corr});
+  // cálculo de constantes para Z
+  auto yghc =
+    YghcWichertAziz::get_instance().impl(par(yg_par),
+					 par(n2_concentration_par),
+					 par(co2_concentration_par),
+					 par(h2s_concentration_par));
+
+  auto pb_pars_list = load_constant_parameters({pb_corr});
   
-  DynList<Correlation::NamedPar> rs_pars_list =
+  auto rs_pars_list =
     load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
 
-  DynList<Correlation::NamedPar> uod_pars_list =
-    load_constant_parameters({uod_corr});
+  auto uod_pars_list = load_constant_parameters({uod_corr});
 
-  DynList<Correlation::NamedPar> bo_pars_list =
-    load_constant_parameters({bob_corr, boa_corr});
+  auto bo_pars_list = load_constant_parameters({bob_corr, boa_corr});
 
-  DynList<Correlation::NamedPar> co_pars_list =
-    load_constant_parameters({cob_corr, coa_corr});
+  auto co_pars_list = load_constant_parameters({cob_corr, coa_corr});
 
-  DynList<Correlation::NamedPar> uo_pars_list =
-    load_constant_parameters({uob_corr, uoa_corr});
+  auto uo_pars_list = load_constant_parameters({uob_corr, uoa_corr});
 
-  DynList<Correlation::NamedPar> po_pars_list =
-    load_constant_parameters({&PobBradley::get_instance(),
-	  &PoaBradley::get_instance()});
+  auto po_pars_list = load_constant_parameters({&PobBradley::get_instance(),
+	&PoaBradley::get_instance()});
 
   // Nuevo valor tiene que entrar de 1ro aqui
   cout << "po " << PobBradley::get_instance().unit.name
@@ -925,16 +934,13 @@ void generate_grid()
     {
       auto t_par = t_it.get_curr();
 
-      pb_pars.insert(t_par); // cálculo de pb
-      auto pb_val =
-	pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, check);
+      auto pb_val = // calculo de pb
+	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
       auto pb = pb_val.raw();
       auto pb_par = make_tuple(true, "pb", pb, &pb_val.unit);
-      pb_pars.remove_first(); // remove t_par
 
-      uod_pars_list.insert(t_par); // cálculo de uod
-      auto uod_val = uod_corr->compute_by_names(uod_pars_list, check);
-      uod_pars_list.remove_first();
+      // cálculo de uod
+      auto uod_val = compute(uod_corr, 0, 1, check, uod_pars_list, t_par);
 
       rs_pars_list.insert(t_par);
       rs_pars_list.insert(pb_par);
@@ -989,8 +995,8 @@ void generate_grid()
       po_pars_list.insert(make_tuple(true, "pb", pb, &pb_val.unit));
       po_pars_list.insert(make_tuple(true, "pobp", pobp.raw(), &pobp.unit));
 
-      size_t count = insert_in_container(row, get<2>(t_par), pb, uod_val.raw(),
-					 bobp.raw(), uobp.raw());
+      size_t n = insert_in_container(row, get<2>(t_par), pb, uod_val.raw(),
+				     bobp.raw(), uobp.raw());
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
@@ -1009,41 +1015,16 @@ void generate_grid()
 	  auto po = compute(po_corr, check, po_pars_list, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
 
-	  size_t count =
-	    insert_in_container(row, get<2>(p_par), rs, co, bo, uo, po);
-	  // row.insert(get<2>(p_par));
-	  // row.insert(rs);
-	  // row.insert(co);
-	  // row.insert(bo);
-	  // row.insert(uo);
-	  // row.insert(po);
-	  // nuevo valor tiene que entrar de último aquí
+	  size_t n = insert_in_container(row, get<2>(p_par), rs, co, bo, uo, po);
 
 	  assert(row.size() == 11);
 
-	  for (auto it = row.get_it(); it.has_curr(); it.next())
-	    {
-	      const auto & val = it.get_curr();
-	      if (&val != &row.get_last())
-		cout << val << ",";
-	      else
-		cout << val;
-	    }
-	  cout << endl;
+	  print_row(row);
 
-	  row.remove_first(); // po
-	  row.remove_first(); // uo
-	  row.remove_first(); // bo
-	  row.remove_first(); // uo
-	  row.remove_first(); // uo
-	  row.remove_first(); // p_par
+	  row.mutable_drop(n);
 	}
 
-      row.remove_first(); // uobp
-      row.remove_first(); // bobp
-      row.remove_first(); // uod
-      row.remove_first(); // pb
-      row.remove_first(); // t_par
+      row.mutable_drop(n);
 
       rs_pars_list.remove_first(); // pb_par
       rs_pars_list.remove_first(); // t_par

@@ -23,7 +23,7 @@ static json to_json(const CorrelationPar & p)
   j["unit"] = p.unit.symbol;
   j["physical_quantity"] = p.unit.physical_quantity.name;
   j["minimum_value"] = p.min_val.get_value();
-  j["minimum_value)unit"] = p.min_val.unit.symbol;
+  j["minimum_value_unit"] = p.min_val.unit.symbol;
   j["maximum_value"] = p.max_val.get_value();
   j["maximum_value_unit"] = p.min_val.unit.symbol;
   j["min_from_author"] = p.min_from_author;

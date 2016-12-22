@@ -55,3 +55,6 @@
 - Completed at 
 - Comment      oil density
 
+## 19. sustituir make_par por valor director; algo omo yg_vtl
+- Created at   2016-12-22 17:40:45 -0400
+

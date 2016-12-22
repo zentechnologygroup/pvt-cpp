@@ -177,18 +177,18 @@ struct CorrelationInstantiater
 
     SgoBakerSwerdloff::get_instance();
 
-    YgHCWichertAziz::get_instance();
-    PscMKayMixingRule::get_instance();
-    AdjustedPscMWichertAziz::get_instance();
-    TscMKayMixingRule::get_instance();
-    AdjustedTscMWichertAziz::get_instance();
+    YghcWichertAziz::get_instance();
+    PpcmKayMixingRule::get_instance();
+    PpcmWichertAzizAdjusted::get_instance();
+    TpcmKayMixingRule::get_instance();
+    TpcmWichertAzizAdjusted::get_instance();
 
-    PscHCStanding::get_instance();
-    PscHcSutton::get_instance();
-    PscHCGuoGhalambor::get_instance();
-    PscAhmed::get_instance();
-    PscHCElsharkawyEtAl::get_instance();
-    PscHCStandingHeavierFractions::get_instance();
+    PpchcStanding::get_instance();
+    PpchcSutton::get_instance();
+    PpchcGuoGhalambor::get_instance();
+    PpcAhmed::get_instance();
+    PpchcElsharkawyEtAl::get_instance();
+    PpchcStandingHeavierFractions::get_instance();
 
     UgCarrKB::get_instance();
     UgLeeGE::get_instance();
@@ -207,10 +207,10 @@ struct CorrelationInstantiater
     ZfactorBrillBeggs::get_instance();
     ZfactorPapay::get_instance();
 
-    TscHCStanding::get_instance();
-    TscHCStandingHeavierFractions::get_instance();
-    TscHCSutton::get_instance();
-    TpcHCElsharkawyEtAl::get_instance();
+    TpchcStanding::get_instance();
+    TpchcStandingHeavierFractions::get_instance();
+    TpchcSutton::get_instance();
+    TpchcElsharkawyEtAl::get_instance();
 
     CgSarem::get_instance();
     CgHallYarborough::get_instance();
