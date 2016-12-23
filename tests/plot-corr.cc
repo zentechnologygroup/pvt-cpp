@@ -113,12 +113,26 @@ void set_rsb()
   rsb_par = make_tuple(true, "rsb", rsb_arg.getValue(), rsb_unit);
 }
 
+inline VtlQuantity par(const Correlation::NamedPar & par)
+{
+  return VtlQuantity(*get<3>(par), get<2>(par));
+}
+
+inline Correlation::NamedPar npar(const string & name, const BaseQuantity & p)
+{
+  return make_tuple(true, name, p.raw(), &p.unit);
+}
+
+# define NPAR(par) npar(#par, par)
+
 ValueArg<double> yg_arg = { "", "yg", "yg", true, 0, "yg in Sgg", cmd };
 Correlation::NamedPar yg_par;
+VtlQuantity yg = VtlQuantity::null_quantity;
 void set_yg()
 {
   auto yg_unit = test_unit_change("yg", Sgg::get_instance());
   yg_par = make_tuple(true, "yg", yg_arg.getValue(), yg_unit);
+  yg.set(par(yg_par));
 }
 
 // optional command arguments
@@ -126,27 +140,32 @@ void set_yg()
 ValueArg<double> tsep_arg = { "", "tsep", "separator temperature", false, 0,
 			      "separator temperature in degF", cmd };
 Correlation::NamedPar tsep_par;
+VtlQuantity tsep = VtlQuantity::null_quantity;
 void set_tsep()
 {
   auto tsep_unit = test_unit_change("tsep", Fahrenheit::get_instance());
   tsep_par = make_tuple(tsep_arg.isSet(), "tsep",
 			tsep_arg.getValue(), tsep_unit);
+  tsep.set(par(tsep_par));
 }
 
 ValueArg<double> psep_arg = { "", "psep", "separator pressure", false, 0,
 			      "separator pressure in psia", cmd };
 Correlation::NamedPar psep_par;
+VtlQuantity psep = VtlQuantity::null_quantity;
 void set_psep()
 {
   auto psep_unit = test_unit_change("psep", psia::get_instance());
   psep_par = make_tuple(psep_arg.isSet(), "psep",
 			psep_arg.getValue(), psep_unit);
+  psep.set(par(psep_par));
 }
 
 ValueArg<double> n2_concentration_arg =
   { "", "n2-concentration", "n2-concentration", false, 0,
     "n2-concentration in MolePercent", cmd };
 Correlation::NamedPar n2_concentration_par;
+VtlQuantity n2_concentration = VtlQuantity::null_quantity;
 void set_n2_concentration()
 {
   auto n2_concentration_unit = test_unit_change("n2-concentration",
@@ -155,12 +174,14 @@ void set_n2_concentration()
 				    "n2_concentration",
 				    n2_concentration_arg.getValue(),
 				    n2_concentration_unit);
+  n2_concentration.set(par(n2_concentration_par));
 }
 
 ValueArg<double> co2_concentration_arg =
   { "", "co2-concentration", "co2-concentration", false, 0,
     "co2-concentration in MolePercent", cmd };
 Correlation::NamedPar co2_concentration_par;
+VtlQuantity co2_concentration = VtlQuantity::null_quantity;
 void set_co2_concentration()
 {
   auto co2_concentration_unit = test_unit_change("co2-concentration",
@@ -169,12 +190,14 @@ void set_co2_concentration()
 				     "co2_concentration",
 				     co2_concentration_arg.getValue(),
 				     co2_concentration_unit);
+  co2_concentration.set(par(co2_concentration_par));
 }
 
 ValueArg<double> h2s_concentration_arg =
   { "", "h2s-concentration", "h2s-concentration", false, 0,
     "h2s-concentration in MolePercent", cmd };
 Correlation::NamedPar h2s_concentration_par;
+VtlQuantity h2s_concentration = VtlQuantity::null_quantity;
 void set_h2s_concentration()
 {
   auto h2s_concentration_unit = test_unit_change("h2s-concentration",
@@ -183,6 +206,7 @@ void set_h2s_concentration()
 				     "h2s_concentration",
 				     h2s_concentration_arg.getValue(),
 				     h2s_concentration_unit);
+  h2s_concentration.set(par(h2s_concentration_par));
 }
 
 ValueArg<double> c_pb_arg = { "", "c-pb", "pb adjustment", false, 0,
@@ -238,14 +262,16 @@ void set_correlation(ValueArg<string> & corr_name_arg,
 		     bool force_set = false)
 {
   if (force_set and not corr_name_arg.isSet())
-    error_msg("Correlation fo "+ target_name +
-	      " has not been specified in command line");
+    error_msg("Correlation for "+ target_name +
+	      " has not been specified in command line (" +
+	      corr_name_arg.longID() + ")");
   if (not corr_name_arg.isSet())
     return;
   const string & corr_name = corr_name_arg.getValue();
   corr_ptr = Correlation::search_by_name(corr_name);
   if (corr_ptr == nullptr)
-    error_msg("Correlation for rs " + corr_name +  " not found");
+    error_msg("Correlation for " + target_name + " " +
+	      corr_name +  " not found");
   if (corr_ptr->target_name() != target_name)
     error_msg("Correlation " + corr_ptr->name + " is not for " + target_name);
 }
@@ -314,6 +340,14 @@ ValueArg<string> uoa_corr_arg = { "", "uoa", "correlation for uoa", false, "",
 const Correlation * uoa_corr = nullptr;
 void set_uoa_corr(bool force = false)
 { set_correlation(uoa_corr_arg, "uoa", uoa_corr, force); }
+
+ValueArg<string> ppchc_corr_arg = { "", "ppchc", "Correlation for ppchc",
+				    false, "", "Correlation for ppchc", cmd };
+const Correlation * ppchc_corr = nullptr;
+void set_ppchc_corr()
+{
+  set_correlation(ppchc_corr_arg, "ppchc", ppchc_corr, true);
+}
 
 SwitchArg grid_arg = { "", "grid", "generate grid for all", cmd };
 
@@ -608,6 +642,21 @@ double compute(const DefinedCorrelation & corr, bool check,
   return ret;
 }
 
+template <typename ... Args> inline
+VtlQuantity compute(const Correlation * corr_ptr,
+		    double c, double m, bool check, Args ... args)
+{
+  DynList<Correlation::NamedPar> pars_list;
+  return compute(corr_ptr, c, m, check, pars_list, args...);
+}
+
+template <typename ... Args> inline
+double compute(const DefinedCorrelation & corr, bool check, Args ... args)
+{
+  DynList<Correlation::NamedPar> pars_list;
+  return compute(corr, check, pars_list, args...);
+}
+
 /// target, p, t
 DynList<DynList<double>> generate_rs_values()
 {
@@ -821,11 +870,6 @@ void print_row(const DynList<double> & row)
   cout << endl;
 }
 
-inline VtlQuantity par(const Correlation::NamedPar & par)
-{
-  return VtlQuantity(*get<3>(par), get<2>(par));
-}
-
 void generate_grid()
 {
   set_check();
@@ -846,6 +890,7 @@ void generate_grid()
   set_coa_corr(true);
   set_uob_corr(true);
   set_uoa_corr(true);
+  set_ppchc_corr();
   set_t_range();
   set_p_range();
   if (below_corr_arg.isSet())
@@ -855,11 +900,12 @@ void generate_grid()
 
   // cálculo de constantes para Z
   auto yghc =
-    YghcWichertAziz::get_instance().impl(par(yg_par),
-					 par(n2_concentration_par),
-					 par(co2_concentration_par),
-					 par(h2s_concentration_par));
-
+    YghcWichertAziz::get_instance().impl(yg, n2_concentration,
+					 co2_concentration, h2s_concentration);
+  auto ppchc = compute(ppchc_corr, 0, 1, check, NPAR(yghc),
+		       NPAR(n2_concentration), NPAR(co2_concentration),
+		       NPAR(h2s_concentration));
+		       
   auto pb_pars_list = load_constant_parameters({pb_corr});
   
   auto rs_pars_list =

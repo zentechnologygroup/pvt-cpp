@@ -114,7 +114,7 @@ Generación de gráficos de bo con los mejores ajustes
 Generación de grid sin ajustes
 ------------------------------
 
-./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --rs RsVasquezBeggs --bob BobVasquezBeggs --boa BoaVasquezBeggs --uod UodBeggsRobinson --uob UobBeggsRobinson --uoa UoaVasquezBeggs --cob CobMcCainEtAl --coa CoaVasquezBeggs --grid --unit "p psig"
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --rs RsVasquezBeggs --bob BobVasquezBeggs --boa BoaVasquezBeggs --uod UodBeggsRobinson --uob UobBeggsRobinson --uoa UoaVasquezBeggs --cob CobMcCainEtAl --coa CoaVasquezBeggs --grid --unit "p psig" --ppchc PpchcStanding
 
 Generación de grid con ajustes
 ------------------------------

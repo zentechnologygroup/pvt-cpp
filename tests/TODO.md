@@ -57,4 +57,5 @@
 
 ## 19. sustituir make_par por valor director; algo omo yg_vtl
 - Created at   2016-12-22 17:40:45 -0400
+- Completed at 2016-12-23 10:51:27 -0400
 

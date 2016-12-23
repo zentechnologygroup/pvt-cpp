@@ -1094,6 +1094,13 @@ private:
 
 public:
 
+  static const VtlQuantity null_quantity;
+
+  void set(const BaseQuantity & q)
+  {
+    new (this) VtlQuantity(q.unit, q.raw());
+  }
+
   VtlQuantity(const string & unit_name, double val = 0)
     : BaseQuantity(unit_given_name(unit_name), val)
   {
@@ -1147,7 +1154,7 @@ public:
     if (this == &q)
       return *this;
 
-    if (&unit.physical_quantity == &q.unit.physical_quantity)
+    if (&unit.physical_quantity == &q.unit.physical_quantity)	
       {
 	value = q.get_value();
 	return *this;

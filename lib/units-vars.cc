@@ -30,6 +30,8 @@ const Unit Unit::null_unit("NullUnit", "Null Unit", "Null unit",
 			   PhysicalQuantity::null_physical_quantity,
 			   0.0, 1.0, 0.1);
 
+const VtlQuantity VtlQuantity::null_quantiaty(Unit::null_unit, 0);
+
 bool conversion_exist(const char * src_symbol, const char * tgt_symbol)
 {
   std::lock_guard<std::mutex> critical_section(unit_mutex);
