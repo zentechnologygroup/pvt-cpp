@@ -71,8 +71,9 @@ class Table
     bo = get_property 'bo', zen_vals, pe_vals, zen_names, pe_names
     uo = get_property 'uo', zen_vals, pe_vals, zen_names, pe_names
     po = get_property 'po', zen_vals, pe_vals, zen_names, pe_names
+    z = get_property 'zfactor', zen_vals, pe_vals, zen_names, pe_names
     
-    values = pb.zip(rs, bo, uo, po).map { |e| e.inject(:+) }
+    values = pb.zip(rs, bo, uo, po, z).map { |e| e.inject(:+) }
 
     @zen_vals = zen_vals
 
@@ -101,7 +102,7 @@ class Table
 
   @@header = ['t', 'p', 'pb zen', 'pb pe', 'pb %', 'rs zen', 'rs pe', 'rs %',
               'bo zen', 'bo pe', 'bo %', 'uo zen', 'uo pe', 'uo %',
-              'po zen', 'po pe', 'po %']
+              'po zen', 'po pe', 'po %', 'z zen', 'z pe', 'z %']
 
   def format(thash = @table, decs = 2)
     table = thash.map { |k, vals| k + vals }
@@ -160,6 +161,8 @@ class Table
 
   def po(t, p) values t, p, 12 end
 
+  def z(t, p) values t, p, 15 end
+
   def pb_s(t, p) "#{t} #{p}" + to_s('pb', pb(t, p)) end
 
   def rs_s(t, p) "#{t} #{p}" + to_s('rs', rs(t, p)) end
@@ -169,6 +172,8 @@ class Table
   def uo_s(t, p) "#{t} #{p}" + to_s('uo', uo(t, p)) end
 
   def po_s(t, p) "#{t} #{p}" + to_s('po', po(t, p)) end
+
+  def z_s(t, p) "#{t} #{p}" + to_s('z', po(t, p)) end
 
   def subset(i, per)
     list = @table.select { |k, vals| vals[i + 2] >= per }.
@@ -185,6 +190,8 @@ class Table
   def uo_subset(per) subset 9, per end
 
   def po_subset(per) subset 12, per end
+
+  def z_subset(per) subset 15, per end
 end
 
 options = {}
@@ -211,8 +218,12 @@ options_parser = OptionParser.new do |opts|
     options[:property] = property
   end
 
-  opts.on('-Z', '--ZEN', 'Property name') do |property|
+  opts.on('-Z', '--ZEN', 'Zen Property name') do |property|
     options[:zen_property] = true
+  end
+
+  opts.on('-R', '--R', 'generate R code for -G property') do |property|
+    options[:R] = true
   end
 
   opts.on('-% PERCENTAGE', '--percentage PERCENTAGE',
@@ -269,6 +280,12 @@ if t && p
 else
   lines = data.format
 end
+
+if options[:R]
+  fail "Not yet implemented"
+end
+
+fail "Property request (option -G) without t and p parameters" if property
 
 lines.each do |l|
   print "#{l[0]} #{l[1]} "

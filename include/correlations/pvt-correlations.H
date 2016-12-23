@@ -179,9 +179,9 @@ struct CorrelationInstantiater
 
     YghcWichertAziz::get_instance();
     PpcmKayMixingRule::get_instance();
-    PpcmWichertAzizAdjusted::get_instance();
+    AdjustedppcmWichertAziz::get_instance();
     TpcmKayMixingRule::get_instance();
-    TpcmWichertAzizAdjusted::get_instance();
+    AdjustedtpcmWichertAziz::get_instance();
 
     PpchcStanding::get_instance();
     PpchcSutton::get_instance();

@@ -349,6 +349,65 @@ void set_ppchc_corr()
   set_correlation(ppchc_corr_arg, "ppchc", ppchc_corr, true);
 }
 
+ValueArg<string> ppcm_mixing_corr_arg =
+  { "", "ppcm-mixing", "Correlation for ppcm mixing rule",
+    false, "PpcmKayMixingRule", "Correlation for ppcm mixing rule", cmd };
+const Correlation * ppcm_mixing_corr = nullptr;
+void set_ppcm_mixing_corr()
+{
+  ppcm_mixing_corr = &PpcmKayMixingRule::get_instance(); // mandotory here!
+  set_correlation(ppcm_mixing_corr_arg, "ppccm", ppcm_mixing_corr, false);
+}
+
+ValueArg<string> adjustedppcm_corr_arg =
+  { "", "adjustedppcm", "Correlation for ajustedppcm",
+    false, "AdjustedppcmWichertAziz", "Correlation for adjustedppcm", cmd };
+const Correlation * adjustedppcm_corr = nullptr;
+void set_adjustedppcm_corr()
+{
+  adjustedppcm_corr = &AdjustedppcmWichertAziz::get_instance(); // mandotory here!
+  set_correlation(adjustedppcm_corr_arg, "adjustedppccm",
+		  adjustedppcm_corr, false);
+}
+
+ValueArg<string> tpchc_corr_arg = { "", "tpchc", "Correlation for tpchc",
+				    false, "", "Correlation for tpchc", cmd };
+const Correlation * tpchc_corr = nullptr;
+void set_tpchc_corr()
+{
+  set_correlation(tpchc_corr_arg, "tpchc", tpchc_corr, true);
+}
+
+ValueArg<string> tpcm_mixing_corr_arg =
+  { "", "tpcm", "Correlation for tpcm mixing rule",
+    false, "TpcmKayMixingRule", "Correlation for tpcm mixing rule", cmd };
+const Correlation * tpcm_mixing_corr = nullptr;
+void set_tpcm_mixing_corr()
+{
+  tpcm_mixing_corr = &TpcmKayMixingRule::get_instance(); // mandotory here!
+  set_correlation(tpcm_mixing_corr_arg, "tpcm", tpcm_mixing_corr, false);
+}
+
+ValueArg<string> adjustedtpcm_corr_arg =
+  { "", "adjustedtpcm", "Correlation for adjustedtpcm",
+    false, "AdjustedtpcmWichertAziz", "Correlation for adjustedtpcm", cmd };
+const Correlation * adjustedtpcm_corr = nullptr;
+void set_adjustedtpcm_corr()
+{
+  adjustedtpcm_corr = &AdjustedtpcmWichertAziz::get_instance(); // mandotory here!
+  set_correlation(adjustedtpcm_corr_arg, "adjustedtpcm", adjustedtpcm_corr, false);
+}
+
+ValueArg<string> zfactor_corr_arg =
+  { "", "zfactor", "Correlation for zfactor", false, "",
+    "Correlation for zfactor", cmd };
+
+const Correlation * zfactor_corr = nullptr;
+void set_zfactor_corr()
+{
+  set_correlation(zfactor_corr_arg, "zfactor", zfactor_corr, true);
+}
+
 SwitchArg grid_arg = { "", "grid", "generate grid for all", cmd };
 
 struct RangeDesc
@@ -857,15 +916,17 @@ DynList<DynList<double>> generate_uo_values()
   return vals;
 }
 
+# define INVALID_VALUE numeric_limits<double>::max()
+
 void print_row(const DynList<double> & row)
 {
   for (auto it = row.get_it(); it.has_curr(); it.next())
     {
       const auto & val = it.get_curr();
-      if (&val != &row.get_last())
-	cout << val << ",";
-      else
+      if (val != INVALID_VALUE)
 	cout << val;
+      if (&val != &row.get_last())
+	cout << ",";
     }
   cout << endl;
 }
@@ -882,6 +943,7 @@ void generate_grid()
   set_h2s_concentration();
   set_co2_concentration();
   set_n2_concentration();
+  
   set_rs_corr(true);
   set_bob_corr(true);
   set_boa_corr(true);
@@ -891,6 +953,13 @@ void generate_grid()
   set_uob_corr(true);
   set_uoa_corr(true);
   set_ppchc_corr();
+  set_tpchc_corr();
+  set_ppcm_mixing_corr();
+  set_tpcm_mixing_corr();
+  set_adjustedppcm_corr();
+  set_adjustedtpcm_corr();
+  set_zfactor_corr();
+
   set_t_range();
   set_p_range();
   if (below_corr_arg.isSet())
@@ -905,7 +974,25 @@ void generate_grid()
   auto ppchc = compute(ppchc_corr, 0, 1, check, NPAR(yghc),
 		       NPAR(n2_concentration), NPAR(co2_concentration),
 		       NPAR(h2s_concentration));
+  auto ppcm = compute(ppcm_mixing_corr, 0, 1, check, NPAR(ppchc),
+		      NPAR(n2_concentration), NPAR(co2_concentration),
+		      NPAR(h2s_concentration));
 		       
+  auto tpchc = compute(tpchc_corr, 0, 1, check, NPAR(yghc));
+  auto tpcm = compute(tpcm_mixing_corr, 0 ,1, check, NPAR(tpchc),
+		      NPAR(n2_concentration), NPAR(co2_concentration),
+		      NPAR(h2s_concentration));
+
+  auto adjustedppcm = compute(adjustedppcm_corr, 0, 1, check, NPAR(ppcm),
+			      NPAR(tpcm), NPAR(co2_concentration),
+			      NPAR(h2s_concentration));
+
+  auto adjustedtpcm = compute(adjustedtpcm_corr, 0, 1, check, NPAR(ppcm),
+			      NPAR(tpcm), NPAR(co2_concentration),
+			      NPAR(h2s_concentration));
+
+  
+
   auto pb_pars_list = load_constant_parameters({pb_corr});
   
   auto rs_pars_list =
@@ -923,7 +1010,8 @@ void generate_grid()
 	&PoaBradley::get_instance()});
 
   // Nuevo valor tiene que entrar de 1ro aqui
-  cout << "po " << PobBradley::get_instance().unit.name
+  cout << "zfactor " << Zfactor::get_instance().name
+       << ",po " << PobBradley::get_instance().unit.name
        << ",uo " << uob_corr->unit.name
        << ",bo " << bob_corr->unit.name
        << ",co " << cob_corr->unit.name
@@ -940,6 +1028,7 @@ void generate_grid()
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       auto t_par = t_it.get_curr();
+      auto tpr_val = Tpr::get_instance().impl(par(t_par), adjustedtpcm);
 
       auto pb_val = // calculo de pb
 	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
@@ -1008,6 +1097,7 @@ void generate_grid()
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  auto p_par = p_it.get_curr();
+	  auto ppr_val = Ppr::get_instance().impl(par(p_par), adjustedppcm);
 
 	  auto rs = compute(rs_corr, check, rs_pars_list, p_par);
 	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
@@ -1022,9 +1112,17 @@ void generate_grid()
 	  auto po = compute(po_corr, check, po_pars_list, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
 
-	  size_t n = insert_in_container(row, get<2>(p_par), rs, co, bo, uo, po);
+	  double zfactor = INVALID_VALUE;
+	  try
+	    {
+	      zfactor = zfactor_corr->compute(ppr_val, tpr_val).raw();
+	    }
+	  catch (domain_error) { /* ignore it! */ }
 
-	  assert(row.size() == 11);
+	  size_t n = insert_in_container(row, get<2>(p_par), rs, co, bo, uo, po,
+					 zfactor);
+
+	  assert(row.size() == 12);
 
 	  print_row(row);
 

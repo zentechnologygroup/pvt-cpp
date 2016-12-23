@@ -48,7 +48,7 @@ PpcmKayMixingRule::impl(const Quantity<psia> & ppchc,
 }
 
 inline Quantity<psia>
-PpcmWichertAzizAdjusted::impl(const Quantity<psia> & ppcm,
+AdjustedppcmWichertAziz::impl(const Quantity<psia> & ppcm,
 			      const Quantity<Fahrenheit> & tpcm,
 			      const Quantity<MoleFraction> & co2_concentration,
 			      const Quantity<MoleFraction> & h2s_concentration)
@@ -57,7 +57,7 @@ PpcmWichertAzizAdjusted::impl(const Quantity<psia> & ppcm,
   if (co2_concentration.raw() + h2s_concentration.raw() >= 1)
     {
       ostringstream s;
-      s << "In AdjustedPpcMWichertAziz::impl: invalid values for nonhydrocarbon concentrations.";
+      s << "In AdjustedppcMWichertAziz::impl: invalid values for nonhydrocarbon concentrations.";
       throw domain_error(s.str());
     }
 
@@ -98,7 +98,7 @@ TpcmKayMixingRule::impl(const Quantity<Rankine> & tpchc,
 }
 
 inline Quantity<Rankine>
-TpcmWichertAzizAdjusted::impl(const Quantity<Rankine> & tpcm,
+AdjustedtpcmWichertAziz::impl(const Quantity<Rankine> & tpcm,
 			      const Quantity<MoleFraction> & co2_concentration,
 			      const Quantity<MoleFraction> & h2s_concentration)
   const
@@ -106,7 +106,7 @@ TpcmWichertAzizAdjusted::impl(const Quantity<Rankine> & tpcm,
   if (co2_concentration.raw() + h2s_concentration.raw() >= 1)
     {
       ostringstream s;
-      s << "In AdjustedTpcmWichertAziz::impl: invalid values for nonhydrocarbon concentrations.";
+      s << "In AdjustedtpcmWichertAziz::impl: invalid values for nonhydrocarbon concentrations.";
       throw domain_error(s.str());
     }
 

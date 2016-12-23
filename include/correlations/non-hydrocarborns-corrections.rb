@@ -33,7 +33,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("PpcmWichertAzizAdjusted", "GasPseudocriticalPressure", "psia")
+begin_correlation("AdjustedppcmWichertAziz", "GasPseudocriticalPressure", "psia")
 add_title("WICHERT & AZIZ CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE WHOLE GAS MIXTURE")
 add_parameter("ppcm", "psia", "Gas pseudocritical pressure of the mixture", 154, 7026)
 add_parameter("tpcm", "Fahrenheit", "Gas pseudocritical temperature of the mixture", 40, 300)
@@ -66,7 +66,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("TpcmWichertAzizAdjusted", "GasPseudocriticalTemperature",
+begin_correlation("AdjustedtpcmWichertAziz", "GasPseudocriticalTemperature",
                   "Rankine")
 add_title("WICHERT & AZIZ CORRELATION, CALCULATION OF PSEUDOCRITICAL TEMPERATURE OF THE WHOLE GAS MIXTURE")
 add_parameter("tpcm", "Rankine", "Gas pseudocritical temperature of the mixture", "Quantity<Fahrenheit>(40)", "Quantity<Fahrenheit>(300)") 

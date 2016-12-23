@@ -59,3 +59,12 @@
 - Created at   2016-12-22 17:40:45 -0400
 - Completed at 2016-12-23 10:51:27 -0400
 
+## 20. option para generar R en test-grid
+- Created at   2016-12-23 17:10:49 -0400
+
+## 21. compute en Correlatin puede metaprogramarse mejor si se valida directamente el parámetro
+- Created at   2016-12-23 17:14:02 -0400
+
+## 22. métodos de test-grid con prefijo propiedad pueden meta generarse
+- Created at   2016-12-23 17:27:17 -0400
+

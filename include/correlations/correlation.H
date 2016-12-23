@@ -705,6 +705,14 @@ public:
   virtual
   VtlQuantity compute(const DynList<VtlQuantity> &, bool check = true) const = 0;
 
+  template <typename ... Args>
+  VtlQuantity compute(Args ... args) const
+  {
+    DynList<VtlQuantity> pars_list;
+    append_in_container(pars_list, args ...);
+    return compute(pars_list);
+  }
+
   VtlQuantity compute_and_check(const DynList<VtlQuantity> & pars,
 				bool check = true) const
   {
