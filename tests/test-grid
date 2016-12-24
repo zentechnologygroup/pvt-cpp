@@ -25,7 +25,7 @@ class Table
     vals.map { |pair, row| [pair, row[names[name]].to_f] }.to_h
   end
 
-  def access_convert(vals, names, name)
+  def access_and_convert(vals, names, name)
     m = vals.map { |pair, row| [pair, row[names[name]]] }
     zen_unit = @zen_units[name]
     pe_unit = @pe_units[name]
@@ -52,7 +52,7 @@ class Table
 
   def get_property(name, zen_vals, pe_vals, zen_names, pe_names)
     zen_v = access zen_vals, zen_names, name
-    pe_v = access_convert pe_vals, pe_names, name
+    pe_v = access_and_convert pe_vals, pe_names, name
     error_v = errors zen_v, pe_v
     combine zen_v, pe_v, error_v
   end
@@ -106,12 +106,53 @@ class Table
     [e[i], e[i + 1], e[i + 2].round(2)]
   end
 
+  def to_R(pair) "#{pair[0]} <- c(#{pair[1].join(',')})" end
+
+  def plot_R(xpair, ypair, *yrest)
+    s = "#{to_R(xpair)}\n"\
+        "#{to_R(ypair)}\n"
+    yrest.each { |pair| s += "#{to_R(pair)}\n" }
+    ys = ypair[1] + yrest.map{ |e| e[1] }
+    ymax = ys.min
+    ymin = ys.max
+    s += "plot(#{xpair[0]}, #{ypair[0]}, ylim=c(#{ymin}, #{ymax}))"
+    cnames = ypair[0]
+    yrest.each_with_index do |pair, i|
+      s += "lines(#{xpair[0]}, #{pair[0]}, col = #{i+1})\n"
+      cnames << pair[0]
+    end
+    s += "#{to_R(['cnames', cnames])}\n"
+         "#{to_R(['cols', 1..yrest.size - 1])}\n"
+  end
+
   def to_s(name, t) " #{name} = #{t[0]} #{t[1]} #{t[2].round(2)}" end
 
   def subset(i, per)
     list = @table.select { |k, vals| vals[i + 2] >= per }.
            map { |k, vals| k + [vals[i], vals[i + 1], vals[i + 2]] }.
            map { |e| "#{e[0]} #{e[1]} #{e[2]} #{e[3]} #{e[4].round(2)}" }
+  end
+
+  @@properties = ['pb', 'rs', 'bo', 'uo', 'po', 'zfactor']
+
+  def check_property(property) @@properties.include? property end
+
+  def pressures(property)
+    property_index = @@properties.find_index property
+    fail "property #{property} not found" unless property_index
+    property_index = 3*property_index + 1
+    pressures = {}
+    @table.each do |pair, vals|
+      p = pair[1]
+      val = vals[property_index]
+      entry = pressures[p]
+      if entry
+        entry << val
+      else
+        pressures[p] = [val]
+      end
+    end
+    pressures
   end
 
   def self.define_components(name, offset)
@@ -126,9 +167,7 @@ class Table
     end
   end
 
-  @@properties = ['pb', 'rs', 'bo', 'uo', 'po', 'zfactor']
-
-  def build_table(zen_vals, pe_vals, zen_names, pe_names)
+  def build_tables(zen_vals, pe_vals, zen_names, pe_names)
     keys = zen_vals.map do |pair, row|
       pe_row = pe_vals[pair]
       fail "pe entry for t = #{pair[0]} p = #{pair[1]} not found" unless pe_row
@@ -157,8 +196,8 @@ class Table
     @pe_units = pe_headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
     pe_names = pe_headers.map { |h| [h.split[0], h] }.to_h
 
-    @table = build_table(map_values(zen_rows, @zen_names),
-                         map_values(pe_rows, pe_names), @zen_names, pe_names)
+    @table = build_tables(map_values(zen_rows, @zen_names),
+                          map_values(pe_rows, pe_names), @zen_names, pe_names)
   end
 end
 
@@ -190,8 +229,8 @@ options_parser = OptionParser.new do |opts|
     options[:zen_property] = true
   end
 
-  opts.on('-R', '--R', 'generate R code for -G property') do |property|
-    options[:R] = true
+  opts.on('-R x', '--R x', 'generate R code for -G property and x') do |x|
+    options[:R] = x
   end
 
   opts.on('-% PERCENTAGE', '--percentage PERCENTAGE',
@@ -212,14 +251,29 @@ data = Table.new(zen_name, pe_name)
 
 t = options[:temp]
 p = options[:pressure]
+property = options[:property]
+property.downcase! if property
 
-if options[:R]
-  fail "Not yet implemented"
+r = options[:R]
+if r
+  fail 'R option must be p or t' if r != 'p' && r != 't'
+  fail 'R option without -G property' unless property
+  fail "invalid property #{property}" unless data.check_property property
+  if r == 'p'
+    values = data.pressures(property)
+    values.each do |v|
+      puts "#{v}"
+    end
+    exit
+  end
+  if r == 't'
+    fail "-R t Not yet implemented"
+    exit
+  end
+
 end
 
 missing = (t && !p) || (!t && p)
-property = options[:property]
-property.downcase! if property
 value_requested = t && p && property
 
 fail 'option -T temp and -P pressure must be used together' if missing
