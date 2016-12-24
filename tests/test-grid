@@ -13,8 +13,6 @@ SolidAssert.enable_assertions
 
 class Table
 
-  private
-  
   def map_values(rows, names)
     rows.map do |row|
       t = row[names['t']]
@@ -57,47 +55,6 @@ class Table
     pe_v = access_convert pe_vals, pe_names, name
     error_v = errors zen_v, pe_v
     combine zen_v, pe_v, error_v
-  end
-
-  def build_table(zen_vals, pe_vals, zen_names, pe_names)
-    keys = zen_vals.map do |pair, row|
-      pe_row = pe_vals[pair]
-      fail "pe entry for t = #{pair[0]} p = #{pair[1]} not found" unless pe_row
-      [pair[0].to_f, pair[1].to_f]
-    end
-
-    pb = get_property 'pb', zen_vals, pe_vals, zen_names, pe_names
-    rs = get_property 'rs', zen_vals, pe_vals, zen_names, pe_names
-    bo = get_property 'bo', zen_vals, pe_vals, zen_names, pe_names
-    uo = get_property 'uo', zen_vals, pe_vals, zen_names, pe_names
-    po = get_property 'po', zen_vals, pe_vals, zen_names, pe_names
-    z = get_property 'zfactor', zen_vals, pe_vals, zen_names, pe_names
-    
-    values = pb.zip(rs, bo, uo, po, z).map { |e| e.inject(:+) }
-
-    @zen_vals = zen_vals
-
-    keys.zip(values).to_h
-  end
-
-  public
-  
-  attr_reader :table
-
-  def initialize(zen_name, pe_name)
-    zen_rows = CSV.read(zen_name, headers: true)
-    pe_rows = CSV.read(pe_name, headers: true)
-
-    zen_headers = zen_rows.headers
-    @zen_units = zen_headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
-    @zen_names = zen_headers.map { |h| [h.split[0], h] }.to_h
-
-    pe_headers = pe_rows.headers
-    @pe_units = pe_headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
-    pe_names = pe_headers.map { |h| [h.split[0], h] }.to_h
-
-    @table = build_table(map_values(zen_rows, @zen_names),
-                         map_values(pe_rows, pe_names), @zen_names, pe_names)
   end
 
   @@header = ['t', 'p', 'pb zen', 'pb pe', 'pb %', 'rs zen', 'rs pe', 'rs %',
@@ -151,47 +108,58 @@ class Table
 
   def to_s(name, t) " #{name} = #{t[0]} #{t[1]} #{t[2].round(2)}" end
 
-  def pb(t, p) values t, p, 0 end
-
-  def rs(t, p) values t, p, 3 end
-
-  def bo(t, p) values t, p, 6 end
-
-  def uo(t, p) values t, p, 9 end
-
-  def po(t, p) values t, p, 12 end
-
-  def z(t, p) values t, p, 15 end
-
-  def pb_s(t, p) "#{t} #{p}" + to_s('pb', pb(t, p)) end
-
-  def rs_s(t, p) "#{t} #{p}" + to_s('rs', rs(t, p)) end
-
-  def bo_s(t, p) "#{t} #{p}" + to_s('bo', bo(t, p)) end
-
-  def uo_s(t, p) "#{t} #{p}" + to_s('uo', uo(t, p)) end
-
-  def po_s(t, p) "#{t} #{p}" + to_s('po', po(t, p)) end
-
-  def z_s(t, p) "#{t} #{p}" + to_s('z', po(t, p)) end
-
   def subset(i, per)
     list = @table.select { |k, vals| vals[i + 2] >= per }.
            map { |k, vals| k + [vals[i], vals[i + 1], vals[i + 2]] }.
            map { |e| "#{e[0]} #{e[1]} #{e[2]} #{e[3]} #{e[4].round(2)}" }
   end
 
-  def pb_subset(per) subset 0, per end
+  def self.define_components(name, offset)
+    define_method(name) do |t, p|
+      values t, p, offset
+    end
+    define_method(name + '_s' ) do |t, p|
+      "#{t} #{p}" + to_s(name, send(name, t, p))
+    end
+    define_method(name + '_subset' ) do |per|
+      subset offset, per
+    end
+  end
 
-  def rs_subset(per) subset 3, per end
+  @@properties = ['pb', 'rs', 'bo', 'uo', 'po', 'zfactor']
 
-  def bo_subset(per) subset 6, per end
+  def build_table(zen_vals, pe_vals, zen_names, pe_names)
+    keys = zen_vals.map do |pair, row|
+      pe_row = pe_vals[pair]
+      fail "pe entry for t = #{pair[0]} p = #{pair[1]} not found" unless pe_row
+      [pair[0].to_f, pair[1].to_f]
+    end
 
-  def uo_subset(per) subset 9, per end
+    @zen_vals = zen_vals
+    
+    vars = @@properties.map do |p|
+      get_property p, zen_vals, pe_vals, zen_names, pe_names
+    end
+    values = vars.transpose.map { |v| v.inject :+ }
+    @@properties.each_with_index { |p, i| self.class.define_components p, 3*i }
+    keys.zip(values).to_h
+  end
 
-  def po_subset(per) subset 12, per end
+  def initialize(zen_name, pe_name)
+    zen_rows = CSV.read(zen_name, headers: true)
+    pe_rows = CSV.read(pe_name, headers: true)
 
-  def z_subset(per) subset 15, per end
+    zen_headers = zen_rows.headers
+    @zen_units = zen_headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
+    @zen_names = zen_headers.map { |h| [h.split[0], h] }.to_h
+
+    pe_headers = pe_rows.headers
+    @pe_units = pe_headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
+    pe_names = pe_headers.map { |h| [h.split[0], h] }.to_h
+
+    @table = build_table(map_values(zen_rows, @zen_names),
+                         map_values(pe_rows, pe_names), @zen_names, pe_names)
+  end
 end
 
 options = {}
@@ -244,6 +212,11 @@ data = Table.new(zen_name, pe_name)
 
 t = options[:temp]
 p = options[:pressure]
+
+if options[:R]
+  fail "Not yet implemented"
+end
+
 missing = (t && !p) || (!t && p)
 property = options[:property]
 property.downcase! if property
@@ -279,10 +252,6 @@ if t && p
   end
 else
   lines = data.format
-end
-
-if options[:R]
-  fail "Not yet implemented"
 end
 
 fail "Property request (option -G) without t and p parameters" if property
