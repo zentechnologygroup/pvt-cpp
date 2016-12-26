@@ -1068,14 +1068,15 @@ void generate_grid()
 
       bo_pars_list.insert(t_par);
       // cálculo de bobp
-      auto bobp = compute(bob_corr, cb_arg.getValue(), mb_arg.getValue(),
+      auto bobp = compute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
 			  check, bo_pars_list,
 			  make_tuple(true, "p", pb_val.raw(), &pb_val.unit),
 			  make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par)));
       
       /// Calculo de uobp
-      auto uobp = compute(uob_corr, cb_arg.getValue(), mb_arg.getValue(), check,
-			  uo_pars_list, make_tuple(true, "p", pb, &pb_val.unit),
+      auto uobp = compute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
+			  check, uo_pars_list,
+			  make_tuple(true, "p", pb, &pb_val.unit),
 			  make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par)));
 
       bo_pars_list.insert(pb_par);
