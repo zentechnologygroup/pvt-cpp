@@ -4,8 +4,6 @@
 require 'optparse'
 require 'fileutils'
 
-load 'correlations.rb'
-
 require 'csv'
 
 class Table
