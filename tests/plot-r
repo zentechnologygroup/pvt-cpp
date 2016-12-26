@@ -1,0 +1,96 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'optparse'
+require 'csv'
+
+class Table
+
+  attr_reader :table
+
+  def initialize(csv_name)
+    zen_rows = CSV.read(csv_name, headers: true)
+
+    headers = zen_rows.headers
+    @units = headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
+    @names = headers.map { |h| [h.split[0], h] }.to_h
+
+    @table = zen_rows.map do |row|
+      t = row[@names['t']]
+      p = row[@names['p']]
+      [[t, p], row]
+    end.to_h
+  end
+
+  def col_name(name) name + ' ' + @units[name] end
+
+  def is_valid_property_name(name) @table.first[1].key? col_name name end
+
+  def get_property(name)
+    col_name = col_name name
+    @table.map { |k,row| [k, row[col_name]] }
+  end
+
+  # receives a pair [name, [values]]
+  def Rvector(pair) "#{pair[0]} <- c(#{pair[1].join(',')})\n" end
+
+  def plot_pressure(name, vals) # vals is get from get_property
+    temps = {}
+    vals.each do |pair|
+      t = pair[0][0]
+      p = pair[0][1]
+      v = pair[1]
+      entry = temps[t]
+      if entry
+        entry << [p, v]
+      else
+        temps[t] = [[p, v]]
+      end
+    end
+    vectors = temps.map do |t, pair|
+      pvals, vals = pair.select {|e1, e2| e1 && e2}.transpose
+      ['t_' + t, 'p_' + t, pvals, 'v_' + t, vals]
+    end
+    pvals = vectors.map { |_, _, pvals, _, _| pvals }.flatten.map { |e| e.to_f }
+    vals =  vectors.map { |_, _, _, _, vals| vals }.flatten.map { |e| e.to_f }
+    xmin, xmax = pvals.min, pvals.max
+    ymin, ymax = vals.min, vals.max
+    s = ''
+    vectors.each do |_, pname, pvals, vname, vals|
+      s += Rvector([pname, pvals]) + Rvector([vname, vals])
+    end
+    s += "plot(0, type=\"n\", xlim=c(#{xmin}, #{xmax}), "\
+         "ylim=c(#{ymin}, #{ymax}))\n"
+    vectors.each_with_index do |e, i|
+      s += "lines(#{e[1]}, #{e[3]}, col=#{i+1})\n"
+    end
+    s += Rvector(['cnames', vectors.map { |tname, _, _, _, _ | "\"#{tname}\"" }])
+    s += Rvector(['cols', (1..vectors.size).to_a])
+    s += "legend(\"topleft\", legend=cnames, lty=1, col=cols)"
+  end
+end
+
+options = {}
+options_parser = OptionParser.new do |opts|
+  opts.on('-f CSV', '--file CSV', 'csv file') do |file_name|
+    options[:file_name] = file_name
+  end
+
+  opts.on('-P PROPERTY', '--property PROPERTY', 'property name') do |name|
+    options[:property] = name
+  end
+end
+
+options_parser.parse!
+
+file_name = options[:file_name] || $stdin.gets.chomp
+fail 'csv file not given' unless file_name
+
+data = Table.new file_name
+
+property = options[:property]
+fail 'Property not defined (option -P PROPERTY)' unless property
+fail "Invalid property #{property}" unless data.is_valid_property_name property
+
+puts data.plot_pressure(property, data.get_property(property))
+
