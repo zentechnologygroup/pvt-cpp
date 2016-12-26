@@ -7,6 +7,9 @@ require 'fileutils'
 load 'correlations.rb'
 
 require 'csv'
+require 'solid_assert'
+
+SolidAssert.disable_assertions
 
 class Table
 
@@ -22,31 +25,6 @@ class Table
     vals.map { |pair, row| [pair, row[names[name]].to_f] }.to_h
   end
 
-  def access_and_convert(vals, names, name)
-    m = vals.map { |pair, row| [pair, row[names[name]]] }
-    zen_unit = @zen_units[name]
-    pe_unit = @pe_units[name]
-    if zen_unit != pe_unit
-      v = m.map { |e| e[1] }.join ' '
-      vc = `echo #{v} | ./test-conversion -p -S #{pe_unit} -T #{zen_unit}`.split
-      m.zip(vc).map { |m, v| [m[0], v.to_f] }.to_h
-    else
-      m.map { |e| [e[0], e[1].to_f] }.to_h
-    end
-  end
-
-  def errors(h1, h2)
-    h1.map do |pair, v1|
-      v2 = h2[pair]
-      err = 100*(v1 - v2).abs / v2
-      [pair, err]
-    end.to_h
-  end
-
-  def combine(zen_hash, pe_hash, error_hash)
-    zen_hash.map { |pair, val| [val, pe_hash[pair], error_hash[pair]] }
-  end
-
   def get_property(name, zen_vals, pe_vals, zen_names, pe_names)
     zen_v = access zen_vals, zen_names, name
     pe_v = access_and_convert pe_vals, pe_names, name
@@ -54,8 +32,7 @@ class Table
     combine zen_v, pe_v, error_v
   end
 
-  @@header = ['t', 'p', 'pb zen', 'pb pe', 'pb %', 'rs zen', 'rs pe', 'rs %',
-              'bo zen', 'bo pe', 'bo %', 'uo zen', 'uo pe', 'uo %',
+  @@header = ['t', 'p', 'pb', 'rs', 'bo', 'uo', 'uo pe', 'uo %',
               'po zen', 'po pe', 'po %', 'z zen', 'z pe', 'z %']
 
   def format(thash = @table, decs = 2)
@@ -107,7 +84,7 @@ class Table
 
   def plot_R(pairs, prefix)
     xpair = pairs[0]
-    yrest = pairs.drop(1).map { |e| [prefix + '_' + e[0].to_s, e[1]] }
+    yrest = pairs.drop(1).map { |e| [prefix + e[0].to_s, e[1]] }
     s = "#{to_R(xpair)}\n"
     yrest.each do |p|
       s += "#{to_R(p)}\n"
@@ -121,11 +98,10 @@ class Table
     yrest.each_with_index do |pair, i|
       s += "lines(#{xpair[0]}, #{pair[0]}, col = #{i+1})\n"
     end
-    cnames = ['cnames', yrest.map { |e| "\"#{e[0]}\"" }]
-    cols = ['cols', (1..yrest.size).to_a]
+    cnames = ['cnames', yrest.map { |e| e[0] }]
+    cols = ['cols', (0..yrest.size).to_a]
     s += "#{to_R(cnames)}\n"\
-         "#{to_R(cols)}\n"\
-         "legend(\"topleft\", legend=cnames, lty=1, col=cols)"
+         "#{to_R(cols)}\n"
   end
 
   def to_s(name, t) " #{name} = #{t[0]} #{t[1]} #{t[2].round(2)}" end
