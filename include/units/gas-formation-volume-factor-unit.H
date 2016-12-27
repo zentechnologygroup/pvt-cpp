@@ -19,13 +19,11 @@ Declare_Unit(RCF_SCF, "rcf/scf",
          cubic feet into standard cubic feet)DESC",
          GasFVF, 0, 10);
 
-
 Declare_Unit(RM3_SM3, "rm3/sm3",
          R"DESC(Gas Formation Volume Factor, gas volume 
          relationship measured as reservoir
          cubic meters into standard cubic meter)DESC",
          GasFVF, 0, 10);
-
 
 Declare_Unit(RCF_MSCF, "rcf/Mscf",
         R"DESC(Gas Formation Volume Factor, gas volume 
@@ -38,7 +36,6 @@ Declare_Unit(RB_SCF, "RB/scf",
         relationship measured as reservoir
         barrels into standard cubic feet)DESC",
         GasFVF, 0, 1.7810766679);
-
 
 Declare_Unit(RB_MSCF, "RB/Mscf",
         R"DESC(Gas Formation Volume Factor, gas volume 

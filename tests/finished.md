@@ -700,3 +700,39 @@
 - Comment      
 - Finished     
 
+## 118. sustituir make_par por valor director; algo omo yg_vtl
+- Created at   2016-12-22 17:40:45 -0400
+- Completed at 2016-12-23 10:51:27 -0400
+- Comment      
+- Finished     
+
+## 119. métodos de test-grid con prefijo propiedad pueden meta generarse
+- Created at   2016-12-23 17:27:17 -0400
+- Completed at 2016-12-27 10:43:37 -0400
+- Comment      
+- Finished     
+
+## 120. compute en Correlatin puede metaprogramarse mejor si se valida directamente el parámetro
+- Created at   2016-12-23 17:14:02 -0400
+- Completed at 2016-12-27 10:43:45 -0400
+- Comment      
+- Finished     
+
+## 121. option para generar R en test-grid
+- Created at   2016-12-23 17:10:49 -0400
+- Completed at 2016-12-27 10:43:54 -0400
+- Comment      
+- Finished     
+
+## 122. poner las oras propiedades
+- Created at   2016-12-14 17:48:43 -0400
+- Completed at 
+- Comment      oil density
+- Finished     oil density
+
+## 123. nuevo programa que evalue correlacion recibiendo un arreglo
+- Created at   2016-11-22 10:40:29 -0400
+- Completed at 2016-12-27 10:44:59 -0400
+- Comment      
+- Finished     
+

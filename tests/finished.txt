@@ -115,3 +115,9 @@ Resolver: ajustes fueron calculados en una unidad. Cómo asegurar el ajuste si l
 poner cambio de unidades en plot-corr y test-calibrate,2016-12-10 18:26:50 -0400,2016-12-22 11:55:15 -0400,,2016-12-22 11:55:18 -0400
 dir backend,2016-12-08 16:30:29 -0400,2016-12-22 11:55:32 -0400,,2016-12-22 11:55:35 -0400
 verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos,2016-12-10 18:26:26 -0400,2016-12-22 11:55:46 -0400,,2016-12-22 11:55:50 -0400
+sustituir make_par por valor director; algo omo yg_vtl,2016-12-22 17:40:45 -0400,2016-12-23 10:51:27 -0400,,2016-12-27 10:44:03 -0400
+métodos de test-grid con prefijo propiedad pueden meta generarse,2016-12-23 17:27:17 -0400,2016-12-27 10:43:37 -0400,,2016-12-27 10:44:11 -0400
+compute en Correlatin puede metaprogramarse mejor si se valida directamente el parámetro,2016-12-23 17:14:02 -0400,2016-12-27 10:43:45 -0400,,2016-12-27 10:44:13 -0400
+option para generar R en test-grid,2016-12-23 17:10:49 -0400,2016-12-27 10:43:54 -0400,,2016-12-27 10:44:25 -0400
+poner las oras propiedades,2016-12-14 17:48:43 -0400,,oil density,2016-12-27 10:44:26 -0400
+nuevo programa que evalue correlacion recibiendo un arreglo,2016-11-22 10:40:29 -0400,2016-12-27 10:44:59 -0400,,2016-12-27 10:45:02 -0400

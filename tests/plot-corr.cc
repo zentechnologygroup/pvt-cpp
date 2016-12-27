@@ -29,7 +29,7 @@ void set_check()
 
 DynSetTree<string> par_name_tbl =
   { "api", "rsb", "yg", "tsep", "t", "p", "psep", "h2s-concentration",
-    "co2-concentration", "n2-concentration" };
+    "co2-concentration", "n2-concentration", "nacl-concentration" };
 struct ArgUnit
 {
   string par_name;
@@ -207,6 +207,22 @@ void set_h2s_concentration()
 				     h2s_concentration_arg.getValue(),
 				     h2s_concentration_unit);
   h2s_concentration.set(par(h2s_concentration_par));
+}
+
+ValueArg<double> nacl_concentration_arg =
+  { "", "nacl-concentration", "nacl-concentration", false, 0,
+    "nacl-concentration in MolePercent", cmd };
+Correlation::NamedPar nacl_concentration_par;
+VtlQuantity nacl_concentration = VtlQuantity::null_quantity;
+void set_nacl_concentration()
+{
+  auto nacl_concentration_unit = test_unit_change("nacl-concentration",
+						  Molality_NaCl::get_instance());
+  nacl_concentration_par = make_tuple(nacl_concentration_arg.isSet(),
+				      "nacl_concentration",
+				      nacl_concentration_arg.getValue(),
+				      nacl_concentration_unit);
+  nacl_concentration.set(par(nacl_concentration_par));
 }
 
 ValueArg<double> c_pb_arg = { "", "c-pb", "pb adjustment", false, 0,
@@ -401,11 +417,35 @@ void set_adjustedtpcm_corr()
 ValueArg<string> zfactor_corr_arg =
   { "", "zfactor", "Correlation for zfactor", false, "",
     "Correlation for zfactor", cmd };
-
 const Correlation * zfactor_corr = nullptr;
 void set_zfactor_corr()
 {
   set_correlation(zfactor_corr_arg, "zfactor", zfactor_corr, true);
+}
+
+ValueArg<string> ug_corr_arg =
+  { "", "ug", "Correlation for ug", false, "UgLeeGE", "Correlation for ug", cmd };
+const Correlation * ug_corr = nullptr;
+void set_ug_corr()
+{
+  ug_corr = &UgLeeGE::get_instance(); // mandatory here
+  set_correlation(ug_corr_arg, "ug", ug_corr, false);
+}
+
+ValueArg<string> bwb_corr_arg =
+  { "", "bwb", "Correlation for bwb", false, "", "Correlation for bwb", cmd };
+const Correlation * bwb_corr = nullptr;
+void set_bwb_corr()
+{
+  set_correlation(bwb_corr_arg, "bwb", bwb_corr, true);
+}
+
+ValueArg<string> bwa_corr_arg =
+  { "", "bwa", "Correlation for bwa", false, "", "Correlation for bwa", cmd };
+const Correlation * bwa_corr = nullptr;
+void set_bwa_corr()
+{
+  set_correlation(bwa_corr_arg, "bwa", bwa_corr, true);
 }
 
 SwitchArg grid_arg = { "", "grid", "generate grid for all", cmd };
@@ -674,6 +714,7 @@ DynList<Correlation::NamedPar> compute_pb_and_load_constant_parameters()
   test_parameter(required_pars, n2_concentration_par, pars_list);
   test_parameter(required_pars, co2_concentration_par, pars_list);
   test_parameter(required_pars, h2s_concentration_par, pars_list);
+  test_parameter(required_pars, nacl_concentration_par, pars_list);
 
   return pars_list;
 }
@@ -943,6 +984,7 @@ void generate_grid()
   set_h2s_concentration();
   set_co2_concentration();
   set_n2_concentration();
+  set_nacl_concentration();
   
   set_rs_corr(true);
   set_bob_corr(true);
@@ -959,6 +1001,9 @@ void generate_grid()
   set_adjustedppcm_corr();
   set_adjustedtpcm_corr();
   set_zfactor_corr();
+  set_ug_corr();
+  set_bwb_corr();
+  set_bwa_corr();
 
   set_t_range();
   set_p_range();
@@ -989,9 +1034,7 @@ void generate_grid()
 
   auto adjustedtpcm = compute(adjustedtpcm_corr, 0, 1, check, NPAR(ppcm),
 			      NPAR(tpcm), NPAR(co2_concentration),
-			      NPAR(h2s_concentration));
-
-  
+			      NPAR(h2s_concentration));  
 
   auto pb_pars_list = load_constant_parameters({pb_corr});
   
@@ -1009,8 +1052,17 @@ void generate_grid()
   auto po_pars_list = load_constant_parameters({&PobBradley::get_instance(),
 	&PoaBradley::get_instance()});
 
+  auto ug_pars_list = load_constant_parameters({ug_corr});
+
+  auto bw_pars_list = load_constant_parameters({bwb_corr, bwa_corr});
+  bw_pars_list.for_each([] (auto t) { cout << get<1>(t) << endl; });
+  exit(0);
+
   // Nuevo valor tiene que entrar de 1ro aqui
-  cout << "zfactor " << Zfactor::get_instance().name
+  cout << "pg " << Pg::get_instance().unit.name
+       << "ug " << ug_corr->unit.name
+       << ",bg " << Bg::get_instance().unit.name 
+       << ",zfactor " << Zfactor::get_instance().name
        << ",po " << PobBradley::get_instance().unit.name
        << ",uo " << uob_corr->unit.name
        << ",bo " << bob_corr->unit.name
@@ -1092,6 +1144,9 @@ void generate_grid()
       po_pars_list.insert(make_tuple(true, "pb", pb, &pb_val.unit));
       po_pars_list.insert(make_tuple(true, "pobp", pobp.raw(), &pobp.unit));
 
+      ug_pars_list.insert(npar("tpr", tpr_val));
+      ug_pars_list.insert(t_par);
+
       size_t n = insert_in_container(row, get<2>(t_par), pb, uod_val.raw(),
 				     bobp.raw(), uobp.raw());
 
@@ -1113,17 +1168,28 @@ void generate_grid()
 	  auto po = compute(po_corr, check, po_pars_list, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
 
-	  double zfactor = INVALID_VALUE;
+	  double zfactor = INVALID_VALUE, bg = INVALID_VALUE, ug = INVALID_VALUE,
+	    pg = INVALID_VALUE;
 	  try
 	    {
-	      zfactor = zfactor_corr->compute(ppr_val, tpr_val).raw();
+	      auto z = zfactor_corr->compute(ppr_val, tpr_val);
+	      zfactor = z.raw();
+	      bg = Bg::get_instance().impl(par(t_par), par(p_par), z).raw();
+	      ug = compute(ug_corr, 0, 1, check, ug_pars_list,
+			   p_par, p_par, npar("ppr", ppr_val), NPAR(z)).raw();
+	      pg = Pg::get_instance().impl(yg, pb_val, par(t_par),
+					   par(p_par), z).raw();
 	    }
-	  catch (domain_error) { /* ignore it! */ }
+	  catch (domain_error & e)
+	    {
+	      //cout << e.what() << endl;
+	      /* ignore it! */
+	    }
 
 	  size_t n = insert_in_container(row, get<2>(p_par), rs, co, bo, uo, po,
-					 zfactor);
+					 zfactor, bg, ug, pg);
 
-	  assert(row.size() == 12);
+	  assert(row.size() == 15);
 
 	  print_row(row);
 
@@ -1149,6 +1215,9 @@ void generate_grid()
 
       po_pars_list.remove_first(); // pb
       po_pars_list.remove_first(); // pobp
+
+      ug_pars_list.remove_first(); // t_par
+      ug_pars_list.remove_first(); // tpr
     }
 }
 

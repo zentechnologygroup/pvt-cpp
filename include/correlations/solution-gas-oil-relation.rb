@@ -1,12 +1,12 @@
  # coding: utf-8
 
 begin_correlation("RsAlShammasi", "SolutionGasOilRelation", "SCF_STB", 6, 3298.6)
-add_title("AL-SHAMMASI CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
 add_parameter("yg", "Sgg", "Gas specific gravity", 0.51, 3.44)
 add_parameter("p", "psia", "Pressure", "Quantity<Atmosphere>(1)")
 add_parameter("yo", "Sg_do", "Oil specific gravity", "Quantity<Api>(63.7)", "Quantity<Api>(6)")
 add_synonym("yo", "api", "Api")
 add_parameter("t", "Fahrenheit", "Temperature", 74, 341.6)
+add_title("AL-SHAMMASI CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
 add_db("Based on a total of 1709 data sets (1661 data sets from 13 different published literature papers and 48 data sets originated from Kuwait reservoirs from unpublished sources).")
 add_author("Al-Shammasi")
 add_ref("alShammasi:1999")
