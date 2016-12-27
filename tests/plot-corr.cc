@@ -448,6 +448,22 @@ void set_bwa_corr()
   set_correlation(bwa_corr_arg, "bwa", bwa_corr, true);
 }
 
+ValueArg<string> uw_corr_arg =
+  { "", "uw", "Correlation for uw", false, "", "Correlation for uw", cmd };
+const Correlation * uw_corr = nullptr;
+void set_uw_corr()
+{
+  set_correlation(uw_corr_arg, "uw", uw_corr, true);
+}
+
+ValueArg<string> pw_corr_arg =
+  { "", "pw", "Correlation for pw", false, "", "Correlation for pw", cmd };
+const Correlation * pw_corr = nullptr;
+void set_pw_corr()
+{
+  set_correlation(pw_corr_arg, "pw", pw_corr, true);
+}
+
 SwitchArg grid_arg = { "", "grid", "generate grid for all", cmd };
 
 struct RangeDesc
@@ -714,7 +730,6 @@ DynList<Correlation::NamedPar> compute_pb_and_load_constant_parameters()
   test_parameter(required_pars, n2_concentration_par, pars_list);
   test_parameter(required_pars, co2_concentration_par, pars_list);
   test_parameter(required_pars, h2s_concentration_par, pars_list);
-  test_parameter(required_pars, nacl_concentration_par, pars_list);
 
   return pars_list;
 }
@@ -815,6 +830,7 @@ load_constant_parameters(const DynList<const Correlation*> & l)
   test_parameter(required_pars, n2_concentration_par, pars_list);
   test_parameter(required_pars, co2_concentration_par, pars_list);
   test_parameter(required_pars, h2s_concentration_par, pars_list);
+  test_parameter(required_pars, nacl_concentration_par, pars_list);
 
   return pars_list;
 }
@@ -1004,6 +1020,8 @@ void generate_grid()
   set_ug_corr();
   set_bwb_corr();
   set_bwa_corr();
+  set_uw_corr();
+  set_pw_corr();
 
   set_t_range();
   set_p_range();
@@ -1055,12 +1073,17 @@ void generate_grid()
   auto ug_pars_list = load_constant_parameters({ug_corr});
 
   auto bw_pars_list = load_constant_parameters({bwb_corr, bwa_corr});
-  bw_pars_list.for_each([] (auto t) { cout << get<1>(t) << endl; });
-  exit(0);
+
+  auto uw_pars_list = load_constant_parameters({uw_corr});
+
+  auto pw_pars_list = load_constant_parameters({pw_corr});
 
   // Nuevo valor tiene que entrar de 1ro aqui
-  cout << "pg " << Pg::get_instance().unit.name
-       << "ug " << ug_corr->unit.name
+  cout << "pw " << pw_corr->unit.name
+       << ",uw " << uw_corr->unit.name
+       << ",bw " << bwb_corr->unit.name
+       << ",pg " << Pg::get_instance().unit.name
+       << ",ug " << ug_corr->unit.name
        << ",bg " << Bg::get_instance().unit.name 
        << ",zfactor " << Zfactor::get_instance().name
        << ",po " << PobBradley::get_instance().unit.name
@@ -1114,9 +1137,11 @@ void generate_grid()
 	define_correlation(pb,
 			   uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
 			   uoa_corr, c_uoa_arg.getValue(), m_uoa_arg.getValue());
-
+      
       auto po_corr = define_correlation(pb, &PobBradley::get_instance(),
 					&PoaBradley::get_instance());
+
+      auto bw_corr = define_correlation(pb, bwb_corr, bwa_corr);
 
       bo_pars_list.insert(t_par);
       // cálculo de bobp
@@ -1147,6 +1172,12 @@ void generate_grid()
       ug_pars_list.insert(npar("tpr", tpr_val));
       ug_pars_list.insert(t_par);
 
+      bw_pars_list.insert(t_par);
+
+      uw_pars_list.insert(t_par);
+
+      pw_pars_list.insert(t_par);
+
       size_t n = insert_in_container(row, get<2>(t_par), pb, uod_val.raw(),
 				     bobp.raw(), uobp.raw());
 
@@ -1169,7 +1200,7 @@ void generate_grid()
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
 
 	  double zfactor = INVALID_VALUE, bg = INVALID_VALUE, ug = INVALID_VALUE,
-	    pg = INVALID_VALUE;
+	    pg = INVALID_VALUE, bw = INVALID_VALUE, pw = INVALID_VALUE;
 	  try
 	    {
 	      auto z = zfactor_corr->compute(ppr_val, tpr_val);
@@ -1179,6 +1210,13 @@ void generate_grid()
 			   p_par, p_par, npar("ppr", ppr_val), NPAR(z)).raw();
 	      pg = Pg::get_instance().impl(yg, pb_val, par(t_par),
 					   par(p_par), z).raw();
+
+	      // TODO TMP: esta fallando. Por eso se pone aquí
+	      bw = compute(bw_corr, check, bw_pars_list, p_par);
+	      auto bw_vtl = VtlQuantity(*bw_corr.result_unit, bw);
+	      // TODO: idem que anterior
+	      pw = compute(pw_corr, 0, 1, check, pw_pars_list,
+			   p_par, npar("bw", bw_vtl)).raw();
 	    }
 	  catch (domain_error & e)
 	    {
@@ -1186,10 +1224,15 @@ void generate_grid()
 	      /* ignore it! */
 	    }
 
-	  size_t n = insert_in_container(row, get<2>(p_par), rs, co, bo, uo, po,
-					 zfactor, bg, ug, pg);
+	  auto ppw = PpwSpiveyMN::get_instance().impl(par(t_par), par(p_par));
 
-	  assert(row.size() == 15);
+	  auto uw = compute(uw_corr, 0, 1, check, uw_pars_list,
+			    p_par, NPAR(ppw)).raw();
+
+	  size_t n = insert_in_container(row, get<2>(p_par), rs, co, bo, uo, po,
+					 zfactor, bg, ug, pg, bw, uw, pw);
+
+	  assert(row.size() == 18);
 
 	  print_row(row);
 
@@ -1218,6 +1261,12 @@ void generate_grid()
 
       ug_pars_list.remove_first(); // t_par
       ug_pars_list.remove_first(); // tpr
+
+      bw_pars_list.remove_first(); // t_par
+
+      uw_pars_list.remove_first(); // t_par
+
+      pw_pars_list.remove_first(); // t_par
     }
 }
 
@@ -1402,31 +1451,30 @@ string R_format(const DynList<DynList<double>> & mat)
       v_array.append(move(v));
     }
 
-      DynList<string> p_names, v_names, t_names;
-      for (auto it = get_zip_it(suffix, t_array, v_array);
-	   it.has_curr(); it.next())
-	{
-	  auto t = it.get_curr();	  
-	  string t_name = "t_" + get<0>(t);
-	  string v_name = "v_" + get<0>(t);
-	  string p_name = "\"P = " + get<0>(t) + "\"";
-	  s << Rvector(t_name, get<1>(t)) << endl
-	    << Rvector(v_name, get<2>(t)) << endl;
-	  p_names.append(move(p_name));
-	  v_names.append(move(v_name));
-	  t_names.append(move(t_name));
-	}
-      s << "plot(0, type=\"n\", xlim=c(" << min_t << "," << max_t << "),ylim=c("
-	<< min_v << "," << max_v << "))" << endl;
-      for (auto it = get_enum_zip_it(t_names, v_names); it.has_curr(); it.next())
-	{
-	  auto t = it.get_curr();
-	  s << "lines(" << get<0>(t) << "," << get<1>(t) << ",col="
-	    << get<2>(t) + 1 << ")" << endl;
-	}
-      s << Rvector("cnames", p_names) << endl
-	<< Rvector("cols", range<size_t>(1, t_array.size())) << endl
-	<< "legend(\"topleft\", legend=cnames, lty=1, col=cols)";
+  DynList<string> p_names, v_names, t_names;
+  for (auto it = get_zip_it(suffix, t_array, v_array); it.has_curr(); it.next())
+    {
+      auto t = it.get_curr();	  
+      string t_name = "t_" + get<0>(t);
+      string v_name = "v_" + get<0>(t);
+      string p_name = "\"P = " + get<0>(t) + "\"";
+      s << Rvector(t_name, get<1>(t)) << endl
+	<< Rvector(v_name, get<2>(t)) << endl;
+      p_names.append(move(p_name));
+      v_names.append(move(v_name));
+      t_names.append(move(t_name));
+    }
+  s << "plot(0, type=\"n\", xlim=c(" << min_t << "," << max_t << "),ylim=c("
+    << min_v << "," << max_v << "))" << endl;
+  for (auto it = get_enum_zip_it(t_names, v_names); it.has_curr(); it.next())
+    {
+      auto t = it.get_curr();
+      s << "lines(" << get<0>(t) << "," << get<1>(t) << ",col="
+	<< get<2>(t) + 1 << ")" << endl;
+    }
+  s << Rvector("cnames", p_names) << endl
+    << Rvector("cols", range<size_t>(1, t_array.size())) << endl
+    << "legend(\"topleft\", legend=cnames, lty=1, col=cols)";
 
   return s.str();
 }
