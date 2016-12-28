@@ -53,3 +53,6 @@
 ## 18. Pg::impl considerar quitar pb y validación
 - Created at   2016-12-27 12:09:11 -0400
 
+## 19. Revisar precondicion en CobMcCainEtAl
+- Created at   2016-12-28 11:50:52 -0400
+

@@ -464,6 +464,30 @@ void set_pw_corr()
   set_correlation(pw_corr_arg, "pw", pw_corr, true);
 }
 
+ValueArg<string> cwb_corr_arg =
+  { "", "cwb", "Correlation for cwb", false, "", "Correlation for cwb", cmd };
+const Correlation * cwb_corr = nullptr;
+void set_cwb_corr()
+{
+  set_correlation(cwb_corr_arg, "cwb", cwb_corr, true);
+}
+
+ValueArg<string> cwa_corr_arg =
+  { "", "cwa", "Correlation for cwa", false, "", "Correlation for cwa", cmd };
+const Correlation * cwa_corr = nullptr;
+void set_cwa_corr()
+{
+  set_correlation(cwa_corr_arg, "cwa", cwa_corr, true);
+}
+
+ValueArg<string> rsw_corr_arg =
+  { "", "rsw", "Correlation for rsw", false, "", "Correlation for rsw", cmd };
+const Correlation * rsw_corr = nullptr;
+void set_rsw_corr()
+{
+  set_correlation(rsw_corr_arg, "rsw", rsw_corr, true);
+}
+
 SwitchArg grid_arg = { "", "grid", "generate grid for all", cmd };
 
 struct RangeDesc
@@ -800,15 +824,14 @@ DynList<DynList<double>> generate_rs_values()
 
 	  auto val = compute(rs_corr, check, pars_list, p_par);
 
-	  size_t n = insert_in_container(row, get<2>(p_par), val);
+	  size_t n = row.ninsert(get<2>(p_par), val);
 	  vals.append(row);
 	  row.mutable_drop(n);
 	}
 
       row.remove_first(); // t_par
 
-      pars_list.remove_first(); // pb_val
-      pars_list.remove_first(); // t_par
+      pars_list.mutable_drop(2); // pb_val, t_par
     }
 
   return vals;
@@ -855,16 +878,15 @@ DynList<DynList<double>> generate_bo_values()
 
       auto pb_val =
 	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
+      auto pb_par = make_tuple(true, "pb", pb_val.raw(), &pb_val.unit);
 
       auto bo_corr = target_correlation(pb_val.raw());
-      bo_pars_list.insert(t_par);
-      bo_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
+      bo_pars_list.ninsert(t_par, pb_par);
 
       auto rs_corr = define_correlation(pb_val.raw(), ::rs_corr,
 					c_rs_arg.getValue(), m_rs_arg.getValue(),
 					&RsAbovePb::get_instance());
-      rs_pars_list.insert(t_par);
-      rs_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
+      rs_pars_list.ninsert(t_par, pb_par);
 
       // último bo de la correlación bob. Este será el punto de partida de boa
       auto bobp =
@@ -884,19 +906,16 @@ DynList<DynList<double>> generate_bo_values()
 	  auto bo = compute(bo_corr, check, bo_pars_list, p_par,
 			    make_tuple(true, "rs", rs, &::rs_corr->unit));
 
-	  size_t n = insert_in_container(row, get<2>(p_par), bo);
+	  size_t n = row.ninsert(get<2>(p_par), bo);
 	  vals.append(row);
 	  row.mutable_drop(n);
 	}
 
       row.remove_first(); // t_par
 
-      rs_pars_list.remove_first(); // pb_par
-      rs_pars_list.remove_first(); // t_par
+      rs_pars_list.mutable_drop(2); // pb_par, t_par
 
-      bo_pars_list.remove_first(); // bobp
-      bo_pars_list.remove_first(); // pb_val
-      bo_pars_list.remove_first(); // t_par
+      bo_pars_list.mutable_drop(3); // bobp, pb_val, t_par
     }
 
   return vals;
@@ -923,19 +942,18 @@ DynList<DynList<double>> generate_uo_values()
 
       auto pb_val =
 	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
+      auto pb_par = make_tuple(true, "pb", pb_val.raw(), &pb_val.unit);
 
       auto uod_val = compute(uod_corr, 0, 1, check, uod_pars_list, t_par);
 
-      rs_pars_list.insert(t_par);
-      rs_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
+      rs_pars_list.ninsert(t_par, pb_par);
       auto rs_corr = define_correlation(pb_val.raw(), ::rs_corr,
 					c_rs_arg.getValue(), m_rs_arg.getValue(),
 					&RsAbovePb::get_instance());
 
       auto uo_corr = target_correlation(pb_val.raw());
-      uo_pars_list.insert(t_par);
-      uo_pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
-      uo_pars_list.insert(make_tuple(true, "uod", uod_val.raw(), &uod_val.unit));
+      uo_pars_list.ninsert(t_par, pb_par,
+			   make_tuple(true, "uod", uod_val.raw(), &uod_val.unit));
 
       auto uobp =
 	compute(below_corr_ptr, cb_arg.getValue(), mb_arg.getValue(),
@@ -954,20 +972,16 @@ DynList<DynList<double>> generate_uo_values()
 	  auto uo = compute(uo_corr, check, uo_pars_list, p_par,
 			    make_tuple(true, "rs", rs, &::rs_corr->unit));
 
-	  size_t n = insert_in_container(row, get<2>(p_par), uo);
+	  size_t n = row.ninsert(get<2>(p_par), uo);
 	  vals.append(row);
 	  row.mutable_drop(n);
 	}
 
       row.remove_first(); // t_par
 
-      rs_pars_list.remove_first(); // pb_par
-      rs_pars_list.remove_first(); // t_par
+      rs_pars_list.mutable_drop(2); // pb_par, t_par
 
-      uo_pars_list.remove_first(); // uobp
-      uo_pars_list.remove_first(); // pb_val
-      uo_pars_list.remove_first(); // uod_val
-      uo_pars_list.remove_first(); // t_par
+      uo_pars_list.mutable_drop(4); // uobp, pb_val, uod_val, t_par
     }
 
   return vals;
@@ -1022,6 +1036,9 @@ void generate_grid()
   set_bwa_corr();
   set_uw_corr();
   set_pw_corr();
+  set_rsw_corr();
+  set_cwb_corr();
+  set_cwa_corr();
 
   set_t_range();
   set_p_range();
@@ -1055,31 +1072,24 @@ void generate_grid()
 			      NPAR(h2s_concentration));  
 
   auto pb_pars_list = load_constant_parameters({pb_corr});
-  
   auto rs_pars_list =
     load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
-
   auto uod_pars_list = load_constant_parameters({uod_corr});
-
   auto bo_pars_list = load_constant_parameters({bob_corr, boa_corr});
-
   auto co_pars_list = load_constant_parameters({cob_corr, coa_corr});
-
   auto uo_pars_list = load_constant_parameters({uob_corr, uoa_corr});
-
   auto po_pars_list = load_constant_parameters({&PobBradley::get_instance(),
 	&PoaBradley::get_instance()});
-
   auto ug_pars_list = load_constant_parameters({ug_corr});
-
   auto bw_pars_list = load_constant_parameters({bwb_corr, bwa_corr});
-
   auto uw_pars_list = load_constant_parameters({uw_corr});
-
   auto pw_pars_list = load_constant_parameters({pw_corr});
+  auto rsw_pars_list = load_constant_parameters({rsw_corr});
+  auto cw_pars_list = load_constant_parameters({cwb_corr, cwa_corr});
 
   // Nuevo valor tiene que entrar de 1ro aqui
-  cout << "pw " << pw_corr->unit.name
+  cout << "rsw " << rsw_corr->unit.name
+       << ",pw " << pw_corr->unit.name
        << ",uw " << uw_corr->unit.name
        << ",bw " << bwb_corr->unit.name
        << ",pg " << Pg::get_instance().unit.name
@@ -1099,6 +1109,7 @@ void generate_grid()
        << ",t " << get<3>(t_values.get_first())->name
        << endl;
 
+  auto rs_pb = make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par)); 
   DynList<double> row;
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
@@ -1109,18 +1120,17 @@ void generate_grid()
 	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
       auto pb = pb_val.raw();
       auto pb_par = make_tuple(true, "pb", pb, &pb_val.unit);
+      auto p_pb = make_tuple(true, "p", pb, &pb_val.unit);
 
       // cálculo de uod
       auto uod_val = compute(uod_corr, 0, 1, check, uod_pars_list, t_par);
 
-      rs_pars_list.insert(t_par);
-      rs_pars_list.insert(pb_par);
+      rs_pars_list.ninsert(t_par, pb_par);
       auto rs_corr = define_correlation(pb, ::rs_corr, c_rs_arg.getValue(),
 					m_rs_arg.getValue(),
 					&RsAbovePb::get_instance());
 
-      co_pars_list.insert(t_par);
-      co_pars_list.insert(pb_par);
+      co_pars_list.ninsert(t_par, pb_par);
       auto co_corr =
 	define_correlation(pb,
 			   cob_corr, c_cob_arg.getValue(), m_cob_arg.getValue(),
@@ -1130,9 +1140,8 @@ void generate_grid()
 			   bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
 			   boa_corr, c_boa_arg.getValue(), m_boa_arg.getValue());
 
-      uo_pars_list.insert(t_par);
-      uo_pars_list.insert(pb_par);
-      uo_pars_list.insert(make_tuple(true, "uod", uod_val.raw(), &uod_val.unit));
+      uo_pars_list.ninsert(t_par, pb_par,
+			   make_tuple(true, "uod", uod_val.raw(), &uod_val.unit));
       auto uo_corr =
 	define_correlation(pb,
 			   uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
@@ -1143,43 +1152,38 @@ void generate_grid()
 
       auto bw_corr = define_correlation(pb, bwb_corr, bwa_corr);
 
-      bo_pars_list.insert(t_par);
+      auto cw_corr = define_correlation(pb, cwb_corr, cwa_corr);
+
       // cálculo de bobp
+      bo_pars_list.insert(t_par);
       auto bobp = compute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
-			  check, bo_pars_list,
-			  make_tuple(true, "p", pb_val.raw(), &pb_val.unit),
-			  make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par)));
+			  check, bo_pars_list, p_pb, rs_pb);
       
       /// Calculo de uobp
       auto uobp = compute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
-			  check, uo_pars_list,
-			  make_tuple(true, "p", pb, &pb_val.unit),
-			  make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par)));
+			  check, uo_pars_list, p_pb, rs_pb);
 
-      bo_pars_list.insert(pb_par);
-      bo_pars_list.insert(make_tuple(true, "bobp", bobp.raw(), &bobp.unit));
+      bo_pars_list.ninsert(pb_par,
+			   make_tuple(true, "bobp", bobp.raw(), &bobp.unit));
 
       uo_pars_list.insert(make_tuple(true, "uobp", uobp.raw(), &uobp.unit));
 
       // Cálculo de pobp
       auto pobp = compute(&PobBradley::get_instance(), 0, 1, check, po_pars_list,
-			  make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par)),
-			  make_tuple(true, "bob", bobp.raw(), &bobp.unit));
+			  rs_pb, make_tuple(true, "bob", bobp.raw(), &bobp.unit));
 
-      po_pars_list.insert(make_tuple(true, "pb", pb, &pb_val.unit));
-      po_pars_list.insert(make_tuple(true, "pobp", pobp.raw(), &pobp.unit));
-
-      ug_pars_list.insert(npar("tpr", tpr_val));
-      ug_pars_list.insert(t_par);
-
+      po_pars_list.ninsert(pb_par,
+			   make_tuple(true, "pobp", pobp.raw(), &pobp.unit));
+      ug_pars_list.ninsert(npar("tpr", tpr_val), t_par);
       bw_pars_list.insert(t_par);
-
       uw_pars_list.insert(t_par);
-
       pw_pars_list.insert(t_par);
+      rsw_pars_list.insert(t_par);
+      cw_pars_list.insert(t_par);
 
-      size_t n = insert_in_container(row, get<2>(t_par), pb, uod_val.raw(),
-				     bobp.raw(), uobp.raw());
+      //auto cwpb = compute(cwa_corr, 0, 1, check, cw_pars_list,
+      size_t n =
+	row.ninsert(get<2>(t_par), pb, uod_val.raw(), bobp.raw(), uobp.raw());
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
@@ -1200,12 +1204,14 @@ void generate_grid()
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
 
 	  double zfactor = INVALID_VALUE, bg = INVALID_VALUE, ug = INVALID_VALUE,
-	    pg = INVALID_VALUE, bw = INVALID_VALUE, pw = INVALID_VALUE;
+	    pg = INVALID_VALUE, bw = INVALID_VALUE, pw = INVALID_VALUE,
+	    rsw = INVALID_VALUE, cw = INVALID_VALUE;
 	  try
 	    {
 	      auto z = zfactor_corr->compute(ppr_val, tpr_val);
 	      zfactor = z.raw();
-	      bg = Bg::get_instance().impl(par(t_par), par(p_par), z).raw();
+	      auto __bg = Bg::get_instance().impl(par(t_par), par(p_par), z);
+	      bg = __bg.raw();
 	      ug = compute(ug_corr, 0, 1, check, ug_pars_list,
 			   p_par, p_par, npar("ppr", ppr_val), NPAR(z)).raw();
 	      pg = Pg::get_instance().impl(yg, pb_val, par(t_par),
@@ -1213,10 +1219,14 @@ void generate_grid()
 
 	      // TODO TMP: esta fallando. Por eso se pone aquí
 	      bw = compute(bw_corr, check, bw_pars_list, p_par);
-	      auto bw_vtl = VtlQuantity(*bw_corr.result_unit, bw);
+	      auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
 	      // TODO: idem que anterior
 	      pw = compute(pw_corr, 0, 1, check, pw_pars_list,
-			   p_par, npar("bw", bw_vtl)).raw();
+			   p_par, bw_par).raw();
+	      auto __rsw = compute(rsw_corr, 0, 1, check, rsw_pars_list, p_par);
+	      rsw = __rsw.raw();
+	      cw = compute(cw_corr, check, cw_pars_list, p_par, NPAR(z),
+			   npar("bg", __bg), npar("rsw", __rsw), bw_par);
 	    }
 	  catch (domain_error & e)
 	    {
@@ -1229,10 +1239,10 @@ void generate_grid()
 	  auto uw = compute(uw_corr, 0, 1, check, uw_pars_list,
 			    p_par, NPAR(ppw)).raw();
 
-	  size_t n = insert_in_container(row, get<2>(p_par), rs, co, bo, uo, po,
-					 zfactor, bg, ug, pg, bw, uw, pw);
+	  size_t n = row.ninsert(get<2>(p_par), rs, co, bo, uo, po, zfactor, bg,
+				 ug, pg, bw, uw, pw, rsw);
 
-	  assert(row.size() == 18);
+	  assert(row.size() == 19);
 
 	  print_row(row);
 
@@ -1241,32 +1251,17 @@ void generate_grid()
 
       row.mutable_drop(n);
 
-      rs_pars_list.remove_first(); // pb_par
-      rs_pars_list.remove_first(); // t_par
-
-      co_pars_list.remove_first(); // pb_par
-      co_pars_list.remove_first(); // t_par
-
-      bo_pars_list.remove_first(); // bobp
-      bo_pars_list.remove_first(); // pb_val
-      bo_pars_list.remove_first(); // t_par
-
-      uo_pars_list.remove_first(); // uobp
-      uo_pars_list.remove_first(); // pb_val
-      uo_pars_list.remove_first(); // uod_val
-      uo_pars_list.remove_first(); // t_par
-
-      po_pars_list.remove_first(); // pb
-      po_pars_list.remove_first(); // pobp
-
-      ug_pars_list.remove_first(); // t_par
-      ug_pars_list.remove_first(); // tpr
-
+      rs_pars_list.mutable_drop(2); // pb_par, t_par
+      co_pars_list.mutable_drop(2); // pb_par, t_par
+      bo_pars_list.mutable_drop(3); // bobp, pb_val, t_par
+      uo_pars_list.mutable_drop(4); // uobp, pb_val, uod_val, t_par
+      po_pars_list.mutable_drop(2); // pb, pobp
+      ug_pars_list.mutable_drop(2); // t_par, tpr
       bw_pars_list.remove_first(); // t_par
-
       uw_pars_list.remove_first(); // t_par
-
       pw_pars_list.remove_first(); // t_par
+      cw_pars_list.remove_first(); // t_par
+      rsw_pars_list.remove_first(); // t_par
     }
 }
 
