@@ -323,7 +323,11 @@ private:
 
   void set_hidden() { hidden = true; }
 
-  static string to_json();
+  static string json_of_all_correlations();
+
+  string to_json() const;
+
+  static string to_json(const string & subtype_name);
 
   void set_author(const string & __author) { author = __author; }
 
@@ -1079,15 +1083,6 @@ decltype(auto)
   return std::forward<Func>(f)(v.at(Is)...);
 }
  
-// template <typename Func, typename T>
-// decltype(auto) call_compute(Func&& f, const DynList<T>& pars)
-// {
-//   constexpr std::size_t N =
-//     Compute_arity<std::remove_pointer_t<std::decay_t<Func>>>::value;
-//   return
-//     call_compute(std::forward<Func>(f), pars, std::make_index_sequence<N>());
-// }
-
 # define Correlation_Singleton(name)					\
   public:								\
 									\
@@ -1109,8 +1104,7 @@ Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation, "P_b");
 Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation, "R_s");
 Declare_Correlation_Subtype(UndersaturatedOilVolumeFactor,
 			    OilCorrelation, "B_{oa}");
-Declare_Correlation_Subtype(SaturatedOilVolumeFactor, OilCorrelation,
-			    "B_{ob}");
+Declare_Correlation_Subtype(SaturatedOilVolumeFactor, OilCorrelation, "B_{ob}");
 Declare_Correlation_Subtype(SaturatedOilViscosity, OilCorrelation, "\\mu_{ob}");
 Declare_Correlation_Subtype(UndersaturatedOilViscosity, OilCorrelation,
 			    "\\mu_{oa}");
