@@ -132,7 +132,8 @@ string Correlation::json_of_all_correlations()
 	  for (auto it = l.get_it(); it.has_curr(); it.next())
 	    {
 	      auto corr_ptr = it.get_curr();
-	      corrs.push_back(::to_json(*corr_ptr));
+	      //corrs.push_back(::to_json(*corr_ptr));
+	      corrs.push_back(::to_json_concise(*corr_ptr));
 	    }
 
 	  physical_property["relations"] = corrs;
