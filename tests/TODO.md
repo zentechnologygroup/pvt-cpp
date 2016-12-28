@@ -47,12 +47,12 @@
 ## 16. búsqueda de unidades por tabla hash óptima
 - Created at   2016-12-05 08:24:35 -0400
 
-## 17. conversion de ft3/scf a RCF_SCF en gas-formation-volume-factor-unit
-- Created at   2016-12-27 10:45:48 -0400
-
-## 18. Pg::impl considerar quitar pb y validación
+## 17. Pg::impl considerar quitar pb y validación
 - Created at   2016-12-27 12:09:11 -0400
 
-## 19. Revisar precondicion en CobMcCainEtAl
+## 18. Revisar precondicion en CobMcCainEtAl
 - Created at   2016-12-28 11:50:52 -0400
+
+## 19. backend con lib optimizada
+- Created at   2016-12-28 18:00:54 -0400
 
