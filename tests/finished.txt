@@ -121,3 +121,4 @@ compute en Correlatin puede metaprogramarse mejor si se valida directamente el p
 option para generar R en test-grid,2016-12-23 17:10:49 -0400,2016-12-27 10:43:54 -0400,,2016-12-27 10:44:25 -0400
 poner las oras propiedades,2016-12-14 17:48:43 -0400,,oil density,2016-12-27 10:44:26 -0400
 nuevo programa que evalue correlacion recibiendo un arreglo,2016-11-22 10:40:29 -0400,2016-12-27 10:44:59 -0400,,2016-12-27 10:45:02 -0400
+conversion de ft3/scf a RCF_SCF en gas-formation-volume-factor-unit,2016-12-27 10:45:48 -0400,2016-12-28 17:48:29 -0400,,2016-12-28 17:48:32 -0400

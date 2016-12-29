@@ -97,14 +97,15 @@ CwbMcCain::impl(const Quantity<Fahrenheit> & t,
 		const Quantity<Dissolved_Salt_Percent> & nacl_concentration,
 		const Quantity<RB_SCF> & bg,
 		const Quantity<RB_STB> & bw,
-		const Quantity<psia_1> & cwpb) const
+		const Quantity<psia_1> & cwa) const
 {
   const double s = nacl_concentration.raw();
   const double t2 = pow2(t);
   const double t3 = t2*t.raw();
   const double t4 = t3*t.raw();
 
-  // Estimation of the derivative of solution gas-water ratio with respect to pressure [scf/STB psia]
+  // Estimation of the derivative of solution gas-water ratio with
+  // respect to pressure [scf/STB psia] 
   const double b = 1.01021e-2 - 7.44241e-5*t.raw() + 3.05553e-7*t2 -
     2.94883e-10*t3;
   const double c = (-9.02505 + 0.130237*t.raw() - 8.53425e-4*t2 + 2.34122e-6*t3 -
@@ -116,7 +117,7 @@ CwbMcCain::impl(const Quantity<Fahrenheit> & t,
   const double drswdp = drswdps * pow(10, -0.0840655*s*pow(t, -0.285854));
 
   // Isothermal compressibility
-  const double cwb = cwpb.raw() + bg.raw()/bw.raw() * drswdp;
+  const double cwb = cwa.raw() + bg.raw()/bw.raw() * drswdp;
 
   return Quantity<psia_1>(cwb);
 }

@@ -397,6 +397,12 @@ void test(int argc, char *argv[])
 
   SwitchArg json = { "j", "json", "output in json", cmd };
 
+  ValueArg<string> json_corr = { "J", "json-corr", "json for correlation",
+				 false, "", "json for correlation", cmd };
+
+  ValueArg<string> json_subtype = { "S", "subtype", "json for subtype", false,
+				    "", "json for subtype", cmd };
+
   SwitchArg server = { "X", "server-execute", "output adapted to server", cmd };
 
   ValueArg<size_t> n = { "n", "num-steps",
@@ -445,13 +451,32 @@ void test(int argc, char *argv[])
       exit(0);
     }
 
+  if (json_corr.isSet())
+    {
+      auto corr_ptr = Correlation::search_by_name(json_corr.getValue());
+      if (corr_ptr == nullptr)
+	{
+	  cout << "Correlation name " << json_corr.getValue() << " not found"
+	       << endl;
+	  abort();
+	}
+      cout << corr_ptr->to_json() << endl;
+      exit(0);
+    }
+
+  if (json_subtype.isSet())
+    {
+      cout << Correlation::to_json(json_subtype.getValue()) << endl;
+      exit(0);
+    }
+
   check = check_arg.getValue();
 
   if (list_corr.getValue())
     {
       if (json.getValue())
 	{
-	  cout << Correlation::to_json() << endl;
+	  cout << Correlation::json_of_all_correlations() << endl;
 	  exit(0);
 	}
       
