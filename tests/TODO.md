@@ -56,3 +56,6 @@
 ## 19. backend con lib optimizada
 - Created at   2016-12-28 18:00:54 -0400
 
+## 20. unificar FVF-colume-ratio con gas-formation-volume-factor
+- Created at   2016-12-29 17:36:29 -0400
+

@@ -1086,9 +1086,11 @@ void generate_grid()
   auto pw_pars_list = load_constant_parameters({pw_corr});
   auto rsw_pars_list = load_constant_parameters({rsw_corr});
   auto cw_pars_list = load_constant_parameters({cwb_corr, cwa_corr});
+  auto cwa_pars_list = load_constant_parameters({cwa_corr});
 
   // Nuevo valor tiene que entrar de 1ro aqui
-  cout << "rsw " << rsw_corr->unit.name
+  cout << "cw " << cwb_corr->unit.name
+       << ",rsw " << rsw_corr->unit.name
        << ",pw " << pw_corr->unit.name
        << ",uw " << uw_corr->unit.name
        << ",bw " << bwb_corr->unit.name
@@ -1180,6 +1182,7 @@ void generate_grid()
       pw_pars_list.insert(t_par);
       rsw_pars_list.insert(t_par);
       cw_pars_list.insert(t_par);
+      cwa_pars_list.insert(t_par);
 
       //auto cwpb = compute(cwa_corr, 0, 1, check, cw_pars_list,
       size_t n =
@@ -1224,9 +1227,13 @@ void generate_grid()
 	      pw = compute(pw_corr, 0, 1, check, pw_pars_list,
 			   p_par, bw_par).raw();
 	      auto __rsw = compute(rsw_corr, 0, 1, check, rsw_pars_list, p_par);
+	      auto rsw_par = npar("rsw", __rsw);
 	      rsw = __rsw.raw();
+
+	      auto cwa = compute(cwa_corr, 0, 1, check, cwa_pars_list,
+				 p_par, rsw_par);
 	      cw = compute(cw_corr, check, cw_pars_list, p_par, NPAR(z),
-			   npar("bg", __bg), npar("rsw", __rsw), bw_par);
+			   npar("bg", __bg), rsw_par, bw_par, NPAR(cwa));
 	    }
 	  catch (domain_error & e)
 	    {
@@ -1240,9 +1247,9 @@ void generate_grid()
 			    p_par, NPAR(ppw)).raw();
 
 	  size_t n = row.ninsert(get<2>(p_par), rs, co, bo, uo, po, zfactor, bg,
-				 ug, pg, bw, uw, pw, rsw);
+				 ug, pg, bw, uw, pw, rsw, cw);
 
-	  assert(row.size() == 19);
+	  assert(row.size() == 20);
 
 	  print_row(row);
 

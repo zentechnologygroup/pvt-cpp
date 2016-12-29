@@ -12,7 +12,6 @@ using namespace std;
 using ValPair = pair<double, const Unit*>;
 using ParPair = pair<string, ValPair>;
 
-
 using HashParTbl =
   DynMapHashTable<string, ValPair, Dft_Pair_Cmp<string, ValPair>, ODhashTable>;
 

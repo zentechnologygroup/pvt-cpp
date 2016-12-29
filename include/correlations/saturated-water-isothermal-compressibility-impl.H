@@ -41,7 +41,8 @@ CwbSpiveyMN::impl(const Quantity<Celsius> & t,
     MwSpiveyMN::get_instance().impl(t, p, pv, nacl_concentration).raw();
 
 
-  // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE TEMPERATURE AND PRESSURE OF EVALUATION 
+  // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE
+  // TEMPERATURE AND PRESSURE OF EVALUATION 
   const double m = nacl_concentration.raw();
   // Derivatives with respect to P
   const double c3 = -8.5658e-2 + 1.31961e-2*log(tk) + 7.338/tk + 9.05e-2/(680 - tk);

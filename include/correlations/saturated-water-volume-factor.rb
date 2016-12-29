@@ -1,6 +1,6 @@
 # coding: utf-8
 
-begin_correlation("BwbSpiveyMN", "SaturatedWaterVolumeFactor", "Sm3_Sm3") # TODO: la unidad debe ser Scm3/Scm3
+begin_correlation("BwbSpiveyMN", "SaturatedWaterVolumeFactor", "Rm3_Sm3") # TODO: la unidad debe ser Scm3/Scm3
 add_title("SPIVEY, McCAIN & NORTH CORRELATION, CALCULATION OF WATER FORMATION VOLUME FACTOR ")
 add_db("The volumetric properties of oilfield brines were obtained by combining the correlations developed by Spivey, McCain & North (2004), for density of methane-free sodium chloride brine and solubility of methane in sodium chloride brines, with published correlations for specific volume and partial molar volume of methane in brine.")
 add_parameter("t", "Celsius", "Temperature", 0, 275) 

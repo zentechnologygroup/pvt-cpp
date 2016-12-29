@@ -92,7 +92,7 @@ CgfwSpiveyMN::impl(const Quantity<Celsius> & t,
 }
 
 
-inline Quantity<Sm3_Sm3>
+inline Quantity<Rm3_Sm3>
 BwSpiveyMNDry::impl(const Quantity<Celsius> & t,
 		    const Quantity<mPascal> & p,
 		    const Quantity<mPascal> & pv,
@@ -157,7 +157,7 @@ BwSpiveyMNDry::impl(const Quantity<Celsius> & t,
   const double d = (1000 + m * 58.4428) * vgfwstd;                  // Volume at stock tank conditions
   const double bw = n/d;
 
-  return Quantity<Sm3_Sm3>(bw);
+  return Quantity<Rm3_Sm3>(bw);
 }
 
 
