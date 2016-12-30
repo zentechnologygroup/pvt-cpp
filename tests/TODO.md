@@ -59,3 +59,6 @@
 ## 20. unificar FVF-colume-ratio con gas-formation-volume-factor
 - Created at   2016-12-29 17:36:29 -0400
 
+## 21. dry de compute_by_names en defined-correlation
+- Created at   2016-12-30 13:53:19 -0400
+

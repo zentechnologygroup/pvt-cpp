@@ -1101,6 +1101,11 @@ public:
     new (this) VtlQuantity(q.unit, q.raw());
   }
 
+  void set(double val, const Unit * unit_ptr)
+  {
+    new (this) VtlQuantity(*unit_ptr, val);
+  }
+
   VtlQuantity(const string & unit_name, double val = 0)
     : BaseQuantity(unit_given_name(unit_name), val)
   {

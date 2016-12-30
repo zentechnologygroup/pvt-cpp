@@ -16,6 +16,8 @@
 # include <units/pvt-units.H>
 # include <biblio.H>
 
+# include "par-list.H"
+
 struct CorrelationPar
 {
   const string name;
@@ -842,6 +844,15 @@ public:
 
     return compute(vals, check);
   }
+
+  VtlQuantity compute_by_names(const ParList & par_list, bool check = true) const
+  {
+    DynList<VtlQuantity> vals;
+    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+      vals.append(par_list(it.get_curr().names()));
+
+    return compute(vals, check);
+  }
   
   VtlQuantity tuned_compute_and_check(const DynList<VtlQuantity> & pars,
 				      double c, double m,
@@ -909,6 +920,13 @@ public:
 			 double c, double m, bool check = true) const
   {
     return VtlQuantity(unit, c + m*compute_by_names(pair_list, check).raw());
+  }
+
+  VtlQuantity
+  tuned_compute_by_names(const ParList & par_list,
+			 double c, double m, bool check = true) const
+  {
+    return VtlQuantity(unit, c + m*compute_by_names(par_list, check).raw());
   }
 
   double

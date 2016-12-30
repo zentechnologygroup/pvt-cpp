@@ -70,6 +70,14 @@ class DefinedCorrelation
 	correlation_ptr->compute_by_names(pars, check);
       return to_result_unit(val);
     }
+
+    VtlQuantity compute(const ParList & pars, bool check = true) const
+    {
+      auto val = tuned ?
+	correlation_ptr->tuned_compute_by_names(pars, c, m, check) :
+	correlation_ptr->compute_by_names(pars, check);
+      return to_result_unit(val);
+    }
   };
 
   struct Cmp
@@ -93,8 +101,8 @@ public:
   const Unit * result_unit = nullptr; // it will be the result unit of
 				      // the first defined correlation
 
-  /// Returns a list union of all parameters. Each item is a pair with
-  /// the parameter name and a list of parameter synonyms
+  /// Returns a list union of all parameters names. Each item is a
+  /// pair with the parameter name and a list of parameter synonyms
   DynList<pair<string, DynList<string>>> parameter_list() const
   {
     using P = pair<string, DynList<string>>;
@@ -236,6 +244,26 @@ public:
     double main_val = get<2>(*main_par_ptr);
 
     Interval * interval_ptr = search_interval(main_val);
+    if (interval_ptr == nullptr)
+      {
+	ostringstream s;
+	s << "DefinedCorrelation: value " << main_val
+	  << " was not found in any interval";
+	throw domain_error(s.str());
+      }
+
+    double val = interval_ptr->compute(pars, check).raw();
+    if (val < min_val)
+      return min_val;
+    if (val > max_val)
+      return max_val;
+    return val;
+  }
+
+  double compute_by_names(const ParList & pars, bool check = true) const
+  {
+    VtlQuantity main_val = pars(main_par_name);
+    Interval * interval_ptr = search_interval(main_val.raw());
     if (interval_ptr == nullptr)
       {
 	ostringstream s;
