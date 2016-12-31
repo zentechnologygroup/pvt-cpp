@@ -24,12 +24,12 @@ struct ParEqual
 
 inline size_t first_par_hash(const ParPair & p)
 {
-  return dft_hash_fct<string>(p.first);
+  return dft_hash_fct(p.first);
 }
 
 inline size_t second_par_hash(const ParPair & p)
 {
-  return snd_hash_fct<string>(p.first);
+  return snd_hash_fct(p.first);
 }
 
 using HashParTbl = ODhashTable<ParPair, ParEqual>;
@@ -50,7 +50,11 @@ public:
 
   void insert(const string & name, double val, const Unit * unit_ptr)
   {
-    tbl.insert(make_pair(name, make_pair(val, unit_ptr)));
+    auto p = tbl.insert(make_pair(name, make_pair(val, unit_ptr)));
+    if (p)
+      cout << "Inserted " << name << endl;
+    else
+      cout << "Failed " << name << endl;
   }
 
   void insert(const NamedPar & par)
@@ -73,6 +77,9 @@ public:
 
   VtlQuantity search(const DynList<pair<string, const Unit*>> & names) const
   {
+    cout << "Searching";
+    names.for_each([] (auto p) { cout << " " << p.first; });
+    cout << endl;
     for (auto it = names.get_it(); it.has_curr(); it.next())
       {
 	const auto & p = it.get_curr();
@@ -88,7 +95,7 @@ public:
 	  }
       }
     ostringstream s;
-    s << "aliases {";
+    s << "name or aliases for {";
     for (auto it = names.get_it(); it.has_curr(); it.next())
       {
 	const auto & p = it.get_curr();
@@ -97,7 +104,7 @@ public:
 	if (&p != &names.get_last())
 	  s << ", ";
       }
-    s << "} have not bees found in parameter list";
+    s << "} have not been found in parameter list";
     throw domain_error(s.str());
   }
 

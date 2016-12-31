@@ -985,11 +985,11 @@ void generate_grid()
   set_yg();
   set_tsep();
   set_psep();
-  set_pb();
   set_h2s_concentration();
   set_co2_concentration();
   set_n2_concentration();
   set_nacl_concentration();
+  set_pb();
   
   set_rs_corr(true);
   set_bob_corr(true);
