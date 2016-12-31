@@ -76,6 +76,13 @@ libpvt.so: pvt.cc
 	gcc -shared -o libpvt.so aux.o; \	@@\
 	$(RM) -f aux.o
 
+libpvt-op.a: pvt.cc
+	$(RM) -f $@;		\	@@\
+	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) pvt.cc -o aux.o;\	@@\
+	ar clq libpvt-op.a aux.o; \	@@\
+	ranlib libpvt-op.a; \	@@\
+	$(RM) -f aux.o
+
 NormalLibraryObjectRule()
 NormalLibraryTarget(pvt,$(OBJS))
 InstallLibrary(pvt,./)

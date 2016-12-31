@@ -746,6 +746,8 @@ ParList compute_pb_and_load_constant_parameters()
   return pars_list;
 }
 
+# define INVALID_VALUE numeric_limits<double>::max()
+
 template <typename ... Args> inline
 VtlQuantity compute(const Correlation * corr_ptr,
 		    double c, double m, bool check,
@@ -961,8 +963,6 @@ DynList<DynList<double>> generate_uo_values()
 
   return vals;
 }
-
-# define INVALID_VALUE numeric_limits<double>::max()
 
 void print_row(const DynList<double> & row)
 {

@@ -12,12 +12,19 @@ using json = nlohmann::json;
 UnitItemTable PhysicalQuantity::tbl;
 
 UnitItemTable Unit::tbl;
-DynSetTree<const Unit * const> Unit::unit_tbl;
+DynSetHash<const Unit *> Unit::unit_tbl(100);
 
-UnitHashTbl __unit_name_name_tbl;
-UnitHashTbl __unit_name_symbol_tbl;
-UnitHashTbl __unit_symbol_name_tbl;
-UnitHashTbl __unit_symbol_symbol_tbl;
+static size_t
+unit_pair_hash(const pair<pair<string, string>, Unit_Convert_Fct_Ptr> & p)
+{
+  const auto & f = p.first;
+  return dft_hash_fct(f.first) + dft_hash_fct(f.second);
+}
+
+UnitHashTbl __unit_name_name_tbl(500, unit_pair_hash);
+UnitHashTbl __unit_name_symbol_tbl(500, unit_pair_hash);
+UnitHashTbl __unit_symbol_name_tbl(500, unit_pair_hash);
+UnitHashTbl __unit_symbol_symbol_tbl(500, unit_pair_hash);
 CompoundUnitTbl __compound_unit_tbl;
 
 static std::mutex unit_mutex;

@@ -11,13 +11,13 @@ FLAGS = -std=c++14 $(WARN) $(OPTFLAGS)
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
-SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lnlopt -lstdc++ -lgsl -lgslcblas -lm -lc
+SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
 
-DEPLIBS	= $(TOP)/lib/libpvt.a
+DEPLIBS	= $(TOP)/lib/libpvt-op.a
 
-LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
+LOCAL_LIBRARIES = $(TOP)/lib/libpvt-op.a
 
-TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot-corr.cc
+TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
@@ -35,9 +35,9 @@ backend-corr: test-corr
 	$(CP) test-corr backend-corr; 	\	@@\
 	upx --best backend-corr
 
-backend-plot: plot-corr
+backend-plot: plot
 	$(RM) backend-plot; 	\	@@\
-	$(CP) plot-corr backend-plot; 	\	@@\
+	$(CP) plot backend-plot; 	\	@@\
 	upx --best backend-plot
 
 backend-calibrate: test-calibrate
@@ -54,7 +54,7 @@ NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LI
 AllTarget(test-calibrate)
 NormalProgramTarget(test-calibrate,test-calibrate.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
-AllTarget(plot-corr)
-NormalProgramTarget(plot-corr,plot-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+AllTarget(plot)
+NormalProgramTarget(plot,plot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()

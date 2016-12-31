@@ -36,6 +36,7 @@ using HashParTbl = ODhashTable<ParPair, ParEqual>;
 
 class ParList
 {
+public:
   HashParTbl tbl;
 
   static const size_t tbl_size = 50;
@@ -50,11 +51,7 @@ public:
 
   void insert(const string & name, double val, const Unit * unit_ptr)
   {
-    auto p = tbl.insert(make_pair(name, make_pair(val, unit_ptr)));
-    if (p)
-      cout << "Inserted " << name << endl;
-    else
-      cout << "Failed " << name << endl;
+    tbl.insert(make_pair(name, make_pair(val, unit_ptr)));
   }
 
   void insert(const NamedPar & par)
@@ -77,9 +74,6 @@ public:
 
   VtlQuantity search(const DynList<pair<string, const Unit*>> & names) const
   {
-    cout << "Searching";
-    names.for_each([] (auto p) { cout << " " << p.first; });
-    cout << endl;
     for (auto it = names.get_it(); it.has_curr(); it.next())
       {
 	const auto & p = it.get_curr();
