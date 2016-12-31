@@ -771,14 +771,14 @@ template <typename ... Args> inline
 VtlQuantity compute(const Correlation * corr_ptr,
 		    double c, double m, bool check, Args ... args)
 {
-  DynList<Correlation::NamedPar> pars_list;
+  ParList pars_list;
   return compute(corr_ptr, c, m, check, pars_list, args...);
 }
 
 template <typename ... Args> inline
 double compute(const DefinedCorrelation & corr, bool check, Args ... args)
 {
-  DynList<Correlation::NamedPar> pars_list;
+  ParList pars_list;
   return compute(corr, check, pars_list, args...);
 }
 
@@ -894,7 +894,7 @@ DynList<DynList<double>> generate_bo_values()
       row.remove_first(); // t_par
 
       remove_from_container(rs_pars_list, pb_par, t_par); 
-      remove_from_container(bo_pars_list, "bobp", pb_val, t_par);
+      remove_from_container(bo_pars_list, "bobp", "pb", t_par);
     }
 
   return vals;
@@ -1225,11 +1225,11 @@ void generate_grid()
 
       row.mutable_drop(n);
 
-      remove_from_container(rs_pars, pb_par, t_par);
-      remove_from_container(co_pars, pb_par, t_par);
-      remove_from_container(bo_pars, bobp, pb_val, t_par);
-      remove_from_container(uo_pars, uobp, pb_val, uod_val, t_par);
-      remove_from_container(po_pars, pb, pobp);
+      remove_from_container(rs_pars, "pb", t_par);
+      remove_from_container(co_pars, "pb", t_par);
+      remove_from_container(bo_pars, "bobp", "pb", t_par);
+      remove_from_container(uo_pars, "uobp", "pb", "uod", t_par);
+      remove_from_container(po_pars, "pb", "pobp");
       remove_from_container(ug_pars, t_par, "tpr");
       bw_pars.remove(t_par); 
       uw_pars.remove(t_par); 
