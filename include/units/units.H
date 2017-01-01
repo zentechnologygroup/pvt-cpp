@@ -1098,6 +1098,8 @@ public:
 
   static const VtlQuantity null_quantity;
 
+  bool is_null() const { return &unit == &Unit::null_unit; }
+
   void set(const BaseQuantity & q)
   {
     new (this) VtlQuantity(q.unit, q.raw());
