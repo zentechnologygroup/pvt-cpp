@@ -26,39 +26,42 @@
 ## 9. Buscar parámetro yo y asegurar que exista sinónimo api. Análogamente para api
 - Created at   2016-11-29 10:23:50 -0400
 
-## 10. lib y optimización de pase de parámetros por nombre
-- Created at   2016-11-30 09:55:34 -0400
-
-## 11. calibrar co
+## 10. calibrar co
 - Created at   2016-11-30 10:30:58 -0400
 
-## 12. profiling (quiza con google-pprof
+## 11. profiling (quiza con google-pprof
 - Created at   2016-12-01 11:44:25 -0400
 
-## 13. compute en empirical_data 1405: se puede acer más raṕido
+## 12. compute en empirical_data 1405: se puede acer más raṕido
 - Created at   2016-12-01 17:30:02 -0400
 
-## 14. correlations en hidden no deben aparecer en test-calibrate ni plot-corr
+## 13. correlations en hidden no deben aparecer en test-calibrate ni plot-corr
 - Created at   2016-12-01 17:48:58 -0400
 
-## 15. ajustar uod en test-calibrate
+## 14. ajustar uod en test-calibrate
 - Created at   2016-12-03 09:07:15 -0400
 
-## 16. búsqueda de unidades por tabla hash óptima
+## 15. búsqueda de unidades por tabla hash óptima
 - Created at   2016-12-05 08:24:35 -0400
 
-## 17. Pg::impl considerar quitar pb y validación
+## 16. Pg::impl considerar quitar pb y validación
 - Created at   2016-12-27 12:09:11 -0400
+- Completed at 2016-12-31 14:52:02 -0400
 
-## 18. Revisar precondicion en CobMcCainEtAl
+## 17. Revisar precondicion en CobMcCainEtAl
 - Created at   2016-12-28 11:50:52 -0400
+- Completed at 2016-12-31 14:51:56 -0400
 
-## 19. backend con lib optimizada
+## 18. backend con lib optimizada
 - Created at   2016-12-28 18:00:54 -0400
+- Completed at 2016-12-31 14:52:12 -0400
 
-## 20. unificar FVF-colume-ratio con gas-formation-volume-factor
+## 19. unificar FVF-colume-ratio con gas-formation-volume-factor
 - Created at   2016-12-29 17:36:29 -0400
 
-## 21. dry de compute_by_names en defined-correlation
+## 20. dry de compute_by_names en defined-correlation
 - Created at   2016-12-30 13:53:19 -0400
+
+## 21. validar precondiciones especiales en correlaciones por funciones definidas en ruby
+- Created at   2017-01-01 12:49:07 -0400
 

@@ -748,15 +748,41 @@ ParList compute_pb_and_load_constant_parameters()
 
 # define INVALID_VALUE numeric_limits<double>::max()
 
+inline VtlQuantity compute_z(const Correlation * zcorr,
+			     const Quantity<PseudoReducedPressure> & ppr,
+			     const Quantity<PseudoReducedTemperature> & tpr)
+{
+  try
+    {
+      return zcorr->compute(ppr, tpr);
+    }
+  catch (...)
+    {
+      return VtlQuantity::null_quantity;
+    }
+}
+
+// VtlQuantity compute_pg(
+// pg = Pg::get_instance().impl(yg, pb_val, par(t_par),
+
 template <typename ... Args> inline
 VtlQuantity compute(const Correlation * corr_ptr,
 		    double c, double m, bool check,
 		    ParList & pars_list, Args ... args)
 {
   insert_in_container(pars_list, args...);
-  VtlQuantity ret = corr_ptr->tuned_compute_by_names(pars_list, c, m, check);
-  remove_from_container(pars_list, args ...);
-  return ret;
+  try
+    {
+      auto ret = corr_ptr->tuned_compute_by_names(pars_list, c, m, check);
+      remove_from_container(pars_list, args...);
+      return ret;
+    }
+  catch (...)
+    {
+      remove_from_container(pars_list, args ...);
+      assert(VtlQuantity::null_quantity.is_null());
+      return VtlQuantity::null_quantity;
+    }
 }
 
 template <typename ... Args> inline
@@ -764,7 +790,15 @@ double compute(const DefinedCorrelation & corr, bool check,
 	       ParList & pars_list, Args ... args)
 {
   insert_in_container(pars_list, args ...);
-  double ret = corr.compute_by_names(pars_list, check);
+  double ret = INVALID_VALUE;
+  try
+    {
+      ret = corr.compute_by_names(pars_list, check);
+    }
+  catch (...)
+    {
+      // empty
+    }
   remove_from_container(pars_list, args ...);
   return ret;
 }
@@ -1095,8 +1129,8 @@ void generate_grid()
       auto pb_val = // calculo de pb
 	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
       auto pb = pb_val.raw();
-      auto pb_par = make_tuple(true, "pb", pb, &pb_val.unit);
-      auto p_pb = make_tuple(true, "p", pb, &pb_val.unit);
+      auto pb_par = npar("pb", pb_val);
+      auto p_pb = npar("p", pb_val);
 
       // cálculo de uod
       auto uod_val = compute(uod_corr, 0, 1, check, uod_pars, t_par);
@@ -1116,8 +1150,7 @@ void generate_grid()
 			   bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
 			   boa_corr, c_boa_arg.getValue(), m_boa_arg.getValue());
 
-      insert_in_container(uo_pars, t_par, pb_par,
-			  make_tuple(true, "uod", uod_val.raw(), &uod_val.unit));
+      insert_in_container(uo_pars, t_par, pb_par, npar("uod", uod_val));
       auto uo_corr =
 	define_correlation(pb,
 			   uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
@@ -1139,17 +1172,15 @@ void generate_grid()
       auto uobp = compute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
 			  check, uo_pars, p_pb, rs_pb);
 
-      insert_in_container(bo_pars, pb_par,
-			  make_tuple(true, "bobp", bobp.raw(), &bobp.unit));
+      insert_in_container(bo_pars, pb_par, NPAR(bobp));
 
       uo_pars.insert("uobp", uobp.raw(), &uobp.unit);
 
       // Cálculo de pobp
       auto pobp = compute(&PobBradley::get_instance(), 0, 1, check, po_pars,
-			  rs_pb, make_tuple(true, "bob", bobp.raw(), &bobp.unit));
+			  rs_pb, npar("bob", bobp));
 
-      insert_in_container(po_pars, pb_par,
-			  make_tuple(true, "pobp", pobp.raw(), &pobp.unit));
+      insert_in_container(po_pars, pb_par, npar("pobp", pobp));
       insert_in_container(ug_pars, npar("tpr", tpr_val), t_par);
       bw_pars.insert(t_par);
       uw_pars.insert(t_par);
@@ -1158,7 +1189,6 @@ void generate_grid()
       cw_pars.insert(t_par);
       cwa_pars.insert(t_par);
 
-      //auto cwpb = compute(cwa_corr, 0, 1, check, cw_pars_list,
       size_t n =
 	row.ninsert(get<2>(t_par), pb, uod_val.raw(), bobp.raw(), uobp.raw());
 
@@ -1175,38 +1205,33 @@ void generate_grid()
 	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
 
+	  VtlQuantity z = compute_z(zfactor_corr, ppr_val, tpr_val);
+	  if (z.is_null())
+	    cout << "Z NULL" << endl;
 	  double zfactor = INVALID_VALUE, bg = INVALID_VALUE, ug = INVALID_VALUE,
 	    pg = INVALID_VALUE, bw = INVALID_VALUE, pw = INVALID_VALUE,
 	    rsw = INVALID_VALUE, cw = INVALID_VALUE;
-	  try
-	    {
-	      auto z = zfactor_corr->compute(ppr_val, tpr_val);
-	      zfactor = z.raw();
-	      auto __bg = Bg::get_instance().impl(par(t_par), par(p_par), z);
-	      bg = __bg.raw();
-	      ug = compute(ug_corr, 0, 1, check, ug_pars,
-			   p_par, p_par, npar("ppr", ppr_val), NPAR(z)).raw();
-	      pg = Pg::get_instance().impl(yg, pb_val, par(t_par),
-					   par(p_par), z).raw();
 
-	      // TODO TMP: esta fallando. Por eso se pone aquí
-	      bw = compute(bw_corr, check, bw_pars, p_par);
-	      auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
-	      // TODO: idem que anterior
-	      pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par).raw();
-	      auto __rsw = compute(rsw_corr, 0, 1, check, rsw_pars, p_par);
-	      auto rsw_par = npar("rsw", __rsw);
-	      rsw = __rsw.raw();
+	  zfactor = z.raw();
+	  auto __bg = Bg::get_instance().impl(par(t_par), par(p_par), z);
+	  bg = __bg.raw();
+	  ug = compute(ug_corr, 0, 1, check, ug_pars,
+		       p_par, npar("ppr", ppr_val), NPAR(z)).raw();
+	  pg = Pg::get_instance().impl(yg, pb_val, par(t_par),
+				       par(p_par), z).raw();
 
-	      auto cwa = compute(cwa_corr, 0, 1, check, cwa_pars, p_par, rsw_par);
-	      cw = compute(cw_corr, check, cw_pars, p_par, NPAR(z),
-			   npar("bg", __bg), rsw_par, bw_par, NPAR(cwa));
-	    }
-	  catch (domain_error & e)
-	    {
-	      //cout << e.what() << endl;
-	      /* ignore it! */
-	    }
+	  // TODO TMP: esta fallando. Por eso se pone aquí
+	  bw = compute(bw_corr, check, bw_pars, p_par);
+	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
+	  // TODO: idem que anterior
+	  pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par).raw();
+	  auto __rsw = compute(rsw_corr, 0, 1, check, rsw_pars, p_par);
+	  auto rsw_par = npar("rsw", __rsw);
+	  rsw = __rsw.raw();
+
+	  auto cwa = compute(cwa_corr, 0, 1, check, cwa_pars, p_par, rsw_par);
+	  cw = compute(cw_corr, check, cw_pars, p_par, NPAR(z),
+		       npar("bg", __bg), rsw_par, bw_par, NPAR(cwa));
 
 	  auto ppw = PpwSpiveyMN::get_instance().impl(par(t_par), par(p_par));
 
