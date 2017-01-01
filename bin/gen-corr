@@ -96,7 +96,6 @@ class CorrelationGen
 
   def add_precondition(*pnames)
     fail "precondition check has already been defined" if @pnames
-    puts "pars = #{@pars.map { |par| par.name }}"
     if !pnames.all? { |name| @pars.detect { |par| par.name == name } }
       fail "Any parameter between #{pnames} was not defined"
     end
