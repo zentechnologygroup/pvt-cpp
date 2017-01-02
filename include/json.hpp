@@ -873,8 +873,17 @@ class basic_json
                     break;
                 }
 
+                case value_t::null:
+                {
+                    break;
+                }
+
                 default:
                 {
+                    if (t == value_t::null)
+                    {
+                        throw std::domain_error("961c151d2e87f2686a955a9be24d316f1362bf21"); // LCOV_EXCL_LINE
+                    }
                     break;
                 }
             }
@@ -6871,26 +6880,11 @@ class basic_json
         {
             throw std::out_of_range("len+offset out of range");
         }
-    }
 
-    /*!
-    @brief checks if a given length does not exceed the size of a given vector
-
-    To secure the access to the byte vector during CBOR/MessagePack
-    deserialization, bytes are copied from the vector into buffers. This
-    function checks if the number of bytes to copy (@a len) does not exceed the
-    size of the given vector @a vec.
-
-    @param[in] vec  byte vector
-    @param[in] len  length
-
-    @throws out_of_range if `len > v.size()`
-    */
-    static void check_length(const std::vector<uint8_t>& vec, const size_t& len)
-    {
-        if (len > vec.size())
+        // last case: reading past the end of the vector
+        if (len + offset > size)
         {
-            throw std::out_of_range("len out of range");
+            throw std::out_of_range("len+offset out of range");
         }
     }
 
@@ -6910,6 +6904,9 @@ class basic_json
     */
     static basic_json from_msgpack_internal(const std::vector<uint8_t>& v, size_t& idx)
     {
+        // make sure reading 1 byte is safe
+        check_length(v.size(), 1, idx);
+
         // store and increment index
         const size_t current_idx = idx++;
 
@@ -6975,6 +6972,7 @@ class basic_json
                 case 0xca: // float 32
                 {
                     // copy bytes in reverse order into the double variable
+                    check_length(v.size(), sizeof(float), 1);
                     float res;
                     for (size_t byte = 0; byte < sizeof(float); ++byte)
                     {
@@ -6987,6 +6985,7 @@ class basic_json
                 case 0xcb: // float 64
                 {
                     // copy bytes in reverse order into the double variable
+                    check_length(v.size(), sizeof(double), 1);
                     double res;
                     for (size_t byte = 0; byte < sizeof(double); ++byte)
                     {
@@ -7148,7 +7147,7 @@ class basic_json
         // store and increment index
         const size_t current_idx = idx++;
 
-        switch (v[current_idx])
+        switch (v.at(current_idx))
         {
             // Integer 0x00..0x17 (0..23)
             case 0x00:
@@ -7329,7 +7328,7 @@ class basic_json
             case 0x7f: // UTF-8 string (indefinite length)
             {
                 std::string result;
-                while (v[idx] != 0xff)
+                while (v.at(idx) != 0xff)
                 {
                     string_t s = from_cbor_internal(v, idx);
                     result += s;
@@ -7425,7 +7424,7 @@ class basic_json
             case 0x9f: // array (indefinite length)
             {
                 basic_json result = value_t::array;
-                while (v[idx] != 0xff)
+                while (v.at(idx) != 0xff)
                 {
                     result.push_back(from_cbor_internal(v, idx));
                 }
@@ -7525,7 +7524,7 @@ class basic_json
             case 0xbf: // map (indefinite length)
             {
                 basic_json result = value_t::object;
-                while (v[idx] != 0xff)
+                while (v.at(idx) != 0xff)
                 {
                     std::string key = from_cbor_internal(v, idx);
                     result[key] = from_cbor_internal(v, idx);
@@ -7552,6 +7551,7 @@ class basic_json
 
             case 0xf9: // Half-Precision Float (two-byte IEEE 754)
             {
+                check_length(v.size(), 2, 1);
                 idx += 2; // skip two content bytes
 
                 // code from RFC 7049, Appendix D, Figure 3:
@@ -7583,6 +7583,7 @@ class basic_json
             case 0xfa: // Single-Precision Float (four-byte IEEE 754)
             {
                 // copy bytes in reverse order into the float variable
+                check_length(v.size(), sizeof(float), 1);
                 float res;
                 for (size_t byte = 0; byte < sizeof(float); ++byte)
                 {
@@ -7594,6 +7595,7 @@ class basic_json
 
             case 0xfb: // Double-Precision Float (eight-byte IEEE 754)
             {
+                check_length(v.size(), sizeof(double), 1);
                 // copy bytes in reverse order into the double variable
                 double res;
                 for (size_t byte = 0; byte < sizeof(double); ++byte)
@@ -7663,11 +7665,6 @@ class basic_json
     */
     static basic_json from_msgpack(const std::vector<uint8_t>& v)
     {
-        if (v.empty())
-        {
-            throw std::invalid_argument("empty vector");
-        }
-
         size_t i = 0;
         return from_msgpack_internal(v, i);
     }
@@ -7725,11 +7722,6 @@ class basic_json
     */
     static basic_json from_cbor(const std::vector<uint8_t>& v)
     {
-        if (v.empty())
-        {
-            throw std::invalid_argument("empty vector");
-        }
-
         size_t i = 0;
         return from_cbor_internal(v, i);
     }

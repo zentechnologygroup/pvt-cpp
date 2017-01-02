@@ -4,23 +4,40 @@
 
 # include <correlations/undersaturated-oil-viscosity.H>
 
+void UoaKartoatmodjoSchmidt::precondition(const Quantity<psia> & p,
+					  const Quantity<psia> & pb) const
+{
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "UoaKartoatmodjoSchmidt::impl: pressure " <<
+	p << " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+}
+
+
 inline Quantity<CP>
 UoaKartoatmodjoSchmidt::impl(const Quantity<CP> & uobp,
 			     const Quantity<psia> & pb,
 			     const Quantity<psia> & p) const
 {
-  if (not (p > pb))
-    {
-      ostringstream s;
-      s << "UoaKartoatmodjoSchmidt::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
-    }
-
   const double p_pb = p.raw() - pb.raw();
   const double uoa = 1.00081*uobp.raw() +
     0.001127*p_pb*(-0.006517*pow(uobp, 1.8148) + 0.038*pow(uobp,  1.59));
-
   return Quantity<CP>(uoa);
+}
+
+void UoaDeGhettoEtAl::precondition(const Quantity<psia> & p,
+				   const Quantity<psia> & pb) const
+{
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "UoaDeGhettoEtAl::impl: pressure " << p
+	<< " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
 }
 
 inline Quantity<CP>
@@ -30,13 +47,6 @@ UoaDeGhettoEtAl::impl(const Quantity<CP> & uobp,
 		      const Quantity<CP> & uod,
 		      const Quantity<Api> & api) const
 {
-  if (not (p > pb))
-    {
-      ostringstream s;
-      s << "UoaDeGhettoEtAl::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
-    }
-
   double uoa = 0;
   if (api <= 10) // Extra-heavy oil
     {                  
@@ -52,10 +62,8 @@ UoaDeGhettoEtAl::impl(const Quantity<CP> & uobp,
   return Quantity<CP>(uoa);
 }
 
-inline Quantity<CP>
-UoaBeal::impl(const Quantity<CP> & uobp,
-	      const Quantity<psia> & p,
-	      const Quantity<psia> & pb) const
+void UoaBeal::precondition(const Quantity<psia> & p,
+			   const Quantity<psia> & pb) const
 {
   if (not (p > pb))
     {
@@ -63,11 +71,28 @@ UoaBeal::impl(const Quantity<CP> & uobp,
       s << "UoaBeal::impl: pressure " << p << " is not greater than pb " << pb;
       throw domain_error(s.str());
     }
+}
 
+inline Quantity<CP>
+UoaBeal::impl(const Quantity<CP> & uobp,
+	      const Quantity<psia> & p,
+	      const Quantity<psia> & pb) const
+{
   const double uoa = uobp.raw() + 0.001*(p.raw() - pb.raw()) *
     (0.024*pow(uobp, 1.6) + 0.038 * pow(uobp, 0.56));
-
   return Quantity<CP>(uoa);
+}
+
+void UoaVasquezBeggs::precondition(const Quantity<psia> & p,
+				   const Quantity<psia> & pb) const
+{
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "UoaVasquezBeggs::impl: pressure " << p
+	<< " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
 }
 
 inline Quantity<CP>
@@ -75,13 +100,6 @@ UoaVasquezBeggs::impl(const Quantity<CP> & uobp,
 		      const Quantity<psia> & p,
 		      const Quantity<psia> & pb) const
 {
-  if (not (p > pb))
-    {
-      ostringstream s;
-      s << "UoaVasquezBeggs::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
-    }
-
   constexpr double c1 = 2.6;
   constexpr double c2 = 1.187;
   constexpr double c3 = -11.513;
@@ -96,11 +114,8 @@ UoaVasquezBeggs::impl(const Quantity<CP> & uobp,
   return Quantity<CP>(uoa);
 }
 
-
-inline Quantity<CP>
-UoaKhan::impl(const Quantity<CP> & uobp,
-	      const Quantity<psia> & p,
-	      const Quantity<psia> & pb) const
+void UoaKhan::precondition(const Quantity<psia> & p,
+			   const Quantity<psia> & pb) const
 {
   if (not (p > pb))
     {
@@ -108,25 +123,34 @@ UoaKhan::impl(const Quantity<CP> & uobp,
       s << "UoaKhan::impl: pressure " << p << " is not greater than pb " << pb;
       throw domain_error(s.str());
     }
+}
 
+inline Quantity<CP>
+UoaKhan::impl(const Quantity<CP> & uobp,
+	      const Quantity<psia> & p,
+	      const Quantity<psia> & pb) const
+{
   const double uoa = uobp.raw() * exp(9.6e-5*(p.raw() - pb.raw()));
-
   return Quantity<CP>(uoa);
 }
 
+void UoaPetroskyFarshad::precondition(const Quantity<psia> & p,
+				      const Quantity<psia> & pb) const
+{
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "UoaPetroskyFarshad::impl: pressure " << p
+	<< " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+}
 
 inline Quantity<CP>
 UoaPetroskyFarshad::impl(const Quantity<CP> & uobp,
 			 const Quantity<psia> & p,
 			 const Quantity<psia> & pb) const
 {
-  if (not (p > pb))
-    {
-      ostringstream s;
-      s << "UoaPetroskyFarshad::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
-    }
-
   const double log_uobp = log10(uobp);
   const double log_uobp_2 = log_uobp*log_uobp;
   const double a = -1.0146 + 1.3322*log_uobp - 0.4876*log_uobp_2 -
@@ -137,10 +161,8 @@ UoaPetroskyFarshad::impl(const Quantity<CP> & uobp,
   return Quantity<CP>(uoa);
 }
 
-inline Quantity<CP>
-UoaAbedini::impl(const Quantity<CP> & uobp,
-		 const Quantity<psia> & p,
-		 const Quantity<psia> & pb) const
+void UoaAbedini::precondition(const Quantity<psia> & p,
+			      const Quantity<psia> & pb) const
 {
   if (not (p > pb))
     {
@@ -148,7 +170,13 @@ UoaAbedini::impl(const Quantity<CP> & uobp,
       s << "UoaAbedini::impl: pressure " << p << " is not greater than pb " << pb;
       throw domain_error(s.str());
     }
+}
 
+inline Quantity<CP>
+UoaAbedini::impl(const Quantity<CP> & uobp,
+		 const Quantity<psia> & p,
+		 const Quantity<psia> & pb) const
+{
   const double uoa = uobp.raw() +
     0.001*(p.raw() - pb.raw())*((0.05601*pow(uobp, 1.45198)) +
 				(0.47557 * pow(uobp, 0.35997)) +
@@ -160,11 +188,8 @@ UoaAbedini::impl(const Quantity<CP> & uobp,
   return Quantity<CP>(uoa);
 }
 
-
-inline Quantity<CP>
-UoaPerezML::impl(const Quantity<CP> & uobp,
-		 const Quantity<psia> & p,
-		 const Quantity<psia> & pb) const
+void UoaPerezML::precondition(const Quantity<psia> & p,
+			      const Quantity<psia> & pb) const
 {
   if (not (p > pb))
     {
@@ -172,11 +197,29 @@ UoaPerezML::impl(const Quantity<CP> & uobp,
       s << "UoaPerezML::impl: pressure " << p << " is not greater than pb " << pb;
       throw domain_error(s.str());
     }
+}
 
+inline Quantity<CP>
+UoaPerezML::impl(const Quantity<CP> & uobp,
+		 const Quantity<psia> & p,
+		 const Quantity<psia> & pb) const
+{
   const double uoa = uobp.raw() * (1 + 3.181e-4 * (p.raw() - pb.raw()));
-
   return Quantity<CP>(uoa);
 }
+
+void UoaDindorukChristman::precondition(const Quantity<psia> & p,
+					const Quantity<psia> & pb) const
+{
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "UoaDindorukChristman::impl: pressure " << p
+	<< " is not greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+}
+
 
 inline Quantity<CP>
 UoaDindorukChristman::impl(const Quantity<CP> & uobp,
@@ -184,13 +227,6 @@ UoaDindorukChristman::impl(const Quantity<CP> & uobp,
 			   const Quantity<psia> & pb,
 			   const Quantity<SCF_STB> & rsb) const
 {
-  if (not (p > pb))
-    {
-      ostringstream s;
-      s << "UoaDindorukChristman::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
-    }
-
   constexpr double a1 = 0.776644115;
   constexpr double a2 = 0.987658646;
   constexpr double a3 = -0.190564677;

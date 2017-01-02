@@ -44,24 +44,13 @@
 ## 15. búsqueda de unidades por tabla hash óptima
 - Created at   2016-12-05 08:24:35 -0400
 
-## 16. Pg::impl considerar quitar pb y validación
-- Created at   2016-12-27 12:09:11 -0400
-- Completed at 2016-12-31 14:52:02 -0400
-
-## 17. Revisar precondicion en CobMcCainEtAl
-- Created at   2016-12-28 11:50:52 -0400
-- Completed at 2016-12-31 14:51:56 -0400
-
-## 18. backend con lib optimizada
-- Created at   2016-12-28 18:00:54 -0400
-- Completed at 2016-12-31 14:52:12 -0400
-
-## 19. unificar FVF-colume-ratio con gas-formation-volume-factor
+## 16. unificar FVF-colume-ratio con gas-formation-volume-factor
 - Created at   2016-12-29 17:36:29 -0400
 
-## 20. dry de compute_by_names en defined-correlation
+## 17. dry de compute_by_names en defined-correlation
 - Created at   2016-12-30 13:53:19 -0400
 
-## 21. validar precondiciones especiales en correlaciones por funciones definidas en ruby
+## 18. validar precondiciones especiales en correlaciones por funciones definidas en ruby
 - Created at   2017-01-01 12:49:07 -0400
+- Completed at 2017-01-02 14:13:18 -0400
 

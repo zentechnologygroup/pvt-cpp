@@ -3,6 +3,19 @@
 
 # include <correlations/gas-viscosity.H>
 
+void UgCarrKB::precondition(const Quantity<MolePercent> & n2_concentration,
+			    const Quantity<MolePercent> & co2_concentration,
+			    const Quantity<MolePercent> & h2s_concentration) const
+{
+  if (n2_concentration.raw() + co2_concentration.raw() +
+      h2s_concentration.raw() >= 100)
+    {
+      ostringstream s;
+      s << "In UgCarrKB::impl: invalid values for nonhydrocarbon concentrations.";
+      throw domain_error(s.str());
+    }
+}
+
 inline Quantity<CP>
 UgCarrKB::impl(const Quantity<Fahrenheit> & t,
 	       const Quantity<PseudoReducedTemperature> & tpr,
@@ -12,14 +25,6 @@ UgCarrKB::impl(const Quantity<Fahrenheit> & t,
 	       const Quantity<MolePercent> & co2_concentration,
 	       const Quantity<MolePercent> & h2s_concentration) const
 {
-
-  if (n2_concentration.raw() + co2_concentration.raw() + h2s_concentration.raw() >= 100)
-    {
-      ostringstream s;
-      s << "In UgCarrKB::impl: invalid values for nonhydrocarbon concentrations.";
-      throw domain_error(s.str());
-    }
-
   const double tsr = tpr.raw();
   const double psr = ppr.raw();
 

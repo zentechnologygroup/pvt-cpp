@@ -123,3 +123,6 @@ poner las oras propiedades,2016-12-14 17:48:43 -0400,,oil density,2016-12-27 10:
 nuevo programa que evalue correlacion recibiendo un arreglo,2016-11-22 10:40:29 -0400,2016-12-27 10:44:59 -0400,,2016-12-27 10:45:02 -0400
 conversion de ft3/scf a RCF_SCF en gas-formation-volume-factor-unit,2016-12-27 10:45:48 -0400,2016-12-28 17:48:29 -0400,,2016-12-28 17:48:32 -0400
 lib y optimización de pase de parámetros por nombre,2016-11-30 09:55:34 -0400,2016-12-31 14:52:32 -0400,,2016-12-31 14:52:37 -0400
+Pg::impl considerar quitar pb y validación,2016-12-27 12:09:11 -0400,2016-12-31 14:52:02 -0400,,2017-01-02 14:13:43 -0400
+Revisar precondicion en CobMcCainEtAl,2016-12-28 11:50:52 -0400,2016-12-31 14:51:56 -0400,,2017-01-02 14:13:49 -0400
+backend con lib optimizada,2016-12-28 18:00:54 -0400,2016-12-31 14:52:12 -0400,,2017-01-02 14:14:07 -0400

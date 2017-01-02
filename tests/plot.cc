@@ -27,6 +27,9 @@ void set_check()
   check = check_arg.getValue();
 }
 
+SwitchArg report_exceptions = { "", "exceptions", "report exceptions", cmd };
+DynList<string> exception_list;
+
 DynSetTree<string> par_name_tbl =
   { "api", "rsb", "yg", "tsep", "t", "p", "psep", "h2s-concentration",
     "co2-concentration", "n2-concentration", "nacl-concentration" };
@@ -748,25 +751,6 @@ ParList compute_pb_and_load_constant_parameters()
 
 # define INVALID_VALUE numeric_limits<double>::max()
 
-inline VtlQuantity compute_z(const Correlation * zcorr,
-			     const Quantity<PseudoReducedPressure> & ppr,
-			     const Quantity<PseudoReducedTemperature> & tpr)
-{
-  try
-    {
-      return zcorr->compute(ppr, tpr);
-    }
-  catch (...)
-    {
-      cout << "Z failed" << endl;
-      abort();
-      return VtlQuantity::null_quantity;
-    }
-}
-
-// VtlQuantity compute_pg(
-// pg = Pg::get_instance().impl(yg, pb_val, par(t_par),
-
 template <typename ... Args> inline
 VtlQuantity compute(const Correlation * corr_ptr,
 		    double c, double m, bool check,
@@ -781,8 +765,11 @@ VtlQuantity compute(const Correlation * corr_ptr,
     }
   catch (exception & e)
     {
-      cout << "Exception in " << corr_ptr->name << " " << e.what() << endl;
+      if (report_exceptions.getValue())
+	exception_list.append(e.what());
       remove_from_container(pars_list, args ...);
+      auto ret = VtlQuantity::null_quantity;
+      assert(ret.is_null());
       assert(VtlQuantity::null_quantity.is_null());
       return VtlQuantity::null_quantity;
     }
@@ -800,10 +787,8 @@ double compute(const DefinedCorrelation & corr, bool check,
     }
   catch (exception & e)
     {
-      cout << "Exception in defined corr {";
-      corr.correlations().for_each([] (auto p) { cout << p->name << "  "; });
-      cout << "} " << e.what() << endl;
-      // empty
+      if (report_exceptions.getValue())
+	exception_list.append(e.what());
     }
   remove_from_container(pars_list, args ...);
   return ret;
@@ -1130,7 +1115,7 @@ void generate_grid()
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       auto t_par = t_it.get_curr();
-      auto tpr_val = Tpr::get_instance().impl(par(t_par), adjustedtpcm);
+      auto tpr = Tpr::get_instance().impl(par(t_par), adjustedtpcm);
 
       auto pb_val = // calculo de pb
 	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
@@ -1187,7 +1172,7 @@ void generate_grid()
 			  rs_pb, npar("bob", bobp));
 
       insert_in_container(po_pars, pb_par, npar("pobp", pobp));
-      insert_in_container(ug_pars, npar("tpr", tpr_val), t_par);
+      insert_in_container(ug_pars, npar("tpr", tpr), t_par);
       bw_pars.insert(t_par);
       uw_pars.insert(t_par);
       pw_pars.insert(t_par);
@@ -1201,7 +1186,7 @@ void generate_grid()
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  auto p_par = p_it.get_curr();
-	  auto ppr_val = Ppr::get_instance().impl(par(p_par), adjustedppcm);
+	  auto ppr = Ppr::get_instance().impl(par(p_par), adjustedppcm);
 	  auto rs = compute(rs_corr, check, rs_pars, p_par);
 	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
 	  auto co = compute(co_corr, check, co_pars, p_par);
@@ -1210,42 +1195,28 @@ void generate_grid()
 	  auto uo = compute(uo_corr, check, uo_pars, p_par, rs_par);
 	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
-
-	  VtlQuantity z = compute_z(zfactor_corr, ppr_val, tpr_val);
-	  if (z.is_null())
-	    cout << "Z NULL" << endl;
-	  double zfactor = INVALID_VALUE, bg = INVALID_VALUE, ug = INVALID_VALUE,
-	    pg = INVALID_VALUE, bw = INVALID_VALUE, pw = INVALID_VALUE,
-	    rsw = INVALID_VALUE, cw = INVALID_VALUE;
-
-	  zfactor = z.raw();
-	  auto __bg = Bg::get_instance().impl(par(t_par), par(p_par), z);
-	  bg = __bg.raw();
-	  ug = compute(ug_corr, 0, 1, check, ug_pars,
-		       p_par, npar("ppr", ppr_val), NPAR(z)).raw();
-	  pg = Pg::get_instance().impl(yg, pb_val, par(t_par),
-				       par(p_par), z).raw();
-
-	  // TODO TMP: esta fallando. Por eso se pone aquí
-	  bw = compute(bw_corr, check, bw_pars, p_par);
+	  auto z = compute(zfactor_corr, 0, 1, check, NPAR(ppr), NPAR(tpr));
+	  auto bg = Bg::get_instance().impl(par(t_par), par(p_par), z);
+	  auto ug = compute(ug_corr, 0, 1, check, ug_pars,
+			    p_par, npar("ppr", ppr), NPAR(z));
+	  auto pg =
+	    Pg::get_instance().impl(yg, pb_val, par(t_par), par(p_par),
+				    z).raw();
+	  auto bw = compute(bw_corr, check, bw_pars, p_par);
 	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
-	  // TODO: idem que anterior
-	  pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par).raw();
-	  auto __rsw = compute(rsw_corr, 0, 1, check, rsw_pars, p_par);
-	  auto rsw_par = npar("rsw", __rsw);
-	  rsw = __rsw.raw();
-
+	  auto pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par);
+	  auto rsw = compute(rsw_corr, 0, 1, check, rsw_pars, p_par);
+	  auto rsw_par = NPAR(rsw);
 	  auto cwa = compute(cwa_corr, 0, 1, check, cwa_pars, p_par, rsw_par);
-	  cw = compute(cw_corr, check, cw_pars, p_par, NPAR(z),
-		       npar("bg", __bg), rsw_par, bw_par, NPAR(cwa));
-
+	  auto cw = compute(cw_corr, check, cw_pars, p_par, NPAR(z),
+			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
 	  auto ppw = PpwSpiveyMN::get_instance().impl(par(t_par), par(p_par));
+	  auto uw =
+	    compute(uw_corr, 0, 1, check, uw_pars, p_par, NPAR(ppw)).raw();
 
-	  auto uw = compute(uw_corr, 0, 1, check, uw_pars,
-			    p_par, NPAR(ppw)).raw();
-
-	  size_t n = row.ninsert(get<2>(p_par), rs, co, bo, uo, po, zfactor, bg,
-				 ug, pg, bw, uw, pw, rsw, cw);
+	  size_t n =
+	    row.ninsert(get<2>(p_par), rs, co, bo, uo, po, z.raw(), bg.raw(),
+			ug.raw(), pg, bw, uw, pw.raw(), rsw.raw(), cw);
 
 	  assert(row.size() == 20);
 
@@ -1267,6 +1238,13 @@ void generate_grid()
       pw_pars.remove(t_par);
       cw_pars.remove(t_par);
       rsw_pars.remove(t_par);
+    }
+
+  if (report_exceptions.getValue())
+    {
+      cout << endl
+	   << "Exceptions:" << endl;
+      exception_list.for_each([] (const auto & s) { cout << s << endl; });
     }
 }
 

@@ -748,3 +748,21 @@
 - Comment      
 - Finished     
 
+## 126. Pg::impl considerar quitar pb y validación
+- Created at   2016-12-27 12:09:11 -0400
+- Completed at 2016-12-31 14:52:02 -0400
+- Comment      
+- Finished     
+
+## 127. Revisar precondicion en CobMcCainEtAl
+- Created at   2016-12-28 11:50:52 -0400
+- Completed at 2016-12-31 14:51:56 -0400
+- Comment      
+- Finished     
+
+## 128. backend con lib optimizada
+- Created at   2016-12-28 18:00:54 -0400
+- Completed at 2016-12-31 14:52:12 -0400
+- Comment      
+- Finished     
+
