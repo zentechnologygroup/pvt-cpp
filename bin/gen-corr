@@ -45,6 +45,7 @@ class CorrelationGen
     @refs = []
     @synonyms = []
     @eq = []
+    @vars = []
   end
 
   attr_reader :name
@@ -94,6 +95,10 @@ class CorrelationGen
     @synonyms << [par_name, syn_name, unit_name]
   end
 
+  def add_variable(name, type)
+    @vars << [name, type]
+  end
+
   def add_precondition(*pnames)
     fail "precondition check has already been defined" if @pnames
     if !pnames.all? { |name| @pars.detect { |par| par.name == name } }
@@ -130,13 +135,25 @@ class CorrelationGen
     s += " const"
   end
 
-  # def gen_precondition_declaration
-  #   s = "public:\n"\
-  #       "\n"\
-  #       "inline " + impl_type + " impl"
-  #   s += gen_pars
-  #   s += " const"
-  # end
+  def gen_precondition_pars
+    s = ''
+    @pnames.each do |pname|
+      par = @pars.detect { |par| par.name == pname }
+      s += "const Quantity<#{par.unit}> & #{par.name}"
+      s += ",\n" unless pname == @pnames.last
+    end
+    s
+  end
+
+  def gen_precondition_declaration
+    "private:\n"\
+    "\n"\
+    "inline void precondition(\n"\
+    "#{gen_precondition_pars}) const;\n"\
+    "\n"\
+    "public:\n"\
+    "\n"
+  end
 
   def pars_list
     s = ""
@@ -169,14 +186,16 @@ class CorrelationGen
   end
 
   def gen_pars_extraction()
-    s = "auto it = pars.get_it();\n"
+    s = "    auto it = pars.get_it();\n"
     @pars.each do |par|
       s += "    const auto & #{par.name} = it.get_curr();"
       s += "    it.next();\n" unless par == @pars.last
     end
-    s += "\n"\
-         "\n"\
-         "      return impl(#{pars_list});\n"\
+    s
+  end
+
+  def gen_call
+    "return impl(#{pars_list});\n"\
   end
 
   def gen_compute
@@ -185,12 +204,17 @@ class CorrelationGen
         "{\n"\
         "   if (check)\n"\
         "     {\n"\
-        "       auto pars = verify_preconditions(__pars);\n"
-    s += "#{gen_pars_extraction}\n"\
+        "       auto pars = verify_preconditions(__pars);\n"\
+        "#{gen_pars_extraction}\n"\
+        "\n"
+    s += "     precondition(#{@pnames.join(',')});\n" if @pnames
+    s += "\n"\
+         "     #{gen_call}\n"\
          "    }\n"\
          "\n"\
          "const DynList<VtlQuantity> & pars = __pars;\n"\
          "#{gen_pars_extraction}\n"\
+         "    #{gen_call}\n"\
          "}\n"
   end
 
@@ -239,11 +263,12 @@ class CorrelationGen
          "}\n"\
          "\n"
     s += gen_compute
-         
+    s += gen_precondition_declaration if @pnames
     s += "};\n"\
          "\n"\
          "extern #{extern_sign};\n"\
          "extern #{extern_sign_doubles};\n"\
+         "\n"
   end
 
   def gen_extern_calls
@@ -269,12 +294,18 @@ class CorrelationGen
   end
 
   def gen_impl
-    "\n"\
-    "#{impl_type}\n"\
-    "#{@name}::impl#{gen_pars} const\n"\
-    "{\n"\
-    "    // put here the implementation\n"\
-    "}\n"
+    s = "\n"\
+        "#{impl_type}\n"\
+        "#{@name}::impl#{gen_pars} const\n"\
+        "{\n"\
+        "    // put here the implementation\n"\
+        "}\n"\
+        "\n"
+    return s unless @pnames
+    s += "void #{@name}::precondition(#{gen_precondition_pars}) const\n"\
+         "{\n"\
+         "    // put here the implementation\n"\
+         "}\n"
   end
 
   def gen
@@ -306,6 +337,10 @@ end
 
 def add_precondition(*pnames)
   $curr_corr.add_precondition(*pnames)
+end
+
+def add_variable(name, type)
+  $curr_corr.add_variable name, type
 end
 
 def add_title(title)

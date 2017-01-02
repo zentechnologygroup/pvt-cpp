@@ -758,6 +758,8 @@ inline VtlQuantity compute_z(const Correlation * zcorr,
     }
   catch (...)
     {
+      cout << "Z failed" << endl;
+      abort();
       return VtlQuantity::null_quantity;
     }
 }
@@ -777,8 +779,9 @@ VtlQuantity compute(const Correlation * corr_ptr,
       remove_from_container(pars_list, args...);
       return ret;
     }
-  catch (...)
+  catch (exception & e)
     {
+      cout << "Exception in " << corr_ptr->name << " " << e.what() << endl;
       remove_from_container(pars_list, args ...);
       assert(VtlQuantity::null_quantity.is_null());
       return VtlQuantity::null_quantity;
@@ -795,8 +798,11 @@ double compute(const DefinedCorrelation & corr, bool check,
     {
       ret = corr.compute_by_names(pars_list, check);
     }
-  catch (...)
+  catch (exception & e)
     {
+      cout << "Exception in defined corr {";
+      corr.correlations().for_each([] (auto p) { cout << p->name << "  "; });
+      cout << "} " << e.what() << endl;
       // empty
     }
   remove_from_container(pars_list, args ...);

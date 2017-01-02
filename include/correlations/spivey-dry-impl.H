@@ -108,7 +108,7 @@ BwSpiveyMNDry::impl(const Quantity<Celsius> & t,
       ostringstream s;
       s << "BwSpiveyMN::impl: received pressure " << p
 	<< " is less than computed vapor pressure " << pv << " "
-	<< p.unit.name;
+	<< p.unit.symbol;
       throw domain_error(s.str());
     }
 

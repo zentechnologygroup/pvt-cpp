@@ -16,22 +16,20 @@ RswSpiveyMN::impl(const Quantity<Celsius> & t,
   const double tk = Quantity<Kelvin>(t).raw();
 
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv =
-    PvSpiveyMN::get_instance().impl(tk).raw();
+  const double pv = PvSpiveyMN::get_instance().impl(tk).raw();
 
   if (p < pv)
     {
       ostringstream s;
       s << "RswSpiveyMN::impl: received pressure " << p
 	<< " is less than computed vapor pressure " << pv << " "
-	<< p.unit.name;
+	<< p.unit.symbol;
       throw domain_error(s.str());
     }
 
   // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
   // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
-  const double mch4w =
-    MwSpiveyMN::get_instance().impl(t, p, pv, m).raw();
+  const double mch4w = MwSpiveyMN::get_instance().impl(t, p, pv, m).raw();
 
   // VMCH4gstd: MOLAR VOLUME OF METHANE IN THE GAS PHASE AT STANDARD CONDITIONS [cm³/gmol] 
   // FROM THE REAL GAS LAW

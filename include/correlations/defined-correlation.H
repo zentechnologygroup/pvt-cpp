@@ -98,6 +98,12 @@ class DefinedCorrelation
 
 public:
 
+  DynList<const Correlation*> correlations() const
+  {
+    return intervals.maps<const Correlation*> ([] (const auto & i)
+					       { return i.correlation_ptr; });
+  }
+
   const Unit * result_unit = nullptr; // it will be the result unit of
 				      // the first defined correlation
 

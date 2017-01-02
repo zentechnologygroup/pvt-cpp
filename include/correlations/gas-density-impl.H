@@ -4,12 +4,8 @@
 
 # include <correlations/gas-density.H>
 
-inline Quantity<Lb_ft3>
-Pg::impl(const Quantity<Sgg> & yg,
-	 const Quantity<psia> & pb,
-	 const Quantity<Rankine> & t,
-	 const Quantity<psia> & p,
-	 const Quantity<Zfactor> & z) const
+void Pg::precondition(const Quantity<psia> & p,
+		      const Quantity<psia> & pb) const
 {
   if (p > pb)
     {
@@ -18,7 +14,16 @@ Pg::impl(const Quantity<Sgg> & yg,
 	<< " is greater than parameter pb = " << pb;
       throw domain_error(s.str());
     }
+}
 
+
+inline Quantity<Lb_ft3>
+Pg::impl(const Quantity<Sgg> & yg,
+	 const Quantity<psia> &,
+	 const Quantity<Rankine> & t,
+	 const Quantity<psia> & p,
+	 const Quantity<Zfactor> & z) const
+{
   const double pg = (2.70*p.raw()*yg.raw()) / (z.raw()*t.raw());
 
   return Quantity<Lb_ft3>(pg);
