@@ -8,7 +8,7 @@ UobBeggsRobinson,,3.4874,CP,603,SCF_STB,,,,,,,,,,,,,,,0.75567,CP,1,,,,1,
 UobChewConnally,,2.5842,CP,603,SCF_STB,,,,,,,,,,,,,,,0.8036,CP,1,,,,1,
 UobKhan,,,,,,35,Api,,,603,SCF_STB,0.774,Sgg,600,Rankine,4474.7,psia,2744.7,psia,0.7809,CP,1,,,,1,
 UobBeggsRobinson,,2.3,CP,769,SCF_STB,,,,,,,,,,,,,,,0.515,CP,1,,,,,1
-UobChewConnally,,2.3,CP,769,SCF_STB,,,,,,,,,,,,,,,0.638,CP,1,,,,,1
+UobChewConnally,TRUE,2.3,CP,769,SCF_STB,,,,,,,,,,,,,,,0.638,CP,1,,,,,1
 UobBeggsRobinson,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,
 UobChewConnally,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,
 UobKhan,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,
