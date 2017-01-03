@@ -4,7 +4,7 @@ BobDoklaOsman,,0.95,Sgg,0.871,Sg_do,,,648,SCF_STB,640,Rankine,,,,,,,,,1.38152,RB
 BobGlaso,,0.95,Sgg,0.871,Sg_do,,,433,SCF_STB,180,Fahrenheit,,,,,,,,,1.25031,RB_STB,1,,1,,,,,
 BobKartoatmodjo,,0.95,Sgg,0.871,Sg_do,,,435,SCF_STB,180,Fahrenheit,100,Fahrenheit,,,,,114.7,psia,1.26787,RB_STB,1,The gas gravity correction is null when the reference separator pressure is used.,1,,,,,
 BobStanding,,0.95,Sgg,0.871,Sg_do,,,516,SCF_STB,180,Fahrenheit,,,,,,,,,1.3217,RB_STB,1,,1,,,,,
-BobPetroskyFarshad,,0.95,Sgg,0.871,Sg_do,,,492,SCF_STB,180,Fahrenheit,,,,,,,,,1.38768,RB_STB,1,,1,,,,,
+BobPetroskyFarshad,,0.95,Sgg,0.871,Sg_do,,,624,SCF_STB,180,Fahrenheit,,,,,,,,,1.38768,RB_STB,1,"An error was found in the example for p < pb, so the example for p = pb is used.",1,,,,,
 BobTotalCFP,,0.95,Sgg,,,31,Api,539,SCF_STB,180,Fahrenheit,,,,,,,,,1.31301,RB_STB,1,,1,,,,,
 BobVasquezBeggs,,0.95,Sgg,,,31,Api,447,SCF_STB,180,Fahrenheit,100,Fahrenheit,,,,,114.7,psia,1.25416,RB_STB,1,API > 30. The gas gravity correction is null when the reference separator pressure is used.,1,,,,,
 BobAlmarhoun,,0.71,Sgg,36.6,Api,,,688,SCF_STB,242,Fahrenheit,,,,,,,,,1.423,RB_STB,1,,,1,,,,

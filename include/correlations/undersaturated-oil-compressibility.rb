@@ -49,7 +49,7 @@ add_ref("kartoatmodjo:1991")
 add_ref("kartoatmodjo:1994")
 # add_ref("banzer:1996") Secondary reference
 add_internal_note("The range for Rsb is presented by Kartoatmodjo and Schmidt as the range for Rsf (flash gas-oil ratio expressed as cubic feet of separator and stock tank gas at any pressure less than the bubble point pressure in one stock tank barrel oil).")
-add_internal_note("In the original reference, the pressure is a multiplicative variable. However, an error was detected in the order of magnitude when testing (in the equation the pressure value must divide instead of multiply). See Bánzer (1996).")
+add_internal_note("An error was detected in the order of magnitude when testing. The equations finally implemented were those presented by Kartoatmodjo & Schmidt (1991) in the program calculations at the end of the paper (SUBRUTINE RSTCOMP), using LOG10 instead of ALOG10. See also Bánzer (1996).")
 end_correlation()
 
 ################################################################

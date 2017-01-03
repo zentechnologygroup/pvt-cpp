@@ -66,7 +66,7 @@ def PbDoklaOsmanCorrelation(Yg, Rsb, API, T):
     return PbDoklayOsman
 
 def PbGlasoCorrelation(Yg, Rsb, API, T, n2Concentration, co2Concentration, h2sConcentration):
-    X = (Rsb / Yg) ** 0.816 * T ** 0.172 / API ** 0.989
+    X = (Rsb / Yg) ** 0.816 * (T ** 0.172) / (API ** 0.989)
     PbHC = 10 ** (1.7669 + (1.7447 * log10(X)) - (0.30218 * (log10(X)) ** 2))
     n2Effect = 1 + ((-2.65 * 10 **-4 * API + 5.5 * 10 **-3) * T + (0.0931 * API - 0.8295)) * n2Concentration + ((1.954 * 10 **-11 * API **4.699) * T + (0.027 * API - 2.366)) * n2Concentration **2
     co2Effect = 1 - 693.8 * co2Concentration * T **-1.553
@@ -857,6 +857,14 @@ def CoKartoatmodjoSchmidtCorrelation(Yg, API, Rsb, T, Tsep, P, Pb, Psep):
     CoKartoatmodjoSchmidt = Co
     return CoKartoatmodjoSchmidt
 
+def CoaKartoatmodjoSchmidtCorrelation(Yg, API, Rsb, T, Tsep, P, Psep):
+    c = 1 + 0.1595 * (API ** 0.4078) * (Tsep ** -0.2466) * log10(Psep / 114.7)
+    YgCorr = c * Yg # Gas specific gravity correction (considering the standardized separator pressure: Psep=100 psig)
+    A = 0.83415 + 0.5002 * log10(Rsb) + 0.3613 * log10(API) + 0.7606 * log10(T) - 0.35505 * log10(YgCorr)
+    Co = (10.0 ** A) / (P * 10.0 ** 6.0)
+    CoaKartoatmodjoSchmidt = Co
+    return CoaKartoatmodjoSchmidt
+
 def CoPetroskyFarshadCorrelation(Yg, API, Rsb, T, P, Pb):
     if P < Pb: # Saturated oil - McCain et al. correlation
         Co = CoMcCainEtAlCorrelation(API, Rsb, T, P, Pb)
@@ -1101,17 +1109,6 @@ def UoaPerezMLCorrelation(uob, P, Pb):
     uoa = uob * (1 + (3.181 * 1e-4 * (P - Pb)))
     uoaPerezML = uoa
     return uoaPerezML
-    
-def PbGlasoCorrelation(Yg, Rsb, API, T, n2Concentration, co2Concentration, h2sConcentration):
-    X = (Rsb / Yg) ** 0.816 * T ** 0.172 / API ** 0.989
-    PbHC = 10 ** (1.7669 + (1.7447 * log10(X)) - (0.30218 * (log10(X)) ** 2))
-    # Effects of nonhydrocarbons on bubble point pressure
-    n2Effect = 1 + ((-2.65 * 10 **-4 * API + 5.5 * 10 **-3) * T + (0.0931 * API - 0.8295)) * n2Concentration + ((1.954 * 10 **-11 * API **4.699) * T + (0.027 * API - 2.366)) * n2Concentration **2
-    co2Effect = 1 - 693.8 * co2Concentration * T **-1.553
-    h2sEffect = 1 - (0.9035 + 0.0015 * API) * h2sConcentration + 0.019 * (45 - API) *  h2sConcentration **2
-    Pb = PbHC * n2Effect * co2Effect * h2sEffect
-    PbGlaso = Pb
-    return PbGlaso
 
 def SgoBakerSwerdloffCorrelation(T,API,P):
     sgo68 = 39 - 0.2571*API
