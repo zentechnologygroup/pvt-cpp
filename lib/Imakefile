@@ -77,7 +77,14 @@ libpvt-op.a: pvt.cc
 	ranlib libpvt-op.a; \	@@\
 	$(RM) -f aux.o
 
-all:: libpvt-op.a
+libpvtp.a: pvt.cc
+	$(RM) -f $@;		\	@@\
+	$(CXX) -c -std=c++14 $(INCLUDES) -pg -g -O0 pvt.cc -o aux.o;\	@@\
+	ar clq libpvtp.a aux.o; \	@@\
+	ranlib libpvtp.a; \	@@\
+	$(RM) -f aux.o
+
+all:: libpvt-op.a libpvtp.a
 
 NormalLibraryObjectRule()
 NormalLibraryTarget(pvt,$(OBJS))
