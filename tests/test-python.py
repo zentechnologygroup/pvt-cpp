@@ -857,6 +857,14 @@ def CoKartoatmodjoSchmidtCorrelation(Yg, API, Rsb, T, Tsep, P, Pb, Psep):
     CoKartoatmodjoSchmidt = Co
     return CoKartoatmodjoSchmidt
 
+def CoaKartoatmodjoSchmidtCorrelation(Yg, API, Rsb, T, Tsep, P, Psep):
+    c = 1 + 0.1595 * (API ** 0.4078) * (Tsep ** -0.2466) * log10(Psep / 114.7)
+    YgCorr = c * Yg # Gas specific gravity correction (considering the standardized separator pressure: Psep=100 psig)
+    A = 0.83415 + 0.5002 * log10(Rsb) + 0.3613 * log10(API) + 0.7606 * log10(T) - 0.35505 * log10(YgCorr)
+    Co = (10.0 ** A) / (P * 10.0 ** 6.0)
+    CoaKartoatmodjoSchmidt = Co
+    return CoaKartoatmodjoSchmidt
+
 def CoPetroskyFarshadCorrelation(Yg, API, Rsb, T, P, Pb):
     if P < Pb: # Saturated oil - McCain et al. correlation
         Co = CoMcCainEtAlCorrelation(API, Rsb, T, P, Pb)

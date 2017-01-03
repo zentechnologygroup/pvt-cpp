@@ -58,8 +58,8 @@ CoaKartoatmodjoSchmidt::impl(const Quantity<Sgg> & yg,
 				    // (considering the standardized
 				    // separator pressure: Psep=100 psig) 
 
-  const double co = 6.8257e-6 * pow(rsb, 0.5002) *
-    pow(t, 0.76606) * pow(ygcorr, -0.35505) / p.raw();
+  const double a = 0.83415 + 0.5002 * log10(rsb) + 0.3613 * log10(api) + 0.7606 * log10(t) - 0.35505 * log10(ygcorr);
+  const double co = pow(10.0, a) / (p.raw() * 1e6);
 
   return Quantity<psia_1>(co);
 }
