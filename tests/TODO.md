@@ -19,6 +19,7 @@
 
 ## 7. correlaciones con hidden en tru no deben ser mostradas por test-calibrate
 - Created at   2016-11-19 13:44:15 -0400
+- Completed at 2017-01-03 17:54:01 -0400
 
 ## 8. evaluación de correlación por partes se puede aceltar notablemente si se ven los parámyteros y en lugar de pasar por nombre se construyen los arreglos
 - Created at   2016-11-26 16:08:21 -0400
@@ -49,8 +50,8 @@
 
 ## 17. dry de compute_by_names en defined-correlation
 - Created at   2016-12-30 13:53:19 -0400
+- Completed at 2017-01-03 17:54:06 -0400
 
-## 18. validar precondiciones especiales en correlaciones por funciones definidas en ruby
-- Created at   2017-01-01 12:49:07 -0400
-- Completed at 2017-01-02 14:13:18 -0400
+## 18. hash perfecto para conversiones
+- Created at   2017-01-03 17:54:22 -0400
 

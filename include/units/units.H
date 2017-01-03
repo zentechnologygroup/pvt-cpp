@@ -164,8 +164,8 @@ public:
 private:
 
   static UnitItemTable tbl;
-  static DynSetHash<const Unit *> unit_tbl;
-  //static DynSetTree<const Unit * const> unit_tbl;
+  //static DynSetHash<const Unit *> unit_tbl;
+  static DynSetTree<const Unit*> unit_tbl;
 
 public:
 

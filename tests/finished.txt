@@ -126,3 +126,4 @@ lib y optimización de pase de parámetros por nombre,2016-11-30 09:55:34 -0400,
 Pg::impl considerar quitar pb y validación,2016-12-27 12:09:11 -0400,2016-12-31 14:52:02 -0400,,2017-01-02 14:13:43 -0400
 Revisar precondicion en CobMcCainEtAl,2016-12-28 11:50:52 -0400,2016-12-31 14:51:56 -0400,,2017-01-02 14:13:49 -0400
 backend con lib optimizada,2016-12-28 18:00:54 -0400,2016-12-31 14:52:12 -0400,,2017-01-02 14:14:07 -0400
+validar precondiciones especiales en correlaciones por funciones definidas en ruby,2017-01-01 12:49:07 -0400,2017-01-02 14:13:18 -0400,,2017-01-03 17:53:52 -0400

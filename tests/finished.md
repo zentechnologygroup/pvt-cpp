@@ -766,3 +766,9 @@
 - Comment      
 - Finished     
 
+## 129. validar precondiciones especiales en correlaciones por funciones definidas en ruby
+- Created at   2017-01-01 12:49:07 -0400
+- Completed at 2017-01-02 14:13:18 -0400
+- Comment      
+- Finished     
+
