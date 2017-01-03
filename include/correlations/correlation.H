@@ -223,13 +223,9 @@ public:
   // parameter names
   DynList<string> names() const
   {
-    DynList<string> ret;
-
-    ret.append(to_lower(split_camel_case(name).get_first()));
-
+    DynList<string> ret = unitarian_DynList(target_name());
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
       ret.append(it.get_curr().name);
-
     return ret;
   }
 
@@ -247,12 +243,7 @@ public:
   // their synonyms
   DynList<DynList<string>> names_and_synonyms() const
   {
-    DynList<string> ret_l;
-    // ret_l.append(to_lower(split_camel_case(name).get_first()));
-
     DynList<DynList<string>> ret;
-    // ret.append(ret_l);
-
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
       {
 	auto par = it.get_curr();
@@ -261,7 +252,6 @@ public:
 	par.get_synonyms().for_each([&col] (auto p) { col.append(p.first); });
 	ret.append(col);
       }
-
     return build_perms(ret);
   }
 
