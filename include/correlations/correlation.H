@@ -39,6 +39,7 @@ public:
 
 private:
 
+  DynList<P> names_list;
   DynList<P> synonyms;
   
 public:
@@ -75,8 +76,10 @@ public:
 	  << " is not physically related to parameter unit " << this->unit.name;
 	throw domain_error(s.str());
       }
-    
-    synonyms.append(make_pair(name, &unit));
+
+    auto p = make_pair(name, &unit);
+    synonyms.append(p);
+    names_list.append(p);
   }
 
   void add_synonym(const string & name, const string & unit_sym_name)
@@ -101,12 +104,11 @@ public:
 
   /// Returns a list of alias associated to this parameter (including
   /// the name itself) 
-  DynList<P> names() const
-  {
-    DynList<P> ret = get_unitarian_DynList(make_pair(name, &unit));
-    ret.append(get_synonyms());
-    return ret;
-  }
+  const DynList<P> & names() const { return names_list; }
+  //   DynList<P> ret = get_unitarian_DynList(make_pair(name, &unit));
+  //   ret.append(get_synonyms());
+  //   return ret;
+  // }
 
   void set_epsilon(double ratio = 0.01)
   {
@@ -136,7 +138,10 @@ public:
   CorrelationPar(const string & name, const Unit & unit, const string & desc, 
 		 const VtlQuantity & min, const VtlQuantity & max)
     : name(name), description(desc), unit(unit),
-      min_val(unit, min), max_val(unit, max) {}
+      min_val(unit, min), max_val(unit, max)
+  {
+    names_list.append(make_pair(name, &unit));
+  }
 
   CorrelationPar(const string & name, const BaseQuantity q,
 		 const string & desc, double min, double max)

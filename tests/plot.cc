@@ -27,7 +27,8 @@ void set_check()
   check = check_arg.getValue();
 }
 
-SwitchArg report_exceptions = { "", "exceptions", "report exceptions", cmd };
+SwitchArg catch_exceptions = { "", "exceptions", "report exceptions", cmd };
+bool report_exceptions = false;
 DynList<string> exception_list;
 
 DynSetTree<string> par_name_tbl =
@@ -751,6 +752,21 @@ ParList compute_pb_and_load_constant_parameters()
 
 const double Invalid_Value = numeric_limits<double>::max();
 
+inline pair<double, double> get_tp(const ParList & pars)
+{
+  auto t = pars("t");
+  auto p = pars("p");
+  return make_pair(t.raw(), p.raw());
+}
+
+void store_exception(const ParList & pars, const exception & e)
+{
+  auto tp = get_tp(pars);
+  ostringstream s;
+  s << tp.first << ", " << tp.second << ": " << e.what();
+  exception_list.append(s.str());
+}
+
 template <typename ... Args> inline
 VtlQuantity compute(const Correlation * corr_ptr,
 		    double c, double m, bool check,
@@ -765,9 +781,12 @@ VtlQuantity compute(const Correlation * corr_ptr,
     }
   catch (exception & e)
     {
+      if (report_exceptions)
+	store_exception(pars_list, e);
+      
       remove_from_container(pars_list, args ...);
-      throw;
     }
+  return VtlQuantity::null_quantity; 
 }
 
 template <typename ... Args> inline
@@ -783,9 +802,12 @@ double compute(const DefinedCorrelation & corr, bool check,
     }
   catch (exception & e)
     {
+      if (report_exceptions)
+	store_exception(pars_list, e);
+
       remove_from_container(pars_list, args ...);
-      throw;
     }
+  return Invalid_Value;
 }
 
 template <typename ... Args> inline
@@ -1033,6 +1055,7 @@ void generate_grid()
   set_rsw_corr();
   set_cwb_corr();
   set_cwa_corr();
+  report_exceptions = catch_exceptions.getValue();
 
   set_t_range();
   set_p_range();
@@ -1180,8 +1203,6 @@ void generate_grid()
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  auto p_par = p_it.get_curr();
-	  try
-	    {
 	      auto ppr = Ppr::get_instance().impl(par(p_par), adjustedppcm);
 	      auto rs = compute(rs_corr, check, rs_pars, p_par);
 	      auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
@@ -1220,16 +1241,6 @@ void generate_grid()
 
 	      row.popn(n);
 	    }
-	  catch (exception &e)
-	    {
-	      if (report_exceptions.getValue())
-		{
-		  ostringstream s;
-		  s << get<2>(t_par) << ", " << get<2>(p_par) << ": " << e.what();
-		  exception_list.append(s.str());
-		}
-	    }
-	}
 
       row.popn(n);
 
@@ -1246,7 +1257,7 @@ void generate_grid()
       rsw_pars.remove(t_par);
     }
 
-  if (report_exceptions.getValue())
+  if (report_exceptions)
     {
       cout << endl
 	   << "Exceptions:" << endl;

@@ -39,7 +39,7 @@ class ParList
 public:
   HashParTbl tbl;
 
-  static const size_t tbl_size = 20;
+  static const size_t tbl_size = 40;
 
 public:
 

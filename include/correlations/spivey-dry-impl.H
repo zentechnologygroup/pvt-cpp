@@ -73,7 +73,7 @@ CgfwSpiveyMN::impl(const Quantity<Celsius> & t,
     (0.20684*t_100_2 + 0.3768*t_100 + 1);
 
   // Coefficients of gas-free brine compressibility
-  constexpr double e =  0.1353;
+  constexpr double e = 0.1353;
 
   const double f1 = (-1.409*t_100_2 + -0.361*t_100 + -0.2532)/(9.216*t_100 + 1);
   const double f2 = (5.614*t_100 + 4.6782) / (-0.307*t_100_2 + 2.6069*t_100 + 1);
@@ -153,8 +153,12 @@ BwSpiveyMNDry::impl(const Quantity<Celsius> & t,
 
   // Bw: FORMATION VOLUME FACTOR [res cm³/ST cm³]       
   // Molecular weight MNaCl: 58.4428 g/gmol
-  const double n = (1000 + m * 58.4428) * vgfw + mch4w * vmch4w;    // Volume at reservoir conditions
-  const double d = (1000 + m * 58.4428) * vgfwstd;                  // Volume at stock tank conditions
+  const double n = (1000 + m * 58.4428) * vgfw + mch4w * vmch4w; // Volume
+								 // at
+								 // reservoir
+								 // conditions 
+  const double d = (1000 + m * 58.4428) * vgfwstd; // Volume at stock
+						   // tank conditions
   const double bw = n/d;
 
   return Quantity<Rm3_Sm3>(bw);
