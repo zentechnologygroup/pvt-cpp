@@ -765,12 +765,11 @@ VtlQuantity compute(const Correlation * corr_ptr,
     }
   catch (exception & e)
     {
+      if (check)
+	throw;
       if (report_exceptions.getValue())
 	exception_list.append(e.what());
       remove_from_container(pars_list, args ...);
-      auto ret = VtlQuantity::null_quantity;
-      assert(ret.is_null());
-      assert(VtlQuantity::null_quantity.is_null());
       return VtlQuantity::null_quantity;
     }
 }
@@ -787,6 +786,8 @@ double compute(const DefinedCorrelation & corr, bool check,
     }
   catch (exception & e)
     {
+      if (check)
+	throw;
       if (report_exceptions.getValue())
 	exception_list.append(e.what());
     }
@@ -989,7 +990,7 @@ DynList<DynList<double>> generate_uo_values()
   return vals;
 }
 
-void print_row(const DynList<double> & row)
+void print_row(const FixedStack<double> & row)
 {
   for (auto it = row.get_it(); it.has_curr(); it.next())
     {
@@ -1111,7 +1112,7 @@ void generate_grid()
        << endl;
 
   auto rs_pb = make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par)); 
-  DynList<double> row;
+  FixedStack<double> row(25);
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       auto t_par = t_it.get_curr();
@@ -1222,10 +1223,10 @@ void generate_grid()
 
 	  print_row(row);
 
-	  row.mutable_drop(n);
+	  row.popn(n);
 	}
 
-      row.mutable_drop(n);
+      row.popn(n);
 
       remove_from_container(rs_pars, "pb", t_par);
       remove_from_container(co_pars, "pb", t_par);
