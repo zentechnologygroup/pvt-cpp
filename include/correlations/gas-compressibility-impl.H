@@ -5,8 +5,8 @@
 
 # include <correlations/gas-compressibility.H>
 
-inline Quantity<ZFactor>
-ZFactorSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,
+inline Quantity<Zfactor>
+ZfactorSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,
 		   const Quantity<PseudoReducedPressure> & ppr) const
 {
   const double x = (2*ppr.raw() - 15)/14.8;
@@ -52,12 +52,12 @@ ZFactorSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,
     0.0053096*p5x*p0y + 0.0089178*p5x*p1y + -0.0108948*p5x*p2y +
     0.0095594*p5x*p3y + -0.0060114*p5x*p4y + 0.0031175*p5x*p5y;
 
-  return Quantity<ZFactor>(z);
+  return Quantity<Zfactor>(z);
 }
 
 
-inline Quantity<ZFactor>
-ZFactorHallYarborough::impl(const Quantity<PseudoReducedTemperature> & tpr,
+inline Quantity<Zfactor>
+ZfactorHallYarborough::impl(const Quantity<PseudoReducedTemperature> & tpr,
 			    const Quantity<PseudoReducedPressure> & ppr) const
 {
   const double tpr_1 = 1/tpr.raw();
@@ -95,11 +95,11 @@ ZFactorHallYarborough::impl(const Quantity<PseudoReducedTemperature> & tpr,
             
   const double z = (0.06125*ppr.raw()*tpr_1*exp(-1.2 * tpr_1_1*tpr_1_1)) / pr;
 
-  return Quantity<ZFactor>(z);
+  return Quantity<Zfactor>(z);
 }
 
-inline Quantity<ZFactor>
-ZFactorDranchukPR::impl(const Quantity<PseudoReducedTemperature> & tpr,
+inline Quantity<Zfactor>
+ZfactorDranchukPR::impl(const Quantity<PseudoReducedTemperature> & tpr,
 			const Quantity<PseudoReducedPressure> & ppr) const
 {
   constexpr double a1 = 0.31506237;
@@ -145,11 +145,11 @@ ZFactorDranchukPR::impl(const Quantity<PseudoReducedTemperature> & tpr,
       zprev = zf;
     }
 
-  return Quantity<ZFactor>(zf);
+  return Quantity<Zfactor>(zf);
 }
 
-inline Quantity<ZFactor>
-ZFactorDranchukAK::impl(const Quantity<PseudoReducedTemperature> & tpr,
+inline Quantity<Zfactor>
+ZfactorDranchukAK::impl(const Quantity<PseudoReducedTemperature> & tpr,
 			const Quantity<PseudoReducedPressure> & ppr) const
 {
   //todo son dos conjuntos d erangos
@@ -204,11 +204,11 @@ ZFactorDranchukAK::impl(const Quantity<PseudoReducedTemperature> & tpr,
       zprev = zf;
     }     
 
-  return Quantity<ZFactor>(zf);
+  return Quantity<Zfactor>(zf);
 }
 
-inline Quantity<ZFactor>
-ZFactorGopal::impl(const Quantity<PseudoReducedTemperature> & tpr,
+inline Quantity<Zfactor>
+ZfactorGopal::impl(const Quantity<PseudoReducedTemperature> & tpr,
 		   const Quantity<PseudoReducedPressure> & ppr) const
 {
   double z = 0;
@@ -249,12 +249,12 @@ ZFactorGopal::impl(const Quantity<PseudoReducedTemperature> & tpr,
     z = ppr.raw()*pow(0.711 + 3.66*tpr.raw() + 0.0039, -1.4667) -
       1.637/(0.319*tpr.raw() + 0.522) + 2.071;
                             
-  return Quantity<ZFactor>(z);
+  return Quantity<Zfactor>(z);
 }
 
 
-inline Quantity<ZFactor>
-ZFactorBrillBeggs::impl(const Quantity<PseudoReducedTemperature> & tpr,
+inline Quantity<Zfactor>
+ZfactorBrillBeggs::impl(const Quantity<PseudoReducedTemperature> & tpr,
 			const Quantity<PseudoReducedPressure> & ppr) const
 {
   const double a = 1.39*sqrt(tpr.raw() - 0.92) - 0.36*tpr.raw() - 0.10;
@@ -277,18 +277,18 @@ ZFactorBrillBeggs::impl(const Quantity<PseudoReducedTemperature> & tpr,
   else
     z = a + ((1 - a)/exp(b)) + c*pow(ppr.raw(), d);
 
-  return Quantity<ZFactor>(z);
+  return Quantity<Zfactor>(z);
 }
 
-inline Quantity<ZFactor>
-ZFactorPapay::impl(const Quantity<PseudoReducedTemperature> & tpr,
+inline Quantity<Zfactor>
+ZfactorPapay::impl(const Quantity<PseudoReducedTemperature> & tpr,
 		   const Quantity<PseudoReducedPressure> & ppr) const
 {
   const double ppr2 = ppr.raw()*ppr.raw();
   const double z = 1 - 3.52*ppr.raw()/pow(10, 0.9813*tpr.raw()) +
     0.274*ppr2/pow(10, 0.8157*tpr.raw());
 
-  return Quantity<ZFactor>(z);
+  return Quantity<Zfactor>(z);
 }
 
 

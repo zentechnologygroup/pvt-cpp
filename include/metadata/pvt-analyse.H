@@ -120,7 +120,6 @@ public:
     }
 
     const double & rsb = bp_row(1);
-
     {
       const double & rs = bp_row(1);
       const double defined_rsb = get<1>(data.find_const("rsb"));

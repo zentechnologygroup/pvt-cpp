@@ -3,12 +3,8 @@
 
 # include <correlations/undersaturated-oil-density.H>
 
-
-inline Quantity<Lb_ft3>
-PoaBradley::impl(const Quantity<Lb_ft3> & pobp,
-		 const Quantity<psia> & p,
-		 const Quantity<psia> & pb,
-		 const Quantity<psia_1> & co) const
+void PoaBradley::precondition(const Quantity<psia> & p,
+			      const Quantity<psia> & pb) const
 {
   if (not (p > pb))
     {
@@ -16,7 +12,15 @@ PoaBradley::impl(const Quantity<Lb_ft3> & pobp,
       s << "PoaBradley::impl: pressure " << p << " is not greater than pb" << pb;
       throw domain_error(s.str());
     }
+}
 
+
+inline Quantity<Lb_ft3>
+PoaBradley::impl(const Quantity<Lb_ft3> & pobp,
+		 const Quantity<psia> & p,
+		 const Quantity<psia> & pb,
+		 const Quantity<psia_1> & co) const
+{
   const double po = pobp.raw() * exp(co.raw() * (p.raw() - pb.raw()));
 
   return Quantity<Lb_ft3>(po);

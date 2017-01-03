@@ -1,8 +1,33 @@
 
+# include <istream>
+
 # include <tclap/CmdLine.h>
 # include <correlations/correlation.H>
 
 using namespace TCLAP;
+
+const Unit * search_unit(const string & name)
+{
+  auto unit_ptr = Unit::search_by_name(name);
+  if (unit_ptr == nullptr)
+    {
+      unit_ptr = Unit::search_by_symbol(name);
+      if (unit_ptr == nullptr)
+	{
+	  cout << "Unit " << name << " not found" << endl;
+	  abort();
+	}
+    }
+  return unit_ptr;
+}
+
+void convert(const Unit * src_unit, const Unit * tgt_unit, istream & in)
+{
+  double val;
+  while (in >> val)
+    cout << unit_convert(*src_unit, val, *tgt_unit) << " ";
+  cout << endl;
+}
 
 void list_all_units()
 {
@@ -20,12 +45,23 @@ void list_all_units()
   cout << to_string(format_string(rows)) << endl;
 }
 
+void list_sibling_units(const Unit & unit)
+{
+  DynList<DynList<string>> rows = unit.family_units().maps<DynList<string>>
+    ([] (auto ptr)
+     {
+       return DynList<string>({ptr->name, ptr->symbol, ptr->latex_symbol});
+     });
+  rows.insert({"name", "symbol", "LaTeX symbol"});
+  cout << to_string(format_string(rows)) << endl;
+}
+
 void test(int argc, char *argv[])
 {
   CmdLine cmd(argv[0], ' ', "0");
 
-  vector<string> units;
-  Unit::units().for_each([&units] (auto u) { units.push_back(u->symbol); });
+  vector<string> units =
+    to_vector(Unit::units().maps<string>([] (auto u) { return u->symbol; }));
   ValuesConstraint<string> allowed(units);
   ValueArg<string> unit = { "u", "unit-symbol", "symbol of unit",
 			    false, "", &allowed, cmd };
@@ -37,9 +73,9 @@ void test(int argc, char *argv[])
     to_vector(PhysicalQuantity::quantities().maps<string>([] (auto p)
     { return p->name; }));
   ValuesConstraint<string> pq_allowed(pqs);
-  ValueArg<string> list = { "L", "list-units",
-			    "list units associated to a physical quantity",
-			    false, "", &pq_allowed, cmd };
+  ValueArg<string> unit_list = { "L", "list-units",
+				 "list units associated to a physical quantity",
+				 false, "", &pq_allowed, cmd };
 
   ValueArg<double> sample = {"s", "sample", "sample", false, 0, "sample", cmd};
 
@@ -54,17 +90,24 @@ void test(int argc, char *argv[])
 
   SwitchArg json("j", "json", "json list of units", cmd, false);
 
+  ValueArg<string> file = { "f", "file", "input file name", false, "",
+			    "input file name", cmd };
+  SwitchArg pipe = { "p", "pipe", "input by cin", cmd };
+
   cmd.parse(argc, argv);
 
   if (l.getValue())
     {
-      list_all_units();
+      if (not unit.isSet())
+	list_all_units();
+      else
+	list_sibling_units(*search_unit(unit.getValue()));
       exit(0);
     }
 
-  if (list.isSet())
+  if (unit_list.isSet())
     {
-      auto pq_name = list.getValue();
+      auto pq_name = unit_list.getValue();
       auto pq = PhysicalQuantity::search(pq_name);
       if (pq == nullptr)
 	{
@@ -93,26 +136,25 @@ void test(int argc, char *argv[])
 
   if (source.isSet() and target.isSet())
     {
-      auto src_ptr = Unit::search_by_symbol(source.getValue());
-      if (src_ptr == nullptr)
+      auto src_ptr = search_unit(source.getValue());
+      auto tgt_ptr = search_unit(target.getValue());
+
+      if (file.isSet() or pipe.getValue())
 	{
-	  cout << "Source unit symbol " << source.getValue()
-	       << " not found" << endl;
-	  abort();
+	  if (pipe.isSet())
+	    convert(src_ptr, tgt_ptr, cin);
+	  else
+	    {
+	      ifstream in(file.getValue());
+	      if (not in.good())
+		{
+		  cout << "Cannot open " << file.getValue() << endl;
+		  abort();
+		}
+	      convert(src_ptr, tgt_ptr, in);
+	    }
+	  exit(0);
 	}
-      auto tgt_ptr = Unit::search_by_symbol(target.getValue());
-      if (tgt_ptr == nullptr)
-	{
-	  cout << "Target unit symbol " << target.getValue()
-	       << " not found" << endl;
-	  abort();
-	}
-      // if (not exist_conversion(*src_ptr, *tgt_ptr))
-      // 	{
-      // 	  cout << "Conversion from " << source.getValue() << " to "
-      // 	       << target.getValue() << " not found" << endl;
-      // 	  abort();
-      // 	}
 
       VtlQuantity val(*src_ptr, sample.getValue());
       cout << VtlQuantity(*tgt_ptr, val).raw() << endl;
@@ -125,7 +167,7 @@ void test(int argc, char *argv[])
       abort();
     }
 
-  auto unit_ptr = Unit::search_by_symbol(unit.getValue());
+  auto unit_ptr = search_unit(unit.getValue());
   if (unit_ptr == nullptr)
     {
       cout << "Unit symbol " << unit.getValue() << " not found" << endl;

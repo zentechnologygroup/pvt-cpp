@@ -1,0 +1,294 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'optparse'
+require 'fileutils'
+
+load 'correlations.rb'
+
+require 'csv'
+
+class Table
+
+  private
+  
+  def map_values(rows, names)
+    vals = rows.map do |row|
+      t = row[names['t']]
+      p = row[names['p']]
+      [[t, p], row]
+    end.to_h  
+  end
+
+  def access(row, names, name)
+    val = row[names[name]]
+    fail "name #{name} not found" unless val
+    val.to_f
+  end
+
+  def test_convert(name, zen_val)
+    zen_unit = @zen_units[name]
+    pe_unit = @pe_units[name]
+    if zen_unit == pe_unit
+      zen_val
+    else
+      `./test-conversion -S #{zen_unit} -T #{pe_unit} -s #{zen_val}`.to_f
+    end
+  end
+
+  def access_convert(row, names, name)
+    test_convert(name, access(row, names, name))
+  end
+
+  def convert(vec, src_unit, tgt_unit)
+    r = `echo #{vec.join(' ')} | ./test-conversion -p -S #{src_unit} -T #{tgt_unit}`
+  end
+
+  def build_table(zen_vals, pe_vals, zen_names, pe_names)
+    mat = zen_vals.map do |pair, row|
+      pe_row = pe_vals[pair]
+      fail "pe entry for t = #{pair[0]} p = #{pair[1]} not found" unless pe_row
+
+      t = pair[0].to_f
+      p = pair[1].to_f
+
+      # TODO: conversion de unidades cuando sean diferentes
+      zen_pb = access row, zen_names, 'pb'
+      pe_pb = access pe_row, pe_names, 'pb'
+      #pe_pb = access_convert pe_row, pe_names, 'pb'
+      #pb_error = 100*(pe_pb - zen_pb).abs / pe_pb
+
+      zen_rs = access row, zen_names, 'rs'
+      pe_rs = access pe_row, pe_names, 'rs'
+      #rs_error = 100*(pe_rs - zen_rs).abs / pe_rs
+
+      zen_bo = access row, zen_names, 'bo'
+      pe_bo = access pe_row, pe_names, 'bo'
+      #bo_error = 100*(pe_bo - zen_bo).abs / pe_bo
+
+      zen_uo = access row, zen_names, 'uo'
+      pe_uo = access pe_row, pe_names, 'uo'
+      #uo_error = 100*(pe_uo - zen_uo).abs / pe_uo
+
+      [t, p, zen_pb, pe_pb, zen_rs, pe_rs, zen_bo, pe_bo, zen_uo, pe_uo]
+    end
+
+    zen_pb = zen_vals.map { |pair, row| access row, zen_names, 'pb' }
+    pe_pb = pe_vals.map { |pair, row| access row, pe_names, 'pb' }
+    p = pe_pb.join ' '
+    puts p
+
+    #puts `echo #{pe_pb.map { |p| p + ' '}`
+    `echo #{pe_pb.join(' ')} | ./test-conversion -p -S #{@pe_units['pb']} -T #{@pe_units['pb']}`
+
+
+    exit
+
+    t.to_h
+  end
+
+  public
+  
+  attr_reader :table
+
+  def initialize(zen_name, pe_name)
+    zen_rows = CSV.read(zen_name, headers: true)
+    pe_rows = CSV.read(pe_name, headers: true)
+
+    zen_headers = zen_rows.headers
+    @zen_units = zen_headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
+    zen_names = zen_headers.map { |h| [h.split[0], h] }.to_h
+
+    pe_headers = pe_rows.headers
+    @pe_units = pe_headers.map { |h| l = h.split; [l[0], l[1]] }.to_h
+    pe_names = pe_headers.map { |h| [h.split[0], h] }.to_h
+
+    @table = build_table(map_values(zen_rows, zen_names),
+                         map_values(pe_rows, pe_names), zen_names, pe_names)
+  end
+
+  def format(decs = 2)
+    table = @table.map { |k, vals| k + vals }
+    lens = Array.new(table[0].size, 0)
+    table.each do |l|
+      lens = lens.zip(l).map { |len, i| [len, i.round(decs).to_s.size].max }
+    end
+    header = ["t", "p", "pb zen", "pb_pe", "pb %", "rs zen", "rs pe", "rs %",
+              "bo zen", "bo pe", "bo %", "uo zen", "uo pe", "uo %"]
+    grid = table.map { |l| l.map { |i| i.round(decs).to_s } }
+    #grid.each { |line| line.drop(2).each_slice(3) { |l| l[2] += ' %' } }
+    grid.unshift header
+    grid.map { |l| l.zip(lens).map { |i, len| i.ljust(len) } }
+  end
+
+  def entry(p, t)
+    @table[[t, p]]
+  end
+
+  private
+  
+  def values(p, t, i)
+    e = entry t, p
+    fail "temperature = #{t} pressure = #{p} pair not found" unless e
+    [e[i], e[i + 1], e[i + 2].round(2)]
+  end
+
+  public
+  
+  def to_s(name, t)
+    " #{name} = #{t[0]} #{t[1]} #{t[2]}"
+  end
+
+  def pb(t, p)
+    values t, p, 0
+  end
+
+  def rs(t, p)
+    values t, p, 3
+  end
+
+  def bo(t, p)
+    values t, p, 6
+  end
+
+  def uo(t, p)
+    values t, p, 9
+  end
+
+  def pb_s(t, p)
+    "#{t} #{p}" + to_s("pb", pb(t, p))
+  end
+
+  def rs_s(t, p)
+     "#{t} #{p}" + to_s("rs", rs(t, p))
+  end
+
+  def bo_s(t, p)
+     "#{t} #{p}" + to_s("bo", bo(t, p))
+  end
+
+  def uo_s(t, p)
+     "#{t} #{p}" + to_s("uo", uo(t, p))
+  end
+
+  def subset(i, per)
+    list = @table.select { |k, vals| vals[i + 2] >= per }.
+           map { |k, vals| k + [vals[i], vals[i + 1], vals[i + 2]] }.
+           map { |e| "#{e[0]} #{e[1]} #{e[2]} #{e[3]} #{e[4]}" }
+  end
+
+  def pb_subset(per)
+    subset(0, per)
+  end
+
+  def rs_subset(per)
+    subset(3, per)
+  end
+
+  def bo_subset(per)
+    subset(6, per)
+  end
+
+  def uo_subset(per)
+    subset(9, per)
+  end
+end
+
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-z ZENCSV', '--zen ZENCSV', 'csv file by zen') do |property_name|
+    options[:zen_name] = property_name
+  end
+
+  opts.on('-p PCSV', '--pe PCSV',
+          'csv file by Petroleum Experts') do |property_name|
+    options[:pe_name] = property_name
+  end
+
+  opts.on('-T TEMP', '--temp TEMP', 'temperature value') do |temp|
+    options[:temp] = temp
+  end
+
+  opts.on('-P PRESSURE', '--pressure PRESSURE', 'pressure value') do |pressure|
+    options[:pressure] = pressure
+  end
+
+  opts.on('-G PROPERTY', '--get PROPERTY', 'Property name') do |property|
+    options[:property] = property
+  end
+
+  opts.on('-% PERCENTAGE', '--percentage PERCENTAGE',
+          'error percentage') do |per|
+    options[:per] = per
+  end
+end
+
+options_parser.parse!
+
+zen_name = options[:zen_name]
+fail 'zen csv file not given' unless zen_name
+
+pe_name = options[:pe_name]
+fail 'pe csv file not given' unless pe_name
+  
+data = Table.new(zen_name, pe_name)
+
+t = options[:temp]
+p = options[:pressure]
+missing = (t && !p) || (!t && p)
+value_requested = t && p
+
+fail "option -T temp and -P pressure must be used together" if missing
+
+if value_requested
+  property = options[:property]
+  fail "Property has not been specified" unless property
+  val = nil
+  case property.downcase
+  when 'pb'
+    val = data.pb_s(t.to_f, p.to_f)
+  when 'rs'
+    val = data.pb_s(t.to_f, p.to_f)
+  when 'bo'
+    val = data.bo_s(t.to_f, p.to_f)
+  when 'uo'
+    val = data.uo_s(t.to_f, p.to_f)
+  else
+    fail "invalid property #{property}"
+  end
+  puts val
+  exit
+end
+
+per = options[:per].to_f if options[:per]
+if per
+  property = options[:property]
+  fail "Property has not been specified" unless property
+  fail "% must between 1 and 99" if per < 0.01 || per > 99
+  case property.downcase
+  when 'pb'
+    vals = data.pb_subset(per)
+  when 'rs'
+    vals = data.rs_subset(per)
+  when 'bo'
+    vals = data.bo_subset(per)
+  when 'uo'
+    vals = data.uo_subset(per)
+  else
+    fail "invalid property #{property}"
+  end
+  vals.each { |e| puts e }
+  exit
+end
+
+lines = data.format
+
+lines.each do |l|
+  print "#{l[0]} #{l[1]} "
+  l.drop(2).each_slice(3) do |s|
+    print "#{s[0]} #{s[1]} #{s[2]}"
+    print ' ' if s != l.last
+  end
+  puts
+end

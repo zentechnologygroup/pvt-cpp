@@ -103,3 +103,26 @@ apagar rangos de entrada en test-corr,2016-11-30 16:21:11 -0400,2016-12-04 12:54
 opción all que reciba las correlaciones y calcule el grid,2016-11-29 21:31:05 -0400,2016-12-04 13:49:10 -0400,,2016-12-04 13:49:21 -0400
 test-calibrate reciba entrada csv y comandos,2016-11-19 13:39:02 -0400,2016-12-03 09:16:11 -0400,,2016-12-08 10:43:09 -0400
 Revisar ./test-calibrate -f 113.json -P uo --below UobBeggsRobinson --above UoaVasquezBeggs ,2016-12-15 16:30:19 -0400,,,2016-12-15 16:32:23 -0400
+opción % que recupere los valores por sobre un %,2016-12-17 17:56:36 -0400,2016-12-18 16:44:14 -0400,,2016-12-18 16:44:44 -0400
+opción csv para opción -b,2016-12-16 17:29:55 -0400,2016-12-18 16:44:19 -0400,,2016-12-18 16:45:00 -0400
+Hay que verificar que cuando se extrae data las unidades sean convertidas a las esperadas,2016-12-10 15:39:22 -0400,2016-12-18 19:52:05 -0400,para ello hay que revisar las llamadas a values(),2016-12-19 11:46:43 -0400
+eliminar case property en test-grid y susituir por metallamada,2016-12-21 19:34:34 -0400,2016-12-22 11:28:52 -0400,,2016-12-22 11:42:49 -0400
+test-grid maneja mal las unidades psia == psig,2016-12-19 18:16:48 -0400,2016-12-22 11:42:54 -0400,,2016-12-22 11:43:00 -0400
+verificar unidades para cada par en test-grid (rutina format_table),2016-12-16 17:31:36 -0400,2016-12-22 11:43:12 -0400,,2016-12-22 11:54:13 -0400
+script que compare grids,2016-12-14 17:56:44 -0400,2016-12-22 11:43:17 -0400,,2016-12-22 11:54:15 -0400
+csv grid está sacando mal la tag de temperature,2016-12-14 17:48:31 -0400,2016-12-22 11:54:26 -0400,,2016-12-22 11:54:28 -0400
+Resolver: ajustes fueron calculados en una unidad. Cómo asegurar el ajuste si la unidad cambia?,2016-12-12 18:16:56 -0400,2016-12-22 11:54:40 -0400,,2016-12-22 11:54:46 -0400
+poner cambio de unidades en plot-corr y test-calibrate,2016-12-10 18:26:50 -0400,2016-12-22 11:55:15 -0400,,2016-12-22 11:55:18 -0400
+dir backend,2016-12-08 16:30:29 -0400,2016-12-22 11:55:32 -0400,,2016-12-22 11:55:35 -0400
+verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos,2016-12-10 18:26:26 -0400,2016-12-22 11:55:46 -0400,,2016-12-22 11:55:50 -0400
+sustituir make_par por valor director; algo omo yg_vtl,2016-12-22 17:40:45 -0400,2016-12-23 10:51:27 -0400,,2016-12-27 10:44:03 -0400
+métodos de test-grid con prefijo propiedad pueden meta generarse,2016-12-23 17:27:17 -0400,2016-12-27 10:43:37 -0400,,2016-12-27 10:44:11 -0400
+compute en Correlatin puede metaprogramarse mejor si se valida directamente el parámetro,2016-12-23 17:14:02 -0400,2016-12-27 10:43:45 -0400,,2016-12-27 10:44:13 -0400
+option para generar R en test-grid,2016-12-23 17:10:49 -0400,2016-12-27 10:43:54 -0400,,2016-12-27 10:44:25 -0400
+poner las oras propiedades,2016-12-14 17:48:43 -0400,,oil density,2016-12-27 10:44:26 -0400
+nuevo programa que evalue correlacion recibiendo un arreglo,2016-11-22 10:40:29 -0400,2016-12-27 10:44:59 -0400,,2016-12-27 10:45:02 -0400
+conversion de ft3/scf a RCF_SCF en gas-formation-volume-factor-unit,2016-12-27 10:45:48 -0400,2016-12-28 17:48:29 -0400,,2016-12-28 17:48:32 -0400
+lib y optimización de pase de parámetros por nombre,2016-11-30 09:55:34 -0400,2016-12-31 14:52:32 -0400,,2016-12-31 14:52:37 -0400
+Pg::impl considerar quitar pb y validación,2016-12-27 12:09:11 -0400,2016-12-31 14:52:02 -0400,,2017-01-02 14:13:43 -0400
+Revisar precondicion en CobMcCainEtAl,2016-12-28 11:50:52 -0400,2016-12-31 14:51:56 -0400,,2017-01-02 14:13:49 -0400
+backend con lib optimizada,2016-12-28 18:00:54 -0400,2016-12-31 14:52:12 -0400,,2017-01-02 14:14:07 -0400

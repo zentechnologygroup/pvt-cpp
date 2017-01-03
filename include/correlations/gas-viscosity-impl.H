@@ -3,6 +3,19 @@
 
 # include <correlations/gas-viscosity.H>
 
+void UgCarrKB::precondition(const Quantity<MolePercent> & n2_concentration,
+			    const Quantity<MolePercent> & co2_concentration,
+			    const Quantity<MolePercent> & h2s_concentration) const
+{
+  if (n2_concentration.raw() + co2_concentration.raw() +
+      h2s_concentration.raw() >= 100)
+    {
+      ostringstream s;
+      s << "In UgCarrKB::impl: invalid values for nonhydrocarbon concentrations.";
+      throw domain_error(s.str());
+    }
+}
+
 inline Quantity<CP>
 UgCarrKB::impl(const Quantity<Fahrenheit> & t,
 	       const Quantity<PseudoReducedTemperature> & tpr,
@@ -12,14 +25,6 @@ UgCarrKB::impl(const Quantity<Fahrenheit> & t,
 	       const Quantity<MolePercent> & co2_concentration,
 	       const Quantity<MolePercent> & h2s_concentration) const
 {
-
-  if (n2_concentration.raw() + co2_concentration.raw() + h2s_concentration.raw() >= 100)
-    {
-      ostringstream s;
-      s << "In UgCarrKB::impl: invalid values for nonhydrocarbon concentrations.";
-      throw domain_error(s.str());
-    }
-
   const double tsr = tpr.raw();
   const double psr = ppr.raw();
 
@@ -72,7 +77,7 @@ inline Quantity<mP>
 UgLeeGE::impl(const Quantity<Rankine> & t,
 	      const Quantity<psia> & p,
 	      const Quantity<Sgg> & yg,
-	      const Quantity<ZFactor> & z) const
+	      const Quantity<Zfactor> & z) const
 {
   const double mg = 28.96*yg.raw(); // gas molecular weight [lb/lbmol]
             
@@ -93,7 +98,7 @@ UgDeanStiel::impl(const Quantity<Rankine> & t,
 		  const Quantity<Rankine> & tsc,
 		  const Quantity<psia> & psc,
 		  const Quantity<Sgg> & yg,
-		  const Quantity<ZFactor> & z) const
+		  const Quantity<Zfactor> & z) const
 {
   const double tsr = t.raw()/tsc.raw();
   const double psr = p.raw()/psc.raw();

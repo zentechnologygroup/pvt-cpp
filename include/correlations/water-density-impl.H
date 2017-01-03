@@ -15,9 +15,7 @@ PwSpiveyMN::impl(const Quantity<Celsius> & t,
   const double tk = Quantity<Kelvin>(t).raw();
 
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv =
-    PvSpiveyMN::get_instance().impl(tk).raw();
-
+  const double pv = PvSpiveyMN::get_instance().impl(tk).raw();
   if (p < pv)
     {
       ostringstream s;
@@ -30,8 +28,7 @@ PwSpiveyMN::impl(const Quantity<Celsius> & t,
 
   // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
   // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
-  const double mch4w =
-    MwSpiveyMN::get_instance().impl(t, p, pv, m).raw();
+  const double mch4w = MwSpiveyMN::get_instance().impl(t, p, pv, m).raw();
 
   // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE
   // TEMPERATURE AND PRESSURE OF EVALUATION
@@ -75,7 +72,8 @@ PwSpiveyMNGasFree::impl(const Quantity<Celsius> & t,
   const double t_100_2 = t_100*t_100;
   const double m = nacl_concentration.raw();
 
-  // Pure water density [g/cm³] at the reference pressure (70 Mpa) and evaluation temperature
+  // Pure water density [g/cm³] at the reference pressure (70 Mpa) and
+  // evaluation temperature 
   const double ppwr = (-0.127213*t_100_2 + 0.645486*t_100 + 1.03265) /
     (-0.070291*t_100_2 + 0.639589*t_100 + 1);
         
@@ -111,7 +109,8 @@ PwSpiveyMNGasFree::impl(const Quantity<Celsius> & t,
   const double iwr = (1/ew)*log(fabs(ew + fw));
   const double iw = (1/ew)*log(fabs((ew*(p.raw()/70)) + fw));
         
-  // Density of gas-free brine [g/cm³] at the temperature and pressure of evaluation 
+  // Density of gas-free brine [g/cm³] at the temperature and pressure
+  // of evaluation
   const double pgfw = pgfwr*exp(iw - iwr);
                         
   return Quantity<Gr_cm3>(pgfw);

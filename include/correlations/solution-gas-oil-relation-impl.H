@@ -471,10 +471,8 @@ RsManucciRosales::impl(const Quantity<Sgg> & yg,
   return Quantity<SCF_STB>(rs);
 }
 
-Quantity<SCF_STB>
-RsAbovePb::impl(const Quantity<psia> & pb,
-	  const Quantity<psia> & p,
-	  const Quantity<SCF_STB> & rsb) const
+void RsAbovePb::precondition(const Quantity<psia> & p,
+			     const Quantity<psia> & pb) const
 {
   if (p <= pb)
     {
@@ -483,7 +481,13 @@ RsAbovePb::impl(const Quantity<psia> & pb,
 	<< pb;
       throw domain_error(s.str());
     }
+}
 
+Quantity<SCF_STB>
+RsAbovePb::impl(const Quantity<psia> &,
+	  const Quantity<psia> &,
+	  const Quantity<SCF_STB> & rsb) const
+{
   return rsb;
 }
 

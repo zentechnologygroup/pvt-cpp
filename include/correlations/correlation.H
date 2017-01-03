@@ -16,6 +16,8 @@
 # include <units/pvt-units.H>
 # include <biblio.H>
 
+# include "par-list.H"
+
 struct CorrelationPar
 {
   const string name;
@@ -323,7 +325,11 @@ private:
 
   void set_hidden() { hidden = true; }
 
-  static string to_json();
+  static string json_of_all_correlations();
+
+  string to_json() const;
+
+  static string to_json(const string & subtype_name);
 
   void set_author(const string & __author) { author = __author; }
 
@@ -705,6 +711,14 @@ public:
   virtual
   VtlQuantity compute(const DynList<VtlQuantity> &, bool check = true) const = 0;
 
+  template <typename ... Args>
+  VtlQuantity compute(Args ... args) const
+  {
+    DynList<VtlQuantity> pars_list;
+    append_in_container(pars_list, args ...);
+    return compute(pars_list);
+  }
+
   VtlQuantity compute_and_check(const DynList<VtlQuantity> & pars,
 				bool check = true) const
   {
@@ -830,6 +844,15 @@ public:
 
     return compute(vals, check);
   }
+
+  VtlQuantity compute_by_names(const ParList & par_list, bool check = true) const
+  {
+    DynList<VtlQuantity> vals;
+    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+      vals.append(par_list(it.get_curr().names()));
+
+    return compute(vals, check);
+  }
   
   VtlQuantity tuned_compute_and_check(const DynList<VtlQuantity> & pars,
 				      double c, double m,
@@ -897,6 +920,13 @@ public:
 			 double c, double m, bool check = true) const
   {
     return VtlQuantity(unit, c + m*compute_by_names(pair_list, check).raw());
+  }
+
+  VtlQuantity
+  tuned_compute_by_names(const ParList & par_list,
+			 double c, double m, bool check = true) const
+  {
+    return VtlQuantity(unit, c + m*compute_by_names(par_list, check).raw());
   }
 
   double
@@ -1071,15 +1101,6 @@ decltype(auto)
   return std::forward<Func>(f)(v.at(Is)...);
 }
  
-// template <typename Func, typename T>
-// decltype(auto) call_compute(Func&& f, const DynList<T>& pars)
-// {
-//   constexpr std::size_t N =
-//     Compute_arity<std::remove_pointer_t<std::decay_t<Func>>>::value;
-//   return
-//     call_compute(std::forward<Func>(f), pars, std::make_index_sequence<N>());
-// }
-
 # define Correlation_Singleton(name)					\
   public:								\
 									\
@@ -1101,8 +1122,7 @@ Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation, "P_b");
 Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation, "R_s");
 Declare_Correlation_Subtype(UndersaturatedOilVolumeFactor,
 			    OilCorrelation, "B_{oa}");
-Declare_Correlation_Subtype(SaturatedOilVolumeFactor, OilCorrelation,
-			    "B_{ob}");
+Declare_Correlation_Subtype(SaturatedOilVolumeFactor, OilCorrelation, "B_{ob}");
 Declare_Correlation_Subtype(SaturatedOilViscosity, OilCorrelation, "\\mu_{ob}");
 Declare_Correlation_Subtype(UndersaturatedOilViscosity, OilCorrelation,
 			    "\\mu_{oa}");

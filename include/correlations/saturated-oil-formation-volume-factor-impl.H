@@ -275,6 +275,16 @@ BobVasquezBeggs::impl(const Quantity<Sgg> & yg,
   return Quantity<RB_STB>(bo);
 }
 
+void BobPerezML::precondition(const Quantity<psia> & p,
+			      const Quantity<psia> & pb) const
+{
+  if (p > pb)
+    {
+      ostringstream s;
+      s << "BobPerezML::impl: pressure " << p << " is greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+}
 
 inline Quantity<RB_STB>
 BobPerezML::impl(const Quantity<Sgg> & yg,
@@ -284,14 +294,6 @@ BobPerezML::impl(const Quantity<Sgg> & yg,
 		const Quantity<psia> & p,
 		const Quantity<psia> & pb) const
 {
-
-  if (p > pb)
-    {
-      ostringstream s;
-      s << "BobPerezML::impl: pressure " << p << " is greater than pb " << pb;
-      throw domain_error(s.str());
-    }
-
   const double raw_rsb = rsb.get_value();
   const double raw_t = t.get_value();
   const double yg_yo = yg.get_value()/yo.get_value();
@@ -355,6 +357,16 @@ BobVelardeMcCain::impl(const Quantity<Sgg> & yg,
   return Quantity<RB_STB>(bo);
 }
 
+void BobMillanArcia::precondition(const Quantity<psia> & p,
+				  const Quantity<psia> & pb) const
+{
+  if (p > pb)
+    {
+      ostringstream s;
+      s << "BobMillanArcia::impl: pressure " << p << " is greater than pb " << pb;
+      throw domain_error(s.str());
+    }
+}
 
 inline Quantity<RB_STB>
 BobMillanArcia::impl(const Quantity<Api> & api,
@@ -362,14 +374,6 @@ BobMillanArcia::impl(const Quantity<Api> & api,
 		    const Quantity<psia> & p,
 		    const Quantity<psia> & pb) const
 {
-
-  if (p > pb)
-    {
-      ostringstream s;
-      s << "BobMillanArcia::impl: pressure " << p << " is greater than pb " << pb;
-      throw domain_error(s.str());
-    }
-
   const double raw_p = p.get_value();
   const double raw_pb = pb.get_value();
   const double raw_api = api.get_value();

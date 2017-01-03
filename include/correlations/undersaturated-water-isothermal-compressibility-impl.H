@@ -15,8 +15,7 @@ CwaSpiveyMN::impl(const Quantity<Celsius> & t,
   const double tk = Quantity<Kelvin>(t).raw();
 
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv =
-    PvSpiveyMN::get_instance().impl(tk).raw();
+  const double pv = PvSpiveyMN::get_instance().impl(tk).raw();
 
   if (p < pv)
     {
@@ -41,11 +40,12 @@ CwaSpiveyMN::impl(const Quantity<Celsius> & t,
   const double mch4w =
     MwSpiveyMN::get_instance().impl(t, p, pv, nacl_concentration).raw();
 
-
-  // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE TEMPERATURE AND PRESSURE OF EVALUATION 
+  // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE
+  // TEMPERATURE AND PRESSURE OF EVALUATION  
   const double m = nacl_concentration.raw();
   // Derivatives with respect to P
-  const double c3 = -8.5658e-2 + 1.31961e-2*log(tk) + 7.338/tk + 9.05e-2/(680 - tk);
+  const double c3 = -8.5658e-2 + 1.31961e-2*log(tk) + 7.338/tk +
+    9.05e-2/(680 - tk);
   
   const double c4 = 2.260e-1/tk + 2 * -1.227e-3 * p.raw()/tk;
 
@@ -98,7 +98,6 @@ CwaDodsonStanding::impl(const Quantity<Fahrenheit> & t,
   // Correction of the water compressibility, due to dissolved solids
   const double cw = cws * (1 + (s07 * (-5.2e-2 + 2.7e-4*t.raw() -
 			               1.14e-6*t2 + 1.121e-9*t3)));
-
   return Quantity<psia_1>(cw);
 }
 
@@ -109,8 +108,7 @@ CwaOsif::impl(const Quantity<Fahrenheit> & t,
 	     const Quantity<CgL> & nacl_concentration) const
 {
   const double cw = 1/(7.033*p.raw() + 541.5*nacl_concentration.raw() -
-			   537*t.raw() + 403.3e3);
-
+		       537*t.raw() + 403.3e3);
   return Quantity<psia_1>(cw);
 }
 

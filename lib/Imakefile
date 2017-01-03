@@ -43,12 +43,6 @@ biblios.cc: $(TOP)/include/correlations/refs.bib $(TOP)/bin/biblio
 	$(RM) $*.cc; 	\	@@\
 	$(BIBLIO) -C -f $(CORRDIR)refs.bib | clang-format -style=Mozilla > $@
 
-# pvt-impl.cc: $(HIMPL)
-# 	$(RM) -f $@;					\	@@\
-# 	cat $(HIMPL) > pvt-impl.cc
-
-# pvt-impl.o: pvt-impl.cc
-
 pvt.cc: $(CALLS) $(HCORR)				\
 	$(TOP)/include/units/units.H			\
 	biblios.cc units-vars.cc correlations-vars.cc	\
@@ -75,6 +69,15 @@ libpvt.so: pvt.cc
 	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) -fpic pvt.cc -o aux.o;\	@@\
 	gcc -shared -o libpvt.so aux.o; \	@@\
 	$(RM) -f aux.o
+
+libpvt-op.a: pvt.cc
+	$(RM) -f $@;		\	@@\
+	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) pvt.cc -o aux.o;\	@@\
+	ar clq libpvt-op.a aux.o; \	@@\
+	ranlib libpvt-op.a; \	@@\
+	$(RM) -f aux.o
+
+all:: libpvt-op.a
 
 NormalLibraryObjectRule()
 NormalLibraryTarget(pvt,$(OBJS))

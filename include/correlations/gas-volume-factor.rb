@@ -1,9 +1,10 @@
+# coding: utf-8
 
 begin_correlation("Bg", "GasVolumeFactor", "RCF_SCF")
 add_title("CALCULATION OF GAS FORMATION VOLUME FACTOR")
-add_parameter("t",  "Rankine", "Temperature")
-add_parameter("p",  "psia", "Pressure")
-add_parameter("z",  "ZFactor", "Gas compressibility factor")
+add_parameter("t", "Rankine", "Temperature")
+add_parameter("p", "psia", "Pressure")
+add_parameter("z", "Zfactor", "Gas compressibility factor")
 add_author("Standard Equation")
 add_db("The calculation is based on the Real Gas Law.")
 add_ref("takacs:2005")

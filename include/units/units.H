@@ -164,7 +164,8 @@ public:
 private:
 
   static UnitItemTable tbl;
-  static DynSetTree<const Unit * const> unit_tbl;
+  static DynSetHash<const Unit *> unit_tbl;
+  //static DynSetTree<const Unit * const> unit_tbl;
 
 public:
 
@@ -172,7 +173,7 @@ public:
   static size_t size() { return unit_tbl.size(); }
 
   /// Return a list of all declared and used units
-  static DynList<const Unit* const> units() { return unit_tbl.keys(); }
+  static DynList<const Unit*> units() { return unit_tbl.keys(); }
 
   /// return all the units associated to this (including this)
   const DynList<const Unit* const> & family_units() const
@@ -264,7 +265,8 @@ extern string units_json();
 
 using Unit_Convert_Fct_Ptr = double (*)(double);
 
-using UnitHashTbl = DynMapTree<pair<string, string>, Unit_Convert_Fct_Ptr>;
+//using UnitHashTbl = DynMapTree<pair<string, string>, Unit_Convert_Fct_Ptr>;
+using UnitHashTbl = DynMapHash<pair<string, string>, Unit_Convert_Fct_Ptr>;
 
 # include "multiunitmap.H"
 
@@ -1094,6 +1096,20 @@ private:
 
 public:
 
+  static const VtlQuantity null_quantity;
+
+  bool is_null() const { return &unit == &Unit::null_unit; }
+
+  void set(const BaseQuantity & q)
+  {
+    new (this) VtlQuantity(q.unit, q.raw());
+  }
+
+  void set(double val, const Unit * unit_ptr)
+  {
+    new (this) VtlQuantity(*unit_ptr, val);
+  }
+
   VtlQuantity(const string & unit_name, double val = 0)
     : BaseQuantity(unit_given_name(unit_name), val)
   {
@@ -1147,7 +1163,7 @@ public:
     if (this == &q)
       return *this;
 
-    if (&unit.physical_quantity == &q.unit.physical_quantity)
+    if (&unit.physical_quantity == &q.unit.physical_quantity)	
       {
 	value = q.get_value();
 	return *this;

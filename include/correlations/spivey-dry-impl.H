@@ -16,9 +16,10 @@ PvSpiveyMN::impl(const Quantity<Kelvin> & t) const
   const double v3 = v2*v;
   const double v4 = v3*v;
         
-  const double lnpv = ((tc/tk) * (-7.85951783*v + 1.84408259*pow(v, 1.5) +
-				  -11.7866497*v3 + 22.6807411*pow(v, 3.5) +
-				  -15.9618719*v4 + 1.80122502 * pow(v, 7.5))) + log(pc);
+  const double lnpv = ((tc/tk) *
+		       (-7.85951783*v + 1.84408259*pow(v, 1.5) +
+			-11.7866497*v3 + 22.6807411*pow(v, 3.5) +
+			-15.9618719*v4 + 1.80122502 * pow(v, 7.5))) + log(pc);
 
   const double pv = exp(lnpv);
 
@@ -91,7 +92,7 @@ CgfwSpiveyMN::impl(const Quantity<Celsius> & t,
 }
 
 
-inline Quantity<Sm3_Sm3>
+inline Quantity<Rm3_Sm3>
 BwSpiveyMNDry::impl(const Quantity<Celsius> & t,
 		    const Quantity<mPascal> & p,
 		    const Quantity<mPascal> & pv,
@@ -107,7 +108,7 @@ BwSpiveyMNDry::impl(const Quantity<Celsius> & t,
       ostringstream s;
       s << "BwSpiveyMN::impl: received pressure " << p
 	<< " is less than computed vapor pressure " << pv << " "
-	<< p.unit.name;
+	<< p.unit.symbol;
       throw domain_error(s.str());
     }
 
@@ -156,7 +157,7 @@ BwSpiveyMNDry::impl(const Quantity<Celsius> & t,
   const double d = (1000 + m * 58.4428) * vgfwstd;                  // Volume at stock tank conditions
   const double bw = n/d;
 
-  return Quantity<Sm3_Sm3>(bw);
+  return Quantity<Rm3_Sm3>(bw);
 }
 
 

@@ -19,7 +19,7 @@ Declare_Unit(RB_STB, "RB/STB",
          barrel at stock-tank conditions.)DESC",
          FVFvolumeRatio, 0.5, 10);
 
-Declare_Unit(m3_m3, "m3/m3",
+Declare_Unit(Rm3_Sm3, "Rm3/Sm3",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
          measured in cubic meters at reservoir conditions per 
          cubic meters at stock-tank conditions.)DESC",
@@ -31,13 +31,13 @@ Declare_Unit(m3_m3, "m3/m3",
 // To cubic meters at reservoir conditions per cubic meters at
 // stock-tank conditions (m3/m3)
    
-Declare_Conversion(RB_STB, m3_m3, v) { return  v ; }
+Declare_Conversion(RB_STB, Rm3_Sm3, v) { return  v ; }
 
 
 // To  barrels at reservoir conditions per barrel at stock-tank
 // conditions (RB/STB)
 
-Declare_Conversion(m3_m3, RB_STB, v) { return  v ; }
+Declare_Conversion(Rm3_Sm3, RB_STB, v) { return  v ; }
 
 
 # endif //  FVF_VOLUME_RATIO_UNIT_H

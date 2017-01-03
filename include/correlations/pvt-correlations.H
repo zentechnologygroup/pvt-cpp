@@ -177,18 +177,18 @@ struct CorrelationInstantiater
 
     SgoBakerSwerdloff::get_instance();
 
-    YgHCWichertAziz::get_instance();
-    PscMKayMixingRule::get_instance();
-    AdjustedPscMWichertAziz::get_instance();
-    TscMKayMixingRule::get_instance();
-    AdjustedTscMWichertAziz::get_instance();
+    YghcWichertAziz::get_instance();
+    PpcmKayMixingRule::get_instance();
+    AdjustedppcmWichertAziz::get_instance();
+    TpcmKayMixingRule::get_instance();
+    AdjustedtpcmWichertAziz::get_instance();
 
-    PscHCStanding::get_instance();
-    PscHcSutton::get_instance();
-    PscHCGuoGhalambor::get_instance();
-    PscAhmed::get_instance();
-    PscHCElsharkawyEtAl::get_instance();
-    PscHCStandingHeavierFractions::get_instance();
+    PpchcStanding::get_instance();
+    PpchcSutton::get_instance();
+    PpchcGuoGhalambor::get_instance();
+    PpcAhmed::get_instance();
+    PpchcElsharkawyEtAl::get_instance();
+    PpchcStandingHeavierFractions::get_instance();
 
     UgCarrKB::get_instance();
     UgLeeGE::get_instance();
@@ -199,18 +199,18 @@ struct CorrelationInstantiater
     Tpr::get_instance();
     Ppr::get_instance();
 
-    ZFactorSarem::get_instance();
-    ZFactorHallYarborough::get_instance();
-    ZFactorDranchukPR::get_instance();
-    ZFactorDranchukAK::get_instance();
-    ZFactorGopal::get_instance();
-    ZFactorBrillBeggs::get_instance();
-    ZFactorPapay::get_instance();
+    ZfactorSarem::get_instance();
+    ZfactorHallYarborough::get_instance();
+    ZfactorDranchukPR::get_instance();
+    ZfactorDranchukAK::get_instance();
+    ZfactorGopal::get_instance();
+    ZfactorBrillBeggs::get_instance();
+    ZfactorPapay::get_instance();
 
-    TscHCStanding::get_instance();
-    TscHCStandingHeavierFractions::get_instance();
-    TscHCSutton::get_instance();
-    TpcHCElsharkawyEtAl::get_instance();
+    TpchcStanding::get_instance();
+    TpchcStandingHeavierFractions::get_instance();
+    TpchcSutton::get_instance();
+    TpchcElsharkawyEtAl::get_instance();
 
     CgSarem::get_instance();
     CgHallYarborough::get_instance();

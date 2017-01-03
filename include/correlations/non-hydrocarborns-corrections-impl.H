@@ -3,20 +3,23 @@
 
 # include <correlations/non-hydrocarborns-corrections.H>
 
+void
+YghcWichertAziz::precondition(const Quantity<MoleFraction> & n2_concentration,
+			      const Quantity<MoleFraction> & co2_concentration,
+			      const Quantity<MoleFraction> & h2s_concentration)
+  const
+{
+  if (n2_concentration.raw() + co2_concentration.raw() +
+      h2s_concentration.raw() >= 1)
+    throw domain_error("In yghcWichertAziz::impl: invalid values for nonhydrocarbon concentrations");
+}
+
 inline Quantity<Sgg>
-YgHCWichertAziz::impl(const Quantity<Sgg> & yg,
+YghcWichertAziz::impl(const Quantity<Sgg> & yg,
 		      const Quantity<MoleFraction> & n2_concentration,
 		      const Quantity<MoleFraction> & co2_concentration,
 		      const Quantity<MoleFraction> & h2s_concentration) const
 {
-
-  if (n2_concentration.raw() + co2_concentration.raw() + h2s_concentration.raw() >= 1)
-    {
-      ostringstream s;
-      s << "In YgHCWichertAziz::impl: invalid values for nonhydrocarbon concentrations.";
-      throw domain_error(s.str());
-    }
-
   const double n2 = n2_concentration.raw();
   const double co2 = co2_concentration.raw();
   const double h2s = h2s_concentration.raw();
@@ -26,20 +29,23 @@ YgHCWichertAziz::impl(const Quantity<Sgg> & yg,
   return Quantity<Sgg>(yghc);
 }
 
+void
+PpcmKayMixingRule::precondition(const Quantity<MoleFraction> & n2_concentration,
+				const Quantity<MoleFraction> & co2_concentration,
+				const Quantity<MoleFraction> & h2s_concentration)
+  const
+{
+  if (n2_concentration.raw() + co2_concentration.raw() +
+      h2s_concentration.raw() >= 1)
+    throw domain_error("In PpcMKayMixingRule::impl: invalid values for nonhydrocarbon concentrations");
+}
+
 inline Quantity<psia>
-PscMKayMixingRule::impl(const Quantity<psia> & ppchc,
+PpcmKayMixingRule::impl(const Quantity<psia> & ppchc,
 			const Quantity<MoleFraction> & n2_concentration,
 			const Quantity<MoleFraction> & co2_concentration,
 			const Quantity<MoleFraction> & h2s_concentration) const
 {
-
-  if (n2_concentration.raw() + co2_concentration.raw() + h2s_concentration.raw() >= 1)
-    {
-      ostringstream s;
-      s << "In PscMKayMixingRule::impl: invalid values for nonhydrocarbon concentrations.";
-      throw domain_error(s.str());
-    }
-
   const double n2 = n2_concentration.raw();
   const double co2 = co2_concentration.raw();
   const double h2s = h2s_concentration.raw();
@@ -49,23 +55,21 @@ PscMKayMixingRule::impl(const Quantity<psia> & ppchc,
   return Quantity<psia>(ppcm);
 }
 
-
+void AdjustedppcmWichertAziz::precondition
+(const Quantity<MoleFraction> & co2_concentration,
+ const Quantity<MoleFraction> & h2s_concentration) const
+{
+  if (co2_concentration.raw() + h2s_concentration.raw() >= 1)
+    throw domain_error("In AdjustedppcMWichertAziz::impl: invalid values for nonhydrocarbon concentrations");
+}
 
 inline Quantity<psia>
-AdjustedPscMWichertAziz::impl(const Quantity<psia> & ppcm,
+AdjustedppcmWichertAziz::impl(const Quantity<psia> & ppcm,
 			      const Quantity<Fahrenheit> & tpcm,
 			      const Quantity<MoleFraction> & co2_concentration,
 			      const Quantity<MoleFraction> & h2s_concentration)
   const
 {
-
-  if (co2_concentration.raw() + h2s_concentration.raw() >= 1)
-    {
-      ostringstream s;
-      s << "In AdjustedPscMWichertAziz::impl: invalid values for nonhydrocarbon concentrations.";
-      throw domain_error(s.str());
-    }
-
   const double a = co2_concentration.raw() + h2s_concentration.raw();
   const double b = h2s_concentration.raw();
         
@@ -74,26 +78,27 @@ AdjustedPscMWichertAziz::impl(const Quantity<psia> & ppcm,
   const double n = ppcm.raw() * (tpcm.raw() - e);
   const double d = tpcm.raw() + b * (1 - b) * e;
         
-  const double adjusted_psc = n/d;
+  const double adjusted_ppc = n/d;
 
-  return Quantity<psia>(adjusted_psc);
+  return Quantity<psia>(adjusted_ppc);
 }
 
+void TpcmKayMixingRule::precondition
+(const Quantity<MoleFraction> & n2_concentration,
+ const Quantity<MoleFraction> & co2_concentration,
+ const Quantity<MoleFraction> & h2s_concentration) const
+{
+  if (n2_concentration.raw() + co2_concentration.raw() +
+      h2s_concentration.raw() >= 1)
+    throw domain_error("In TpcmKayMixingRule::impl: invalid values for nonhydrocarbon concentrations");
+}
 
 inline Quantity<Rankine>
-TscMKayMixingRule::impl(const Quantity<Rankine> & tpchc,
+TpcmKayMixingRule::impl(const Quantity<Rankine> & tpchc,
 			const Quantity<MoleFraction> & n2_concentration,
 			const Quantity<MoleFraction> & co2_concentration,
 			const Quantity<MoleFraction> & h2s_concentration) const
 {
-
-  if (n2_concentration.raw() + co2_concentration.raw() + h2s_concentration.raw() >= 1)
-    {
-      ostringstream s;
-      s << "In TscMKayMixingRule::impl: invalid values for nonhydrocarbon concentrations.";
-      throw domain_error(s.str());
-    }
-
   const double n2 = n2_concentration.raw();
   const double co2 = co2_concentration.raw();
   const double h2s = h2s_concentration.raw();
@@ -103,24 +108,23 @@ TscMKayMixingRule::impl(const Quantity<Rankine> & tpchc,
   return Quantity<Rankine>(tpcm);
 }
 
+void AdjustedtpcmWichertAziz::precondition
+(const Quantity<MoleFraction> & co2_concentration,
+ const Quantity<MoleFraction> & h2s_concentration) const
+{
+  if (co2_concentration.raw() + h2s_concentration.raw() >= 1)
+    throw domain_error("In AdjustedtpcmWichertAziz::impl: invalid values for nonhydrocarbon concentrations");
+}
+
 inline Quantity<Rankine>
-AdjustedTscMWichertAziz::impl(const Quantity<Rankine> & tpcm,
+AdjustedtpcmWichertAziz::impl(const Quantity<Rankine> & tpcm,
 			      const Quantity<MoleFraction> & co2_concentration,
 			      const Quantity<MoleFraction> & h2s_concentration)
   const
 {
-
-  if (co2_concentration.raw() + h2s_concentration.raw() >= 1)
-    {
-      ostringstream s;
-      s << "In AdjustedTscMWichertAziz::impl: invalid values for nonhydrocarbon concentrations.";
-      throw domain_error(s.str());
-    }
-
   const double a = co2_concentration.raw() + h2s_concentration.raw();
   const double b = h2s_concentration.raw();
   const double b4 = b*b*b*b;
-  
 
   const double e = 120*(pow(a,  0.9) - pow(a, 1.6)) + 15*(sqrt(b) - b4);
 

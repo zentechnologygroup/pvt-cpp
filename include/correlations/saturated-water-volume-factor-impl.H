@@ -4,7 +4,7 @@
 # include <correlations/saturated-water-volume-factor.H>
 # include <correlations/spivey-dry.H>
 
-inline Quantity<Sm3_Sm3>
+inline Quantity<Rm3_Sm3>
 BwbSpiveyMN::impl(const Quantity<Celsius> & t,
 		  const Quantity<mPascal> & p,
 		  const Quantity<Molality_NaCl> & nacl_concentration) const
@@ -13,8 +13,7 @@ BwbSpiveyMN::impl(const Quantity<Celsius> & t,
   const double tk = Quantity<Kelvin>(t).raw();
 
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv =
-    PvSpiveyMN::get_instance().impl(tk).raw();
+  const double pv = PvSpiveyMN::get_instance().impl(tk).raw();
 
   if (p < pv)
     {
@@ -25,10 +24,7 @@ BwbSpiveyMN::impl(const Quantity<Celsius> & t,
       throw domain_error(s.str());
     }
 
-  const double bw =
-    BwSpiveyMNDry::get_instance().impl(t, p, pv, nacl_concentration).raw();
-
-  return Quantity<Sm3_Sm3>(bw);
+  return BwSpiveyMNDry::get_instance().impl(t, p, pv, nacl_concentration);
 }
 
 

@@ -628,3 +628,141 @@
 - Comment      
 - Finished     
 
+## 106. opción % que recupere los valores por sobre un %
+- Created at   2016-12-17 17:56:36 -0400
+- Completed at 2016-12-18 16:44:14 -0400
+- Comment      
+- Finished     
+
+## 107. opción csv para opción -b
+- Created at   2016-12-16 17:29:55 -0400
+- Completed at 2016-12-18 16:44:19 -0400
+- Comment      
+- Finished     
+
+## 108. Hay que verificar que cuando se extrae data las unidades sean convertidas a las esperadas
+- Created at   2016-12-10 15:39:22 -0400
+- Completed at 2016-12-18 19:52:05 -0400
+- Comment      para ello hay que revisar las llamadas a values()
+- Finished     para ello hay que revisar las llamadas a values()
+
+## 109. eliminar case property en test-grid y susituir por metallamada
+- Created at   2016-12-21 19:34:34 -0400
+- Completed at 2016-12-22 11:28:52 -0400
+- Comment      
+- Finished     
+
+## 110. test-grid maneja mal las unidades psia == psig
+- Created at   2016-12-19 18:16:48 -0400
+- Completed at 2016-12-22 11:42:54 -0400
+- Comment      
+- Finished     
+
+## 111. verificar unidades para cada par en test-grid (rutina format_table)
+- Created at   2016-12-16 17:31:36 -0400
+- Completed at 2016-12-22 11:43:12 -0400
+- Comment      
+- Finished     
+
+## 112. script que compare grids
+- Created at   2016-12-14 17:56:44 -0400
+- Completed at 2016-12-22 11:43:17 -0400
+- Comment      
+- Finished     
+
+## 113. csv grid está sacando mal la tag de temperature
+- Created at   2016-12-14 17:48:31 -0400
+- Completed at 2016-12-22 11:54:26 -0400
+- Comment      
+- Finished     
+
+## 114. Resolver: ajustes fueron calculados en una unidad. Cómo asegurar el ajuste si la unidad cambia?
+- Created at   2016-12-12 18:16:56 -0400
+- Completed at 2016-12-22 11:54:40 -0400
+- Comment      
+- Finished     
+
+## 115. poner cambio de unidades en plot-corr y test-calibrate
+- Created at   2016-12-10 18:26:50 -0400
+- Completed at 2016-12-22 11:55:15 -0400
+- Comment      
+- Finished     
+
+## 116. dir backend
+- Created at   2016-12-08 16:30:29 -0400
+- Completed at 2016-12-22 11:55:32 -0400
+- Comment      
+- Finished     
+
+## 117. verificar que operaciones de plot-corr devuelvan resultados en la misma unidad de los datos
+- Created at   2016-12-10 18:26:26 -0400
+- Completed at 2016-12-22 11:55:46 -0400
+- Comment      
+- Finished     
+
+## 118. sustituir make_par por valor director; algo omo yg_vtl
+- Created at   2016-12-22 17:40:45 -0400
+- Completed at 2016-12-23 10:51:27 -0400
+- Comment      
+- Finished     
+
+## 119. métodos de test-grid con prefijo propiedad pueden meta generarse
+- Created at   2016-12-23 17:27:17 -0400
+- Completed at 2016-12-27 10:43:37 -0400
+- Comment      
+- Finished     
+
+## 120. compute en Correlatin puede metaprogramarse mejor si se valida directamente el parámetro
+- Created at   2016-12-23 17:14:02 -0400
+- Completed at 2016-12-27 10:43:45 -0400
+- Comment      
+- Finished     
+
+## 121. option para generar R en test-grid
+- Created at   2016-12-23 17:10:49 -0400
+- Completed at 2016-12-27 10:43:54 -0400
+- Comment      
+- Finished     
+
+## 122. poner las oras propiedades
+- Created at   2016-12-14 17:48:43 -0400
+- Completed at 
+- Comment      oil density
+- Finished     oil density
+
+## 123. nuevo programa que evalue correlacion recibiendo un arreglo
+- Created at   2016-11-22 10:40:29 -0400
+- Completed at 2016-12-27 10:44:59 -0400
+- Comment      
+- Finished     
+
+## 124. conversion de ft3/scf a RCF_SCF en gas-formation-volume-factor-unit
+- Created at   2016-12-27 10:45:48 -0400
+- Completed at 2016-12-28 17:48:29 -0400
+- Comment      
+- Finished     
+
+## 125. lib y optimización de pase de parámetros por nombre
+- Created at   2016-11-30 09:55:34 -0400
+- Completed at 2016-12-31 14:52:32 -0400
+- Comment      
+- Finished     
+
+## 126. Pg::impl considerar quitar pb y validación
+- Created at   2016-12-27 12:09:11 -0400
+- Completed at 2016-12-31 14:52:02 -0400
+- Comment      
+- Finished     
+
+## 127. Revisar precondicion en CobMcCainEtAl
+- Created at   2016-12-28 11:50:52 -0400
+- Completed at 2016-12-31 14:51:56 -0400
+- Comment      
+- Finished     
+
+## 128. backend con lib optimizada
+- Created at   2016-12-28 18:00:54 -0400
+- Completed at 2016-12-31 14:52:12 -0400
+- Comment      
+- Finished     
+
