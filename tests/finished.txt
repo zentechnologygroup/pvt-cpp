@@ -127,3 +127,4 @@ Pg::impl considerar quitar pb y validación,2016-12-27 12:09:11 -0400,2016-12-31
 Revisar precondicion en CobMcCainEtAl,2016-12-28 11:50:52 -0400,2016-12-31 14:51:56 -0400,,2017-01-02 14:13:49 -0400
 backend con lib optimizada,2016-12-28 18:00:54 -0400,2016-12-31 14:52:12 -0400,,2017-01-02 14:14:07 -0400
 validar precondiciones especiales en correlaciones por funciones definidas en ruby,2017-01-01 12:49:07 -0400,2017-01-02 14:13:18 -0400,,2017-01-03 17:53:52 -0400
+unit_convert que reciba punteros a Unit en lugar de nombre,2017-01-03 20:01:40 -0400,2017-01-04 13:10:24 -0400,eso aceleraría notablemente porque evitaría los string,2017-01-04 13:10:30 -0400

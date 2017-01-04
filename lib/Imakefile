@@ -62,27 +62,27 @@ pvt.cc: $(CALLS) $(HCORR)				\
 pvt.o: pvt.cc
 
 clean::
-	$(RM) -f pvt.cc biblios.cc libpvt.so libpvt.a 
+	$(RM) -f pvt.cc biblios.cc libpvt.so libpvt.a libpvtp.a libpvt-op.a
 
 libpvt.so: pvt.cc
 	$(RM) -f $@;		\	@@\
-	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) -fpic pvt.cc -o aux.o;\	@@\
-	gcc -shared -o libpvt.so aux.o; \	@@\
-	$(RM) -f aux.o
+	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) -fpic pvt.cc -o aux1.o;\	@@\
+	gcc -shared -o libpvt.so aux1.o; \	@@\
+	$(RM) -f aux1.o
 
 libpvt-op.a: pvt.cc
 	$(RM) -f $@;		\	@@\
-	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) pvt.cc -o aux.o;\	@@\
-	ar clq libpvt-op.a aux.o; \	@@\
+	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) pvt.cc -o aux2.o;\	@@\
+	ar clq libpvt-op.a aux2.o; \	@@\
 	ranlib libpvt-op.a; \	@@\
-	$(RM) -f aux.o
+	$(RM) -f aux2.o
 
 libpvtp.a: pvt.cc
 	$(RM) -f $@;		\	@@\
-	$(CXX) -c -std=c++14 $(INCLUDES) -pg -g -O0 pvt.cc -o aux.o;\	@@\
-	ar clq libpvtp.a aux.o; \	@@\
+	$(CXX) -c -std=c++14 $(INCLUDES) -pg -g -O0 pvt.cc -o aux3.o;\	@@\
+	ar clq libpvtp.a aux3.o; \	@@\
 	ranlib libpvtp.a; \	@@\
-	$(RM) -f aux.o
+	$(RM) -f aux3.o
 
 all:: libpvt-op.a libpvtp.a
 

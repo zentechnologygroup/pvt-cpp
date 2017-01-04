@@ -1007,12 +1007,14 @@ DynList<DynList<double>> generate_uo_values()
 
 void print_row(const FixedStack<double> & row)
 {
-  for (auto it = row.get_it(); it.has_curr(); it.next())
+  const size_t n = row.size();
+  double * ptr = &row.base();
+  for (long i = n - 1; i >= 0; --i)
     {
-      const auto & val = it.get_curr();
+      const auto & val = ptr[i];
       if (val != Invalid_Value)
 	cout << val;
-      if (&val != &row.get_last())
+      if (i > 0)
 	cout << ",";
     }
   cout << endl;
@@ -1203,44 +1205,44 @@ void generate_grid()
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  auto p_par = p_it.get_curr();
-	      auto ppr = Ppr::get_instance().impl(par(p_par), adjustedppcm);
-	      auto rs = compute(rs_corr, check, rs_pars, p_par);
-	      auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
-	      auto co = compute(co_corr, check, co_pars, p_par);
-	      auto co_par = make_tuple(true, "co", co, co_corr.result_unit);
-	      auto bo = compute(bo_corr, check, bo_pars, p_par, rs_par);
-	      auto uo = compute(uo_corr, check, uo_pars, p_par, rs_par);
-	      auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
-				make_tuple(true, "bob", bo, bo_corr.result_unit));
-	      auto z = compute(zfactor_corr, 0, 1, check, NPAR(ppr), NPAR(tpr));
-	      auto bg = Bg::get_instance().impl(par(t_par), par(p_par), z);
-	      auto ug = compute(ug_corr, 0, 1, check, ug_pars,
-				p_par, npar("ppr", ppr), NPAR(z));
-	      auto pg =
-		Pg::get_instance().impl(yg, pb_val, par(t_par), par(p_par),
+	  auto ppr = Ppr::get_instance().impl(par(p_par), adjustedppcm);
+	  auto rs = compute(rs_corr, check, rs_pars, p_par);
+	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
+	  auto co = compute(co_corr, check, co_pars, p_par);
+	  auto co_par = make_tuple(true, "co", co, co_corr.result_unit);
+	  auto bo = compute(bo_corr, check, bo_pars, p_par, rs_par);
+	  auto uo = compute(uo_corr, check, uo_pars, p_par, rs_par);
+	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
+			    make_tuple(true, "bob", bo, bo_corr.result_unit));
+	  auto z = compute(zfactor_corr, 0, 1, check, NPAR(ppr), NPAR(tpr));
+	  auto bg = Bg::get_instance().impl(par(t_par), par(p_par), z);
+	  auto ug = compute(ug_corr, 0, 1, check, ug_pars,
+			    p_par, npar("ppr", ppr), NPAR(z));
+	  auto pg =
+	    Pg::get_instance().impl(yg, pb_val, par(t_par), par(p_par),
 				    z).raw();
-	      auto bw = compute(bw_corr, check, bw_pars, p_par);
-	      auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
-	      auto pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par);
-	      auto rsw = compute(rsw_corr, 0, 1, check, rsw_pars, p_par);
-	      auto rsw_par = NPAR(rsw);
-	      auto cwa = compute(cwa_corr, 0, 1, check, cwa_pars, p_par, rsw_par);
-	      auto cw = compute(cw_corr, check, cw_pars, p_par, NPAR(z),
-				NPAR(bg), rsw_par, bw_par, NPAR(cwa));
-	      auto ppw = PpwSpiveyMN::get_instance().impl(par(t_par), par(p_par));
-	      auto uw =
-		compute(uw_corr, 0, 1, check, uw_pars, p_par, NPAR(ppw)).raw();
+	  auto bw = compute(bw_corr, check, bw_pars, p_par);
+	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
+	  auto pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par);
+	  auto rsw = compute(rsw_corr, 0, 1, check, rsw_pars, p_par);
+	  auto rsw_par = NPAR(rsw);
+	  auto cwa = compute(cwa_corr, 0, 1, check, cwa_pars, p_par, rsw_par);
+	  auto cw = compute(cw_corr, check, cw_pars, p_par, NPAR(z),
+			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
+	  auto ppw = PpwSpiveyMN::get_instance().impl(par(t_par), par(p_par));
+	  auto uw =
+	    compute(uw_corr, 0, 1, check, uw_pars, p_par, NPAR(ppw)).raw();
 
-	      size_t n =
-		row.ninsert(get<2>(p_par), rs, co, bo, uo, po, z.raw(), bg.raw(),
-			    ug.raw(), pg, bw, uw, pw.raw(), rsw.raw(), cw);
+	  size_t n =
+	    row.ninsert(get<2>(p_par), rs, co, bo, uo, po, z.raw(), bg.raw(),
+			ug.raw(), pg, bw, uw, pw.raw(), rsw.raw(), cw);
 
-	      assert(row.size() == 20);
+	  assert(row.size() == 20);
 
-	      print_row(row);
+	  print_row(row);
 
-	      row.popn(n);
-	    }
+	  row.popn(n);
+	}
 
       row.popn(n);
 
