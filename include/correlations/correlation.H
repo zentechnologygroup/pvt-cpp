@@ -105,10 +105,6 @@ public:
   /// Returns a list of alias associated to this parameter (including
   /// the name itself) 
   const DynList<P> & names() const { return names_list; }
-  //   DynList<P> ret = get_unitarian_DynList(make_pair(name, &unit));
-  //   ret.append(get_synonyms());
-  //   return ret;
-  // }
 
   void set_epsilon(double ratio = 0.01)
   {
@@ -805,9 +801,8 @@ public:
 
   using NamedPar = tuple<bool, string, double, const Unit*>;
 
-  VtlQuantity
-  compute_by_names(const DynList<NamedPar> & pair_list,
-		   bool check = true) const
+  VtlQuantity compute_by_names(const DynList<NamedPar> & pair_list,
+			       bool check = true) const
   {
     DynList<VtlQuantity> vals;
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())

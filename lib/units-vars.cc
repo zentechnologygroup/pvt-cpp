@@ -16,20 +16,33 @@ DynSetTree<const Unit*> Unit::unit_tbl;
 //DynSetHash<const Unit *> Unit::unit_tbl(100);
 
 static size_t
-unit_pair_hash(const pair<pair<string, string>, Unit_Convert_Fct_Ptr> & p)
+name_unit_pair_hash(const pair<pair<string, string>, Unit_Convert_Fct_Ptr> & p)
 {
   const auto & f = p.first;
   return dft_hash_fct(f.first) + dft_hash_fct(f.second);
+}
+
+static size_t fst_unit_pair_hash
+(const pair<pair<const Unit*, const Unit*>, Unit_Convert_Fct_Ptr> & p)
+{
+  return dft_hash_fct(p.first);
+}
+
+static size_t snd_unit_pair_hash
+(const pair<pair<const Unit*, const Unit*>, Unit_Convert_Fct_Ptr> & p)
+{
+  return snd_hash_fct(p.first);
 }
 
 // UnitHashTbl __unit_name_name_tbl;
 // UnitHashTbl __unit_name_symbol_tbl;
 // UnitHashTbl __unit_symbol_name_tbl;
 // UnitHashTbl __unit_symbol_symbol_tbl;
-UnitHashTbl __unit_name_name_tbl(500, unit_pair_hash);
-UnitHashTbl __unit_name_symbol_tbl(500, unit_pair_hash);
-UnitHashTbl __unit_symbol_name_tbl(500, unit_pair_hash);
-UnitHashTbl __unit_symbol_symbol_tbl(500, unit_pair_hash);
+UnitHashTbl __unit_name_name_tbl(500, name_unit_pair_hash);
+UnitHashTbl __unit_name_symbol_tbl(500, name_unit_pair_hash);
+UnitHashTbl __unit_symbol_name_tbl(500, name_unit_pair_hash);
+UnitHashTbl __unit_symbol_symbol_tbl(500, name_unit_pair_hash);
+UnitMap __unit_map(1000, fst_unit_pair_hash, snd_unit_pair_hash);
 CompoundUnitTbl __compound_unit_tbl;
 
 static std::mutex unit_mutex;

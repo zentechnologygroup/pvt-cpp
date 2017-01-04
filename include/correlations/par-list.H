@@ -51,7 +51,7 @@ public:
 
   void insert(const string & name, double val, const Unit * unit_ptr)
   {
-    tbl.insert(make_pair(name, make_pair(val, unit_ptr)));
+    tbl.insert(ParPair(name, ValPair(val, unit_ptr)));
   }
 
   void insert(const NamedPar & par)
@@ -65,27 +65,30 @@ public:
 
   VtlQuantity search(const string & name) const
   {
-    auto p = tbl.search(make_pair(name, make_pair(0, &Unit::null_unit)));
+    auto p = tbl.search(ParPair(name, ValPair(0, &Unit::null_unit)));
     if (p == nullptr)
       throw domain_error("Parameter name " + name + " not found");
     ValPair vpair = p->second;
     return VtlQuantity(*vpair.second, vpair.first);
   }
 
+  /// Busca un parámetro de entre los posibles nombres en
+  /// `names`. `names` contiene el nombre del parámetro y sus sinónimos
   VtlQuantity search(const DynList<pair<string, const Unit*>> & names) const
   {
     for (auto it = names.get_it(); it.has_curr(); it.next())
       {
 	const auto & p = it.get_curr();
 	const string & name = p.first;
-	auto ptr = tbl.search(make_pair(name, make_pair(0, &Unit::null_unit)));
+	auto ptr = tbl.search(ParPair(name, ValPair(0, &Unit::null_unit)));
 	if (ptr)
 	  {
-	    ValPair vpair = ptr->second;
-	    VtlQuantity ret(*vpair.second, vpair.first);
-	    if (vpair.second == p.second)
+	    ValPair val_pair = ptr->second;
+	    VtlQuantity ret(*val_pair.second, val_pair.first);
+	    if (val_pair.second == p.second) // el parámetro en la misma unidad?
 	      return ret;
-	    return VtlQuantity(*p.second, ret);
+	    else
+	      return VtlQuantity(*p.second, ret);
 	  }
       }
     ostringstream s;
@@ -114,7 +117,7 @@ public:
 
   void remove(const string & name)
   {
-    tbl.remove(make_pair(name, make_pair(0, &Unit::null_unit)));
+    tbl.remove(ParPair(name, ValPair(0, &Unit::null_unit)));
   }
 
   void remove(const NamedPar & par)

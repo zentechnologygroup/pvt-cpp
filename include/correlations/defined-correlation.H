@@ -118,7 +118,7 @@ public:
 	i.correlation_ptr->get_preconditions().
 	  for_each([&pars] (const auto & par)
           {
-	    auto ptr = pars.insert(make_pair(par.name, DynList<string>()));
+	    auto ptr = pars.insert(P(par.name, DynList<string>()));
 	    if (ptr)
 	      par.get_synonyms().for_each([ptr] (const auto & p)
                 {
@@ -128,7 +128,7 @@ public:
       });
     return pars.items_ptr().maps<P>([] (auto ptr)
       {
-	return make_pair(ptr->first, ptr->second);
+	return P(ptr->first, ptr->second);
       });
   }
 
@@ -143,7 +143,7 @@ public:
       {
 	p->get_preconditions().for_each([&pars] (const auto & par)
           {
-	    auto ptr = pars.insert(make_pair(par.name, DynList<string>()));
+	    auto ptr = pars.insert(P(par.name, DynList<string>()));
 	    if (ptr)
 	      par.get_synonyms().for_each([ptr] (const auto & p)
                 {
@@ -153,7 +153,7 @@ public:
       });
     return pars.items_ptr().maps<P>([] (auto ptr)
       {
-	return make_pair(ptr->first, ptr->second);
+	return P(ptr->first, ptr->second);
       });
   }
 

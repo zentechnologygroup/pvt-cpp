@@ -772,3 +772,9 @@
 - Comment      
 - Finished     
 
+## 130. unit_convert que reciba punteros a Unit en lugar de nombre
+- Created at   2017-01-03 20:01:40 -0400
+- Completed at 2017-01-04 13:10:24 -0400
+- Comment      eso aceleraría notablemente porque evitaría los string
+- Finished     eso aceleraría notablemente porque evitaría los string
+
