@@ -1027,8 +1027,8 @@ extern long exec_correlation_call(long proxy_id);
 /// free the proxy 
 extern long free_correlation_call(long proxy_id);
 
-# define Header_Correlation_Type(type_name, hidden)	\
-  struct type_name : public Correlation				\
+# define Header_Correlation_Type(type_name, hidden)			\
+  struct type_name : public Correlation					\
   {									\
     type_name(const string & subtype_name,				\
 	      const string & name, const string & latex_symbol,		\

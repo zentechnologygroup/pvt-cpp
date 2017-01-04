@@ -1219,8 +1219,7 @@ void generate_grid()
 	  auto ug = compute(ug_corr, 0, 1, check, ug_pars,
 			    p_par, npar("ppr", ppr), NPAR(z));
 	  auto pg =
-	    Pg::get_instance().impl(yg, pb_val, par(t_par), par(p_par),
-				    z).raw();
+	    Pg::get_instance().impl(yg, pb_val, par(t_par), par(p_par), z).raw();
 	  auto bw = compute(bw_corr, check, bw_pars, p_par);
 	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
 	  auto pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par);

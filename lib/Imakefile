@@ -18,7 +18,7 @@ CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 LIBSRCS = units-vars.cc correlations-vars.cc
 
 SRCS = $(LIBSRCS)
-OBJS = pvt.o
+OBJS = pvt.o xxhash.o
 #OBJS = pvt.o pvt-impl.o
 
 EXTRACT_CV = $(TOP)/bin/extract-cv

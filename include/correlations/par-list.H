@@ -29,7 +29,7 @@ inline size_t first_par_hash(const ParPair & p)
 
 inline size_t second_par_hash(const ParPair & p)
 {
-  return snd_hash_fct(p.first);
+  return dft_hash_fct(p.first);
 }
 
 using HashParTbl = ODhashTable<ParPair, ParEqual>;
@@ -73,7 +73,8 @@ public:
   }
 
   /// Busca un parámetro de entre los posibles nombres en
-  /// `names`. `names` contiene el nombre del parámetro y sus sinónimos
+  /// `names`. `names` es una lista que contiene el nombre del
+  /// parámetro y sus sinónimos 
   VtlQuantity search(const DynList<pair<string, const Unit*>> & names) const
   {
     for (auto it = names.get_it(); it.has_curr(); it.next())
