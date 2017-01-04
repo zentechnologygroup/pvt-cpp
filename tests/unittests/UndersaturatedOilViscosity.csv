@@ -2,9 +2,9 @@
 UoaKartoatmodjoSchmidt,,0.74,CP,4000,psia,2500,psia,,,,,,,,,0.77,CP,1,,1,,,
 UoaBeal,,0.74,CP,4000,psia,2500,psia,,,,,,,,,0.81,CP,1,,1,,,
 UoaVasquezBeggs,,0.74,CP,4000,psia,2500,psia,,,,,,,,,0.87,CP,1,,1,,,
-UoaBeal,,0.224,CP,2689,psig,2377,psig,,,,,,,,,0.273,CP,1,Oil 1.,,1,,
-UoaVasquezBeggs,,0.224,CP,2689,psig,2377,psig,,,,,,,,,0.303,CP,1,Oil 1.,,1,,
-UoaBeal,,0.8036,CP,4474.7,psia,2744.7,psia,,,,,,,,,0.9121,CP,1,,,,1,
+UoaBeal,,0.224,CP,5000,psia,2377,psig,,,,,,,,,0.273,CP,1,Oil 1.,,1,,
+UoaVasquezBeggs,,0.224,CP,5000,psia,2377,psig,,,,,,,,,0.303,CP,1,Oil 1.,,1,,
+UoaBeal,TRUE,0.8036,CP,4474.7,psia,2744.7,psia,,,,,,,,,0.9121,CP,1,,,,1,
 UoaKhan,,0.7809,CP,4474.7,psia,2744.7,psia,,,,,,,,,0.922,CP,1,,,,1,
 UoaBeal,,0.638,CP,4500,psia,2251,psia,,,,,,,,,0.73,CP,1,,,,,1
 UoaVasquezBeggs,,0.638,CP,4500,psia,2251,psia,,,,,,,,,0.828,CP,1,,,,,1
