@@ -151,6 +151,19 @@ class CorrelationGen
          "}\n"
   end
 
+  def gen_par_operator
+    s = "#{impl_type} operator () (#{gen_pars}) const\n"\
+        "{\n"
+    s += "     if (check) precondition(#{@pnames.join(',')});\n" if @pnames
+    s += "  return #{impl_type}(call("
+    @pars.each do |par|
+      s += par.name
+      s += ', ' unless par == @pars.last
+    end
+    s += "));\n"\
+         "}\n"
+  end
+
   def gen_precondition_pars
     s = ''
     @pnames.each do |pname|
@@ -267,10 +280,7 @@ class CorrelationGen
          "\n"\
          "#{gen_call_declaration}\n"\
          "\n"\
-         "#{impl_type} operator () (#{gen_pars}) const\n"\
-         "{\n"\
-         "  return call(#{pars_list}, true);\n"\
-         "}\n"\
+         "#{gen_par_operator}\n"\
          "\n"
     s += gen_compute
     s += "}\n"\
