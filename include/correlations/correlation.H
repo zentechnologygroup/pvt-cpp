@@ -1027,7 +1027,7 @@ extern long exec_correlation_call(long proxy_id);
 /// free the proxy 
 extern long free_correlation_call(long proxy_id);
 
-# define Header_Correlation_Type(type_name, hidden)			\
+# define Header_Correlation_Type(type_name, hidden)	\
   struct type_name : public Correlation					\
   {									\
     type_name(const string & subtype_name,				\
@@ -1104,6 +1104,12 @@ decltype(auto)
   void operator = (const name&) = delete;				\
   									\
 private:
+
+template <class CorrType, typename ... Args>
+auto direct_call(const Correlation & corr_ptr, Args ... args)
+{
+  return static_cast<CorrType*>(&corr_ptr)->impl(args...);
+}
 
 Declare_Correlation_Subtype(TmpCorrelation, TmpFunction, "");
 
