@@ -4,15 +4,14 @@
 
 # include <correlations/oil-interfacial-tension.H>
 
-inline Quantity<dynes_cm>
-SgoBakerSwerdloff::impl(const Quantity<Fahrenheit> & t,
-			const Quantity<Api> & api,
-			const Quantity<psia> & p) const
+inline double
+SgoBakerSwerdloff::impl(const double & t,
+			const double & api,
+			const double & p) const
 {
-
   // Dead oil interfacial tension measured at temperatures of 68 and 100 °F
-  const double sgo68 = 39 - 0.2571*api.raw();
-  const double sgo100 = 37.5 - 0.2571*api.raw();  
+  const double sgo68 = 39 - 0.2571*api;
+  const double sgo100 = 37.5 - 0.2571*api;  
   double sgoT = 0;
   
   if (t <= 68)
@@ -21,7 +20,7 @@ SgoBakerSwerdloff::impl(const Quantity<Fahrenheit> & t,
     sgoT = sgo100;
   else
     // Linear interpolation between the values obtained at 68 and 100 °F
-    sgoT = sgo68 - (t.raw() - 68)*(sgo68 - sgo100)/32.0;
+    sgoT = sgo68 - (t - 68)*(sgo68 - sgo100)/32.0;
             
   // Effect of dissolved gas on the dead oil interfacial tension
   
@@ -29,7 +28,7 @@ SgoBakerSwerdloff::impl(const Quantity<Fahrenheit> & t,
       
   const double sgop = c*sgoT; // Interfacial tension at any pressure
         
-  return Quantity<dynes_cm>(sgop);    
+  return sgop;
 }
 
 

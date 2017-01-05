@@ -9,33 +9,29 @@ void UgCarrKB::precondition(const Quantity<MolePercent> & n2_concentration,
 {
   if (n2_concentration.raw() + co2_concentration.raw() +
       h2s_concentration.raw() >= 100)
-    {
-      ostringstream s;
-      s << "In UgCarrKB::impl: invalid values for nonhydrocarbon concentrations.";
-      throw domain_error(s.str());
-    }
+      throw domain_error("In UgCarrKB::impl: invalid values for "
+			 "nonhydrocarbon concentrations");
 }
 
-inline Quantity<CP>
-UgCarrKB::impl(const Quantity<Fahrenheit> & t,
-	       const Quantity<PseudoReducedTemperature> & tpr,
-	       const Quantity<PseudoReducedPressure> & ppr,
-	       const Quantity<Sgg> & yg,
-	       const Quantity<MolePercent> & n2_concentration,
-	       const Quantity<MolePercent> & co2_concentration,
-	       const Quantity<MolePercent> & h2s_concentration) const
+inline double
+UgCarrKB::impl(const double & t,
+	       const double & tpr,
+	       const double & ppr,
+	       const double & yg,
+	       const double & n2_concentration,
+	       const double & co2_concentration,
+	       const double & h2s_concentration) const
 {
-  const double tsr = tpr.raw();
-  const double psr = ppr.raw();
+  const double & tsr = tpr;
+  const double & psr = ppr;
 
   const double log10yg = log10(yg);
 
-  const double ugs = (1.709e-5 - 2.062e-6*yg.raw()) * t.raw() + 8.188e-3 -
-    6.15e-3*log10yg;
+  const double ugs = (1.709e-5 - 2.062e-6*yg) * t + 8.188e-3 - 6.15e-3*log10yg;
         
-  const double cco2 = 1e-3*co2_concentration.raw() * (9.08 * log10yg + 6.24);
-  const double cn2 = 1e-3*n2_concentration.raw() * (8.48 * log10yg + 9.59);
-  const double ch2s = 1e-3*h2s_concentration.raw() * (8.49 * log10yg + 3.73);
+  const double cco2 = 1e-3*co2_concentration * (9.08 * log10yg + 6.24);
+  const double cn2 = 1e-3*n2_concentration * (8.48 * log10yg + 9.59);
+  const double ch2s = 1e-3*h2s_concentration * (8.49 * log10yg + 3.73);
         
   const double ugsc = ugs + cco2 + ch2s + cn2;
         
@@ -70,45 +66,45 @@ UgCarrKB::impl(const Quantity<Fahrenheit> & t,
         
   const double ug = ugsc * ugugs;
 
-  return Quantity<CP>(ug);
+  return ug;
 }
 
-inline Quantity<mP>
-UgLeeGE::impl(const Quantity<Rankine> & t,
-	      const Quantity<psia> & p,
-	      const Quantity<Sgg> & yg,
-	      const Quantity<Zfactor> & z) const
+inline double
+UgLeeGE::impl(const double & t,
+	      const double & p,
+	      const double & yg,
+	      const double & z) const
 {
-  const double mg = 28.96*yg.raw(); // gas molecular weight [lb/lbmol]
+  const double mg = 28.96*yg; // gas molecular weight [lb/lbmol]
             
-  const double k = ((9.4 + 0.02*mg) * pow(t, 1.5) )/(209 + 19*mg + t.raw());
-  const double x = 3.5 + 986/t.raw() + 0.01*mg;
+  const double k = ((9.4 + 0.02*mg) * pow(t, 1.5) )/(209 + 19*mg + t);
+  const double x = 3.5 + 986/t + 0.01*mg;
   const double y = 2.4 - 0.2*x;
             
-  const double pg = 1.4935e-3*p.raw()*mg/(z.raw()*t.raw()); // gas density [g/cm3]
+  const double pg = 1.4935e-3*p*mg/(z*t); // gas density [g/cm3]
             
   const double ug = k*exp(x*pow(pg, y));
 
-  return Quantity<mP>(ug);
+  return ug;
 }
 
-inline Quantity<CP>
-UgDeanStiel::impl(const Quantity<Rankine> & t,
-		  const Quantity<psia> & p,
-		  const Quantity<Rankine> & tsc,
-		  const Quantity<psia> & psc,
-		  const Quantity<Sgg> & yg,
-		  const Quantity<Zfactor> & z) const
+inline double
+UgDeanStiel::impl(const double & t,
+		  const double & p,
+		  const double & tsc,
+		  const double & psc,
+		  const double & yg,
+		  const double & z) const
 {
-  const double tsr = t.raw()/tsc.raw();
-  const double psr = p.raw()/psc.raw();
+  const double tsr = t/tsc;
+  const double psr = p/psc;
             
-  const double mg = 28.96*yg.raw(); // gas molecular weight [lb/lbmol]
+  const double mg = 28.96*yg; // gas molecular weight [lb/lbmol]
 
       // viscosity parameter
   const double em = 5.4402*pow(tsc, 1.0/6.0) / (pow(mg, 0.5)*pow(psc, 2.0/3.0));
             
-  const double pgr = 0.27*psr/(z.raw()*tsr); // pgr: relative gas density
+  const double pgr = 0.27*psr/(z*tsr); // pgr: relative gas density
 
   double ugs = 0;
   if (tsr <= 1.5)
@@ -119,7 +115,7 @@ UgDeanStiel::impl(const Quantity<Rankine> & t,
   const double ug = ugs + (10.8e-5*(exp(1.439*pgr) -
 				    exp(-1.111*pow(pgr, 1.888))))/em;
 
-  return Quantity<CP>(ug);
+  return ug;
 }
 
 

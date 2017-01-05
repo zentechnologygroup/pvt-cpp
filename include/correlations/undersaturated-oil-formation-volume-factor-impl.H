@@ -5,7 +5,7 @@
 # include "correlations/undersaturated-oil-compressibility.H"
 
 void BoaMcCain::precondition(const Quantity<psia> & p,
-			     const Quantity<psia> & pb) const
+			       const Quantity<psia> & pb) const
 {
   if (not (p > pb))
     {
@@ -15,14 +15,13 @@ void BoaMcCain::precondition(const Quantity<psia> & p,
     }
 }
 
-inline Quantity<RB_STB>
-BoaMcCain::impl(const Quantity<RB_STB> & bobp,
-		const Quantity<psia> & p,
-		const Quantity<psia> & pb,
-		const Quantity<psia_1> & co) const
+inline double
+BoaMcCain::impl(const double & bobp,
+		const double & p,
+		const double & pb,
+		const double & co) const
 {
-  const double bwa = bobp.raw() * exp(co.raw() * (pb.raw() - p.raw()));
-  return Quantity<RB_STB>(bwa);
+  return bobp * exp(co * (pb - p));
 }
 
 void BoaDeGhetto::precondition(const Quantity<psia> & p,
@@ -36,16 +35,16 @@ void BoaDeGhetto::precondition(const Quantity<psia> & p,
     }   
 }
 
-inline Quantity<RB_STB>
-BoaDeGhetto::impl(const Quantity<RB_STB> & bobp,
-		  const Quantity<Sgg> & yg,
-		  const Quantity<Api> & api,
-		  const Quantity<SCF_STB> & rsb,
-		  const Quantity<Fahrenheit> & t,
-		  const Quantity<Fahrenheit> & tsep,
-		  const Quantity<psia> & p,
-		  const Quantity<psia> & pb,
-		  const Quantity<psia> & psep) const
+inline double
+BoaDeGhetto::impl(const double & bobp,
+		  const double & yg,
+		  const double & api,
+		  const double & rsb,
+		  const double & t,
+		  const double & tsep,
+		  const double & p,
+		  const double & pb,
+		  const double & psep) const
 {
   auto co = CoaDeGhetto::get_instance().impl(yg, api, rsb, t, tsep, p, psep);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
@@ -63,12 +62,12 @@ void BoaHanafy::precondition(const Quantity<psia> & p,
     }  
 }
 
-inline Quantity<RB_STB> 
-BoaHanafy::impl(const Quantity<RB_STB> & bobp,
-		const Quantity<psia> & p,
-		const Quantity<psia> & pb) const
+inline double 
+BoaHanafy::impl(const double & bobp,
+		const double & p,
+		const double & pb) const
 {
-  const double pob = 1 / (2.366 - 1.358/bobp.raw()); // Bubble point oil density
+  const double pob = 1 / (2.366 - 1.358/bobp); // Bubble point oil density
   const double co = 1e-6 * exp(2.582/pob - 0.990);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
 }
@@ -85,16 +84,16 @@ void BoaKartoatmodjo::precondition(const Quantity<psia> & p,
     }  
 }
 
-inline Quantity<RB_STB>
-BoaKartoatmodjo::impl(const Quantity<RB_STB> & bobp,
-		      const Quantity<Sgg> & yg,
-		      const Quantity<Sg_do> & yo,
-		      const Quantity<SCF_STB> & rsb,
-		      const Quantity<Fahrenheit> & t,
-		      const Quantity<Fahrenheit> & tsep,
-		      const Quantity<psia> & p,
-		      const Quantity<psia> & pb,
-		      const Quantity<psia> & psep) const
+inline double
+BoaKartoatmodjo::impl(const double & bobp,
+		      const double & yg,
+		      const double & yo,
+		      const double & rsb,
+		      const double & t,
+		      const double & tsep,
+		      const double & p,
+		      const double & pb,
+		      const double & psep) const
 {
   auto co = CoaKartoatmodjoSchmidt::get_instance().impl(yg, yo, rsb, t, tsep,
 							p, psep);
@@ -113,15 +112,14 @@ void BoaPetroskyFarshad::precondition(const Quantity<psia> & p,
     }
 }
 
-
-inline Quantity<RB_STB>
-BoaPetroskyFarshad::impl(const Quantity<RB_STB> & bobp,
-			 const Quantity<Sgg> & yg,
-			 const Quantity<Sg_do> & yo,
-			 const Quantity<SCF_STB> & rsb, 
-			 const Quantity<Fahrenheit> & t,
-			 const Quantity<psia> & p,
-			 const Quantity<psia> & pb) const
+inline double
+BoaPetroskyFarshad::impl(const double & bobp,
+			 const double & yg,
+			 const double & yo,
+			 const double & rsb, 
+			 const double & t,
+			 const double & p,
+			 const double & pb) const
 {
   auto co = CoaPetroskyFarshad::get_instance().impl(yg, yo, rsb, t, p);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
@@ -139,16 +137,16 @@ void BoaVasquezBeggs::precondition(const Quantity<psia> & p,
     }
 }
 
-inline Quantity<RB_STB>
-BoaVasquezBeggs::impl(const Quantity<RB_STB> & bobp, 
-		      const Quantity<Sgg> & yg,
-		      const Quantity<Api> & api,
-		      const Quantity<SCF_STB> & rsb,
-		      const Quantity<Fahrenheit> & t,
-		      const Quantity<Fahrenheit> & tsep,
-		      const Quantity<psia> & p,
-		      const Quantity<psia> & pb,
-		      const Quantity<psia> & psep) const
+inline double
+BoaVasquezBeggs::impl(const double & bobp, 
+		      const double & yg,
+		      const double & api,
+		      const double & rsb,
+		      const double & t,
+		      const double & tsep,
+		      const double & p,
+		      const double & pb,
+		      const double & psep) const
 {
   auto co = CoaVasquezBeggs::get_instance().impl(yg, api, rsb, t, tsep, p, psep);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
@@ -165,14 +163,14 @@ void BoaPerezML::precondition(const Quantity<psia> & p,
     }
 }
 
-inline Quantity<RB_STB>
-BoaPerezML::impl(const Quantity<RB_STB> & bobp,
-		 const Quantity<Sgg> & yg,
-		 const Quantity<Sg_do> & yo,
-		 const Quantity<SCF_STB> & rsb,
-		 const Quantity<Fahrenheit> & t,
-		 const Quantity<psia> & p,
-		 const Quantity<psia> & pb) const
+inline double
+BoaPerezML::impl(const double & bobp,
+		 const double & yg,
+		 const double & yo,
+		 const double & rsb,
+		 const double & t,
+		 const double & p,
+		 const double & pb) const
 {
   auto co = CoaPerezML::get_instance().impl(yg, yo, rsb, t, p, pb);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
@@ -190,13 +188,13 @@ void BoaMillanArcia::precondition(const Quantity<psia> & p,
     }
 }
 
-inline Quantity<RB_STB>
-BoaMillanArcia::impl(const Quantity<RB_STB> & bobp,
-		     const Quantity<Api> & api,
-		     const Quantity<SCF_STB> & rsb,
-		     const Quantity<Fahrenheit> & t,
-		     const Quantity<psia> & p,
-		     const Quantity<psia> & pb) const 
+inline double
+BoaMillanArcia::impl(const double & bobp,
+		     const double & api,
+		     const double & rsb,
+		     const double & t,
+		     const double & p,
+		     const double & pb) const 
 {
   auto co = CoaMillanArcia::get_instance().impl(api, rsb, t, p, pb);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);

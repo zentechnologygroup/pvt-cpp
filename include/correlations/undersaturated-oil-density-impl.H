@@ -14,16 +14,15 @@ void PoaBradley::precondition(const Quantity<psia> & p,
     }
 }
 
-
-inline Quantity<Lb_ft3>
-PoaBradley::impl(const Quantity<Lb_ft3> & pobp,
-		 const Quantity<psia> & p,
-		 const Quantity<psia> & pb,
-		 const Quantity<psia_1> & co) const
+inline double
+PoaBradley::impl(const double & pobp,
+		 const double & p,
+		 const double & pb,
+		 const double & co) const
 {
-  const double po = pobp.raw() * exp(co.raw() * (p.raw() - pb.raw()));
+  const double po = pobp * exp(co * (p - pb));
 
-  return Quantity<Lb_ft3>(po);
+  return po;
 }
 
 
