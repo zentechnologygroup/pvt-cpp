@@ -16,3 +16,11 @@
 - Completed at  SaturatedWaterIsothermalCompressibility
 - Comment       UndersaturatedWaterIsothermalCompressibility
 
+## 6. mejorar performamce de target_name()
+- Created at   2017-01-06 16:20:16 -0400
+
+## 7. optimizar uso de memoria en atributos de correlación
+- Created at   2017-01-06 17:11:02 -0400
+- Completed at 
+- Comment      Por ejemplo los nombres de tipo y subtipo y las descripciones de los parámetros
+

@@ -23,7 +23,8 @@ CoaDeGhetto::impl(const double & yg,
   if (api <= 10) // Extra-heavy oil  
     co = (-889.6 + 3.1374*rsb + 20*t - 627.3*ygcorr - 81.4476*api) / (1e5*p);
   else
-    co = (-2841.8 + 2.9646*rsb + 25.5439*t - 1230.5*ygcorr + 41.91*api) / (1e5*p);
+    co = (-2841.8 + 2.9646*rsb + 25.5439*t - 1230.5*ygcorr + 41.91*api) /
+      (1e5*p);
 
   return co;
 }
@@ -81,7 +82,6 @@ CoaVasquezBeggs::impl(const double & yg,
 		     const double & p,
 		     const double & psep) const
 {
-
   // Gas gravity that would result from separator conditions of 100
   // psig (approximately 114.7 psia) 
   const double ygs = yg * (1. + 5.912e-5 * api * tsep * log10(psep/114.7));
@@ -95,7 +95,8 @@ void CoaPerezML::precondition(const Quantity<psia> & p,
   if (not (p > pb))
     {
       ostringstream s;
-      s << "CoaPerezML::impl: pressure " << p << " is not greater than pb " << pb;
+      s << "CoaPerezML::impl: pressure " << p << " is not greater than pb "
+	<< pb;
       throw domain_error(s.str());
     }
 }

@@ -703,11 +703,11 @@ public:
   VtlQuantity compute(const DynList<VtlQuantity> &, bool check = true) const = 0;
 
   template <typename ... Args>
-  VtlQuantity compute(Args ... args) const
+  VtlQuantity compute(bool check, Args ... args) const
   {
     DynList<VtlQuantity> pars_list;
     append_in_container(pars_list, args ...);
-    return compute(pars_list);
+    return compute(pars_list, check);
   }
 
   VtlQuantity compute_and_check(const DynList<VtlQuantity> & pars,
@@ -987,6 +987,17 @@ public:
     VtlQuantity ret = result;
     return ret.get_value() >= min_val and ret.get_value() <= max_val;
   }
+
+  static DynList<string> all_parameter_names()
+  {
+    DynSetTree<string> names;
+    for (auto it = correlations_tbl.get_it(); it.has_curr(); it.next())
+      it.get_curr()->preconditions.for_each([&names] (auto p)
+					    {
+					      names.insert(p.name);
+					    });
+    return names.keys();
+  }
 };
 
 inline Correlation::~Correlation() {}
@@ -1104,7 +1115,29 @@ private:
 template <class CorrType, typename ... Args>
 auto direct_call(const Correlation & corr_ptr, Args ... args)
 {
+  return static_cast<CorrType*>(&corr_ptr)->call(args...);
+}
+
+template <class CorrType, typename ... Args>
+auto tuned_direct_call(const Correlation & corr_ptr, double c, double m,
+		       Args ... args)
+{
+  double r = static_cast<CorrType*>(&corr_ptr)->call(args...);
+  return c + m*r;
+}
+
+template <class CorrType, typename ... Args>
+auto direct_impl(const Correlation & corr_ptr, Args ... args)
+{
   return static_cast<CorrType*>(&corr_ptr)->impl(args...);
+}
+
+template <class CorrType, typename ... Args>
+auto tuned_direct_impl(const Correlation & corr_ptr, double c, double m,
+		       Args ... args)
+{
+  double r = static_cast<CorrType*>(&corr_ptr)->impl(args...);
+  return c + m*r;
 }
 
 Declare_Correlation_Subtype(TmpCorrelation, TmpFunction, "");
