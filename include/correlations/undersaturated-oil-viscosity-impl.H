@@ -17,15 +17,15 @@ void UoaKartoatmodjoSchmidt::precondition(const Quantity<psia> & p,
 }
 
 
-inline Quantity<CP>
-UoaKartoatmodjoSchmidt::impl(const Quantity<CP> & uobp,
-			     const Quantity<psia> & pb,
-			     const Quantity<psia> & p) const
+inline double
+UoaKartoatmodjoSchmidt::impl(const double & uobp,
+			     const double & pb,
+			     const double & p) const
 {
-  const double p_pb = p.raw() - pb.raw();
-  const double uoa = 1.00081*uobp.raw() +
+  const double p_pb = p - pb;
+  const double uoa = 1.00081*uobp +
     0.001127*p_pb*(-0.006517*pow(uobp, 1.8148) + 0.038*pow(uobp,  1.59));
-  return Quantity<CP>(uoa);
+  return uoa;
 }
 
 void UoaDeGhettoEtAl::precondition(const Quantity<psia> & p,
@@ -40,26 +40,26 @@ void UoaDeGhettoEtAl::precondition(const Quantity<psia> & p,
     }
 }
 
-inline Quantity<CP>
-UoaDeGhettoEtAl::impl(const Quantity<CP> & uobp,
-		      const Quantity<psia> & p,
-		      const Quantity<psia> & pb,
-		      const Quantity<CP> & uod,
-		      const Quantity<Api> & api) const
+inline double
+UoaDeGhettoEtAl::impl(const double & uobp,
+		      const double & p,
+		      const double & pb,
+		      const double & uod,
+		      const double & api) const
 {
   double uoa = 0;
   if (api <= 10) // Extra-heavy oil
     {                  
       constexpr double k = 0.006456542290346556; // (10 ** -2.19)
       const double n = k * pow(uod, 1.055) * pow(pb, 0.3132);
-      const double d = pow(10, 0.0099*api.raw());
-      uoa = uobp.raw() - (1 - p.raw()/pb.raw()) * (n/d);
+      const double d = pow(10, 0.0099*api);
+      uoa = uobp - (1 - p/pb) * (n/d);
     }
   else
-    uoa = 0.9886*uobp.raw() + 0.002763*(p.raw() - pb.raw()) *
+    uoa = 0.9886*uobp + 0.002763*(p - pb) *
       (-0.01153 * pow(uobp, 1.7933) + 0.0316 * pow(uobp, 1.5939));
 
-  return Quantity<CP>(uoa);
+  return uoa;
 }
 
 void UoaBeal::precondition(const Quantity<psia> & p,
@@ -73,14 +73,14 @@ void UoaBeal::precondition(const Quantity<psia> & p,
     }
 }
 
-inline Quantity<CP>
-UoaBeal::impl(const Quantity<CP> & uobp,
-	      const Quantity<psia> & p,
-	      const Quantity<psia> & pb) const
+inline double
+UoaBeal::impl(const double & uobp,
+	      const double & p,
+	      const double & pb) const
 {
-  const double uoa = uobp.raw() + 0.001*(p.raw() - pb.raw()) *
+  const double uoa = uobp + 0.001*(p - pb) *
     (0.024*pow(uobp, 1.6) + 0.038 * pow(uobp, 0.56));
-  return Quantity<CP>(uoa);
+  return uoa;
 }
 
 void UoaVasquezBeggs::precondition(const Quantity<psia> & p,
@@ -95,23 +95,21 @@ void UoaVasquezBeggs::precondition(const Quantity<psia> & p,
     }
 }
 
-inline Quantity<CP>
-UoaVasquezBeggs::impl(const Quantity<CP> & uobp,
-		      const Quantity<psia> & p,
-		      const Quantity<psia> & pb) const
+inline double
+UoaVasquezBeggs::impl(const double & uobp,
+		      const double & p,
+		      const double & pb) const
 {
   constexpr double c1 = 2.6;
   constexpr double c2 = 1.187;
   constexpr double c3 = -11.513;
   constexpr double c4 = -8.98e-5;
 
-  const double raw_p = p.raw();
-  const double raw_pb = pb.raw();
-  const double m = c1 * pow(raw_p, c2) * exp(c3 + c4*raw_p);
+  const double m = c1 * pow(p, c2) * exp(c3 + c4*p);
 
-  const double uoa = uobp.raw() * pow(raw_p/raw_pb, m);
+  const double uoa = uobp * pow(p/pb, m);
 
-  return Quantity<CP>(uoa);
+  return uoa;
 }
 
 void UoaKhan::precondition(const Quantity<psia> & p,
@@ -125,13 +123,13 @@ void UoaKhan::precondition(const Quantity<psia> & p,
     }
 }
 
-inline Quantity<CP>
-UoaKhan::impl(const Quantity<CP> & uobp,
-	      const Quantity<psia> & p,
-	      const Quantity<psia> & pb) const
+inline double
+UoaKhan::impl(const double & uobp,
+	      const double & p,
+	      const double & pb) const
 {
-  const double uoa = uobp.raw() * exp(9.6e-5*(p.raw() - pb.raw()));
-  return Quantity<CP>(uoa);
+  const double uoa = uobp * exp(9.6e-5*(p - pb));
+  return uoa;
 }
 
 void UoaPetroskyFarshad::precondition(const Quantity<psia> & p,
@@ -146,19 +144,19 @@ void UoaPetroskyFarshad::precondition(const Quantity<psia> & p,
     }
 }
 
-inline Quantity<CP>
-UoaPetroskyFarshad::impl(const Quantity<CP> & uobp,
-			 const Quantity<psia> & p,
-			 const Quantity<psia> & pb) const
+inline double
+UoaPetroskyFarshad::impl(const double & uobp,
+			 const double & p,
+			 const double & pb) const
 {
   const double log_uobp = log10(uobp);
   const double log_uobp_2 = log_uobp*log_uobp;
   const double a = -1.0146 + 1.3322*log_uobp - 0.4876*log_uobp_2 -
     1.15036*log_uobp_2*log_uobp;
   
-  const double uoa = uobp.raw() + 1.3449e-3*(p.raw() - pb.raw())*pow(10, a);
+  const double uoa = uobp + 1.3449e-3*(p - pb)*pow(10, a);
 
-  return Quantity<CP>(uoa);
+  return uoa;
 }
 
 void UoaAbedini::precondition(const Quantity<psia> & p,
@@ -172,20 +170,20 @@ void UoaAbedini::precondition(const Quantity<psia> & p,
     }
 }
 
-inline Quantity<CP>
-UoaAbedini::impl(const Quantity<CP> & uobp,
-		 const Quantity<psia> & p,
-		 const Quantity<psia> & pb) const
+inline double
+UoaAbedini::impl(const double & uobp,
+		 const double & p,
+		 const double & pb) const
 {
-  const double uoa = uobp.raw() +
-    0.001*(p.raw() - pb.raw())*((0.05601*pow(uobp, 1.45198)) +
-				(0.47557 * pow(uobp, 0.35997)) +
-				-0.2257*pow(uobp, 0.86389) +
-				-0.29598*pow(pb, -0.41866) +
-				-0.07734*pow(pb, -0.29981) +
-				-0.42436*pow(pb, -0.1946) +
-				-1.64149*pow(pb, -0.31339));
-  return Quantity<CP>(uoa);
+  const double uoa = uobp +
+    0.001*(p - pb)*((0.05601*pow(uobp, 1.45198)) +
+		    (0.47557 * pow(uobp, 0.35997)) +
+		    -0.2257*pow(uobp, 0.86389) +
+		    -0.29598*pow(pb, -0.41866) +
+		    -0.07734*pow(pb, -0.29981) +
+		    -0.42436*pow(pb, -0.1946) +
+		    -1.64149*pow(pb, -0.31339));
+  return uoa;
 }
 
 void UoaPerezML::precondition(const Quantity<psia> & p,
@@ -199,13 +197,13 @@ void UoaPerezML::precondition(const Quantity<psia> & p,
     }
 }
 
-inline Quantity<CP>
-UoaPerezML::impl(const Quantity<CP> & uobp,
-		 const Quantity<psia> & p,
-		 const Quantity<psia> & pb) const
+inline double
+UoaPerezML::impl(const double & uobp,
+		 const double & p,
+		 const double & pb) const
 {
-  const double uoa = uobp.raw() * (1 + 3.181e-4 * (p.raw() - pb.raw()));
-  return Quantity<CP>(uoa);
+  const double uoa = uobp * (1 + 3.181e-4 * (p - pb));
+  return uoa;
 }
 
 void UoaDindorukChristman::precondition(const Quantity<psia> & p,
@@ -221,11 +219,11 @@ void UoaDindorukChristman::precondition(const Quantity<psia> & p,
 }
 
 
-inline Quantity<CP>
-UoaDindorukChristman::impl(const Quantity<CP> & uobp,
-			   const Quantity<psia> & p,
-			   const Quantity<psia> & pb,
-			   const Quantity<SCF_STB> & rsb) const
+inline double
+UoaDindorukChristman::impl(const double & uobp,
+			   const double & p,
+			   const double & pb,
+			   const double & rsb) const
 {
   constexpr double a1 = 0.776644115;
   constexpr double a2 = 0.987658646;
@@ -234,14 +232,14 @@ UoaDindorukChristman::impl(const Quantity<CP> & uobp,
   constexpr double a5 = -0.000019111;
   constexpr double a6 = 0.000063340;
 
-  const double p_pb = p.raw() - pb.raw();
+  const double p_pb = p - pb;
   
-  const double a = a1 + a2*log10(uobp) + a3*log10(rsb) + a4*uobp.raw()*log10(rsb) +
+  const double a = a1 + a2*log10(uobp) + a3*log10(rsb) + a4*uobp*log10(rsb) +
     a5*p_pb;
         
-  const double uoa = uobp.raw() + a6*p_pb*pow(10, a);
+  const double uoa = uobp + a6*p_pb*pow(10, a);
         
-  return Quantity<CP>(uoa);
+  return uoa;
 }
 
 

@@ -110,29 +110,53 @@ class CorrelationGen
   def impl_type() "Quantity<#{@unit}>" end
 
   def gen_pars
-    s = "("
+    s = ''
     @pars.each do |par|
       s += "const Quantity<#{par.unit}> & #{par.name}"
       s += ",\n" unless par == @pars.last
     end
-    s += ")"
+    s
   end
 
   def gen_doubles
     s = "("
     @pars.each do |par|
-      s += "double #{par.name}"
+      s += "const double & #{par.name}"
       s += ",\n" unless par == @pars.last
     end
     s += ")"
   end
 
   def gen_impl_declaration
-    s = "public:\n"\
-        "\n"
-    s += "inline " + impl_type + " impl"
-    s += gen_pars
+    s = "inline double impl"
+    s += gen_doubles
     s += " const"
+    s
+  end
+
+  def gen_call_declaration
+    s = "#{impl_type} call(#{gen_pars}) const\n"\
+         "{\n"\
+         "  return #{impl_type}(impl("
+    @pars.each do |par|
+      s += par.name + '.raw()'
+      s += ', ' unless par == @pars.last
+    end
+    s += "));\n"\
+         "}\n"
+  end
+
+  def gen_par_operator
+    s = "#{impl_type} operator () (#{gen_pars}) const\n"\
+        "{\n"
+    s += "     precondition(#{@pnames.join(',')});\n" if @pnames
+    s += "  return #{impl_type}(call("
+    @pars.each do |par|
+      s += par.name
+      s += ', ' unless par == @pars.last
+    end
+    s += "));\n"\
+         "}\n"
   end
 
   def gen_precondition_pars
@@ -146,12 +170,8 @@ class CorrelationGen
   end
 
   def gen_precondition_declaration
-    "private:\n"\
-    "\n"\
     "inline void precondition(\n"\
     "#{gen_precondition_pars}) const;\n"\
-    "\n"\
-    "public:\n"\
     "\n"
   end
 
@@ -195,31 +215,24 @@ class CorrelationGen
   end
 
   def gen_call
-    "return impl(#{pars_list});\n"\
+    "return call(#{pars_list});\n"\
   end
 
   def gen_compute
-    s = "virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars,\n"\
+    s = "virtual VtlQuantity compute(const DynList<VtlQuantity> & pars,\n"\
         "bool check = true) const\n"\
         "{\n"\
         "   if (check)\n"\
-        "     {\n"\
-        "       auto pars = verify_preconditions(__pars);\n"\
+        "     verify_preconditions(pars);\n"\
+        "\n"\
         "#{gen_pars_extraction}\n"\
-        "\n"
-    s += "     precondition(#{@pnames.join(',')});\n" if @pnames
-    s += "\n"\
+        "\n"\
          "     #{gen_call}\n"\
-         "    }\n"\
-         "\n"\
-         "const DynList<VtlQuantity> & pars = __pars;\n"\
-         "#{gen_pars_extraction}\n"\
-         "    #{gen_call}\n"\
-         "}\n"
+         "\n"
   end
 
   def extern_sign
-    "#{impl_type} #{@name}__correlation__fct #{gen_pars}"
+    "#{impl_type} #{@name}__correlation__fct(#{gen_pars})"
   end
 
   def extern_sign_doubles
@@ -255,16 +268,18 @@ class CorrelationGen
     #s += "add_latex_symbol("  \"#{par_symbols[@latex_symbol]}\""
     s += "}\n"\
          "\n"
-    s += "#{gen_impl_declaration};\n"\
-         "\n"
-    s += "#{impl_type} operator () #{gen_pars} const\n"\
-         "{\n"\
-         "  return impl(#{pars_list});\n"\
-         "}\n"\
+    s += gen_precondition_declaration if @pnames
+    s += "public:\n"\
+         "\n"\
+         "#{gen_impl_declaration};\n"\
+         "\n"\
+         "#{gen_call_declaration}\n"\
+         "\n"\
+         "#{gen_par_operator}\n"\
          "\n"
     s += gen_compute
-    s += gen_precondition_declaration if @pnames
-    s += "};\n"\
+    s += "}\n"\
+         "};\n"\
          "\n"\
          "extern #{extern_sign};\n"\
          "extern #{extern_sign_doubles};\n"\
@@ -295,8 +310,8 @@ class CorrelationGen
 
   def gen_impl
     s = "\n"\
-        "#{impl_type}\n"\
-        "#{@name}::impl#{gen_pars} const\n"\
+        "double\n"\
+        "#{@name}::impl#{gen_doubles} const\n"\
         "{\n"\
         "    // put here the implementation\n"\
         "}\n"\

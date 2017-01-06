@@ -932,11 +932,9 @@ public:
       @throw domain_error if there is an conversion error
       @throw range_error if a parameter is out of precondition range
   */
-  DynList<VtlQuantity>
+  const DynList<VtlQuantity> &
   verify_preconditions(const DynList<VtlQuantity> & pars) const
   {
-    DynList<VtlQuantity> ret;
-
     auto it = get_enum_zip_it(preconditions, pars);
     for (/* already initialized */; it.has_curr(); it.next())
       {
@@ -944,9 +942,8 @@ public:
 	const auto & precondition = get<0>(p);
 	const string & par_name = precondition.name;
 	const auto & par = get<1>(p);
-	VtlQuantity curr_par(precondition.unit, par); // conversion is done
 	if (not (par_name == "p" or par_name == "t") and // TODO lista hash
-	    not precondition.check(curr_par))
+	    not precondition.check(par))
 	  {
 	    auto i = get<2>(p) + 1;
 	    ostringstream s;
@@ -954,7 +951,6 @@ public:
 	      << ") does not satisfy bound constraints";
 	      throw domain_error(s.str());
 	  }
-	ret.append(curr_par);
       }
 
     if (not it.completed())
@@ -965,7 +961,7 @@ public:
 	throw domain_error(s.str());
       }
 
-    return ret;
+    return pars;
   }
 
   VtlQuantity verify_result(const VtlQuantity & result) const

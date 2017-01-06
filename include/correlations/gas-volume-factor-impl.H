@@ -3,12 +3,12 @@
 
 # include <correlations/gas-volume-factor.H>
 
-inline Quantity<RCF_SCF>
-Bg::impl(const Quantity<Rankine> & t,
-	 const Quantity<psia> & p,
-	 const Quantity<Zfactor> & z) const
+inline double
+Bg::impl(const double & t,
+	 const double & p,
+	 const double & z) const
 {
-  return Quantity<RCF_SCF>(0.0282793*z.raw()*t.raw()/p.raw());
+  return 0.0282793*z*t/p;
 }
 
 
