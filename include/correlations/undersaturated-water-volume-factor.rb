@@ -23,6 +23,7 @@ add_parameter("p", "psia", "Pressure")
 add_parameter("pb", "psia", "Bubble point pressure")
 add_parameter("bwbp", "RB_STB", "Water formation volume factor at Pb")
 add_parameter("cw", "psia_1", "Water isothermal compressibility")
+add_precondition("p", "pb")
 add_author("McCain")
 add_ref("mcCain:1990")
 # add_ref("banzer:1996") Secondary reference

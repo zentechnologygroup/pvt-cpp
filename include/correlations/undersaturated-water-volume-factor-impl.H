@@ -26,6 +26,17 @@ BwaSpiveyMN::impl(const Quantity<Celsius> & t,
   return BwSpiveyMNDry::get_instance().impl(t, p, pv, nacl_concentration);
 }
 
+void BwaMcCain::precondition(const Quantity<psia> & p,
+                	     const Quantity<psia> & pb) const
+{
+  if (not (p > pb))
+    {
+      ostringstream s;
+      s << "BwaMcCain::impl: pressure " << p << " is not greater than pb" << pb;
+      throw domain_error(s.str());
+    }
+}
+
 inline Quantity<RB_STB>
 BwaMcCain::impl(const Quantity<psia> & p,
                 const Quantity<psia> & pb,
