@@ -134,7 +134,7 @@ PbLasater::impl(const double & yg,
 		const double & yo,
 		const double & t) const
 {
-  const Quantity<Api> api = yo;
+  const Quantity<Api> api = unit_convert<Sg_do, Api>(yo);
 
       // effective molecular weight
   const double mo = api <= 40 ? 630 - (10*api.raw()) : 73110 * pow(api, -1.562);
@@ -170,7 +170,8 @@ PbStanding::impl(const double & yg,
 		 const double & api,
 		 const double & t) const
 {
-  return pow(rsb/yg, 0.83) * (pow(10, 0.00091*t -0.0125*api)) - 1.4;
+  const double pb = pow(rsb/yg, 0.83) * (pow(10, 0.00091*t -0.0125*api)) - 1.4;
+  return 18.2*pb;
 }
 
 inline double
