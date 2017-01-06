@@ -9,25 +9,8 @@ void UgCarrKB::precondition(const Quantity<MoleFraction> & n2_concentration,
 {
   if (n2_concentration.raw() + co2_concentration.raw() +
       h2s_concentration.raw() >= 1)
-<<<<<<< HEAD
-    {
-      ostringstream s;
-      s << "In UgCarrKB::impl: invalid values for nonhydrocarbon concentrations.";
-      throw domain_error(s.str());
-    }
-}
-
-inline Quantity<CP>
-UgCarrKB::impl(const Quantity<Fahrenheit> & t,
-	       const Quantity<PseudoReducedTemperature> & tpr,
-	       const Quantity<PseudoReducedPressure> & ppr,
-	       const Quantity<Sgg> & yg,
-	       const Quantity<MoleFraction> & n2_concentration,
-	       const Quantity<MoleFraction> & co2_concentration,
-	       const Quantity<MoleFraction> & h2s_concentration) const
-=======
-      throw domain_error("In UgCarrKB::impl: invalid values for "
-			 "nonhydrocarbon concentrations");
+    throw domain_error("In UgCarrKB::impl: invalid values for "
+		       "nonhydrocarbon concentrations");
 }
 
 inline double
@@ -38,7 +21,6 @@ UgCarrKB::impl(const double & t,
 	       const double & n2_concentration,
 	       const double & co2_concentration,
 	       const double & h2s_concentration) const
->>>>>>> feature/oppars
 {
   const double & tsr = tpr;
   const double & psr = ppr;
