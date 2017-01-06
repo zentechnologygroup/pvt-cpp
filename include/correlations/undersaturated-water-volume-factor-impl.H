@@ -9,11 +9,10 @@ BwaSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & p,
 		  const double & nacl_concentration) const
 {
-  // Transformation from °C to °K
-  const Quantity<Celsius> tc = t;
+  const double tk = unit_convert<Celsius, Kelvin>(t);
   
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv = PvSpiveyMN::get_instance().call(tc).raw();
+  const double pv = PvSpiveyMN::get_instance().impl(tk);
   if (p < pv)
     {
       ostringstream s;
@@ -22,7 +21,7 @@ BwaSpiveyMN::impl(const double & t, // comes in Celsius
       throw domain_error(s.str());
     }
 
-  return BwSpiveyMNDry::get_instance().call(tc, p, pv, nacl_concentration).raw();
+  return BwSpiveyMNDry::get_instance().impl(t, p, pv, nacl_concentration);
 }
 
 inline double

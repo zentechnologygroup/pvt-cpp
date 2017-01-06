@@ -135,14 +135,9 @@ class CorrelationGen
   end
 
   def gen_call_declaration
-    s = impl_type + ' call('
-    s += gen_pars
-    s += ', bool'
-    s += ' check = true' if @pnames
-    s += ") const\n"\
-         "{\n"
-    s += "     if (check) precondition(#{@pnames.join(',')});\n" if @pnames
-    s += "  return #{impl_type}(impl("
+    s = "#{impl_type} call(#{gen_pars}) const\n"\
+         "{\n"\
+         "  return #{impl_type}(impl("
     @pars.each do |par|
       s += par.name + '.raw()'
       s += ', ' unless par == @pars.last
@@ -154,7 +149,7 @@ class CorrelationGen
   def gen_par_operator
     s = "#{impl_type} operator () (#{gen_pars}) const\n"\
         "{\n"
-    s += "     if (check) precondition(#{@pnames.join(',')});\n" if @pnames
+    s += "     precondition(#{@pnames.join(',')});\n" if @pnames
     s += "  return #{impl_type}(call("
     @pars.each do |par|
       s += par.name

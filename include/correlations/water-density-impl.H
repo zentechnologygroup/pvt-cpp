@@ -16,7 +16,7 @@ PwSpiveyMN::impl(const double & t, // comes in Fahrenheit
   const double tk = Quantity<Kelvin>(tf).raw();
 
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv = PvSpiveyMN::get_instance().call(tk).raw();
+  const double pv = PvSpiveyMN::get_instance().impl(tk);
   if (p < pv)
     {
       ostringstream s;
@@ -27,7 +27,7 @@ PwSpiveyMN::impl(const double & t, // comes in Fahrenheit
 
   // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
   // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
-  const double mch4w = MwSpiveyMN::get_instance().call(tf, p, pv, m).raw();
+  const double mch4w = MwSpiveyMN::get_instance().impl(t, p, pv, m);
 
   // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE
   // TEMPERATURE AND PRESSURE OF EVALUATION
@@ -48,7 +48,7 @@ PwSpiveyMN::impl(const double & t, // comes in Fahrenheit
   // Density of methane-free brine at the temperature and pressure of
   // evaluation 
   const double pgfw =
-    PwSpiveyMNGasFree::get_instance().call(tf, p, nacl_concentration).raw(); 
+    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl_concentration);
 
   // Specific volume of the gas-free brine [cm³/g]
   const double vgfw = 1.0/pgfw;
@@ -63,7 +63,7 @@ PwSpiveyMN::impl(const double & t, // comes in Fahrenheit
 }
 
 inline double
-PwSpiveyMNGasFree::impl(const double & t,
+PwSpiveyMNGasFree::impl(const double & t, // comes in Celsius
 			const double & p,
 			const double & nacl_concentration) const
 {

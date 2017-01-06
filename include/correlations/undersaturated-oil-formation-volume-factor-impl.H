@@ -95,7 +95,8 @@ BoaKartoatmodjo::impl(const double & bobp,
 		      const double & pb,
 		      const double & psep) const
 {
-  auto co = CoaKartoatmodjoSchmidt::get_instance().impl(yg, yo, rsb, t, tsep,
+  const double api = unit_convert<Sg_do, Api>(yo);
+  auto co = CoaKartoatmodjoSchmidt::get_instance().impl(yg, api, rsb, t, tsep,
 							p, psep);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
 }
@@ -121,7 +122,8 @@ BoaPetroskyFarshad::impl(const double & bobp,
 			 const double & p,
 			 const double & pb) const
 {
-  auto co = CoaPetroskyFarshad::get_instance().impl(yg, yo, rsb, t, p);
+  const double api = unit_convert<Sg_do, Api>(yo);
+  auto co = CoaPetroskyFarshad::get_instance().impl(yg, api, rsb, t, p);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
 }
 
@@ -172,7 +174,8 @@ BoaPerezML::impl(const double & bobp,
 		 const double & p,
 		 const double & pb) const
 {
-  auto co = CoaPerezML::get_instance().impl(yg, yo, rsb, t, p, pb);
+  const double api = unit_convert<Sg_do, Api>(yo);
+  auto co = CoaPerezML::get_instance().impl(yg, api, rsb, t, p, pb);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
 }
 
