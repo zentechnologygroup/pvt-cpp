@@ -1,0 +1,92 @@
+DEPEND = sh ./depend.sh
+
+ALEPHW = $(shell echo $$ALEPHW)
+
+#CXX = $(shell echo $$CLANGPATH)/bin/clang++  
+
+INCLUDES = -I../include -I$(ALEPHW) 
+WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
+#OPTFLAGS = -Ofast -DNDEBUG
+OPTFLAGS = -O0 -g
+FLAGS = -std=c++14 $(WARN) $(OPTFLAGS)
+
+OPTIONS = $(FLAGS)
+CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
+
+.SUFFIXES: .rb .H .cc
+
+LIBSRCS = units-vars.cc correlations-vars.cc
+
+SRCS = $(LIBSRCS)
+OBJS = pvt.o xxhash.o
+#OBJS = pvt.o pvt-impl.o
+
+EXTRACT_CV = $(TOP)/bin/extract-cv
+
+BIBLIO = $(TOP)/bin/biblio
+
+UNITSDIR=$(TOP)/include/units/
+CORRDIR=$(TOP)/include/correlations/
+
+CORRS=$(shell ls $(CORRDIR)*.rb)
+
+CALLS =	$(CORRS:.rb=.cc)
+HCORR =	$(CORRS:.rb=.H) $(shell ls $(UNITSDIR)*-unit.H) \
+	$(shell ls $(CORRDIR)*-impl.H)
+
+HIMPL = $(shell ls $(CORRDIR)*-impl.H)
+
+test:
+	echo $(CORRS)
+
+biblios.cc: $(TOP)/include/correlations/refs.bib $(TOP)/bin/biblio
+	$(RM) $*.cc; 	\	@@\
+	$(BIBLIO) -C -f $(CORRDIR)refs.bib | clang-format -style=Mozilla > $@
+
+pvt.cc: $(CALLS) $(HCORR)				\
+	$(TOP)/include/units/units.H			\
+	biblios.cc units-vars.cc correlations-vars.cc	\
+	$(TOP)/include/correlations/pvt-correlations.H	\
+	$(TOP)/include/correlations/correlation.H 	\
+	$(TOP)/include/units/pvt-units.H
+	$(RM) -f $@;					\	@@\
+	cat biblio-vars.cc >> $@;			\	@@\
+	cat biblios.cc >> $@;				\	@@\
+	$(CPP) $(CXXFLAGS) units-vars.cc > $*.tmp;	\	@@\
+	cat units-vars.cc >> $@;			\	@@\
+	$(EXTRACT_CV) $*.tmp >> $@;			\	@@\
+	cat correlations-vars.cc >> $@;		\	@@\
+	cat $(CALLS) >> $@;				\	@@\
+	$(RM) $*.tmp
+
+pvt.o: pvt.cc
+
+clean::
+	$(RM) -f pvt.cc biblios.cc libpvt.so libpvt.a libpvtp.a libpvt-op.a
+
+libpvt.so: pvt.cc
+	$(RM) -f $@;		\	@@\
+	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) -fpic pvt.cc -o aux1.o;\	@@\
+	gcc -shared -o libpvt.so aux1.o; \	@@\
+	$(RM) -f aux1.o
+
+libpvt-op.a: pvt.cc
+	$(RM) -f $@;		\	@@\
+	$(CXX) -c -std=c++14 $(INCLUDES) $(OPT) pvt.cc -o aux2.o;\	@@\
+	ar clq libpvt-op.a aux2.o; \	@@\
+	ranlib libpvt-op.a; \	@@\
+	$(RM) -f aux2.o
+
+libpvtp.a: pvt.cc
+	$(RM) -f $@;		\	@@\
+	$(CXX) -c -std=c++14 $(INCLUDES) -pg -g -O0 pvt.cc -o aux3.o;\	@@\
+	ar clq libpvtp.a aux3.o; \	@@\
+	ranlib libpvtp.a; \	@@\
+	$(RM) -f aux3.o
+
+all:: libpvt-op.a libpvtp.a
+
+NormalLibraryObjectRule()
+NormalLibraryTarget(pvt,$(OBJS))
+InstallLibrary(pvt,./)
+DependTarget()

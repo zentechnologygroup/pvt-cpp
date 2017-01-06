@@ -1,0 +1,151 @@
+{
+  "constants": [
+    {
+      "name": "t",
+      "unit": "degF",
+      "value": 126
+    },
+    {
+      "name": "api",
+      "unit": "api",
+      "value": 8.8
+    },
+    {
+      "name": "pb",
+      "unit": "psia",
+      "value": 780
+    },
+    {
+      "name": "rsb",
+      "unit": "scf/STB",
+      "value": 79
+    },
+    {
+      "name": "yg",
+      "unit": "Sgg",
+      "value": 0.6927
+    },
+    {
+      "name": "tsep",
+      "unit": "degF",
+      "value": 100
+    },
+    {
+      "name": "psep",
+      "unit": "psia",
+	"value": 114.7
+    }
+  ],
+  "description": "Campo Cerro Negro",
+  "name": "Test de Alberto Valderrama",
+  "varsets": [
+    {
+      "description": "Points below the bubble point",
+      "name": "Below Pb",
+      "num samples": 5,
+      "num vars": 4,
+      "samples": {
+          "bob": [
+	      1.0231,
+	      1.0401,
+	      1.0565,
+	      1.0606,
+	      1.0630
+          ],
+        "p": [
+	    13,
+	    250,
+	    550,
+	    700,
+	    780
+        ],
+          "rs": [
+	      0,
+	      28,
+	      59,
+	      70,
+	      79
+        ],
+        "uob": [
+	    8500,
+	    5801,
+	    3380,
+	    3004,
+	    2870
+        ]
+      },
+      "variables": [
+        {
+          "name": "p",
+          "unit": "psia"
+        },
+        {
+          "name": "rs",
+          "unit": "scf/STB"
+        },
+        {
+          "name": "bob",
+          "unit": "RB/STB"
+        },
+        {
+          "name": "uob",
+          "unit": "cP"
+        }
+      ]
+    },
+    {
+      "description": "Points above the bubble point",
+      "name": "Above Pb",
+      "num samples": 5,
+      "num vars": 4,
+      "samples": {
+        "boa": [
+	    1.0625,
+	    1.06,
+	    1.05900,
+	    1.0566,
+	    1.0559
+        ],
+        "p": [
+	    880,
+	    1480,
+	    1750,
+	    2480,
+	    2670
+        ],
+        "rs": [
+	    79,
+	    79,
+	    79,
+	    79,
+	    79
+        ],
+        "uoa": [
+	    2906,
+	    3127,
+	    3279,
+	    3700,
+	    3809
+        ]
+      },
+      "variables": [
+        {
+          "name": "p",
+          "unit": "psia"
+        },
+        {
+          "name": "rs",
+          "unit": "scf/STB"
+        },
+        {
+          "name": "boa",
+          "unit": "RB/STB"
+        },
+        {
+          "name": "uoa",
+          "unit": "cP"
+        }
+      ]
+    }
+  ]
+}

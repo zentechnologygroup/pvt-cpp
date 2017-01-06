@@ -1,0 +1,199 @@
+{
+  "constants": [
+    {
+      "name": "t",
+      "unit": "degF",
+      "value": 189
+    },
+    {
+      "name": "api",
+      "unit": "api",
+      "value": 26
+    },
+    {
+      "name": "pb",
+      "unit": "psia",
+      "value": 3891.98
+    },
+    {
+      "name": "rsb",
+      "unit": "scf/STB",
+      "value": 1110
+    },
+    {
+      "name": "yg",
+      "unit": "Sgg",
+      "value": 0.71
+    },
+    {
+      "name": "tsep",
+      "unit": "degF",
+      "value": 90
+    },
+    {
+      "name": "psep",
+      "unit": "psia",
+      "value": 60
+    }
+  ],
+  "description": "Usado para pruebas, aparentemente de un pozo en Monagas",
+  "name": "Test de Alberto Valderrama",
+  "varsets": [
+    {
+      "description": "Points below the bubble point",
+      "name": "Below Pb",
+      "num samples": 6,
+      "num vars": 4,
+      "samples": {
+        "bob": [
+          1.32591,
+          1.45799,
+          1.61047,
+          1.70097,
+          1.70942,
+          1.77922
+        ],
+        "p": [
+          1000,
+          2000,
+          3000,
+          3500,
+          3602.9,
+          3891.98
+        ],
+        "rs": [
+          287.701,
+          521.132,
+          801.125,
+          967.446,
+          982.957,
+          1110
+        ],
+        "uob": [
+          0.67126,
+          0.48274,
+          0.36049,
+          0.31466,
+          0.31097,
+          0.29139
+        ]
+      },
+      "variables": [
+        {
+          "name": "p",
+          "unit": "psia"
+        },
+        {
+          "name": "rs",
+          "unit": "scf/STB"
+        },
+        {
+          "name": "bob",
+          "unit": "RB/STB"
+        },
+        {
+          "name": "uob",
+          "unit": "cP"
+        }
+      ]
+    },
+    {
+      "description": "Points above the bubble point",
+      "name": "Above Pb",
+      "num samples": 16,
+      "num vars": 4,
+      "samples": {
+        "boa": [
+          1.77432,
+          1.75642,
+          1.75603,
+          1.73489,
+          1.71573,
+          1.69851,
+          1.68294,
+          1.66876,
+          1.65579,
+          1.64384,
+          1.63281,
+          1.62258,
+          1.61305,
+          1.60415,
+          1.58799,
+          1.58063
+        ],
+        "p": [
+          4000,
+          4032.09,
+          4500,
+          5000,
+          5500,
+          6000,
+          6500,
+          7500,
+          8000,
+          8500,
+          9000,
+          9500,
+          10000,
+          10500,
+          11000,
+          11500
+        ],
+        "rs": [
+          1111.62,
+          1121,
+          1121,
+          1121,
+          1121,
+          1121,
+          1121,
+          1121,
+          1121,
+          1121,
+          1121,
+          1121,
+          1121,
+          1121,
+          1121,
+          1121
+        ],
+        "uoa": [
+          0.29245,
+          0.29771,
+          0.31101,
+          0.33154,
+          0.35165,
+          0.37138,
+          0.39075,
+          0.40976,
+          0.42844,
+          0.4468,
+          0.46485,
+          0.5006,
+          0.51723,
+          0.53412,
+          0.55074,
+          0.5671
+        ]
+      },
+      "variables": [
+        {
+          "name": "p",
+          "unit": "psia"
+        },
+        {
+          "name": "rs",
+          "unit": "scf/STB"
+        },
+        {
+          "name": "boa",
+          "unit": "RB/STB"
+        },
+        {
+          "name": "uoa",
+          "unit": "cP"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+
+1) A todas las correlaciones Boa les quité el rango de salida boa. La
+razón es que ahora reciben bob y están diseñadas para que partan desde
+este punto. Revisa eso por favor.
+
+También quité los rangos de entrada para bobp. Podría ponerse los
+rangos de bob, pero para probar la calibración es preferible por los
+momentos no tener ese rango

@@ -1,0 +1,11 @@
+,disabled,t,t unit,p,p unit,nacl_concentration,nacl_concentration unit,ppw,ppw unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""petroleumOffice:2016"""
+UwVanWingen,,200,Fahrenheit,,,,,,,0.313,CP,1,,1,
+UwMatthewsRussel,,200,Fahrenheit,5000,psia,20000,Dissolved_Salt_PPM,,,0.332,CP,1,,1,
+UwMcCain,,200,Fahrenheit,5000,psia,20000,Dissolved_Salt_PPM,,,0.41,CP,1,,1,
+UwMcCoy,,200,Fahrenheit,,,20000,Dissolved_Salt_PPM,,,0.314,CP,1,,1,
+UwMcCain,,180,Fahrenheit,14.7,psia,2,Dissolved_Salt_Percent,,,0.3596422741,CP,1,Software calculation.,,1
+UwMaoDuan,TRUE,,,,,,,,,,,,,,
+UwVanWingen,TRUE,,,,,,,,,,,,,,
+UwMatthewsRussel,TRUE,,,,,,,,,,,,,,
+UwMcCain,TRUE,,,,,,,,,,,,,,
+UwMcCoy,TRUE,,,,,,,,,,,,,,

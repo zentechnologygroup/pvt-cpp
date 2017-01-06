@@ -1,0 +1,87 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'optparse'
+require 'bibtex'
+require 'citeproc'
+require 'csl/styles'
+
+def tag(str)
+  str.gsub(':', '_').gsub('-', '_')
+end
+
+def generate_header
+  puts %Q[  
+# ifndef BIBLIOS_H
+# define BIBLIOS_H
+
+# include <biblio.H>
+
+]
+  $bib_db.each do |b|
+    puts "extern BibEntry #{tag(b.id)};"
+    puts 
+  end
+  puts "\n"\
+       "# endif // BIBLIOS_H"
+end
+
+def generate_source
+  cp = CiteProc::Processor.new style: 'apa', format: 'text'
+  cp.import $bib_db.to_citeproc
+  puts %Q[
+# include <correlations/biblios.H>
+
+]
+  $bib_db.each do |b|
+    tag = tag(b.id)
+    entry = cp.render :bibliography, id: b.id
+    puts "BibEntry #{tag}(\"#{b.id}\", \"#{entry[0]}\");"
+    puts 
+  end
+end
+
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-f NAME', '--file NAME', 
+          'file name with correlations') do |file_name|
+    options[:file_name] = file_name
+  end
+
+  opts.on('-H', 'generate C++ header with bibliographic entries') do
+    options[:header] = true
+  end
+
+
+  opts.on('-C', 'generate C++ source with bibliographic entries') do
+    options[:source] = true
+  end
+
+  opts.on('-S', '--style style', 'citation style') do |style|
+    options[:style] = style
+  end
+end
+
+options_parser.parse!
+
+style = options[:style] || :ieee
+
+file_name = options[:file_name]
+raise "file name not specified (-f option)" unless file_name
+
+$bib_db = BibTeX.open(file_name)
+
+header = options[:header]
+source = options[:source]
+
+raise "Options -H and -C are excluding" if header && source
+
+if header
+  generate_header
+end
+
+if source
+  generate_source  
+end
+

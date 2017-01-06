@@ -1,0 +1,68 @@
+DEPEND = sh ./depend.sh
+
+INCLUDES = -I$(TOP)/include -I$(ALEPHW) 
+WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
+	-Wno-parentheses
+
+
+OPTFLAGS = -Ofast -DNDEBUG
+FLAGS = -std=c++14 $(WARN) $(OPTFLAGS)
+
+OPTIONS = $(FLAGS)
+CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
+
+SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
+
+DEPLIBS	= $(TOP)/lib/libpvt-op.a
+
+LOCAL_LIBRARIES = $(TOP)/lib/libpvt-op.a
+
+TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot.cc plot-corr.cc
+
+TESTOBJS = $(TESTSRCS:.cc=.o)
+
+SRCS = $(TESTSRCS)
+
+all:: backend-conversion backend-corr backend-plot backend-calibrate backend-plot-corr
+
+backend-conversion: test-conversion
+	$(RM) backend-conversion; 	\	@@\
+	$(CP) test-conversion backend-conversion; 	\	@@\
+	upx --best backend-conversion
+
+backend-corr: test-corr
+	$(RM) backend-corr; 	\	@@\
+	$(CP) test-corr backend-corr; 	\	@@\
+	upx --best backend-corr
+
+backend-plot: plot
+	$(RM) backend-plot; 	\	@@\
+	$(CP) plot backend-plot; 	\	@@\
+	upx --best backend-plot
+
+backend-plot-corr: plot-corr
+	$(RM) backend-plot-corr; 	\	@@\
+	$(CP) plot backend-plot-corr; 	\	@@\
+	upx --best backend-plot-corr
+
+backend-calibrate: test-calibrate
+	$(RM) backend-calibrate; 	\	@@\
+	$(CP) test-calibrate backend-calibrate; 	\	@@\
+	upx --best backend-calibrate
+
+AllTarget(test-conversion)
+NormalProgramTarget(test-conversion,test-conversion.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(test-corr)
+NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(test-calibrate)
+NormalProgramTarget(test-calibrate,test-calibrate.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(plot)
+NormalProgramTarget(plot,plot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(plot-corr)
+NormalProgramTarget(plot-corr,plot-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+DependTarget()

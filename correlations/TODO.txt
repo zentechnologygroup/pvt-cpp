@@ -1,0 +1,2 @@
+validación generica de parámetros,2016-08-16 20:53:52 -0400,,
+generación genérica de matriz de valores de una correlación según paso %,2016-08-16 20:54:35 -0400,,

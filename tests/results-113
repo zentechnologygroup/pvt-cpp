@@ -1,0 +1,132 @@
+>Selección de pb
+---------------
+
+ ./test-calibrate -f 113.json -P pb -b
+
+  PbVasquezBeggs(yg, rsb, api, t, tsep, psep) 7081.093453 -3189.283453 45 
+
+  PbManucciRosales(yg, rsb, api, t) 4113.887246  -222.077246  5
+
+Selección de rs
+---------------
+
+./test-calibrate -f 113.json -P rs -b
+
+RsVelarde(yg, pb, p, api, t, rsb) 0.996712  55.031449  25.793842 1651.987468 -109.426018 1.073372
+
+RsVasquezBeggs(yg, p, api, t, tsep, psep) 0.994460 386.215731 131.121182 2783.355389 24.597553 1.812277 
+
+Generar gráficas de rs
+----------------------
+
+./test-calibrate -f 113.json -P rsa -p -n RsVasquezBeggs -t R -c both
+
+Selección de bob
+----------------
+
+./test-calibrate -f 113.json -P bob -b
+
+BobPetroskyFarshad(yg, yo, rs, t) 0.999939 0.228333 0.041548 0.000009 -0.265302 1.356803
+
+BobVasquezBeggs(yg, api, rs, t, tsep, psep) 0.999765 0.221125 0.048479 0.000035 -0.395214 1.442216 
+
+Selección de boa
+----------------
+
+./test-calibrate -f 113.json -P boa -b
+
+BoaPetroskyFarshad(bobp, yg, yo, rsb, t, p, pb) 0.995903 0.058682 0.030423 0.000113  -1.429164  1.804668 
+
+BoaVasquezBeggs(bobp, yg, api, rsb, t, tsep, p, pb, psep) 0.964287 0.074652 0.040723 0.000981  -2.463948  2.391205
+
+
+Generar gráficas de bo
+----------------------
+
+./test-calibrate -f 113.json -P bo --below BobVasquezBeggs --above BoaVasquezBeggs -p -c both -t R
+
+./test-calibrate -f 113.json -P bo --below BobPetroskyFarshad --above BoaPetroskyFarshad -p -c both -t R
+
+Selección de uob
+----------------
+
+./test-calibrate -f 113.json -P uob -b -o m
+
+UobBeggsRobinson(uod, rs).UodNaseri 0.986213 0.331644 0.115996 0.001410  0.029390 0.530000 
+
+Selección de uoa
+----------------
+
+./test-calibrate -f 113.json -P uoa -b -o m
+
+UoaVasquezBeggs(uobp, p, pb) 0.996405 0.006312 0.004133 0.000203  0.006047 0.991407 
+
+Generar gráficas de uo
+----------------------
+
+./test-calibrate -f 113.json -P uo --below UobBeggsRobinson --above UoaVasquezBeggs --uod UodNaseri -p -c both -t R
+
+Generación gráficos de rs con correlaciones sin calibrar
+--------------------------------------------------------
+
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --below RsVasquezBeggs -t R --unit "p psig" > 113.R
+
+Generación gráficos de rs con los mejores ajustes
+-------------------------------------------------
+
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbManucciRosales --c-pb -222.077246 --below RsVelarde --cb -109.426018 --mb 1.073372 -t R --unit "p psig" > 113.R
+
+Generación gráficos de rs con VasquezBegss ajustado
+---------------------------------------------------
+
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --c-pb -3189.283453 --below RsVasquezBeggs --cb 24.597553 --mb 1.812277 -t R --unit "p psig" > 113.R
+
+Generación gráficos de bo con VasquezBegss sin calibrar
+-------------------------------------------------------
+
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --rs RsVasquezBeggs --below BobVasquezBeggs --above BoaVasquezBeggs -t R --unit "p psig" > 113.R
+
+Generación gráficos de bo con VasquezBegss calibrada
+----------------------------------------------------
+
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --c-pb -3189.283453 --rs RsVasquezBeggs --c-rs 24.597553 --m-rs 1.812277 --below BobVasquezBeggs --cb -0.395214 --mb 1.442216 --above BoaVasquezBeggs --ca -2.463948 --ma 2.391205 -t R --unit "p psig" > 113.R
+
+Generación de gráficos de bo con los mejores ajustes
+-----------------------------------------------------
+
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbManucciRosales --c-pb -222.077246 --rs RsVelarde --c-rs -109.426018 --m-rs 1.073372 --below BobPetroskyFarshad --cb -0.265302 --mb 1.356803 --above BoaVasquezBeggs --ca -1.429164 --ma 1.804668 -t R --unit "p psig" > 113.R
+
+Generación de gráficos de uo con VasquezBegss sin calibrar
+----------------------------------------------------------
+
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --rs RsVasquezBeggs --bob BobVasquezBeggs --boa BoaVasquezBeggs --uod UodNaseri --below UobBeggsRobinson --above UoaVasquezBeggs -t R --unit "p psig" > 113.R
+
+Generación de gráficos de uo con VasquezBegss calibrado
+----------------------------------------------------------
+
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --c-pb -3189.283453 --rs RsVasquezBeggs --c-rs 24.597553 --m-rs 1.812277 --bob BobVasquezBeggs --c-bob -0.395214 --m-bob 1.442216 --boa BoaVasquezBeggs --c-boa -2.463948 --m-boa 2.391205 --uod UodNaseri --below UobBeggsRobinson --cb 0.029390 --mb 0.530000 --above UoaVasquezBeggs --ca 0.006047 --ma 0.991407 -t R --unit "p psig" > 113.R
+
+Generación de gráficos de bo con los mejores ajustes
+-----------------------------------------------------
+
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbManucciRosales --c-pb -222.077246 --rs RsVelarde --c-rs -109.426018 --m-rs 1.073372 --bob BobPetroskyFarshad --c-bob -0.265302 --m-bob 1.356803 --boa BoaVasquezBeggs --c-boa -1.429164 --m-boa 1.804668 --uod UodNaseri --below UobBeggsRobinson --cb 0.029390 --mb 0.530000 --above UoaVasquezBeggs --ca 0.006047 --ma 0.991407 -t R --unit "p psig" > 113.R
+
+Generación de grid sin ajustes
+------------------------------
+
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --rs RsVasquezBeggs --bob BobVasquezBeggs --boa BoaVasquezBeggs --uod UodBeggsRobinson --uob UobBeggsRobinson --uoa UoaVasquezBeggs --cob CobMcCainEtAl --coa CoaVasquezBeggs --grid --unit "p psig" --ppchc PpchcStanding --tpchc TpchcStanding --zfactor ZfactorDranchukAK --bwb BwbSpiveyMN --bwa BwaSpiveyMN --nacl-concentration 0 --uw UwMaoDuan --pw PwSpiveyMN
+
+Generación de grid con ajustes
+------------------------------
+
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbVasquezBeggs --c-pb -3189.283453 --rs RsVasquezBeggs --c-rs 24.597553 --m-rs 1.812277 --bob BobVasquezBeggs --c-bob -0.395214 --m-bob 1.442216 --boa BoaVasquezBeggs --c-boa -2.463948 --m-boa 2.391205 --uod UodNaseri --uob UobBeggsRobinson --c-uob 0.029390 --m-uob 0.530000 --uoa UoaVasquezBeggs --c-uoa 0.006047 --m-uoa 0.991407 --cob CobMcCainEtAl --coa CoaVasquezBeggs --grid --unit "p psig" --ppchc PpchcStanding --tpchc TpchcStanding --zfactor ZfactorDranchukAK --nacl-concentration 0 --uw UwMaoDuan --pw PwSpiveyMN
+
+Generación de grid con mejores ajustes
+--------------------------------------
+
+./plot-corr --t "100 350 5" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbManucciRosales --c-pb -222.077246 --rs RsVelarde --c-rs -109.426018 --m-rs 1.073372 --bob BobPetroskyFarshad --c-bob -0.265302 --m-bob 1.356803 --boa BoaPetroskyFarshad --c-boa -1.429164 --m-boa 1.804668 --uod UodNaseri --uob UobBeggsRobinson --c-uob 0.029390 --m-uob 0.530000 --uoa UoaVasquezBeggs --c-uoa 0.006047 --m-uoa 0.991407 --cob CobMcCainEtAl --coa CoaVasquezBeggs --ca 0.006047 --ma 0.991407 --grid --unit "p psig" --ppchc PpchcStanding --tpchc TpchcStanding --zfactor ZfactorDranchukAK --bwb BwbSpiveyMN --bwa BwaSpiveyMN --nacl-concentration 0 --uw UwMaoDuan --pw PwSpiveyMN --rsw RswSpiveyMN --cwb CwbMcCain --cwa CwaDodsonStanding 
+
+
+Esta es la última
+
+time ./plot --t "100 350 10" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbManucciRosales --c-pb -222.077246 --rs RsVelarde --c-rs -109.426018 --m-rs 1.073372 --bob BobPetroskyFarshad --c-bob -0.265302 --m-bob 1.356803 --boa BoaPetroskyFarshad --c-boa -1.429164 --m-boa 1.804668 --uod UodNaseri --uob UobBeggsRobinson --c-uob 0.029390 --m-uob 0.530000 --uoa UoaVasquezBeggs --c-uoa 0.006047 --m-uoa 0.991407 --cob CobMcCainEtAl --coa CoaVasquezBeggs --ca 0.006047 --ma 0.991407 --grid --unit "p psig" --ppchc PpchcStanding --tpchc TpchcStanding --zfactor ZfactorDranchukAK --bwb BwbSpiveyMN --bwa BwaSpiveyMN --nacl-concentration 0 --uw UwMaoDuan --pw PwSpiveyMN --rsw RswSpiveyMN --cwb CwbMcCain --cwa CwaDodsonStanding  

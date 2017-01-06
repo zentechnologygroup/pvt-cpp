@@ -1,0 +1,34 @@
+INCLUDES = -I$(TOP)/include -I$(ALEPHW) 
+WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
+	-Wno-parentheses
+
+OPTFLAGS = -O0 -g
+FLAGS = -std=c++14 $(WARN) $(OPTFLAGS)
+
+OPTIONS = $(FLAGS)
+CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
+
+SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lnlopt -lstdc++ -lgsl -lgslcblas -lm -lc
+
+DEPLIBS	= $(TOP)/lib/libpvt.a
+
+.SUFFIXES: .csv .H .cc
+
+LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
+
+CSVSRC = $(shell ls $(DIR)*.csv)
+
+correlations.rb:
+	$(RM) $*.rb; 	\	@@\
+	../test-corr -R > correlations.rb
+
+.csv.cc: correlations.rb gen-test
+	$(RM) $*.cc; 	\	@@\
+	./gen-test -f $*.csv | clang-format -style=Mozilla > $@
+
+TESTSRC = $(CSVSRC:.csv=.cc)
+
+all:: correlations.rb
+
+clean::
+	$(RM) $(TESTSRC)

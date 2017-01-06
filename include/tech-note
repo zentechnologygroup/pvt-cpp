@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'optparse'
+require 'bibtex'
+
+$bib_db = BibTeX.open('refs.bib')
+
+class TechnicalNote
+
+  attr_reader :corr_name, :notes, :internal_notes, :eq, :db, :refs
+
+  def initialize(corr_name, db)
+    @corr_name = corr_name
+    @db = db
+    @desc = desc
+    @notes = []
+    @internal_notes = []
+    @eq = eq
+    @refs = []
+  end
+
+  def set_eq(eq)
+    @eq = eq
+  end
+
+  def add_note(note)
+    @notes << note
+  end
+
+  def add_hidden_note(note)
+    @hidden_notes << note
+  end
+
+  def add_ref(tag)
+    raise "BibTex entry with tag #{tag} not found" unless $bib_db.has_key? tag
+    refs << $bib_db[tag]
+  end
+    
+ 
+end
+
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-f NAME', '--file NAME', 
+          'file name with correlations') do |file_name|
+    options[:file_name] = file_name
+  end
+
+end
+
+$bib_db.each do |b|
+  puts b.to_s
+end
+  
+

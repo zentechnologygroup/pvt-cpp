@@ -1,0 +1,32 @@
+DEPEND = sh ./depend.sh
+
+ALEPHW = $(shell echo $$ALEPHW)
+#Prueba: BoRRAR
+UNITS=../units/units.o
+
+INCLUDES = -I$(ALEPHW) -I$(TOP)/include
+WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
+FLAGS = -std=c++14 $(WARN) -O0 -g
+
+OPTIONS = $(FLAGS)
+CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
+
+SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
+
+DEPLIBS	= $(TOP)/lib/libpvt.a
+
+LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
+
+TESTSRCS = test-corr.cc example-correlation.cc
+
+TESTOBJS = $(TESTSRCS:.cc=.o)
+
+SRCS = $(LIBSRCS) $(TESTSRCS)
+
+AllTarget(test-corr)
+NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(example-correlation)
+NormalProgramTarget(example-correlation,example-correlation.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+DependTarget()

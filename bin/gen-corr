@@ -1,0 +1,538 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'fileutils'
+require 'optparse'
+require 'calculus.rb'
+
+load 'symbols'
+
+class CorrelationGen
+
+  class Parameter
+
+    attr_reader :name, :desc, :unit
+
+    def initialize(name, unit, desc, min = nil, max = nil)
+      @name = name
+      @desc = desc
+      @unit = unit
+      @min = min
+      @max = max
+    end
+
+    def make
+      s = "add_parameter(\"#{@name}\", #{@unit}::get_instance(), \"#{@desc}\""
+      s += ", #{@min}" if @min
+      s += ", #{@max}" if @max
+      s += ");\n"
+      s += "def_parameter_latex_symbol(\"#{@name}\", \"#{$par_symbols[@name]}\");\n" if $par_symbols[@name]
+      s
+    end
+  end
+
+  def initialize(name, subtype, unit, min = nil, max = nil)
+    @name = name
+    @author = "Not defined"
+    @subtype = subtype
+    @unit = unit
+    @min = min
+    @max = max
+    @pars = []
+    @db = []
+    @notes = []
+    @internal_notes = []
+    @refs = []
+    @synonyms = []
+    @eq = []
+    @vars = []
+  end
+
+  attr_reader :name
+
+  def set_hidden
+    @hidden = true;
+  end
+
+  def add_doc(str)
+    @doc = str
+  end
+
+  def add_title(title)
+    @title = title
+  end
+
+  def add_author(name)
+    @author = name
+  end
+
+  def add_db(db)
+    @db << db
+  end
+
+  def add_note(note)
+    @notes << note
+  end
+
+  def add_internal_note(note)
+    @internal_notes << note
+  end
+
+  def add_ref(tag)
+    @refs << tag
+  end
+
+  def add_eq(eq)
+    @eq << eq
+  end
+
+  def add_parameter(name, unit, desc, min = nil, max = nil)
+    @pars << Parameter.new(name, unit, desc, min, max)
+    @latex_symbol = $par_symbols[name]
+  end
+
+  def add_synonym(par_name, syn_name, unit_name)
+    @synonyms << [par_name, syn_name, unit_name]
+  end
+
+  def add_variable(name, type)
+    @vars << [name, type]
+  end
+
+  def add_precondition(*pnames)
+    fail "precondition check has already been defined" if @pnames
+    if !pnames.all? { |name| @pars.detect { |par| par.name == name } }
+      fail "Any parameter between #{pnames} was not defined"
+    end
+    @pnames = pnames
+  end
+
+  def impl_type() "Quantity<#{@unit}>" end
+
+  def gen_pars
+    s = "("
+    @pars.each do |par|
+      s += "const Quantity<#{par.unit}> & #{par.name}"
+      s += ",\n" unless par == @pars.last
+    end
+    s += ")"
+  end
+
+  def gen_doubles
+    s = "("
+    @pars.each do |par|
+      s += "double #{par.name}"
+      s += ",\n" unless par == @pars.last
+    end
+    s += ")"
+  end
+
+  def gen_impl_declaration
+    s = "public:\n"\
+        "\n"
+    s += "inline " + impl_type + " impl"
+    s += gen_pars
+    s += " const"
+  end
+
+  def gen_precondition_pars
+    s = ''
+    @pnames.each do |pname|
+      par = @pars.detect { |par| par.name == pname }
+      s += "const Quantity<#{par.unit}> & #{par.name}"
+      s += ",\n" unless pname == @pnames.last
+    end
+    s
+  end
+
+  def gen_precondition_declaration
+    "private:\n"\
+    "\n"\
+    "inline void precondition(\n"\
+    "#{gen_precondition_pars}) const;\n"\
+    "\n"\
+    "public:\n"\
+    "\n"
+  end
+
+  def pars_list
+    s = ""
+    @pars.each do |par|
+      s += "#{par.name}"
+      s += "," unless par == @pars.last
+    end
+    s
+  end
+
+  def gen_eq(dir = '.')
+    fail "Correlation #{@name} has not defined an equation" unless @eq.empty?
+    @eq.each_with_index do |eq, i|
+      file_name = Calculus::Expression.new(eq, :parse => false).to_png      
+      fail "Failed to generate eq for #{@name}" unless file_name
+      tgt_name = "#{dir}/#{name}-#{i}.png"
+      FileUtils.mv(file_name, tgt_name)
+    end
+  end
+
+  def make_eq(dir = '.')
+    return if @eq.empty?
+    @eq.each_with_index do |eq, i|
+      file_name = Calculus::Expression.new(eq, :parse => false).to_png
+      fail "Failed to generate eq for #{@name}" unless file_name
+      tgt_name = "#{dir}/#{name}-#{i}.png"
+      FileUtils.mv(file_name, tgt_name)
+      puts "Generated #{tgt_name}"
+    end
+  end
+
+  def gen_pars_extraction()
+    s = "    auto it = pars.get_it();\n"
+    @pars.each do |par|
+      s += "    const auto & #{par.name} = it.get_curr();"
+      s += "    it.next();\n" unless par == @pars.last
+    end
+    s
+  end
+
+  def gen_call
+    "return impl(#{pars_list});\n"\
+  end
+
+  def gen_compute
+    s = "virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars,\n"\
+        "bool check = true) const\n"\
+        "{\n"\
+        "   if (check)\n"\
+        "     {\n"\
+        "       auto pars = verify_preconditions(__pars);\n"\
+        "#{gen_pars_extraction}\n"\
+        "\n"
+    s += "     precondition(#{@pnames.join(',')});\n" if @pnames
+    s += "\n"\
+         "     #{gen_call}\n"\
+         "    }\n"\
+         "\n"\
+         "const DynList<VtlQuantity> & pars = __pars;\n"\
+         "#{gen_pars_extraction}\n"\
+         "    #{gen_call}\n"\
+         "}\n"
+  end
+
+  def extern_sign
+    "#{impl_type} #{@name}__correlation__fct #{gen_pars}"
+  end
+
+  def extern_sign_doubles
+    "double #{@name}__correlation__valid__fct #{gen_doubles}"
+  end
+
+  def gen_class
+    s = "/** #{@name}\n\n"
+    s += @doc if @doc
+    @internal_notes.each { |note| s += "#{note.ljust(60)}\n\n" }
+    s += "\n"\
+         "*/\n"
+    s += "class #{@name} : public #{@subtype}\n" \
+         "{\n"\
+         "Correlation_Singleton(#{@name});\n"\
+         "\n"\
+         "#{@name}()\n"\
+         "  : #{@subtype}(\"#{@name}\", #{@unit}::get_instance()"
+    s += ", #{@min}" if @min
+    s += ", #{@max}" if @max
+    s += ")\n"\
+         "{\n"
+    s += "set_author(\"#{@author}\");"
+    s += "set_title(\"#{@title}\");" if @title
+    s += "set_hidden();" if @hidden
+    @pars.each { |par| s += par.make }
+    @db.each { |db| s += "add_db(\"#{db}\");\n" }
+    @notes.each { |note| s += "add_note(\"#{note}\");\n" }
+    @refs.each { |ref| s += "add_ref(\"#{ref}\");\n" }
+    @synonyms.each do |syn|
+      s += "add_par_synonym(\"#{syn[0]}\", \"#{syn[1]}\", \"#{syn[2]}\");\n"
+    end
+    #s += "add_latex_symbol("  \"#{par_symbols[@latex_symbol]}\""
+    s += "}\n"\
+         "\n"
+    s += "#{gen_impl_declaration};\n"\
+         "\n"
+    s += "#{impl_type} operator () #{gen_pars} const\n"\
+         "{\n"\
+         "  return impl(#{pars_list});\n"\
+         "}\n"\
+         "\n"
+    s += gen_compute
+    s += gen_precondition_declaration if @pnames
+    s += "};\n"\
+         "\n"\
+         "extern #{extern_sign};\n"\
+         "extern #{extern_sign_doubles};\n"\
+         "\n"
+  end
+
+  def gen_extern_calls
+    s = "#{extern_sign}\n"\
+        "{\n"\
+        "  return #{@name}::get_instance()("
+    @pars.each do |par|
+      s += par.name
+      s += ',' if par != @pars.last
+    end
+    s += ");\n"\
+         "}\n"\
+         "\n"\
+         "#{extern_sign_doubles}\n"\
+         "{\n"\
+         "  return #{@name}::get_instance()("
+    @pars.each do |par|
+      s += par.name
+      s += ',' if par != @pars.last
+    end
+    s += ").raw();\n"\
+         "}\n"
+  end
+
+  def gen_impl
+    s = "\n"\
+        "#{impl_type}\n"\
+        "#{@name}::impl#{gen_pars} const\n"\
+        "{\n"\
+        "    // put here the implementation\n"\
+        "}\n"\
+        "\n"
+    return s unless @pnames
+    s += "void #{@name}::precondition(#{gen_precondition_pars}) const\n"\
+         "{\n"\
+         "    // put here the implementation\n"\
+         "}\n"
+  end
+
+  def gen
+    gen_class + gen_impl
+  end
+end
+
+$corr_list = []
+$curr_corr = nil
+def begin_correlation(name, subtype, unit, min = nil, max = nil)
+  $curr_corr = CorrelationGen.new(name, subtype, unit, min, max)
+end
+
+def set_hidden
+  $curr_corr.set_hidden
+end
+
+def add_parameter(name, unit, desc, min = nil, max = nil)
+  $curr_corr.add_parameter(name, unit, desc, min, max)
+end
+
+def add_synonym(par_name, syn_name, unit_name)
+  $curr_corr.add_synonym(par_name, syn_name, unit_name)
+end
+
+def add_doc(str)
+  $curr_corr.add_doc(str)
+end
+
+def add_precondition(*pnames)
+  $curr_corr.add_precondition(*pnames)
+end
+
+def add_variable(name, type)
+  $curr_corr.add_variable name, type
+end
+
+def add_title(title)
+  $curr_corr.add_title(title)
+end
+
+def add_author(name)
+  $curr_corr.add_author(name)
+end
+
+def add_eq(eq)
+  $curr_corr.add_eq(eq)
+end
+
+def add_db(db)
+  $curr_corr.add_db(db)
+end
+
+def add_note(note)
+  $curr_corr.add_note(note)
+end
+
+def add_internal_note(note)
+  $curr_corr.add_internal_note(note)
+end
+
+def add_hidden_note(note)
+  $curr_corr.add_internal_note(note)
+end
+
+def add_eq(eq)
+  $curr_corr.add_eq(eq)
+end
+
+def end_correlation
+  $corr_list << $curr_corr
+end
+
+def gen_impl_declarations
+  s = ""
+  $corr_list.each do |corr|
+    s += corr.gen_impl + "\n\n"
+  end
+  s
+end
+
+def gen_extern_impl
+  s = ""
+  $corr_list.each do |corr|
+    s += corr.gen_extern_calls + "\n\n"
+  end
+  s
+end
+
+def gen_correlations
+  s = ""
+  $corr_list.each do |corr|
+    s += corr.gen_class + "\n\n"
+  end
+  s
+end
+
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-f NAME', '--file NAME', 
+          'file name with correlations') do |file_name|
+    options[:file_name] = file_name
+  end
+
+  opts.on('-H', '--header', 'generate header with c++ correlations') do
+    options[:header] = true
+  end
+
+  opts.on('-C NAME', '--c++ NAME',
+          'generate c++ correlation implementation') do |corr_name|
+    options[:corr_name] = corr_name
+  end
+
+  opts.on('-e NAME', '--eq NAME',
+          'generate equation (if defined) for correlation NAME') do |corr_name|
+    options[:eq] = corr_name
+  end
+
+  opts.on('-E', '--equations', 'generate all equations') do
+    options[:equations] = true
+  end
+
+  opts.on('-X', '--extern-calls', 'generate extern calls') do
+    options[:extern] = true
+  end
+
+  opts.on('-d NAME', '--dir NAME',
+          'Target directory where equations will be generated') do |dir|
+    options[:dir] = dir
+  end
+  
+end
+
+options_parser.parse!
+
+file = options[:file_name]
+$eq_dir = options[:dir] || '../eqs'
+
+fail 'correlations file not specified' if file.nil?
+
+require 'bibtex'
+$biblio = options[:biblio] || "refs.bib"
+$bib_db = BibTeX.open($biblio)
+
+def add_ref(tag)
+  fail "Tag #{tag} no found in database #{$biblio}" unless $bib_db.has_key? tag
+  $curr_corr.add_ref(tag)
+end
+
+load file
+
+if options[:equations]
+  $corr_list.each { |corr| corr.make_eq($eq_dir) }
+  exit
+end
+
+if options[:header]  
+  guard_name = file.gsub '-', '_'
+  guard_name.gsub! '.', '_'
+  guard_name.gsub! 'rb', 'H'
+  guard_name.upcase!
+
+  puts "# ifndef #{guard_name}"
+  puts "# define #{guard_name}"
+  puts 
+  puts "# include <correlations/correlation.H>"
+  puts
+  puts "#{gen_correlations}\n"\
+       "\n"\
+       " # endif // #{guard_name}"  
+  exit
+end
+
+if options[:extern]
+  guard_name = File.basename file, '.rb'
+  header_name = guard_name + ".H"
+  guard_name += "_calls_H"
+  guard_name.gsub! '-', '_'
+  guard_name.gsub! '.', '_'
+  guard_name.upcase!
+  puts "#{gen_extern_impl}\n"
+  exit
+end
+
+require 'open3'
+
+def search_corr(corr_name)
+  corr = $corr_list.find { |c| c.name.upcase == corr_name.upcase }
+  fail "correlation #{corr_name} not found" unless corr
+  corr
+end
+
+corr_name = options[:corr_name]
+if corr_name
+  corr = search_corr(corr_name)
+  # File.open('tmp', "w+").write("#{corr.gen_impl}")
+  # stdout, stderr, exit_status = Open3.capture3('cat tmp')
+  # puts stdout
+  # puts stderr
+  # puts exit_status
+  puts "#{corr.gen_impl}\n"\
+       "\n"
+  exit
+end
+
+eq = options[:eq]
+dir = options[:dir]
+if eq
+  corr = search_corr(eq)
+  corr.gen_eq(dir)
+  exit
+end
+
+guard_name = File.basename file, '.rb'
+header_name = guard_name + ".H"
+guard_name += "_impl_H"
+guard_name.gsub! '-', '_'
+guard_name.gsub! '.', '_'
+guard_name.upcase!
+
+puts "# ifndef #{guard_name}"
+puts "# define #{guard_name}"
+puts 
+puts "# include <correlations/#{header_name}>"
+puts
+puts "#{gen_impl_declarations}\n"\
+     "\n"\
+     " # endif // #{guard_name}"
+
