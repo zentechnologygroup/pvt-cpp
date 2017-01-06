@@ -4,31 +4,30 @@
 # include <correlations/water-density.H>
 # include <correlations/spivey-dry.H>
 
-inline Quantity<Gr_cm3>
-PwSpiveyMN::impl(const Quantity<Celsius> & t,
-		 const Quantity<mPascal> & p,
-		 const Quantity<Molality_NaCl> & nacl_concentration) const
+inline double
+PwSpiveyMN::impl(const double & t, // comes in Fahrenheit
+		 const double & p,
+		 const double & nacl_concentration) const
 {
-  const double m = nacl_concentration.raw();
+  const double m = nacl_concentration;
 
   // Transformation from °F to °K
-  const double tk = Quantity<Kelvin>(t).raw();
+  const Quantity<Fahrenheit> tf(t);
+  const double tk = Quantity<Kelvin>(tf).raw();
 
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv = PvSpiveyMN::get_instance().impl(tk).raw();
+  const double pv = PvSpiveyMN::get_instance().impl(tk);
   if (p < pv)
     {
       ostringstream s;
       s << "PwSpiveyMN::impl: received pressure " << p
-	<< " is less than computed vapor pressure " << pv << " "
-	<< p.unit.symbol;
+	<< " is less than computed vapor pressure " << pv;
       throw domain_error(s.str());
-    }
-            
+    }            
 
   // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
   // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
-  const double mch4w = MwSpiveyMN::get_instance().impl(t, p, pv, m).raw();
+  const double mch4w = MwSpiveyMN::get_instance().impl(t, p, pv, m);
 
   // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE
   // TEMPERATURE AND PRESSURE OF EVALUATION
@@ -37,7 +36,7 @@ PwSpiveyMN::impl(const Quantity<Celsius> & t,
   const double c3 = -8.5658e-2 + 1.31961e-2*log(tk) + 7.338/tk +
     9.05e-2/(680 - tk);
   
-  const double c4 = 2.260e-1/tk + 2 * -1.227e-3 * p.raw()/tk;
+  const double c4 = 2.260e-1/tk + 2 * -1.227e-3 * p/tk;
 
   constexpr double R = 8.314467; // Universal gas constant [MPa
 				 // cm³/gmol K] (McCain et al., 2011) 
@@ -49,7 +48,7 @@ PwSpiveyMN::impl(const Quantity<Celsius> & t,
   // Density of methane-free brine at the temperature and pressure of
   // evaluation 
   const double pgfw =
-    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl_concentration).raw(); 
+    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl_concentration);
 
   // Specific volume of the gas-free brine [cm³/g]
   const double vgfw = 1.0/pgfw;
@@ -60,17 +59,17 @@ PwSpiveyMN::impl(const Quantity<Celsius> & t,
   const double volume = (1000 + m*58.4428) * vgfw + mch4w * vmch4w;
   const double pw = mass/volume;
             
-  return Quantity<Gr_cm3>(pw);
+  return pw;
 }
 
-inline Quantity<Gr_cm3>
-PwSpiveyMNGasFree::impl(const Quantity<Celsius> & t,
-			const Quantity<mPascal> & p,
-			const Quantity<Molality_NaCl> & nacl_concentration) const
+inline double
+PwSpiveyMNGasFree::impl(const double & t, // comes in Celsius
+			const double & p,
+			const double & nacl_concentration) const
 {
-  const double t_100 = t.raw()/100;
+  const double t_100 = t/100;
   const double t_100_2 = t_100*t_100;
-  const double m = nacl_concentration.raw();
+  const double m = nacl_concentration;
 
   // Pure water density [g/cm³] at the reference pressure (70 Mpa) and
   // evaluation temperature 
@@ -107,35 +106,35 @@ PwSpiveyMNGasFree::impl(const Quantity<Celsius> & t,
   const double fw = fpw + f1*pow(m, 1.5) + f2*m + f3*sqrt(m);
         
   const double iwr = (1/ew)*log(fabs(ew + fw));
-  const double iw = (1/ew)*log(fabs((ew*(p.raw()/70)) + fw));
+  const double iw = (1/ew)*log(fabs((ew*(p/70)) + fw));
         
   // Density of gas-free brine [g/cm³] at the temperature and pressure
   // of evaluation
   const double pgfw = pgfwr*exp(iw - iwr);
                         
-  return Quantity<Gr_cm3>(pgfw);
+  return pgfw;
 }
 
 
-inline Quantity<Lb_ft3>
-PwMcCain::impl(const Quantity<Dissolved_Salt_Percent> & nacl_concentration,
-	       const Quantity<RB_STB> & bw) const
+inline double
+PwMcCain::impl(const double & nacl_concentration,
+	       const double & bw) const
 { 
-  const double s = nacl_concentration.raw();
+  const double s = nacl_concentration;
   const double s2 = s*s;
   // Water density at standard conditions
   const double pwl = 62.368 + 0.438603*s + 1.60074e-3*s2;
   // Water density at P and T
-  const double pw = pwl/bw.raw();
+  const double pw = pwl/bw;
 
-  return Quantity<Lb_ft3>(pw);
+  return pw;
 }
 
-inline Quantity<Gr_cm3>
-PpwSpiveyMN::impl(const Quantity<Celsius> & t,
-		  const Quantity<mPascal> & p) const
+inline double
+PpwSpiveyMN::impl(const double & t,
+		  const double & p) const
 {
-  const double t100 = t.raw()/100;
+  const double t100 = t/100;
   const double t100_2 = t100*t100;
 
   // Pure water density at the reference pressure (70 Mpa) [g/cm³]
@@ -150,12 +149,12 @@ PpwSpiveyMN::impl(const Quantity<Celsius> & t,
     (0.20684*t100_2 + 0.3768*t100 + 1);
         
   const double ipwr = (1/epw)*log(fabs(epw + fpw));
-  const double ipw = (1/epw)*log(fabs((epw * (p.raw()/70))+ fpw));
+  const double ipw = (1/epw)*log(fabs((epw * (p/70))+ fpw));
         
   // Pure water density [g/cm³]
   const double ppw = ppwr * exp(ipw - ipwr);
         
-  return Quantity<Gr_cm3>(ppw);
+  return ppw;
 }
 
 # endif // WATER_DENSITY_IMPL_H

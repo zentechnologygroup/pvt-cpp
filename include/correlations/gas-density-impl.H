@@ -16,15 +16,14 @@ void Pg::precondition(const Quantity<psia> & p,
     }
 }
 
-inline Quantity<Lb_ft3>
-Pg::impl(const Quantity<Sgg> & yg,
-	 const Quantity<psia> &,
-	 const Quantity<Rankine> & t,
-	 const Quantity<psia> & p,
-	 const Quantity<Zfactor> & z) const
+inline double
+Pg::impl(const double & yg,
+	 const double &,
+	 const double & t,
+	 const double & p,
+	 const double & z) const
 {
-  const double pg = (2.70*p.raw()*yg.raw()) / (z.raw()*t.raw());
-  return Quantity<Lb_ft3>(pg);
+  return (2.70*p*yg) / (z*t);
 }
 
 

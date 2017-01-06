@@ -112,7 +112,7 @@ struct CorrelationTester
 
     Test test(csv_line, correlation, expected, refs, note);
     auto & test_ref = test_list.append(test);
-    auto result = correlation.impl(args...);
+    auto result = correlation.call(args...);
 
     // In order to correctly compare, we must have the values in the
     // same unit. So, we convert expected to the same unit of

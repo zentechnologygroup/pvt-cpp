@@ -1088,7 +1088,7 @@ void generate_grid()
 
   // cálculo de constantes para Z
   auto yghc =
-    YghcWichertAziz::get_instance().impl(yg, n2_concentration,
+    YghcWichertAziz::get_instance().call(yg, n2_concentration,
 					 co2_concentration, h2s_concentration);
   auto ppchc = compute(ppchc_corr, 0, 1, check, NPAR(yghc),
 		       NPAR(n2_concentration), NPAR(co2_concentration),
@@ -1155,7 +1155,7 @@ void generate_grid()
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       auto t_par = t_it.get_curr();
-      auto tpr_val = Tpr::get_instance().impl(par(t_par), adjustedtpcm);
+      auto tpr_val = Tpr::get_instance().call(par(t_par), adjustedtpcm);
 
       auto pb_val = // calculo de pb
 	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
@@ -1230,7 +1230,7 @@ void generate_grid()
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  auto p_par = p_it.get_curr();
-	  auto ppr_val = Ppr::get_instance().impl(par(p_par), adjustedppcm);
+	  auto ppr_val = Ppr::get_instance().call(par(p_par), adjustedppcm);
 
 	  auto rs = compute(rs_corr, check, rs_pars_list, p_par);
 	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
@@ -1252,11 +1252,11 @@ void generate_grid()
 	    {
 	      auto z = zfactor_corr->compute(ppr_val, tpr_val);
 	      zfactor = z.raw();
-	      auto __bg = Bg::get_instance().impl(par(t_par), par(p_par), z);
+	      auto __bg = Bg::get_instance().call(par(t_par), par(p_par), z);
 	      bg = __bg.raw();
 	      ug = compute(ug_corr, 0, 1, check, ug_pars_list,
 			   p_par, p_par, npar("ppr", ppr_val), NPAR(z)).raw();
-	      pg = Pg::get_instance().impl(yg, pb_val, par(t_par),
+	      pg = Pg::get_instance().call(yg, pb_val, par(t_par),
 					   par(p_par), z).raw();
 
 	      // TODO TMP: esta fallando. Por eso se pone aquí
@@ -1280,7 +1280,7 @@ void generate_grid()
 	      /* ignore it! */
 	    }
 
-	  auto ppw = PpwSpiveyMN::get_instance().impl(par(t_par), par(p_par));
+	  auto ppw = PpwSpiveyMN::get_instance().call(par(t_par), par(p_par));
 
 	  auto uw = compute(uw_corr, 0, 1, check, uw_pars_list,
 			    p_par, NPAR(ppw)).raw();
