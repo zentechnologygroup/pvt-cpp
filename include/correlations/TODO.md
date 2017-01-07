@@ -24,3 +24,6 @@
 - Completed at 
 - Comment      Por ejemplo los nombres de tipo y subtipo y las descripciones de los parámetros
 
+## 8. Añadir noexcept a impl
+- Created at   2017-01-07 12:25:55 -0400
+

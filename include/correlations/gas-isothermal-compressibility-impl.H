@@ -8,7 +8,7 @@ inline double
 CgSarem::impl(const double & tpr,
 	      const double & ppr,
 	      const double & ppc,
-	      const double & z) const
+	      const double & z)
 {
   const double & tsr = tpr;
   const double & psr = ppr;
@@ -61,7 +61,7 @@ inline double
 CgHallYarborough::impl(const double & tpr,
 		       const double & ppr,
 		       const double & ppc,
-		       const double & z) const
+		       const double & z)
 {
   const double tpr_1 = 1/tpr;
   const double tpr_1_2 = tpr_1*tpr_1;
@@ -121,7 +121,7 @@ inline double
 CgMattarBA::impl(const double & tpr,
 		 const double & ppr,
 		 const double & ppc,
-		 const double & z) const
+		 const double & z)
 {
   constexpr double a1 = 0.31506237;
   constexpr double a2 = -1.0467099;
@@ -161,7 +161,7 @@ inline double
 CgGopal::impl(const double & tpr,
 	      const double & ppr,
 	      const double & ppc,
-	      const double & z) const
+	      const double & z)
 {
   double dzdppr = 0;
   if (0.2 <= ppr and ppr <= 1.2)
@@ -211,7 +211,7 @@ inline double
 CgBrillBeggs::impl(const double & tpr,
 		   const double & ppr,
 		   const double & ppc,
-		   const double & z) const
+		   const double & z)
 {
   const double a = 1.39 * sqrt(tpr - 0.92) - 0.36*tpr - 0.1;
   const double b = (0.62 - 0.23*tpr)*ppr + 
@@ -242,7 +242,7 @@ inline double
 CgPapay::impl(const double & tpr,
 	      const double & ppr,
 	      const double & ppc,
-	      const double & z) const
+	      const double & z)
 {
   const double dzdppr = -3.52/pow(10, 0.9813*tpr) +
     0.548*ppr/pow(10, 0.8157*tpr);

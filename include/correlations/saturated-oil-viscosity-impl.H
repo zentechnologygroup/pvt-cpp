@@ -6,7 +6,7 @@
 
 inline double
 UobBeggsRobinson::impl(const double & uod,
-		       const double & rs) const
+		       const double & rs)
 {
   const double a = 10.715 * pow(rs + 100, -0.515);
   const double b = 5.44 * pow(rs + 150, -0.338);
@@ -18,7 +18,7 @@ UobBeggsRobinson::impl(const double & uod,
 
 inline double
 UobChewConnally::impl(const double & uod,
-		      const double & rs) const
+		      const double & rs)
 {
   const double a = pow(10, rs * (2.2e-7*rs - 7.4e-4));
   const double b = 0.68 /pow(10, 8.62e-5*rs) + 0.25/pow(10, 1.1e-3*rs) +
@@ -45,7 +45,7 @@ UobKhan::impl(const double & rsb,
 	      const double & yg,
 	      const double & t,
 	      const double & p,
-	      const double & pb) const
+	      const double & pb)
 {
   const double tr = (t + 459.67)/459.67; // Relative Temperature
         
@@ -63,7 +63,7 @@ UobKhan::impl(const double & rsb,
 
 inline double
 UobKartoatmodjoSchmidt::impl(const double & uod,
-			     const double & rs) const
+			     const double & rs)
 {
   const double y = pow(10, -0.00081*rs);
   const double a = 0.2001 + 0.8428 * pow(10, -0.000845 * rs);
@@ -78,7 +78,7 @@ UobKartoatmodjoSchmidt::impl(const double & uod,
 
 inline double
 UobPetroskyFarshad::impl(const double & uod,
-			 const double & rs) const
+			 const double & rs)
 {
   const double a = 0.1651 + 0.6165*pow(10, -6.0866e-4*rs);
   const double b = 0.5131 + 0.5109 * pow(10, -1.1831e-3*rs);
@@ -89,7 +89,7 @@ UobPetroskyFarshad::impl(const double & uod,
 
 inline double
 UobPerezML::impl(const double & uod,
-		 const double & rs) const
+		 const double & rs)
 {
   const double b = 0.5704 + 0.4296 * pow(10, -0.00180*rs);
         
@@ -100,7 +100,7 @@ UobPerezML::impl(const double & uod,
 
 inline double
 UobGilFonseca::impl(const double & uod,
-		    const double & rs) const
+		    const double & rs)
 {
   const double a = 0.76922 + 0.2244*pow(10, -0.0139 * rs);
   const double b = 0.10563 + 0.89405*pow(10, -0.00057 * rs);
@@ -113,7 +113,7 @@ UobGilFonseca::impl(const double & uod,
 inline double
 UobDeGhettoEtAl::impl(const double & uod,
 		      const double & rs,
-		      const double & api) const
+		      const double & api)
 {
   const double y = pow(10, -0.00081*rs);
 
@@ -136,7 +136,7 @@ UobDeGhettoEtAl::impl(const double & uod,
 
 inline double
 UobDindorukChristman::impl(const double & uod,
-			   const double & rs) const
+			   const double & rs)
 {
   constexpr double a1 = 1.0;
   constexpr double a2 = 4.740729e-4;

@@ -7,7 +7,7 @@
 inline double
 SgoBakerSwerdloff::impl(const double & t,
 			const double & api,
-			const double & p) const
+			const double & p)
 {
   // Dead oil interfacial tension measured at temperatures of 68 and 100 °F
   const double sgo68 = 39 - 0.2571*api;

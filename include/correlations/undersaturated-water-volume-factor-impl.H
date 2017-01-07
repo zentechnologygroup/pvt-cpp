@@ -7,7 +7,7 @@
 inline double
 BwaSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & p,
-		  const double & nacl_concentration) const
+		  const double & nacl_concentration)
 {
   const double tk = unit_convert<Celsius, Kelvin>(t);
   
@@ -39,7 +39,7 @@ inline double
 BwaMcCain::impl(const double & p,
                 const double & pb,
 		const double & bwbp,
-		const double & cw) const
+		const double & cw)
 {
   return bwbp * exp(cw * (pb - p));
 }

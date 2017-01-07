@@ -19,7 +19,7 @@ CobMcCainEtAl::impl(const double & api,
 		    const double & rsb,
 		    const double & t,
 		    const double & p,
-		    const double & pb) const
+		    const double & pb)
 {
   return exp(-7.573 - 1.450*log(p) - 0.383*log(pb) + 1.402*log(t) +
 	     0.256*log(api) + 0.449*log(rsb));

@@ -8,7 +8,7 @@ inline double
 BobAlmarhoun::impl(const double & yg,
 		   const double & yo,
 		   const double & rs,
-		   const double & t) const
+		   const double & t)
 {
   const double f = pow(rs, 0.74239) * pow(yg, 0.323294) * pow(yo, -1.20204);
   return 0.497069 + 0.000862963*t + 0.00182594*f + 0.00000318099*f*f; 
@@ -18,7 +18,7 @@ inline double
 BobAlShammasi::impl(const double & yg,
 		    const double & yo,
 		    const double & rs,
-		    const double & t) const
+		    const double & t)
 {
   const double bo = 1 + 0.000000553*(rs*(t - 60)) +
     0.000181*rs/yo + 0.000449*((t - 60)/yo) + 0.000206*(rs*yg/yo);
@@ -32,7 +32,7 @@ BobDeGhetto::impl(const double & yg,
 		 const double & rs,
 		 const double & t,
 		 const double & tsep,
-		 const double & psep) const
+		 const double & psep)
 
 {
   constexpr double c1 = 0.0004677;
@@ -49,7 +49,7 @@ BobDindorukChristman::impl(const double & yg,
 			  const double & api,
 			  const double & rs,
 			  const double & t,
-			  const double & tsep) const
+			  const double & tsep)
 {
   constexpr double a1 = 2.510755;
   constexpr double a2 = -4.852538;
@@ -105,7 +105,7 @@ inline double
 BobDoklaOsman::impl(const double & yg,
 		   const double & yo,
 		   const double & rs,
-		   const double & t) const
+		   const double & t)
 {
   const double m = pow(rs, 0.773572) * pow(yg, 0.40402) * pow(yo, -0.882605);
 
@@ -116,7 +116,7 @@ inline double
 BobGlaso::impl(const double & yg,
 	       const double & yo,
 	       const double & rs,
-	       const double & t) const
+	       const double & t)
 {
   const double yg_yo = yg/yo;
 
@@ -128,7 +128,7 @@ BobGlaso::impl(const double & yg,
 }
 
 inline double
-BobHanafy::impl(const double & rs) const
+BobHanafy::impl(const double & rs)
 {
   return 0.0006*rs + 1.079;
 }
@@ -139,7 +139,7 @@ BobKartoatmodjo::impl(const double & yg,
 		     const double & rs,
 		     const double & t,
 		     const double & tsep,
-		     const double & psep) const
+		     const double & psep)
 {
   const double api = unit_convert<Sg_do, Api>(yo);
 
@@ -157,7 +157,7 @@ inline double
 BobStanding::impl(const double & yg,
 		  const double & yo,
 		  const double & rs,
-		  const double & t) const
+		  const double & t)
 {
   return 0.972 + 0.000147*pow(rs*sqrt(yg/yo) + 1.25*t, 1.175);
 }
@@ -166,7 +166,7 @@ inline double
 BobPetroskyFarshad::impl(const double & yg,
 			const double & yo,
 			const double & rs,
-			const double & t) const
+			const double & t)
 {
   const double f =
     pow(rs, 0.3738)*pow(yg, 0.2914)/pow(yo, 0.6265) + 0.24626*pow(t, 0.5371);
@@ -178,7 +178,7 @@ inline double
 BobTotalCFP::impl(const double & yg,
 		 const double & api,
 		 const double & rs,
-		 const double & t) const
+		 const double & t)
 {
   const double t_60 = t - 60;
   const double api_yg = api/yg;
@@ -192,7 +192,7 @@ BobVasquezBeggs::impl(const double & yg,
 		     const double & rs,
 		     const double & t,
 		     const double & tsep,
-		     const double & psep) const
+		     const double & psep)
 {
   double c1 = 0, c2 = 0, c3 = 0;
   if (api <= 30)
@@ -233,7 +233,7 @@ BobPerezML::impl(const double & yg,
 		const double & rsb,
 		const double & t,
 		const double & p,
-		const double & pb) const
+		const double & pb)
 {
   const double yg_yo = yg/yo;
 
@@ -249,7 +249,7 @@ BobVelardeMcCain::impl(const double & yg,
 		      const double & rs,
 		      const double & rsb,
 		      const double & t,
-		      const double & p) const
+		      const double & p)
 {
   constexpr double pwater = 62.4; // water specific weight in  lb/ft³ or lb/scf
   const double psto = pwater*yo;
@@ -299,7 +299,7 @@ inline double
 BobMillanArcia::impl(const double & api,
 		    const double & rsb,
 		    const double & p,
-		    const double & pb) const
+		    const double & pb)
 {
   const double bob = 1.3537 * pow(rsb, 0.1505) * pow(pb, -0.1239) *
     exp(-0.00405*api);
@@ -315,7 +315,7 @@ BobMillanArcia::impl(const double & api,
 inline double
 BobManucciRosales::impl(const double & api,
 			const double & rs,
-			const double & t) const
+			const double & t)
 {
   const double x = 3.27e-4*t + 0.00321*api;
 

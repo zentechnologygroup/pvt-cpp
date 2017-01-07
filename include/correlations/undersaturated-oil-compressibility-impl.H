@@ -10,7 +10,7 @@ CoaDeGhetto::impl(const double & yg,
 		  const double & t,
 		  const double & tsep,
 		  const double & p,
-		  const double & psep) const
+		  const double & psep)
 {
   const double c = 1 + 0.5912*api*tsep*log10(psep/114.7)*1e-4;
         
@@ -30,7 +30,7 @@ CoaDeGhetto::impl(const double & yg,
 }
 
 inline double
-CoaHanafy::impl(const double & rsb) const
+CoaHanafy::impl(const double & rsb)
 {
   const double bob = 0.0006*rsb + 1.079; // Bubble point oil volume factor
   const double pob = 1 / (2.366 - 1.358/bob); // Bubble point oil density
@@ -46,7 +46,7 @@ CoaKartoatmodjoSchmidt::impl(const double & yg,
 			    const double & t,
 			    const double & tsep,
 			    const double & p,
-			    const double & psep) const
+			    const double & psep)
 {
   const double c =
     1 + 0.1595 * pow(api, 0.4078) * pow(tsep, -0.2466) * log10(psep/114.7);
@@ -67,7 +67,7 @@ CoaPetroskyFarshad::impl(const double & yg,
 			const double & api,
 			const double & rsb,
 			const double & t,
-			const double & p) const
+			const double & p)
 {
   return 1.705e-7 * pow(rsb, 0.69357) * pow(yg, 0.1885) *
     pow(api, 0.3272) * pow(t, 0.6729) * pow(p, -0.5906);
@@ -80,7 +80,7 @@ CoaVasquezBeggs::impl(const double & yg,
 		     const double & t,
 		     const double & tsep,
 		     const double & p,
-		     const double & psep) const
+		     const double & psep)
 {
   // Gas gravity that would result from separator conditions of 100
   // psig (approximately 114.7 psia) 
@@ -107,7 +107,7 @@ CoaPerezML::impl(const double & yg,
 		const double & rsb,
 		const double & t,
 		const double & p,
-		const double & pb) const
+		const double & pb)
 {
   const double cob = 2.856e-7 * pow(rsb, 0.69357) * pow(yg, 0.1885) *
     pow(api, 0.3272) * pow(t, 0.6729) * pow(pb, -0.5906);
@@ -134,7 +134,7 @@ CoaMillanArcia::impl(const double & api,
 		    const double & rsb,
 		    const double & t,
 		    const double & p,
-		    const double & pb) const
+		    const double & pb)
 {
   const double cob = 2.075883e-6 * pow(api, 0.5307) * pow(t, -0.1143) *
     exp(2.0523e-4*pb + 4.0568e-4*rsb);

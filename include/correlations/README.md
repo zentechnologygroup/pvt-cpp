@@ -213,37 +213,226 @@ correlación, entonces la calibración consistiría en:
 
 	c + m C(x1, x2, ... xn)
 	
-Todas las invocaciones a la correlación contienen una variante con
-prefijo `tuned` la cual recibe como parámetros adicionales los valores
-de `c` y `m`. De este modo, el método
+Para todos métodos de invocación a una correlación, existe una
+variante con prefijo `tuned` la cual recibe como parámetros
+adicionales los valores de `c` y `m`. De este modo, el método
 
 	VtlQuantity
 	tuned_compute_by_names(const DynList<NamedPar> & pair_list,
 		                   double c, double m, bool check = true) const
 	
-instrumenta la calibración.
+es la versión que instrumenta la calibración del método descrito en la
+sección anterior.
 
 ##### Invocación pasando listas de parámetros
 
+El siguiente nivel de invocación es mediante una lista de 
+parámetros ordenada según el orden de especificación de los
+parámetros de la correlación. Este enfoque es más rápido que el
+anterior y efectúa las conversiones y validaciones necesarias.
 
+El método se define del siguiente modo:
+
+	VtlQuantity compute(const DynList<VtlQuantity> &, bool check = true)
+	
+Al tratarse de una lista de objetos de tipo `VtlQuantity`, ésta puede
+recibir parámetros de tipo `VtlQuantity`, `Quantity` o  directos de
+tipo `double`, pero en el último caso se asume que el valor está
+expresado en las unidad conque se especificó el parámetro. El ejemplo
+base podría expresarse del siguiente modo:
+
+	ret = corr.compute({Quantty<Sgg>(0.848), 
+	                    Quantity<Api>(27.3), // Aquí ocurre conversión
+		                807, // al ser double scf/STB como unidad
+						Quantity<Celsius>(180)}); // aquí ocurre conversión
+
+El objeto resultado es de tipo `VtlQuantity`. Nótese que la lista está
+expresada entre llaves `{}`.
+
+Si todos los elementos de la lista son de tipo `double`, entonces no
+ocurre ninguna conversión y el resultado es de tipo `double`.
+
+Una manera más concisa y ligeramente más rápida es sin construir la
+lista intermedia. Para ello se usa el mismo método `compute` pero que
+recibe como primer primer parámetro `check`. Así, la llamada anterior
+sería:
+
+	ret = corr.compute(false, 
+                       Quantty<Sgg>(0.848), 
+	                   Quantity<Api>(27.3), // Aquí ocurre conversión
+		               807, // al ser double scf/STB como unidad
+					   Quantity<Celsius>(180)); // aquí ocurre conversión
+
+##### Racional sobre el pase de parámetros por listas
+
+Hasta ahora los métodos de invocación reciben listas, lo cual brinda
+mucha mayor flexibilidad al momento de construir aplicaciones
+iterativas. Considere por ejemplo una gui en la cual se seleccionen
+las correlaciones por widgets tipos combobox. Puesto que las
+correlaciones varían en cantidad y tipos de parámetros, la construcción
+de un combobox con los parámetros para todas la correlaciones sería
+muy tediosa si no se tuviesen listas; probablemente se tendría que
+construir una tabla de correlaciones o apelar a multiples
+`if-else-if`. Con el pase por listas, aunado a que cada correlación
+refleja toda la información necesaria para invocarla, la
+instrumentación del combobox se hace en unas tres líneas de código. 
+
+El pase de parámetros por nombre también brinda mucha flexibilidad,
+pues no es necesario conocer o mantener el orden. La generación de las
+tablas PVT para cualquier conjunto de correlaciones hace uso de este
+mecanismo.
+
+Sin embargo, este enfoque es más lento que el pase directo de
+parámetros y podría ser un problema si la correlación se invoca
+muchísimas veces, como es el caso de algunos escenarios de
+simulación. Para paliar estas situaciones se posibilita el pase
+directo de parámetros.
 
 ##### Invocación directa con unidades
 
+Un primer sabor es usando el operador `()` y pasándole a la
+correlación valores y unidades; es decir, objetos de tipo
+`VtlQuantity` o `Quantity`. En el caso anterior, la correlación
+`PbAlMarhoun` podría invocarse así:
+
+	PbAlMarhoun::get_instance().(Quantty<Sgg>(0.848), 
+	                             Quantity<Api>(27.3), // Aquí ocurre conversión
+		                         807, // al ser double scf/STB como unidad
+					             Quantity<Celsius>(180)); // aquí ocurre conversión
+
+En este caso, las conversiones serán efectuadas y las precondiciones
+que se hayan especificado para la correlación serán verificadas.
+
+Si se tiene el conocimiento de que las precondiciones no serán
+violadas, entonces se puede omitir su verificación, y por consiguiente
+calcular más rápido, usando el método `call`:
+
+	PbAlMarhoun::get_instance().call(Quantty<Sgg>(0.848), 
+                                     Quantity<Api>(27.3), // Aquí ocurre conversión
+                                     807, // al ser double scf/STB como unidad
+                                     Quantity<Celsius>(180)); // aquí ocurre conversión
+
+Las dos versiones anteriores requieren que se tenga una referencia a
+la correlación. Sin embargo, a veces esto no es trivial y lo que se
+tiene es un referencia o puntero a un objeto `Correlation`. En este
+caso, la llamada a `call()` se puede instrumentar mediante una la función
+`direct_call()`. En nuestro ejemplo sería así
+
+	direct_call(ref_corr, Quantty<Sgg>(0.848), 
+	            Quantity<Api>(27.3), // Aquí ocurre conversión
+                807, // al ser double scf/STB como unidad
+                Quantity<Celsius>(180)); // aquí ocurre conversión
+
+En este caso, `ref_corr` es una referencia de tipo `Correlation` a la
+correlación `PbAlMarhoun`.
+
 ##### Invocación directa
 
+El último nivel de invocación es mediante llamada directa a la
+implementación de la correlación. En este caso el coste de ejecución
+es mínimo y completamente equivalente a una implementación `C++` o
+`C`.
 
-### Tipos de correlaciones
+La llamada a la implementación se efectúa mediante el método `impl()`,
+el cual recibe objetos de tipo `double` y deben estar en el orden
+exacto de declaración. En la línea de nuestro ejemplo sería así:
 
-### Subtipos de correlaciones
+	PbAlMarhoun::get_instance().impl(0.848, 0.891058, 807, 815.67);
 
-### Definición de correlación
+Es extremadamente importante considerar que no hay conversión de
+unidades. Se asume que los valores están expresados en la unidad
+conque se especificó el parámetro.
+
+La llamada directa usando una referencia de tipo `Correlation` se
+efectúa mediante:
+
+	direct_impl(ref_corr, 0.848, 0.891058, 807, 815.67);
+	
+De nuevo, `ref_corr` es una referencia de tipo `Correlation` a la
+correlación `PbAlMarhoun`.
+
+## Definición e implementación de una correlación
+
+Para poder especificar una nueva correlación es necesario conocer el
+tipo y el subtipo. Como ya se ha dicho, en nuestro ejemplo el tipo es
+`OilRelation` y el subtipo `BubblePointPressure`. 
+
+La idea del tipo y subtipo es definir una especie de taxonomía que
+catalogue las correlaciones en conjuntos jerárquicos según propiedades
+físicas y uso. Esencialmente existen los siguientes tipos:
+
+- `TmpFunction`: una función temporal, no destinada a uso público si a
+ser empleada por otras correlaciones.
+- `OilFunction`: una función causal asociada al petróleo.
+- `OilCorrelation`: una correlación asociada al petróleo.
+- `GasCorrelation`: una correlación asociada al gas.
+- `GasFunction`: una función asociada al gas.
+- `WaterCorrelation`: una correlación asociada al agua
+
+### Definición de un tipo de correlación
+
+Para definir un nuevo tipo se emplea el macro
+`Declare_Correlation_Type`. Por ejemplo, si se desea crear una familia
+llamada `WaterFunction`, entonces basta con
+
+	Declare_Correlation_Type(WaterFunction);
+
+Si el tipo no es destinado a uso público, entonces puede indicarse que
+el tipo es **oculto**. En este caso la declaración sería así
+
+	Declare_Hidden_Correlation_Type(WaterFunction);
+
+### Definición de un subtipo de correlación
+
+Para definir un nuevo subtipo se emplea el macro
+`Declare_Correlation_Subtype`. Para el caso de `BubblePointPressure`
+la llamada es así:
+
+	Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation, "P_b");
+
+En primer parámetro es el nombre del subtipo, el segundo es el nombre
+del tipo, el cual ya debe estar definido y el último es el símbolo
+LaTeX asociado a la propiedad física del subtipo.
 
 ## Definición de una nueva correlación
 
+Las correlaciones se definen en un metalenguaje basado en Ruby. 
+
+Para cada subtipo se debe escribir un archivo Ruby que agrupe todas
+las correlaciones asociadas al subtipo. El archivo debe
+imperativamente tener la extensión `.rb` y residir en el directorio
+`$(TOP)/include/correlations`. En este directorio no pueden residir
+otros archivos con extensión `.rb` que no se correspondan con la
+definición de las correlaciones asociadas a un tipo.
+
+El `Makefile` en `$(TOP)/include/correlations` está configurado para
+generar los archivos de las correlaciones.
+
+Hay cuatro archivos asociados a un subtipo de correlación. Por
+ejemplo, para el caso de `BubblePointPressure` están los siguientes:
+
+- `bubble-point-pressure.rb`: aquí residen las especificaciones Ruby
+de cada una de las correlaciones asociadas a
+`BubblePointPressure`. 
+- `bubble-point-pressure.H`: Aquí residen las especificaciones `C++`
+de las correlaciones asociadas a `BubblePointPressure`. Este archivo
+es generado automáticamente.
+- `bubble-point-pressure.cc`: Aquí residen las especificaciones `C++`
+de para llamadas externas a las correlaciones asociadas a
+`BubblePointPressure`. Este archivo es generado automáticamente. 
+- `bubble-point-pressure-impl.H`: aquí residen las implementaciones
+de las correlaciones asociadas a `BubblePointPressure`. 
+
+Así pues, la definición de una correlación involucra dos pasos:
+
+1. Especificar la correlación en el archivo Ruby
+2. Escribir la implementación C++ en el archivo con extensión `-impl.H`.
+
 ### Especificación en Ruby
 
-### Generación de archivos
 
 ### Escritura de la implementación
 
-## Utilización
+
+
+

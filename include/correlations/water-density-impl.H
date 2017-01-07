@@ -7,7 +7,7 @@
 inline double
 PwSpiveyMN::impl(const double & t, // comes in Fahrenheit
 		 const double & p,
-		 const double & nacl_concentration) const
+		 const double & nacl_concentration)
 {
   const double m = nacl_concentration;
 
@@ -65,7 +65,7 @@ PwSpiveyMN::impl(const double & t, // comes in Fahrenheit
 inline double
 PwSpiveyMNGasFree::impl(const double & t, // comes in Celsius
 			const double & p,
-			const double & nacl_concentration) const
+			const double & nacl_concentration)
 {
   const double t_100 = t/100;
   const double t_100_2 = t_100*t_100;
@@ -118,7 +118,7 @@ PwSpiveyMNGasFree::impl(const double & t, // comes in Celsius
 
 inline double
 PwMcCain::impl(const double & nacl_concentration,
-	       const double & bw) const
+	       const double & bw)
 { 
   const double s = nacl_concentration;
   const double s2 = s*s;
@@ -132,7 +132,7 @@ PwMcCain::impl(const double & nacl_concentration,
 
 inline double
 PpwSpiveyMN::impl(const double & t,
-		  const double & p) const
+		  const double & p)
 {
   const double t100 = t/100;
   const double t100_2 = t100*t100;

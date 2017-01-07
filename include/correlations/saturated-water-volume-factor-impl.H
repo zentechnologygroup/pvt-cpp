@@ -7,7 +7,7 @@
 inline double
 BwbSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & p,
-		  const double & nacl_concentration) const
+		  const double & nacl_concentration)
 {
   const Quantity<Celsius> tc(t); 
 
@@ -27,7 +27,7 @@ BwbSpiveyMN::impl(const double & t, // comes in Celsius
 
 inline double
 BwbMcCain::impl(const double & t,
-	       const double & p) const
+	       const double & p)
 {
   const double t2 = t*t;
   const double p2 = p*p;
@@ -45,7 +45,7 @@ BwbMcCain::impl(const double & t,
 inline double
 BwbMcCoy::impl(const double & t,
 	      const double & p,
-	      const double & nacl_concentration) const
+	      const double & nacl_concentration)
 {
   const double & s = nacl_concentration;
   const double t2 = t*t;

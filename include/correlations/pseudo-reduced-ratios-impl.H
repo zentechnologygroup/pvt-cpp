@@ -5,14 +5,14 @@
 
 inline double
 Tpr::impl(const double & t,
-	  const double & tpc) const
+	  const double & tpc)
 {
   return t/tpc;
 }
 
 inline double
 Ppr::impl(const double & p,
-	  const double & ppc) const
+	  const double & ppc)
 {
   return p/ppc;
 }

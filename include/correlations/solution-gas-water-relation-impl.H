@@ -8,7 +8,7 @@
 inline double
 RswSpiveyMN::impl(const double & t, // cames in celsius
 		 const double & p,
-		 const double & nacl_concentration) const
+		 const double & nacl_concentration)
 {
   const double & m = nacl_concentration;
 
@@ -57,7 +57,7 @@ RswSpiveyMN::impl(const double & t, // cames in celsius
 inline double
 RswCulbersonMcKetta::impl(const double & t,
 			const double & p,
-			const double & nacl_concentration) const
+			const double & nacl_concentration)
 {
   const double t2 = t*t;
   const double t3 = t2*t;
@@ -84,7 +84,7 @@ RswCulbersonMcKetta::impl(const double & t,
 inline double
 RswMcCoy::impl(const double & t,
 			const double & p,
-			const double & nacl_concentration) const
+			const double & nacl_concentration)
 {
   const double t2 = t*t;
 

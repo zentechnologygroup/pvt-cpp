@@ -6,7 +6,7 @@
 # include "water-density.H"
 
 inline double
-PvSpiveyMN::impl(const double & t) const // t comes in Kelvin
+PvSpiveyMN::impl(const double & t) // t comes in Kelvin
 {
   const double & tk = t;
 
@@ -32,7 +32,7 @@ inline double
 MwSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & p,
 		  const double & pv,
-		  const double & nacl_concentration) const
+		  const double & nacl_concentration)
 {
   const Quantity<Celsius> tc = t; 
 
@@ -62,7 +62,7 @@ MwSpiveyMN::impl(const double & t, // comes in Celsius
 inline double
 CgfwSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & p,
-		  const double & nacl_concentration) const
+		  const double & nacl_concentration)
 {
   const double & m = nacl_concentration; 
 
@@ -99,7 +99,7 @@ inline double
 BwSpiveyMNDry::impl(const double & t, // comes in Celsius
 		    const double & p,
 		    const double & pv,
-		    const double & nacl_concentration) const
+		    const double & nacl_concentration)
 {
   const double & m = nacl_concentration;
 

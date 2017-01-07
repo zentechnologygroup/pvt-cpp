@@ -8,7 +8,7 @@
 inline double
 CwaSpiveyMN::impl(const double & t, // comes in Celsius
 		 const double & p,
-		 const double & nacl_concentration) const
+		 const double & nacl_concentration)
 {
   const double tk = unit_convert<Celsius, Kelvin>(t);
 
@@ -76,7 +76,7 @@ inline double
 CwaDodsonStanding::impl(const double & t,
 		       const double & p,
 		       const double & rsw,
-		       const double & nacl_concentration) const
+		       const double & nacl_concentration)
 {
   const double t2 = t*t;
   const double t3 = t2*t;
@@ -101,7 +101,7 @@ CwaDodsonStanding::impl(const double & t,
 inline double
 CwaOsif::impl(const double & t,
 	     const double & p,
-	     const double & nacl_concentration) const
+	     const double & nacl_concentration)
 {
   const double cw = 1/(7.033*p + 541.5*nacl_concentration -
 		       537*t + 403.3e3);

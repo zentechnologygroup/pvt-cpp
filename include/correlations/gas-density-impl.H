@@ -21,7 +21,7 @@ Pg::impl(const double & yg,
 	 const double &,
 	 const double & t,
 	 const double & p,
-	 const double & z) const
+	 const double & z) 
 {
   return (2.70*p*yg) / (z*t);
 }

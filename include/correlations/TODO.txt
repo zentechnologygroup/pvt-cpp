@@ -5,3 +5,4 @@ Alertar sobre lo sinónimos de parámetros; es el medio que tiene el sistema par
 correlaciones con símbolos faltantes: SaturatedWaterVolumeFactor, UndersaturatedWaterVolumeFactor, SaturatedWaterIsothermalCompressibility, UndersaturatedWaterIsothermalCompressibility
 mejorar performamce de target_name(),2017-01-06 16:20:16 -0400,,
 optimizar uso de memoria en atributos de correlación,2017-01-06 17:11:02 -0400,,Por ejemplo los nombres de tipo y subtipo y las descripciones de los parámetros
+Añadir noexcept a impl,2017-01-07 12:25:55 -0400,,

@@ -6,7 +6,7 @@
 
 inline double
 SgwJenningsNewman::impl(const double & t,
-			const double & p) const
+			const double & p)
 {
   const double a = 79.1618 - 0.118978*t;
   const double b = -5.28473e-3 + 9.87913e-6*t;

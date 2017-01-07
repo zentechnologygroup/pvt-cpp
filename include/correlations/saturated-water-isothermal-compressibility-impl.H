@@ -9,7 +9,7 @@ inline double
 CwbSpiveyMN::impl(const double & t, // comes in Celsius
 		 const double & p,
 		 const double & nacl_concentration,
-		 const double & z) const
+		 const double & z)
 {
   const Quantity<Celsius> tc(t);  
   const double tk = Quantity<Kelvin>(tc).raw();
@@ -95,7 +95,7 @@ CwbMcCain::impl(const double & t,
 		const double & nacl_concentration,
 		const double & bg,
 		const double & bw,
-		const double & cwa) const
+		const double & cwa)
 {
   const double s = nacl_concentration;
   const double t2 = t*t;

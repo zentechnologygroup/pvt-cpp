@@ -7,7 +7,7 @@
 
 inline double
 ZfactorSarem::impl(const double & tpr,
-		   const double & ppr) const
+		   const double & ppr)
 {
   const double x = (2*ppr - 15)/14.8;
   const double y = (2*tpr - 4)/1.9;
@@ -58,7 +58,7 @@ ZfactorSarem::impl(const double & tpr,
 
 inline double
 ZfactorHallYarborough::impl(const double & tpr,
-			    const double & ppr) const
+			    const double & ppr)
 {
   const double tpr_1 = 1/tpr;
   const double tpr_1_2 = tpr_1*tpr_1;
@@ -100,7 +100,7 @@ ZfactorHallYarborough::impl(const double & tpr,
 
 inline double
 ZfactorDranchukPR::impl(const double & tpr,
-			const double & ppr) const
+			const double & ppr)
 {
   constexpr double a1 = 0.31506237;
   constexpr double a2 = -1.0467099;
@@ -150,7 +150,7 @@ ZfactorDranchukPR::impl(const double & tpr,
 
 inline double
 ZfactorDranchukAK::impl(const double & tpr,
-			const double & ppr) const
+			const double & ppr)
 {
   //todo son dos conjuntos d erangos
   constexpr double a1 = 0.3265;
@@ -208,7 +208,7 @@ ZfactorDranchukAK::impl(const double & tpr,
 
 inline double
 ZfactorGopal::impl(const double & tpr,
-		   const double & ppr) const
+		   const double & ppr)
 {
   double z = 0;
   if (0.2 <= ppr and ppr <= 1.2)
@@ -254,7 +254,7 @@ ZfactorGopal::impl(const double & tpr,
 
 inline double
 ZfactorBrillBeggs::impl(const double & tpr,
-			const double & ppr) const
+			const double & ppr)
 {
   const double a = 1.39*sqrt(tpr - 0.92) - 0.36*tpr - 0.10;
 
@@ -281,7 +281,7 @@ ZfactorBrillBeggs::impl(const double & tpr,
 
 inline double
 ZfactorPapay::impl(const double & tpr,
-		   const double & ppr) const
+		   const double & ppr)
 {
   const double ppr2 = ppr*ppr;
   const double z = 1 - 3.52*ppr/pow(10, 0.9813*tpr) +

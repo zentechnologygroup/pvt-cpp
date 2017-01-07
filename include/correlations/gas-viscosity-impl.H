@@ -20,7 +20,7 @@ UgCarrKB::impl(const double & t,
 	       const double & yg,
 	       const double & n2_concentration,
 	       const double & co2_concentration,
-	       const double & h2s_concentration) const
+	       const double & h2s_concentration)
 {
   const double & tsr = tpr;
   const double & psr = ppr;
@@ -73,7 +73,7 @@ inline double
 UgLeeGE::impl(const double & t,
 	      const double & p,
 	      const double & yg,
-	      const double & z) const
+	      const double & z)
 {
   const double mg = 28.96*yg; // gas molecular weight [lb/lbmol]
             
@@ -94,7 +94,7 @@ UgDeanStiel::impl(const double & t,
 		  const double & tsc,
 		  const double & psc,
 		  const double & yg,
-		  const double & z) const
+		  const double & z)
 {
   const double tsr = t/tsc;
   const double psr = p/psc;

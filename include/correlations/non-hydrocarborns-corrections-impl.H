@@ -18,7 +18,7 @@ inline double
 YghcWichertAziz::impl(const double & yg,
 		      const double & n2_concentration,
 		      const double & co2_concentration,
-		      const double & h2s_concentration) const
+		      const double & h2s_concentration)
 {
   const double & n2 = n2_concentration;
   const double & co2 = co2_concentration;
@@ -43,7 +43,7 @@ inline double
 PpcmKayMixingRule::impl(const double & ppchc,
 			const double & n2_concentration,
 			const double & co2_concentration,
-			const double & h2s_concentration) const
+			const double & h2s_concentration)
 {
   const double & n2 = n2_concentration;
   const double & co2 = co2_concentration;
@@ -67,7 +67,6 @@ AdjustedppcmWichertAziz::impl(const double & ppcm,
 			      const double & tpcm,
 			      const double & co2_concentration,
 			      const double & h2s_concentration)
-  const
 {
   const double a = co2_concentration + h2s_concentration;
   const double b = h2s_concentration;
@@ -96,7 +95,7 @@ inline double
 TpcmKayMixingRule::impl(const double & tpchc,
 			const double & n2_concentration,
 			const double & co2_concentration,
-			const double & h2s_concentration) const
+			const double & h2s_concentration)
 {
   const double & n2 = n2_concentration;
   const double & co2 = co2_concentration;
@@ -118,7 +117,6 @@ inline double
 AdjustedtpcmWichertAziz::impl(const double & tpcm,
 			      const double & co2_concentration,
 			      const double & h2s_concentration)
-  const
 {
   const double a = co2_concentration + h2s_concentration;
   const double b = h2s_concentration;

@@ -18,7 +18,7 @@ inline double
 PoaBradley::impl(const double & pobp,
 		 const double & p,
 		 const double & pb,
-		 const double & co) const
+		 const double & co)
 {
   const double po = pobp * exp(co * (p - pb));
 
