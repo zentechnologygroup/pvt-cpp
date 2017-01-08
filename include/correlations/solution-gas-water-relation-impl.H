@@ -5,18 +5,10 @@
 # include <correlations/water-density.H>
 # include <correlations/spivey-dry.H>
 
-inline double
-RswSpiveyMN::impl(const double & t, // cames in celsius
-		 const double & p,
-		 const double & nacl_concentration)
+void RswSpiveyMN::precondition(const Quantity<mPascal> & p,
+			       const Quantity<Celsius> & t) const
 {
-  const double & m = nacl_concentration;
-
-  const double tk = unit_convert<Celsius, Kelvin>(t);
-
-  // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv = PvSpiveyMN::get_instance().impl(tk);
-
+  const double pv = PvSpiveyMN::get_instance().impl(Quantity<Kelvin>(t).raw());
   if (p < pv)
     {
       ostringstream s;
@@ -24,6 +16,17 @@ RswSpiveyMN::impl(const double & t, // cames in celsius
 	<< " is less than computed vapor pressure " << pv;
       throw domain_error(s.str());
     }
+}
+
+inline double
+RswSpiveyMN::impl(const double & t, // cames in celsius
+		 const double & p,
+		 const double & nacl_concentration) noexcept
+{
+  const double & m = nacl_concentration;
+
+  // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
+  const double pv = PvSpiveyMN::get_instance().impl(Quantity<Celsius>(t).raw());
 
   // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
   // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
@@ -56,8 +59,8 @@ RswSpiveyMN::impl(const double & t, // cames in celsius
 
 inline double
 RswCulbersonMcKetta::impl(const double & t,
-			const double & p,
-			const double & nacl_concentration)
+			  const double & p,
+			  const double & nacl_concentration) noexcept
 {
   const double t2 = t*t;
   const double t3 = t2*t;
@@ -83,8 +86,8 @@ RswCulbersonMcKetta::impl(const double & t,
 
 inline double
 RswMcCoy::impl(const double & t,
-			const double & p,
-			const double & nacl_concentration)
+	       const double & p,
+	       const double & nacl_concentration) noexcept
 {
   const double t2 = t*t;
 

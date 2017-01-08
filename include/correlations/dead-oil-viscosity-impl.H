@@ -6,7 +6,7 @@
 
 inline double
 UodBeal::impl(const double & api,
-	      const double & t)
+	      const double & t) noexcept
 {
   const double a = pow(10, 0.43 + (8.33 / api));
   const double b = 0.32 + (1.8e7 / pow(api, 4.53));
@@ -17,7 +17,7 @@ UodBeal::impl(const double & api,
 
 inline double
 UodBeggsRobinson::impl(const double & api,
-		       const double & t)
+		       const double & t) noexcept
 {
   const double z = 3.0324 - 0.02023*api;
   const double y = pow(10, z);
@@ -28,7 +28,7 @@ UodBeggsRobinson::impl(const double & api,
 
 inline double
 UodEgbogahNg::impl(const double & api,
-		   const double & t)
+		   const double & t) noexcept
 {
   const double a = 1.8653 - 0.025086*api - 0.5644 * log10(t);
   const double b = pow(10, a);
@@ -39,7 +39,7 @@ UodEgbogahNg::impl(const double & api,
 
 inline double
 UodGlaso::impl(const double & api,
-	       const double & t)
+	       const double & t) noexcept
 {
   const double c = 3.141e10 * pow(t, -3.444);
   const double d = 10.313*log10(t) - 36.447;
@@ -50,7 +50,7 @@ UodGlaso::impl(const double & api,
 
 inline double
 UodKartoatmodjoSchmidt::impl(const double & api,
-			     const double & t)
+			     const double & t) noexcept
 {
   const double a = 5.7526*log10(t) - 26.9718;
   const double uod = 16e8 * pow(t, -2.8177) * pow(log10(api), a);
@@ -60,7 +60,7 @@ UodKartoatmodjoSchmidt::impl(const double & api,
 
 inline double
 UodSattarinEtAl::impl(const double & api,
-		      const double & t)
+		      const double & t) noexcept
 {
   double a = 0, b = 0, uod = 0;
   if (api < 28)
@@ -83,7 +83,7 @@ UodSattarinEtAl::impl(const double & api,
 
 inline double
 UodNaseri::impl(const double & api,
-		const double & t)
+		const double & t) noexcept
 {
   const double a = log10(api);
   const double b = log10(t);
@@ -95,7 +95,7 @@ UodNaseri::impl(const double & api,
 
 inline double
 UodPetroskyFarshad::impl(const double & api,
-			 const double & t)
+			 const double & t) noexcept
 {
   const double x = 4.59388*log10(t) - 22.82792;
   const double uod = 2.3511e7 * pow(t, -2.10255) * pow(log10(api), x);
@@ -105,7 +105,7 @@ UodPetroskyFarshad::impl(const double & api,
 
 inline double
 UodDeGhettoEtAl::impl(const double & api,
-		      const double & t)
+		      const double & t) noexcept
 {
   double a = 0;
   if (api <=10) // Extra-heavy oil
@@ -120,7 +120,7 @@ UodDeGhettoEtAl::impl(const double & api,
 
 inline double
 UodPerezML::impl(const double & api,
-		 const double & t)
+		 const double & t) noexcept
 {
   const double z = 1.6288 - 0.01537*api;
   const double x = pow(10, z) * pow(t, -0.4479);
@@ -134,7 +134,7 @@ inline double
 UodDindorukChristman::impl(const double & api,
 			   const double & t,
 			   const double & pb,
-			   const double & rsb)
+			   const double & rsb) noexcept
 {
   constexpr double a1 = 14.505357625;
   constexpr double a2 = -44.868655416;

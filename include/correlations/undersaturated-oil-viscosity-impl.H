@@ -20,7 +20,7 @@ void UoaKartoatmodjoSchmidt::precondition(const Quantity<psia> & p,
 inline double
 UoaKartoatmodjoSchmidt::impl(const double & uobp,
 			     const double & pb,
-			     const double & p)
+			     const double & p) noexcept
 {
   const double p_pb = p - pb;
   const double uoa = 1.00081*uobp +
@@ -45,7 +45,7 @@ UoaDeGhettoEtAl::impl(const double & uobp,
 		      const double & p,
 		      const double & pb,
 		      const double & uod,
-		      const double & api)
+		      const double & api) noexcept
 {
   double uoa = 0;
   if (api <= 10) // Extra-heavy oil
@@ -76,7 +76,7 @@ void UoaBeal::precondition(const Quantity<psia> & p,
 inline double
 UoaBeal::impl(const double & uobp,
 	      const double & p,
-	      const double & pb)
+	      const double & pb) noexcept
 {
   const double uoa = uobp + 0.001*(p - pb) *
     (0.024*pow(uobp, 1.6) + 0.038 * pow(uobp, 0.56));
@@ -98,7 +98,7 @@ void UoaVasquezBeggs::precondition(const Quantity<psia> & p,
 inline double
 UoaVasquezBeggs::impl(const double & uobp,
 		      const double & p,
-		      const double & pb)
+		      const double & pb) noexcept
 {
   constexpr double c1 = 2.6;
   constexpr double c2 = 1.187;
@@ -126,7 +126,7 @@ void UoaKhan::precondition(const Quantity<psia> & p,
 inline double
 UoaKhan::impl(const double & uobp,
 	      const double & p,
-	      const double & pb)
+	      const double & pb) noexcept
 {
   const double uoa = uobp * exp(9.6e-5*(p - pb));
   return uoa;
@@ -147,7 +147,7 @@ void UoaPetroskyFarshad::precondition(const Quantity<psia> & p,
 inline double
 UoaPetroskyFarshad::impl(const double & uobp,
 			 const double & p,
-			 const double & pb)
+			 const double & pb) noexcept
 {
   const double log_uobp = log10(uobp);
   const double log_uobp_2 = log_uobp*log_uobp;
@@ -173,7 +173,7 @@ void UoaAbedini::precondition(const Quantity<psia> & p,
 inline double
 UoaAbedini::impl(const double & uobp,
 		 const double & p,
-		 const double & pb)
+		 const double & pb) noexcept
 {
   const double uoa = uobp +
     0.001*(p - pb)*((0.05601*pow(uobp, 1.45198)) +
@@ -200,7 +200,7 @@ void UoaPerezML::precondition(const Quantity<psia> & p,
 inline double
 UoaPerezML::impl(const double & uobp,
 		 const double & p,
-		 const double & pb)
+		 const double & pb) noexcept
 {
   const double uoa = uobp * (1 + 3.181e-4 * (p - pb));
   return uoa;
@@ -223,7 +223,7 @@ inline double
 UoaDindorukChristman::impl(const double & uobp,
 			   const double & p,
 			   const double & pb,
-			   const double & rsb)
+			   const double & rsb) noexcept
 {
   constexpr double a1 = 0.776644115;
   constexpr double a2 = 0.987658646;

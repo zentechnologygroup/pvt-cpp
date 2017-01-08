@@ -6,7 +6,7 @@
 # include "water-density.H"
 
 inline double
-PvSpiveyMN::impl(const double & t) // t comes in Kelvin
+PvSpiveyMN::impl(const double & t) noexcept // t comes in Kelvin
 {
   const double & tk = t;
 
@@ -32,7 +32,7 @@ inline double
 MwSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & p,
 		  const double & pv,
-		  const double & nacl_concentration)
+		  const double & nacl_concentration) noexcept
 {
   const Quantity<Celsius> tc = t; 
 
@@ -62,7 +62,7 @@ MwSpiveyMN::impl(const double & t, // comes in Celsius
 inline double
 CgfwSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & p,
-		  const double & nacl_concentration)
+		  const double & nacl_concentration) noexcept
 {
   const double & m = nacl_concentration; 
 
@@ -95,24 +95,29 @@ CgfwSpiveyMN::impl(const double & t, // comes in Celsius
   return cgfw;
 }
 
-inline double
-BwSpiveyMNDry::impl(const double & t, // comes in Celsius
-		    const double & p,
-		    const double & pv,
-		    const double & nacl_concentration)
+void BwSpiveyMNDry::precondition(const Quantity<mPascal> & p,
+				 const Quantity<mPascal> & pv) const
 {
-  const double & m = nacl_concentration;
-
-  // Transformation from °C to °K
-  const double tk = Quantity<Kelvin>(t).raw();
-
   if (p < pv)
     {
       ostringstream s;
       s << "BwSpiveyMN::impl: received pressure " << p
 	<< " is less than computed vapor pressure " << pv;
       throw domain_error(s.str());
-    }
+    }  
+}
+
+
+inline double
+BwSpiveyMNDry::impl(const double & t, // comes in Celsius
+		    const double & p,
+		    const double & pv,
+		    const double & nacl_concentration) noexcept
+{
+  const double & m = nacl_concentration;
+
+  // Transformation from °C to °K
+  const double tk = Quantity<Kelvin>(t).raw();
 
   // pw: DENSITY OF BRINE WITH DISSOLVED METHANE
   // Density of methane-free brine at the temperature and pressure of

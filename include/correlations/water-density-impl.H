@@ -4,26 +4,31 @@
 # include <correlations/water-density.H>
 # include <correlations/spivey-dry.H>
 
-inline double
-PwSpiveyMN::impl(const double & t, // comes in Fahrenheit
-		 const double & p,
-		 const double & nacl_concentration)
+void PwSpiveyMN::precondition(const Quantity<Celsius> & t,
+			      const Quantity<mPascal> & p) const
 {
-  const double m = nacl_concentration;
-
-  // Transformation from °F to °K
-  const Quantity<Fahrenheit> tf(t);
-  const double tk = Quantity<Kelvin>(tf).raw();
-
-  // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv = PvSpiveyMN::get_instance().impl(tk);
+  const double pv = PvSpiveyMN::get_instance().impl(Quantity<Kelvin>(t).raw());
   if (p < pv)
     {
       ostringstream s;
       s << "PwSpiveyMN::impl: received pressure " << p
 	<< " is less than computed vapor pressure " << pv;
       throw domain_error(s.str());
-    }            
+    }
+}
+
+inline double
+PwSpiveyMN::impl(const double & t, // comes in Fahrenheit
+		 const double & p,
+		 const double & nacl_concentration) noexcept
+{
+  const double m = nacl_concentration;
+
+  // Transformation from °F to °K
+  const double tk = Quantity<Kelvin>(t).raw();
+
+  // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
+  const double pv = PvSpiveyMN::get_instance().impl(Quantity<Celsius>(t).raw());
 
   // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
   // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
@@ -65,7 +70,7 @@ PwSpiveyMN::impl(const double & t, // comes in Fahrenheit
 inline double
 PwSpiveyMNGasFree::impl(const double & t, // comes in Celsius
 			const double & p,
-			const double & nacl_concentration)
+			const double & nacl_concentration) noexcept
 {
   const double t_100 = t/100;
   const double t_100_2 = t_100*t_100;
@@ -115,10 +120,9 @@ PwSpiveyMNGasFree::impl(const double & t, // comes in Celsius
   return pgfw;
 }
 
-
 inline double
 PwMcCain::impl(const double & nacl_concentration,
-	       const double & bw)
+	       const double & bw) noexcept
 { 
   const double s = nacl_concentration;
   const double s2 = s*s;
@@ -132,7 +136,7 @@ PwMcCain::impl(const double & nacl_concentration,
 
 inline double
 PpwSpiveyMN::impl(const double & t,
-		  const double & p)
+		  const double & p) noexcept
 {
   const double t100 = t/100;
   const double t100_2 = t100*t100;

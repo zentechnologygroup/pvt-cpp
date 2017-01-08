@@ -28,3 +28,9 @@
 - Comment      
 - Finished     
 
+## 6. verificación de consistencia en lectura del json
+- Created at   2016-10-25 08:57:52 -0400
+- Completed at 2017-01-08 13:42:12 -0400
+- Comment      
+- Finished     
+

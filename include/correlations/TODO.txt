@@ -1,8 +1,3 @@
 Revisar Densidad del agua pura. Consierar posibilidad de que tener varias correlaiones y pasarlas como parámetros a otras correlaciones,2016-10-11 15:55:50 -0400,,
-Revisar los rangos de salida de correlaciones Boa,2016-11-01 09:40:08 -0400,,
-Los subtipos de correlación deben tener la posibilidad de ser hidden,2016-11-08 17:52:46 -0400,,
-Alertar sobre lo sinónimos de parámetros; es el medio que tiene el sistema para identificar correlaciones automáticamente,2016-11-12 14:05:50 -0400,,
-correlaciones con símbolos faltantes: SaturatedWaterVolumeFactor, UndersaturatedWaterVolumeFactor, SaturatedWaterIsothermalCompressibility, UndersaturatedWaterIsothermalCompressibility
-mejorar performamce de target_name(),2017-01-06 16:20:16 -0400,,
 optimizar uso de memoria en atributos de correlación,2017-01-06 17:11:02 -0400,,Por ejemplo los nombres de tipo y subtipo y las descripciones de los parámetros
-Añadir noexcept a impl,2017-01-07 12:25:55 -0400,,
+mejorar performance de target_name,2017-01-08 13:23:32 -0400,,

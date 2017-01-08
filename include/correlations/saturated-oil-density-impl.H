@@ -8,7 +8,7 @@ double
 PobBradley::impl(const double & yg,
 		 const double & rs,
 		 const double & bob,
-		 const double & yo)
+		 const double & yo) noexcept
 {
   return (350*yo + 0.0764*yg*rs)/(5.615*bob);
 }

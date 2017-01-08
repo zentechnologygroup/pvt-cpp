@@ -7,7 +7,7 @@ inline double
 PbAlMarhoun::impl(const double & yg,
 		  const double & yo,
 		  const double & rsb,
-		  const double & t) 
+		  const double & t) noexcept
 {
   return 0.00538088 * pow(rsb, 0.715082) * pow(yg, -1.87784) *
     pow(yo, 3.1437) * pow(t, 1.32657);
@@ -17,7 +17,7 @@ inline double
 PbAlShammasi::impl(const double & yg,
 		   const double & yo,
 		   const double & rsb,
-		   const double & t) 
+		   const double & t) noexcept 
 {
   constexpr double c1 = 5.527215;
   constexpr double c2 = -1.841408;
@@ -32,7 +32,7 @@ inline double
 PbDeGhetto::impl(const double& yg,
 		 const double & rsb,
 		 const double & api,
-		 const double & t) 
+		 const double & t) noexcept
 {
   double pb = 0;
     
@@ -48,7 +48,7 @@ inline double
 PbDindorukChristman::impl(const double & yg,
 			  const double & rsb,
 			  const double & api,
-			  const double & t)
+			  const double & t) noexcept
 {
   constexpr double a1  = 0.000000000142828; // 1.42828 * 10 ** -10;
   constexpr double a2  = 2.844591797;
@@ -76,14 +76,14 @@ inline double
 PbDoklaOsman::impl(const double & yg,
 		   const double & rsb,
 		   const double & yo,
-		   const double & t)
+		   const double & t) noexcept
 {
   return 8363.86 * pow(yg, -1.01049) * pow(yo, 0.107991) *
     pow(t, -0.952584) * pow(rsb, 0.724047);
 }
 
 inline double
-PbHanafy::impl(const double & rsb)
+PbHanafy::impl(const double & rsb) noexcept
 {
   const double rsft = 69 + 1.071 * rsb;
     
@@ -99,7 +99,7 @@ PbKartoatmodjoSchmidt::impl(const double & yg,
 			    const double & api,
 			    const double & t,
 			    const double & tsep,
-			    const double & psep)
+			    const double & psep) noexcept
 {
   const double c = 1 + 0.1595 * pow(api, 0.4078) * pow(tsep, -0.2466) *
     log10(psep/114.7);
@@ -132,7 +132,7 @@ inline double
 PbLasater::impl(const double & yg,
 		const double & rsb,
 		const double & yo,
-		const double & t)
+		const double & t) noexcept
 {
   const Quantity<Api> api = unit_convert<Sg_do, Api>(yo);
 
@@ -156,7 +156,7 @@ inline double
 PbPetroskyFarshad::impl(const double & yg,
 			const double & rsb,
 			const double & api,
-			const double & t)
+			const double & t) noexcept
 {
       // effective molecular weight
   const double x = 0.00004561*pow(t, 1.3911) - 0.0007916*pow(api, 1.541);
@@ -168,7 +168,7 @@ inline double
 PbStanding::impl(const double & yg,
 		 const double & rsb,
 		 const double & api,
-		 const double & t)
+		 const double & t) noexcept
 {
   const double pb = pow(rsb/yg, 0.83) * (pow(10, 0.00091*t -0.0125*api)) - 1.4;
   return 18.2*pb;
@@ -178,7 +178,7 @@ inline double
 PbTotalCFP::impl(const double & yg,
 		 const double & rsb,
 		 const double & api,
-		 const double & t)
+		 const double & t) noexcept
 {
   double c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 
@@ -214,7 +214,7 @@ PbVasquezBeggs::impl(const double & yg,
 		     const double & api,
 		     const double & t,
 		     const double & tsep,
-		     const double & psep)
+		     const double & psep) noexcept
 {
   double c1 = 0, c2 = 0, c3 = 0;
 
@@ -245,7 +245,7 @@ inline double
 PbVelarde::impl(const double & yg,
 		const double & rsb,
 		const double & api,
-		const double & t)
+		const double & t) noexcept
 {
   const double x = 0.013098 * pow(t, 0.282372) - 8.2e-06 * pow(api, 2.176124);
 
@@ -260,7 +260,7 @@ inline double
 PbCegarra::impl(const double & yg,
 		const double & rsb,
 		const double & api,
-		const double & t)
+		const double & t) noexcept
 {
   double l1 = 0, l2 = 0, l3 = 0, l4 = 0, l5 = 0;
   if (api < 29.9)
@@ -289,7 +289,7 @@ inline double
 PbPerezML::impl(const double & yg,
 		const double & rsb,
 		const double & api,
-		const double & t)
+		const double & t) noexcept
 {
   const double x = 0.0002573*t - 0.0253643*api;
         
@@ -300,7 +300,7 @@ inline double
 PbMillanArcia::impl(const double & yg,
 		    const double & rsb,
 		    const double & api,
-		    const double & t)
+		    const double & t) noexcept
 {
   const double x = 0.00091*t - 0.0125*api;
         
@@ -312,7 +312,7 @@ inline double
 PbManucciRosales::impl(const double & yg,
 		       const double & rsb,
 		       const double & api,
-		       const double & t)
+		       const double & t) noexcept
 {
   const double x = 0.000922*t - 0.0072*api;
         
@@ -339,7 +339,7 @@ PbGlaso::impl(const double & yg,
 	      const double & t,
 	      const double & n2_concentration,
 	      const double & co2_concentration,
-	      const double & h2s_concentration)
+	      const double & h2s_concentration) noexcept
 {
   const double x = pow(rsb/yg, 0.816)*pow(t, 0.172)/pow(api, 0.989);
 

@@ -4,7 +4,7 @@
 # include <correlations/gas-pseudocritical-temp.H>
 
 inline double
-TpchcStanding::impl(const double & yghc)
+TpchcStanding::impl(const double & yghc) noexcept
 {
   const double yghc2 = yghc*yghc;
   const double tpchc = 168 + 325*yghc - 12.5*yghc2;
@@ -12,9 +12,8 @@ TpchcStanding::impl(const double & yghc)
   return tpchc;
 }
 
-
 inline double
-TpchcStandingHeavierFractions::impl(const double & yghc)
+TpchcStandingHeavierFractions::impl(const double & yghc) noexcept
 {
   const double yghc2 = yghc*yghc;
   const double tpchc = 187 + 330*yghc - 71.5*yghc2;
@@ -22,9 +21,8 @@ TpchcStandingHeavierFractions::impl(const double & yghc)
   return tpchc;
 }
 
-
 inline double
-TpchcSutton::impl(const double & yghc)
+TpchcSutton::impl(const double & yghc) noexcept
 {
   const double yghc2 = yghc*yghc;
   const double tpchc = 169.2 + 349.5*yghc - 74.0*yghc2;
@@ -33,7 +31,7 @@ TpchcSutton::impl(const double & yghc)
 }
 
 inline double
-TpchcElsharkawyEtAl::impl(const double & yghc)
+TpchcElsharkawyEtAl::impl(const double & yghc) noexcept
 {
   const double yghc2 = yghc*yghc;
   const double tpchc = 149.18 + 358.14*yghc - 66.976*yghc2;

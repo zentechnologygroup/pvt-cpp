@@ -7,7 +7,7 @@
 inline double
 UwMaoDuan::impl(const double & t,
 		const double & nacl_concentration,
-		const double & ppw)
+		const double & ppw) noexcept
 {
   const double t2 = t*2;
   
@@ -38,7 +38,7 @@ UwMaoDuan::impl(const double & t,
 }
 
 inline double
-UwVanWingen::impl(const double & t)
+UwVanWingen::impl(const double & t) noexcept
 {
   const double uw = exp(1.003 - 1.479e-2*t + 1.982e-5*t*t);
 
@@ -48,7 +48,7 @@ UwVanWingen::impl(const double & t)
 inline double
 UwMatthewsRussel::impl(const double & t,
 		       const double & p,
-		       const double & nacl_concentration)
+		       const double & nacl_concentration) noexcept
 {
   const double s = nacl_concentration;
   const double s2 = s*s;
@@ -67,7 +67,7 @@ UwMatthewsRussel::impl(const double & t,
 inline double
 UwMcCain::impl(const double & t,
 	       const double & p,
-	       const double & nacl_concentration)
+	       const double & nacl_concentration) noexcept
 {
   const double s = nacl_concentration;
   const double s2 = s*s;
@@ -88,7 +88,7 @@ UwMcCain::impl(const double & t,
 
 inline double
 UwMcCoy::impl(const double & t,
-	      const double & nacl_concentration)
+	      const double & nacl_concentration) noexcept
 {
   const double s = nacl_concentration;
   const double uwp = 0.02414 * pow(10, 247.8/(t - 140));

@@ -778,3 +778,33 @@
 - Comment      eso aceleraría notablemente porque evitaría los string
 - Finished     eso aceleraría notablemente porque evitaría los string
 
+## 131. dry de compute_by_names en defined-correlation
+- Created at   2016-12-30 13:53:19 -0400
+- Completed at 2017-01-03 17:54:06 -0400
+- Comment      
+- Finished     
+
+## 132. correlaciones con hidden en tru no deben ser mostradas por test-calibrate
+- Created at   2016-11-19 13:44:15 -0400
+- Completed at 2017-01-03 17:54:01 -0400
+- Comment      
+- Finished     
+
+## 133. Buscar parámetro yo y asegurar que exista sinónimo api. Análogamente para api
+- Created at   2016-11-29 10:23:50 -0400
+- Completed at 2017-01-08 13:29:48 -0400
+- Comment      
+- Finished     
+
+## 134. profiling (quiza con google-pprof
+- Created at   2016-12-01 11:44:25 -0400
+- Completed at 2017-01-08 13:29:34 -0400
+- Comment      
+- Finished     
+
+## 135. correlations en hidden no deben aparecer en test-calibrate ni plot-corr
+- Created at   2016-12-01 17:48:58 -0400
+- Completed at 
+- Comment      
+- Finished     
+

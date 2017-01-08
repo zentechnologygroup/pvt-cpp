@@ -5,14 +5,14 @@
 
 inline double
 Tpr::impl(const double & t,
-	  const double & tpc)
+	  const double & tpc) noexcept
 {
   return t/tpc;
 }
 
 inline double
 Ppr::impl(const double & p,
-	  const double & ppc)
+	  const double & ppc) noexcept
 {
   return p/ppc;
 }

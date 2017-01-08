@@ -129,7 +129,7 @@ class CorrelationGen
 
   def gen_impl_declaration
     s = "static inline double impl"
-    s += gen_doubles
+    s += gen_doubles + 'noexcept'
   end
 
   def gen_call_declaration
@@ -309,7 +309,7 @@ class CorrelationGen
   def gen_impl
     s = "\n"\
         "double\n"\
-        "#{@name}::impl#{gen_doubles}\n"\
+        "#{@name}::impl#{gen_doubles} noexcept\n"\
         "{\n"\
         "    // put here the implementation\n"\
         "}\n"\

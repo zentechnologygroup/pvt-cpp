@@ -4,14 +4,14 @@
 # include <correlations/gas-pseudocritical-pressure.H>
 
 inline double
-PpchcStanding::impl(const double & yghc)
+PpchcStanding::impl(const double & yghc) noexcept
 {
   const double ppchc = 677 + 15*yghc - 37.5*yghc*yghc;
   return ppchc;
 }
 
 inline double
-PpchcSutton::impl(const double & yghc)
+PpchcSutton::impl(const double & yghc) noexcept
 {
   const double ppchc = 756.8 - 131.0 * yghc - 3.6 * yghc*yghc;
   return ppchc;
@@ -20,7 +20,7 @@ PpchcSutton::impl(const double & yghc)
 inline double
 PpchcGuoGhalambor::impl(const double & yghc,
 			const double &,
-			const double &)
+			const double &) noexcept
 {
   const double ppchc = 709.604 - 58.718*yghc;
 
@@ -41,7 +41,7 @@ inline double
 PpcAhmed::impl(const double & yghc,
 	       const double & n2_concentration,
 	       const double & co2_concentration,
-	       const double & h2s_concentration)
+	       const double & h2s_concentration) noexcept
 {
   const double ppc = 678 - 50*(yghc - 0.5) - 206.7*n2_concentration +
     440*co2_concentration + 606.7*h2s_concentration;
@@ -50,14 +50,14 @@ PpcAhmed::impl(const double & yghc,
 }
 
 inline double
-PpchcStandingHeavierFractions::impl(const double & yghc)
+PpchcStandingHeavierFractions::impl(const double & yghc) noexcept
 { 
   const double ppchc = 706 - 51.7*yghc - 11.1*yghc*yghc;
   return ppchc;
 }                                                                                   
 
 inline double
-PpchcElsharkawyEtAl::impl(const double & yghc)
+PpchcElsharkawyEtAl::impl(const double & yghc) noexcept
 {
   const double ppchc = 787.06 - 147.34*yghc - 7.916*yghc*yghc;
   return ppchc;

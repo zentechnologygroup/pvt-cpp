@@ -8,7 +8,7 @@ inline double
 RsAlMarhoun::impl(const double & yg,
 		   const double & p,
 		   const double & yo,
-		   const double & t)
+		   const double & t) noexcept
 {
   constexpr double c1 = 0.00538088;
   constexpr double c2 = -1.87784;
@@ -24,7 +24,7 @@ inline double
 RsAlShammasi::impl(const double & yg,
 		  const double & p,
 		  const double & yo,
-		  const double & t)
+		  const double & t) noexcept
 {
   constexpr double c1 = 5.527215;
   constexpr double c2 = -1.841408;
@@ -39,7 +39,7 @@ RsDeGhetto::impl(const double & yg,
 		 const double & api,
 		 const double & t,
 		 const double & tsep,
-		 const double & psep)
+		 const double & psep) noexcept
 {
   double rs = 0;
   if (api <= 10)
@@ -57,7 +57,7 @@ inline double
 RsDindorukChristman::impl(const double & yg,
 			  const double & p,
 			  const double & api,
-			  const double & t)
+			  const double & t) noexcept
 {
   constexpr double a1  = 4.86996e-06;
   constexpr double a2  = 5.730982539;
@@ -85,7 +85,7 @@ inline double
 RsDoklaOsman::impl(const double & yg,
 		   const double & p,
 		   const double & yo,
-		   const double & t)
+		   const double & t) noexcept
 {
   constexpr double k = 0.11956202e-3; // 1/(0.836386 * 10 **4)
   constexpr double d = 1/0.724047;
@@ -97,7 +97,7 @@ inline double
 RsGlaso::impl(const double & yg,
 	      const double & p,
 	      const double & api,
-	      const double & t)
+	      const double & t) noexcept
 {
   constexpr double a = -0.30218;
   constexpr double b = 1.7447;
@@ -117,7 +117,7 @@ RsGlaso::impl(const double & yg,
 }
 
 inline double
-RsHanafy::impl(const double & p)
+RsHanafy::impl(const double & p) noexcept
 {
   return -49.069 + 0.312*p;
 }
@@ -128,7 +128,7 @@ RsKartoatmodjoSchmidt::impl(const double & yg,
 			    const double & api,
 			    const double & t,
 			    const double & tsep,
-			    const double & psep)
+			    const double & psep) noexcept
 {
   const double c =
     1 + 0.1595 * pow(api, 0.4078) * pow(tsep, -0.2466) * log10(psep/114.7);
@@ -159,7 +159,7 @@ inline double
 RsLasater::impl(const double & yg,
 		const double & p,
 		const double & yo,
-		const double & t)
+		const double & t) noexcept
 {
   const double api = unit_convert<Sg_do, Api>(yo);
 
@@ -196,7 +196,7 @@ inline double
 RsPetroskyFarshad::impl(const double & yg,
 			const double & p,
 			const double & api,
-			const double & t)
+			const double & t) noexcept
 {
   const double x = 0.0007916 * pow(api, 1.541) - 0.00004561 * pow(t, 1.3911);
         
@@ -204,17 +204,17 @@ RsPetroskyFarshad::impl(const double & yg,
 }
 
 inline double RsStanding::impl(const double & yg,
-					  const double & p,
-					  const double & api,
-					  const double & t)
+			       const double & p,
+			       const double & api,
+			       const double & t) noexcept
 {
   return yg*pow((p/18.2 + 1.4)*pow(10, 0.0125*api - 0.00091*t), 1.2048);
 }
 
 inline double RsTotalCFP::impl(const double & yg,
-					  const double & p,
-					  const double & api,
-					  const double & t)
+			       const double & p,
+			       const double & api,
+			       const double & t) noexcept
 {
   double c1 = 0, c2 = 0, c3 = 0, c4 = 0;
   if (api <= 10)
@@ -247,7 +247,7 @@ RsVasquezBeggs::impl(const double & yg,
 		     const double & api,
 		     const double & t,
 		     const double & tsep,
-		     const double & psep)
+		     const double & psep) noexcept
 {
   double c1 = 0, c2 = 0, c3 = 0;
   if (api <= 30)
@@ -275,7 +275,7 @@ inline double RsVelarde::impl(const double & yg,
 					 const double & p,
 					 const double & api,
 					 const double & t,
-					 const double & rsb)
+					 const double & rsb) noexcept
 {
   constexpr double a0 = 9.73e-07;
   constexpr double a1 = 1.672608;
@@ -311,7 +311,7 @@ inline double RsVelarde::impl(const double & yg,
 inline double RsCegarra::impl(const double & yg,
 					 const double & p,
 					 const double & api,
-					 const double & t)
+					 const double & t) noexcept
 {
   double l1 = 0, l2 = 0, l3 = 0, l4 = 0, l5 = 0;
   if (api < 29.9)
@@ -335,8 +335,8 @@ inline double RsCegarra::impl(const double & yg,
 }
 
 inline double RsPerezML::impl(const double & pb,
-					 const double & p,
-					 const double & rsb)
+			      const double & p,
+			      const double & rsb) noexcept
 {
   return rsb * pow((p/pb), 0.881);
 }
@@ -344,7 +344,7 @@ inline double RsPerezML::impl(const double & pb,
 inline double
 RsMillanArcia::impl(const double & pb,
 		    const double & p,
-		    const double & rsb)
+		    const double & rsb) noexcept
 {
   return (rsb/1.031) * pow(p/pb, 0.83);
 }
@@ -353,7 +353,7 @@ inline double
 RsManucciRosales::impl(const double & yg,
 		       const double & p,
 		       const double & api,
-		       const double & t)
+		       const double & t) noexcept
 {
   const double x = 0.000922*t - 0.0072*api;
             
@@ -374,8 +374,8 @@ void RsAbovePb::precondition(const Quantity<psia> & p,
 
 double
 RsAbovePb::impl(const double &,
-	  const double &,
-	  const double & rsb)
+		const double &,
+		const double & rsb) noexcept
 {
   return rsb;
 }

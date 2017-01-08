@@ -19,7 +19,7 @@ inline double
 BoaMcCain::impl(const double & bobp,
 		const double & p,
 		const double & pb,
-		const double & co)
+		const double & co) noexcept
 {
   return bobp * exp(co * (pb - p));
 }
@@ -44,7 +44,7 @@ BoaDeGhetto::impl(const double & bobp,
 		  const double & tsep,
 		  const double & p,
 		  const double & pb,
-		  const double & psep)
+		  const double & psep) noexcept
 {
   auto co = CoaDeGhetto::get_instance().impl(yg, api, rsb, t, tsep, p, psep);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
@@ -65,7 +65,7 @@ void BoaHanafy::precondition(const Quantity<psia> & p,
 inline double 
 BoaHanafy::impl(const double & bobp,
 		const double & p,
-		const double & pb)
+		const double & pb) noexcept
 {
   const double pob = 1 / (2.366 - 1.358/bobp); // Bubble point oil density
   const double co = 1e-6 * exp(2.582/pob - 0.990);
@@ -93,7 +93,7 @@ BoaKartoatmodjo::impl(const double & bobp,
 		      const double & tsep,
 		      const double & p,
 		      const double & pb,
-		      const double & psep)
+		      const double & psep) noexcept
 {
   const double api = unit_convert<Sg_do, Api>(yo);
   auto co = CoaKartoatmodjoSchmidt::get_instance().impl(yg, api, rsb, t, tsep,
@@ -120,7 +120,7 @@ BoaPetroskyFarshad::impl(const double & bobp,
 			 const double & rsb, 
 			 const double & t,
 			 const double & p,
-			 const double & pb)
+			 const double & pb) noexcept
 {
   const double api = unit_convert<Sg_do, Api>(yo);
   auto co = CoaPetroskyFarshad::get_instance().impl(yg, api, rsb, t, p);
@@ -148,7 +148,7 @@ BoaVasquezBeggs::impl(const double & bobp,
 		      const double & tsep,
 		      const double & p,
 		      const double & pb,
-		      const double & psep)
+		      const double & psep) noexcept
 {
   auto co = CoaVasquezBeggs::get_instance().impl(yg, api, rsb, t, tsep, p, psep);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
@@ -172,7 +172,7 @@ BoaPerezML::impl(const double & bobp,
 		 const double & rsb,
 		 const double & t,
 		 const double & p,
-		 const double & pb)
+		 const double & pb) noexcept
 {
   const double api = unit_convert<Sg_do, Api>(yo);
   auto co = CoaPerezML::get_instance().impl(yg, api, rsb, t, p, pb);
@@ -197,7 +197,7 @@ BoaMillanArcia::impl(const double & bobp,
 		     const double & rsb,
 		     const double & t,
 		     const double & p,
-		     const double & pb) 
+		     const double & pb) noexcept
 {
   auto co = CoaMillanArcia::get_instance().impl(api, rsb, t, p, pb);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);

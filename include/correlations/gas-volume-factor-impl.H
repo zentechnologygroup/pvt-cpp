@@ -6,7 +6,7 @@
 inline double
 Bg::impl(const double & t,
 	 const double & p,
-	 const double & z)
+	 const double & z) noexcept
 {
   return 0.0282793*z*t/p;
 }

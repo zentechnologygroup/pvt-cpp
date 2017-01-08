@@ -7,7 +7,7 @@
 inline double
 BwbSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & p,
-		  const double & nacl_concentration)
+		  const double & nacl_concentration) noexcept
 {
   const Quantity<Celsius> tc(t); 
 
@@ -27,7 +27,7 @@ BwbSpiveyMN::impl(const double & t, // comes in Celsius
 
 inline double
 BwbMcCain::impl(const double & t,
-	       const double & p)
+	       const double & p) noexcept
 {
   const double t2 = t*t;
   const double p2 = p*p;
@@ -45,7 +45,7 @@ BwbMcCain::impl(const double & t,
 inline double
 BwbMcCoy::impl(const double & t,
 	      const double & p,
-	      const double & nacl_concentration)
+	      const double & nacl_concentration) noexcept
 {
   const double & s = nacl_concentration;
   const double t2 = t*t;
@@ -68,10 +68,6 @@ BwbMcCoy::impl(const double & t,
    
   return bw;
 }
-
-
-
-
 
 
 # endif // SATURATED_WATER_VOLUME_FACTOR_IMPL_H
