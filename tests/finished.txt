@@ -133,3 +133,5 @@ correlaciones con hidden en tru no deben ser mostradas por test-calibrate,2016-1
 Buscar parámetro yo y asegurar que exista sinónimo api. Análogamente para api,2016-11-29 10:23:50 -0400,2017-01-08 13:29:48 -0400,,2017-01-08 13:30:18 -0400
 profiling (quiza con google-pprof,2016-12-01 11:44:25 -0400,2017-01-08 13:29:34 -0400,,2017-01-08 13:30:31 -0400
 correlations en hidden no deben aparecer en test-calibrate ni plot-corr,2016-12-01 17:48:58 -0400,,,2017-01-08 13:40:58 -0400
+hash perfecto para conversiones,2017-01-03 17:54:22 -0400,2017-01-09 12:36:37 -0400,,2017-01-09 12:36:47 -0400
+búsqueda de unidades por tabla hash óptima,2016-12-05 08:24:35 -0400,2017-01-09 12:36:32 -0400,,2017-01-09 12:36:48 -0400

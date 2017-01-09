@@ -951,7 +951,7 @@ public:
 	  {
 	    auto i = get<2>(p) + 1;
 	    ostringstream s;
-	    s << "Correlation parameter " << i << " (" << name
+	    s << "Correlation parameter " << i << " (" << par_name
 	      << ") does not satisfy bound constraints";
 	      throw domain_error(s.str());
 	  }

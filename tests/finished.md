@@ -808,3 +808,15 @@
 - Comment      
 - Finished     
 
+## 136. hash perfecto para conversiones
+- Created at   2017-01-03 17:54:22 -0400
+- Completed at 2017-01-09 12:36:37 -0400
+- Comment      
+- Finished     
+
+## 137. búsqueda de unidades por tabla hash óptima
+- Created at   2016-12-05 08:24:35 -0400
+- Completed at 2017-01-09 12:36:32 -0400
+- Comment      
+- Finished     
+

@@ -759,12 +759,22 @@ inline pair<double, double> get_tp(const ParList & pars)
   return make_pair(t.raw(), p.raw());
 }
 
-void store_exception(const ParList & pars, const exception & e)
+void store_exception(const string & corr_name,
+		     const ParList & pars, const exception & e)
 {
-  auto tp = get_tp(pars);
-  ostringstream s;
-  s << tp.first << ", " << tp.second << ": " << e.what();
-  exception_list.append(s.str());
+  try
+    {  
+      auto tp = get_tp(pars);
+      ostringstream s;
+      s << corr_name << ": " << tp.first << ", " << tp.second << ": " << e.what();
+      exception_list.append(s.str());
+    }
+  catch (...)
+    {
+      ostringstream s;
+      s << corr_name << ": " << e.what();
+      exception_list.append(s.str());
+    }
 }
 
 template <typename ... Args> inline
@@ -782,7 +792,7 @@ VtlQuantity compute(const Correlation * corr_ptr,
   catch (exception & e)
     {
       if (report_exceptions)
-	store_exception(pars_list, e);
+	store_exception(corr_ptr->name, pars_list, e);
       
       remove_from_container(pars_list, args ...);
     }
@@ -803,7 +813,14 @@ double compute(const DefinedCorrelation & corr, bool check,
   catch (exception & e)
     {
       if (report_exceptions)
-	store_exception(pars_list, e);
+	{
+	  string names = corr.correlations().
+	    foldl<string>("", [] (const auto & acu, auto ptr)
+            {
+	      return acu + ptr->name + " ";
+	    });
+	  store_exception(names, pars_list, e);
+	}
 
       remove_from_container(pars_list, args ...);
     }
@@ -1142,7 +1159,6 @@ void generate_grid()
       auto pb_par = npar("pb", pb_val);
       auto p_pb = npar("p", pb_val);
 
-      // cálculo de uod
       auto uod_val = compute(uod_corr, 0, 1, check, uod_pars, t_par);
 
       insert_in_container(rs_pars, t_par, pb_par);
@@ -1173,12 +1189,10 @@ void generate_grid()
 
       auto cw_corr = define_correlation(pb, cwb_corr, cwa_corr);
 
-      // cálculo de bobp
       bo_pars.insert(t_par);
       auto bobp = compute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
 			  check, bo_pars, p_pb, rs_pb);
       
-      /// Calculo de uobp
       auto uobp = compute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
 			  check, uo_pars, p_pb, rs_pb);
 
@@ -1186,7 +1200,6 @@ void generate_grid()
 
       uo_pars.insert("uobp", uobp.raw(), &uobp.unit);
 
-      // Cálculo de pobp
       auto pobp = compute(&PobBradley::get_instance(), 0, 1, check, po_pars,
 			  rs_pb, npar("bob", bobp));
 

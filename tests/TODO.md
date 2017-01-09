@@ -29,12 +29,15 @@
 ## 10. ajustar uod en test-calibrate
 - Created at   2016-12-03 09:07:15 -0400
 
-## 11. búsqueda de unidades por tabla hash óptima
-- Created at   2016-12-05 08:24:35 -0400
-
-## 12. unificar FVF-colume-ratio con gas-formation-volume-factor
+## 11. unificar FVF-colume-ratio con gas-formation-volume-factor
 - Created at   2016-12-29 17:36:29 -0400
 
-## 13. hash perfecto para conversiones
-- Created at   2017-01-03 17:54:22 -0400
+## 12. revisar rangos de tpcm en AdjustedtpcmWichertAziz
+- Created at   2017-01-09 12:36:07 -0400
+
+## 13. Capturar excepcion en get_tp
+- Created at   2017-01-09 12:44:19 -0400
+
+## 14. Revisar bien check y exception flags en plot
+- Created at   2017-01-09 12:47:29 -0400
 
