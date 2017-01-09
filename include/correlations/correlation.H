@@ -193,6 +193,7 @@ struct Correlation
   mutable DynList<const BibEntry*> refs;
   mutable bool hidden = false; // indicates whether correlation is or not hidden
   mutable long id = -1;
+  mutable string __target_name = "NOT-DEFINED";
 
 private:
 
@@ -204,13 +205,15 @@ private:
 
   static Array<const Correlation *> correlations_tbl;
 
+  void set_target_name() const
+  {
+    __target_name = to_lower(split_camel_case(name).get_first());
+  }
+
 public:
 
   /// Returns the correlation target name
-  string target_name() const
-  {
-    return to_lower(split_camel_case(name).get_first());
-  }
+  const string & target_name() const { return __target_name; }
 
   // Returns the parameters names in the declaration order
   DynList<string> parameters_signature() const
@@ -517,6 +520,7 @@ protected:
     tbl.insert(name, this);
     correlations_tbl.append(this);
     id = counter++;
+    set_target_name();
   }
 
   Correlation(const string & type_name, const string & subtype_name,

@@ -4,15 +4,10 @@
 # include <correlations/saturated-water-volume-factor.H>
 # include <correlations/spivey-dry.H>
 
-inline double
-BwbSpiveyMN::impl(const double & t, // comes in Celsius
-		  const double & p,
-		  const double & nacl_concentration) noexcept
+void BwbSpiveyMN::precondition(const Quantity<Celsius> & t,
+			       const Quantity<mPascal> & p) const
 {
-  const Quantity<Celsius> tc(t); 
-
-  // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv = PvSpiveyMN::get_instance().call(tc).raw();
+  const double pv = PvSpiveyMN::get_instance().impl(Quantity<Kelvin>(t).raw());
   if (p < pv)
     {
       ostringstream s;
@@ -20,10 +15,17 @@ BwbSpiveyMN::impl(const double & t, // comes in Celsius
 	<< " is less than computed vapor pressure " << pv;
       throw domain_error(s.str());
     }
-
-  return BwSpiveyMNDry::get_instance().call(tc, p, pv, nacl_concentration).raw();
 }
 
+inline double
+BwbSpiveyMN::impl(const double & t, // comes in Celsius
+		  const double & p,
+		  const double & nacl_concentration) noexcept
+{
+  // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
+  const double pv = PvSpiveyMN::get_instance().impl(t);
+  return BwSpiveyMNDry::get_instance().call(t, p, pv, nacl_concentration).raw();
+}
 
 inline double
 BwbMcCain::impl(const double & t,
