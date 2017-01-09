@@ -5,6 +5,21 @@
 # include <correlations/spivey-dry.H>
 # include "water-density.H"
 
+
+void CwaSpiveyMN::precondition(const Quantity<Celsius> & t,
+			       const Quantity<mPascal> & p) const
+{
+  const double pv = PvSpiveyMN::get_instance().impl(Quantity<Kelvin>(t).raw());
+  if (p < pv)
+    {
+      ostringstream s;
+      s << "CwaSpiveyMN::impl: received pressure " << p
+	<< " is less than computed vapor pressure " << pv;
+      throw domain_error(s.str());
+    }
+}
+
+
 inline double
 CwaSpiveyMN::impl(const double & t, // comes in Celsius
 		 const double & p,
@@ -14,13 +29,6 @@ CwaSpiveyMN::impl(const double & t, // comes in Celsius
 
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
   const double pv = PvSpiveyMN::get_instance().impl(tk);
-  if (p < pv)
-    {
-      ostringstream s;
-      s << "CwaSpiveyMN::impl: received pressure " << p
-      << " is less than computed vapor pressure " << pv;
-      throw domain_error(s.str());
-    }
 
   // vgfw: SPECIFIC VOLUME OF METHANE-FREE BRINE
   // Density of methane-free brine at the temperature and pressure of

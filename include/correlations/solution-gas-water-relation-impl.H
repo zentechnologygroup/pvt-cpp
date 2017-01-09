@@ -5,8 +5,8 @@
 # include <correlations/water-density.H>
 # include <correlations/spivey-dry.H>
 
-void RswSpiveyMN::precondition(const Quantity<mPascal> & p,
-			       const Quantity<Celsius> & t) const
+void RswSpiveyMN::precondition(const Quantity<Celsius> & t,
+			       const Quantity<mPascal> & p) const
 {
   const double pv = PvSpiveyMN::get_instance().impl(Quantity<Kelvin>(t).raw());
   if (p < pv)
@@ -26,7 +26,8 @@ RswSpiveyMN::impl(const double & t, // cames in celsius
   const double & m = nacl_concentration;
 
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv = PvSpiveyMN::get_instance().impl(Quantity<Celsius>(t).raw());
+  const double tk = unit_convert<Celsius, Kelvin>(t);
+  const double pv = PvSpiveyMN::get_instance().impl(tk);
 
   // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
   // AT THE TEMPERATURE AND PRESSURE OF EVALUATION

@@ -18,17 +18,16 @@ void PwSpiveyMN::precondition(const Quantity<Celsius> & t,
 }
 
 inline double
-PwSpiveyMN::impl(const double & t, // comes in Fahrenheit
+PwSpiveyMN::impl(const double & t, // comes in Celsius
 		 const double & p,
 		 const double & nacl_concentration) noexcept
 {
   const double m = nacl_concentration;
 
-  // Transformation from °F to °K
-  const double tk = Quantity<Kelvin>(t).raw();
+  const double tk = unit_convert<Celsius, Kelvin>(t);
 
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv = PvSpiveyMN::get_instance().impl(Quantity<Celsius>(t).raw());
+  const double pv = PvSpiveyMN::get_instance().impl(tk);
 
   // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
   // AT THE TEMPERATURE AND PRESSURE OF EVALUATION

@@ -23,7 +23,8 @@ BwbSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & nacl_concentration) noexcept
 {
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
-  const double pv = PvSpiveyMN::get_instance().impl(t);
+  const double tk = unit_convert<Celsius, Kelvin>(t);
+  const double pv = PvSpiveyMN::get_instance().impl(tk);
   return BwSpiveyMNDry::get_instance().call(t, p, pv, nacl_concentration).raw();
 }
 

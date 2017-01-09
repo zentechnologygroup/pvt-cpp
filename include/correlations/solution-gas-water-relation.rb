@@ -5,7 +5,7 @@ add_title("SPIVEY, McCAIN & NORTH CORRELATION, CALCULATION OF THE SOLUTION GAS-W
 add_db("The volumetric properties of oilfield brines were obtained by combining the correlations developed by Spivey, McCain & North (2004), for density of methane-free sodium chloride brine and solubility of methane in sodium chloride brines, with published correlations for specific volume and partial molar volume of methane in brine.")
 add_parameter("t", "Celsius", "Temperature",  0,  275) 
 add_parameter("p", "mPascal", "Pressure",  0.1,  200)
-add_precondition("p", "t")
+add_precondition("t", "p")
 add_parameter("nacl_concentration", "Molality_NaCl", "Dissolved salt concentration", 0, 5.7) 
 add_author("Spivey, McCain & North")
 add_ref("spivey:2004")

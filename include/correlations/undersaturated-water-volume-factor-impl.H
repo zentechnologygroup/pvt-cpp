@@ -4,6 +4,20 @@
 # include <correlations/undersaturated-water-volume-factor.H>
 # include <correlations/spivey-dry.H>
 
+
+void BwaSpiveyMN::precondition(const Quantity<Celsius> & t,
+			       const Quantity<mPascal> & p) const
+{
+  const double pv = PvSpiveyMN::get_instance().impl(Quantity<Kelvin>(t).raw());
+  if (p < pv)
+    {
+      ostringstream s;
+      s << "BwaSpiveyMN::impl: received pressure " << p
+	<< " is less than computed vapor pressure " << pv;
+      throw domain_error(s.str());
+    }
+}
+
 inline double
 BwaSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & p,
@@ -13,13 +27,6 @@ BwaSpiveyMN::impl(const double & t, // comes in Celsius
   
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
   const double pv = PvSpiveyMN::get_instance().impl(tk);
-  if (p < pv)
-    {
-      ostringstream s;
-      s << "BwaSpiveyMN::impl: received pressure " << p
-	<< " is less than computed vapor pressure " << pv;
-      throw domain_error(s.str());
-    }
 
   return BwSpiveyMNDry::get_instance().impl(t, p, pv, nacl_concentration);
 }
