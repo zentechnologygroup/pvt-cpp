@@ -37,7 +37,7 @@ void BwaMcCain::precondition(const Quantity<psia> & p,
   if (not (p > pb))
     {
       ostringstream s;
-      s << "BwaMcCain::impl: pressure " << p << " is not greater than pb" << pb;
+      s << "BwaMcCain::impl: pressure " << p << " is not greater than pb " << pb;
       throw domain_error(s.str());
     }
 }

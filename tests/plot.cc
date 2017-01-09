@@ -1078,6 +1078,9 @@ void generate_grid()
 
   set_t_range();
   set_p_range();
+
+  const Unit * pressure_unit = get<3>(p_values.get_first());
+
   if (below_corr_arg.isSet())
     error_msg("below option is incompatible with grid option");
   if (above_corr_arg.isSet())
@@ -1157,6 +1160,7 @@ void generate_grid()
 	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
       auto pb = pb_val.raw();
       auto pb_par = npar("pb", pb_val);
+      VtlQuantity pb_q(*pressure_unit, pb); // debe set la misa unidad que p_par
       auto p_pb = npar("p", pb_val);
 
       auto uod_val = compute(uod_corr, 0, 1, check, uod_pars, t_par);
@@ -1231,8 +1235,10 @@ void generate_grid()
 	  auto bg = Bg::get_instance().call(par(t_par), par(p_par), z);
 	  auto ug = compute(ug_corr, 0, 1, check, ug_pars,
 			    p_par, npar("ppr", ppr), NPAR(z));
-	  auto pg =
-	    Pg::get_instance().call(yg, pb_val, par(t_par), par(p_par), z).raw();
+	  auto pg = Invalid_Value;
+	  if (VtlQuantity(*get<3>(p_par), get<2>(p_par)) < pb_q)
+	    pg = Pg::get_instance().call(yg, pb_val, par(t_par),
+					 par(p_par), z).raw();
 	  auto bw = compute(bw_corr, check, bw_pars, p_par);
 	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
 	  auto pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par);
