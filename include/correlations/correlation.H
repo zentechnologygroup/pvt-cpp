@@ -1165,15 +1165,18 @@ Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation, "\\sigma_{go}
 Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation, "\\mu_{od}");
 
     // correlations & functions associated to gas
-Declare_Correlation_Subtype(GasPseudocriticalPressure, GasCorrelation, "P_{pc}");
+Declare_Correlation_Subtype(HydrocarbonGasPseudocriticalPressure, GasCorrelation, "P_{pcHC}");
+Declare_Correlation_Subtype(MixtureGasPseudocriticalPressure, GasCorrelation, "P_{pcM}");
 Declare_Correlation_Subtype(GasPseudocriticalPressureC7, GasCorrelation,
 			    "P_{pcC_7+}");
 Declare_Correlation_Subtype(GasViscosity, GasCorrelation, "\\mu_{g}");
 Declare_Correlation_Subtype(GasDensity, GasFunction, "\\rho_{g}")
 Declare_Correlation_Subtype(GasVolumeFactor, GasFunction, "B_{g}");
 Declare_Correlation_Subtype(GasCompressibility, GasCorrelation, "Z\\ factor");
-Declare_Correlation_Subtype(GasPseudocriticalTemperature, GasCorrelation,
-			    "T_{pc}");
+Declare_Correlation_Subtype(HydrocarbonGasPseudocriticalTemperature, GasCorrelation,
+			    "T_{pcHC}");
+Declare_Correlation_Subtype(MixtureGasPseudocriticalTemperature, GasCorrelation,
+			    "T_{pcM}");
 //Declare_Correlation_Subtype(GasSpecificGravity, GasCorrelation, "\\gamma_g");
 Declare_Correlation_Subtype(HydrocarbonGasSpecificGravity, GasCorrelation, "\\gamma_{gHC}");
 Declare_Correlation_Subtype(GasIsothermalCompressibility, GasCorrelation,

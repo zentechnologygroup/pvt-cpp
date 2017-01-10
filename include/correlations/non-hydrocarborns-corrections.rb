@@ -17,7 +17,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("PpcmKayMixingRule", "GasPseudocriticalPressure", "psia")
+begin_correlation("PpcmKayMixingRule", "MixtureGasPseudocriticalPressure", "psia")
 add_title("KAY'S MIXING RULE, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE WHOLE GAS MIXTURE")
 add_parameter("ppchc", "psia", "Gas pseudocritical pressure of the hydrocarbon portion")
 add_parameter("n2_concentration", "MoleFraction", "N2 concentration")
@@ -35,7 +35,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("AdjustedppcmWichertAziz", "GasPseudocriticalPressure", "psia")
+begin_correlation("AdjustedppcmWichertAziz", "MixtureGasPseudocriticalPressure", "psia")
 add_title("WICHERT & AZIZ CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE WHOLE GAS MIXTURE")
 add_parameter("ppcm", "psia", "Gas pseudocritical pressure of the mixture", 154, 7026)
 add_parameter("tpcm", "Fahrenheit", "Gas pseudocritical temperature of the mixture", 40, 300)
@@ -52,7 +52,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("TpcmKayMixingRule", "GasPseudocriticalTemperature", "Rankine")
+begin_correlation("TpcmKayMixingRule", "MixtureGasPseudocriticalTemperature", "Rankine")
 add_title("KAY'S MIXING RULE, CALCULATION OF PSEUDOCRITICAL TEMPERATURE OF THE WHOLE GAS MIXTURE")
 add_parameter("tpchc", "Rankine", "Gas pseudocritical temperature of the hydrocarbon portion")
 add_parameter("n2_concentration", "MoleFraction", "N2 concentration")
@@ -70,7 +70,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("AdjustedtpcmWichertAziz", "GasPseudocriticalTemperature",
+begin_correlation("AdjustedtpcmWichertAziz", "MixtureGasPseudocriticalTemperature",
                   "Rankine")
 add_title("WICHERT & AZIZ CORRELATION, CALCULATION OF PSEUDOCRITICAL TEMPERATURE OF THE WHOLE GAS MIXTURE")
 add_parameter("tpcm", "Rankine", "Gas pseudocritical temperature of the mixture", "Quantity<Fahrenheit>(40)", "Quantity<Fahrenheit>(300)") 
