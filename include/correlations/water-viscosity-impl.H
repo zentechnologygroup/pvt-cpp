@@ -9,7 +9,7 @@ UwMaoDuan::impl(const double & t,
 		const double & nacl_concentration,
 		const double & ppw) noexcept
 {
-  const double t2 = t*2;
+  const double t2 = t*t;
   
   // Viscosity of pure water [Pa.s]
   const double upw = exp((0.28853170e7/t2 + -0.11072577e5/t +
