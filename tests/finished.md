@@ -820,3 +820,15 @@
 - Comment      
 - Finished     
 
+## 138. Capturar excepcion en get_tp
+- Created at   2017-01-09 12:44:19 -0400
+- Completed at 2017-01-10 09:46:59 -0400
+- Comment      
+- Finished     
+
+## 139. poner en test-conversion flag para descripcion
+- Created at   2016-09-12 09:44:10 -0400
+- Completed at 2017-01-10 09:47:17 -0400
+- Comment      
+- Finished     
+

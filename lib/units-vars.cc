@@ -45,7 +45,7 @@ UnitHashTbl __unit_symbol_symbol_tbl(500, name_unit_pair_hash);
 UnitMap __unit_map(1000, fst_unit_pair_hash, snd_unit_pair_hash);
 CompoundUnitTbl __compound_unit_tbl;
 
-static std::mutex unit_mutex;
+//static std::mutex unit_mutex;
 
 const PhysicalQuantity
 PhysicalQuantity::null_physical_quantity("NullPhysicalQuantity", "NullPQ",
@@ -55,18 +55,20 @@ const Unit Unit::null_unit("NullUnit", "Null Unit", "Null unit",
 			   PhysicalQuantity::null_physical_quantity,
 			   0.0, 1.0, 0.1);
 
-const VtlQuantity VtlQuantity::null_quantity(Unit::null_unit, 0);
+static const double val_null_quantity = numeric_limits<double>::max();
+
+const VtlQuantity VtlQuantity::null_quantity(Unit::null_unit, val_null_quantity);
 
 bool conversion_exist(const char * src_symbol, const char * tgt_symbol)
 {
-  std::lock_guard<std::mutex> critical_section(unit_mutex);
+  //std::lock_guard<std::mutex> critical_section(unit_mutex);
   return exist_conversion(src_symbol, tgt_symbol);
 }
 
 double unit_convert(const char * src_symbol, const char * tgt_symbol,
 		    double val)
 {
-  std::lock_guard<std::mutex> critical_section(unit_mutex);
+  //std::lock_guard<std::mutex> critical_section(unit_mutex);
   return unit_convert_symbol_to_symbol(src_symbol, val, tgt_symbol);
 }
 
