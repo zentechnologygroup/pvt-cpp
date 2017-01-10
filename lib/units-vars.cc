@@ -42,7 +42,7 @@ UnitHashTbl __unit_name_name_tbl(500, name_unit_pair_hash);
 UnitHashTbl __unit_name_symbol_tbl(500, name_unit_pair_hash);
 UnitHashTbl __unit_symbol_name_tbl(500, name_unit_pair_hash);
 UnitHashTbl __unit_symbol_symbol_tbl(500, name_unit_pair_hash);
-UnitMap __unit_map(1000, fst_unit_pair_hash, snd_unit_pair_hash);
+UnitMap __unit_map(2000, fst_unit_pair_hash, snd_unit_pair_hash);
 CompoundUnitTbl __compound_unit_tbl;
 
 //static std::mutex unit_mutex;

@@ -1236,7 +1236,7 @@ void generate_grid()
 	  auto ug = compute(ug_corr, 0, 1, check, ug_pars,
 			    p_par, npar("ppr", ppr), NPAR(z));
 	  auto pg = p_q < pb_q ?
-            Pg::get_instance().call(yg, pb_q, t_q, p_q, z).raw() : Invalid_Value;
+            Pg::get_instance().call(yg, t_q, p_q, z).raw() : Invalid_Value;
 	  auto bw = compute(bw_corr, check, bw_pars, p_par);
 	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
 	  auto pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par);

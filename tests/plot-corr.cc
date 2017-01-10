@@ -1250,14 +1250,13 @@ void generate_grid()
 	    rsw = INVALID_VALUE, cw = INVALID_VALUE;
 	  try
 	    {
-	      auto z = zfactor_corr->compute(ppr_val, tpr_val);
+	      auto z = zfactor_corr->compute({ppr_val, tpr_val});
 	      zfactor = z.raw();
 	      auto __bg = Bg::get_instance().call(par(t_par), par(p_par), z);
 	      bg = __bg.raw();
 	      ug = compute(ug_corr, 0, 1, check, ug_pars_list,
 			   p_par, p_par, npar("ppr", ppr_val), NPAR(z)).raw();
-	      pg = Pg::get_instance().call(yg, pb_val, par(t_par),
-					   par(p_par), z).raw();
+	      pg = Pg::get_instance().call(yg, par(t_par), par(p_par), z).raw();
 
 	      // TODO TMP: esta fallando. Por eso se pone aquí
 	      bw = compute(bw_corr, check, bw_pars_list, p_par);
