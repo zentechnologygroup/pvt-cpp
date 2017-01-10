@@ -1,6 +1,6 @@
 # coding: utf-8
 
-begin_correlation("TpchcStanding", "GasPseudocriticalTemperature", "Rankine",
+begin_correlation("TpchcStanding", "HydrocarbonGasPseudocriticalTemperature", "Rankine",
          345, 670)
 add_parameter('yghc', 'Sgg', "Gas gravity of the hydrocarbon portion", 0.55, 1.67)
 add_title("STANDING CORRELATION, CALCULATION OF PSEUDOCRITICAL TEMPERATURE OF THE DRY GAS HYDROCARBON PORTION")
@@ -17,13 +17,13 @@ add_ref('brown:1948')
 add_ref('ahmed:1989')
 add_ref("whitson:2000")
 # add_ref("banzer:1996") Secondary reference
-add_author("Standing (HC Portion)")
+add_author("Standing")
 end_correlation()
 
 ################################################################
 
 begin_correlation("TpchcStandingHeavierFractions",
-         "GasPseudocriticalTemperature", "Rankine", 350, 495)
+         "HydrocarbonGasPseudocriticalTemperature", "Rankine", 350, 495)
 add_parameter('yghc', 'Sgg', "Gas gravity of the hydrocarbon portion", 0.58, 1.3)
 add_title("STANDING CORRELATION, CALCULATION OF PSEUDOCRITICAL TEMPERATURE OF THE WET OR \\\"CONDENSATE\\\" GAS HYDROCARBON PORTION")
 add_db("Calculation of pseudocritical temperature of the wet or \\\"condensate\\\" gas hydrocarbon portion.")
@@ -38,13 +38,13 @@ add_ref('brown:1948')
 add_ref('ahmed:1989')
 # add_ref("banzer:1996") Secondary reference
 add_note("The correlation was developed with samples containing concentrations of nitrogen, carbon dioxide, and hydrogen sulfide, up to 5 mol %, 2 mol %, and 2 mol %, respectively.") 
-add_author("Standing (HC Portion for Heavier Fractions)")
+add_author("Standing (Heavier Fractions)")
 end_correlation()
 
 ################################################################
 
 begin_correlation("TpchcSutton",
-                  "GasPseudocriticalTemperature", "Rankine", 330 , 575)
+                  "HydrocarbonGasPseudocriticalTemperature", "Rankine", 330 , 575)
 add_parameter('yghc', 'Sgg', "Gas gravity of the hydrocarbon portion", 0.571, 1.679)
 add_title("SUTTON CORRELATION, CALCULATION OF PSEUDOCRITICAL TEMPERATURE OF THE NATURAL GAS HYDROCARBON PORTION")
 add_db("Calculation of pseudocritical temperature of the natural gas hydrocarbon portion.")
@@ -54,13 +54,13 @@ add_internal_note("The ranges for Yg, n2Concentration, and co2Concentration, are
 add_note("Sutton's correlation was developed based on samples of gases with no hydrogen sulfide content.")
 add_note("The samples contained nitrogen (0 mol % to 2.86 mol %), carbon dioxide (0.01 mol % to 11.86 mol %), and heptanes-plus (0.02 mol % to 14.27 mol %).")
 add_ref('sutton:1985')
-add_author("Sutton (HC Portion)")
+add_author("Sutton")
 end_correlation()
 
 ################################################################
 
 begin_correlation("TpchcElsharkawyEtAl",
-         "GasPseudocriticalTemperature", "Rankine")
+         "HydrocarbonGasPseudocriticalTemperature", "Rankine")
 add_parameter("yghc", "Sgg", "Gas gravity of the hydrocarbon portion", 0.61, 1.89)
 add_title("ELSHARKAWY ET AL. CORRELATION, CALCULATION OF PSEUDOCRITICAL TEMPERATURE OF THE CONDENSATE GAS HYDROCARBON PORTION")
 add_db("Calculation of pseudocritical temperature of the \\\"condensate\\\" gas hydrocarbon portion.")
@@ -70,6 +70,6 @@ add_ref('elsharkawy:2000:2')
 add_note("The correlation was developed with samples containing concentrations of nitrogen, carbon dioxide, and hydrogen sulfide, up to 12.84 mol %, 67.12 mol %, and 31.82 mol %, respectively.")
 add_note("The samples also contained heptanes-plus in the range from 0.22 mol % to 17.2 mol %.")
 add_internal_note("The correlation was verified by using the original reference and a secondary one: Elsharkawy & Elkamel (2000). Date: September 22 2016.")
-add_author("Elsharkawy et al. (HC Portion)")
+add_author("Elsharkawy et al.")
 end_correlation()
 

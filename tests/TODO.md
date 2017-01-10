@@ -35,3 +35,10 @@
 ## 12. Revisar bien check y exception flags en plot
 - Created at   2017-01-09 12:47:29 -0400
 
+## 13. Hacer medidas de rendiemiento con varias funciones hash
+- Created at   2017-01-10 12:10:08 -0400
+
+## 14. probar olhash
+- Created at    pues como es string podría ser más rápido
+- Completed at 2017-01-10 12:45:06 -0400
+
