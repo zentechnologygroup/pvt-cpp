@@ -7,7 +7,7 @@
 void Pg::precondition(const Quantity<psia> & p,
 		      const Quantity<psia> & pb) const
 {
-  if (p > pb)
+  if (not (p <= pb))
     {
       ostringstream s;
       s << "In Pg::impl: parameter p = " << p

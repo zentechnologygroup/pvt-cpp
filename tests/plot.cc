@@ -1154,14 +1154,13 @@ void generate_grid()
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       auto t_par = t_it.get_curr();
-      auto tpr = Tpr::get_instance().call(par(t_par), adjustedtpcm);
+      VtlQuantity t_q = par(t_par);
+      auto tpr = Tpr::get_instance().call(t_q, adjustedtpcm);
 
-      auto pb_val = // calculo de pb
-	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
-      auto pb = pb_val.raw();
-      auto pb_par = npar("pb", pb_val);
-      VtlQuantity pb_q(*pressure_unit, pb); // debe set la misa unidad que p_par
-      auto p_pb = npar("p", pb_val);
+      auto pb_q = compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
+      auto pb = pb_q.raw();
+      auto pb_par = npar("pb", pb_q);
+      auto p_pb = npar("p", pb_q);
 
       auto uod_val = compute(uod_corr, 0, 1, check, uod_pars, t_par);
 
@@ -1217,12 +1216,13 @@ void generate_grid()
       cwa_pars.insert(t_par);
 
       size_t n =
-	row.ninsert(get<2>(t_par), pb, uod_val.raw(), bobp.raw(), uobp.raw());
+	row.ninsert(t_q.raw(), pb, uod_val.raw(), bobp.raw(), uobp.raw());
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  auto p_par = p_it.get_curr();
-	  auto ppr = Ppr::get_instance().call(par(p_par), adjustedppcm);
+	  VtlQuantity p_q = par(p_par);
+	  auto ppr = Ppr::get_instance().call(p_q, adjustedppcm);
 	  auto rs = compute(rs_corr, check, rs_pars, p_par);
 	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
 	  auto co = compute(co_corr, check, co_pars, p_par);
@@ -1232,13 +1232,11 @@ void generate_grid()
 	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
 	  auto z = compute(zfactor_corr, 0, 1, check, NPAR(ppr), NPAR(tpr));
-	  auto bg = Bg::get_instance().call(par(t_par), par(p_par), z);
+	  auto bg = Bg::get_instance().call(t_q, p_q, z);
 	  auto ug = compute(ug_corr, 0, 1, check, ug_pars,
 			    p_par, npar("ppr", ppr), NPAR(z));
-	  auto pg = Invalid_Value;
-	  if (VtlQuantity(*get<3>(p_par), get<2>(p_par)) < pb_q)
-	    pg = Pg::get_instance().call(yg, pb_val, par(t_par),
-					 par(p_par), z).raw();
+	  auto pg = p_q < pb_q ?
+            Pg::get_instance().call(yg, pb_q, t_q, p_q, z).raw() : Invalid_Value;
 	  auto bw = compute(bw_corr, check, bw_pars, p_par);
 	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
 	  auto pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par);
@@ -1247,13 +1245,11 @@ void generate_grid()
 	  auto cwa = compute(cwa_corr, 0, 1, check, cwa_pars, p_par, rsw_par);
 	  auto cw = compute(cw_corr, check, cw_pars, p_par, NPAR(z),
 			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
-	  auto ppw = PpwSpiveyMN::get_instance().call(par(t_par), par(p_par));
-	  auto uw =
-	    compute(uw_corr, 0, 1, check, uw_pars, p_par, NPAR(ppw)).raw();
+	  auto ppw = PpwSpiveyMN::get_instance().call(t_q, par(p_par));
+	  auto uw = compute(uw_corr, 0, 1, check, uw_pars, p_par, NPAR(ppw)).raw();
 
-	  size_t n =
-	    row.ninsert(get<2>(p_par), rs, co, bo, uo, po, z.raw(), bg.raw(),
-			ug.raw(), pg, bw, uw, pw.raw(), rsw.raw(), cw);
+	  size_t n = row.ninsert(p_q.raw(), rs, co, bo, uo, po, z.raw(), bg.raw(),
+				 ug.raw(), pg, bw, uw, pw.raw(), rsw.raw(), cw);
 
 	  assert(row.size() == 20);
 

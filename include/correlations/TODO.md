@@ -7,6 +7,3 @@
 - Completed at 
 - Comment      Por ejemplo los nombres de tipo y subtipo y las descripciones de los parámetros
 
-## 3. mejorar performance de target_name
-- Created at   2017-01-08 13:23:32 -0400
-

@@ -658,6 +658,9 @@ public:
 	fabs(value - unit.max_val) <= unit.get_epsilon())
       return true;
 
+    if (&unit == &Unit::null_unit)
+      return true;
+
     return false;
   }
 

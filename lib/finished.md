@@ -34,3 +34,9 @@
 - Comment      
 - Finished     
 
+## 7. veriicar reentrancia de libpvt.so
+- Created at   2016-09-29 17:25:11 -0400
+- Completed at 2017-01-10 09:46:39 -0400
+- Comment      
+- Finished     
+

@@ -1,3 +1,2 @@
 Revisar Densidad del agua pura. Consierar posibilidad de que tener varias correlaiones y pasarlas como parámetros a otras correlaciones,2016-10-11 15:55:50 -0400,,
 optimizar uso de memoria en atributos de correlación,2017-01-06 17:11:02 -0400,,Por ejemplo los nombres de tipo y subtipo y las descripciones de los parámetros
-mejorar performance de target_name,2017-01-08 13:23:32 -0400,,
