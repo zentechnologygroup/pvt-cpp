@@ -1,0 +1,7 @@
+,disabled,yghc,yghc unit,result,result unit,tolerance,Note,"ref ""banzer:1996"""
+TpchcSutton,,1.211,Sgg,483.9,Rankine,1,,1
+TpchcStanding,,1.211,Sgg,543.2,Rankine,1,,1
+TpchcStanding,TRUE,,,,,,,
+TpchcStandingHeavierFractions,TRUE,,,,,,,
+TpchcSutton,TRUE,,,,,,,
+TpchcElsharkawyEtAl,TRUE,,,,,,,
