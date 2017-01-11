@@ -321,9 +321,9 @@ double unit_convert(double /* val */)
 inline Unit_Convert_Fct_Ptr search_conversion(const Unit & src, const Unit & tgt)
 {
   using UP = pair<const Unit*, const Unit*>;
-  using UF = pair<UP, Unit_Convert_Fct_Ptr>;
-  auto p = __unit_map.search(UF(UP(&src, &tgt), nullptr));
-  return p == nullptr ? nullptr : p->second;
+  pair<UP, Unit_Convert_Fct_Ptr> p(UP(&src, &tgt), nullptr);
+  auto ptr = __unit_map.search(p);
+  return ptr == nullptr ? nullptr : ptr->second;
 }
 
 template <class SrcUnit, class TgtUnit>
@@ -643,13 +643,14 @@ protected:
 
   double value;
 
-  BaseQuantity(const Unit & __unit) : unit(__unit), value(unit.min_val) {}
+  BaseQuantity(const Unit & __unit) noexcept : unit(__unit), value(unit.min_val) {}
   
-  BaseQuantity(const Unit & __unit, double val) : unit(__unit), value(val) {}
+  BaseQuantity(const Unit & __unit, double val) noexcept
+    : unit(__unit), value(val) {}
 
 public:
 
-  static bool is_valid(double value, const Unit & unit)
+  static bool is_valid(double value, const Unit & unit) noexcept
   {
     if (value >= unit.min_val and value <= unit.max_val)
       return true;
