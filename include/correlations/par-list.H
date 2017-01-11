@@ -87,10 +87,7 @@ public:
 	  {
 	    ValPair val_pair = ptr->second;
 	    VtlQuantity ret(*val_pair.second, val_pair.first);
-	    if (val_pair.second == p.second) // el parámetro en la misma unidad?
-	      return ret;
-	    else
-	      return VtlQuantity(*p.second, ret);
+	    return VtlQuantity(*p.second, ret);
 	  }
       }
     ostringstream s;
