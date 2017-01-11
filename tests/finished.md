@@ -832,3 +832,15 @@
 - Comment      
 - Finished     
 
+## 140. test-corr podría recibir c y m para calibración
+- Created at   2016-11-18 09:02:50 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 141. probar olhash
+- Created at    pues como es string podría ser más rápido
+- Completed at 2017-01-11 10:33:49 -0400
+- Comment      
+- Finished     
+

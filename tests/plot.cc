@@ -1079,8 +1079,6 @@ void generate_grid()
   set_t_range();
   set_p_range();
 
-  const Unit * pressure_unit = get<3>(p_values.get_first());
-
   if (below_corr_arg.isSet())
     error_msg("below option is incompatible with grid option");
   if (above_corr_arg.isSet())
