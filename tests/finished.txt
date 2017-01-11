@@ -137,3 +137,5 @@ hash perfecto para conversiones,2017-01-03 17:54:22 -0400,2017-01-09 12:36:37 -0
 búsqueda de unidades por tabla hash óptima,2016-12-05 08:24:35 -0400,2017-01-09 12:36:32 -0400,,2017-01-09 12:36:48 -0400
 Capturar excepcion en get_tp,2017-01-09 12:44:19 -0400,2017-01-10 09:46:59 -0400,,2017-01-10 09:47:01 -0400
 poner en test-conversion flag para descripcion,2016-09-12 09:44:10 -0400,2017-01-10 09:47:17 -0400,,2017-01-10 09:47:21 -0400
+test-corr podría recibir c y m para calibración,2016-11-18 09:02:50 -0400,,,2017-01-11 10:14:11 -0400
+probar olhash, pues como es string podría ser más rápido,2017-01-11 10:33:49 -0400,,2017-01-11 10:33:54 -0400

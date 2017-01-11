@@ -321,7 +321,7 @@ double unit_convert(double /* val */)
 inline Unit_Convert_Fct_Ptr search_conversion(const Unit & src, const Unit & tgt)
 {
   using UP = pair<const Unit*, const Unit*>;
-  pair<UP, Unit_Convert_Fct_Ptr> p(UP(&src, &tgt), nullptr);
+  pair<UP, Unit_Convert_Fct_Ptr> p; p.first = UP(&src, &tgt); // ahorra copia
   auto ptr = __unit_map.search(p);
   return ptr == nullptr ? nullptr : ptr->second;
 }

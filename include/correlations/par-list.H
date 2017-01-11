@@ -39,7 +39,7 @@ class ParList
 public:
   HashParTbl tbl;
 
-  static const size_t tbl_size = 100;
+  static const size_t tbl_size = 40;
 
 public:
 
@@ -77,20 +77,17 @@ public:
   /// parámetro y sus sinónimos 
   VtlQuantity search(const DynList<pair<string, const Unit*>> & names) const
   {
-    static ValPair null_val(0, &Unit::null_unit);
     for (auto it = names.get_it(); it.has_curr(); it.next())
       {
 	const auto & p = it.get_curr();
 	const string & name = p.first;
-	auto ptr = tbl.search(ParPair(name, null_val));
+	ParPair pp; pp.first = name; // sin copia hacia second
+	auto ptr = tbl.search(pp);
 	if (ptr)
 	  {
 	    ValPair val_pair = ptr->second;
 	    VtlQuantity ret(*val_pair.second, val_pair.first);
-	    if (val_pair.second == p.second) // el parámetro en la misma unidad?
-	      return ret;
-	    else
-	      return VtlQuantity(*p.second, ret);
+	    return VtlQuantity(*p.second, ret);
 	  }
       }
     ostringstream s;
