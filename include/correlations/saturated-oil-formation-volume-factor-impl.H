@@ -163,6 +163,16 @@ BobStanding::impl(const double & yg,
 }
 
 inline double
+BobLasater::impl(const double & yg,
+		 const double & yo,
+		 const double & rs,
+		 const double & t) noexcept
+{
+  const double bob = BobStanding::get_instance().impl(yg, yo, rs, t);
+  return bob;
+}
+
+inline double
 BobPetroskyFarshad::impl(const double & yg,
 			const double & yo,
 			const double & rs,

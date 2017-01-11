@@ -122,6 +122,7 @@ struct CorrelationInstantiater
     BobVelardeMcCain::get_instance();
     BobMillanArcia::get_instance();
     BobManucciRosales::get_instance();
+    BobLasater::get_instance();
 
     BoaMcCain::get_instance();
     BobMillanArcia::get_instance();
