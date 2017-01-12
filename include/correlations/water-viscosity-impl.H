@@ -90,10 +90,12 @@ UwMcCoy::impl(const double & t,
 	      const double & nacl_concentration) noexcept
 {
   const double s = nacl_concentration;
+  
   const double uwp = 0.02414 * pow(10, 247.8/(t - 140));
 
+  const double tf = unit_convert<Kelvin, Fahrenheit>(t);
   const double uw = uwp * (1 - 1.87e-3*sqrt(s) + 2.18e-4*pow(s, 2.5) +
-			   ((sqrt(t) - 1.35e-2*t) *
+			   ((sqrt(tf) - 1.35e-2*tf) *
 			    (2.76e-3*s - 3.44e-4*pow(s, 1.5))));
 
   return uw;
