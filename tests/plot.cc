@@ -777,6 +777,14 @@ void store_exception(const string & corr_name,
     }
 }
 
+void store_exception(const string & corr_name, double t, double p
+		     , const exception & e)
+{
+  ostringstream s;
+  s << corr_name << ": " << t << ", " << p << ": " << e.what();
+  exception_list.append(s.str());
+}
+
 template <typename ... Args> inline
 VtlQuantity compute(const Correlation * corr_ptr,
 		    double c, double m, bool check,
@@ -798,6 +806,18 @@ VtlQuantity compute(const Correlation * corr_ptr,
     }
   return VtlQuantity::null_quantity; 
 }
+
+// Macro para crear variable var con el valor de la correlación corr_name
+# define CALL(corr_name, var, t, p, args...)			\
+  VtlQuantity var = VtlQuantity::null_quantity;			\
+  try									\
+    {									\
+      var = corr_name::get_instance().call(args);			\
+    }									\
+  catch (exception & e)							\
+    {									\
+      store_exception(corr_name::get_instance().name, t, p, e);		\
+    }
 
 template <typename ... Args> inline
 double compute(const DefinedCorrelation & corr, bool check,
@@ -1230,11 +1250,10 @@ void generate_grid()
 	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
 	  auto z = compute(zfactor_corr, 0, 1, check, NPAR(ppr), NPAR(tpr));
-	  auto bg = Bg::get_instance().call(t_q, p_q, z);
+	  CALL(Bg, bg, t_q.raw(), p_q.raw(), t_q, p_q, z);
 	  auto ug = compute(ug_corr, 0, 1, check, ug_pars,
 			    p_par, npar("ppr", ppr), NPAR(z));
-	  auto pg = p_q < pb_q ?
-            Pg::get_instance().call(yg, t_q, p_q, z).raw() : Invalid_Value;
+	  CALL(Pg, pg, t_q.raw(), p_q.raw(), yg, t_q, p_q, z);
 	  auto bw = compute(bw_corr, check, bw_pars, p_par);
 	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
 	  auto pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par);
@@ -1243,11 +1262,12 @@ void generate_grid()
 	  auto cwa = compute(cwa_corr, 0, 1, check, cwa_pars, p_par, rsw_par);
 	  auto cw = compute(cw_corr, check, cw_pars, p_par, NPAR(z),
 			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
-	  auto ppw = PpwSpiveyMN::get_instance().call(t_q, par(p_par));
+	  CALL(PpwSpiveyMN, ppw, t_q.raw(), p_q.raw(), t_q, p_q);
 	  auto uw = compute(uw_corr, 0, 1, check, uw_pars, p_par, NPAR(ppw)).raw();
 
-	  size_t n = row.ninsert(p_q.raw(), rs, co, bo, uo, po, z.raw(), bg.raw(),
-				 ug.raw(), pg, bw, uw, pw.raw(), rsw.raw(), cw);
+	  size_t n = row.ninsert(p_q.raw(), rs, co, bo, uo, po, z.raw(),
+				 bg.raw(), ug.raw(), pg.raw(), bw, uw, pw.raw(),
+				 rsw.raw(), cw);
 
 	  assert(row.size() == 20);
 
