@@ -808,8 +808,8 @@ VtlQuantity compute(const Correlation * corr_ptr,
 }
 
 // Macro para crear variable var con el valor de la correlación corr_name
-# define CALL(corr_name, var, t, p, args...)			\
-  VtlQuantity var = VtlQuantity::null_quantity;			\
+# define CALL(corr_name, var, t, p, args...)				\
+  VtlQuantity var = VtlQuantity::null_quantity;				\
   try									\
     {									\
       var = corr_name::get_instance().call(args);			\
