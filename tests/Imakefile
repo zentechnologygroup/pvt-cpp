@@ -32,7 +32,7 @@ LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
 
 TESTSRCS = test-all-units-1.cc test-conversion.cc test-corr.cc test-seq.cc \
 	test-biblio.cc test-json.cc test-tuning.cc test-analyse.cc \
-	test-empirical-json.cc test-fluid-analysis.cc \
+	test-empirical-json.cc test-fluid-analysis.cc test-hash.cc\
 	test-bob-cal.cc test-boa-cal.cc test-rs-cal.cc test-def-corr.cc \
 	test-uo-cal.cc test-calibrate.cc plot-corr.cc test-par.cc plot.cc
 
@@ -42,6 +42,9 @@ SRCS = $(TESTSRCS)
 
 AllTarget(test-conversion)
 NormalProgramTarget(test-conversion,test-conversion.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(test-hash)
+NormalProgramTarget(test-hash,test-hash.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(test-corr)
 NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))

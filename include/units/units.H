@@ -643,7 +643,8 @@ protected:
 
   double value;
 
-  BaseQuantity(const Unit & __unit) noexcept : unit(__unit), value(unit.min_val) {}
+  BaseQuantity(const Unit & __unit) noexcept
+    : unit(__unit), value(unit.min_val) {}
   
   BaseQuantity(const Unit & __unit, double val) noexcept
     : unit(__unit), value(val) {}

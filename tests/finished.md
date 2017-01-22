@@ -844,3 +844,9 @@
 - Comment      
 - Finished     
 
+## 142. revisar rangos de tpcm en AdjustedtpcmWichertAziz
+- Created at   2017-01-09 12:36:07 -0400
+- Completed at 2017-01-12 11:16:15 -0400
+- Comment      
+- Finished     
+

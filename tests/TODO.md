@@ -26,12 +26,9 @@
 ## 9. unificar FVF-colume-ratio con gas-formation-volume-factor
 - Created at   2016-12-29 17:36:29 -0400
 
-## 10. revisar rangos de tpcm en AdjustedtpcmWichertAziz
-- Created at   2017-01-09 12:36:07 -0400
-
-## 11. Revisar bien check y exception flags en plot
+## 10. Revisar bien check y exception flags en plot
 - Created at   2017-01-09 12:47:29 -0400
 
-## 12. Hacer medidas de rendiemiento con varias funciones hash
+## 11. Hacer medidas de rendiemiento con varias funciones hash
 - Created at   2017-01-10 12:10:08 -0400
 

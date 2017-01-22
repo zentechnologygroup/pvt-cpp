@@ -77,11 +77,12 @@ public:
   /// parámetro y sus sinónimos 
   VtlQuantity search(const DynList<pair<string, const Unit*>> & names) const
   {
+    ParPair pp;
     for (auto it = names.get_it(); it.has_curr(); it.next())
       {
 	const auto & p = it.get_curr();
 	const string & name = p.first;
-	ParPair pp; pp.first = name; // sin copia hacia second
+	pp.first = name; // sin copia hacia second
 	auto ptr = tbl.search(pp);
 	if (ptr)
 	  {
