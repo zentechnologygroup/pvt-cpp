@@ -1,7 +1,8 @@
 ,disabled,t,t unit,p,p unit,nacl_concentration,nacl_concentration unit,rsw,rsw unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""petroleumOffice:2016"""
 CwaDodsonStanding,,200,Fahrenheit,5000,psia,20000,Dissolved_Salt_PPM,17.8,SCF_STB,3.22e-06,psia_1,1,,1,
-CwaOsif,,200,Fahrenheit,5000,psia,20000,Dissolved_Salt_PPM,,,3.02e-06,psia_1,1,,1,
+CwaOsif,,200,Fahrenheit,5000,psia,0.3422137809,CgL,,,3.02e-06,psia_1,1,,1,
 CwaOsif,,250,Fahrenheit,3000,psia,8,CgL,,,3.3958e-06,psia_1,1,Software calculation.,,1
+CwaSpiveyMN,,250,Fahrenheit,3000,psia,8,CgL,,,3.3958e-06,psia_1,1.67,To check only the order of magnitude.,,1
 CwaSpiveyMN,TRUE,,,,,,,,,,,,,,
 CwaDodsonStanding,TRUE,,,,,,,,,,,,,,
 CwaOsif,TRUE,,,,,,,,,,,,,,
