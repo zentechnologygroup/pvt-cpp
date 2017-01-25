@@ -32,3 +32,6 @@
 ## 11. Hacer medidas de rendiemiento con varias funciones hash
 - Created at   2017-01-10 12:10:08 -0400
 
+## 12. jerarquia de excepciones zen
+- Created at   2017-01-25 15:10:00 -0400
+

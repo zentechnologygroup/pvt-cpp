@@ -777,8 +777,8 @@ void store_exception(const string & corr_name,
     }
 }
 
-void store_exception(const string & corr_name, double t, double p
-		     , const exception & e)
+void store_exception(const string & corr_name, double t, double p,
+		     const exception & e)
 {
   ostringstream s;
   s << corr_name << ": " << t << ", " << p << ": " << e.what();
