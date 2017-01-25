@@ -48,22 +48,22 @@ Declare_Unit(Sm3_Sm3, "Sm3/Sm3",
 // To standard cubic feet per stock tank barrels (scf/STB)   
 Declare_Conversion(Mscf_STB, SCF_STB, v) { return  1000 * v ; }
 Declare_Conversion(MMscf_STB, SCF_STB, v) { return  1000000 * v ; }       
-Declare_Conversion(Sm3_Sm3, SCF_STB, v) { return   0.1772 * v  ; }
+Declare_Conversion(Sm3_Sm3, SCF_STB, v) { return   0.1772 / v  ; }
 
 // To thousand standard cubic feet per stock tank barrels (Mscf/STB)
 Declare_Conversion(SCF_STB, Mscf_STB, v) { return  v / 1000  ; }
 Declare_Conversion(MMscf_STB, Mscf_STB, v) { return  1000 * v ; }       
-Declare_Conversion(Sm3_Sm3, Mscf_STB, v) { return  0.0001772 * v  ; }
+Declare_Conversion(Sm3_Sm3, Mscf_STB, v) { return  0.0001772 / v  ; }
 
 // To million standard cubic feet per stock tank barrels (MMscf/STB)
 Declare_Conversion(SCF_STB, MMscf_STB, v) { return  v / 1000000  ; }
 Declare_Conversion(Mscf_STB, MMscf_STB, v) { return  v / 1000 ; }       
-Declare_Conversion(Sm3_Sm3, MMscf_STB, v) { return 0.0000001772 * v   ; }
+Declare_Conversion(Sm3_Sm3, MMscf_STB, v) { return 0.0000001772 / v   ; }
 
 // To  standard cubic meters  per standard cubic meters  (Sm3/Sm3)
 
-Declare_Conversion(SCF_STB, Sm3_Sm3, v) { return  v / 0.1772  ; }
-Declare_Conversion(Mscf_STB, Sm3_Sm3, v) { return  v / 0.0001772 ; }       
-Declare_Conversion(MMscf_STB, Sm3_Sm3, v) { return  v / 0.0000001772  ; }
+Declare_Conversion(SCF_STB, Sm3_Sm3, v) { return  v * 0.1772  ; }
+Declare_Conversion(Mscf_STB, Sm3_Sm3, v) { return  v * 0.0001772 ; }       
+Declare_Conversion(MMscf_STB, Sm3_Sm3, v) { return  v * 0.0000001772  ; }
 
 # endif //  GOR_GLR_VOLUME_RATIO_UNIT_H
