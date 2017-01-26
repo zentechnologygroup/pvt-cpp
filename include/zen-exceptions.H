@@ -4,6 +4,8 @@
 # include <exception>
 # include <sstream>
 
+# include <utils.H>
+
 using namespace std;
 
 struct ZenException : public std::runtime_error
@@ -42,35 +44,18 @@ public:
 	       const string & msg)
     : runtime_error(make_what(category_msg, line_number, file_name, type, msg)),
       line_number(line_number), file_name(file_name), type(type) {}
-
-private:
-
-  static const size_t buf_len = 50;
-
-  char buffer[buf_len];
-
-  virtual const char * what() const noexcept
-  {
-    size_t n = buf_len;
-    const char * ptr = &buffer[0];
-    
-  }
 };
 
-# define DEFINE_ZEN_EXCEPTION_CTOR(name, category_msg)	\
-  name(const string & category_msg,			\
-       const size_t line_number,			\
-       const string & file_name,			\
-       const string & type,				\
-       const string & msg)				\
-    : ZenException(category_msg, line_number, file_name, type, msg)	\
-  {									\
+# define DEFINE_ZEN_EXCEPTION(name, category_msg)	\
+  struct name : public ZenException			\
+  {							\
+    name(const size_t line_number,			\
+	 const string & file_name,			\
+	 const string & type,				\
+	 const string & msg)						\
+      : ZenException(#category_msg, line_number, file_name, type, msg) {} \
+  };
     
-
-
-struct UnitOutOfRange : public ZenException
-{
-  UnitOutOfRange
-};
+# define ZENTHROW(type, msg) throw type(__LINE__, __FILE__, #type, msg)
 
 # endif

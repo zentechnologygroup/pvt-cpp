@@ -328,7 +328,7 @@ void PbGlaso::precondition(const Quantity<MoleFraction> & n2_concentration,
     {
       ostringstream s;
       s << "In PbGlaso::impl: invalid values for nonhydrocarbon concentrations.";
-      throw domain_error(s.str());
+      ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }
 

@@ -482,12 +482,13 @@ if options[:header]
   guard_name.gsub! 'rb', 'H'
   guard_name.upcase!
 
-  puts "# ifndef #{guard_name}"
-  puts "# define #{guard_name}"
-  puts 
-  puts "# include <correlations/correlation.H>"
-  puts
-  puts "#{gen_correlations}\n"\
+  puts "# ifndef #{guard_name}\n"\
+       "# define #{guard_name}\n"\
+       "\n"\
+       "# include <pvt-exceptions.H>\n"\
+       "# include <correlations/correlation.H>\n"\
+       "\n"\
+       "#{gen_correlations}\n"\
        "\n"\
        " # endif // #{guard_name}"  
   exit

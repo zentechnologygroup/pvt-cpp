@@ -21,7 +21,7 @@ inline std::string demangle(const char* name)
   return (status==0) ? res.get() : name ;
 }
 
-# define CLASSNAME_TO_STRING(class_ptr) demangle(typeid(*class_ptr).name());
+# define CLASSNAME_TO_STRING(class_ptr) demangle(typeid(*class_ptr).name())
 
 template <typename T>
 inline std::string Rvector(const std::string & name, const DynList<T> & l)
@@ -43,9 +43,6 @@ inline std::string Rvector(const std::string & name, const DynList<T> & l)
 inline std::string Rvector(const std::string & name, const Array<double> & a)
 {
   return Rvector(name, to_DynList(a));
-}
-
-
-  
+} 
 
 # endif // UTILS_H
