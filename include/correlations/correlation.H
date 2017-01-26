@@ -16,6 +16,8 @@
 # include <units/pvt-units.H>
 # include <biblio.H>
 
+# include "pvt-exceptions.H"
+
 # include "par-list.H"
 
 struct CorrelationPar
@@ -74,7 +76,7 @@ public:
 	ostringstream s;
 	s << "CorrelationPar::add_synonym(): synonym unit " << unit.name
 	  << " is not physically related to parameter unit " << this->unit.name;
-	throw domain_error(s.str());
+	ZENTHROW(WrongSiblingUnit, s.str());
       }
 
     auto p = make_pair(name, &unit);
@@ -90,7 +92,7 @@ public:
 	ostringstream s;
 	s << "add_synonym(): unit name or symbol " << unit_sym_name
 	  << " not found";
-	throw domain_error(s.str());
+	ZENTHROW(WrongSiblingUnit, s.str());
       }
     add_synonym(name, *ptr);
   }
@@ -165,14 +167,14 @@ public:
       {
 	s << "Value " << q.get_value() << " is lesser than the minimum value "
 	  << min_val << " for precondition ";
-	throw range_error(s.str());
+	ZENTHROW(OutOfParameterRange, s.str());
       }
 
     if (q.get_value() > max_val.raw() + epsilon)
       {
 	s << "Value " << q << " is greater than the maximum value "
 	  << max_val << " for precondition ";
-	throw range_error(s.str());
+	ZENTHROW(OutOfParameterRange, s.str());
       }
   }
 };
@@ -282,7 +284,7 @@ private:
 	ostringstream s;
 	s << "Correlation::add_par_synonym(): par name " << par_name
 	  << " not found";
-	throw domain_error(s.str());
+	ZENTHROW(SynonymNotFound, s.str());
       }
 
     return const_cast<CorrelationPar*>(par_ptr);
@@ -514,7 +516,7 @@ protected:
       {
 	ostringstream s;
 	s << "Correlation::Correlation: duplicated correlation name" << name;
-	throw domain_error(s.str());
+	ZENTHROW(DuplicatedCorrelationName, s.str());
       }
 
     tbl.insert(name, this);
@@ -549,7 +551,7 @@ protected:
 	ostringstream s;
 	s << "minimum value " << min_aux << " is greater than maximum value "
 	  << max_aux << " for parameter " << name;
-	throw domain_error(s.str());
+	ZENTHROW(OutOfParameterRange, s.str());
       }
 
     CorrelationPar par(name, unit, description, min, max);
@@ -759,7 +761,7 @@ public:
 	  << values.size()
 	  << " is different from number of declared parameters "
 	  << get_num_pars();
-	throw domain_error(s.str());
+	ZENTHROW(InvalidNumberOfParameters, s.str());
       }
 
     VtlQuantity ret = { unit, compute(pars, check) }; // here conversion is done
@@ -796,7 +798,7 @@ public:
 	    ostringstream s;
 	    s << "compute_by_names() for correlation " << name
 	      << ": parameter name " << par.name << " was not found";
-	    throw domain_error(s.str());
+	    ZENTHROW(ParameterNameNotFound, s.str());
 	  }
 	vals.append(VtlQuantity(par.unit, ptr_val->second));
       }
@@ -825,14 +827,14 @@ public:
 	    ostringstream s;
 	    s << "compute_by_names() for correlation " << name
 	      << ": parameter name " << par.name << " was not found";
-	    throw domain_error(s.str());
+	    ZENTHROW(ParameterNameNotFound, s.str());
 	  }
 	if (not get<0>(*ptr_val))
 	  {
 	    ostringstream s;
 	    s << "compute_by_names() for correlation " << name
 	      << ": parameter name " << par.name << " is not set";
-	    throw domain_error(s.str());
+	    ZENTHROW(ParameterNameNotSet, s.str());
 	  }
 	vals.append(VtlQuantity(*get<3>(*ptr_val), get<2>(*ptr_val)));
       }
@@ -840,7 +842,8 @@ public:
     return compute(vals, check);
   }
 
-  VtlQuantity compute_by_names(const ParList & par_list, bool check = true) const
+  VtlQuantity
+  compute_by_names(const ParList & par_list, bool check = true) const
   {
     DynList<VtlQuantity> vals;
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
@@ -896,7 +899,7 @@ public:
 	  << values.size()
 	  << " is different from number of declared parameters "
 	  << get_num_pars();
-	throw domain_error(s.str());
+	ZENTHROW(InvalidNumberOfParameters, s.str());
       }
 
     VtlQuantity ret = { unit, c + m*compute(pars, check).raw() };
@@ -954,7 +957,7 @@ public:
 	    ostringstream s;
 	    s << "Correlation parameter " << i << " (" << par_name
 	      << ") does not satisfy bound constraints";
-	      throw domain_error(s.str());
+	    ZENTHROW(OutOfParameterRange, s.str());
 	  }
       }
 
@@ -963,7 +966,7 @@ public:
 	ostringstream s;
 	s << "number of preconditions " << preconditions.size()
 	  << " is different than number of parameters " << pars.size();
-	throw domain_error(s.str());
+	ZENTHROW(InvalidNumberOfParameters, s.str());
       }
 
     return pars;
@@ -979,7 +982,7 @@ public:
 	  << " : return value " << result.get_value() << " "
 	  << result.unit.symbol << " is out of range ["
 	  << min_val << ", " << max_val << "] defined for the correlation";
-	throw range_error(s.str());
+	ZENTHROW(OutOfCorrelationRange, s.str());
       }
 
     return result;

@@ -110,7 +110,7 @@ public:
 
     ostringstream s;
     s << "epsilon ratio " << ratio << " is not inside (0, " << ratio << ")";
-    throw domain_error(s.str());
+    ZENTHROW(WrongUnitRatio, s.str());
   }
 
   static const Unit null_unit;
@@ -248,7 +248,7 @@ protected:
 	ostringstream s;
 	s << "Unit constructor: minimum value " << min_val
 	  << " is greater than maximum value " << max_val;
-	throw domain_error(s.str());
+	ZENTHROW(MinMaxReversed, s.str());
       }
 
     set_epsilon(epsilon_ratio);
@@ -349,10 +349,10 @@ public:
       {
 	ostringstream s;
 	s << "Conversion from " << src_name << " to " << tgt_name
-	  << " does not shae the same physical quantities ("
+	  << " does not share the same physical quantities ("
 	  << src_instance.physical_quantity.name << ", "
 	  << tgt_instance.physical_quantity.name << ")";
-	throw domain_error(s.str());
+	ZENTHROW(WrongSiblingUnit, s.str());
       }
 
     if (&src_instance.physical_quantity != &tgt_instance.physical_quantity)
@@ -362,7 +362,7 @@ public:
 	  << " does not shae the same physical quantities ("
 	  << src_instance.physical_quantity.name << ", "
 	  << tgt_instance.physical_quantity.name << ")";
-	throw domain_error(s.str());
+	ZENTHROW(WrongSiblingUnit, s.str());
       }
     
     const string & src_symbol = src_instance.symbol;
@@ -373,7 +373,7 @@ public:
 	ostringstream s;
 	s << "Conversion from unit name " << src_name << " to unit name "
 	  << tgt_name << " has already been registered";
-	throw domain_error(s.str());
+	ZENTHROW(UnitConversionNotFound, s.str());
       }
 
     if (__unit_name_symbol_tbl.has(make_pair(src_name, tgt_symbol)))
