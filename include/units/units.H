@@ -678,7 +678,8 @@ protected:
     ostringstream s;
     s << "Value " << value << " for unit " << unit.name << " (" << unit.symbol
       << ") is not inside in [" << unit.min_val << ", "
-      << unit.max_val << "] epsilon = " << unit.get_epsilon();
+      << unit.max_val << "] epsilon = " << unit.get_epsilon()
+      << " defined for the unit";
     throw range_error(s.str());
   }
 

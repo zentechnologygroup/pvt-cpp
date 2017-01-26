@@ -977,9 +977,7 @@ public:
 	s << "In correlation " << name << " " << subtype_name << " " << type_name
 	  << " : return value " << result.get_value() << " "
 	  << result.unit.symbol << " is out of range ["
-	  << min_val << ", " << max_val << "]" << endl
-	  << "Error was detected while converting from " << result
-	  << " to " << result.unit.symbol;
+	  << min_val << ", " << max_val << "] defined for the correlation";
 	throw range_error(s.str());
       }
 
