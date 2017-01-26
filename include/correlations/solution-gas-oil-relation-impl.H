@@ -30,7 +30,7 @@ RsAlShammasi::impl(const double & yg,
   constexpr double c2 = -1.841408;
   constexpr double c3_inv = 1/0.783716;
 
-  return pow(p/(pow(yo, c1)*exp(c2*floor(yo*yg))), c3_inv) / ((t + 460) * yg); 
+  return pow(p/(pow(yo, c1)*exp(c2*yo*yg)), c3_inv) / ((t + 460) * yg); 
 }
 
 inline double
