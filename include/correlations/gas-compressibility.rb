@@ -58,10 +58,11 @@ add_ref("takacs:1989")
 # add_ref("banzer:1996") Secondary reference
 add_db("This method is a result of fitting the Starling-Carnahan equation of state for the Z-factor. 1500 data points from the original Standing-Katz chart were used.")
 add_db("The equation is solved by using the Newton-Raphson iteration method.")
-add_note("The ranges of application are: 1 <= Tpr <= 3 for 0.2 <= Ppr <= 30 and 0.7 <= Tpr <= 1 for 0 <= Ppr <= 1.")
+add_note("The ranges of application are: 1 <= Tpr <= 3 for 0.2 <= Ppr <= 30 and 0.7 <= Tpr < 1 for 0 <= Ppr <= 1.")
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 23 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
 add_internal_note("The lower limit for Ppr (when Tpr's range is from 0.7 to 1.0) was taken from the development ranges of the correlation presented by Standing & Katz (1942).")
+add_precondition("tpr", "ppr")
 add_author("Dranchuk & Abou-Kassem")
 end_correlation()
 
