@@ -564,7 +564,7 @@ protected:
   {
     CorrelationPar & ret = add_parameter(name, unit, description,
 					 min, VtlQuantity(unit, unit.max_val));
-    ret.max_from_author = true;
+    ret.max_from_author = false;
     return ret;
   }
 
@@ -579,7 +579,8 @@ protected:
   }
 
   CorrelationPar add_parameter(const string & name, const Unit & unit,
-			       const string & description, double min, double max)
+			       const string & description,
+			       double min, double max)
   {
     return add_parameter(name, unit, description,
 			 VtlQuantity(unit, min), VtlQuantity(unit, max));
