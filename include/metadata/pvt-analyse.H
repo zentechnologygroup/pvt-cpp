@@ -237,7 +237,7 @@ public:
 	    s << "PvtAnalyzer::best_correlations(): Correlation "
 	      << corr_ptr->name << " target name " << corr_ptr->target_name()
 	      << " contained in list is not the name " << corr_name;
-	    throw domain_error(s.str()); 
+	    ZENTHROW(SampleContainsTargetName, s.str()); 
 	  }
 
 	try
@@ -254,7 +254,7 @@ public:
 	    ostringstream s;
 	    s << "PvtAnalyzer::correlations_stats: evaluating correlation "
 	      << corr_ptr->name << ": " << e.what();
-	    throw;
+	    ZENTHROW(MetadataException, s.str());
 	    /* ignore it! */
 	  }
       }
@@ -498,7 +498,7 @@ public:
 	    s << "PvtAnalyzer::best_correlations(): Correlation "
 	      << corr_ptr->name << " target name " << corr_ptr->target_name()
 	      << " contained in list is not the name " << corr_name;
-	    throw domain_error(s.str()); 
+	    ZENTHROW(SampleContainsTargetName, s.str()); 
 	  }
 
 	try
@@ -629,8 +629,8 @@ public:
       {
 	ostringstream s;
 	s << "PvtAnalyzer::load_value: correlation " << corr_ptr->name
-	  << " has not " << corr_base_name << " rs as target name";
-	throw domain_error(s.str());
+	  << " has not " << corr_base_name << " as target name";
+	ZENTHROW(SampleContainsTargetName, s.str());
       }
 
     auto p = data.values(seti, corr_base_name);

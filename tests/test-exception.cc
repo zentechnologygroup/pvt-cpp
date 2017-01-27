@@ -3,6 +3,6 @@
 
 int main()
 {
-  ZENTHROW(UnitOutOfRange, "prueba");
+  ZENTHROW(MinMaxReversed, "prueba");
 }
 
