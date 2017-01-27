@@ -239,8 +239,7 @@ void mat_csv(const Correlation * const corr_ptr, size_t n)
 
 void mat_csv(const Correlation * const corr_ptr, const DynList<RangeDesc> & l,
 	     bool ignore_exception)
-{
-      // csv header
+{      // csv header
   corr_ptr->get_preconditions().for_each([] (auto pre)
     {
       cout << pre.name << " (" << pre.unit.symbol << "), ";

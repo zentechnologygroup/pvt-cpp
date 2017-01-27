@@ -110,7 +110,8 @@ public:
     return search(name);
   }
 
-  VtlQuantity operator () (const DynList<pair<string, const Unit*>> & names) const
+  VtlQuantity
+  operator () (const DynList<pair<string, const Unit*>> & names) const
   {
     return search(names);
   }

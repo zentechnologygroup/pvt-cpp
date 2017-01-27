@@ -752,37 +752,32 @@ ParList compute_pb_and_load_constant_parameters()
 
 const double Invalid_Value = numeric_limits<double>::max();
 
-inline pair<double, double> get_tp(const ParList & pars)
-{
-  auto t = pars("t");
-  auto p = pars("p");
-  return make_pair(t.raw(), p.raw());
-}
+double t = 0, p = 0; // globales y puestos por el grid
 
-void store_exception(const string & corr_name,
-		     const ParList & pars, const exception & e)
-{
-  try
-    {  
-      auto tp = get_tp(pars);
-      ostringstream s;
-      s << corr_name << ": " << tp.first << ", " << tp.second << ": " << e.what();
-      exception_list.append(s.str());
-    }
-  catch (...)
-    {
-      ostringstream s;
-      s << corr_name << ": " << e.what();
-      exception_list.append(s.str());
-    }
-}
-
-void store_exception(const string & corr_name, double t, double p,
-		     const exception & e)
+void store_exception(const string & corr_name, const exception & e)
 {
   ostringstream s;
   s << corr_name << ": " << t << ", " << p << ": " << e.what();
   exception_list.append(s.str());
+}
+
+inline bool insert_in_pars_list(ParList&) { return true; }
+
+  template <typename ... Args> inline
+bool insert_in_pars_list(ParList & pars_list, 
+			 const Correlation::NamedPar & par, Args & ... args)
+{
+  if (get<2>(par) == Invalid_Value)
+    return false;
+  
+  pars_list.insert(par);
+  bool result = insert_in_pars_list(pars_list, args...);
+  if (result)
+    return true;
+
+  pars_list.remove(par); // si falla inserción recursiva par debe salir
+
+  return false;
 }
 
 template <typename ... Args> inline
@@ -792,7 +787,9 @@ VtlQuantity compute(const Correlation * corr_ptr,
 {
   try
     {
-      insert_in_container(pars_list, args...);
+      if (not insert_in_pars_list(pars_list, args...))
+	return VtlQuantity::null_quantity;
+      //insert_in_container(pars_list, args...);
       auto ret = corr_ptr->tuned_compute_by_names(pars_list, c, m, check);
       remove_from_container(pars_list, args...);
       return ret;
@@ -800,23 +797,35 @@ VtlQuantity compute(const Correlation * corr_ptr,
   catch (exception & e)
     {
       if (report_exceptions)
-	store_exception(corr_ptr->name, pars_list, e);
+	store_exception(corr_ptr->name, e);
       
       remove_from_container(pars_list, args ...);
     }
   return VtlQuantity::null_quantity; 
 }
 
+inline bool valid_args() { return true; }
+
+// returna true si todos los args... son válidos
+  template <typename ... Args> inline
+bool valid_args(const VtlQuantity & par, Args ... args)
+{
+  if (par.is_null())
+    return false;
+  return valid_args(args...);
+}  
+
 // Macro para crear variable var con el valor de la correlación corr_name
-# define CALL(corr_name, var, t, p, args...)				\
+# define CALL(corr_name, var, args...)					\
   VtlQuantity var = VtlQuantity::null_quantity;				\
   try									\
     {									\
-      var = corr_name::get_instance().call(args);			\
+      if (valid_args(args))						\
+	var = corr_name::get_instance().call(args);			\
     }									\
   catch (exception & e)							\
     {									\
-      store_exception(corr_name::get_instance().name, t, p, e);		\
+      store_exception(corr_name::get_instance().name, e);		\
     }
 
 template <typename ... Args> inline
@@ -825,7 +834,10 @@ double compute(const DefinedCorrelation & corr, bool check,
 {
   try
     {
-      insert_in_container(pars_list, args ...);
+      if (not insert_in_pars_list(pars_list, args...))
+	return Invalid_Value;
+      
+      //insert_in_container(pars_list, args ...);
       double ret = corr.compute_by_names(pars_list, check);
       remove_from_container(pars_list, args ...);
       return ret;
@@ -839,7 +851,7 @@ double compute(const DefinedCorrelation & corr, bool check,
             {
 	      return acu + ptr->name + " ";
 	    });
-	  store_exception(names, pars_list, e);
+	  store_exception(names, e);
 	}
 
       remove_from_container(pars_list, args ...);
@@ -1173,6 +1185,7 @@ void generate_grid()
     {
       auto t_par = t_it.get_curr();
       VtlQuantity t_q = par(t_par);
+      t = t_q.raw();
       auto tpr = Tpr::get_instance().call(t_q, adjustedtpcm);
 
       auto pb_q = compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
@@ -1240,6 +1253,7 @@ void generate_grid()
 	{
 	  auto p_par = p_it.get_curr();
 	  VtlQuantity p_q = par(p_par);
+	  p = p_q.raw();
 	  auto ppr = Ppr::get_instance().call(p_q, adjustedppcm);
 	  auto rs = compute(rs_corr, check, rs_pars, p_par);
 	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
@@ -1250,10 +1264,21 @@ void generate_grid()
 	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
 	  auto z = compute(zfactor_corr, 0, 1, check, NPAR(ppr), NPAR(tpr));
-	  CALL(Bg, bg, t_q.raw(), p_q.raw(), t_q, p_q, z);
+	  VtlQuantity bg = VtlQuantity::null_quantity;
+	  try
+	    {
+	      if (valid_args(t_q, p_q, z))
+		bg = Bg::get_instance().call(t_q, p_q, z);
+	    }
+	  catch (exception & e)
+	    {
+	      store_exception(Bg::get_instance().name, e);
+	    }
+
+	  //CALL(Bg, bg, t_q, p_q, z);
 	  auto ug = compute(ug_corr, 0, 1, check, ug_pars,
 			    p_par, npar("ppr", ppr), NPAR(z));
-	  CALL(Pg, pg, t_q.raw(), p_q.raw(), yg, t_q, p_q, z);
+	  CALL(Pg, pg, yg, t_q, p_q, z);
 	  auto bw = compute(bw_corr, check, bw_pars, p_par);
 	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
 	  auto pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par);
@@ -1262,7 +1287,7 @@ void generate_grid()
 	  auto cwa = compute(cwa_corr, 0, 1, check, cwa_pars, p_par, rsw_par);
 	  auto cw = compute(cw_corr, check, cw_pars, p_par, NPAR(z),
 			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
-	  CALL(PpwSpiveyMN, ppw, t_q.raw(), p_q.raw(), t_q, p_q);
+	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
 	  auto uw = compute(uw_corr, 0, 1, check, uw_pars, p_par, NPAR(ppw)).raw();
 
 	  size_t n = row.ninsert(p_q.raw(), rs, co, bo, uo, po, z.raw(),

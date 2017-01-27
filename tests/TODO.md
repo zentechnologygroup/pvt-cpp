@@ -38,3 +38,15 @@
 ## 13. en plot: insert_in_container debe reemplazarse por uno especial que valide parámetro
 - Created at   2017-01-25 19:58:33 -0400
 
+## 14. NullUnit is_null() parace no estar funcionando
+- Created at   2017-01-27 16:40:42 -0400
+
+## 15. function get_tp no debe generar excepciones
+- Created at   2017-01-27 16:51:52 -0400
+
+## 16. Añadir t y p a compute de plot de manera que estén si hay excepción
+- Created at   2017-01-27 16:55:00 -0400
+
+## 17. script que valid unidades
+- Created at   2017-01-27 17:40:35 -0400
+
