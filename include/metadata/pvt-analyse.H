@@ -36,7 +36,7 @@ public:
 	    ostringstream s;
 	    s << "Column " << col_name << " of variable data set " << set_name
 	      << " is not sorted";
-	    throw domain_error(s.str());
+	    ZENTHROW(SamplesUnsorted, s.str());
 	  }
 	return;
       }
@@ -46,7 +46,7 @@ public:
 	ostringstream s;
 	s << "Column " << col_name << " of variable data set " << set_name
 	  << " is not inversely sorted";
-	throw domain_error(s.str());
+	ZENTHROW(SamplesUnsorted, s.str());
       }
   }
 
@@ -115,7 +115,7 @@ public:
 	  ostringstream s;
 	  s << "Defined pb value " << defined_pb
 	    << " is not equal to the stored value in the matrix " << pb;
-	  throw domain_error(s.str());
+	  ZENTHROW(SampleInvalid, s.str());
 	}
     }
 
@@ -128,7 +128,7 @@ public:
 	  ostringstream s;
 	  s << "Defined rsb value " << defined_rsb
 	    << " is not equal to the stored value in the matrix " << rsb;
-	  throw domain_error(s.str());
+	  ZENTHROW(SampleInvalid, s.str());
 	}
     }
 

@@ -20,8 +20,7 @@ DEFINE_ZEN_EXCEPTION(EmptyVarSet, "variable set is empty")
 DEFINE_ZEN_EXCEPTION(ColumnIndexNameMismatch,
 		     "mismatch between column name and index")
 
-
-
+DEFINE_ZEN_EXCEPTION(SamplesUnsorted, "samples are not sorted")
 DEFINE_ZEN_EXCEPTION(SamplesSetAlreadySet, "samples set is already set");
 DEFINE_ZEN_EXCEPTION(SamplesSetEmpty, "samples set is empty");
 DEFINE_ZEN_EXCEPTION(BadSamplesHeader, "Bad samples header");
@@ -34,6 +33,6 @@ DEFINE_ZEN_EXCEPTION(SampleDoesNotFit,
 		     "sample data does not fit with correlation range");
 DEFINE_ZEN_EXCEPTION(SampleOutOfRange, "sample is out of any correlation range");
 DEFINE_ZEN_EXCEPTION(SampleContainsTargetName, "sample contains target name");
-
+DEFINE_ZEN_EXCEPTION(SampleInvalid, "invalid sample value");
 
 # endif
