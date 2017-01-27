@@ -58,4 +58,8 @@ public:
     
 # define ZENTHROW(type, msg) throw type(__LINE__, __FILE__, #type, msg)
 
+DEFINE_ZEN_EXCEPTION(MinMaxReversed,
+		     "minimum value is greater than maximum value");
+
+
 # endif

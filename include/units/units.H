@@ -13,6 +13,7 @@
 # include <tpl_dynMapTree.H>
 
 # include "unititem.H"
+# include "unit-exceptions.H"
 
 using namespace std;
 
@@ -381,7 +382,7 @@ public:
 	ostringstream s;
 	s << "Conversion from unit name " << src_name << " to symbol name "
 	  << tgt_symbol << " has already been registered";
-	throw domain_error(s.str());
+	ZENTHROW(DuplicatedUnitConversion, s.str());
       }
 
     if (__unit_symbol_name_tbl.has(make_pair(src_symbol, tgt_name)))
@@ -389,7 +390,7 @@ public:
 	ostringstream s;
 	s << "Conversion from symbol name " << src_symbol << " to unit name "
 	  << tgt_name << " has already been registered";
-	throw domain_error(s.str());
+	ZENTHROW(DuplicatedUnitConversion, s.str());
       }
 
     if (__unit_symbol_symbol_tbl.has(make_pair(src_symbol, tgt_symbol)))
@@ -397,12 +398,13 @@ public:
 	ostringstream s;
 	s << "Conversion from symbol name " << src_symbol << " to symbol name "
 	  << tgt_symbol << " has already been registered";
-	throw domain_error(s.str());
+	ZENTHROW(DuplicatedUnitConversion, s.str());
       }
 
     fct_ptr = &UnitConverter::convert;
 
-    __unit_map.insert(make_pair(make_pair(&src_instance, &tgt_instance), fct_ptr));
+    __unit_map.insert(make_pair(make_pair(&src_instance, &tgt_instance),
+				fct_ptr));
     __unit_name_name_tbl.insert(make_pair(src_name, tgt_name), fct_ptr);
     __unit_name_symbol_tbl.insert(make_pair(src_name, tgt_symbol), fct_ptr);
     __unit_symbol_name_tbl.insert(make_pair(src_symbol, tgt_name), fct_ptr);
@@ -463,7 +465,7 @@ inline double unit_convert(const Unit & src_unit,
       ostringstream s;
       s << "Conversion from unit name " << src_unit.name << " to unit name "
 	<< tgt_unit.name << " has not been registered";
-      throw domain_error(s.str());
+      ZENTHROW(UnitConversionNotFound, s.str());
     }
   return (*fct)(val);
 }
@@ -478,7 +480,7 @@ inline double unit_convert_name_to_name(const string & src_name,
       ostringstream s;
       s << "Conversion from unit name " << src_name << " to unit name "
 	<< tgt_name << " has not been registered";
-      throw domain_error(s.str());
+      ZENTHROW(UnitConversionNotFound, s.str());
     }
 
   auto fct = p->second;
@@ -496,7 +498,7 @@ inline double unit_convert_name_to_symbol(const string & src_name,
       ostringstream s;
       s << "Conversion from unit name " << src_name << " to unit symbol "
 	<< tgt_symbol << " has not been registered";
-      throw domain_error(s.str());
+      ZENTHROW(UnitConversionNotFound, s.str());
     }
 
   auto fct = p->second;
@@ -514,7 +516,7 @@ inline double unit_convert_symbol_to_name(const string & src_symbol,
       ostringstream s;
       s << "Conversion from symbol name " << src_symbol << " to unit name "
 	<< tgt_name << " has not been registered";
-      throw domain_error(s.str());
+      ZENTHROW(UnitConversionNotFound, s.str());
     }
 
   auto fct = p->second;
@@ -532,7 +534,7 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
       ostringstream s;
       s << "Conversion from symbol name " << src_symbol << " to symbool name "
 	<< tgt_symbol << " has not been registered";
-      throw domain_error(s.str());
+      ZENTHROW(UnitConversionNotFound, s.str());
     }
 
   auto fct = p->second;
@@ -680,7 +682,7 @@ protected:
       << ") is not inside in [" << unit.min_val << ", "
       << unit.max_val << "] epsilon = " << unit.get_epsilon()
       << " defined for the unit";
-    throw range_error(s.str());
+    ZENTHROW(OutOfUnitRange, s.str());
   }
 
   // throw exception if the units do not share the same physical quantity
@@ -693,7 +695,7 @@ protected:
     s << "Units do not refer to the same physical quantities" << endl
       << "Source physical quantity = " << unit.physical_quantity.name << endl
       << "target physical quantity = " << q.unit.physical_quantity.name;
-    throw domain_error(s.str());
+    ZENTHROW(WrongSiblingUnit, s.str());
   }
 
   void verify_same_unit(const Unit & __unit) const
@@ -703,7 +705,7 @@ protected:
 
     ostringstream s;
     s << "Different units: " << unit.name << " != " << __unit.name;
-    throw domain_error(s.str());
+    ZENTHROW(DifferentUnits, s.str());
   }
 
 public:
@@ -1100,7 +1102,7 @@ public:
     ostringstream s;
     s << "There is no compund unit between " << unit1.name << " and "
       << unit2.name;
-    throw domain_error(s.str());
+    ZENTHROW(CompoundUnitNotFound, s.str());
   }
 
 private:
@@ -1113,7 +1115,7 @@ private:
 
     ostringstream s;
     s << "Nonexistent unit name " << name;
-    throw domain_error(s.str());
+    ZENTHROW(UnitNotFound, s.str());
   }
 
   const Unit & unit_given_symbol(const string & symbol) const
@@ -1124,7 +1126,7 @@ private:
 
     ostringstream s;
     s << "Nonexistent unit symbol " << symbol;
-    throw domain_error(s.str());
+    ZENTHROW(UnitNotFound, s.str());
   }
 
 public:
