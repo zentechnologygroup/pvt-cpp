@@ -368,7 +368,7 @@ void RsAbovePb::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "Rsa::impl: pressure" << p << " is less than bubble point pressure "
 	<< pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 

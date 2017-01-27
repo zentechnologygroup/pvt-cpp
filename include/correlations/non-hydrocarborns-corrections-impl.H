@@ -11,7 +11,11 @@ YghcWichertAziz::precondition(const Quantity<MoleFraction> & n2_concentration,
 {
   if (n2_concentration.raw() + co2_concentration.raw() +
       h2s_concentration.raw() >= 1)
-    throw domain_error("In yghcWichertAziz::impl: invalid values for nonhydrocarbon concentrations");
+    {
+    ostringstream s;
+    s << "In YghcWichertAziz::impl: invalid values for nonhydrocarbon concentrations";
+    ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    }
 }
 
 inline double
@@ -36,7 +40,11 @@ PpcmKayMixingRule::precondition(const Quantity<MoleFraction> & n2_concentration,
 {
   if (n2_concentration.raw() + co2_concentration.raw() +
       h2s_concentration.raw() >= 1)
-    throw domain_error("In PpcMKayMixingRule::impl: invalid values for nonhydrocarbon concentrations");
+    {
+    ostringstream s;
+    s << "In PpcMKayMixingRule::impl: invalid values for nonhydrocarbon concentrations";
+    ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    }
 }
 
 inline double
@@ -59,7 +67,11 @@ void AdjustedppcmWichertAziz::precondition
  const Quantity<MoleFraction> & h2s_concentration) const
 {
   if (co2_concentration.raw() + h2s_concentration.raw() >= 1)
-    throw domain_error("In AdjustedppcMWichertAziz::impl: invalid values for nonhydrocarbon concentrations");
+    {
+    ostringstream s;
+    s << "In AdjustedppcMWichertAziz::impl: invalid values for nonhydrocarbon concentrations";
+    ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    }
 }
 
 inline double
@@ -88,7 +100,11 @@ void TpcmKayMixingRule::precondition
 {
   if (n2_concentration.raw() + co2_concentration.raw() +
       h2s_concentration.raw() >= 1)
-    throw domain_error("In TpcmKayMixingRule::impl: invalid values for nonhydrocarbon concentrations");
+    {
+    ostringstream s;
+    s << "In TpcmKayMixingRule::impl: invalid values for nonhydrocarbon concentrations";
+    ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    }
 }
 
 inline double
@@ -110,7 +126,11 @@ void AdjustedtpcmWichertAziz::precondition
  const Quantity<MoleFraction> & h2s_concentration) const
 {
   if (co2_concentration.raw() + h2s_concentration.raw() >= 1)
-    throw domain_error("In AdjustedtpcmWichertAziz::impl: invalid values for nonhydrocarbon concentrations");
+    {
+    ostringstream s;
+    s << "In AdjustedtpcmWichertAziz::impl: invalid values for nonhydrocarbon concentrations";
+    ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    }
 }
 
 inline double

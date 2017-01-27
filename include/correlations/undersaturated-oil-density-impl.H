@@ -9,8 +9,8 @@ void PoaBradley::precondition(const Quantity<psia> & p,
   if (not (p > pb))
     {
       ostringstream s;
-      s << "PoaBradley::impl: pressure " << p << " is not greater than pb" << pb;
-      throw domain_error(s.str());
+      s << "PoaBradley::impl: pressure " << p << " is not greater than pb " << pb;
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 

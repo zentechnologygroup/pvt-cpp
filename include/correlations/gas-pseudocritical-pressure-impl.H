@@ -33,8 +33,11 @@ void PpcAhmed::precondition(const Quantity<MoleFraction> & n2_concentration,
 {
   if (n2_concentration.raw() + co2_concentration.raw() +
       h2s_concentration.raw() >= 1)
-    throw domain_error("In PpcAhmed::impl: invalid values for "
-		       "nonhydrocarbon concentrations");
+    {
+    ostringstream s;
+    s << "In PpcAhmed::impl: invalid values for nonhydrocarbon concentrations";
+    ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    }
 }
 
 inline double

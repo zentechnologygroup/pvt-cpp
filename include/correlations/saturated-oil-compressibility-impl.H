@@ -10,7 +10,7 @@ void CobMcCainEtAl::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "CobMcCainEtAl::impl: pressure " << p << " is greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueSaturatedCondition, s.str());
     }
 }
 

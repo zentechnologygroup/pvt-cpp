@@ -11,7 +11,7 @@ void BoaMcCain::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "BoaMcCain::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -31,7 +31,7 @@ void BoaDeGhetto::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "BoaDeGhetto::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }   
 }
 
@@ -58,7 +58,7 @@ void BoaHanafy::precondition(const Quantity<psia> & p,
       cout << fabs(p.raw() - pb.raw()) << " " << " " << (p < pb) << endl;
       ostringstream s;
       s << "BoaHanafy::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }  
 }
 
@@ -80,7 +80,7 @@ void BoaKartoatmodjo::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "BoaKartoatmodjo::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }  
 }
 
@@ -109,7 +109,7 @@ void BoaPetroskyFarshad::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "BoaPetroskyFarshad::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -135,7 +135,7 @@ void BoaVasquezBeggs::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "BoaVasquezBeggs::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -161,7 +161,7 @@ void BoaPerezML::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "BoaPerezML::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -187,7 +187,7 @@ void BoaMillanArcia::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "BoaMillanArcia::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 

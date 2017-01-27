@@ -12,7 +12,7 @@ void UoaKartoatmodjoSchmidt::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "UoaKartoatmodjoSchmidt::impl: pressure " <<
 	p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -36,7 +36,7 @@ void UoaDeGhettoEtAl::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "UoaDeGhettoEtAl::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -69,7 +69,7 @@ void UoaBeal::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "UoaBeal::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -91,7 +91,7 @@ void UoaVasquezBeggs::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "UoaVasquezBeggs::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -119,7 +119,7 @@ void UoaKhan::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "UoaKhan::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -140,7 +140,7 @@ void UoaPetroskyFarshad::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "UoaPetroskyFarshad::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -166,7 +166,7 @@ void UoaAbedini::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "UoaAbedini::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -193,7 +193,7 @@ void UoaPerezML::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "UoaPerezML::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -214,8 +214,16 @@ void UoaDindorukChristman::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "UoaDindorukChristman::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
+
+   if (not (202 <= (p - pb) and (p - pb) <= 10140))
+     {
+      ostringstream s;
+      s << "UoaDindorukChristman::impl: P - Pb value " << p - pb
+	<< " is out of the development range";
+      ZENTHROW(WrongCombinationInputValues, s.str());
+     }
 }
 
 

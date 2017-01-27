@@ -155,7 +155,7 @@ void ZfactorDranchukAK::precondition(const Quantity<PseudoReducedTemperature> & 
     {
       ostringstream s;
       s << "ZfactorDranchukAK::impl: Wrong combination of input values for tpr " << tpr << " and ppr " << ppr;
-      throw domain_error(s.str());
+      ZENTHROW(WrongCombinationInputValues, s.str());
     }
 }
 

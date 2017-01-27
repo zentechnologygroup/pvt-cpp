@@ -35,7 +35,7 @@ void UobKhan::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "UobKhan::impl: pressure " << p << " is greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueSaturatedCondition, s.str());
     }
 }
 

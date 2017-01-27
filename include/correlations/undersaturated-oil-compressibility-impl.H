@@ -97,7 +97,7 @@ void CoaPerezML::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "CoaPerezML::impl: pressure " << p << " is not greater than pb "
 	<< pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
@@ -125,7 +125,7 @@ void CoaMillanArcia::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "CoaMillanArcia::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
