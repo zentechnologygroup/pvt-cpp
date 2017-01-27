@@ -694,8 +694,8 @@ void test(int argc, char *argv[])
   if (server.getValue())
     {
       auto ret = correlation_ptr->execute(pars_list);
-      cout << get<0>(ret) << ", " << get<1>(ret) << ", "
-	   << (get<2>(ret) ? "true" : "false") << " ,\"" << get<3>(ret)
+      cout << get<0>(ret) << "@ " << get<1>(ret) << "@ "
+	   << (get<2>(ret) ? "true" : "false") << " @" << get<3>(ret)
 	       << "\"" << endl;
       exit(0);
     }

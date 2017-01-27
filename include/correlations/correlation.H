@@ -736,7 +736,9 @@ public:
 	ostringstream s;
 	s << "Correlation result " << result << " is out of range ["
 	  << min_val << ", " << max_val << "]";
-	return make_tuple(result.raw(), unit.symbol, false, s.str());
+	OutOfCorrelationRange e(__LINE__, __FILE__, "OutOfCorrelationRange",
+				s.str().c_str());
+	return make_tuple(result.raw(), unit.symbol, false, e.what());
       }
     catch (exception &e)
       {
