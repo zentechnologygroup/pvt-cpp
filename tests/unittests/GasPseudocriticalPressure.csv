@@ -1,5 +1,0 @@
-,disabled,ppchc,ppchc unit ,ppcm,ppcm unit,tpcm,tpcm unit,n2_concentration,n2_concentration unit,co2_concentration,co2_concentration unit,h2s_concentration,h2s_concentration unit,result,result unit,tolerance,Note,"ref ""ahmed:1989""","ref ""ahmed:2010"""
-AdjustedppcmWichertAziz,,,,827.82,psia,427.72,Rankine,,,0.1,MoleFraction,0.2,MoleFraction,727.07,psia,1,,1,
-AdjustedppcmWichertAziz,,,,669.1,psia,389.38,Rankine,,,0.05,MoleFraction,0.1,MoleFraction,630.44,psia,1,,,1
-PpcmKayMixingRule,TRUE,,,,,,,,,,,,,,,,,,
-AdjustedppcmWichertAziz,TRUE,,,,,,,,,,,,,,,,,,
