@@ -31,13 +31,15 @@ DEFINE_ZEN_EXCEPTION(OutOfCorrelationRange, "Value is out of correlation range")
 DEFINE_ZEN_EXCEPTION(OutOfParameterRange, "Value is out of parameter range");
 
 DEFINE_ZEN_EXCEPTION(WrongValueUndersaturatedCondition,
-		     "value is greater than pb")
+		     "For an undersaturated condition P must be greater than Pb.")
 
-DEFINE_ZEN_EXCEPTION(WrongValueSaturatedCondition, "value is less than pb")
+DEFINE_ZEN_EXCEPTION(WrongValueSaturatedCondition, "For a saturated condition P must be less or equal to Pb.")
 
-DEFINE_ZEN_EXCEPTION(WrongValueVaporPressure, "Lo pone Ixhel")
+DEFINE_ZEN_EXCEPTION(WrongValueVaporPressure, "Computed vapor pressure is greater than P. Reconsider the value of P or T.")
 
-DEFINE_ZEN_EXCEPTION(WrongNonhydrocarbonsConcentrations, "IXHEL")
+DEFINE_ZEN_EXCEPTION(WrongNonhydrocarbonsConcentrations, "Invalid values for nonhydrocarbon concentrations.")
+
+DEFINE_ZEN_EXCEPTION(WrongCombinationInputValues, "Wrong combination of input values. Refer to the method description.")
 
 #endif
 
