@@ -761,8 +761,6 @@ void store_exception(const string & corr_name, const exception & e)
   exception_list.append(s.str());
 }
 
-inline bool insert_in_pars_list(ParList&) { return true; }
-
 /* meta inserta par en pars_list pero se detiene si algún parámetro es
   inválido. 
 
@@ -772,6 +770,7 @@ inline bool insert_in_pars_list(ParList&) { return true; }
   inválido, los parámetros previamente insertados en la lista son
   eliminados y se retorna false
 */
+inline bool insert_in_pars_list(ParList&) { return true; }
   template <typename ... Args> inline
 bool insert_in_pars_list(ParList & pars_list, 
 			 const Correlation::NamedPar & par, Args & ... args)
@@ -812,9 +811,8 @@ VtlQuantity compute(const Correlation * corr_ptr,
   return VtlQuantity::null_quantity; 
 }
 
-inline bool valid_args() { return true; }
-
 // returna true si todos los args... son válidos
+inline bool valid_args() { return true; }
   template <typename ... Args> inline
 bool valid_args(const VtlQuantity & par, Args ... args)
 {
@@ -1147,8 +1145,10 @@ void generate_grid()
 
   auto adjustedtpcm = compute(adjustedtpcm_corr, 0, 1, check, NPAR(ppcm),
 			      NPAR(tpcm), NPAR(co2_concentration),
-			      NPAR(h2s_concentration));  
+			      NPAR(h2s_concentration));
+  // Fin cálculo constantes para z
 
+  // Inicialización de listas de parámetros de correlaciones
   auto pb_pars = load_constant_parameters({pb_corr});
   auto rs_pars = load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
   auto uod_pars = load_constant_parameters({uod_corr});
@@ -1165,7 +1165,8 @@ void generate_grid()
   auto cw_pars = load_constant_parameters({cwb_corr, cwa_corr});
   auto cwa_pars = load_constant_parameters({cwa_corr});
 
-  // Nuevo valor tiene que entrar de 1ro aqui
+  // Nuevo valor tiene que entrar de 1ro aqui. Orden de inserción en
+  // row debe ser inverso
   cout << "cw " << cwb_corr->unit.name
        << ",rsw " << rsw_corr->unit.name
        << ",pw " << pw_corr->unit.name
@@ -1188,7 +1189,8 @@ void generate_grid()
        << ",t " << get<3>(t_values.get_first())->name
        << endl;
 
-  auto rs_pb = make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par)); 
+  auto rs_pb = make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par));
+  
   FixedStack<double> row(25);
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {

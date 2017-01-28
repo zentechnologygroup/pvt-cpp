@@ -60,6 +60,8 @@ public:
       });
   }
 
+  static DynList<string> names() { return tbl.names(); }
+
   static const PhysicalQuantity * search(const string & name)
   {
     auto ptr = tbl.search_by_name(name);

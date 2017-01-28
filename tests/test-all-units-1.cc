@@ -9,6 +9,7 @@
 
 # include <ahFunctional.H>
 # include <ah-string-utils.H>
+# include <ah-stl-utils.H>
 
 # include <units/pvt-units.H>
 
@@ -271,23 +272,43 @@ int main(int argc, char *argv[])
 			   false, 1e-4, "precision threshold", cmd);
 
   MultiArg<Epsilon> epsilons("e", "epsilon",
-			    "epsilon of form \"unit-symbol epsilon\"",
-			    false, "epsilon threshold", cmd);
+			     "epsilon of form \"unit-symbol epsilon\"",
+			     false, "epsilon threshold", cmd);
 
-  vector<string> pq;
+  vector<string> pq = to_vector(PhysicalQuantity::names());
   PhysicalQuantity::quantities().for_each([&pq] (auto p)
 					  { pq.push_back(p->name); });
-  ValuesConstraint<string> allowed(pq);
-  ValueArg<string> pm = { "P", "physical-quantity", "name of physical quantity",
-			  true, "", &allowed, cmd };
+				ValuesConstraint<string> allowed(pq);
+  ValueArg<string> pm = { "Q", "physical-quantity", "name of physical quantity",
+			  false, "", &allowed, cmd };
 
   SwitchArg extremes = { "x", "extremes", "test units extremes", cmd, false};
 
   SwitchArg print = { "p", "print", "print units", cmd, false };
 
+  SwitchArg print_pq =
+    { "P", "print-pq", "print physical quantities", cmd, false };
+
   SwitchArg ver = { "v", "verbose", "verbose mode", cmd, false };
 
   cmd.parse(argc, argv);
+
+  if (print_pq.getValue())
+    {
+      PhysicalQuantity::names().for_each([] (const string & name)
+        {
+	  cout << name << endl;
+	});
+      exit(0);
+    }
+				
+  if (not pm.isSet())
+    {
+      cout << "PARSE ERROR:" << endl
+	   << "             Required argument missing: physical-quantity"
+	   << endl;
+      abort();
+    }
 
   auto verbose = ver.getValue();
 
