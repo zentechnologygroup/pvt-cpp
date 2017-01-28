@@ -712,7 +712,7 @@ public:
 
   double get_value() const noexcept { return value; }
 
-  double raw() const noexcept { return get_value(); }
+  double raw() const noexcept { return value; }
 
       /// Return the stringfied value (the unit symbol is concatenated)
   string to_string() const
@@ -1198,6 +1198,9 @@ public:
     if (this == &q)
       return *this;
 
+    if (is_null())
+      return * new (this) VtlQuantity(q.unit, q.value);
+
     if (&unit.physical_quantity == &q.unit.physical_quantity)	
       {
 	value = q.get_value();
@@ -1216,6 +1219,9 @@ public:
   template <class U>
   VtlQuantity & operator = (const Quantity<Unit> & q)
   {
+    if (is_null())
+      return * new (this) VtlQuantity(q.unit, q.raw());
+
     if (&unit.physical_quantity == &q.unit.physical_quantity)
       {
 	value = q.get_value();

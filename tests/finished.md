@@ -850,3 +850,45 @@
 - Comment      
 - Finished     
 
+## 143. Revisar bien check y exception flags en plot
+- Created at   2017-01-09 12:47:29 -0400
+- Completed at 2017-01-28 11:03:18 -0400
+- Comment      
+- Finished     
+
+## 144. Hacer medidas de rendiemiento con varias funciones hash
+- Created at   2017-01-10 12:10:08 -0400
+- Completed at 2017-01-28 11:03:08 -0400
+- Comment      
+- Finished     
+
+## 145. jerarquia de excepciones zen
+- Created at   2017-01-25 15:10:00 -0400
+- Completed at 2017-01-28 11:03:04 -0400
+- Comment      
+- Finished     
+
+## 146. en plot: insert_in_container debe reemplazarse por uno especial que valide parámetro
+- Created at   2017-01-25 19:58:33 -0400
+- Completed at 2017-01-28 11:04:08 -0400
+- Comment      
+- Finished     
+
+## 147. NullUnit is_null() parace no estar funcionando
+- Created at   2017-01-27 16:40:42 -0400
+- Completed at 2017-01-28 11:02:52 -0400
+- Comment      
+- Finished     
+
+## 148. function get_tp no debe generar excepciones
+- Created at   2017-01-27 16:51:52 -0400
+- Completed at 2017-01-28 11:02:46 -0400
+- Comment      
+- Finished     
+
+## 149. Añadir t y p a compute de plot de manera que estén si hay excepción
+- Created at   2017-01-27 16:55:00 -0400
+- Completed at 2017-01-28 11:02:23 -0400
+- Comment      
+- Finished     
+

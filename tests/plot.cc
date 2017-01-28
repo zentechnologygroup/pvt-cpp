@@ -752,17 +752,26 @@ ParList compute_pb_and_load_constant_parameters()
 
 const double Invalid_Value = numeric_limits<double>::max();
 
-double t = 0, p = 0; // globales y puestos por el grid
+double temperature = 0, pressure = 0; // globales y puestos por el grid
 
 void store_exception(const string & corr_name, const exception & e)
 {
   ostringstream s;
-  s << corr_name << ": " << t << ", " << p << ": " << e.what();
+  s << corr_name << ": " << temperature << ", " << pressure << ": " << e.what();
   exception_list.append(s.str());
 }
 
 inline bool insert_in_pars_list(ParList&) { return true; }
 
+/* meta inserta par en pars_list pero se detiene si algún parámetro es
+  inválido. 
+
+  Retorna true si todos los parámetros fueron válidos (!= Invalid_Value)
+
+  De lo contrario la inserción se detiene en el primer parámetro
+  inválido, los parámetros previamente insertados en la lista son
+  eliminados y se retorna false
+*/
   template <typename ... Args> inline
 bool insert_in_pars_list(ParList & pars_list, 
 			 const Correlation::NamedPar & par, Args & ... args)
@@ -771,11 +780,10 @@ bool insert_in_pars_list(ParList & pars_list,
     return false;
   
   pars_list.insert(par);
-  bool result = insert_in_pars_list(pars_list, args...);
-  if (result)
+  if (insert_in_pars_list(pars_list, args...))
     return true;
 
-  pars_list.remove(par); // si falla inserción recursiva par debe salir
+  pars_list.remove(par); // si inserción recursiva falla ==> eliminar par
 
   return false;
 }
@@ -789,7 +797,7 @@ VtlQuantity compute(const Correlation * corr_ptr,
     {
       if (not insert_in_pars_list(pars_list, args...))
 	return VtlQuantity::null_quantity;
-      //insert_in_container(pars_list, args...);
+
       auto ret = corr_ptr->tuned_compute_by_names(pars_list, c, m, check);
       remove_from_container(pars_list, args...);
       return ret;
@@ -837,7 +845,6 @@ double compute(const DefinedCorrelation & corr, bool check,
       if (not insert_in_pars_list(pars_list, args...))
 	return Invalid_Value;
       
-      //insert_in_container(pars_list, args ...);
       double ret = corr.compute_by_names(pars_list, check);
       remove_from_container(pars_list, args ...);
       return ret;
@@ -862,15 +869,17 @@ double compute(const DefinedCorrelation & corr, bool check,
 template <typename ... Args> inline
 VtlQuantity compute(const Correlation * corr_ptr,
 		    double c, double m, bool check, Args ... args)
-{
-  ParList pars_list;
+{ // se pone estática para crearla una sola vez. Pero cuidado! la
+  // función deja de ser reentrante y no puede usarse en un entorno multithread
+  static ParList pars_list;
   return compute(corr_ptr, c, m, check, pars_list, args...);
 }
 
 template <typename ... Args> inline
 double compute(const DefinedCorrelation & corr, bool check, Args ... args)
-{
-  ParList pars_list;
+{ // se pone estática para crearla una sola vez. Pero cuidado! la
+  // función deja de ser reentrante y no puede usarse en un entorno multithread
+  static ParList pars_list;
   return compute(corr, check, pars_list, args...);
 }
 
@@ -1183,9 +1192,9 @@ void generate_grid()
   FixedStack<double> row(25);
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
-      auto t_par = t_it.get_curr();
+      Correlation::NamedPar t_par = t_it.get_curr();
       VtlQuantity t_q = par(t_par);
-      t = t_q.raw();
+      temperature = t_q.raw();
       auto tpr = Tpr::get_instance().call(t_q, adjustedtpcm);
 
       auto pb_q = compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
@@ -1251,10 +1260,10 @@ void generate_grid()
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
-	  auto p_par = p_it.get_curr();
+	  Correlation::NamedPar p_par = p_it.get_curr();
 	  VtlQuantity p_q = par(p_par);
-	  p = p_q.raw();
-	  auto ppr = Ppr::get_instance().call(p_q, adjustedppcm);
+	  pressure = p_q.raw();
+	  VtlQuantity ppr = Ppr::get_instance().call(p_q, adjustedppcm);
 	  auto rs = compute(rs_corr, check, rs_pars, p_par);
 	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
 	  auto co = compute(co_corr, check, co_pars, p_par);
@@ -1264,18 +1273,7 @@ void generate_grid()
 	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
 	  auto z = compute(zfactor_corr, 0, 1, check, NPAR(ppr), NPAR(tpr));
-	  VtlQuantity bg = VtlQuantity::null_quantity;
-	  try
-	    {
-	      if (valid_args(t_q, p_q, z))
-		bg = Bg::get_instance().call(t_q, p_q, z);
-	    }
-	  catch (exception & e)
-	    {
-	      store_exception(Bg::get_instance().name, e);
-	    }
-
-	  //CALL(Bg, bg, t_q, p_q, z);
+	  CALL(Bg, bg, t_q, p_q, z);
 	  auto ug = compute(ug_corr, 0, 1, check, ug_pars,
 			    p_par, npar("ppr", ppr), NPAR(z));
 	  CALL(Pg, pg, yg, t_q, p_q, z);
@@ -1288,7 +1286,8 @@ void generate_grid()
 	  auto cw = compute(cw_corr, check, cw_pars, p_par, NPAR(z),
 			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
 	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
-	  auto uw = compute(uw_corr, 0, 1, check, uw_pars, p_par, NPAR(ppw)).raw();
+	  auto uw =
+	    compute(uw_corr, 0, 1, check, uw_pars, p_par, NPAR(ppw)).raw();
 
 	  size_t n = row.ninsert(p_q.raw(), rs, co, bo, uo, po, z.raw(),
 				 bg.raw(), ug.raw(), pg.raw(), bw, uw, pw.raw(),

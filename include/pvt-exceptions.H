@@ -3,7 +3,7 @@
 
 # include <zen-exceptions.H>
 
-DEFINE_ZEN_EXCEPTION(SynonymNotFound, "Parameter synonum not found");
+DEFINE_ZEN_EXCEPTION(SynonymNotFound, "Parameter synonym not found");
 
 DEFINE_ZEN_EXCEPTION(DuplicatedCorrelationName, "duplicated correlation name");
 
