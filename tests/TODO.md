@@ -32,3 +32,9 @@
 ## 11. plot: revisar cadena de cómputo en nonhydrocarborn ...
 - Created at   2017-01-30 09:31:11 -0400
 
+## 12. plot: poner un copute que n recibe parámetros de calibración
+- Created at   2017-01-30 17:59:05 -0400
+
+## 13. headers de plot debe construirse con función que tenga el mismo orden que row
+- Created at   2017-01-30 18:16:06 -0400
+

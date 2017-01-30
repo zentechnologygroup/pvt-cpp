@@ -820,6 +820,29 @@ VtlQuantity compute(const Correlation * corr_ptr,
   return VtlQuantity::null_quantity; 
 }
 
+template <typename ... Args> inline
+VtlQuantity dcompute(const Correlation * corr_ptr, bool check,
+		    ParList & pars_list, Args ... args)
+{
+  try
+    {
+      if (not insert_in_pars_list(pars_list, args...))
+	return VtlQuantity::null_quantity;
+
+      auto ret = corr_ptr->compute_by_names(pars_list, check);
+      remove_from_container(pars_list, args...);
+      return ret;
+    }
+  catch (exception & e)
+    {
+      if (report_exceptions)
+	store_exception(corr_ptr->name, e);
+      
+      remove_from_container(pars_list, args ...);
+    }
+  return VtlQuantity::null_quantity; 
+}
+
 // returna true si todos los args... son válidos
 inline bool valid_args() { return true; }
   template <typename ... Args> inline
@@ -880,6 +903,14 @@ VtlQuantity compute(const Correlation * corr_ptr,
   // función deja de ser reentrante y no puede usarse en un entorno multithread
   static ParList pars_list;
   return compute(corr_ptr, c, m, check, pars_list, args...);
+}
+
+template <typename ... Args> inline
+VtlQuantity dcompute(const Correlation * corr_ptr, bool check, Args ... args)
+{ // se pone estática para crearla una sola vez. Pero cuidado! la
+  // función deja de ser reentrante y no puede usarse en un entorno multithread
+  static ParList pars_list;
+  return dcompute(corr_ptr, check, pars_list, args...);
 }
 
 template <typename ... Args> inline
@@ -1031,7 +1062,7 @@ DynList<DynList<double>> generate_uo_values()
 	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
       auto pb_par = make_tuple(true, "pb", pb_val.raw(), &pb_val.unit);
 
-      auto uod_val = compute(uod_corr, 0, 1, check, uod_pars_list, t_par);
+      auto uod_val = dcompute(uod_corr, check, uod_pars_list, t_par);
 
       insert_in_container(rs_pars_list, t_par, pb_par);
       auto rs_corr = define_correlation(pb_val.raw(), ::rs_corr,
@@ -1138,21 +1169,21 @@ void generate_grid()
 						      n2_concentration,
 						      co2_concentration,
 						      h2s_concentration);
-  auto ppchc = compute(ppchc_corr, 0, 1, check, NPAR(yghc),
+  auto ppchc = dcompute(ppchc_corr, check, NPAR(yghc),
 		       NPAR(n2_concentration), NPAR(co2_concentration),
 		       NPAR(h2s_concentration));
-  auto ppcm = compute(ppcm_mixing_corr, 0, 1, check, NPAR(ppchc),
-		      NPAR(n2_concentration), NPAR(co2_concentration),
-		      NPAR(h2s_concentration));		       
+  auto ppcm = dcompute(ppcm_mixing_corr, check, NPAR(ppchc),
+		       NPAR(n2_concentration), NPAR(co2_concentration),
+		       NPAR(h2s_concentration));		       
   auto tpchc = tpchc_corr->compute(check, yghc);
-  auto tpcm = compute(tpcm_mixing_corr, 0, 1, check, NPAR(tpchc),
-		      NPAR(n2_concentration), NPAR(co2_concentration),
-		      NPAR(h2s_concentration));
-  auto adjustedppcm = compute(adjustedppcm_corr, 0, 1, check, NPAR(ppcm),
-			      NPAR(tpcm), NPAR(co2_concentration),
-			      NPAR(h2s_concentration));
-  auto adjustedtpcm = compute(adjustedtpcm_corr, 0, 1, check, NPAR(tpcm),
-			      NPAR(co2_concentration), NPAR(h2s_concentration));
+  auto tpcm = dcompute(tpcm_mixing_corr, check, NPAR(tpchc),
+		       NPAR(n2_concentration), NPAR(co2_concentration),
+		       NPAR(h2s_concentration));
+  auto adjustedppcm = dcompute(adjustedppcm_corr, check, NPAR(ppcm),
+			       NPAR(tpcm), NPAR(co2_concentration),
+			       NPAR(h2s_concentration));
+  auto adjustedtpcm = dcompute(adjustedtpcm_corr, check, NPAR(tpcm),
+			       NPAR(co2_concentration), NPAR(h2s_concentration));
   // Fin cálculo constantes para z
 
   // Inicialización de listas de parámetros de correlaciones
@@ -1213,7 +1244,7 @@ void generate_grid()
       auto pb_par = npar("pb", pb_q);
       auto p_pb = npar("p", pb_q);
 
-      auto uod_val = compute(uod_corr, 0, 1, check, uod_pars, t_par);
+      auto uod_val = dcompute(uod_corr, check, uod_pars, t_par);
 
       insert_in_container(rs_pars, t_par, pb_par);
       auto rs_corr = define_correlation(pb, ::rs_corr, c_rs_arg.getValue(),
@@ -1254,7 +1285,7 @@ void generate_grid()
 
       uo_pars.insert("uobp", uobp.raw(), &uobp.unit);
 
-      auto pobp = compute(&PobBradley::get_instance(), 0, 1, check, po_pars,
+      auto pobp = dcompute(&PobBradley::get_instance(), check, po_pars,
 			  rs_pb, npar("bob", bobp));
 
       insert_in_container(po_pars, pb_par, NPAR(pobp));
@@ -1284,25 +1315,22 @@ void generate_grid()
 	  auto uo = compute(uo_corr, check, uo_pars, p_par, rs_par);
 	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
-	  auto z = compute(zfactor_corr, 0, 1, check, ppr_par, tpr_par);
+	  auto z = dcompute(zfactor_corr, check, ppr_par, tpr_par);
 	  auto z_par = NPAR(z);
-	  auto cg =
-	    compute(cg_corr, 0, 1, check, cg_pars, ppr_par, p_par, z_par);
+	  auto cg = dcompute(cg_corr, check, cg_pars, ppr_par, p_par, z_par);
 	  CALL(Bg, bg, t_q, p_q, z);
-	  auto ug = compute(ug_corr, 0, 1, check, ug_pars, p_par,
-			    ppr_par, z_par);
+	  auto ug = dcompute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
 	  CALL(Pg, pg, yg, t_q, p_q, z);
 	  auto bw = compute(bw_corr, check, bw_pars, p_par);
 	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
-	  auto pw = compute(pw_corr, 0, 1, check, pw_pars, p_par, bw_par);
-	  auto rsw = compute(rsw_corr, 0, 1, check, rsw_pars, p_par);
+	  auto pw = dcompute(pw_corr, check, pw_pars, p_par, bw_par);
+	  auto rsw = dcompute(rsw_corr, check, rsw_pars, p_par);
 	  auto rsw_par = NPAR(rsw);
-	  auto cwa = compute(cwa_corr, 0, 1, check, cwa_pars, p_par, rsw_par);
+	  auto cwa = dcompute(cwa_corr, check, cwa_pars, p_par, rsw_par);
 	  auto cw = compute(cw_corr, check, cw_pars, p_par, z_par,
 			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
 	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
-	  auto uw =
-	    compute(uw_corr, 0, 1, check, uw_pars, p_par, NPAR(ppw)).raw();
+	  auto uw = dcompute(uw_corr, check, uw_pars, p_par, NPAR(ppw)).raw();
 
 	  size_t n = row.ninsert(p_q.raw(), rs, co, bo, uo, po, z.raw(),
 				 cg.raw(), bg.raw(), ug.raw(), pg.raw(), bw,
