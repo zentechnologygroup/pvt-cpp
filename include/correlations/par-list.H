@@ -51,7 +51,8 @@ public:
 
   void insert(const string & name, double val, const Unit * unit_ptr)
   {
-    tbl.insert(ParPair(name, ValPair(val, unit_ptr)));
+    ParPair p(name, ValPair(val, unit_ptr)); // porque es más rápido que &&
+    tbl.insert(p);
   }
 
   void insert(const NamedPar & par)
