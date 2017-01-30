@@ -26,7 +26,7 @@ Declare_Unit(kPascal, "kPa",
 
 Declare_Unit(mPascal, "mPa",
          "a mPascal is a common multiple unit of the pascal 1 mPa = 1000000 Pa,",
-          Pressure, 0, 206843410);
+          Pressure, 0, 206.843410);
 
 Declare_Unit(psia, "psia",
 	     R"DESC(Pounds per square inch absolute (psia) is used to make
