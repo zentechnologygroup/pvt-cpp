@@ -93,7 +93,8 @@ Declare_Conversion(lb_ftxh, Paxs, v) { return 0.0004133789006 * v; }
 Declare_Conversion(Poise, Paxs, v)  { return 0.1 * v ; }
 Declare_Conversion(mP, Paxs, v)
 {
-  return unit_convert<Poise, Paxs>(unit_convert<Paxs, Poise>(v));
+  return unit_convert<Poise, Paxs>(unit_convert<mP, Poise>(v));
+  //return unit_convert<Poise, Paxs>(unit_convert<Paxs, Poise>(v));
 }
 
 // to lb/ft*h
@@ -117,14 +118,16 @@ Declare_Conversion(lb_ftxh, lb_ftxs, v) { return 0.0002777778 * v; }
 Declare_Conversion(Poise, lb_ftxs, v)  { return 0.0671968975 * v ; }
 Declare_Conversion(mP, lb_ftxs, v)
 {
-  return unit_convert<Poise, lb_ftxh>(unit_convert<mP, Poise>(v));
+  return 6.719689751e-8 * v;
+  //return unit_convert<Poise, lb_ftxs>(unit_convert<mP, Poise>(v));
 }
 
 // to mP TODO
 Declare_Conversion(Poise, mP, v) { return 1e6 * v; }
 Declare_Conversion(lb_ftxs, mP, v)
 {
-  return unit_convert<Poise, mP>(unit_convert<lb_ftxs, Poise>(v));
+  return 14881639.436 * v;
+  //return unit_convert<Poise, mP>(unit_convert<lb_ftxs, Poise>(v));
 }
 
 Declare_Conversion(CP, mP, v) { return v*1e4; }
