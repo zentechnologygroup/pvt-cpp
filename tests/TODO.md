@@ -32,3 +32,6 @@
 ## 11. plot: revisar cadena de cómputo en nonhydrocarborn ...
 - Created at   2017-01-30 09:31:11 -0400
 
+## 12. Ixhel: revisar AdjustedtpcmWichertAziz rango de tpcm
+- Created at   2017-01-30 13:42:12 -0400
+

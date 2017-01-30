@@ -13,7 +13,9 @@ YghcWichertAziz::precondition(const Quantity<MoleFraction> & n2_concentration,
       h2s_concentration.raw() >= 1)
     {
     ostringstream s;
-    s << "In YghcWichertAziz::impl: invalid values for nonhydrocarbon concentrations";
+    s << "YghcWichertAziz::impl: invalid values for nonhydrocarbon concentrations"
+      << n2_concentration << ", " << co2_concentration << ", "
+      << h2s_concentration;
     ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }
@@ -42,7 +44,9 @@ PpcmKayMixingRule::precondition(const Quantity<MoleFraction> & n2_concentration,
       h2s_concentration.raw() >= 1)
     {
     ostringstream s;
-    s << "In PpcMKayMixingRule::impl: invalid values for nonhydrocarbon concentrations";
+    s << "PpcMKayMixingRule::impl: invalid values for nonhydrocarbon concentrations "
+      << n2_concentration << ", " << co2_concentration << ", "
+      << h2s_concentration;
     ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }
@@ -69,7 +73,8 @@ void AdjustedppcmWichertAziz::precondition
   if (co2_concentration.raw() + h2s_concentration.raw() >= 1)
     {
     ostringstream s;
-    s << "In AdjustedppcMWichertAziz::impl: invalid values for nonhydrocarbon concentrations";
+    s << "AdjustedppcMWichertAziz::impl: invalid values for nonhydrocarbon concentrations "
+      << co2_concentration << ", " << h2s_concentration;
     ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }
@@ -102,7 +107,9 @@ void TpcmKayMixingRule::precondition
       h2s_concentration.raw() >= 1)
     {
     ostringstream s;
-    s << "In TpcmKayMixingRule::impl: invalid values for nonhydrocarbon concentrations";
+    s << "In TpcmKayMixingRule::impl: invalid values for nonhydrocarbon concentrations "
+      << n2_concentration << ", " << co2_concentration << ", "
+      << h2s_concentration;
     ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }
@@ -128,7 +135,8 @@ void AdjustedtpcmWichertAziz::precondition
   if (co2_concentration.raw() + h2s_concentration.raw() >= 1)
     {
     ostringstream s;
-    s << "In AdjustedtpcmWichertAziz::impl: invalid values for nonhydrocarbon concentrations";
+    s << "In AdjustedtpcmWichertAziz::impl: invalid values for nonhydrocarbon concentrations "
+      << co2_concentration << ", " << h2s_concentration;
     ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }

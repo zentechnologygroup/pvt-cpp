@@ -960,8 +960,9 @@ public:
 	  {
 	    auto i = get<2>(p) + 1;
 	    ostringstream s;
-	    s << "Correlation parameter " << i << " (" << par_name
-	      << ") does not satisfy bound constraints";
+	    s << "Correlation parameter " << i << " (" << par_name << " = "
+	      << par << ") does not satisfy precondition for correlation "
+	      << name; 
 	    ZENTHROW(OutOfParameterRange, s.str());
 	  }
       }

@@ -1130,22 +1130,24 @@ void generate_grid()
 						      n2_concentration,
 						      co2_concentration,
 						      h2s_concentration);
-  auto ppchc = ppchc_corr->compute(check, yghc, n2_concentration,
-				   co2_concentration, h2s_concentration);
-  auto ppcm = ppcm_mixing_corr->compute(check, ppchc, n2_concentration,
-					co2_concentration, h2s_concentration);
+  auto ppchc = compute(ppchc_corr, 0, 1, check, NPAR(yghc),
+		       NPAR(n2_concentration), NPAR(co2_concentration),
+		       NPAR(h2s_concentration));
+  auto ppcm = compute(ppcm_mixing_corr, 0, 1, check, NPAR(ppchc),
+		      NPAR(n2_concentration), NPAR(co2_concentration),
+		      NPAR(h2s_concentration));
 		       
   auto tpchc = tpchc_corr->compute(check, yghc);
-  auto tpcm = tpcm_mixing_corr->compute(check, tpchc, n2_concentration,
-					co2_concentration, h2s_concentration);
+  auto tpcm = compute(tpcm_mixing_corr, 0, 1, check, NPAR(tpchc),
+		      NPAR(n2_concentration), NPAR(co2_concentration),
+		      NPAR(h2s_concentration));
 
-  auto adjustedppcm = adjustedppcm_corr->compute(check, ppcm, tpcm,
-						 co2_concentration,
-						 h2s_concentration);
+  auto adjustedppcm = compute(adjustedppcm_corr, 0, 1, check, NPAR(ppcm),
+			      NPAR(tpcm), NPAR(co2_concentration),
+			      NPAR(h2s_concentration));
 
-  auto adjustedtpcm = adjustedtpcm_corr->compute(check, ppcm, tpcm,
-						 co2_concentration,
-						 h2s_concentration);
+  auto adjustedtpcm = compute(adjustedtpcm_corr, 0, 1, check, NPAR(tpcm),
+			      NPAR(co2_concentration), NPAR(h2s_concentration));
   // Fin cálculo constantes para z
 
   // Inicialización de listas de parámetros de correlaciones
