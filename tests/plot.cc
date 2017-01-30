@@ -757,8 +757,10 @@ double temperature = 0, pressure = 0; // globales y puestos por el grid
 void store_exception(const string & corr_name, const exception & e)
 {
   ostringstream s;
-  s << corr_name << ": " << temperature << ", " << pressure << ": " << e.what();
+  s << corr_name << ": " << temperature << ", " << pressure << ": " << e.what()
+    << endl;
   exception_list.append(s.str());
+  cout << s.str() << endl;
 }
 
 /* meta inserta par en pars_list pero se detiene si algún parámetro es
@@ -1069,11 +1071,11 @@ void print_row(const FixedStack<double> & row)
     {
       const auto & val = ptr[i];
       if (val != Invalid_Value)
-	cout << val;
+	printf("%f", val);
       if (i > 0)
-	cout << ",";
+	printf(",");
     }
-  cout << endl;
+  printf("\n");
 }
 
 void generate_grid()
@@ -1124,28 +1126,26 @@ void generate_grid()
     error_msg("above option is incompatible with grid option");
 
   // cálculo de constantes para Z
-  auto yghc =
-    YghcWichertAziz::get_instance().call(yg, n2_concentration,
-					 co2_concentration, h2s_concentration);
-  auto ppchc = compute(ppchc_corr, 0, 1, check, NPAR(yghc),
-		       NPAR(n2_concentration), NPAR(co2_concentration),
-		       NPAR(h2s_concentration));
-  auto ppcm = compute(ppcm_mixing_corr, 0, 1, check, NPAR(ppchc),
-		      NPAR(n2_concentration), NPAR(co2_concentration),
-		      NPAR(h2s_concentration));
+  auto yghc = YghcWichertAziz::correlation()->compute(check, yg,
+						      n2_concentration,
+						      co2_concentration,
+						      h2s_concentration);
+  auto ppchc = ppchc_corr->compute(check, yghc, n2_concentration,
+				   co2_concentration, h2s_concentration);
+  auto ppcm = ppcm_mixing_corr->compute(check, ppchc, n2_concentration,
+					co2_concentration, h2s_concentration);
 		       
-  auto tpchc = compute(tpchc_corr, 0, 1, check, NPAR(yghc));
-  auto tpcm = compute(tpcm_mixing_corr, 0 ,1, check, NPAR(tpchc),
-		      NPAR(n2_concentration), NPAR(co2_concentration),
-		      NPAR(h2s_concentration));
+  auto tpchc = tpchc_corr->compute(check, yghc);
+  auto tpcm = tpcm_mixing_corr->compute(check, tpchc, n2_concentration,
+					co2_concentration, h2s_concentration);
 
-  auto adjustedppcm = compute(adjustedppcm_corr, 0, 1, check, NPAR(ppcm),
-			      NPAR(tpcm), NPAR(co2_concentration),
-			      NPAR(h2s_concentration));
+  auto adjustedppcm = adjustedppcm_corr->compute(check, ppcm, tpcm,
+						 co2_concentration,
+						 h2s_concentration);
 
-  auto adjustedtpcm = compute(adjustedtpcm_corr, 0, 1, check, NPAR(ppcm),
-			      NPAR(tpcm), NPAR(co2_concentration),
-			      NPAR(h2s_concentration));
+  auto adjustedtpcm = adjustedtpcm_corr->compute(check, ppcm, tpcm,
+						 co2_concentration,
+						 h2s_concentration);
   // Fin cálculo constantes para z
 
   // Inicialización de listas de parámetros de correlaciones
@@ -1197,9 +1197,10 @@ void generate_grid()
       Correlation::NamedPar t_par = t_it.get_curr();
       VtlQuantity t_q = par(t_par);
       temperature = t_q.raw();
-      auto tpr = Tpr::get_instance().call(t_q, adjustedtpcm);
+      CALL(Tpr, tpr, t_q, adjustedtpcm);
 
-      auto pb_q = compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
+      auto pb_q =
+	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
       auto pb = pb_q.raw();
       auto pb_par = npar("pb", pb_q);
       auto p_pb = npar("p", pb_q);
@@ -1265,7 +1266,7 @@ void generate_grid()
 	  Correlation::NamedPar p_par = p_it.get_curr();
 	  VtlQuantity p_q = par(p_par);
 	  pressure = p_q.raw();
-	  VtlQuantity ppr = Ppr::get_instance().call(p_q, adjustedppcm);
+	  CALL(Ppr, ppr, p_q, adjustedppcm);
 	  auto rs = compute(rs_corr, check, rs_pars, p_par);
 	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
 	  auto co = compute(co_corr, check, co_pars, p_par);
@@ -1321,7 +1322,7 @@ void generate_grid()
     {
       cout << endl
 	   << "Exceptions:" << endl;
-      exception_list.for_each([] (const auto & s) { cout << s << endl; });
+      exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
     }
 }
 

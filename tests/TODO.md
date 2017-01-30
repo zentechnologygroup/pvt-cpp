@@ -29,3 +29,6 @@
 ## 10. script que valid unidades
 - Created at   2017-01-27 17:40:35 -0400
 
+## 11. plot: revisar cadena de cómputo en nonhydrocarborn ...
+- Created at   2017-01-30 09:31:11 -0400
+

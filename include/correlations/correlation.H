@@ -706,8 +706,8 @@ public:
     return out << c.to_string();
   }
 
-  virtual
-  VtlQuantity compute(const DynList<VtlQuantity> &, bool check = true) const = 0;
+  virtual VtlQuantity
+  compute(const DynList<VtlQuantity> &, bool check = true) const = 0;
 
   template <typename ... Args>
   VtlQuantity compute(bool check, Args ... args) const
@@ -795,6 +795,7 @@ public:
 	      });
 
 	  });
+	
 	if (ptr_val == nullptr)
 	  {
 	    ostringstream s;
@@ -824,6 +825,7 @@ public:
 		return p.first == get<1>(t); 
 	      });
 	  });
+	
 	if (ptr_val == nullptr)
 	  {
 	    ostringstream s;
@@ -831,6 +833,7 @@ public:
 	      << ": parameter name " << par.name << " was not found";
 	    ZENTHROW(ParameterNameNotFound, s.str());
 	  }
+	
 	if (not get<0>(*ptr_val))
 	  {
 	    ostringstream s;
@@ -1113,6 +1116,11 @@ decltype(auto)
   {									\
     static name instance;						\
     return instance;							\
+  }									\
+									\
+  static const Correlation * correlation()				\
+  {									\
+    return & get_instance();						\
   }									\
 									\
   name(const name&) = delete;						\

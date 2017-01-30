@@ -238,7 +238,10 @@ class CorrelationGen
   end
 
   def gen_class
-    s = "/** #{@name}\n\n"
+    s = "/** #{@name}\n\n"\
+        "    Generated at #{Time.now}\n"\
+        "\n"\
+        "    Zen Technologies Group\n\n"
     s += @doc if @doc
     @internal_notes.each { |note| s += "#{note.ljust(60)}\n\n" }
     s += "\n"\
