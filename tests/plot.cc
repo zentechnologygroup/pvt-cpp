@@ -425,6 +425,14 @@ void set_zfactor_corr()
   set_correlation(zfactor_corr_arg, "zfactor", zfactor_corr, true);
 }
 
+ValueArg<string> cg_corr_arg =
+  { "", "cg", "Correlation for cg", false, "", "Correlation for cg", cmd };
+const Correlation * cg_corr = nullptr;
+void set_cg_corr()
+{
+  set_correlation(cg_corr_arg, "cg", cg_corr, true);
+}
+
 ValueArg<string> ug_corr_arg =
   { "", "ug", "Correlation for ug", false, "UgLeeGE", "Correlation for ug", cmd };
 const Correlation * ug_corr = nullptr;
@@ -1106,6 +1114,7 @@ void generate_grid()
   set_adjustedppcm_corr();
   set_adjustedtpcm_corr();
   set_zfactor_corr();
+  set_cg_corr();
   set_ug_corr();
   set_bwb_corr();
   set_bwa_corr();
@@ -1134,17 +1143,14 @@ void generate_grid()
 		       NPAR(h2s_concentration));
   auto ppcm = compute(ppcm_mixing_corr, 0, 1, check, NPAR(ppchc),
 		      NPAR(n2_concentration), NPAR(co2_concentration),
-		      NPAR(h2s_concentration));
-		       
+		      NPAR(h2s_concentration));		       
   auto tpchc = tpchc_corr->compute(check, yghc);
   auto tpcm = compute(tpcm_mixing_corr, 0, 1, check, NPAR(tpchc),
 		      NPAR(n2_concentration), NPAR(co2_concentration),
 		      NPAR(h2s_concentration));
-
   auto adjustedppcm = compute(adjustedppcm_corr, 0, 1, check, NPAR(ppcm),
 			      NPAR(tpcm), NPAR(co2_concentration),
 			      NPAR(h2s_concentration));
-
   auto adjustedtpcm = compute(adjustedtpcm_corr, 0, 1, check, NPAR(tpcm),
 			      NPAR(co2_concentration), NPAR(h2s_concentration));
   // Fin cálculo constantes para z
@@ -1165,6 +1171,7 @@ void generate_grid()
   auto rsw_pars = load_constant_parameters({rsw_corr});
   auto cw_pars = load_constant_parameters({cwb_corr, cwa_corr});
   auto cwa_pars = load_constant_parameters({cwa_corr});
+  ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));
 
   // Nuevo valor tiene que entrar de 1ro aqui. Orden de inserción en
   // row debe ser inverso
@@ -1176,6 +1183,7 @@ void generate_grid()
        << ",pg " << Pg::get_instance().unit.name
        << ",ug " << ug_corr->unit.name
        << ",bg " << Bg::get_instance().unit.name 
+       << ",cg " << cg_corr->unit.name
        << ",zfactor " << Zfactor::get_instance().name
        << ",po " << PobBradley::get_instance().unit.name
        << ",uo " << uob_corr->unit.name
@@ -1183,8 +1191,6 @@ void generate_grid()
        << ",co " << cob_corr->unit.name
        << ",rs " << ::rs_corr->unit.name
        << ",p " << get<3>(p_values.get_first())->name
-       << ",uobp " << uob_corr->unit.name
-       << ",bobp " << bob_corr->unit.name
        << ",uod " << uod_corr->unit.name
        << ",pb " << pb_corr->unit.name
        << ",t " << get<3>(t_values.get_first())->name
@@ -1199,6 +1205,7 @@ void generate_grid()
       VtlQuantity t_q = par(t_par);
       temperature = t_q.raw();
       CALL(Tpr, tpr, t_q, adjustedtpcm);
+      auto tpr_par = NPAR(tpr);
 
       auto pb_q =
 	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
@@ -1250,8 +1257,9 @@ void generate_grid()
       auto pobp = compute(&PobBradley::get_instance(), 0, 1, check, po_pars,
 			  rs_pb, npar("bob", bobp));
 
-      insert_in_container(po_pars, pb_par, npar("pobp", pobp));
-      insert_in_container(ug_pars, npar("tpr", tpr), t_par);
+      insert_in_container(po_pars, pb_par, NPAR(pobp));
+      insert_in_container(ug_pars, tpr_par, t_par);
+      cg_pars.insert(tpr_par);
       bw_pars.insert(t_par);
       uw_pars.insert(t_par);
       pw_pars.insert(t_par);
@@ -1259,8 +1267,7 @@ void generate_grid()
       cw_pars.insert(t_par);
       cwa_pars.insert(t_par);
 
-      size_t n =
-	row.ninsert(t_q.raw(), pb, uod_val.raw(), bobp.raw(), uobp.raw());
+      size_t n = row.ninsert(t_q.raw(), pb, uod_val.raw());
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
@@ -1268,6 +1275,7 @@ void generate_grid()
 	  VtlQuantity p_q = par(p_par);
 	  pressure = p_q.raw();
 	  CALL(Ppr, ppr, p_q, adjustedppcm);
+	  auto ppr_par = NPAR(ppr);
 	  auto rs = compute(rs_corr, check, rs_pars, p_par);
 	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
 	  auto co = compute(co_corr, check, co_pars, p_par);
@@ -1276,10 +1284,13 @@ void generate_grid()
 	  auto uo = compute(uo_corr, check, uo_pars, p_par, rs_par);
 	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
-	  auto z = compute(zfactor_corr, 0, 1, check, NPAR(ppr), NPAR(tpr));
+	  auto z = compute(zfactor_corr, 0, 1, check, ppr_par, tpr_par);
+	  auto z_par = NPAR(z);
+	  auto cg =
+	    compute(cg_corr, 0, 1, check, cg_pars, ppr_par, p_par, z_par);
 	  CALL(Bg, bg, t_q, p_q, z);
-	  auto ug = compute(ug_corr, 0, 1, check, ug_pars,
-			    p_par, npar("ppr", ppr), NPAR(z));
+	  auto ug = compute(ug_corr, 0, 1, check, ug_pars, p_par,
+			    ppr_par, z_par);
 	  CALL(Pg, pg, yg, t_q, p_q, z);
 	  auto bw = compute(bw_corr, check, bw_pars, p_par);
 	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
@@ -1287,17 +1298,17 @@ void generate_grid()
 	  auto rsw = compute(rsw_corr, 0, 1, check, rsw_pars, p_par);
 	  auto rsw_par = NPAR(rsw);
 	  auto cwa = compute(cwa_corr, 0, 1, check, cwa_pars, p_par, rsw_par);
-	  auto cw = compute(cw_corr, check, cw_pars, p_par, NPAR(z),
+	  auto cw = compute(cw_corr, check, cw_pars, p_par, z_par,
 			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
 	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
 	  auto uw =
 	    compute(uw_corr, 0, 1, check, uw_pars, p_par, NPAR(ppw)).raw();
 
 	  size_t n = row.ninsert(p_q.raw(), rs, co, bo, uo, po, z.raw(),
-				 bg.raw(), ug.raw(), pg.raw(), bw, uw, pw.raw(),
-				 rsw.raw(), cw);
+				 cg.raw(), bg.raw(), ug.raw(), pg.raw(), bw,
+				 uw, pw.raw(), rsw.raw(), cw);
 
-	  assert(row.size() == 20);
+	  assert(row.size() == 19);
 
 	  print_row(row);
 
@@ -1311,7 +1322,8 @@ void generate_grid()
       remove_from_container(bo_pars, "bobp", "pb", t_par);
       remove_from_container(uo_pars, "uobp", "pb", "uod", t_par);
       remove_from_container(po_pars, "pb", "pobp");
-      remove_from_container(ug_pars, t_par, "tpr");
+      remove_from_container(ug_pars, t_par, tpr_par);
+      cg_pars.remove(tpr_par);
       bw_pars.remove(t_par); 
       uw_pars.remove(t_par); 
       pw_pars.remove(t_par);

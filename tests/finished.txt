@@ -147,3 +147,4 @@ en plot: insert_in_container debe reemplazarse por uno especial que valide pará
 NullUnit is_null() parace no estar funcionando,2017-01-27 16:40:42 -0400,2017-01-28 11:02:52 -0400,,2017-01-28 11:04:23 -0400
 function get_tp no debe generar excepciones,2017-01-27 16:51:52 -0400,2017-01-28 11:02:46 -0400,,2017-01-28 11:04:27 -0400
 Añadir t y p a compute de plot de manera que estén si hay excepción,2017-01-27 16:55:00 -0400,2017-01-28 11:02:23 -0400,,2017-01-28 11:04:32 -0400
+Ixhel: revisar AdjustedtpcmWichertAziz rango de tpcm,2017-01-30 13:42:12 -0400,,,2017-01-30 16:15:24 -0400

@@ -892,3 +892,9 @@
 - Comment      
 - Finished     
 
+## 150. Ixhel: revisar AdjustedtpcmWichertAziz rango de tpcm
+- Created at   2017-01-30 13:42:12 -0400
+- Completed at 
+- Comment      
+- Finished     
+
