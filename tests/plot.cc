@@ -760,7 +760,6 @@ void store_exception(const string & corr_name, const exception & e)
   s << corr_name << ": " << temperature << ", " << pressure << ": " << e.what()
     << endl;
   exception_list.append(s.str());
-  cout << s.str() << endl;
 }
 
 /* meta inserta par en pars_list pero se detiene si algún parámetro es
@@ -1273,7 +1272,7 @@ void generate_grid()
 	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
 	  auto co = compute(co_corr, check, co_pars, p_par);
 	  auto co_par = make_tuple(true, "co", co, co_corr.result_unit);
-	  auto bo = compute(bo_corr, check, bo_pars, p_par, rs_par);
+	  auto bo = compute(bo_corr, check, bo_pars, p_par, rs_par, co_par);
 	  auto uo = compute(uo_corr, check, uo_pars, p_par, rs_par);
 	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
