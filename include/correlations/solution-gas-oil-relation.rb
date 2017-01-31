@@ -165,7 +165,7 @@ add_title("TOTAL COMPAGNIE FRANÇAISE DES PÉTROLES (CFP) CORRELATION, CALCULATI
 add_eq("R_s = \\gamma_g \\cdot \\left[ \\frac{P}{C_1} \\cdot 10 ^ {\\left( C_2 \\cdot \\gamma_{API} - C_3 \\cdot T \\right) } \\right] ^ {C_4}")
 add_parameter("yg", "Sgg", "Gas specific gravity")
 add_parameter("p", "psia", "Pressure")
-add_parameter("api", "Api", "API oil gravity", 0, 45)
+add_parameter("api", "Api", "API oil gravity", "Api::get_instance().min_val", 45)
 add_parameter("t", "Fahrenheit", "Temperature")
 add_db("Based on 336 PVT analyses of crude oil from eastern Venezuela.")
 add_author("Total CFP")
