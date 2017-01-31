@@ -74,8 +74,8 @@ Declare_Conversion(mPascal, Atmosphere, v)
 Declare_Conversion(Atmosphere, Bar, v)  { return v * 1.0132499658; }
 Declare_Conversion(Pascal, Bar, v)  { return v * 1.0e-5; }
 Declare_Conversion(kPascal, Bar, v)  { return v * 1.0e-2; }
-Declare_Conversion(psia, Bar, v)  { return v * 0.0689478018; }
-Declare_Conversion(psig, Bar, v) { return (v + 14.695948775) * 0.0689478018; }
+Declare_Conversion(psia, Bar, v)  { return v * 0.0689475729; }
+Declare_Conversion(psig, Bar, v) { return (v + 14.695948775) * 0.0689475729; }
 Declare_Conversion(mPascal, Bar, v)
 {
   return unit_convert<Pascal, Bar>(unit_convert<mPascal, Pascal>(v));
