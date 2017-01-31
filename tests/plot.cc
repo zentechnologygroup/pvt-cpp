@@ -1167,7 +1167,7 @@ template <typename ... Args> string csv_header(Args ... args)
 
 void generate_grid()
 {
-  set_check();
+  set_check(); // Inicialiación de datos constantes
   set_api();
   set_rsb();
   set_yg();
@@ -1179,7 +1179,7 @@ void generate_grid()
   set_nacl_concentration();
   set_pb();
   
-  set_rs_corr(true);
+  set_rs_corr(true); // Inicialización de correlaciones
   set_bob_corr(true);
   set_boa_corr(true);
   set_uod_corr(true);
@@ -1277,7 +1277,9 @@ void generate_grid()
 
   auto rs_pb = make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par));
   
-  FixedStack<double> row(25);
+  FixedStack<double> row(25); // aquí van los valores. Asegure que el
+			      // orden de inserción sea el mismo que
+			      // para el header
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       Correlation::NamedPar t_par = t_it.get_curr();
@@ -1387,12 +1389,10 @@ void generate_grid()
 	  assert(row.size() == 19);
 
 	  print_row(row);
-
 	  row.popn(n);
 	}
 
       row.popn(n);
-
       remove_from_container(rs_pars, "pb", t_par);
       remove_from_container(co_pars, "pb", t_par);
       remove_from_container(bo_pars, "bobp", "pb", t_par);
