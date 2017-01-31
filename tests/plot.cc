@@ -843,6 +843,27 @@ VtlQuantity dcompute(const Correlation * corr_ptr, bool check,
   return VtlQuantity::null_quantity; 
 }
 
+template <typename ... Args> inline
+VtlQuantity dcompute_noexcep(const Correlation * corr_ptr, bool check,
+			     ParList & pars_list, Args ... args)
+{
+  try
+    {
+      if (not insert_in_pars_list(pars_list, args...))
+	return VtlQuantity::null_quantity;
+
+      auto ret = corr_ptr->compute_by_names(pars_list, check);
+      remove_from_container(pars_list, args...);
+      return ret;
+    }
+  catch (exception & e)
+    {
+      remove_from_container(pars_list, args ...);
+      throw;
+    }
+  return VtlQuantity::null_quantity; 
+}
+
 // returna true si todos los args... son válidos
 inline bool valid_args() { return true; }
   template <typename ... Args> inline
@@ -911,6 +932,15 @@ VtlQuantity dcompute(const Correlation * corr_ptr, bool check, Args ... args)
   // función deja de ser reentrante y no puede usarse en un entorno multithread
   static ParList pars_list;
   return dcompute(corr_ptr, check, pars_list, args...);
+}
+
+template <typename ... Args> inline
+VtlQuantity
+dcompute_noexcep(const Correlation * corr_ptr, bool check, Args ... args)
+{ // se pone estática para crearla una sola vez. Pero cuidado! la
+  // función deja de ser reentrante y no puede usarse en un entorno multithread
+  static ParList pars_list;
+  return dcompute_noexcep(corr_ptr, check, pars_list, args...);
 }
 
 template <typename ... Args> inline
@@ -1116,6 +1146,14 @@ void print_row(const FixedStack<double> & row)
   printf("\n");
 }
 
+template <typename ... Args>
+FixedStack<pair<string, const Unit*>> csv_header(Args ... args)
+{
+  FixedStack<pair<string, const Unit*>> header;
+  insert_in_container(header, args...);
+  return header;
+}
+
 void generate_grid()
 {
   set_check();
@@ -1169,21 +1207,22 @@ void generate_grid()
 						      n2_concentration,
 						      co2_concentration,
 						      h2s_concentration);
-  auto ppchc = dcompute(ppchc_corr, check, NPAR(yghc),
-		       NPAR(n2_concentration), NPAR(co2_concentration),
-		       NPAR(h2s_concentration));
-  auto ppcm = dcompute(ppcm_mixing_corr, check, NPAR(ppchc),
-		       NPAR(n2_concentration), NPAR(co2_concentration),
-		       NPAR(h2s_concentration));		       
+  auto ppchc = dcompute_noexcep(ppchc_corr, check, NPAR(yghc),
+				NPAR(n2_concentration), NPAR(co2_concentration),
+				NPAR(h2s_concentration));
+  auto ppcm = dcompute_noexcep(ppcm_mixing_corr, check, NPAR(ppchc),
+			       NPAR(n2_concentration), NPAR(co2_concentration),
+			       NPAR(h2s_concentration));		       
   auto tpchc = tpchc_corr->compute(check, yghc);
-  auto tpcm = dcompute(tpcm_mixing_corr, check, NPAR(tpchc),
-		       NPAR(n2_concentration), NPAR(co2_concentration),
-		       NPAR(h2s_concentration));
-  auto adjustedppcm = dcompute(adjustedppcm_corr, check, NPAR(ppcm),
-			       NPAR(tpcm), NPAR(co2_concentration),
+  auto tpcm = dcompute_noexcep(tpcm_mixing_corr, check, NPAR(tpchc),
+			       NPAR(n2_concentration), NPAR(co2_concentration),
 			       NPAR(h2s_concentration));
-  auto adjustedtpcm = dcompute(adjustedtpcm_corr, check, NPAR(tpcm),
-			       NPAR(co2_concentration), NPAR(h2s_concentration));
+  auto adjustedppcm = dcompute_noexcep(adjustedppcm_corr, check, NPAR(ppcm),
+				       NPAR(tpcm), NPAR(co2_concentration),
+				       NPAR(h2s_concentration));
+  auto adjustedtpcm = dcompute_noexcep(adjustedtpcm_corr, check, NPAR(tpcm),
+				       NPAR(co2_concentration),
+				       NPAR(h2s_concentration));
   // Fin cálculo constantes para z
 
   // Inicialización de listas de parámetros de correlaciones
@@ -1204,8 +1243,19 @@ void generate_grid()
   auto cwa_pars = load_constant_parameters({cwa_corr});
   ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));
 
+  using P = pair<string, const Unit*>;
+  csv_header(P("cw ", &cwb_corr->unit), P("rsw", &rsw_corr->unit),
+	     P("pw", &pw_corr->unit), P("uw", &uw_corr->unit),
+	     P("bw", &bwb_corr->unit), P("pg", &Pg::get_instance().unit),
+	     P("ug", &ug_corr->unit), P("bg", &Bg::get_instance().unit),
+	     P("cg", &cg_corr->unit), P("zfactor", &Zfactor::get_instance()),
+	     P("po", &PobBradley::get_instance().unit),
+	     P("uo", &uob_corr->unit), P("bo", &bob_corr->unit),
+	     P("co", &cob_corr->unit), P("rs", &::rs_corr->unit),
+	     P("p", get<3>(p_values.get_first())), P("uod", &uod_corr->unit),
+	     P("pb", &pb_corr->unit), P("t", get<3>(t_values.get_first())));
   // Nuevo valor tiene que entrar de 1ro aqui. Orden de inserción en
-  // row debe ser inverso
+  // row debe ser inverso pues una pila
   cout << "cw " << cwb_corr->unit.name
        << ",rsw " << rsw_corr->unit.name
        << ",pw " << pw_corr->unit.name
@@ -1317,7 +1367,7 @@ void generate_grid()
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
 	  auto z = dcompute(zfactor_corr, check, ppr_par, tpr_par);
 	  auto z_par = NPAR(z);
-	  auto cg = dcompute(cg_corr, check, cg_pars, ppr_par, p_par, z_par);
+	  auto cg = dcompute(cg_corr, check, cg_pars, ppr_par, z_par);
 	  CALL(Bg, bg, t_q, p_q, z);
 	  auto ug = dcompute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
 	  CALL(Pg, pg, yg, t_q, p_q, z);

@@ -898,3 +898,39 @@
 - Comment      
 - Finished     
 
+## 151. script que valid unidades
+- Created at   2017-01-27 17:40:35 -0400
+- Completed at 2017-01-31 09:09:54 -0400
+- Comment      
+- Finished     
+
+## 152. plot: poner un copute que n recibe parámetros de calibración
+- Created at   2017-01-30 17:59:05 -0400
+- Completed at 2017-01-31 09:09:46 -0400
+- Comment      
+- Finished     
+
+## 153. headers de plot debe construirse con función que tenga el mismo orden que row
+- Created at   2017-01-30 18:16:06 -0400
+- Completed at 2017-01-31 09:09:58 -0400
+- Comment      
+- Finished     
+
+## 154. plot: revisar cadena de cómputo en nonhydrocarborn ...
+- Created at   2017-01-30 09:31:11 -0400
+- Completed at 2017-01-31 09:18:06 -0400
+- Comment      
+- Finished     
+
+## 155. opcion all-tests que ejecute todos los test para todas la magnitude
+- Created at   2016-08-14 18:39:24 -0400
+- Completed at 2017-01-31 10:29:39 -0400
+- Comment      
+- Finished     
+
+## 156. evaluación de correlación por partes se puede aceltar notablemente si se ven los parámyteros y en lugar de pasar por nombre se construyen los arreglos
+- Created at   2016-11-26 16:08:21 -0400
+- Completed at 2017-01-31 10:30:01 -0400
+- Comment      
+- Finished     
+
