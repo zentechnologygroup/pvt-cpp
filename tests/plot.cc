@@ -1146,17 +1146,28 @@ void print_row(const FixedStack<double> & row)
   printf("\n");
 }
 
-template <typename ... Args>
-FixedStack<pair<string, const Unit*>> csv_header(Args ... args)
+template <typename ... Args> string csv_header(Args ... args)
 {
   FixedStack<pair<string, const Unit*>> header;
   insert_in_container(header, args...);
-  return header;
+
+  ostringstream s;
+  const size_t n = header.size();
+  pair<string, const Unit*> * ptr = &header.base();
+  for (long i = n - 1; i >= 0; --i)
+    {
+      const pair<string, const Unit*> & val = ptr[i];
+      s << val.first << " " << val.second->name;
+      if (i > 0)
+	s << ",";
+    }
+  
+  return s.str();
 }
 
 void generate_grid()
 {
-  set_check();
+  set_check(); // Inicialiación de datos constantes
   set_api();
   set_rsb();
   set_yg();
@@ -1168,7 +1179,7 @@ void generate_grid()
   set_nacl_concentration();
   set_pb();
   
-  set_rs_corr(true);
+  set_rs_corr(true); // Inicialización de correlaciones
   set_bob_corr(true);
   set_boa_corr(true);
   set_uod_corr(true);
@@ -1244,42 +1255,31 @@ void generate_grid()
   ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));
 
   using P = pair<string, const Unit*>;
-  csv_header(P("cw ", &cwb_corr->unit), P("rsw", &rsw_corr->unit),
-	     P("pw", &pw_corr->unit), P("uw", &uw_corr->unit),
-	     P("bw", &bwb_corr->unit), P("pg", &Pg::get_instance().unit),
-	     P("ug", &ug_corr->unit), P("bg", &Bg::get_instance().unit),
-	     P("cg", &cg_corr->unit), P("zfactor", &Zfactor::get_instance()),
-	     P("po", &PobBradley::get_instance().unit),
-	     P("uo", &uob_corr->unit), P("bo", &bob_corr->unit),
-	     P("co", &cob_corr->unit), P("rs", &::rs_corr->unit),
-	     P("p", get<3>(p_values.get_first())), P("uod", &uod_corr->unit),
-	     P("pb", &pb_corr->unit), P("t", get<3>(t_values.get_first())));
-  // Nuevo valor tiene que entrar de 1ro aqui. Orden de inserción en
-  // row debe ser inverso pues una pila
-  cout << "cw " << cwb_corr->unit.name
-       << ",rsw " << rsw_corr->unit.name
-       << ",pw " << pw_corr->unit.name
-       << ",uw " << uw_corr->unit.name
-       << ",bw " << bwb_corr->unit.name
-       << ",pg " << Pg::get_instance().unit.name
-       << ",ug " << ug_corr->unit.name
-       << ",bg " << Bg::get_instance().unit.name 
-       << ",cg " << cg_corr->unit.name
-       << ",zfactor " << Zfactor::get_instance().name
-       << ",po " << PobBradley::get_instance().unit.name
-       << ",uo " << uob_corr->unit.name
-       << ",bo " << bob_corr->unit.name
-       << ",co " << cob_corr->unit.name
-       << ",rs " << ::rs_corr->unit.name
-       << ",p " << get<3>(p_values.get_first())->name
-       << ",uod " << uod_corr->unit.name
-       << ",pb " << pb_corr->unit.name
-       << ",t " << get<3>(t_values.get_first())->name
-       << endl;
+  cout << csv_header(P("t", get<3>(t_values.get_first())),
+		     P("pb", &pb_corr->unit),
+		     P("uod", &uod_corr->unit),
+		     P("p", get<3>(p_values.get_first())),
+		     P("rs", &::rs_corr->unit),
+		     P("co", &cob_corr->unit), 
+		     P("bo", &bob_corr->unit),
+		     P("uo", &uob_corr->unit),
+		     P("po", &PobBradley::get_instance().unit),
+		     P("zfactor", &Zfactor::get_instance()),
+		     P("cg", &cg_corr->unit),
+		     P("bg", &Bg::get_instance().unit),
+		     P("ug", &ug_corr->unit),
+		     P("pg", &Pg::get_instance().unit),
+		     P("bw", &bwb_corr->unit),
+		     P("uw", &uw_corr->unit),
+		     P("pw", &pw_corr->unit),
+		     P("rsw", &rsw_corr->unit),
+		     P("cw", &cwb_corr->unit)) << endl;
 
   auto rs_pb = make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par));
   
-  FixedStack<double> row(25);
+  FixedStack<double> row(25); // aquí van los valores. Asegure que el
+			      // orden de inserción sea el mismo que
+			      // para el header
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       Correlation::NamedPar t_par = t_it.get_curr();
@@ -1389,12 +1389,10 @@ void generate_grid()
 	  assert(row.size() == 19);
 
 	  print_row(row);
-
 	  row.popn(n);
 	}
 
       row.popn(n);
-
       remove_from_container(rs_pars, "pb", t_par);
       remove_from_container(co_pars, "pb", t_par);
       remove_from_container(bo_pars, "bobp", "pb", t_par);

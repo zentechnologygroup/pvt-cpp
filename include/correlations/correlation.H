@@ -960,9 +960,9 @@ public:
 	  {
 	    auto i = get<2>(p) + 1;
 	    ostringstream s;
-	    s << "Correlation parameter " << i << " (" << par_name << " = "
-	      << par << ") does not satisfy precondition for correlation "
-	      << name; 
+	    s << "Parameter " << i << " (" << par_name << " = " << par
+	      << ") in correlation" << name 
+	      << " does not satisfy application development range"; 
 	    ZENTHROW(OutOfParameterRange, s.str());
 	  }
       }

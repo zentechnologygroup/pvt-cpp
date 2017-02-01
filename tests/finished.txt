@@ -154,3 +154,6 @@ headers de plot debe construirse con función que tenga el mismo orden que row,2
 plot: revisar cadena de cómputo en nonhydrocarborn ...,2017-01-30 09:31:11 -0400,2017-01-31 09:18:06 -0400,,2017-01-31 09:18:08 -0400
 opcion all-tests que ejecute todos los test para todas la magnitude,2016-08-14 18:39:24 -0400,2017-01-31 10:29:39 -0400,,2017-01-31 10:29:42 -0400
 evaluación de correlación por partes se puede aceltar notablemente si se ven los parámyteros y en lugar de pasar por nombre se construyen los arreglos,2016-11-26 16:08:21 -0400,2017-01-31 10:30:01 -0400,,2017-01-31 10:30:04 -0400
+el test 2 debe validad nombres de símbolos y extremos,2016-08-14 19:43:07 -0400,2017-01-31 17:32:08 -0400,,2017-01-31 17:32:17 -0400
+verificar rigurosamente orden y unidades de correlaciones,2016-08-24 14:34:13 -0400,2017-01-31 17:32:11 -0400,,2017-01-31 17:32:17 -0400
+unificar FVF-colume-ratio con gas-formation-volume-factor,2016-12-29 17:36:29 -0400,2017-01-31 17:32:40 -0400,,2017-01-31 17:32:44 -0400

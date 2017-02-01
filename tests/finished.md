@@ -934,3 +934,21 @@
 - Comment      
 - Finished     
 
+## 157. el test 2 debe validad nombres de símbolos y extremos
+- Created at   2016-08-14 19:43:07 -0400
+- Completed at 2017-01-31 17:32:08 -0400
+- Comment      
+- Finished     
+
+## 158. verificar rigurosamente orden y unidades de correlaciones
+- Created at   2016-08-24 14:34:13 -0400
+- Completed at 2017-01-31 17:32:11 -0400
+- Comment      
+- Finished     
+
+## 159. unificar FVF-colume-ratio con gas-formation-volume-factor
+- Created at   2016-12-29 17:36:29 -0400
+- Completed at 2017-01-31 17:32:40 -0400
+- Comment      
+- Finished     
+
