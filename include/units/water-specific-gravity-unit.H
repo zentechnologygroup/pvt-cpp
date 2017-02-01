@@ -13,7 +13,7 @@
 // SOURCE: Carlos Banzer S, Correlaciones Numericas P.V.T. Instituto
 // de Investigaciones Petroleras Universidad del Zulia   
 
-Declare_Physical_Quantity(WaterSpecicGravity, "Sgw",
+Declare_Physical_Quantity(WaterSpecificGravity, "Sgw",
 	    R"DESC(density of a brine (in this case formation 
         water) in normal conditions based on total
         solid disolved, it is defined as the ratio
@@ -25,63 +25,64 @@ Declare_Physical_Quantity(WaterSpecicGravity, "Sgw",
 Declare_Unit(Pwl_lb_ft3, "pwl_lb/ft3",
 	     R"DESC(unit used to measure density of produce water (brine) 
          in normal conditions denoted as pound per cubic feet)DESC",
-	     WaterSpecicGravity, 62.366389027, 76.96514502699999);
+	     WaterSpecificGravity, 62.366389027, 76.96514502699999);
 
 Declare_Unit(Dissolved_Salt_Percent, "dissolvedSaltPercent",
 	     R"DESC(Unit used to measure salinity of a brine
 	     in normal conditions in percentage of disolved salt)DESC",
-	     WaterSpecicGravity, 0, 30);
+	     WaterSpecificGravity, 0, 30);
 
 Declare_Unit(Sgw_sg, "swsg",
 	     R"DESC(Specific gravity of a brine in normal conditions, it is
          the ratio of the density of a brine to the density of a
-         pure water;)DESC", WaterSpecicGravity, 1, 1.2341063383784996);
+         pure water;)DESC", WaterSpecificGravity, 1, 1.2341063383784996);
 
 Declare_Unit(Dissolved_Salt_PPM, "dissolvedSaltPPM",
 	     R"DESC(Total solid disolved in a brine
 	     measure in Part Per Million PPM)DESC",
-	     WaterSpecicGravity, 0, 300000);
+	     WaterSpecificGravity, 0, 300000);
 
 Declare_Unit(Molality_NaCl, "mol_NaCl/Kg_H2O", "Molality of sodium chloride",
-  	     WaterSpecicGravity, 0, 7.333177544050398);
+  	     WaterSpecificGravity, 0, 7.333177544050398);
 
 Declare_Unit(CgL, "g_NaCl/L", R"DESC(Total solid disolved in a brine
        measure in grams of NaCl disolved in one liter of water)DESC",
-	     WaterSpecicGravity, 0, 300.2306536197343);
+	     WaterSpecificGravity, 0, 300.2306536197343);
 
 Declare_Unit(Dissolved_Salt_Fraction, "dissolvedSaltFraction", 
        R"DESC(Unit used to measure salinity of a brine
        in normal conditions in fraction of disolved salt)DESC",
-	     WaterSpecicGravity, 0, 0.3);
+	     WaterSpecificGravity, 0, 0.3);
 
 
 // To pwl_lb/ft3
-Declare_Conversion(Dissolved_Salt_Percent, Pwl_lb_ft3, v) { return 62.366389027 + 0.438603*v +  0.00160074*v*v ;}
+Declare_Conversion(Dissolved_Salt_Percent, Pwl_lb_ft3, v) { return 62.368 + 0.438603*v +  0.00160074*v*v ;}
 Declare_Conversion(Sgw_sg, Pwl_lb_ft3, v) { return v * 62.366389027; } 
-Declare_Conversion(Dissolved_Salt_PPM, Pwl_lb_ft3, v) { return 62.366389027 + 0.438603*(v/10000) +  0.00160074*(v/10000)*(v/10000);}
-Declare_Conversion(Molality_NaCl, Pwl_lb_ft3, v) { return 62.366389027 + 0.438603*(5844.28*v / (58.4428*v + 1000)) +  0.00160074*(5844.28*v / (58.4428*v + 1000))*(5844.28*v / (58.4428*v + 1000)) ;}
-Declare_Conversion(CgL, Pwl_lb_ft3, v) { return 62.366389027 + 0.438603*(v / 9.9923174527) + 0.00160074*(v / 9.9923174527)*(v / 9.9923174527) ;}
-Declare_Conversion(Dissolved_Salt_Fraction, Pwl_lb_ft3, v)  { return 62.366389027 + 0.438603*(100*v) +  0.00160074*(100*v)*(100*v) ;}
+Declare_Conversion(Dissolved_Salt_PPM, Pwl_lb_ft3, v) { return 62.368 + 0.438603*(v/10000) +  0.00160074*(v/10000)*(v/10000);}
+Declare_Conversion(Molality_NaCl, Pwl_lb_ft3, v) { return 62.368 + 0.438603*(5844.28*v / (58.4428*v + 1000)) +  0.00160074*(5844.28*v / (58.4428*v + 1000))*(5844.28*v / (58.4428*v + 1000)) ;}
+Declare_Conversion(CgL, Pwl_lb_ft3, v) { return 62.368 + 0.438603*(v / 9.9923174527) + 0.00160074*(v / 9.9923174527)*(v / 9.9923174527) ;}
+Declare_Conversion(Dissolved_Salt_Fraction, Pwl_lb_ft3, v)  { return 62.368 + 0.438603*(100*v) +  0.00160074*(100*v)*(100*v) ;}
 
 // To dissolvedSaltPercent
 Declare_Conversion( CgL,Dissolved_Salt_Percent, v) { return v / 9.9923174527;}
 Declare_Conversion(Dissolved_Salt_PPM, Dissolved_Salt_Percent, v) { return v/10000; }
-Declare_Conversion(Pwl_lb_ft3, Dissolved_Salt_Percent, v) { double n = -0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027 - v));  return n / (0.00320148); }
-Declare_Conversion(Sgw_sg, Dissolved_Salt_Percent, v) { double n = -0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027-v*62.366389027)); return n / (0.00320148);}
+Declare_Conversion(Pwl_lb_ft3, Dissolved_Salt_Percent, v) { double n = -0.438603 + sqrt(0.19237259160900003 - 0.00640296*(62.368 - v));  return n / (0.00320148); }
+Declare_Conversion(Sgw_sg, Dissolved_Salt_Percent, v) { double n = -0.438603 + sqrt(0.19237259160900003 - 0.00640296*(62.368 - v * 62.366389027)); return n/(0.00320148); }
+
 Declare_Conversion(Molality_NaCl, Dissolved_Salt_Percent, v) { return 5844.28*v / (58.4428*v + 1000); }
 Declare_Conversion(Dissolved_Salt_Fraction, Dissolved_Salt_Percent, v) { return v * 100; } 
 
 // To swsg
-Declare_Conversion(Dissolved_Salt_Percent, Sgw_sg, v)   { return (62.368 + 0.438603*v +  0.00160074*v*v) / 62.366389027 ;  }
-Declare_Conversion(Dissolved_Salt_PPM, Sgw_sg, v){ return (62.366389027 + 0.438603*(v/10000) + 0.00160074*(v/10000)*(v/10000)) / 62.366389027;}
+Declare_Conversion(Dissolved_Salt_Percent, Sgw_sg, v)   { return (62.368 + 0.438603*v +  0.00160074*v*v) / 62.366389027 ;  }//62.303?
+Declare_Conversion(Dissolved_Salt_PPM, Sgw_sg, v){ return (62.368 + 0.438603*(v/10000) + 0.00160074*(v/10000)*(v/10000)) / 62.366389027;}
 Declare_Conversion(Pwl_lb_ft3, Sgw_sg, v) { return  v / 62.366389027;  }
 Declare_Conversion(Molality_NaCl, Sgw_sg, v)  { return (62.368 + 0.438603*(5844.28*v / (58.4428*v + 1000)) +  0.00160074*(5844.28*v / (58.4428*v + 1000))*(5844.28*v / (58.4428*v + 1000))) / 62.366389027 ;  }
 Declare_Conversion(CgL, Sgw_sg, v)  { return (62.368 + 0.438603*(v / 9.9923174527) +  0.00160074*(v / 9.9923174527)*(v / 9.9923174527)) / 62.366389027 ;  }
-Declare_Conversion(Dissolved_Salt_Fraction, Sgw_sg, v)   { return (62.368 + 0.438603*(v/100) +  0.00160074*(v/100)*(v/100)) / 62.366389027 ;  }
+Declare_Conversion(Dissolved_Salt_Fraction, Sgw_sg, v)   { return (62.368 + 0.438603*(v*100) +  0.00160074*(v*100)*(v*100)) / 62.366389027 ;  }
 
 // To dissolvedSaltPPM
-Declare_Conversion(Pwl_lb_ft3, Dissolved_Salt_PPM, v) { return (-0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027-v))) / (0.00320148) * 10000 ;}
-Declare_Conversion(Sgw_sg, Dissolved_Salt_PPM, v) {  double n = -0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027 -v*62.366389027));  return n / (0.00320148) * 10000 ;}
+Declare_Conversion(Pwl_lb_ft3, Dissolved_Salt_PPM, v) { return (-0.438603 + sqrt(0.19237259160900003 - 0.00640296*(62.368-v))) / (0.00320148) * 10000 ;}
+Declare_Conversion(Sgw_sg, Dissolved_Salt_PPM, v) {  double n = -0.438603 + sqrt(0.19237259160900003 - 0.00640296*(62.368 -v*62.366389027));  return n / (0.00320148) * 10000 ;}
 Declare_Conversion(Dissolved_Salt_Percent, Dissolved_Salt_PPM, v) { return  v * 10000  ; }
 Declare_Conversion(Molality_NaCl, Dissolved_Salt_PPM, v) { return (5844.28*v / (58.4428*v + 1000))*10000; }
 Declare_Conversion(CgL, Dissolved_Salt_PPM, v) { return  (v / 9.9923174527) * 10000; }   
@@ -91,8 +92,8 @@ Declare_Conversion(Dissolved_Salt_Fraction,  Dissolved_Salt_PPM, v) { return v *
 // To mol_NaCl/Kg_H2O
 Declare_Conversion(Dissolved_Salt_Percent, Molality_NaCl, v) { return 1000*(v/100) / (58.4428*(1 - v/100));}
 Declare_Conversion(Dissolved_Salt_PPM, Molality_NaCl, v) { return 1000*((v/10000)/100) / (58.4428*(1 - (v/10000)/100)) ; }
-Declare_Conversion(Pwl_lb_ft3, Molality_NaCl, v) { return 1000*(((-0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027 - v))) / (0.00320148))/100) / (58.4428*(1 - ((-0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027 - v))) / (0.00320148))/100));}
-Declare_Conversion(Sgw_sg, Molality_NaCl, v) { return 1000*(((-0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027 - (v * 62.366389027)))) / (0.00320148))/100) / (58.4428*(1 - ((-0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027 - (v * 62.366389027)))) / (0.00320148))/100));}
+Declare_Conversion(Pwl_lb_ft3, Molality_NaCl, v) { return 1000*(((-0.438603 + sqrt(0.19237259160900003 - 0.00640296*(62.368 - v))) / (0.00320148))/100) / (58.4428*(1 - ((-0.438603 + sqrt(0.19237259160900003 - 0.00640296*(62.368 - v))) / (0.00320148))/100));}
+Declare_Conversion(Sgw_sg, Molality_NaCl, v) { return 1000*(((-0.438603 + sqrt(0.19237259160900003 - 0.00640296*(62.368 - (v * 62.366389027)))) / (0.00320148))/100) / (58.4428*(1 - ((-0.438603 + sqrt(0.19237259160900003 - 0.00640296*(62.368 - (v * 62.366389027)))) / (0.00320148))/100));}
 Declare_Conversion(CgL, Molality_NaCl, v)  { return 1000*((v / 9.9923174527)/100) / (58.4428*(1 - (v / 9.9923174527)/100));}
 Declare_Conversion(Dissolved_Salt_Fraction, Molality_NaCl, v) { return 1000*((v * 100)/100) / (58.4428*(1 - (v * 100)/100));}
 
@@ -100,16 +101,16 @@ Declare_Conversion(Dissolved_Salt_Fraction, Molality_NaCl, v) { return 1000*((v 
 // To g_NaCl/L
 Declare_Conversion(Dissolved_Salt_Percent, CgL, v) { return 9.9923174527 * v;}
 Declare_Conversion(Molality_NaCl, CgL, v) { return (5844.28*v / (58.4428*v + 1000)) * 9.9923174527 ; }
-Declare_Conversion(Sgw_sg, CgL, v) { return  ((-0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027-v*62.366389027))) / (0.00320148)) * 9.9923174527 ;}
-Declare_Conversion(Pwl_lb_ft3, CgL, v) {return (( -0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027 - v))) / (0.00320148)) * 9.9923174527;}
+Declare_Conversion(Sgw_sg, CgL, v) { return  ((-0.438603 + sqrt(0.19237259160900003 - 0.00640296*(62.368-v*62.366389027))) / (0.00320148)) * 9.9923174527 ;}
+Declare_Conversion(Pwl_lb_ft3, CgL, v) {return (( -0.438603 + sqrt(0.19237259160900003 - 0.00640296*(62.368 - v))) / (0.00320148)) * 9.9923174527;}
 Declare_Conversion(Dissolved_Salt_PPM, CgL, v) { return (v/10000) * 9.9923174527 ; }
 Declare_Conversion(Dissolved_Salt_Fraction, CgL, v) { return 9.9923174527 * (v*100);}
 
 // To Dissolved_Salt_Fraction
 Declare_Conversion( CgL,Dissolved_Salt_Fraction, v) { return (v / 9.9923174527)/100;}
 Declare_Conversion(Dissolved_Salt_PPM,Dissolved_Salt_Fraction, v) { return (v/10000)/100; }
-Declare_Conversion(Pwl_lb_ft3,Dissolved_Salt_Fraction, v) { return  (( -0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027 - v))) / (0.00320148))/100;}
-Declare_Conversion(Sgw_sg,Dissolved_Salt_Fraction, v) {  return ((-0.4386 + sqrt(0.19236995999999998 - 0.00640296*(62.366389027-v*62.366389027))) / (0.00320148))/100;}
+Declare_Conversion(Pwl_lb_ft3,Dissolved_Salt_Fraction, v) { return  (( -0.438603 + sqrt(0.19237259160900003 - 0.00640296*(62.368 - v))) / (0.00320148))/100;}
+Declare_Conversion(Sgw_sg,Dissolved_Salt_Fraction, v) {  return ((-0.438603 + sqrt(0.19237259160900003 - 0.00640296*(62.368-v*62.366389027))) / (0.00320148))/100;}
 Declare_Conversion(Molality_NaCl, Dissolved_Salt_Fraction, v) { return (5844.28*v / (58.4428*v + 1000))/100; }
 Declare_Conversion(Dissolved_Salt_Percent, Dissolved_Salt_Fraction, v) { return v / 100; } 
 
