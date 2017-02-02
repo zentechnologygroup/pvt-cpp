@@ -878,7 +878,7 @@ VtlQuantity dcompute_noexcep(const Correlation * corr_ptr, bool check,
   catch (exception & e)
     {
       remove_from_container(pars_list, args ...);
-      cout << "ERROR initializaing " << correlation_call(corr_ptr, args...)
+      cout << "ERROR initializing " << correlation_call(corr_ptr, args...)
 	   << "@ " << e.what();
       abort();
     }

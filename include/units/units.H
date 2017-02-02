@@ -829,14 +829,12 @@ public:
 
   VtlQuantity to_VtlQuantity() const;
 
-  Quantity(double val) 
-    : BaseQuantity(UnitName::get_instance(), val)
+  Quantity(double val) : BaseQuantity(UnitName::get_instance(), val)
   {
     check_value(); // value must be inside the specified range
   }
 
-  Quantity() 
-    : BaseQuantity(UnitName::get_instance())
+  Quantity() : BaseQuantity(UnitName::get_instance())
   {
     check_value(); // value must be inside the specified range
   }
@@ -1160,14 +1158,12 @@ public:
     check_value();
   }
 
-  VtlQuantity(const Unit & unit, double val)
-    : BaseQuantity(unit, val)
+  VtlQuantity(const Unit & unit, double val) : BaseQuantity(unit, val)
   {
     check_value();
   }
 
-  VtlQuantity(const Unit & unit)
-    : BaseQuantity(unit)
+  VtlQuantity(const Unit & unit) : BaseQuantity(unit)
   {
     check_value();
   }
