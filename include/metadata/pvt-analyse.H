@@ -73,12 +73,12 @@ public:
     data.check_variable("Below Pb", "p", Pressure::get_instance());
     data.check_variable("Below Pb", "rs", GORGLRvolumeRatio::get_instance());
     data.check_variable("Below Pb", "bob", FVFvolumeRatio::get_instance());
-    data.check_variable("Below Pb", "uob", DinamicViscosity::get_instance());
+    data.check_variable("Below Pb", "uob", DynamicViscosity::get_instance());
 
     data.check_variable("Above Pb", "p", Pressure::get_instance());
     data.check_variable("Above Pb", "rs", GORGLRvolumeRatio::get_instance());
     data.check_variable("Above Pb", "boa", FVFvolumeRatio::get_instance());
-    data.check_variable("Above Pb", "uoa", DinamicViscosity::get_instance());
+    data.check_variable("Above Pb", "uoa", DynamicViscosity::get_instance());
 
     // insert a new row in Above data set that is a copy oof the pb
     // row lightly increased

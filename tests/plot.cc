@@ -844,6 +844,25 @@ VtlQuantity dcompute(const Correlation * corr_ptr, bool check,
 }
 
 template <typename ... Args> inline
+string correlation_call(const Correlation * corr_ptr, Args ... args)
+{
+  DynList<Correlation::NamedPar> pars;
+  append_in_container(pars, args...);
+
+  ostringstream s;
+  s << corr_ptr->name << "(";
+  for (auto it = pars.get_it(); it.has_curr(); it.next())
+    {
+      const auto & par = it.get_curr();
+      s << get<1>(par) << " = " << get<2>(par) << " " << get<3>(par)->name;
+      if (&par != &pars.get_last())
+	s << ", ";
+    }
+  s << ")";
+  return s.str();
+}
+
+template <typename ... Args> inline
 VtlQuantity dcompute_noexcep(const Correlation * corr_ptr, bool check,
 			     ParList & pars_list, Args ... args)
 {
@@ -859,7 +878,9 @@ VtlQuantity dcompute_noexcep(const Correlation * corr_ptr, bool check,
   catch (exception & e)
     {
       remove_from_container(pars_list, args ...);
-      throw;
+      cout << "ERROR initializaing " << correlation_call(corr_ptr, args...)
+	   << "@ " << e.what();
+      abort();
     }
   return VtlQuantity::null_quantity; 
 }
@@ -1215,24 +1236,23 @@ void generate_grid()
     error_msg("above option is incompatible with grid option");
 
   // cálculo de constantes para Z
-  auto yghc = YghcWichertAziz::correlation()->compute(check, yg,
-						      n2_concentration,
-						      co2_concentration,
-						      h2s_concentration);
-  auto ppchc = dcompute_noexcep(ppchc_corr, check, NPAR(yghc),
+  auto yghc = dcompute_noexcep(YghcWichertAziz::correlation(), true, NPAR(yg),
+			       NPAR(n2_concentration), NPAR(co2_concentration),
+			       NPAR(h2s_concentration));
+  auto ppchc = dcompute_noexcep(ppchc_corr, true, NPAR(yghc),
 				NPAR(n2_concentration), NPAR(co2_concentration),
 				NPAR(h2s_concentration));
-  auto ppcm = dcompute_noexcep(ppcm_mixing_corr, check, NPAR(ppchc),
+  auto ppcm = dcompute_noexcep(ppcm_mixing_corr, true, NPAR(ppchc),
 			       NPAR(n2_concentration), NPAR(co2_concentration),
 			       NPAR(h2s_concentration));		       
   auto tpchc = tpchc_corr->compute(check, yghc);
-  auto tpcm = dcompute_noexcep(tpcm_mixing_corr, check, NPAR(tpchc),
+  auto tpcm = dcompute_noexcep(tpcm_mixing_corr, true, NPAR(tpchc),
 			       NPAR(n2_concentration), NPAR(co2_concentration),
 			       NPAR(h2s_concentration));
-  auto adjustedppcm = dcompute_noexcep(adjustedppcm_corr, check, NPAR(ppcm),
+  auto adjustedppcm = dcompute_noexcep(adjustedppcm_corr, true, NPAR(ppcm),
 				       NPAR(tpcm), NPAR(co2_concentration),
 				       NPAR(h2s_concentration));
-  auto adjustedtpcm = dcompute_noexcep(adjustedtpcm_corr, check, NPAR(tpcm),
+  auto adjustedtpcm = dcompute_noexcep(adjustedtpcm_corr, true, NPAR(tpcm),
 				       NPAR(co2_concentration),
 				       NPAR(h2s_concentration));
   // Fin cálculo constantes para z
