@@ -66,10 +66,12 @@ public:
 
   VtlQuantity search(const string & name) const
   {
-    auto p = tbl.search(ParPair(name, ValPair(0, &Unit::null_unit)));
+    ParPair pp; pp.first = name;
+    auto p = tbl.search(pp);
+    //    auto p = tbl.search(ParPair(name, ValPair(0, &Unit::null_unit)));
     if (p == nullptr)
       throw domain_error("Parameter name " + name + " not found");
-    ValPair vpair = p->second;
+    const ValPair & vpair = p->second;
     return VtlQuantity(*vpair.second, vpair.first);
   }
 
@@ -87,11 +89,12 @@ public:
 	auto ptr = tbl.search(pp);
 	if (ptr)
 	  {
-	    ValPair val_pair = ptr->second;
+	    const ValPair & val_pair = ptr->second;
 	    VtlQuantity ret(*val_pair.second, val_pair.first);
 	    return VtlQuantity(*p.second, ret);
 	  }
       }
+    
     ostringstream s;
     s << "name or aliases for {";
     for (auto it = names.get_it(); it.has_curr(); it.next())
