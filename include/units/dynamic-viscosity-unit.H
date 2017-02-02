@@ -1,9 +1,9 @@
-# ifndef DINAMIC_VISCOSITY_UNIT_H
-# define DINAMIC_VISCOSITY_UNIT_H
+# ifndef Dynamic_VISCOSITY_UNIT_H
+# define Dynamic_VISCOSITY_UNIT_H
 
 # include "units.H"
 
-Declare_Physical_Quantity(DinamicViscosity, "U",
+Declare_Physical_Quantity(DynamicViscosity, "U",
                 R"DESC(The viscosity of a fluid is a measure of its resistance
                to gradual deformation by shear stress or tensile stress.
                The dynamic (shear) viscosity of a fluid expresses its 
@@ -11,37 +11,37 @@ Declare_Physical_Quantity(DinamicViscosity, "U",
                move parallel to each other with different speeds.)DESC");
 
 Declare_Unit(kg_mxs, "kg/m*s",
-         "Dinamic Viscosity measured as kilogram divided into meter per second.",
-         DinamicViscosity, 0, 10000000);
+         "Dynamic Viscosity measured as kilogram divided into meter per second.",
+         DynamicViscosity, 0, 10000000);
 
 Declare_Unit(lb_ftxs, "lb/ft*s",
-         "Dinamic Viscosity measured as pound divided into foot per second.",
-          DinamicViscosity, 0, 6719689.75);
+         "Dynamic Viscosity measured as pound divided into foot per second.",
+          DynamicViscosity, 0, 6719689.75);
 
 Declare_Unit(g_mxs, "g/m*s",
-         "Dinamic Viscosity measured as gram divided into meter per second.",
-          DinamicViscosity, 0, 100000000);
+         "Dynamic Viscosity measured as gram divided into meter per second.",
+          DynamicViscosity, 0, 100000000);
 
 Declare_Unit(CP, "cP",
-         "Dinamic Viscosity measured as centipoise.",
-          DinamicViscosity, 0, 10000000000);
+         "Dynamic Viscosity measured as centipoise.",
+          DynamicViscosity, 0, 10000000000);
 
 Declare_Unit(Paxs, "Pa*s",
-         "Dinamic Viscosity measured as Pascal per second.",
-          DinamicViscosity, 0, 10000000);
+         "Dynamic Viscosity measured as Pascal per second.",
+          DynamicViscosity, 0, 10000000);
 
 Declare_Unit(lb_ftxh, "lb/ft*h",
-         "Dinamic Viscosity measured as pound divided into foot per hour.",
-          DinamicViscosity, 0, 24190881500);
+         "Dynamic Viscosity measured as pound divided into foot per hour.",
+          DynamicViscosity, 0, 24190881500);
 
 Declare_Unit(Poise, "poise",
-         "Dinamic Viscosity measured as poise.",
-          DinamicViscosity, 0, 100000000);
+         "Dynamic Viscosity measured as poise.",
+          DynamicViscosity, 0, 100000000);
 
-Declare_Unit(mP, "mP", "Dinamic Viscosity measured as micropoise.",
-          DinamicViscosity, 0, 100000000e6);
+Declare_Unit(mP, "mP", "Dynamic Viscosity measured as micropoise.",
+          DynamicViscosity, 0, 100000000e6);
 
-// Dinamic Viscosity Conversions
+// Dynamic Viscosity Conversions
   
 // To Kg/m*s
 Declare_Conversion(lb_ftxs, kg_mxs, v) { return 1.4881639439 * v; }
@@ -151,5 +151,5 @@ Declare_Conversion(kg_mxs, mP, v)
   return unit_convert<Poise, mP>(unit_convert<kg_mxs, Poise>(v));
 }
 
-# endif // DINAMIC_VISCOSITY_UNIT_H 
+# endif // Dynamic_VISCOSITY_UNIT_H 
 
