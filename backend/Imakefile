@@ -27,28 +27,23 @@ all:: backend-conversion backend-corr backend-plot backend-calibrate backend-plo
 
 backend-conversion: test-conversion
 	$(RM) backend-conversion; 	\	@@\
-	$(CP) test-conversion backend-conversion; 	\	@@\
-	upx --best backend-conversion
+	$(CP) test-conversion backend-conversion
 
 backend-corr: test-corr
 	$(RM) backend-corr; 	\	@@\
-	$(CP) test-corr backend-corr; 	\	@@\
-	upx --best backend-corr
+	$(CP) test-corr backend-corr
 
 backend-plot: plot
 	$(RM) backend-plot; 	\	@@\
-	$(CP) plot backend-plot; 	\	@@\
-	upx --best backend-plot
+	$(CP) plot backend-plot;
 
 backend-plot-corr: plot-corr
 	$(RM) backend-plot-corr; 	\	@@\
-	$(CP) plot backend-plot-corr; 	\	@@\
-	upx --best backend-plot-corr
+	$(CP) plot backend-plot-corr
 
 backend-calibrate: test-calibrate
 	$(RM) backend-calibrate; 	\	@@\
-	$(CP) test-calibrate backend-calibrate; 	\	@@\
-	upx --best backend-calibrate
+	$(CP) test-calibrate backend-calibrate
 
 AllTarget(test-conversion)
 NormalProgramTarget(test-conversion,test-conversion.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))

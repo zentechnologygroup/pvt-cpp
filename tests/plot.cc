@@ -1146,7 +1146,8 @@ void print_row(const FixedStack<double> & row)
   printf("\n");
 }
 
-template <typename ... Args> string csv_header(Args ... args)
+template <typename ... Args>
+void print_csv_header(Args ... args)
 {
   FixedStack<pair<string, const Unit*>> header;
   insert_in_container(header, args...);
@@ -1157,12 +1158,12 @@ template <typename ... Args> string csv_header(Args ... args)
   for (long i = n - 1; i >= 0; --i)
     {
       const pair<string, const Unit*> & val = ptr[i];
-      s << val.first << " " << val.second->name;
+      printf("%s %s", val.first.c_str(), val.second->name.c_str());
       if (i > 0)
-	s << ",";
+	printf(",");
     }
   
-  return s.str();
+  printf("\n");
 }
 
 void generate_grid()
@@ -1255,25 +1256,25 @@ void generate_grid()
   ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));
 
   using P = pair<string, const Unit*>;
-  cout << csv_header(P("t", get<3>(t_values.get_first())),
-		     P("pb", &pb_corr->unit),
-		     P("uod", &uod_corr->unit),
-		     P("p", get<3>(p_values.get_first())),
-		     P("rs", &::rs_corr->unit),
-		     P("co", &cob_corr->unit), 
-		     P("bo", &bob_corr->unit),
-		     P("uo", &uob_corr->unit),
-		     P("po", &PobBradley::get_instance().unit),
-		     P("zfactor", &Zfactor::get_instance()),
-		     P("cg", &cg_corr->unit),
-		     P("bg", &Bg::get_instance().unit),
-		     P("ug", &ug_corr->unit),
-		     P("pg", &Pg::get_instance().unit),
-		     P("bw", &bwb_corr->unit),
-		     P("uw", &uw_corr->unit),
-		     P("pw", &pw_corr->unit),
-		     P("rsw", &rsw_corr->unit),
-		     P("cw", &cwb_corr->unit)) << endl;
+  print_csv_header(P("t", get<3>(t_values.get_first())),
+		   P("pb", &pb_corr->unit),
+		   P("uod", &uod_corr->unit),
+		   P("p", get<3>(p_values.get_first())),
+		   P("rs", &::rs_corr->unit),
+		   P("co", &cob_corr->unit), 
+		   P("bo", &bob_corr->unit),
+		   P("uo", &uob_corr->unit),
+		   P("po", &PobBradley::get_instance().unit),
+		   P("zfactor", &Zfactor::get_instance()),
+		   P("cg", &cg_corr->unit),
+		   P("bg", &Bg::get_instance().unit),
+		   P("ug", &ug_corr->unit),
+		   P("pg", &Pg::get_instance().unit),
+		   P("bw", &bwb_corr->unit),
+		   P("uw", &uw_corr->unit),
+		   P("pw", &pw_corr->unit),
+		   P("rsw", &rsw_corr->unit),
+		   P("cw", &cwb_corr->unit));
 
   auto rs_pb = make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par));
   
