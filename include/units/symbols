@@ -13,7 +13,7 @@ $unit_symbols =
 	'Sg' => "air=1",
 	'kg_mxs' => "kg/m \\\\cdot s",
 	'lb_ftxs' => "lb/ft \\\\cdot s",
-	'g_mxs' => "g/m \\\\cdot s",
+	'g_cmxs' => "g/cm \\\\cdot s",
 	'CP' => "cP",
 	'Paxs' => "Pa \\\\cdot s",
 	'lb_ftxh' => "lb/ft \\\\cdot h",
