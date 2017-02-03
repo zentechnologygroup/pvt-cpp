@@ -24,8 +24,8 @@ Declare_Unit(kPascal, "kPa",
          "a kPascal is a common multiple unit of the pascal 1 kPa = 1000 Pa,",
           Pressure, 0, 206843.41);
 
-Declare_Unit(mPascal, "mPa",
-         "a mPascal is a common multiple unit of the pascal 1 mPa = 1000000 Pa,",
+Declare_Unit(mPascal, "MPa",
+         "a MPascal is a common multiple unit of the pascal 1 MPa = 1000000 Pa,",
           Pressure, 0, 206.843410);
 
 Declare_Unit(psia, "psia",
