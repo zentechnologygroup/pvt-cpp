@@ -61,7 +61,7 @@ end_correlation()
 ################################################################
 
 ## verificada con python
-begin_correlation("BoaKartoatmodjo", "UndersaturatedOilVolumeFactor",
+begin_correlation("BoaKartoatmodjoSchmidt", "UndersaturatedOilVolumeFactor",
          "RB_STB")
 add_title("KARTOATMODJO & SCHMIDT CORRELATION, CALCULATION OF UNDERSATURATED OIL FORMATION VOLUME FACTOR")
 add_db("Based on a set of 5392 data points, which represent 740 different crude oil samples.")

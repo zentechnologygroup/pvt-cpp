@@ -125,14 +125,16 @@ struct CorrelationInstantiater
     BobLasater::get_instance();
 
     BoaMcCain::get_instance();
-    BobMillanArcia::get_instance();
     BoaDeGhetto::get_instance();
     BoaHanafy::get_instance();
-    BoaKartoatmodjo::get_instance();
+    BoaKartoatmodjoSchmidt::get_instance();
+    BoaMillanArcia::get_instance();
+    BoaPerezML::get_instance();
     BoaPetroskyFarshad::get_instance();
     BoaVasquezBeggs::get_instance();
 
     CobMcCainEtAl::get_instance();
+
     CoaDeGhetto::get_instance();
     CoaHanafy::get_instance();
     CoaKartoatmodjoSchmidt::get_instance();

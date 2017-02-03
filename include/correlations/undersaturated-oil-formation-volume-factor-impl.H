@@ -72,20 +72,20 @@ BoaHanafy::impl(const double & bobp,
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
 }
 
-void BoaKartoatmodjo::precondition(const Quantity<psia> & p,
+void BoaKartoatmodjoSchmidt::precondition(const Quantity<psia> & p,
 				   const Quantity<psia> & pb) const
 {
   if (not (p > pb))
     {
       ostringstream s;
-      s << "BoaKartoatmodjo::impl: pressure " << p
+      s << "BoaKartoatmodjoSchmidt::impl: pressure " << p
 	<< " is not greater than pb " << pb;
       ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }  
 }
 
 inline double
-BoaKartoatmodjo::impl(const double & bobp,
+BoaKartoatmodjoSchmidt::impl(const double & bobp,
 		      const double & yg,
 		      const double & yo,
 		      const double & rsb,
