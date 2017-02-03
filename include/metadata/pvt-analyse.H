@@ -68,7 +68,7 @@ public:
     data.check_constant("pb", Pressure::get_instance());
     data.check_constant("api", OilGravity::get_instance());
     data.check_constant("rsb", GORGLRvolumeRatio::get_instance());
-    data.check_constant("yg", gasSpecificGravity::get_instance());
+    data.check_constant("yg", GasSpecificGravity::get_instance());
 
     data.check_variable("Below Pb", "p", Pressure::get_instance());
     data.check_variable("Below Pb", "rs", GORGLRvolumeRatio::get_instance());
