@@ -164,7 +164,7 @@ RsLasater::impl(const double & yg,
   const double api = unit_convert<Sg_do, Api>(yo);
 
   const double mo =
-    api <= 40 ? 630 - 10*api : pow(73110*api, -1.562);
+    api <= 40 ? 630 - 10*api : 73110 * pow(api, -1.562);
 
   // Calculation of Xpb = 
   double sy = 0;
@@ -172,13 +172,13 @@ RsLasater::impl(const double & yg,
   if (xpb < 3.29)
     {
       constexpr double c1 = 0.359;
-      const double     c2 = (1.473*p*yg) / t;
+      const double     c2 = 1.473 * xpb;
       constexpr double c3 = 0.476;
       sy = c1 * log(c2 + c3);
     }
   else
     {        
-      const double     c1 = (0.121*p*yg) / t;
+      const double     c1 = 0.121 * xpb;
       constexpr double c2 = -0.236;
       constexpr double c3 = 0.281;
       sy = pow(c1 + c2, c3);

@@ -122,9 +122,11 @@ add_synonym("yo", "api", "Api")
 add_parameter("t", "Rankine", "Temperature", "Quantity<Fahrenheit>(82)", "Quantity<Fahrenheit>(272)") 
 add_db("Based on 158 experimentally measured bubble point pressures of 137 independent systems.")
 add_db("The data were obtained from Canada, Western and Mid-Continental United States, and South America.")
+add_note("This correlation is best suited for oils with gravity up to 30 °API.")
 add_author("Lasater")
 add_ref("lasater:1958")
 add_ref("beggs:1987")
+add_ref("baker:2015")
 end_correlation()
 
 ################################################################
