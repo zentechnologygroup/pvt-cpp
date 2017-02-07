@@ -13,4 +13,5 @@
 
 ## 5. definir en plor cuáles serán las excepciones que abortan
 - Created at   2017-01-31 10:29:24 -0400
+- Completed at 2017-02-07 15:37:08 -0400
 

@@ -498,6 +498,22 @@ void set_rsw_corr()
   set_correlation(rsw_corr_arg, "rsw", rsw_corr, true);
 }
 
+ValueArg<string> sgo_corr_arg =
+  { "", "sgo", "Correlation for sgo", false, "", "Correlation for sgo", cmd };
+const Correlation * sgo_corr = nullptr;
+void set_sgo_corr()
+{
+  set_correlation(sgo_corr_arg, "sgo", sgo_corr, true);
+}
+
+ValueArg<string> sgw_corr_arg =
+  { "", "sgw", "Correlation for sgw", false, "", "Correlation for sgw", cmd };
+const Correlation * sgw_corr = nullptr;
+void set_sgw_corr()
+{
+  set_correlation(sgw_corr_arg, "sgw", sgw_corr, true);
+}
+
 SwitchArg grid_arg = { "", "grid", "generate grid for all", cmd };
 
 struct RangeDesc
@@ -1225,6 +1241,8 @@ void generate_grid()
   set_rsw_corr();
   set_cwb_corr();
   set_cwa_corr();
+  set_sgo_corr();
+  set_sgw_corr();
   report_exceptions = catch_exceptions.getValue();
 
   set_t_range();
@@ -1274,6 +1292,8 @@ void generate_grid()
   auto cw_pars = load_constant_parameters({cwb_corr, cwa_corr});
   auto cwa_pars = load_constant_parameters({cwa_corr});
   ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));
+  auto sgo_pars = load_constant_parameters({sgo_corr});
+  ParList sgw_pars;
 
   using P = pair<string, const Unit*>;
   print_csv_header(P("t", get<3>(t_values.get_first())),
@@ -1294,7 +1314,9 @@ void generate_grid()
 		   P("uw", &uw_corr->unit),
 		   P("pw", &pw_corr->unit),
 		   P("rsw", &rsw_corr->unit),
-		   P("cw", &cwb_corr->unit));
+		   P("cw", &cwb_corr->unit),
+		   P("sgo", &sgo_corr->unit),
+		   P("sgw", &sgw_corr->unit));
 
   auto rs_pb = make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par));
   
@@ -1368,6 +1390,8 @@ void generate_grid()
       rsw_pars.insert(t_par);
       cw_pars.insert(t_par);
       cwa_pars.insert(t_par);
+      sgo_pars.insert(t_par);
+      sgw_pars.insert(t_par);
 
       size_t n = row.ninsert(t_q.raw(), pb, uod_val.raw());
 
@@ -1402,12 +1426,14 @@ void generate_grid()
 			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
 	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
 	  auto uw = dcompute(uw_corr, check, uw_pars, p_par, NPAR(ppw)).raw();
+	  auto sgo = dcompute(sgo_corr, check, sgo_pars, p_par).raw();
+	  auto sgw = dcompute(sgw_corr, check, sgw_pars, p_par).raw();
 
 	  size_t n = row.ninsert(p_q.raw(), rs, co, bo, uo, po, z.raw(),
 				 cg.raw(), bg.raw(), ug.raw(), pg.raw(), bw,
-				 uw, pw.raw(), rsw.raw(), cw);
+				 uw, pw.raw(), rsw.raw(), cw, sgo, sgw);
 
-	  assert(row.size() == 19);
+	  assert(row.size() == 21);
 
 	  print_row(row);
 	  row.popn(n);
@@ -1420,6 +1446,8 @@ void generate_grid()
       remove_from_container(uo_pars, "uobp", "pb", "uod", t_par);
       remove_from_container(po_pars, "pb", "pobp");
       remove_from_container(ug_pars, t_par, tpr_par);
+      sgo_pars.remove(t_par);
+      sgw_pars.remove(t_par);
       cg_pars.remove(tpr_par);
       bw_pars.remove(t_par); 
       uw_pars.remove(t_par); 
