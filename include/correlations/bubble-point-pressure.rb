@@ -31,7 +31,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("PbDeGhetto", "BubblePointPressure", "psia", 208.86, 4021.96)
+begin_correlation("PbDeGhettoDetachedFromRs", "BubblePointPressure", "psia", 208.86, 4021.96)
 add_title("DE GHETTO, PAONE & VILLA CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS (MODIFIED STANDING CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.623,  1.517)
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  17.21,  640.25)
@@ -44,6 +44,28 @@ add_ref("deGhetto:1995")
 add_ref("standing:1947")
 add_eq("P_b=\\left(\\frac{R_s}{\\gamma_g}\\right)^{(\\frac{1}{1.1128})}\\cdot{\\frac{10.7025}{10^{(0.0169\\cdot{API}-0.00156\\cdot{T})}}}")
 add_eq("P_b=15.7286 \\cdot \\left[ \\left(\\frac{{R_s}}{\\gamma_{g}}\\right)^{0.7885} \\cdot \\frac{10^{0.0020 \\cdot T}}{10^{0.0142 \\cdot API}}\\right]")
+add_internal_note("De Ghetto, Paone & Villa use Yg as the average specific gravity of total surface gases, while the original correlation (Standing) uses it as the gravity of dissolved gas. Since Standing doesn't specify if Yg is the gravity of total surface gases or of the separator, it is assumed that the data is from a one stage separation with average gas gravity.")
+add_internal_note("It was decided to eliminate this correlation.")
+set_hidden()
+end_correlation()
+
+################################################################
+
+begin_correlation("PbDeGhettoEtAl", "BubblePointPressure", "psia", 208.86, 4021.96)
+add_title("DE GHETTO, PAONE & VILLA CORRELATION FOR EXTRA-HEAVY (MODIFIED STANDING CORRELATION) AND HEAVY (MODIFIED VAZQUEZ & BEGGS CORRELATION) OILS, CALCULATION OF BUBBLE POINT PRESSURE")
+add_parameter("yg", "Sgg", "Gas specific gravity",  0.623,  1.517)
+add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  17.21,  640.25)
+add_parameter("api", "Api", "API oil gravity",  6,  22.3)
+add_parameter("t", "Fahrenheit", "Temperature",  131.4,  250.7)
+add_parameter("tsep", "Fahrenheit", "Separator temperature", 59, 177.8);
+add_parameter("psep", "psia", "Separator pressure", 14.5, 752.2);
+add_db("Based on 1200 measured data points of 63 heavy and extra-heavy oil samples obtained from the Mediterranean Basin, Africa and the Persian Gulf.")
+add_db("Oil samples have been divided in two different API gravity classes: extra-heavy oils for °API<=10, heavy oils for 10<°API<=22.3.")
+add_note("Solution gas oil ratio (Rs) correlations are reversed to solve for the bubble point pressure (a modified Vazquez & Beggs correlation for heavy oils and a modified Standing correlation for extra-heavy oils).")
+add_author("De Ghetto, Paone & Villa")
+add_ref("deGhetto:1995")
+add_ref("standing:1947")
+add_ref("fekete:2012")
 add_internal_note("De Ghetto, Paone & Villa use Yg as the average specific gravity of total surface gases, while the original correlation (Standing) uses it as the gravity of dissolved gas. Since Standing doesn't specify if Yg is the gravity of total surface gases or of the separator, it is assumed that the data is from a one stage separation with average gas gravity.")
 end_correlation()
 

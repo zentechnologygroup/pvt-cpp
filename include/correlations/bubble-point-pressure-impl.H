@@ -29,7 +29,7 @@ PbAlShammasi::impl(const double & yg,
 }
 
 inline double
-PbDeGhetto::impl(const double& yg,
+PbDeGhettoDetachedFromRs::impl(const double& yg,
 		 const double & rsb,
 		 const double & api,
 		 const double & t) noexcept
@@ -40,6 +40,27 @@ PbDeGhetto::impl(const double& yg,
     pb = (pow(rsb/yg, 1/1.1128)*10.7025 / pow(10, 0.0169*api - 0.00156*t));
   else
     pb = 15.7286*pow(rsb/yg, 0.7885) * (pow(10, 0.0020*t) / pow(10, 0.0142*api));
+
+  return pb;
+}
+
+inline double
+PbDeGhettoEtAl::impl(const double & yg,
+		 const double & rsb,
+		 const double & api,
+		 const double & t,
+		 const double & tsep,
+		 const double & psep) noexcept
+{
+  double pb = 0;
+    
+  if (api <= 10) // Extra-heavy oil
+    pb = (pow(rsb/yg, 1/1.1128)*10.7025 / pow(10, 0.0169*api - 0.00156*t)); 
+  else {
+    const double ygcorr = yg*(1 + 0.5912*api*tsep*log10(psep/114.7) * 0.0001);
+    const double pb_aux = (56.434 * rsb)/(ygcorr * pow(10, 10.9267 * api / (t + 460)));
+    pb = pow(pb_aux, 1/1.2057);
+  }
 
   return pb;
 }

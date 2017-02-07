@@ -70,7 +70,8 @@ struct CorrelationInstantiater
         // Oil Bubble point
     PbAlMarhoun::get_instance();
     PbAlShammasi::get_instance();
-    PbDeGhetto::get_instance();
+    PbDeGhettoDetachedFromRs::get_instance();
+    PbDeGhettoEtAl::get_instance();
     PbDindorukChristman::get_instance();
     PbDoklaOsman::get_instance();
     PbHanafy::get_instance();
