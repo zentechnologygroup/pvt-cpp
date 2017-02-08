@@ -66,7 +66,7 @@ PbDeGhettoEtAl::impl(const double & yg,
 }
 
 inline double
-PbDindorukChristman::impl(const double & yg,
+PbDindorukChristmanDetachedFromRs::impl(const double & yg,
 			  const double & rsb,
 			  const double & api,
 			  const double & t) noexcept
@@ -91,6 +91,50 @@ PbDindorukChristman::impl(const double & yg,
   const double a = n/d2;
 
   return  a8 * (pow(rsb, a9) * pow(10, a) / pow(yg, a10) + a11);
+}
+
+inline double
+PbDindorukChristman::impl(const double & yg,
+			  const double & rsb,
+			  const double & api,
+			  const double & t) noexcept
+{
+  constexpr double a1  = 4.86996e-06;
+  constexpr double a2  = 5.730982539;
+  constexpr double a3  = 0.0099251;
+  constexpr double a4  = 1.776179364;
+  constexpr double a5  = 44.2500268;
+  constexpr double a6  = 2.702889206;
+  constexpr double a7  = 0.744335673;
+  constexpr double a8  = 3.35975497;
+  constexpr double a9  = 28.10133245;
+  constexpr double a10 = 1.57905016;
+  constexpr double a11 = 0.928131344;
+
+  constexpr double epsilon = 1.0e-8;
+  double p = 0, pf = 0;
+  double pprev = 0.01;
+                
+  while (fabs(pprev - p) > epsilon){
+      	p = pprev;
+
+	const double d = a5 + 2*pow(api, a6)/pow(p, a7);
+  	const double d2 = d*d;
+  	const double a = (a1*pow(api, a2) + a3*pow(t, a4)) / d2;
+      	const double f = pow((p/a8 + a9) * pow(yg, a10) * pow(10, a), a11) - rsb;
+
+      	const double dfdp = pow(10, -a)*a11*pow(yg,-a10)*pow((p/a8 + a9) * pow(yg, a10) * pow(10, a), a11)
+*(4*pow(10,a)*a7*pow(api,a6)*pow(p,-a7)*pow(yg,a10)*(a9 + p/a8)*
+(a1*pow(api,a2) + a3*pow(t,a4))*log(10)/(p*pow(d,3)) + pow(10,a) *pow(yg,a10)/a8)
+/(a9 + p/a8);
+
+      	pf = p - f/dfdp;
+      	pprev = pf;
+  }
+                
+  p = pf;
+  return p;
+
 }
 
 inline double

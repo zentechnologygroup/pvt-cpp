@@ -71,7 +71,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("PbDindorukChristman", "BubblePointPressure", "psia", 926, 12230)
+begin_correlation("PbDindorukChristmanDetachedFromRs", "BubblePointPressure", "psia", 926, 12230)
 add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.623,  1.517)
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  133,  3050)
@@ -82,6 +82,23 @@ add_author("Dindoruk & Christman")
 add_ref("dindoruk:2004")
 add_eq("P_b = a_8\\cdot\\left(\\frac{(R_s)\\,^{a_9}}{(\\gamma_g)\\,^{a_{10}}}\\cdot(10)^A+a_{11}\\right)")
 add_eq("A = \\frac{a_1 \\cdot (T)^{a_2}+a_3 \\cdot (API)^{a_4} }{{\\left(a_{5}+ \\frac{2\\cdot(R_s)^{a_6}}{(\\gamma_g)^{a7}} \\right)}^{2}}")
+add_internal_note("It was decided to eliminate this correlation.")
+set_hidden()
+end_correlation()
+
+################################################################
+
+begin_correlation("PbDindorukChristman", "BubblePointPressure", "psia", 926, 12230)
+add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
+add_parameter("yg", "Sgg", "Gas specific gravity",  0.623,  1.517)
+add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  133,  3050)
+add_parameter("api", "Api", "API oil gravity",  14.7,  40)
+add_parameter("t", "Fahrenheit", "Temperature",  117,  276)
+add_db("Based on more than 100 PVT reports from the Gulf of Mexico.")
+add_note("Dindoruk & Christman presented separate equations for solution gas oil ratio (Rs) and bubble point pressure (Pb). Both equations provide nearly identical results for low GOR systems. For higher GOR systems (greater than 2,000 scf/STB), their Rs equation provides more realistic results; therefore, the correlation for Rs is used to calculate Pb through the Newton-Raphson numerical root-finding method.")
+add_author("Dindoruk & Christman")
+add_ref("dindoruk:2004")
+add_ref("petroWiki:2016:7")
 end_correlation()
 
 ################################################################

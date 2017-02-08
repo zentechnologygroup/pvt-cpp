@@ -72,6 +72,7 @@ struct CorrelationInstantiater
     PbAlShammasi::get_instance();
     PbDeGhettoDetachedFromRs::get_instance();
     PbDeGhettoEtAl::get_instance();
+    PbDindorukChristmanDetachedFromRs::get_instance();
     PbDindorukChristman::get_instance();
     PbDoklaOsman::get_instance();
     PbHanafy::get_instance();
