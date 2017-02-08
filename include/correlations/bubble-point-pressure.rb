@@ -118,7 +118,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("PbHanafy", "BubblePointPressure", "psia", 36, 5003)
+begin_correlation("PbHanafyDetachedFromRs", "BubblePointPressure", "psia", 36, 5003)
 add_title("HANAFY ET AL. CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  7,  4272)
 add_db("Based on experimental PVT data of 324 fluid samples taken from 176 wells located in 75 fields. This data represents 15 productive zones of 123 reservoirs distributed along three different regions of Egypt, including the Gulf of Suez, Western Desert, and Sinai.")
@@ -127,6 +127,17 @@ add_ref("hanafy:1997")
 add_eq("{R_{sft}}\\,=\\,{{69}\\,+\\,{1.071\\cdot{\\,R_{sb}}}}")
 add_eq("{R_{si}}\\,=\\,{{23.94}\\,+\\,{1.101\\cdot{\\,R_{sft}}}}")
 add_eq("{P_{b}}\\,=\\,{{157.27}\\,+\\,{3.205\\cdot{\\,R_{si}}}}")
+end_correlation()
+
+################################################################
+
+begin_correlation("PbHanafy", "BubblePointPressure", "psia", 36, 5003)
+add_title("HANAFY ET AL. CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
+add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  7,  4272)
+add_db("Based on experimental PVT data of 324 fluid samples taken from 176 wells located in 75 fields. This data represents 15 productive zones of 123 reservoirs distributed along three different regions of Egypt, including the Gulf of Suez, Western Desert, and Sinai.")
+add_author("Hanafy et al.")
+add_ref("hanafy:1997")
+add_eq("{P_{b}}\\,=\\,{{157.27}\\,+\\,{3.205\\cdot{\\,R_{sb}}}}")
 end_correlation()
 
 ################################################################

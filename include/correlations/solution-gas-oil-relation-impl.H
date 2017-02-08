@@ -16,7 +16,9 @@ RsAlMarhoun::impl(const double & yg,
   constexpr double c4 = 1.32657;
   constexpr double c5 = 1.0 / 0.715082;
 
-  return pow(p / (c1 * pow(yg, c2) * pow(yo, c3) * pow(t, c4)), c5);
+  const double rs = pow(p / (c1 * pow(yg, c2) * pow(yo, c3) * pow(t, c4)), c5);
+
+  return rs > 0 ? rs : 0;
 }
 
 
@@ -30,7 +32,9 @@ RsAlShammasi::impl(const double & yg,
   constexpr double c2 = -1.841408;
   constexpr double c3_inv = 1/0.783716;
 
-  return pow(p/(pow(yo, c1)*exp(c2*yo*yg)), c3_inv) / ((t + 460) * yg); 
+  const double rs = pow(p/(pow(yo, c1)*exp(c2*yo*yg)), c3_inv) / ((t + 460) * yg); 
+
+  return rs > 0 ? rs : 0;
 }
 
 inline double
@@ -50,7 +54,7 @@ RsDeGhetto::impl(const double & yg,
       rs = ((ygcorr * pow(p, 1.2057))/56.434) * pow(10, 10.9267*api/(t + 460));
     }
 
-  return rs;
+  return rs > 0 ? rs : 0;
 }
 
 inline double
@@ -78,7 +82,7 @@ RsDindorukChristman::impl(const double & yg,
 
   const double rs = pow((p/a8 + a9) * pow(yg, a10) * pow(10, a), a11);
 
-  return double(rs);
+  return rs > 0 ? rs : 0;
 }
 
 inline double
@@ -90,7 +94,9 @@ RsDoklaOsman::impl(const double & yg,
   constexpr double k = 0.11956202e-3; // 1/(0.836386 * 10 **4)
   constexpr double d = 1/0.724047;
 
-  return pow(k * p * pow(yg, 1.01049) * pow(yo, -0.107991) * pow(t, 0.952584), d);
+  const double rs = pow(k * p * pow(yg, 1.01049) * pow(yo, -0.107991) * pow(t, 0.952584), d);
+
+  return rs > 0 ? rs : 0;
 }
 
 inline double
@@ -113,13 +119,17 @@ RsGlaso::impl(const double & yg,
     r = (-b + sqrt(b2 - 4*a*c)) / (2*a);
 
   const double f = pow(10, r);
-  return yg * pow((f * pow(api, 0.989) ) / ( pow(t, 0.172) ), 1/0.816);
+  const double rs = yg * pow((f * pow(api, 0.989) ) / ( pow(t, 0.172) ), 1/0.816);
+
+  return rs > 0 ? rs : 0;
 }
 
 inline double
 RsHanafy::impl(const double & p) noexcept
 {
-  return -49.069 + 0.312*p;
+  const double rs = -49.069 + 0.312*p;
+
+  return rs > 0 ? rs : 0;
 }
 
 inline double
@@ -152,7 +162,7 @@ RsKartoatmodjoSchmidt::impl(const double & yg,
       rs = c1 * pow(ygcorr, c2) * pow(p, c3) * pow(10, c4*api/(t + 460));
     }
 
-  return rs;
+  return rs > 0 ? rs : 0;
 }
 
 inline double
@@ -200,7 +210,9 @@ RsPetroskyFarshad::impl(const double & yg,
 {
   const double x = 0.0007916 * pow(api, 1.541) - 0.00004561 * pow(t, 1.3911);
         
-  return pow((p/112.727 + 12.34) * pow(yg, 0.8439) * pow(10, x), 1.73184);
+  const double rs = pow((p/112.727 + 12.34) * pow(yg, 0.8439) * pow(10, x), 1.73184);
+
+  return rs >= 0 ? rs : 0;
 }
 
 inline double RsStanding::impl(const double & yg,
@@ -208,7 +220,9 @@ inline double RsStanding::impl(const double & yg,
 			       const double & api,
 			       const double & t) noexcept
 {
-  return yg*pow((p/18.2 + 1.4)*pow(10, 0.0125*api - 0.00091*t), 1.2048);
+  const double rs = yg*pow((p/18.2 + 1.4)*pow(10, 0.0125*api - 0.00091*t), 1.2048);
+
+  return rs >= 0 ? rs : 0;
 }
 
 inline double RsTotalCFP::impl(const double & yg,
@@ -238,7 +252,9 @@ inline double RsTotalCFP::impl(const double & yg,
       c4 = 1.129;
     }
         
-  return yg * pow((p/c1) * pow(10, c2*api - c3*t), c4);
+  const double rs = yg * pow((p/c1) * pow(10, c2*api - c3*t), c4);
+
+  return rs >= 0 ? rs : 0;
 }
 
 inline double
@@ -305,7 +321,9 @@ inline double RsVelarde::impl(const double & yg,
         
   const double rsr = s1*pow(pr, s2) + (1 - s1)*pow(pr, s3);
         
-  return rsr*rsb;
+  const double rs = rsr*rsb;
+
+  return rs > 0 ? rs : 0;
 }
 
 inline double RsCegarra::impl(const double & yg,
@@ -331,14 +349,18 @@ inline double RsCegarra::impl(const double & yg,
       l5 = 1.1142;
     }
 
-  return yg * pow((p/l1 + l5) * pow(10, l4*api< - l3*t), 1/l2);
+  const double rs = yg * pow((p/l1 + l5) * pow(10, l4*api< - l3*t), 1/l2);
+
+  return rs > 0 ? rs : 0;
 }
 
 inline double RsPerezML::impl(const double & pb,
 			      const double & p,
 			      const double & rsb) noexcept
 {
-  return rsb * pow((p/pb), 0.881);
+  const double rs = rsb * pow((p/pb), 0.881);
+
+  return rs > 0 ? rs : 0;
 }
 
 inline double
@@ -346,7 +368,9 @@ RsMillanArcia::impl(const double & pb,
 		    const double & p,
 		    const double & rsb) noexcept
 {
-  return (rsb/1.031) * pow(p/pb, 0.83);
+  const double rs = (rsb/1.031) * pow(p/pb, 0.83);
+
+  return rs > 0 ? rs : 0;
 }
 
 inline double
@@ -357,7 +381,9 @@ RsManucciRosales::impl(const double & yg,
 {
   const double x = 0.000922*t - 0.0072*api;
             
-  return  yg * pow(p/(84.88 * pow(10, x) ), 1/0.53);
+  const double rs =  yg * pow(p/(84.88 * pow(10, x) ), 1/0.53);
+
+  return rs > 0 ? rs : 0;
 }
 
 void RsAbovePb::precondition(const Quantity<psia> & p,

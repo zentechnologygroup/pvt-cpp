@@ -148,7 +148,7 @@ PbDoklaOsman::impl(const double & yg,
 }
 
 inline double
-PbHanafy::impl(const double & rsb) noexcept
+PbHanafyDetachedFromRs::impl(const double & rsb) noexcept
 {
   const double rsft = 69 + 1.071 * rsb;
     
@@ -156,6 +156,13 @@ PbHanafy::impl(const double & rsb) noexcept
   const double rsi =  23.94 + 1.101 * rsft;
     
   return 3.205*rsi + 157.27;
+}
+
+inline double
+PbHanafy::impl(const double & rsb) noexcept
+{
+
+  return 3.205*rsb + 157.27;
 }
 
 inline double
