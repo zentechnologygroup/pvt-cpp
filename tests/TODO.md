@@ -15,3 +15,6 @@
 - Created at   2017-01-31 10:29:24 -0400
 - Completed at 2017-02-07 15:37:08 -0400
 
+## 6. implementar la unión de parámetros de famila de correlación
+- Created at   2017-02-08 15:06:07 -0400
+

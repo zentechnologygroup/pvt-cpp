@@ -18,5 +18,6 @@
 # include "interfacial-tension-unit.H"
 # include "z-unit.H"
 # include "gas-formation-volume-factor-unit.H"
+# include "water-cut-unit.H"
 
 # endif // PVT_UNITS_H
