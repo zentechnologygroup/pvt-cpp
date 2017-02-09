@@ -163,7 +163,7 @@ end_correlation()
 ################################################################    
 
 ## verificada con python
-begin_correlation("RsTotalCFP", "SolutionGasOilRelation", "SCF_STB")
+begin_correlation("RsTotalCFPDetachedFromPb", "SolutionGasOilRelation", "SCF_STB")
 add_title("TOTAL COMPAGNIE FRANÇAISE DES PÉTROLES (CFP) CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
 add_eq("R_s = \\gamma_g \\cdot \\left[ \\frac{P}{C_1} \\cdot 10 ^ {\\left( C_2 \\cdot \\gamma_{API} - C_3 \\cdot T \\right) } \\right] ^ {C_4}")
 add_parameter("yg", "Sgg", "Gas specific gravity")
@@ -174,6 +174,23 @@ add_db("Based on 336 PVT analyses of crude oil from eastern Venezuela.")
 add_author("Total CFP")
 add_ref("totalCFP:1983")
 add_ref("banzer:1996")
+end_correlation()
+
+################################################################
+
+begin_correlation("RsTotalCFP", "SolutionGasOilRelation", "SCF_STB")
+add_title("TOTAL COMPAGNIE FRANÇAISE DES PÉTROLES (CFP) CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
+add_eq("R_s = \\gamma_g \\cdot \\left[ \\frac{P}{C_1} \\cdot 10 ^ {\\left( C_2 \\cdot \\gamma_{API} - C_3 \\cdot T \\right) } \\right] ^ {C_4}")
+add_parameter("yg", "Sgg", "Gas specific gravity")
+add_parameter("p", "psia", "Pressure")
+add_parameter("api", "Api", "API oil gravity", "Api::get_instance().min_val", 45)
+add_parameter("t", "Fahrenheit", "Temperature")
+add_db("Based on 336 PVT analyses of crude oil from eastern Venezuela.")
+add_note("Total CFP presented separate equations for solution gas oil ratio (Rs) and bubble point pressure (Pb). The Pb equation provides more realistic results; therefore, Rs is determined by rearranging the bubble point pressure correlation to solve for the solution gas-oil ratio.")
+add_author("Total CFP")
+add_ref("totalCFP:1983")
+add_ref("banzer:1996")
+add_ref("lopez:2014")
 end_correlation()
 
 ################################################################

@@ -225,7 +225,7 @@ inline double RsStanding::impl(const double & yg,
   return rs >= 0 ? rs : 0;
 }
 
-inline double RsTotalCFP::impl(const double & yg,
+inline double RsTotalCFPDetachedFromPb::impl(const double & yg,
 			       const double & p,
 			       const double & api,
 			       const double & t) noexcept
@@ -253,6 +253,40 @@ inline double RsTotalCFP::impl(const double & yg,
     }
         
   const double rs = yg * pow((p/c1) * pow(10, c2*api - c3*t), c4);
+
+  return rs >= 0 ? rs : 0;
+}
+
+inline double RsTotalCFP::impl(const double & yg,
+			       const double & p,
+			       const double & api,
+			       const double & t) noexcept
+{
+  double c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+
+  if (api <= 10)
+    {
+      c1 = 12.847;
+      c2 = 0.9636;
+      c3 = 0.000993;
+      c4 = 0.03417;
+    }
+  else if (api <= 35)
+    {
+      c1 = 25.2755;
+      c2 = 0.7617;
+      c3 = 0.000835;
+      c4 = 0.011292;
+    }
+  else
+    {
+      c1 = 216.4711;
+      c2 = 0.6922;
+      c3 = -0.000427;
+      c4 = 0.02314;
+    }
+        
+  const double rs = yg * pow((p/c1) * pow(10, c4*api - c3*t), 1/c2);
 
   return rs >= 0 ? rs : 0;
 }

@@ -101,6 +101,7 @@ struct CorrelationInstantiater
     RsLasater::get_instance();
     RsPetroskyFarshad::get_instance();
     RsStanding::get_instance();
+    RsTotalCFPDetachedFromPb::get_instance();
     RsTotalCFP::get_instance();
     RsVasquezBeggs::get_instance();
     RsVelarde::get_instance();
