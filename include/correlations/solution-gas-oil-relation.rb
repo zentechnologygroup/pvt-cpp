@@ -174,6 +174,7 @@ add_db("Based on 336 PVT analyses of crude oil from eastern Venezuela.")
 add_author("Total CFP")
 add_ref("totalCFP:1983")
 add_ref("banzer:1996")
+set_hidden()
 end_correlation()
 
 ################################################################
