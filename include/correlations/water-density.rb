@@ -30,6 +30,7 @@ add_ref("spivey:2004")
 add_ref("mcCain:2011")
 add_note("Spivey, McCain & North (2004) used the IAPWS-95 international standard equation of state for water to determine the coefficients of the correlation for pure water density.")
 add_internal_note("The correlation was verified by using the original reference and McCain et al. (2011) as a secondary reference. Date: October 12 2016.")
+set_hidden()
 end_correlation()
 
 ################################################################
