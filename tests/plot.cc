@@ -215,7 +215,7 @@ void set_h2s_concentration()
 
 ValueArg<double> nacl_concentration_arg =
   { "", "nacl-concentration", "nacl-concentration", false, 0,
-    "nacl-concentration in MolePercent", cmd };
+    "nacl-concentration in mol_NaCl/Kg_H2O", cmd };
 Correlation::NamedPar nacl_concentration_par;
 VtlQuantity nacl_concentration = VtlQuantity::null_quantity;
 void set_nacl_concentration()
