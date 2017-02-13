@@ -18,3 +18,9 @@
 ## 6. implementar la unión de parámetros de famila de correlación
 - Created at   2017-02-08 15:06:07 -0400
 
+## 7. dry en plot de código común
+- Created at   2017-02-13 17:10:09 -0400
+
+## 8. documentar lot
+- Created at   2017-02-13 17:10:16 -0400
+

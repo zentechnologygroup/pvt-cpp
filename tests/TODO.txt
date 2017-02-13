@@ -4,3 +4,5 @@ compute en empirical_data 1405: se puede acer más raṕido,2016-12-01 17:30:02 
 ajustar uod en test-calibrate,2016-12-03 09:07:15 -0400,,
 definir en plor cuáles serán las excepciones que abortan,2017-01-31 10:29:24 -0400,2017-02-07 15:37:08 -0400,
 implementar la unión de parámetros de famila de correlación,2017-02-08 15:06:07 -0400,,
+dry en plot de código común,2017-02-13 17:10:09 -0400,,
+documentar lot,2017-02-13 17:10:16 -0400,,
