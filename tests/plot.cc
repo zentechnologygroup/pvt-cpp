@@ -1406,6 +1406,9 @@ void generate_grid()
 	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
 	  auto co = compute(co_corr, check, co_pars, p_par);
 	  auto co_par = make_tuple(true, "co", co, co_corr.result_unit);
+	  // eventualmente, esta instrucción podría separarse por un if
+	  // en el cual si p <= pb ==> no se inserta co_par. Pero
+	  // parece que como está es suficiente
 	  auto bo = compute(bo_corr, check, bo_pars, p_par, rs_par, co_par);
 	  auto uo = compute(uo_corr, check, uo_pars, p_par, rs_par);
 	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,

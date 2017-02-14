@@ -194,6 +194,7 @@ struct Correlation
   mutable DynList<string> notes;
   mutable DynList<const BibEntry*> refs;
   mutable bool hidden = false; // indicates whether correlation is or not hidden
+  // TODO: hidden_calc y hidden_grid (desde ruby)
   mutable long id = -1;
   mutable string __target_name = "NOT-DEFINED";
 

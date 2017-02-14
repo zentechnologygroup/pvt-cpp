@@ -952,3 +952,9 @@
 - Comment      
 - Finished     
 
+## 160. ajustar uod en test-calibrate
+- Created at   2016-12-03 09:07:15 -0400
+- Completed at 
+- Comment      
+- Finished     
+
