@@ -1410,7 +1410,9 @@ void generate_grid()
 	  auto uo = compute(uo_corr, check, uo_pars, p_par, rs_par);
 	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
-	  auto z = dcompute(zfactor_corr, check, ppr_par, tpr_par);
+	  VtlQuantity z = VtlQuantity::null_quantity;
+	  if (p_q <= pb_q)
+	    z = dcompute(zfactor_corr, check, ppr_par, tpr_par);
 	  auto z_par = NPAR(z);
 	  auto cg = dcompute(cg_corr, check, cg_pars, ppr_par, z_par);
 	  CALL(Bg, bg, t_q, p_q, z);
