@@ -30,7 +30,7 @@ add_ref("spivey:2004")
 add_ref("mcCain:2011")
 add_note("Spivey, McCain & North (2004) used the IAPWS-95 international standard equation of state for water to determine the coefficients of the correlation for pure water density.")
 add_internal_note("The correlation was verified by using the original reference and McCain et al. (2011) as a secondary reference. Date: October 12 2016.")
-set_hidden()
+set_hidden_grid()
 end_correlation()
 
 ################################################################
@@ -49,7 +49,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("PpwSpiveyMN", "WaterDensity", "Gr_cm3")
+begin_correlation("PpwSpiveyMN", "PureWaterDensity", "Gr_cm3")
 add_parameter("t", "Celsius", "Temperature", 0, 275)
 add_parameter("p", "mPascal", "Pressure", 0.1, 200)
 add_title("SPIVEY, McCAIN & NORTH CORRELATION, CALCULATION OF PURE WATER DENSITY")
@@ -57,5 +57,5 @@ add_author("Spivey, McCain & North")
 add_ref("spivey:2004")
 add_note("Spivey, McCain & North (2004) used the IAPWS-95 international standard equation of state for water to determine the coefficients of the correlation for pure water.")
 add_internal_note("The correlation was verified by using the original reference.")
-set_hidden()
+set_hidden_grid()
 end_correlation()
