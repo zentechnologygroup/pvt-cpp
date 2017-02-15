@@ -1221,6 +1221,7 @@ Declare_Correlation_Subtype(UndersaturatedWaterIsothermalCompressibility,
 			    WaterCorrelation, "c_{wa}");
 Declare_Correlation_Subtype(SolutionGasWaterRelation, WaterCorrelation,
 			    "R_{sw}");
-
+Declare_Correlation_Subtype(VaporPressure, WaterCorrelation,
+			    "P_{v}");
 
 # endif // CORRELATION_H
