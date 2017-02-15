@@ -12,20 +12,20 @@ Declare_Physical_Quantity(IsothermalCompressibility, "C",
 
 
 Declare_Unit(Pascal_1, "Pa^-1", R"DESC(Unit of isothermal compressibility declared as 1/Pa)DESC", 
-	     IsothermalCompressibility, 1.450377e-12, 1.450377e-5);
+	     IsothermalCompressibility, 1.450377e-12, 1.450377e-6);
 
 Declare_Unit(mPa_1, "MPa^-1", R"DESC(Unit of isothermal compressibility declared as 1/MPa)DESC", 
-	     IsothermalCompressibility, 1.450377e-6, 14.50377);
+	     IsothermalCompressibility, 1.450377e-6, 1.450377);
 
 Declare_Unit(psia_1, "psia^-1", R"DESC(Unit of isothermal compressibility declared as 1/psia)DESC", 
-	     IsothermalCompressibility, 1e-8, 1e-1);
+	     IsothermalCompressibility, 1e-8, 1e-2);
 
 Declare_Unit(Bar_1, "bar^-1", R"DESC(Unit of isothermal compressibility declared as 1/bar)DESC",
-	     IsothermalCompressibility, 1.450377e-7, 1.450377);
+	     IsothermalCompressibility, 1.450377e-7, 1.450377e-1);
 
 Declare_Unit(Atmosphere_1, "atm^-1",
 	     R"DESC(Unit of isothermal compressibility declared as 1/atm)DESC",
-	     IsothermalCompressibility, 1.469595e-7, 1.469595);
+	     IsothermalCompressibility, 1.469595e-7, 1.469595e-1);
 
 
 // Isothermal Compressility conversions 
