@@ -7,7 +7,6 @@ $par_symbols =
     'rsb' => "R_{sbp}",
     't' => "T",
     'pb' => "P_b",
-    'pv' => "P_v",
     'tsep' => "T_{sp}",
     'psep' => "P_{sp}",
     'n2_concentration' => "C_{N_2}",
