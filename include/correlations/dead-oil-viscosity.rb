@@ -13,6 +13,9 @@ add_eq("a\\,=\\,antilog{\\left({0.43}+{\\frac{8.33}{\\gamma_{API}}}\\right)}")
 add_parameter("api", "Api", "API oil gravity",  10.1,  52.5)
 add_parameter("t", "Fahrenheit", "Temperature",  100,  220)
 add_author("Beal")
+set_hidden_calc()
+set_hidden_grid()
+set_hidden()
 end_correlation()
 
 ################################################################
