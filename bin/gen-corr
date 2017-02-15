@@ -259,6 +259,8 @@ class CorrelationGen
     s += "set_author(\"#{@author}\");"
     s += "set_title(\"#{@title}\");" if @title
     s += "set_hidden();" if @hidden
+    s += "set_hidden_grid();" if @hidden_grid
+    s += "set_hidden_calc();" if @hidden_calc
     @pars.each { |par| s += par.make }
     @db.each { |db| s += "add_db(\"#{db}\");\n" }
     @notes.each { |note| s += "add_note(\"#{note}\");\n" }
@@ -337,6 +339,14 @@ end
 
 def set_hidden
   $curr_corr.set_hidden
+end
+
+def set_hidden_grid
+  $curr_corr.set_hidden_grid
+end
+
+def set_hidden_calc
+  $curr_corr.set_hidden_calc
 end
 
 def add_parameter(name, unit, desc, min = nil, max = nil)

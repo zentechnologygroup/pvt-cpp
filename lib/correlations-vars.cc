@@ -48,6 +48,8 @@ static json to_json(const Correlation & c)
   j["type"] = c.type_name;
   j["name"] = c.name;
   j["hidden"] = c.hidden;
+  j["hidden_grid"] = c.hidden_grid;
+  j["hidden_calc"] = c.hidden_calc;
   j["id"] = c.id;
 
   auto jpars = c.get_preconditions().maps<json>([] (const auto & par)

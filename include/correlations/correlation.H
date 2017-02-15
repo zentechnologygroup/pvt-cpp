@@ -194,7 +194,8 @@ struct Correlation
   mutable DynList<string> notes;
   mutable DynList<const BibEntry*> refs;
   mutable bool hidden = false; // indicates whether correlation is or not hidden
-  // TODO: hidden_calc y hidden_grid (desde ruby)
+  mutable bool hidden_calc = false;
+  mutable bool hidden_grid = false;
   mutable long id = -1;
   mutable string __target_name = "NOT-DEFINED";
 
@@ -320,7 +321,11 @@ private:
     par_ptr->def_latex_symbol(latex_symbol);
   }
 
-  void set_hidden() { hidden = true; }
+  void set_hidden() { hidden = hidden_calc = hidden_grid = true; }
+
+  void set_hidden_calc() { hidden_calc = true; }
+
+  void set_hidden_grid() { hidden_grid = true; }
 
   static string json_of_all_correlations();
 

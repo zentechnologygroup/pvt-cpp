@@ -62,5 +62,6 @@ DEFINE_ZEN_EXCEPTION(MinMaxReversed,
 		     "minimum value is greater than maximum value");
 DEFINE_ZEN_EXCEPTION(InvalidCsvHeader, "Invalid csv header");
 DEFINE_ZEN_EXCEPTION(InvalidCsvRow, "Invalid csv row");
+DEFINE_ZEN_EXCEPTION(InvalidValue, "Invalid value");
 
 # endif

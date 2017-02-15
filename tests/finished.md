@@ -958,3 +958,33 @@
 - Comment      
 - Finished     
 
+## 161. Cambiar set_hidden por set_hidden_in_calc
+- Created at   2017-02-14 16:41:18 -0400
+- Completed at 2017-02-15 08:35:32 -0400
+- Comment      
+- Finished     
+
+## 162. Añadir set_hidden_grid
+- Created at   2017-02-14 16:41:39 -0400
+- Completed at 2017-02-15 08:35:35 -0400
+- Comment      
+- Finished     
+
+## 163. Dejar set_hidden (NO BORRARLO)
+- Created at   2017-02-14 16:41:58 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 164. todo lo hidden debe ir para json
+- Created at   2017-02-14 16:42:26 -0400
+- Completed at 2017-02-15 08:35:20 -0400
+- Comment      
+- Finished     
+
+## 165. si set_hidden está ==> ambos hidden[calc|grid] están activos
+- Created at   2017-02-14 16:46:13 -0400
+- Completed at 2017-02-15 08:35:16 -0400
+- Comment      
+- Finished     
+
