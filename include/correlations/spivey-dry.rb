@@ -1,6 +1,6 @@
 # coding: utf-8
 
-begin_correlation("PvSpiveyMN", "TmpCorrelation", "mPascal")
+begin_correlation("PvSpiveyMN", "VaporPressure", "mPascal")
 add_title("SPIVEY, McCAIN & NORTH, CALCULATION OF VAPOR PRESSURE")
 add_db("Vapor pressure of pure water, calculated from the IAWPS-95 formulation.")
 add_parameter("t", "Kelvin", "Temperature") 
@@ -8,7 +8,7 @@ add_author("Spivey, McCain & North")
 add_ref("spivey:2004")
 add_ref("mcCain:2011")
 add_internal_note("The correlation was verified by using the original reference and McCain et al. (2011) as a secondary reference. Date: October 19 2016.")
-set_hidden()
+set_hidden_grid()
 end_correlation()
 
 ################################################################
