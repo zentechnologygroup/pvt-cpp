@@ -54,6 +54,14 @@ class CorrelationGen
     @hidden = true;
   end
 
+  def set_hidden_calc
+    @hidden_calc = true;
+  end
+
+  def set_hidden_grid
+    @hidden_grid = true;
+  end
+
   def add_doc(str)
     @doc = str
   end
