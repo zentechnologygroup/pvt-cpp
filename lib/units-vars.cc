@@ -53,7 +53,10 @@ PhysicalQuantity::null_physical_quantity("NullPhysicalQuantity", "NullPQ",
 
 const Unit Unit::null_unit("NullUnit", "Null Unit", "Null unit",
 			   PhysicalQuantity::null_physical_quantity,
-			   0.0, 1.0, 0.1);
+			   numeric_limits<double>::min(),
+			   numeric_limits<double>::max());
+
+const double Unit::Invalid_Value = numeric_limits<double>::max();
 
 static const double val_null_quantity = numeric_limits<double>::max();
 

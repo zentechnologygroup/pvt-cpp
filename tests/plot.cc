@@ -774,7 +774,7 @@ ParList compute_pb_and_load_constant_parameters()
   return pars_list;
 }
 
-const double Invalid_Value = numeric_limits<double>::max();
+const double Invalid_Value = Unit::Invalid_Value;
 
 double temperature = 0, pressure = 0; // globales y puestos por el grid
 
@@ -930,9 +930,7 @@ double compute(const DefinedCorrelation & corr, bool check,
 {
   try
     {
-      if (not insert_in_pars_list(pars_list, args...))
-	return Invalid_Value;
-      
+      insert_in_container(pars_list, args...);
       double ret = corr.compute_by_names(pars_list, check);
       remove_from_container(pars_list, args ...);
       return ret;
