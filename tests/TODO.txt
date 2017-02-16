@@ -5,3 +5,4 @@ definir en plor cuáles serán las excepciones que abortan,2017-01-31 10:29:24 -
 implementar la unión de parámetros de famila de correlación,2017-02-08 15:06:07 -0400,,
 dry en plot de código común,2017-02-13 17:10:09 -0400,,
 documentar lot,2017-02-13 17:10:16 -0400,,
+script que lea hoja de Virginia y genere los csv para distintos grids,2017-02-16 18:15:52 -0400,,
