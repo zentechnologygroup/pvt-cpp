@@ -434,12 +434,11 @@ void set_cg_corr()
 }
 
 ValueArg<string> ug_corr_arg =
-  { "", "ug", "Correlation for ug", false, "UgLeeGE", "Correlation for ug", cmd };
+  { "", "ug", "Correlation for ug", false, "", "Correlation for ug", cmd };
 const Correlation * ug_corr = nullptr;
 void set_ug_corr()
 {
-  ug_corr = &UgLeeGE::get_instance(); // mandatory here
-  set_correlation(ug_corr_arg, "ug", ug_corr, false);
+  set_correlation(ug_corr_arg, "ug", ug_corr, true);
 }
 
 ValueArg<string> bwb_corr_arg =
