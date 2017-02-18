@@ -117,7 +117,7 @@ BwSpiveyMNDry::impl(const double & t, // comes in Celsius
   const double & m = nacl_concentration;
 
   // Transformation from °C to °K
-  const double tk = Quantity<Kelvin>(t).raw();
+  const double tk = unit_convert<Celsius, Kelvin>(t);
 
   // pw: DENSITY OF BRINE WITH DISSOLVED METHANE
   // Density of methane-free brine at the temperature and pressure of
