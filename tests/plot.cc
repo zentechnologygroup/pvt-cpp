@@ -1420,14 +1420,14 @@ void generate_grid()
 	  CALL(Bg, bg, t_q, p_q, z);
 	  auto ug = dcompute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
 	  CALL(Pg, pg, yg, t_q, p_q, z);
-	  auto cw = compute(cw_corr, check, cw_pars, p_par, z_par,
-			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
 	  auto bw = compute(bw_corr, check, bw_pars, p_par);
 	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
 	  auto pw = dcompute(pw_corr, check, pw_pars, p_par, bw_par);
 	  auto rsw = dcompute(rsw_corr, check, rsw_pars, p_par);
 	  auto rsw_par = NPAR(rsw);
 	  auto cwa = dcompute(cwa_corr, check, cwa_pars, p_par, rsw_par);
+	  auto cw = compute(cw_corr, check, cw_pars, p_par, z_par, 
+			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
 	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
 	  auto uw = dcompute(uw_corr, check, uw_pars, p_par, NPAR(ppw)).raw();
 	  auto sgo = dcompute(sgo_corr, check, sgo_pars, p_par).raw();
