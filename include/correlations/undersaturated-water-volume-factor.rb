@@ -22,7 +22,7 @@ add_title("McCain CORRELATION, CALCULATION OF WATER FORMATION VOLUME FACTOR (FOR
 add_db("Based on the equation presented by McCain (1990).")
 add_parameter("p", "psia", "Pressure")
 add_parameter("pb", "psia", "Bubble point pressure")
-add_parameter("bwpbbw", "RB_STB", "Water formation volume factor at Pb")
+add_parameter("bwpb", "RB_STB", "Water formation volume factor at Pb")
 add_parameter("cw", "psia_1", "Water isothermal compressibility", 2.2e-6, 3.8e-6)
 add_precondition("p", "pb")
 add_author("McCain")
