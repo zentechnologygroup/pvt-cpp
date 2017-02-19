@@ -45,10 +45,10 @@ void BwaMcCain::precondition(const Quantity<psia> & p,
 inline double
 BwaMcCain::impl(const double & p,
                 const double & pb,
-		const double & bwbp,
+		const double & bwpb,
 		const double & cw) noexcept
 {
-  return bwbp * exp(cw * (pb - p));
+  return bwpb * exp(cw * (pb - p));
 }
 
 

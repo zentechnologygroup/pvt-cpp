@@ -1378,10 +1378,12 @@ void generate_grid()
       auto pobp = dcompute(&PobBradley::get_instance(), check, po_pars,
 			  rs_pb, npar("bob", bobp));
 
+      auto bwpb = dcompute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));
+
       insert_in_container(po_pars, pb_par, NPAR(pobp));
       insert_in_container(ug_pars, tpr_par, t_par);
+      insert_in_container(bw_pars, t_par, pb_par, NPAR(bwpb));
       cg_pars.insert(tpr_par);
-      bw_pars.insert(t_par);
       uw_pars.insert(t_par);
       pw_pars.insert(t_par);
       rsw_pars.insert(t_par);
@@ -1418,14 +1420,14 @@ void generate_grid()
 	  CALL(Bg, bg, t_q, p_q, z);
 	  auto ug = dcompute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
 	  CALL(Pg, pg, yg, t_q, p_q, z);
+	  auto cw = compute(cw_corr, check, cw_pars, p_par, z_par,
+			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
 	  auto bw = compute(bw_corr, check, bw_pars, p_par);
 	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
 	  auto pw = dcompute(pw_corr, check, pw_pars, p_par, bw_par);
 	  auto rsw = dcompute(rsw_corr, check, rsw_pars, p_par);
 	  auto rsw_par = NPAR(rsw);
 	  auto cwa = dcompute(cwa_corr, check, cwa_pars, p_par, rsw_par);
-	  auto cw = compute(cw_corr, check, cw_pars, p_par, z_par,
-			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
 	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
 	  auto uw = dcompute(uw_corr, check, uw_pars, p_par, NPAR(ppw)).raw();
 	  auto sgo = dcompute(sgo_corr, check, sgo_pars, p_par).raw();
@@ -1448,10 +1450,10 @@ void generate_grid()
       remove_from_container(uo_pars, "uobp", "pb", "uod", t_par);
       remove_from_container(po_pars, "pb", "pobp");
       remove_from_container(ug_pars, t_par, tpr_par);
+      remove_from_container(bw_pars, t_par, pb_par, "bwpb");
       sgo_pars.remove(t_par);
       sgw_pars.remove(t_par);
       cg_pars.remove(tpr_par);
-      bw_pars.remove(t_par); 
       uw_pars.remove(t_par); 
       pw_pars.remove(t_par);
       cw_pars.remove(t_par);
