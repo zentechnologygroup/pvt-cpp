@@ -35,9 +35,10 @@ void convert()
 {
   auto src_unit = search_unit(source.getValue());
   auto tgt_unit = search_unit(target.getValue());
+  auto convert_fct = search_conversion(*src_unit, *tgt_unit);
 
   for (auto v : vals)
-    cout << unit_convert(*src_unit, v, *tgt_unit) << " ";
+    cout << (*convert_fct)(v) << " ";
   cout << endl;
 }
 

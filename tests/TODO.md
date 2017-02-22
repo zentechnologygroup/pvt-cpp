@@ -24,11 +24,15 @@
 ## 8. script que lea hoja de Virginia y genere los csv para distintos grids
 - Created at   2017-02-16 18:15:52 -0400
 
-<<<<<<< HEAD
 ## 9. generate_grid podría generarse automáticamente según los valores de la correlaciones
 - Created at   2017-02-19 10:14:59 -0400
-=======
-## 9. progamat test_all_units2; usar hoja Unitconverter tests
+
+## 10. progamar test_all_units2; usar hoja Unitconverter tests
 - Created at   2017-02-17 16:53:08 -0400
->>>>>>> 3ad1ba996a0e852be6335d9e55eb7a69ef7195b2
+
+## 11. plot debe incluir dos fila para pb y nextafter(pb)
+- Created at   2017-02-22 14:52:43 -0400
+
+## 12. poner versión en plot
+- Created at   2017-02-22 17:49:16 -0400
 

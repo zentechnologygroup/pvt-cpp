@@ -565,7 +565,7 @@ void set_range(const RangeDesc & range, const string & name,
 }
 
 ValueArg<RangeDesc> t_range =
-  { "", "t", "range spec for temperature", true, RangeDesc(),
+  { "", "t", "min max n", true, RangeDesc(),
     "range spec \"min max n\" for temperature", cmd };
 DynList<Correlation::NamedPar> t_values;
 void set_t_range()
@@ -575,7 +575,7 @@ void set_t_range()
 }
 
 ValueArg<RangeDesc> p_range =
-  { "", "p", "range spec for pressure", true, RangeDesc(),
+  { "", "p", "min max n", true, RangeDesc(),
     "range spec \"min max n\" for pressure", cmd };
 DynList<Correlation::NamedPar> p_values;
 void set_p_range()
