@@ -944,12 +944,15 @@ double compute(const DefinedCorrelation & corr, bool check,
     {
       if (report_exceptions)
 	{
+	  auto triggering_corr_ptr = corr.search_correlation(pressure);
 	  string names = corr.correlations().
-	    foldl<string>("", [] (const auto & acu, auto ptr)
+	    foldl<string>("", [triggering_corr_ptr] (const auto & acu, auto ptr)
             {
+	      if (triggering_corr_ptr == ptr)
+		return acu + "*" + ptr->name + " ";
 	      return acu + ptr->name + " ";
 	    });
-	  store_exception(names, e);
+	  store_exception("{ " + names + "}", e);
 	}
 
       remove_from_container(pars_list, args ...);

@@ -163,6 +163,14 @@ public:
     return intervals.search(i);
   }
 
+  const Correlation * search_correlation(double val) const
+  {
+    auto interval_ptr = search_interval(val);
+    if (not interval_ptr)
+      return nullptr;
+    return interval_ptr->correlation_ptr;
+  }
+
   bool contains(double val) const noexcept { return search_interval(val); }
 
   DynList<Interval> interval_list() const { return intervals.keys(); }
