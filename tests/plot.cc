@@ -122,9 +122,10 @@ inline VtlQuantity par(const Correlation::NamedPar & par)
   return VtlQuantity(*get<3>(par), get<2>(par));
 }
 
-inline Correlation::NamedPar npar(const string & name, const BaseQuantity & p)
+inline Correlation::NamedPar npar(const string & name, const BaseQuantity & p,
+				  bool valid = true)
 {
-  return make_tuple(true, name, p.raw(), &p.unit);
+  return make_tuple(valid, name, p.raw(), &p.unit);
 }
 
 # define NPAR(par) npar(#par, par)
@@ -1399,7 +1400,9 @@ void generate_grid()
 
       size_t n = row.ninsert(t_q.raw(), pb, uod_val.raw());
 
-      for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
+      p_values.ninsert(p_pb, p_pb_next);
+      size_t i = 0;
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next(), ++i)
 	{
 	  Correlation::NamedPar p_par = p_it.get_curr();
 	  VtlQuantity p_q = par(p_par);
@@ -1437,7 +1440,8 @@ void generate_grid()
 
 	  size_t n = row.ninsert(p_q.raw(), rs, co, bo, uo, po, z.raw(),
 				 cg.raw(), bg.raw(), ug.raw(), pg.raw(), bw,
-				 uw, pw.raw(), rsw.raw(), cw, sgo, sgw, 0);
+				 uw, pw.raw(), rsw.raw(), cw, sgo, sgw,
+				 i < 2 ? 1 : 0);
 
 	  assert(row.size() == 22);
 
@@ -1445,6 +1449,7 @@ void generate_grid()
 	  row.popn(n);
 	}
 
+      p_values.remove_first(); p_values.remove_first(); // p_pb and p_pb_next
       row.popn(n);
       remove_from_container(rs_pars, "pb", t_par);
       remove_from_container(co_pars, "pb", t_par);
