@@ -569,9 +569,10 @@ ValueArg<RangeDesc> t_range =
   { "", "t", "min max n", true, RangeDesc(),
     "range spec \"min max n\" for temperature", cmd };
 DynList<Correlation::NamedPar> t_values;
+const Unit * t_unit = nullptr;
 void set_t_range()
 {
-  auto t_unit = test_unit_change("t", Fahrenheit::get_instance());
+  t_unit = test_unit_change("t", Fahrenheit::get_instance());
   set_range(t_range.getValue(), "t", *t_unit, t_values);
 }
 
@@ -579,9 +580,10 @@ ValueArg<RangeDesc> p_range =
   { "", "p", "min max n", true, RangeDesc(),
     "range spec \"min max n\" for pressure", cmd };
 DynList<Correlation::NamedPar> p_values;
+const Unit * p_unit = nullptr;
 void set_p_range()
 {
-  auto p_unit = test_unit_change("p", psia::get_instance());
+  p_unit = test_unit_change("p", psia::get_instance());
   set_range(p_range.getValue(), "p", *p_unit, p_values);
 }
 
@@ -776,12 +778,14 @@ ParList compute_pb_and_load_constant_parameters()
 
 const double Invalid_Value = Unit::Invalid_Value;
 
-double temperature = 0, pressure = 0; // globales y puestos por el grid
+double temperature = 0, pressure = 0; // valores globales y puestos
+				      // por el grid mientras itera 
 
 void store_exception(const string & corr_name, const exception & e)
 {
   ostringstream s;
-  s << corr_name << ": " << temperature << ", " << pressure << ": " << e.what()
+  s << corr_name << ": " << VtlQuantity(*t_unit, temperature)
+    << ", " << VtlQuantity(*p_unit, pressure) << ": " << e.what()
     << endl;
   exception_list.append(s.str());
 }
