@@ -1314,7 +1314,8 @@ void generate_grid()
 		   P("rsw", &rsw_corr->unit),
 		   P("cw", &cwb_corr->unit),
 		   P("sgo", &sgo_corr->unit),
-		   P("sgw", &sgw_corr->unit));
+		   P("sgw", &sgw_corr->unit),
+		   P("pbrow", &Unit::null_unit));
 
   auto rs_pb = make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par));
   
@@ -1329,11 +1330,14 @@ void generate_grid()
       CALL(Tpr, tpr, t_q, adjustedtpcm);
       auto tpr_par = NPAR(tpr);
 
-      auto pb_q =
+      VtlQuantity pb_q =
 	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
       auto pb = pb_q.raw();
+      double next_pb = nextafter(pb, numeric_limits<double>::max());
+      VtlQuantity next_pb_q = { pb_q.unit, next_pb };
       auto pb_par = npar("pb", pb_q);
       auto p_pb = npar("p", pb_q);
+      auto p_pb_next = npar("p", next_pb_q);
 
       auto uod_val = dcompute(uod_corr, check, uod_pars, t_par);
 
@@ -1433,9 +1437,9 @@ void generate_grid()
 
 	  size_t n = row.ninsert(p_q.raw(), rs, co, bo, uo, po, z.raw(),
 				 cg.raw(), bg.raw(), ug.raw(), pg.raw(), bw,
-				 uw, pw.raw(), rsw.raw(), cw, sgo, sgw);
+				 uw, pw.raw(), rsw.raw(), cw, sgo, sgw, 0);
 
-	  assert(row.size() == 21);
+	  assert(row.size() == 22);
 
 	  print_row(row);
 	  row.popn(n);
