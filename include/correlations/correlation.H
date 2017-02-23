@@ -967,7 +967,7 @@ public:
 	    auto i = get<2>(p) + 1;
 	    ostringstream s;
 	    s << "Parameter " << i << " (" << par_name << " = " << par
-	      << ") in correlation" << name 
+	      << ") in correlation " << name 
 	      << " does not satisfy application development range"; 
 	    ZENTHROW(OutOfParameterRange, s.str());
 	  }
@@ -991,8 +991,8 @@ public:
       {
 	ostringstream s;
 	s << "In correlation " << name << " " << subtype_name << " " << type_name
-	  << " : return value " << result.get_value() << " "
-	  << result.unit.symbol << " is out of range ["
+	  << " : return value (" << result.get_value() << " "
+	  << result.unit.symbol << ") is out of range ["
 	  << min_val << ", " << max_val << "] defined for the correlation";
 	ZENTHROW(OutOfCorrelationRange, s.str());
       }

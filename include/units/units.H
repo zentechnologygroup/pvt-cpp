@@ -682,7 +682,7 @@ protected:
       return;
 
     ostringstream s;
-    s << "Value " << value << " for unit " << unit.name << " (" << unit.symbol
+    s << "Value (" << value << " " << unit.symbol
       << ") is not inside in [" << unit.min_val << ", "
       << unit.max_val << "] epsilon = " << unit.get_epsilon()
       << " defined for the unit";
