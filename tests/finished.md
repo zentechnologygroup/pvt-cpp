@@ -988,3 +988,27 @@
 - Comment      
 - Finished     
 
+## 166. poner versión en plot
+- Created at   2017-02-22 17:49:16 -0400
+- Completed at 2017-02-24 10:27:55 -0400
+- Comment      
+- Finished     
+
+## 167. añadir correlciones por omisión para gas y agua (ver trello)
+- Created at   2017-02-23 17:10:49 -0400
+- Completed at 2017-02-24 10:27:49 -0400
+- Comment      
+- Finished     
+
+## 168. pasar gitversion a include
+- Created at   2017-02-23 17:19:24 -0400
+- Completed at 2017-02-24 10:27:40 -0400
+- Comment      
+- Finished     
+
+## 169. meter en json gitversion
+- Created at   2017-02-23 17:24:30 -0400
+- Completed at 2017-02-24 10:27:34 -0400
+- Comment      
+- Finished     
+

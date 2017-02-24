@@ -33,15 +33,3 @@
 ## 11. plot debe incluir dos fila para pb y nextafter(pb)
 - Created at   2017-02-22 14:52:43 -0400
 
-## 12. poner versión en plot
-- Created at   2017-02-22 17:49:16 -0400
-
-## 13. añadir correlciones por omisión para gas y agua (ver trello)
-- Created at   2017-02-23 17:10:49 -0400
-
-## 14. pasar gitversion a include
-- Created at   2017-02-23 17:19:24 -0400
-
-## 15. meter en json gitversion
-- Created at   2017-02-23 17:24:30 -0400
-

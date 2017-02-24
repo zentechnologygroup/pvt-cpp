@@ -9,7 +9,3 @@ script que lea hoja de Virginia y genere los csv para distintos grids,2017-02-16
 generate_grid podría generarse automáticamente según los valores de la correlaciones,2017-02-19 10:14:59 -0400,,
 progamar test_all_units2; usar hoja Unitconverter tests,2017-02-17 16:53:08 -0400,,
 plot debe incluir dos fila para pb y nextafter(pb),2017-02-22 14:52:43 -0400,,
-poner versión en plot,2017-02-22 17:49:16 -0400,,
-añadir correlciones por omisión para gas y agua (ver trello),2017-02-23 17:10:49 -0400,,
-pasar gitversion a include,2017-02-23 17:19:24 -0400,,
-meter en json gitversion,2017-02-23 17:24:30 -0400,,
