@@ -3,6 +3,5 @@
 
 SUBDIRS =  units correlations
 
-depend:: gitversion.H
 MakeSubdirs($(SUBDIRS))
 DependSubdirs($(SUBDIRS))
