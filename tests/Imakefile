@@ -3,7 +3,7 @@ DEPEND = sh ./depend.sh
 # define IHaveSubdirs
 # define PassCDebugFlags
 
-SUBDIRS = unittests
+SUBDIRS = unittests corrtests
 
 MakeSubdirs($(SUBDIRS))
 

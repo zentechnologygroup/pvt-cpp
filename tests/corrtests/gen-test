@@ -9,8 +9,8 @@ def test_preamble(name)
 %Q(
 # include <cassert>
 # include <tclap/CmdLine.h>
-# include <units/unittest-utils.H>
-# include <units/pvt-units.H>
+# include <correlations/unittest-utils.H>
+# include <correlations/pvt-correlations.H>
 
 using namespace TCLAP;
 
@@ -20,17 +20,17 @@ SwitchArg with_call = { "c", "calls", "print calls for failed tests", cmd };
 
 int main(int argc, char *argv[])
 {
-  UnitTester tester;
+  CorrelationTester tester;
 
   cmd.parse(argc, argv);
 )
 end
 
 def error_msg(msg, name, line)
-  fail msg + " line #{line}"
+  fail msg + " for correlation #{name} line #{line}"
 end
   
-def gen_test(csv_row, line)
+def gen_test(csv_row, correlation, line)
   corr_name = csv_row[0]
 
   test_result = csv_row["result"]

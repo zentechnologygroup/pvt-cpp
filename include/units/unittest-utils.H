@@ -1,11 +1,7 @@
 # ifndef UNITTEST_UTILS_H
 # define UNITTEST_UTILS_H
 
-# include <string>
-
 # include <units/units.H>
-
-using namespace std;
 
 struct UnitTest
 {
@@ -38,6 +34,22 @@ struct UnitTest
     auto error = 100*fabs(expected - result)/expected;
     return error <= tolerance;
   }
+
+  string to_string() const
+  {
+    ostringstream s;
+    
+    s << "file        = " << csv_name << endl
+      << "line        = " << csv_line << endl
+      << "source unit = " << src_unit_name << endl
+      << "target unit = " << src_unit_name << endl
+      << "value       = " << value << endl
+      << "expected    = " << expected << endl
+      << "result      = " << result << endl
+      << "tolerance   = " << tolerance;
+
+    return s.str();
+  }
 };
 
 class UnitTester
@@ -60,7 +72,10 @@ public:
     for (auto it = test_list.get_it(); it.has_curr(); it.next())
       {
 	auto & test = it.get_curr();
-	if (test.
+	if (test.pass())
+	  continue;
+
+	failed_list.append(test.to_string());
       }
   }
 };
