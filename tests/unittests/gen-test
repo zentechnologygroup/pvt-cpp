@@ -30,13 +30,13 @@ end
 
 def load_csv_col(csv_row, name, line)
   v = csv_row[name]
-  error_msg("#{name} not specified", name, line) unless v
+  error_msg("column #{name} not specified in csv file", name, line) unless v
   v
 end
 
 def gen_test(csv_name, csv_row, line)
 
-  value = load_csv_col csv_row, 'value'
+  value = load_csv_col(csv_row, 'value', line)
   src_unit = load_csv_col csv_row, 'convert from', line
   tgt_unit = load_csv_col csv_row, 'convert to', line
   expected = load_csv_col csv_row, 'result'. line
