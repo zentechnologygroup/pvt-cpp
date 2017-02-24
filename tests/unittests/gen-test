@@ -50,6 +50,7 @@ end
 def test_epilogue
   "  tester.perform();\n"\
   "  tester.report();\n"\
+  "  return tester.all_passed() ? 0 : -1;\n"\
   "}"
 end
 

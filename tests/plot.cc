@@ -1331,7 +1331,7 @@ void generate_grid()
 		   P("pbrow", &Unit::null_unit));
 
   auto rs_pb = make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par));
-  
+
   FixedStack<double> row(25); // aquí van los valores. Asegure que el
 			      // orden de inserción sea el mismo que
 			      // para el header
@@ -1350,8 +1350,11 @@ void generate_grid()
       VtlQuantity next_pb_q = { pb_q.unit, next_pb };
       auto pb_par = npar("pb", pb_q);
       auto p_pb = npar("p", pb_q);
-      auto p_pb_next = npar("p", next_pb_q);
 
+      auto first_p_point = p_values.get_first();
+      bool first_p_less_than_pb = VtlQuantity(*get<3>(first_p_point),
+						 get<2>(first_p_point)) < pb_q;
+  
       auto uod_val = dcompute(uod_corr, check, uod_pars, t_par);
 
       insert_in_container(rs_pars, t_par, pb_par);
@@ -1418,27 +1421,33 @@ void generate_grid()
 	  Correlation::NamedPar p_par = p_it.get_curr();
 	  VtlQuantity p_q = par(p_par);
 
-	  // esto es para insertar en líne las filas del punto de burbuja
+	  // esto es para insertar en línea las filas del punto de burbuja
 	  bool pb_row = false;
-	  if (p_q <= pb_q)
-	    p_it.next();
-	  else if (p_q > pb_q and i < 2)
+
+	  if (first_p_less_than_pb)
 	    {
-	      pb_row = true;
-	      if (++i == 1)
+	      if (p_q <= pb_q)
+		p_it.next();
+	      else if (p_q > pb_q and i < 2)
 		{
-		  get<2>(p_par) = VtlQuantity(p_q.unit, pb_q).raw();
-		  p_q = par(p_par);
+		  pb_row = true;
+		  if (++i == 1)
+		    {
+		      get<2>(p_par) = VtlQuantity(p_q.unit, pb_q).raw();
+		      p_q = par(p_par);
+		    }
+		  else if (i == 2)
+		    {
+		      get<2>(p_par) = VtlQuantity(p_q.unit, next_pb_q).raw();
+		      p_q = par(p_par);
+		    }
+		  assert(i <= 2);
 		}
-	      else if (i == 2)
-		{
-		  get<2>(p_par) = VtlQuantity(p_q.unit, next_pb_q).raw();
-		  p_q = par(p_par);
-		}
-	      assert(i <= 2);
+	      else
+		p_it.next();
 	    }
 	  else
-	    p_it.next();	    
+	    p_it.next();
 
 	  pressure = p_q.raw();
 	  CALL(Ppr, ppr, p_q, adjustedppcm);

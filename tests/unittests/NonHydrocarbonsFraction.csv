@@ -1,0 +1,13 @@
+seed,value,convert from,convert to,result,tolerance,note
+1485977877,0.515059,MoleFraction,VolumeFraction,0.515059,1.00e-06,1 VolumeFraction = 1 MoleFraction.
+1485977877,0.515059,MoleFraction,MolePercent,51.5059,1.00e-06,1 MolePercent = 100 MoleFraction.
+1485977877,0.515059,MoleFraction,VolumePercent,51.5059,1.00e-06,1 VolumePercent = 100 MoleFraction.
+1485977877,0.172849,VolumeFraction,MoleFraction,0.172849,1.00e-06,1 MoleFraction = 1 VolumeFraction.
+1485977877,0.172849,VolumeFraction,MolePercent,17.2849,1.00e-06,1 MolePercent = 100 VolumeFraction.
+1485977877,0.172849,VolumeFraction,VolumePercent,17.2849,1.00e-06,1 VolumePercent = 100 VolumeFraction.
+1485977877,52.984404,MolePercent,MoleFraction,0.52984404,1.00e-06,1 MoleFraction = 1e-2 MolePercent.
+1485977877,52.984404,MolePercent,VolumeFraction,0.52984404,1.00e-06,1 VolumeFraction = 1e-2 MolePercent.
+1485977877,52.984404,MolePercent,VolumePercent,52.984404,1.00e-06,1 VolumePercent = 1 MolePercent.
+1485977877,81.137282,VolumePercent,MoleFraction,0.81137282,1.00e-06,1 MoleFraction = 1e-2 VolumePercent.
+1485977877,81.137282,VolumePercent,VolumeFraction,0.81137282,1.00e-06,1 VolumeFraction = 1e-2 VolumePercent.
+1485977877,81.137282,VolumePercent,MolePercent,81.137282,1.00e-06,1 MolePercent = 1 VolumePercent.
