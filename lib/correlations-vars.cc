@@ -5,6 +5,8 @@
 
 # include <json.hpp>
 
+# include "gitversion.H"
+
 using namespace Aleph;
 using json = nlohmann::json;
   
@@ -152,6 +154,7 @@ string Correlation::json_of_all_correlations()
   auto properties = to_vector(jl);
   json j;
   j["Physical_properties"] = properties;
+  j["version"] = GITVERSION;
 
   return j.dump(2);
 }

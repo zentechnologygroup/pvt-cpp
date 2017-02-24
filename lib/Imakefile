@@ -36,6 +36,16 @@ HCORR =	$(CORRS:.rb=.H) $(shell ls $(UNITSDIR)*-unit.H) \
 
 HIMPL = $(shell ls $(CORRDIR)*-impl.H)
 
+gitversion.H: ../.git/HEAD ../.git/index
+	echo "# define GITVERSION \"$(shell git rev-parse HEAD)\"" > $@
+
+correlations-vars.cc: gitversion.H
+
+clean::
+	$(RM) gitversion.H
+
+depend:: gitversion.H
+
 test:
 	echo $(CORRS)
 
@@ -43,7 +53,7 @@ biblios.cc: $(TOP)/include/correlations/refs.bib $(TOP)/bin/biblio
 	$(RM) $*.cc; 	\	@@\
 	$(BIBLIO) -C -f $(CORRDIR)refs.bib | clang-format -style=Mozilla > $@
 
-pvt.cc: $(CALLS) $(HCORR)				\
+pvt.cc: $(CALLS) $(HCORR) 				\
 	$(TOP)/include/units/units.H			\
 	biblios.cc units-vars.cc correlations-vars.cc	\
 	$(TOP)/include/correlations/pvt-correlations.H	\
