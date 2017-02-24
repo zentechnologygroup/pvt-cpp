@@ -78,6 +78,12 @@ public:
 	failed_list.append(test.to_string());
       }
   }
+
+  void report() const
+  {
+    for (auto it = failed_list.get_it(); it.has_curr(); it.next())
+      cout << it.get_curr() << endl;
+  }
 };
 
 # endif

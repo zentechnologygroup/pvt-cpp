@@ -29,54 +29,32 @@ end
 def error_msg(msg, name, line)
   fail msg + " line #{line}"
 end
-  
-def gen_test(csv_row, line)
-  corr_name = csv_row[0]
 
-  test_result = csv_row["result"]
-  error_msg "result value", corr_name, line unless test_result
-  
-  result_unit = csv_row["result unit"]
-  error_msg "result unit", corr_name, line unless result_unit
+def load_csv_col(csv_row, name)
+  v = csv_row["value"]
+  error_msg "#{name} not specified" unless v
+  v
+end
 
-  tolerance = csv_row['tolerance'] || 1e-2
-  
-  refs = csv_row.to_a.select { |a| a[0] && a[1] && a[0].start_with?('ref ') }.
-         map { |a| a[0].sub('ref ', '').gsub("\"", '') }
+def stringficate(str)
+  "\"#{str}\""
+end
 
-  note = csv_row["Note"] || ''
+def gen_test(csv_name, csv_row, line)
 
-  s = "tester.test(#{line},\n"\
-      "Quantity<#{result_unit}>(#{test_result.to_f}),\n"\
-      "#{tolerance},\n"\
-      "{"
-  refs.each do |ref|
-    s += "\"#{ref}\""
-    s += ", " if ref != refs.last
-  end
+  value = load_csv_col csv_row, 'value'
+  src_unit = load_csv_col csv_row , 'convert from'
+  tgt_unit = load_csv_col csv_row, 'convert to'
+  expected = load_csv_col csv_row, 'result'
+  tolerance = load_csv_col csv_row, 'tolerance'
 
-  s += "},\n"\
-       "\"#{note}\",\n"\
-       "#{corr_name}::get_instance(),\n"
-  
-  correlation.pars.each do |par|
-    par_name = par.name
-    
-    test_value = csv_row[par_name]
-    error_msg "#{par_name} value not found", corr_name, line unless test_value
-    
-    test_unit = csv_row[par_name + " unit"]
-    error_msg "#{par_name} unit not found", corr_name, line unless test_unit
-
-    s += "Quantity<#{test_unit}>(#{test_value.to_f})"
-    s += "," if par != correlation.pars.last
-    s += "\n"
-  end
-  s += ");\n"
+  "    tester.define_test(#{csv_name}\", #{line}, \"#{src_unit}\"\n"\
+  "                       \"#{tgt_unit}\", #{value}, #{expected},\n"\
+  "                       #{tolerance});\n"
 end
 
 def test_epilogue
-  "tester.summary(with_call.getValue());\n"\
+  "  tester.report();\n"\
   "}"
 end
 
@@ -94,7 +72,7 @@ options_parser.parse!
 
 file = options[:file_name]
 
-fail 'correlations file not specified (option -f NAME)' if file.nil?
+fail 'unit test file not specified (option -f NAME)' if file.nil?
 
 require 'fileutils'
 require 'csv'
