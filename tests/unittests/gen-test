@@ -28,19 +28,19 @@ def error_msg(msg, name, line)
   fail msg + " line #{line}"
 end
 
-def load_csv_col(csv_row, name)
+def load_csv_col(csv_row, name, line)
   v = csv_row[name]
-  error_msg "#{name} not specified" unless v
+  error_msg("#{name} not specified", name, line) unless v
   v
 end
 
 def gen_test(csv_name, csv_row, line)
 
   value = load_csv_col csv_row, 'value'
-  src_unit = load_csv_col csv_row, 'convert from'
-  tgt_unit = load_csv_col csv_row, 'convert to'
-  expected = load_csv_col csv_row, 'result'
-  tolerance = load_csv_col csv_row, 'tolerance'
+  src_unit = load_csv_col csv_row, 'convert from', line
+  tgt_unit = load_csv_col csv_row, 'convert to', line
+  expected = load_csv_col csv_row, 'result'. line
+  tolerance = load_csv_col csv_row, 'tolerance', line
 
   "  tester.define_test(\"#{csv_name}\", #{line}, \"#{src_unit}\",\n"\
   "                     \"#{tgt_unit}\", #{value.to_f}, #{expected.to_f},\n"\
@@ -72,6 +72,8 @@ fail 'unit test file not specified (option -f NAME)' if file.nil?
 
 require 'fileutils'
 require 'csv'
+
+fail "file #{file} not found" unless File.exist? file
 
 rows = CSV.read(file, headers: true)
 
