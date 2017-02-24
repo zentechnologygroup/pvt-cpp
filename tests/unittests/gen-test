@@ -3,8 +3,6 @@
 
 require 'optparse'
 
-load 'correlations.rb'
-
 def test_preamble(name)
 %Q(
 # include <cassert>
@@ -31,29 +29,26 @@ def error_msg(msg, name, line)
 end
 
 def load_csv_col(csv_row, name)
-  v = csv_row["value"]
+  v = csv_row[name]
   error_msg "#{name} not specified" unless v
   v
-end
-
-def stringficate(str)
-  "\"#{str}\""
 end
 
 def gen_test(csv_name, csv_row, line)
 
   value = load_csv_col csv_row, 'value'
-  src_unit = load_csv_col csv_row , 'convert from'
+  src_unit = load_csv_col csv_row, 'convert from'
   tgt_unit = load_csv_col csv_row, 'convert to'
   expected = load_csv_col csv_row, 'result'
   tolerance = load_csv_col csv_row, 'tolerance'
 
-  "    tester.define_test(#{csv_name}\", #{line}, \"#{src_unit}\"\n"\
-  "                       \"#{tgt_unit}\", #{value}, #{expected},\n"\
-  "                       #{tolerance});\n"
+  "  tester.define_test(\"#{csv_name}\", #{line}, \"#{src_unit}\",\n"\
+  "                     \"#{tgt_unit}\", #{value.to_f}, #{expected.to_f},\n"\
+  "                     #{tolerance.to_f});\n"
 end
 
 def test_epilogue
+  "  tester.perform();\n"\
   "  tester.report();\n"\
   "}"
 end
@@ -62,7 +57,7 @@ options = {}
 options_parser = OptionParser.new do |opts|
 
   opts.on('-f NAME', '--file NAME', 
-          'file name with correlation tests') do |file_name|
+          'csv file name with unit tests') do |file_name|
     options[:file_name] = file_name
   end
 
@@ -83,11 +78,7 @@ puts test_preamble File.basename file, '.csv'
 
 rows.each_with_index do |row, line|
 
-  corr = $correlations_tbl[row[0]] # row[0] is the correlation name
-  fail "correlation #{row[0]} not found at line #{line + 2}" unless corr
-  next if row['disabled']
-  puts gen_test row, corr, line + 2
-  puts
-  
+  puts gen_test file, row, line + 2
+
 end
 puts test_epilogue

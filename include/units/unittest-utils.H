@@ -38,7 +38,8 @@ struct UnitTest
   string to_string() const
   {
     ostringstream s;
-    
+
+    s.precision(numeric_limits<double>::max_digits10);
     s << "file        = " << csv_name << endl
       << "line        = " << csv_line << endl
       << "source unit = " << src_unit_name << endl
@@ -72,8 +73,11 @@ public:
     for (auto it = test_list.get_it(); it.has_curr(); it.next())
       {
 	auto & test = it.get_curr();
+	cout << "Testing" << endl;
 	if (test.pass())
 	  continue;
+
+	cout << "Failed" << endl;
 
 	failed_list.append(test.to_string());
       }
@@ -82,8 +86,11 @@ public:
   void report() const
   {
     for (auto it = failed_list.get_it(); it.has_curr(); it.next())
-      cout << it.get_curr() << endl;
+      cout << it.get_curr() << endl
+	   << endl;
   }
+
+  bool all_passed() const { return failed_list.is_empty(); }
 };
 
 # endif
