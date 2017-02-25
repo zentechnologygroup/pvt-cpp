@@ -73,11 +73,8 @@ public:
     for (auto it = test_list.get_it(); it.has_curr(); it.next())
       {
 	auto & test = it.get_curr();
-	cout << "Testing" << endl;
 	if (test.pass())
 	  continue;
-
-	cout << "Failed" << endl;
 
 	failed_list.append(test.to_string());
       }

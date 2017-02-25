@@ -24,13 +24,13 @@ int main(int argc, char *argv[])
 )
 end
 
-def error_msg(msg, name, line)
+def error_msg(msg, line)
   fail msg + " line #{line}"
 end
 
 def load_csv_col(csv_row, name, line)
   v = csv_row[name]
-  error_msg("column #{name} not specified in csv file", name, line) unless v
+  error_msg("column name \"#{name}\" not specified in csv file", line) unless v
   v
 end
 
@@ -39,7 +39,7 @@ def gen_test(csv_name, csv_row, line)
   value = load_csv_col(csv_row, 'value', line)
   src_unit = load_csv_col csv_row, 'convert from', line
   tgt_unit = load_csv_col csv_row, 'convert to', line
-  expected = load_csv_col csv_row, 'result'. line
+  expected = load_csv_col csv_row, 'result', line
   tolerance = load_csv_col csv_row, 'tolerance', line
 
   "  tester.define_test(\"#{csv_name}\", #{line}, \"#{src_unit}\",\n"\

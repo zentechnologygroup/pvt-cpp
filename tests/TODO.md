@@ -30,6 +30,3 @@
 ## 10. progamar test_all_units2; usar hoja Unitconverter tests
 - Created at   2017-02-17 16:53:08 -0400
 
-## 11. plot debe incluir dos fila para pb y nextafter(pb)
-- Created at   2017-02-22 14:52:43 -0400
-
