@@ -35,6 +35,7 @@ PbGlaso,,0.985,Sgg,,,45.2,Api,1344,SCF_STB,248,Fahrenheit,,,,,26,MolePercent,0,M
 PbDindorukChristmanDetachedFromRs,,0.95,Sgg,,,31,Api,675,SCF_STB,180,Fahrenheit,,,,,,,,,,,2688.606273,psia,0.01,Software calculation.,,,,,,1,,,
 PbDindorukChristman,,0.848,Sgg,,,27.3,Api,894.4995978,SCF_STB,180,Fahrenheit,,,,,,,,,,,4370,psia,0.01,To check only that the equation is correctly reversed from the Rs correlation.,,,,,,,,,
 PbGlaso,,0.804,Sgg,,,37.9,Api,769,SCF_STB,120,Fahrenheit,,,,,0,MolePercent,0,MolePercent,0,MolePercent,2846.310699,psia,0.01,Software calculation.,,,,,,1,,,
+PbVasquezBeggs,,0.8,Sgg,,,30,Api,500,SCF_STB,220,Fahrenheit,100,Fahrenheit,114.7,psia,,,,,,,2650.306792,psia,0.06,API <= 30. Software calculation.,,,,,,1,,,
 PbLasater,,0.8,Sgg,30,Api,,,500,SCF_STB,200,Fahrenheit,,,,,,,,,,,2608,psia,0.21,API <= 40,,,,,,,1,,
 PbLasater,,0.8,Sgg,38,Api,,,500,SCF_STB,200,Fahrenheit,,,,,,,,,,,2186.311603,psia,0.07,API <= 40,,,,,,,,1,
 PbLasater,,0.8,Sgg,42,Api,,,500,SCF_STB,200,Fahrenheit,,,,,,,,,,,1963.845606,psia,0.07,API > 40,,,,,,,,1,
