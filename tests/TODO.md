@@ -27,6 +27,3 @@
 ## 9. generate_grid podría generarse automáticamente según los valores de la correlaciones
 - Created at   2017-02-19 10:14:59 -0400
 
-## 10. progamar test_all_units2; usar hoja Unitconverter tests
-- Created at   2017-02-17 16:53:08 -0400
-

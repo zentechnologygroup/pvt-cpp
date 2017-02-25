@@ -365,7 +365,8 @@ ValueArg<string> ppchc_corr_arg = { "", "ppchc", "Correlation for ppchc",
 const Correlation * ppchc_corr = nullptr;
 void set_ppchc_corr()
 {
-  set_correlation(ppchc_corr_arg, "ppchc", ppchc_corr, true);
+  ppchc_corr = &PpchcStanding::get_instance(); // mandotory here!
+  set_correlation(ppchc_corr_arg, "ppchc", ppchc_corr, false);
 }
 
 ValueArg<string> ppcm_mixing_corr_arg =
@@ -394,7 +395,8 @@ ValueArg<string> tpchc_corr_arg = { "", "tpchc", "Correlation for tpchc",
 const Correlation * tpchc_corr = nullptr;
 void set_tpchc_corr()
 {
-  set_correlation(tpchc_corr_arg, "tpchc", tpchc_corr, true);
+  tpchc_corr = &TpchcStanding::get_instance(); // by default
+  set_correlation(tpchc_corr_arg, "tpchc", tpchc_corr, false);
 }
 
 ValueArg<string> tpcm_mixing_corr_arg =
@@ -423,7 +425,8 @@ ValueArg<string> zfactor_corr_arg =
 const Correlation * zfactor_corr = nullptr;
 void set_zfactor_corr()
 {
-  set_correlation(zfactor_corr_arg, "zfactor", zfactor_corr, true);
+  zfactor_corr = &ZfactorDranchukAK::get_instance(); // by default
+  set_correlation(zfactor_corr_arg, "zfactor", zfactor_corr, false);
 }
 
 ValueArg<string> cg_corr_arg =
@@ -431,7 +434,8 @@ ValueArg<string> cg_corr_arg =
 const Correlation * cg_corr = nullptr;
 void set_cg_corr()
 {
-  set_correlation(cg_corr_arg, "cg", cg_corr, true);
+  cg_corr = &CgMattarBA::get_instance();
+  set_correlation(cg_corr_arg, "cg", cg_corr, false);
 }
 
 ValueArg<string> ug_corr_arg =
@@ -439,7 +443,8 @@ ValueArg<string> ug_corr_arg =
 const Correlation * ug_corr = nullptr;
 void set_ug_corr()
 {
-  set_correlation(ug_corr_arg, "ug", ug_corr, true);
+  ug_corr = &UgCarrKB::get_instance(); // by default
+  set_correlation(ug_corr_arg, "ug", ug_corr, false);
 }
 
 ValueArg<string> bwb_corr_arg =
@@ -447,7 +452,8 @@ ValueArg<string> bwb_corr_arg =
 const Correlation * bwb_corr = nullptr;
 void set_bwb_corr()
 {
-  set_correlation(bwb_corr_arg, "bwb", bwb_corr, true);
+  bwb_corr = &BwbSpiveyMN::get_instance();
+  set_correlation(bwb_corr_arg, "bwb", bwb_corr, false);
 }
 
 ValueArg<string> bwa_corr_arg =
@@ -455,7 +461,8 @@ ValueArg<string> bwa_corr_arg =
 const Correlation * bwa_corr = nullptr;
 void set_bwa_corr()
 {
-  set_correlation(bwa_corr_arg, "bwa", bwa_corr, true);
+  bwa_corr = &BwaSpiveyMN::get_instance();
+  set_correlation(bwa_corr_arg, "bwa", bwa_corr, false);
 }
 
 ValueArg<string> uw_corr_arg =
@@ -463,7 +470,8 @@ ValueArg<string> uw_corr_arg =
 const Correlation * uw_corr = nullptr;
 void set_uw_corr()
 {
-  set_correlation(uw_corr_arg, "uw", uw_corr, true);
+  uw_corr = &UwMcCain::get_instance();
+  set_correlation(uw_corr_arg, "uw", uw_corr, false);
 }
 
 ValueArg<string> pw_corr_arg =
@@ -471,7 +479,8 @@ ValueArg<string> pw_corr_arg =
 const Correlation * pw_corr = nullptr;
 void set_pw_corr()
 {
-  set_correlation(pw_corr_arg, "pw", pw_corr, true);
+  pw_corr = &PwSpiveyMN::get_instance();
+  set_correlation(pw_corr_arg, "pw", pw_corr, false);
 }
 
 ValueArg<string> cwb_corr_arg =
@@ -479,7 +488,8 @@ ValueArg<string> cwb_corr_arg =
 const Correlation * cwb_corr = nullptr;
 void set_cwb_corr()
 {
-  set_correlation(cwb_corr_arg, "cwb", cwb_corr, true);
+  cwb_corr = &CwbSpiveyMN::get_instance();
+  set_correlation(cwb_corr_arg, "cwb", cwb_corr, false);
 }
 
 ValueArg<string> cwa_corr_arg =
@@ -487,7 +497,8 @@ ValueArg<string> cwa_corr_arg =
 const Correlation * cwa_corr = nullptr;
 void set_cwa_corr()
 {
-  set_correlation(cwa_corr_arg, "cwa", cwa_corr, true);
+  cwa_corr = &CwaSpiveyMN::get_instance();
+  set_correlation(cwa_corr_arg, "cwa", cwa_corr, false);
 }
 
 ValueArg<string> rsw_corr_arg =
@@ -495,7 +506,8 @@ ValueArg<string> rsw_corr_arg =
 const Correlation * rsw_corr = nullptr;
 void set_rsw_corr()
 {
-  set_correlation(rsw_corr_arg, "rsw", rsw_corr, true);
+  rsw_corr = &RswSpiveyMN::get_instance();
+  set_correlation(rsw_corr_arg, "rsw", rsw_corr, false);
 }
 
 ValueArg<string> sgo_corr_arg =
@@ -511,7 +523,8 @@ ValueArg<string> sgw_corr_arg =
 const Correlation * sgw_corr = nullptr;
 void set_sgw_corr()
 {
-  set_correlation(sgw_corr_arg, "sgw", sgw_corr, true);
+  sgw_corr = &SgwJenningsNewman::get_instance();
+  set_correlation(sgw_corr_arg, "sgw", sgw_corr, false);
 }
 
 SwitchArg grid_arg = { "", "grid", "generate grid for all", cmd };

@@ -168,3 +168,4 @@ añadir correlciones por omisión para gas y agua (ver trello),2017-02-23 17:10:
 pasar gitversion a include,2017-02-23 17:19:24 -0400,2017-02-24 10:27:40 -0400,,2017-02-24 10:28:00 -0400
 meter en json gitversion,2017-02-23 17:24:30 -0400,2017-02-24 10:27:34 -0400,,2017-02-24 10:28:01 -0400
 plot debe incluir dos fila para pb y nextafter(pb),2017-02-22 14:52:43 -0400,2017-02-25 10:10:25 -0400,,2017-02-25 10:10:29 -0400
+progamar test_all_units2; usar hoja Unitconverter tests,2017-02-17 16:53:08 -0400,2017-02-25 11:36:31 -0400,,2017-02-25 11:36:34 -0400
