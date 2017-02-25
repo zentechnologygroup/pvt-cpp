@@ -10,6 +10,7 @@ class DefinedCorrelation
   {
     const Correlation * correlation_ptr = nullptr;
     double start, end;
+    DynSetTree<string> par_names;
 
     double c, m; // set if the correlation is tuned
     bool tuned = false;
@@ -21,6 +22,8 @@ class DefinedCorrelation
     Interval(const Correlation * ptr, double start, double end)
       : correlation_ptr(ptr), start(start), end(end)
     {
+      if (correlation_ptr)
+	par_names = ptr->parameter_names();
       if (start <= end)
 	return;
       ostringstream s;
@@ -29,7 +32,8 @@ class DefinedCorrelation
     }
 
     Interval(const Correlation * ptr, double start, double end,
-	     double c, double m) : Interval(ptr, start, end)
+	     double c, double m)
+      : Interval(ptr, start, end)
     {
       tuned = true;
       this->c = c;
@@ -96,6 +100,8 @@ class DefinedCorrelation
   double min_val = 0;
   double max_val = numeric_limits<double>::max();
 
+  const Unit & unit; // unit of pivot parameter
+
 public:
 
   DynList<const Correlation*> correlations() const
@@ -157,13 +163,14 @@ public:
       });
   }
 
-  Interval * search_interval(double val) const
+  Interval * search_interval(const VtlQuantity & v) const noexcept
   {
+    const auto & val = v.raw();
     Interval i(nullptr, val, val);
     return intervals.search(i);
   }
 
-  const Correlation * search_correlation(double val) const
+  const Correlation * search_correlation(const VtlQuantity & val) const noexcept
   {
     auto interval_ptr = search_interval(val);
     if (not interval_ptr)
@@ -171,17 +178,28 @@ public:
     return interval_ptr->correlation_ptr;
   }
 
-  bool contains(double val) const noexcept { return search_interval(val); }
+  const DynSetTree<string> & search_parameters(const VtlQuantity & val) const
+  {
+    auto interval_ptr = search_interval(val);
+    if (not interval_ptr)
+      ZENTHROW(InvalidValue, "value " + val.to_string() + " not found");
+    return interval_ptr->par_names;
+  }
+
+  bool contains(const VtlQuantity & val) const { return search_interval(val); }
 
   DynList<Interval> interval_list() const { return intervals.keys(); }
 
-  DefinedCorrelation(const string & main_par_name)
-    : main_par_name(main_par_name) {}
+  DefinedCorrelation(const string & main_par_name, const Unit & unit)
+    : main_par_name(main_par_name), unit(unit) {}
 
   void add_tuned_correlation(const Correlation * correlation_ptr,
-			     double start, double end, double c, double m)
+			     const VtlQuantity & start, const VtlQuantity & end,
+			     double c, double m)
   {
-    auto result = intervals.insert(Interval(correlation_ptr, start, end, c, m));
+    auto result = intervals.insert(Interval(correlation_ptr,
+					    VtlQuantity(unit, start).raw(),
+					    VtlQuantity(unit, end).raw(), c, m));
     if (result)
       {
 	if (result_unit == nullptr)
@@ -200,14 +218,21 @@ public:
   }
 
   void add_correlation(const Correlation * correlation_ptr,
-		       double start, double end)
+		       const VtlQuantity & start, const VtlQuantity & end)
   {
-    intervals.insert(Interval(correlation_ptr, start, end, 0, 1));
+    intervals.insert(Interval(correlation_ptr, VtlQuantity(unit, start).raw(),
+			      VtlQuantity(unit, end).raw(), 0, 1));
   }
 
-  void set_min(double min_val) { this->min_val = min_val; }
+  void set_min(const VtlQuantity & min_val)
+  {
+    this->min_val = VtlQuantity(unit, min_val).raw();
+  }
 
-  void set_max(double max_val) { this->max_val = max_val; } 
+  void set_max(const VtlQuantity & max_val)
+  {
+    this->max_val = VtlQuantity(unit, max_val).raw();
+  }
 
   double
   compute_by_names(const DynList<Correlation::ParByName> & pars,
@@ -223,7 +248,7 @@ public:
 	throw domain_error(s.str());
       }
 
-    double main_val = main_par_ptr->second;
+    VtlQuantity main_val = { main_par_ptr->first, main_par_ptr->second };
 
     Interval * interval_ptr = search_interval(main_val);
     if (interval_ptr == nullptr)
@@ -255,7 +280,7 @@ public:
 	throw domain_error(s.str());
       }
 
-    double main_val = get<2>(*main_par_ptr);
+    VtlQuantity main_val = { *get<3>(*main_par_ptr), get<2>(*main_par_ptr) };
 
     Interval * interval_ptr = search_interval(main_val);
     if (interval_ptr == nullptr)
@@ -277,7 +302,7 @@ public:
   double compute_by_names(const ParList & pars, bool check = true) const
   {
     VtlQuantity main_val = pars(main_par_name);
-    Interval * interval_ptr = search_interval(main_val.raw());
+    Interval * interval_ptr = search_interval(main_val);
     if (interval_ptr == nullptr)
       {
 	ostringstream s;

@@ -20,6 +20,7 @@ void error_msg(const string & msg)
 
 CmdLine cmd = { "plot-corr", ' ', "0" };
 
+// indica que se deben verificar rangos de parámetros de correlaciones
 SwitchArg check_arg = { "", "check", "check correlation ranges", cmd };
 bool check = false;
 void set_check()
@@ -27,10 +28,13 @@ void set_check()
   check = check_arg.getValue();
 }
 
+// indica que las excepciones deben reportarse
 SwitchArg catch_exceptions = { "", "exceptions", "report exceptions", cmd };
 bool report_exceptions = false;
-DynList<string> exception_list;
+DynList<string> exception_list; // en esta lista se guaradan las excepciones
 
+// nombres de parámetros permitidos (son valores o rangos, pero no son
+// correlaciones). Esta tabla es usada para validad cambio de unidades
 DynSetTree<string> par_name_tbl =
   { "api", "rsb", "yg", "tsep", "t", "p", "psep", "h2s-concentration",
     "co2-concentration", "n2-concentration", "nacl-concentration" };
@@ -64,8 +68,14 @@ namespace TCLAP
   template<> struct ArgTraits<ArgUnit> { typedef StringLike ValueCategory; };
 }
 
+// Especificación de cambio de unidad. Sirve para cualquier parámetro
 MultiArg<ArgUnit> unit = { "", "unit", "unit \"par-name unit\"", false,
 			   "unit \"par-name unit\"", cmd };
+
+// Verifica si el parámetro par_name tiene un cambio de
+// unidad. ref_unit es la unidad por omisión del parámetro. Si no hubo
+// especificación de cambio de unidad para par_name, entonces se
+// retorna ref_unit
 const Unit * test_unit_change(const string & par_name, const Unit & ref_unit)
 {
   if (not par_name_tbl.contains(par_name))
@@ -76,7 +86,7 @@ const Unit * test_unit_change(const string & par_name, const Unit & ref_unit)
     }
   
   const Unit * ret = &ref_unit;
-  for (const auto & par : unit.getValue()) 
+  for (const auto & par : unit.getValue()) // recorra lista de cambios
     if (par.par_name == par_name)
       {
 	const Unit * ret = Unit::search_by_symbol(par.symbol);
@@ -99,7 +109,28 @@ const Unit * test_unit_change(const string & par_name, const Unit & ref_unit)
   return ret;
 }
 
-// Mandatory command arguments
+
+// helper para manejar pase de parámetros a las correlaciones
+
+// construye un VtlQuantity a partir de un parámetro por nombre
+inline VtlQuantity par(const Correlation::NamedPar & par)
+{
+  return VtlQuantity(*get<3>(par), get<2>(par));
+}
+
+// construye un parámetro por nombre name a partir de una cantidad
+// (VtlQuantity o Quantity<Unit>)
+inline Correlation::NamedPar npar(const string & name, const BaseQuantity & p)
+{
+  return make_tuple(true, name, p.raw(), &p.unit);
+}
+
+// macro que construye un parámetro por nombre con nombre par a partir
+// de una cantidad par
+# define NPAR(par) npar(#par, par)
+
+// Argumentos obrlogatorios en la línea de comandos que son validados
+// en el parsing
 
 ValueArg<double> api_arg = { "", "api", "api", true, 0, "api", cmd };
 Correlation::NamedPar api_par;
@@ -111,31 +142,20 @@ void set_api()
 
 ValueArg<double> rsb_arg = { "", "rsb", "rsb", true, 0, "rsb in scf/STB", cmd };
 Correlation::NamedPar rsb_par;
+const Unit * rsb_unit = nullptr;
 void set_rsb()
 {
-  auto rsb_unit = test_unit_change("rsb", SCF_STB::get_instance());
+  rsb_unit = test_unit_change("rsb", SCF_STB::get_instance());
   rsb_par = make_tuple(true, "rsb", rsb_arg.getValue(), rsb_unit);
 }
-
-inline VtlQuantity par(const Correlation::NamedPar & par)
-{
-  return VtlQuantity(*get<3>(par), get<2>(par));
-}
-
-inline Correlation::NamedPar npar(const string & name, const BaseQuantity & p,
-				  bool valid = true)
-{
-  return make_tuple(valid, name, p.raw(), &p.unit);
-}
-
-# define NPAR(par) npar(#par, par)
 
 ValueArg<double> yg_arg = { "", "yg", "yg", true, 0, "yg in Sgg", cmd };
 Correlation::NamedPar yg_par;
 VtlQuantity yg = VtlQuantity::null_quantity;
+const Unit * yg_unit = nullptr;
 void set_yg()
 {
-  auto yg_unit = test_unit_change("yg", Sgg::get_instance());
+  yg_unit = test_unit_change("yg", Sgg::get_instance());
   yg_par = make_tuple(true, "yg", yg_arg.getValue(), yg_unit);
   yg.set(par(yg_par));
 }
@@ -146,9 +166,10 @@ ValueArg<double> tsep_arg = { "", "tsep", "separator temperature", false, 0,
 			      "separator temperature in degF", cmd };
 Correlation::NamedPar tsep_par;
 VtlQuantity tsep = VtlQuantity::null_quantity;
+const Unit * tsep_unit = nullptr;
 void set_tsep()
 {
-  auto tsep_unit = test_unit_change("tsep", Fahrenheit::get_instance());
+  tsep_unit = test_unit_change("tsep", Fahrenheit::get_instance());
   tsep_par = make_tuple(tsep_arg.isSet(), "tsep",
 			tsep_arg.getValue(), tsep_unit);
   tsep.set(par(tsep_par));
@@ -158,9 +179,10 @@ ValueArg<double> psep_arg = { "", "psep", "separator pressure", false, 0,
 			      "separator pressure in psia", cmd };
 Correlation::NamedPar psep_par;
 VtlQuantity psep = VtlQuantity::null_quantity;
+const Unit * psep_unit = nullptr;
 void set_psep()
 {
-  auto psep_unit = test_unit_change("psep", psia::get_instance());
+  psep_unit = test_unit_change("psep", psia::get_instance());
   psep_par = make_tuple(psep_arg.isSet(), "psep",
 			psep_arg.getValue(), psep_unit);
   psep.set(par(psep_par));
@@ -171,9 +193,10 @@ ValueArg<double> n2_concentration_arg =
     "n2-concentration in MolePercent", cmd };
 Correlation::NamedPar n2_concentration_par;
 VtlQuantity n2_concentration = VtlQuantity::null_quantity;
+const Unit * n2_concentration_unit = nullptr;
 void set_n2_concentration()
 {
-  auto n2_concentration_unit = test_unit_change("n2-concentration",
+  n2_concentration_unit = test_unit_change("n2-concentration",
 						MolePercent::get_instance());
   n2_concentration_par = make_tuple(n2_concentration_arg.isSet(),
 				    "n2_concentration",
@@ -187,10 +210,11 @@ ValueArg<double> co2_concentration_arg =
     "co2-concentration in MolePercent", cmd };
 Correlation::NamedPar co2_concentration_par;
 VtlQuantity co2_concentration = VtlQuantity::null_quantity;
+const Unit * co2_concentration_unit = nullptr;
 void set_co2_concentration()
 {
-  auto co2_concentration_unit = test_unit_change("co2-concentration",
-						 MolePercent::get_instance());
+  co2_concentration_unit = test_unit_change("co2-concentration",
+					    MolePercent::get_instance());
   co2_concentration_par = make_tuple(co2_concentration_arg.isSet(),
 				     "co2_concentration",
 				     co2_concentration_arg.getValue(),
@@ -203,10 +227,11 @@ ValueArg<double> h2s_concentration_arg =
     "h2s-concentration in MolePercent", cmd };
 Correlation::NamedPar h2s_concentration_par;
 VtlQuantity h2s_concentration = VtlQuantity::null_quantity;
+const Unit * h2s_concentration_unit = nullptr;
 void set_h2s_concentration()
 {
-  auto h2s_concentration_unit = test_unit_change("h2s-concentration",
-						 MolePercent::get_instance());
+  h2s_concentration_unit = test_unit_change("h2s-concentration",
+					    MolePercent::get_instance());
   h2s_concentration_par = make_tuple(h2s_concentration_arg.isSet(),
 				     "h2s_concentration",
 				     h2s_concentration_arg.getValue(),
@@ -219,10 +244,11 @@ ValueArg<double> nacl_concentration_arg =
     "nacl-concentration in mol_NaCl/Kg_H2O", cmd };
 Correlation::NamedPar nacl_concentration_par;
 VtlQuantity nacl_concentration = VtlQuantity::null_quantity;
+const Unit * nacl_concentration_unit = nullptr;
 void set_nacl_concentration()
 {
-  auto nacl_concentration_unit = test_unit_change("nacl-concentration",
-						  Molality_NaCl::get_instance());
+  nacl_concentration_unit = test_unit_change("nacl-concentration",
+					     Molality_NaCl::get_instance());
   nacl_concentration_par = make_tuple(nacl_concentration_arg.isSet(),
 				      "nacl_concentration",
 				      nacl_concentration_arg.getValue(),
@@ -275,6 +301,13 @@ VtlQuantity compute_pb(const double t)
   return ret;
 }
 
+// Inicializa una correlación especificada desde la línea de comandos
+// vía corr_name_arg. Verifica que la correlación sea para la
+// propiedad target_name y si es el caso entonces la correlación
+// encontrada se coloca en el parámetro de salida corr_ptr.
+//
+// El parámetro force_set indica que es obligatorio que la correlación
+// sea especificada en la línea de comandos.
 void set_correlation(ValueArg<string> & corr_name_arg,
 		     const string & target_name,
 		     const Correlation *& corr_ptr,
@@ -294,7 +327,6 @@ void set_correlation(ValueArg<string> & corr_name_arg,
   if (corr_ptr->target_name() != target_name)
     error_msg("Correlation " + corr_ptr->name + " is not for " + target_name);
 }
-
 
 ValueArg<double> c_rs_arg = { "", "c-rs", "rs c", false, 0, "rs c", cmd };
 ValueArg<double> m_rs_arg = { "", "m-rs", "rs m", false, 1, "rs m", cmd };
@@ -713,47 +745,46 @@ SortType get_sort_type(const string & type)
 }
 
 DefinedCorrelation
-define_correlation(double pb_val,
+define_correlation(const VtlQuantity & pb,
 		   const Correlation * below_corr_ptr, double cb, double mb,
 		   const Correlation * above_corr_ptr,
 		   double ca = 0, double ma = 1)
 {
-  double max_p = psia::get_instance().max_val;
-  DefinedCorrelation ret("p");
-  ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min_val, pb_val,
+  DefinedCorrelation ret("p", pb.unit);
+  ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min(), pb,
 			    cb, mb);
-  ret.add_tuned_correlation(above_corr_ptr, nextafter(pb_val, max_p), max_p,
-			    ca, ma);
+  ret.add_tuned_correlation(above_corr_ptr, pb.next(),
+			    psia::get_instance().max(), ca, ma);
   return ret;
 }
 
 DefinedCorrelation
-define_correlation(double pb_val,
+define_correlation(const VtlQuantity & pb,
 		   const Correlation * below_corr_ptr, 
 		   const Correlation * above_corr_ptr)
 {
-  double max_p = psia::get_instance().max_val;
-  DefinedCorrelation ret("p");
-  ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min_val, pb_val,
+  DefinedCorrelation ret("p", pb.unit);
+  ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min(), pb,
 			    0, 1);
-  ret.add_tuned_correlation(above_corr_ptr, nextafter(pb_val, max_p), max_p,
-			    0, 1);
+  ret.add_tuned_correlation(above_corr_ptr, pb.next(),
+			    psia::get_instance().max(), 0, 1);
   return ret;
 }
 
-DefinedCorrelation target_correlation(double pb_val)
+DefinedCorrelation target_correlation(const VtlQuantity & pb)
 {
-  return define_correlation(pb_val, below_corr_ptr,
+  return define_correlation(pb, below_corr_ptr,
 			    cb_arg.getValue(), mb_arg.getValue(),
 			    above_corr_ptr, 
 			    ca_arg.getValue(), ma_arg.getValue());
 }
 
 DefinedCorrelation
-set_rs_correlation(double pb_val, double rsb, const Correlation * rs_corr,
+set_rs_correlation(const VtlQuantity & pb,
+		   const VtlQuantity & rsb, const Correlation * rs_corr,
 		   double c, double m)
 {
-  DefinedCorrelation ret = define_correlation(pb_val, rs_corr, c, m,
+  DefinedCorrelation ret = define_correlation(pb, rs_corr, c, m,
 					      &RsAbovePb::get_instance());
   ret.set_max(rsb);
   return ret;
@@ -773,10 +804,10 @@ ParList compute_pb_and_load_constant_parameters()
   ParList pars_list;
   auto t_par = t_values.get_first();
   pb_pars.insert(t_par);
-  auto pb_val =
+  auto pb =
     pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, check);
   pb_pars.remove(t_par);
-  auto required_pars = target_correlation(pb_val.raw()).parameter_list();
+  auto required_pars = target_correlation(pb).parameter_list();
   test_parameter(required_pars, api_par, pars_list);
   test_parameter(required_pars, rsb_par, pars_list);
   test_parameter(required_pars, yg_par, pars_list);
@@ -942,13 +973,44 @@ bool valid_args(const VtlQuantity & par, Args ... args)
       store_exception(corr_name::get_instance().name, e);		\
     }
 
+inline bool
+insert_in_pars_list(const DefinedCorrelation&, const VtlQuantity&, ParList&)
+{
+  return true;
+}
+
+  template <typename ... Args> inline
+bool insert_in_pars_list(const DefinedCorrelation & corr,
+			 const VtlQuantity & p_q,
+			 ParList & pars_list,
+			 const Correlation::NamedPar & par,
+			 Args & ... args)
+{
+  if (get<2>(par) == Invalid_Value)
+    {
+      const string & par_name = get<1>(par);
+      if (corr.search_parameters(p_q).contains(par_name))
+	return false;
+    }
+  
+  pars_list.insert(par);
+  if (insert_in_pars_list(corr, p_q, pars_list, args...))
+    return true;
+
+  pars_list.remove(par); // si inserción recursiva falla ==> eliminar par
+
+  return false;
+}
+
 template <typename ... Args> inline
 double compute(const DefinedCorrelation & corr, bool check,
+	       const VtlQuantity & p_q,
 	       ParList & pars_list, Args ... args)
 {
   try
     {
-      insert_in_container(pars_list, args...);
+      if (not insert_in_pars_list(corr, p_q, pars_list, args...))
+	return Invalid_Value;
       double ret = corr.compute_by_names(pars_list, check);
       remove_from_container(pars_list, args ...);
       return ret;
@@ -957,7 +1019,7 @@ double compute(const DefinedCorrelation & corr, bool check,
     {
       if (report_exceptions)
 	{
-	  auto triggering_corr_ptr = corr.search_correlation(pressure);
+	  auto triggering_corr_ptr = corr.search_correlation(p_q);
 	  string names = corr.correlations().
 	    foldl<string>("", [triggering_corr_ptr] (const auto & acu, auto ptr)
             {
@@ -1000,11 +1062,12 @@ dcompute_noexcep(const Correlation * corr_ptr, bool check, Args ... args)
 }
 
 template <typename ... Args> inline
-double compute(const DefinedCorrelation & corr, bool check, Args ... args)
+double compute(const DefinedCorrelation & corr, bool check,
+	       const VtlQuantity & p_q, Args ... args)
 { // se pone estática para crearla una sola vez. Pero cuidado! la
   // función deja de ser reentrante y no puede usarse en un entorno multithread
   static ParList pars_list;
-  return compute(corr, check, pars_list, args...);
+  return compute(corr, check, pars_list, p_q, args...);
 }
 
 /// target, p, t
@@ -1021,18 +1084,19 @@ DynList<DynList<double>> generate_rs_values()
       pars_list.insert(t_par);
       row.insert(get<2>(t_par));
 
-      auto pb_val = compute(pb_corr, c_pb_arg.getValue(), 1, check,
-			    pb_pars, t_par);
+      auto pb_q = compute(pb_corr, c_pb_arg.getValue(), 1, check,
+			  pb_pars, t_par);
 
-      pars_list.insert(make_tuple(true, "pb", pb_val.raw(), &pb_val.unit));
+      pars_list.insert(make_tuple(true, "pb", pb_q.raw(), &pb_q.unit));
       auto rs_corr =
-	set_rs_correlation(pb_val.raw(), rsb_arg.getValue(), below_corr_ptr,
-			   cb_arg.getValue(), mb_arg.getValue());
+	set_rs_correlation(pb_q, VtlQuantity(*rsb_unit, rsb_arg.getValue()),
+			   below_corr_ptr, cb_arg.getValue(), mb_arg.getValue());
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  auto p_par = p_it.get_curr();
-	  auto val = compute(rs_corr, check, pars_list, p_par);
+	  VtlQuantity p_q = par(p_par);
+	  auto val = compute(rs_corr, check, p_q, pars_list, p_par);
 	  size_t n = row.ninsert(get<2>(p_par), val);
 	  vals.append(row);
 	  row.mutable_drop(n);
@@ -1084,14 +1148,14 @@ DynList<DynList<double>> generate_bo_values()
 
       row.insert(get<2>(t_par));
 
-      auto pb_val =
+      auto pb =
 	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
-      auto pb_par = make_tuple(true, "pb", pb_val.raw(), &pb_val.unit);
+      auto pb_par = NPAR(pb);
 
-      auto bo_corr = target_correlation(pb_val.raw());
+      auto bo_corr = target_correlation(pb);
       insert_in_container(bo_pars_list, t_par, pb_par);
 
-      auto rs_corr = define_correlation(pb_val.raw(), ::rs_corr,
+      auto rs_corr = define_correlation(pb, ::rs_corr,
 					c_rs_arg.getValue(), m_rs_arg.getValue(),
 					&RsAbovePb::get_instance());
       insert_in_container(rs_pars_list, t_par, pb_par);
@@ -1099,8 +1163,7 @@ DynList<DynList<double>> generate_bo_values()
       // último bo de la correlación bob. Este será el punto de partida de boa
       auto bobp =
 	compute(below_corr_ptr, cb_arg.getValue(),
-		mb_arg.getValue(), check, bo_pars_list,
-		make_tuple(true, "p", pb_val.raw(), &pb_val.unit),
+		mb_arg.getValue(), check, bo_pars_list, npar("p", pb), 
 		make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par)));
 
       bo_pars_list.insert(make_tuple(true, "bobp", bobp.raw(), &bobp.unit));
@@ -1108,8 +1171,9 @@ DynList<DynList<double>> generate_bo_values()
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  auto p_par = p_it.get_curr();
-	  auto rs = compute(rs_corr, check, rs_pars_list, p_par);
-	  auto bo = compute(bo_corr, check, bo_pars_list, p_par,
+	  VtlQuantity p_q = par(p_par);
+	  auto rs = compute(rs_corr, check, p_q, rs_pars_list, p_par);
+	  auto bo = compute(bo_corr, check, p_q, bo_pars_list, p_par,
 			    make_tuple(true, "rs", rs, &::rs_corr->unit));
 	  size_t n = row.ninsert(get<2>(p_par), bo);
 	  vals.append(row);
@@ -1144,25 +1208,23 @@ DynList<DynList<double>> generate_uo_values()
       auto t_par = t_it.get_curr();
       row.insert(get<2>(t_par));
 
-      auto pb_val =
-	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
-      auto pb_par = make_tuple(true, "pb", pb_val.raw(), &pb_val.unit);
+      auto pb = compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
+      auto pb_par = NPAR(pb);
 
       auto uod_val = dcompute(uod_corr, check, uod_pars_list, t_par);
 
       insert_in_container(rs_pars_list, t_par, pb_par);
-      auto rs_corr = define_correlation(pb_val.raw(), ::rs_corr,
+      auto rs_corr = define_correlation(pb, ::rs_corr,
 					c_rs_arg.getValue(), m_rs_arg.getValue(),
 					&RsAbovePb::get_instance());
 
-      auto uo_corr = target_correlation(pb_val.raw());
+      auto uo_corr = target_correlation(pb);
       insert_in_container(uo_pars_list, t_par, pb_par,
 			  make_tuple(true, "uod", uod_val.raw(), &uod_val.unit));
 
       auto uobp =
 	compute(below_corr_ptr, cb_arg.getValue(), mb_arg.getValue(),
-		check, uo_pars_list, 
-		make_tuple(true, "p", pb_val.raw(), &pb_val.unit),
+		check, uo_pars_list, npar("p", pb),
 		make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par)));
 
       uo_pars_list.insert("uobp", uobp.raw(), &uobp.unit);
@@ -1170,8 +1232,9 @@ DynList<DynList<double>> generate_uo_values()
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  auto p_par = p_it.get_curr();
-	  auto rs = compute(rs_corr, check, rs_pars_list, p_par);
-	  auto uo = compute(uo_corr, check, uo_pars_list, p_par,
+	  auto p_q = par(p_par);
+	  auto rs = compute(rs_corr, check, p_q, rs_pars_list, p_par);
+	  auto uo = compute(uo_corr, check, p_q, uo_pars_list, p_par,
 			    make_tuple(true, "rs", rs, &::rs_corr->unit));
 	  size_t n = row.ninsert(get<2>(p_par), uo);
 	  vals.append(row);
@@ -1365,8 +1428,8 @@ void generate_grid()
       auto p_pb = npar("p", pb_q);
 
       auto first_p_point = p_values.get_first();
-      bool first_p_less_than_pb = VtlQuantity(*get<3>(first_p_point),
-						 get<2>(first_p_point)) < pb_q;
+      bool first_p_above_pb = VtlQuantity(*get<3>(first_p_point),
+					  get<2>(first_p_point)) > pb_q;
   
       auto uod_val = dcompute(uod_corr, check, uod_pars, t_par);
 
@@ -1437,41 +1500,27 @@ void generate_grid()
 	  // esto es para insertar en línea las filas del punto de burbuja
 	  bool pb_row = false;
 
-	  if (first_p_less_than_pb)
-	    {
-	      if (p_q <= pb_q)
-		p_it.next();
-	      else if (p_q > pb_q and i < 2)
-		{
-		  pb_row = true;
-		  if (++i == 1)
-		    {
-		      get<2>(p_par) = VtlQuantity(p_q.unit, pb_q).raw();
-		      p_q = par(p_par);
-		    }
-		  else if (i == 2)
-		    {
-		      get<2>(p_par) = VtlQuantity(p_q.unit, next_pb_q).raw();
-		      p_q = par(p_par);
-		    }
-		  assert(i <= 2);
-		}
-	      else
-		p_it.next();
-	    }
-	  else
+	  if (p_q <= pb_q or (not (i < 2)) or first_p_above_pb)
 	    p_it.next();
+	  else 
+	    {
+	      pb_row = true;
+	      get<2>(p_par) =
+		VtlQuantity(p_q.unit, ++i == 1 ? pb_q : next_pb_q).raw();
+	      p_q = par(p_par);
+	      assert(i <= 2);
+	    }
 
 	  pressure = p_q.raw();
 	  CALL(Ppr, ppr, p_q, adjustedppcm);
 	  auto ppr_par = NPAR(ppr);
-	  auto rs = compute(rs_corr, check, rs_pars, p_par);
+	  auto rs = compute(rs_corr, check, p_q, rs_pars, p_par);
 	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
-	  auto co = compute(co_corr, check, co_pars, p_par);
+	  auto co = compute(co_corr, check, p_q, co_pars, p_par);
 	  auto co_par = make_tuple(true, "co", co, co_corr.result_unit);
-	  auto bo = compute(bo_corr, check, bo_pars, p_par, rs_par, co_par);
-	  auto uo = compute(uo_corr, check, uo_pars, p_par, rs_par);
-	  auto po = compute(po_corr, check, po_pars, p_par, rs_par, co_par,
+	  auto bo = compute(bo_corr, check, p_q, bo_pars, p_par, rs_par, co_par);
+	  auto uo = compute(uo_corr, check, p_q, uo_pars, p_par, rs_par);
+	  auto po = compute(po_corr, check, p_q, po_pars, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
 	  VtlQuantity z = VtlQuantity::null_quantity;
 	  if (p_q <= pb_q)
@@ -1484,10 +1533,10 @@ void generate_grid()
 	  auto rsw = dcompute(rsw_corr, check, rsw_pars, p_par);
 	  auto rsw_par = NPAR(rsw);
 	  auto cwa = dcompute(cwa_corr, check, cwa_pars, p_par, rsw_par);
-	  auto bw = compute(bw_corr, check, bw_pars, p_par, NPAR(cwa));
+	  auto bw = compute(bw_corr, check, p_q, bw_pars, p_par, NPAR(cwa));
 	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
 	  auto pw = dcompute(pw_corr, check, pw_pars, p_par, bw_par);
-	  auto cw = compute(cw_corr, check, cw_pars, p_par, z_par, 
+	  auto cw = compute(cw_corr, check, p_q, cw_pars, p_par, z_par, 
 			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
 	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
 	  auto uw = dcompute(uw_corr, check, uw_pars, p_par, NPAR(ppw)).raw();

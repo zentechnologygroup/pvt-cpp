@@ -96,6 +96,8 @@ public:
     void operator = (const __name&) = delete;			\
   };
 
+class VtlQuantity; // forward declaration
+
 
 /** Unit base class
 
@@ -130,6 +132,9 @@ public:
   const PhysicalQuantity & physical_quantity;
   const double min_val = 0;
   const double max_val = 0;
+
+  inline VtlQuantity min() const noexcept;
+  inline VtlQuantity max() const noexcept;
 
   string to_string() const
   {
@@ -714,6 +719,28 @@ protected:
 
 public:
 
+  inline void increase();
+
+  inline void decrease();
+
+protected:
+
+  inline BaseQuantity __increase() const
+  {
+    auto ret = *this;
+    ret.increase();
+    return ret;
+  }
+
+  inline BaseQuantity __decrease() const
+  {
+    auto ret = *this;
+    ret.increase();
+    return ret;
+  }
+
+public:
+
   double get_value() const noexcept { return value; }
 
   double raw() const noexcept { return value; }
@@ -807,8 +834,6 @@ inline double cbrtl(const BaseQuantity & q)
   return cbrtl(q.get_value());
 }
 
-class VtlQuantity; // forward declaration
-
 /** Quantity 
 
  */
@@ -861,6 +886,10 @@ public:
   {
     assign_converted(q);
   }
+
+  Quantity next() const { return Quantity(this->__increase()); }
+
+  Quantity prev() const { return Quantity(this->__decrease()); }
 
   /// Inter unit assignment. Perform the conversion
   template <class SrcUnit>
@@ -1171,6 +1200,10 @@ public:
 
   VtlQuantity(const VtlQuantity & q) noexcept : BaseQuantity(q.unit, q.value) {}
 
+  VtlQuantity next() const { return VtlQuantity(unit, this->__increase()); }
+
+  VtlQuantity prev() const { return VtlQuantity(unit, this->__decrease()); }
+
   VtlQuantity(const string & unit_name, const BaseQuantity & q)
     : BaseQuantity(unit_given_name(unit_name), q.get_value())
   {
@@ -1361,6 +1394,28 @@ public:
   bool operator == (double rhs) const noexcept { return value == rhs; }
   bool operator != (double rhs) const noexcept { return value != rhs; }
 };
+
+inline VtlQuantity Unit::max() const noexcept
+{
+  return VtlQuantity(*this, min_val);
+}
+
+inline VtlQuantity Unit::min() const noexcept
+{
+  return VtlQuantity(*this, max_val);
+}
+
+inline void BaseQuantity::increase()
+{
+  value = nextafter(value, unit.max().raw());
+  check_value();
+}
+
+inline void BaseQuantity::decrease()
+{
+  value = nextafter(value, unit.min().raw());
+  check_value();
+}
 
 inline bool operator < (double lhs, const VtlQuantity & rhs) noexcept
 {

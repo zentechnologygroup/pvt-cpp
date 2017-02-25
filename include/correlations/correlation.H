@@ -237,6 +237,17 @@ public:
     return ret;
   }
 
+  DynSetTree<string> parameter_names() const
+  {
+    DynSetTree<string> ret;
+    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+      {
+	auto & par = it.get_curr();
+	par.names().for_each([&ret] (auto & p) { ret.insert(p.first); });
+      }
+    return ret;
+  }
+
   DynList<CorrelationPar::P> synonyms() const
   {
     DynList<CorrelationPar::P> ret;

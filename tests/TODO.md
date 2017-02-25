@@ -27,3 +27,15 @@
 ## 9. generate_grid podría generarse automáticamente según los valores de la correlaciones
 - Created at   2017-02-19 10:14:59 -0400
 
+## 10. método parameter_names puede etner la lista ya construida
+- Created at   2017-02-25 17:12:31 -0400
+
+## 11. añadir columna aplot con el número de excepción
+- Created at   2017-02-25 17:34:56 -0400
+
+## 12. define_correlation puede estar buggy porque no recibe unidad
+- Created at   2017-02-25 17:57:03 -0400
+
+## 13. DefinedCorrelation debe recibir la unidad y la búsqueda del parámetro principal hacer la conversion
+- Created at   2017-02-25 18:30:54 -0400
+
