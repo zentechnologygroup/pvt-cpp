@@ -1,11 +1,11 @@
 DEPEND = sh ./depend.sh
 
-# define IHaveSubdirs
-# define PassCDebugFlags
+# # define IHaveSubdirs
+# # define PassCDebugFlags
 
-SUBDIRS = unittests
+# SUBDIRS = unittests corrtests
 
-MakeSubdirs($(SUBDIRS))
+# MakeSubdirs($(SUBDIRS))
 
 CXXPATH=$(shell echo $$CLANGPATH)
 

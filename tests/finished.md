@@ -1012,3 +1012,9 @@
 - Comment      
 - Finished     
 
+## 170. plot debe incluir dos fila para pb y nextafter(pb)
+- Created at   2017-02-22 14:52:43 -0400
+- Completed at 2017-02-25 10:10:25 -0400
+- Comment      
+- Finished     
+

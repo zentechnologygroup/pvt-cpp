@@ -4,6 +4,7 @@
 require 'optparse'
 require 'fileutils'
 
+load 'correlations.rb'
 
 options = {}
 options_parser = OptionParser.new do |opts|
@@ -15,6 +16,10 @@ options_parser = OptionParser.new do |opts|
 
   opts.on('-l', '--list', 'list properties') do
     options[:list] = true
+  end
+
+  opts.on('-c', '--calls', 'print call for failed tests') do
+    options[:calls] = true
   end
 
 end
@@ -38,13 +43,7 @@ cpp_name = "#{property_name}.cc"
 
 fail "#{property_name} is not defined" unless File.exists? csv_name
 
-#src = %x{ ./gen-test -f #{csv_name} | clang-format -style=Mozilla }
-
-status = IO.popen("./gen-test -f #{csv_name} | clang-format -style=Mozilla")
-
-fail 'cannot execute gen-test' unless status
-
-src = status.readlines.join 
+src = %x{ ./gen-test -f #{csv_name} | clang-format -style=Mozilla }
 
 File.open(cpp_name, 'w') { |f| f.write(src) }
 

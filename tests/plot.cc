@@ -1174,15 +1174,20 @@ DynList<DynList<double>> generate_uo_values()
   return vals;
 }
 
-void print_row(const FixedStack<double> & row)
+void print_row(const FixedStack<double> & row, bool is_pb = false)
 {
   const size_t n = row.size();
   double * ptr = &row.base();
+  if (is_pb)
+    printf("\"true\",");
+  else
+    printf("\"false\",");
   for (long i = n - 1; i >= 0; --i)
     {
       const auto & val = ptr[i];
       if (val != Invalid_Value)
 	printf("%f", val);
+      //printf("%.17g", val);
       if (i > 0)
 	printf(",");
     }
@@ -1326,7 +1331,7 @@ void generate_grid()
 		   P("pbrow", &Unit::null_unit));
 
   auto rs_pb = make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par));
-  
+
   FixedStack<double> row(25); // aquí van los valores. Asegure que el
 			      // orden de inserción sea el mismo que
 			      // para el header
@@ -1345,8 +1350,11 @@ void generate_grid()
       VtlQuantity next_pb_q = { pb_q.unit, next_pb };
       auto pb_par = npar("pb", pb_q);
       auto p_pb = npar("p", pb_q);
-      auto p_pb_next = npar("p", next_pb_q);
 
+      auto first_p_point = p_values.get_first();
+      bool first_p_less_than_pb = VtlQuantity(*get<3>(first_p_point),
+						 get<2>(first_p_point)) < pb_q;
+  
       auto uod_val = dcompute(uod_corr, check, uod_pars, t_par);
 
       insert_in_container(rs_pars, t_par, pb_par);
@@ -1407,12 +1415,40 @@ void generate_grid()
 
       size_t n = row.ninsert(t_q.raw(), pb, uod_val.raw());
 
-      p_values.ninsert(p_pb, p_pb_next);
       size_t i = 0;
-      for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next(), ++i)
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); /* nothing */)
 	{
 	  Correlation::NamedPar p_par = p_it.get_curr();
 	  VtlQuantity p_q = par(p_par);
+
+	  // esto es para insertar en línea las filas del punto de burbuja
+	  bool pb_row = false;
+
+	  if (first_p_less_than_pb)
+	    {
+	      if (p_q <= pb_q)
+		p_it.next();
+	      else if (p_q > pb_q and i < 2)
+		{
+		  pb_row = true;
+		  if (++i == 1)
+		    {
+		      get<2>(p_par) = VtlQuantity(p_q.unit, pb_q).raw();
+		      p_q = par(p_par);
+		    }
+		  else if (i == 2)
+		    {
+		      get<2>(p_par) = VtlQuantity(p_q.unit, next_pb_q).raw();
+		      p_q = par(p_par);
+		    }
+		  assert(i <= 2);
+		}
+	      else
+		p_it.next();
+	    }
+	  else
+	    p_it.next();
+
 	  pressure = p_q.raw();
 	  CALL(Ppr, ppr, p_q, adjustedppcm);
 	  auto ppr_par = NPAR(ppr);
@@ -1447,16 +1483,14 @@ void generate_grid()
 
 	  size_t n = row.ninsert(p_q.raw(), rs, co, bo, uo, po, z.raw(),
 				 cg.raw(), bg.raw(), ug.raw(), pg.raw(), bw,
-				 uw, pw.raw(), rsw.raw(), cw, sgo, sgw,
-				 i < 2 ? 1 : 0);
+				 uw, pw.raw(), rsw.raw(), cw, sgo, sgw);
 
-	  assert(row.size() == 22);
+	  assert(row.size() == 21);
 
-	  print_row(row);
+	  print_row(row, pb_row);
 	  row.popn(n);
 	}
 
-      p_values.remove_first(); p_values.remove_first(); // p_pb and p_pb_next
       row.popn(n);
       remove_from_container(rs_pars, "pb", t_par);
       remove_from_container(co_pars, "pb", t_par);
