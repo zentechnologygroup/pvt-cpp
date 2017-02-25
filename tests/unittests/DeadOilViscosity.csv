@@ -11,13 +11,13 @@ UodBeal,,27.3,Api,180,Fahrenheit,,,,,4.425,CP,1,Oil 6,,,1,,,,
 UodBeggsRobinson,,27.3,Api,180,Fahrenheit,,,,,4.246,CP,1,Oil 6,,,1,,,,
 UodGlaso,,27.3,Api,180,Fahrenheit,,,,,4.536,CP,1,Oil 6,,,1,,,,
 UodGlaso,,37.9,Api,120,Fahrenheit,,,,,2.3,CP,1,,,,,1,,,
-UodPetroskyFarshad,,37.9,Api,120,Fahrenheit,,,,,2.3,CP,1,To check only the order of magnitude.,,,,1,,,
+UodPetroskyFarshad,,37.9,Api,120,Fahrenheit,,,,,2.3,CP,1.28,To check only the order of magnitude.,,,,1,,,
 UodSattarinEtAl,,18.85596642,Api,283.15,Kelvin,,,,,562.48,CP,1,API < 28. The example was obtained from the calculation sheet sent by Sattarin.,,,,,1,,
 UodNaseri,,20,Api,100,Fahrenheit,,,,,40,CP,2,The example was obtained from a graph presented by Naseri et al. (2005).,,,,,,1,
 UodEgbogahNg,,30,Api,80,Fahrenheit,,,,,11.38766791,CP,1,Software calculation.,,,,,,,1
-UodSattarinEtAl,,30,Api,80,Fahrenheit,,,,,11.38766791,CP,1,API >= 28. Software calculation. To check only the order of magnitude.,,,,,,,
-UodDeGhettoEtAl,,10,Api,200,Fahrenheit,,,,,116.191483,CP,1,API <= 10. Software calculation. To check only the order of magnitude.,,,,,,,
-UodDeGhettoEtAl,,20,Api,200,Fahrenheit,,,,,13.49186179,CP,1,10< API <=22.3. Software calculation. To check only the order of magnitude.,,,,,,,
+UodSattarinEtAl,,30,Api,80,Fahrenheit,,,,,11.38766791,CP,6.59,API >= 28. Software calculation using UodEgbogahNg. To check only the order of magnitude.,,,,,,,1
+UodDeGhettoEtAl,,10,Api,200,Fahrenheit,,,,,116.191483,CP,59.22,API <= 10. Software calculation using UodEgbogahNg. To check only the order of magnitude.,,,,,,,1
+UodDeGhettoEtAl,,20,Api,200,Fahrenheit,,,,,13.49186179,CP,19.37,10< API <=22.3. Software calculation using UodEgbogahNg. To check only the order of magnitude.,,,,,,,1
 UodBeal,TRUE,,,,,,,,,,,,,,,,,,,
 UodBeggsRobinson,TRUE,,,,,,,,,,,,,,,,,,,
 UodGlaso,TRUE,,,,,,,,,,,,,,,,,,,
