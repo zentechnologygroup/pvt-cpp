@@ -3,3 +3,4 @@ Makefile
 *.a
 *.so
 *.bak
+gitversion.H

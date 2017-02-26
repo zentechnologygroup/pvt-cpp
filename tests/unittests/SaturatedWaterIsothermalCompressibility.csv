@@ -1,6 +1,0 @@
-,disabled,t,t unit,p,p unit,nacl_concentration,nacl_concentration unit,z,z unit,bg,bg unit,bw,bw unit,cwa,cwa unit,result,result unit,tolerance,Note,"ref ""mcCain:1990""","ref ""banzer:1996"""
-CwbSpiveyMN,,165,Fahrenheit,3000,psia,6.8,Dissolved_Salt_Percent,0.884,ZFactor,,,,,,,4.55e-06,psia_1,1,To check only the order of magnitude.,1,
-CwbMcCain,,165,Fahrenheit,3000,psia,6.8,Dissolved_Salt_Percent,,,0.00092,RB_SCF,1.023,RB_STB,2.65e-06,psia_1,4.55e-06,psia_1,1,,1,
-CwbMcCain,,200,Fahrenheit,3000,psia,20000,Dissolved_Salt_PPM,,,0.00098,RB_SCF,1.03393,RB_STB,3.26e-06,psia_1,6.55e-06,psia_1,1,Presented as the Ramey correlation.,,1
-CwbSpiveyMN,TRUE,,,,,,,,,,,,,,,,,,,,
-CwbMcCain,TRUE,,,,,,,,,,,,,,,,,,,,

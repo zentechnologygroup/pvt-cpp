@@ -5,24 +5,23 @@
 # include "correlations/undersaturated-oil-compressibility.H"
 
 void BoaMcCain::precondition(const Quantity<psia> & p,
-			     const Quantity<psia> & pb) const
+			       const Quantity<psia> & pb) const
 {
   if (not (p > pb))
     {
       ostringstream s;
       s << "BoaMcCain::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
-inline Quantity<RB_STB>
-BoaMcCain::impl(const Quantity<RB_STB> & bobp,
-		const Quantity<psia> & p,
-		const Quantity<psia> & pb,
-		const Quantity<psia_1> & co) const
+inline double
+BoaMcCain::impl(const double & bobp,
+		const double & p,
+		const double & pb,
+		const double & co) noexcept
 {
-  const double bwa = bobp.raw() * exp(co.raw() * (pb.raw() - p.raw()));
-  return Quantity<RB_STB>(bwa);
+  return bobp * exp(co * (pb - p));
 }
 
 void BoaDeGhetto::precondition(const Quantity<psia> & p,
@@ -32,20 +31,20 @@ void BoaDeGhetto::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "BoaDeGhetto::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }   
 }
 
-inline Quantity<RB_STB>
-BoaDeGhetto::impl(const Quantity<RB_STB> & bobp,
-		  const Quantity<Sgg> & yg,
-		  const Quantity<Api> & api,
-		  const Quantity<SCF_STB> & rsb,
-		  const Quantity<Fahrenheit> & t,
-		  const Quantity<Fahrenheit> & tsep,
-		  const Quantity<psia> & p,
-		  const Quantity<psia> & pb,
-		  const Quantity<psia> & psep) const
+inline double
+BoaDeGhetto::impl(const double & bobp,
+		  const double & yg,
+		  const double & api,
+		  const double & rsb,
+		  const double & t,
+		  const double & tsep,
+		  const double & p,
+		  const double & pb,
+		  const double & psep) noexcept
 {
   auto co = CoaDeGhetto::get_instance().impl(yg, api, rsb, t, tsep, p, psep);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
@@ -59,44 +58,45 @@ void BoaHanafy::precondition(const Quantity<psia> & p,
       cout << fabs(p.raw() - pb.raw()) << " " << " " << (p < pb) << endl;
       ostringstream s;
       s << "BoaHanafy::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }  
 }
 
-inline Quantity<RB_STB> 
-BoaHanafy::impl(const Quantity<RB_STB> & bobp,
-		const Quantity<psia> & p,
-		const Quantity<psia> & pb) const
+inline double 
+BoaHanafy::impl(const double & bobp,
+		const double & p,
+		const double & pb) noexcept
 {
-  const double pob = 1 / (2.366 - 1.358/bobp.raw()); // Bubble point oil density
+  const double pob = 1 / (2.366 - 1.358/bobp); // Bubble point oil density
   const double co = 1e-6 * exp(2.582/pob - 0.990);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
 }
 
-void BoaKartoatmodjo::precondition(const Quantity<psia> & p,
+void BoaKartoatmodjoSchmidt::precondition(const Quantity<psia> & p,
 				   const Quantity<psia> & pb) const
 {
   if (not (p > pb))
     {
       ostringstream s;
-      s << "BoaKartoatmodjo::impl: pressure " << p
+      s << "BoaKartoatmodjoSchmidt::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }  
 }
 
-inline Quantity<RB_STB>
-BoaKartoatmodjo::impl(const Quantity<RB_STB> & bobp,
-		      const Quantity<Sgg> & yg,
-		      const Quantity<Sg_do> & yo,
-		      const Quantity<SCF_STB> & rsb,
-		      const Quantity<Fahrenheit> & t,
-		      const Quantity<Fahrenheit> & tsep,
-		      const Quantity<psia> & p,
-		      const Quantity<psia> & pb,
-		      const Quantity<psia> & psep) const
+inline double
+BoaKartoatmodjoSchmidt::impl(const double & bobp,
+		      const double & yg,
+		      const double & yo,
+		      const double & rsb,
+		      const double & t,
+		      const double & tsep,
+		      const double & p,
+		      const double & pb,
+		      const double & psep) noexcept
 {
-  auto co = CoaKartoatmodjoSchmidt::get_instance().impl(yg, yo, rsb, t, tsep,
+  const double api = unit_convert<Sg_do, Api>(yo);
+  auto co = CoaKartoatmodjoSchmidt::get_instance().impl(yg, api, rsb, t, tsep,
 							p, psep);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
 }
@@ -109,21 +109,21 @@ void BoaPetroskyFarshad::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "BoaPetroskyFarshad::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
-
-inline Quantity<RB_STB>
-BoaPetroskyFarshad::impl(const Quantity<RB_STB> & bobp,
-			 const Quantity<Sgg> & yg,
-			 const Quantity<Sg_do> & yo,
-			 const Quantity<SCF_STB> & rsb, 
-			 const Quantity<Fahrenheit> & t,
-			 const Quantity<psia> & p,
-			 const Quantity<psia> & pb) const
+inline double
+BoaPetroskyFarshad::impl(const double & bobp,
+			 const double & yg,
+			 const double & yo,
+			 const double & rsb, 
+			 const double & t,
+			 const double & p,
+			 const double & pb) noexcept
 {
-  auto co = CoaPetroskyFarshad::get_instance().impl(yg, yo, rsb, t, p);
+  const double api = unit_convert<Sg_do, Api>(yo);
+  auto co = CoaPetroskyFarshad::get_instance().impl(yg, api, rsb, t, p);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
 }
 
@@ -135,20 +135,20 @@ void BoaVasquezBeggs::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "BoaVasquezBeggs::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
-inline Quantity<RB_STB>
-BoaVasquezBeggs::impl(const Quantity<RB_STB> & bobp, 
-		      const Quantity<Sgg> & yg,
-		      const Quantity<Api> & api,
-		      const Quantity<SCF_STB> & rsb,
-		      const Quantity<Fahrenheit> & t,
-		      const Quantity<Fahrenheit> & tsep,
-		      const Quantity<psia> & p,
-		      const Quantity<psia> & pb,
-		      const Quantity<psia> & psep) const
+inline double
+BoaVasquezBeggs::impl(const double & bobp, 
+		      const double & yg,
+		      const double & api,
+		      const double & rsb,
+		      const double & t,
+		      const double & tsep,
+		      const double & p,
+		      const double & pb,
+		      const double & psep) noexcept
 {
   auto co = CoaVasquezBeggs::get_instance().impl(yg, api, rsb, t, tsep, p, psep);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
@@ -161,20 +161,21 @@ void BoaPerezML::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "BoaPerezML::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
-inline Quantity<RB_STB>
-BoaPerezML::impl(const Quantity<RB_STB> & bobp,
-		 const Quantity<Sgg> & yg,
-		 const Quantity<Sg_do> & yo,
-		 const Quantity<SCF_STB> & rsb,
-		 const Quantity<Fahrenheit> & t,
-		 const Quantity<psia> & p,
-		 const Quantity<psia> & pb) const
+inline double
+BoaPerezML::impl(const double & bobp,
+		 const double & yg,
+		 const double & yo,
+		 const double & rsb,
+		 const double & t,
+		 const double & p,
+		 const double & pb) noexcept
 {
-  auto co = CoaPerezML::get_instance().impl(yg, yo, rsb, t, p, pb);
+  const double api = unit_convert<Sg_do, Api>(yo);
+  auto co = CoaPerezML::get_instance().impl(yg, api, rsb, t, p, pb);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);
 }
 
@@ -186,17 +187,17 @@ void BoaMillanArcia::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "BoaMillanArcia::impl: pressure " << p
 	<< " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
-inline Quantity<RB_STB>
-BoaMillanArcia::impl(const Quantity<RB_STB> & bobp,
-		     const Quantity<Api> & api,
-		     const Quantity<SCF_STB> & rsb,
-		     const Quantity<Fahrenheit> & t,
-		     const Quantity<psia> & p,
-		     const Quantity<psia> & pb) const 
+inline double
+BoaMillanArcia::impl(const double & bobp,
+		     const double & api,
+		     const double & rsb,
+		     const double & t,
+		     const double & p,
+		     const double & pb) noexcept
 {
   auto co = CoaMillanArcia::get_instance().impl(api, rsb, t, p, pb);
   return BoaMcCain::get_instance().impl(bobp, p, pb, co);

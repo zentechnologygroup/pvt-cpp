@@ -237,12 +237,6 @@ def PbManucciRosalesCorrelation(Yg, Rsb, API, T):
 def RsAlShammasiCorrelation(Yg, Pb, P, Yo, T, Rsb):
     # Transformation from °API to oil specific gravity
     #Yo = 141.5 / ( API + 131.5 ) # conversion Leandro
-    print Yg
-    print Pb
-    print P
-    print Yo
-    print T
-    print Rsb
     c1 = 5.527215
     c2 = -1.841408
     c3 = 0.783716
@@ -1204,7 +1198,7 @@ def UgCarrKBCorrelation(T, Tpr, Ppr, Yg, n2Concentration, co2Concentration, h2sC
 def UgLeeGECorrelation(Tr, P, Yg, Z):
     Mg = 28.96 * Yg # Peso molecular del gas [lb/lbmol]
     k = ((9.4 + 0.02 * Mg) * (Tr ** 1.5))/(209 + (19 * Mg) + Tr)
-    x = 3.5 + (986/Tr) + (0.01 * Mg)
+    x = 3.5 + (986.0/Tr) + (0.01 * Mg)
     y = 2.4 - 0.2 * x
     pg = 1.4935e-3 * P * Mg/(Z * Tr) # densidad del gas [g/cm3]
     Ug = 1e-4 * k * exp(x * (pg ** y))
@@ -1250,7 +1244,7 @@ def ZFactorSaremCorrelation(Tr, P, Tsc, Psc):
         Z = (2.1433504) * P0x * P0y + (0.0831762) * P0x * P1y + (-0.0214670) * P0x * P2y + (-0.0008714) * P0x * P3y + (0.0042846)* P0x * P4y + (-0.0016595) * P0x * P5y \
         + (0.3312352) * P1x * P0y + (-0.1340361) * P1x * P1y + (0.0668810) * P1x * P2y + (-0.0271743) * P1x * P3y + (0.0088512) * P1x * P4y + (-0.002152) * P1x * P5y \
         + (0.1057287) * P2x * P0y + (-0.0503937) * P2x * P1y + (0.0050925) * P2x * P2y + (0.0105513) * P2x * P3y + (-0.0073182) * P2x * P4y + (0.0026960) * P2x * P5y \
-        + (0.0521840) * P3x * P0y + (0.0443121) * P3x * P1y + (-0.0193294) * P3x * P2y + (0.0058973) * P3x * P3y + (0.0015367) * P3x * P4y + (-0.0028327) * P3x * P5y \
+        + (-0.0521840) * P3x * P0y + (0.0443121) * P3x * P1y + (-0.0193294) * P3x * P2y + (0.0058973) * P3x * P3y + (0.0015367) * P3x * P4y + (-0.0028327) * P3x * P5y \
         + (0.0197040) * P4x * P0y + (-0.0263834) * P4x * P1y + (0.019262) * P4x * P2y + (-0.0115354) * P4x * P3y + (0.0042910) * P4x * P4y + (-0.0081303) * P4x * P5y \
         + (0.0053096) * P5x * P0y + (0.0089178) * P5x * P1y + (-0.0108948) * P5x * P2y + (0.0095594) * P5x * P3y + (-0.0060114) * P5x * P4y + (0.0031175) * P5x * P5y
     ZFactorSarem = Z 
@@ -1473,9 +1467,7 @@ def TpcHCElsharkawyEtAlCorrelation(YgHC, n2Concentration, co2Concentration, h2sC
     TpcHCElsharkawy = TpcHC
     return TpcHCElsharkawy
 
-def CgSaremCorrelation(Tr, P, Tpc, Ppc, Z):
-    Tpr = 1.0*Tr/Tpc
-    Ppr = 1.0*P/Ppc
+def CgSaremCorrelation(Tpr, Ppr, Ppc, Z):
     x = (2 * Ppr - 15)/14.8
     y = (2 * Tpr - 4)/1.9
     P0x = 0.0
@@ -1493,7 +1485,7 @@ def CgSaremCorrelation(Tr, P, Tpc, Ppc, Z):
     dZdPpr = (2.1433504) * P0x * P0y + (0.0831762) * P0x * P1y + (-0.0214670) * P0x * P2y + (-0.0008714) * P0x * P3y + (0.0042846)* P0x * P4y + (-0.0016595) * P0x * P5y \
     + (0.3312352) * P1x * P0y + (-0.1340361) * P1x * P1y + (0.0668810) * P1x * P2y + (-0.0271743) * P1x * P3y + (0.0088512) * P1x * P4y + (-0.002152) * P1x * P5y \
     + (0.1057287) * P2x * P0y + (-0.0503937) * P2x * P1y + (0.0050925) * P2x * P2y + (0.0105513) * P2x * P3y + (-0.0073182) * P2x * P4y + (0.0026960) * P2x * P5y \
-    + (0.0521840) * P3x * P0y + (0.0443121) * P3x * P1y + (-0.0193294) * P3x * P2y + (0.0058973) * P3x * P3y + (0.0015367) * P3x * P4y + (-0.0028327) * P3x * P5y \
+    + (-0.0521840) * P3x * P0y + (0.0443121) * P3x * P1y + (-0.0193294) * P3x * P2y + (0.0058973) * P3x * P3y + (0.0015367) * P3x * P4y + (-0.0028327) * P3x * P5y \
     + (0.0197040) * P4x * P0y + (-0.0263834) * P4x * P1y + (0.019262) * P4x * P2y + (-0.0115354) * P4x * P3y + (0.0042910) * P4x * P4y + (-0.0081303) * P4x * P5y \
     + (0.0053096) * P5x * P0y + (0.0089178) * P5x * P1y + (-0.0108948) * P5x * P2y + (0.0095594) * P5x * P3y + (-0.0060114) * P5x * P4y + (0.0031175) * P5x * P5y
     Cgr = (1/Ppr) - (1/Z) * dZdPpr
@@ -2288,10 +2280,8 @@ def CwbMcCainCorrelation(T, P, saltConcentration, Bg, Bw, Cwa):
         B = 1.01021e-2 - 7.44241e-5 * T + 3.05553e-7 * (T **2) - 2.94883e-10 * (T ** 3)
         C = (-9.02505 + 0.130237 * T - 8.53425e-4 * (T ** 2) + 2.34122e-6 * (T ** 3) - 2.37049e-9 * (T ** 4)) * 1e-7
         dRswdPs = B + 2 * C * P
-        
         # Correction of the derivative, due to dissolved solids
         dRswdP = dRswdPs * 10 ** (-0.0840655 * saltConcentration * T ** -0.285854)
-	
         # Isothermal compressibility
         Cwb = Cwa + Bg/Bw * dRswdP
            

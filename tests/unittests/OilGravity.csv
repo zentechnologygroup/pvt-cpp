@@ -1,0 +1,3 @@
+seed,value,convert from,convert to,result,tolerance,note,"ref ""liu:2017"""
+1485977877,58.596223,Api,Sg_do,0.7443598708,1.00e-06,,1
+1485977877,0.665147,Sg_do,Api,81.23492927,1.00e-06,,1

@@ -1,0 +1,4 @@
+,disabled,t,t unit,p,p unit,pb,pb unit,nacl_concentration,nacl_concentration unit,bwbp,bwbp unit,cw,cw unit,result,result unit,tolerance,Note,"ref ""liu:2017"""
+BwaSpiveyMN,,180,Fahrenheit,3000,psia,,,0,Dissolved_Salt_Percent,,,,,1.027269719,RB_STB,0.23,To check only the order of magnitude.,1
+BwaSpiveyMN,TRUE,,,,,,,,,,,,,,,,,
+BwaMcCain,TRUE,,,,,,,,,,,,,,,,,

@@ -4,14 +4,14 @@
 # include <correlations/correlation-utils.H>
 # include <correlations/gas-isothermal-compressibility.H>
 
-inline Quantity<psia_1>
-CgSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,
-	      const Quantity<PseudoReducedPressure> & ppr,
-	      const Quantity<psia> & ppc,
-	      const Quantity<Zfactor> & z) const
+inline double
+CgSarem::impl(const double & tpr,
+	      const double & ppr,
+	      const double & ppc,
+	      const double & z) noexcept
 {
-  const double tsr = tpr.raw();
-  const double psr = ppr.raw();
+  const double & tsr = tpr;
+  const double & psr = ppr;
 
   const double x = (2*psr - 15)/14.8;
   const double y = (2*tsr - 4)/1.9;
@@ -50,22 +50,19 @@ CgSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,
     0.0089178*p5x*p1y + -0.0108948*p5x*p2y + 0.0095594*p5x*p3y +
     -0.0060114*p5x*p4y + 0.0031175*p5x*p5y;
                 
-  const double cgr = (1/psr) - (1/z.raw()) * dzdppr;
+  const double cgr = (1/psr) - (1/z) * dzdppr;
                 
-  const double cg = cgr/ppc.raw();
+  const double cg = cgr/ppc;
 
-  return Quantity<psia_1>(cg);
+  return cg;
 }
 
-inline Quantity<psia_1>
-CgHallYarborough::impl(const Quantity<PseudoReducedTemperature> & __tpr,
-		       const Quantity<PseudoReducedPressure> & __ppr,
-		       const Quantity<psia> & ppc,
-		       const Quantity<Zfactor> & z) const
+inline double
+CgHallYarborough::impl(const double & tpr,
+		       const double & ppr,
+		       const double & ppc,
+		       const double & z) noexcept
 {
-  const double tpr = __tpr.raw();
-  const double ppr = __ppr.raw();
-
   const double tpr_1 = 1/tpr;
   const double tpr_1_2 = tpr_1*tpr_1;
   const double tpr_1_3 = tpr_1_2*tpr_1;
@@ -113,22 +110,19 @@ CgHallYarborough::impl(const Quantity<PseudoReducedTemperature> & __tpr,
                 
   const double dzdppr = a/pr - (a*ppr/pr2)*dprdppr;
                 
-  const double cgr = 1/ppr - (1/z.raw())*dzdppr;
+  const double cgr = 1/ppr - (1/z)*dzdppr;
             
-  const double cg = cgr/ppc.raw();
+  const double cg = cgr/ppc;
 
-  return Quantity<psia_1>(cg);
+  return cg;
 }
 
-inline Quantity<psia_1>
-CgMattarBA::impl(const Quantity<PseudoReducedTemperature> & __tpr,
-		 const Quantity<PseudoReducedPressure> & __ppr,
-		 const Quantity<psia> & ppc,
-		 const Quantity<Zfactor> & z) const
+inline double
+CgMattarBA::impl(const double & tpr,
+		 const double & ppr,
+		 const double & ppc,
+		 const double & z) noexcept
 {
-  const double tpr = __tpr.raw();
-  const double ppr = __ppr.raw();
-
   constexpr double a1 = 0.31506237;
   constexpr double a2 = -1.0467099;
   constexpr double a3 = -0.57832729;
@@ -138,7 +132,7 @@ CgMattarBA::impl(const Quantity<PseudoReducedTemperature> & __tpr,
   constexpr double a7 = 0.68157001;
   constexpr double a8 = 0.68446549;
                 
-  const double pr = 0.27*ppr/(z.raw() * tpr);
+  const double pr = 0.27*ppr/(z * tpr);
   const double pr2 = pr*pr;
   const double pr3 = pr2*pr;
   const double pr4 = pr3*pr;
@@ -154,25 +148,21 @@ CgMattarBA::impl(const Quantity<PseudoReducedTemperature> & __tpr,
     + 5*a5*a6*pr4/tpr +
     (2*a7*pr/tpr3)*(1 + a8_x_pr2 - a8_x_pr2_2)*exp(-a8_x_pr2);
 
-  const double z2 = z.raw()*z.raw();
+  const double z2 = z*z;
   const double cgr = 1/ppr - (0.27/(z2*tpr))*(dzdpr/
-					      (1 + ((pr/z.raw()) * dzdpr)));
+					      (1 + ((pr/z) * dzdpr)));
                 
-  const double cg =  cgr/ppc.raw();
+  const double cg =  cgr/ppc;
 
-  return Quantity<psia_1>(cg);
+  return cg;
 }
 
-
-inline Quantity<psia_1>
-CgGopal::impl(const Quantity<PseudoReducedTemperature> & __tpr,
-	      const Quantity<PseudoReducedPressure> & __ppr,
-	      const Quantity<psia> & ppc,
-	      const Quantity<Zfactor> & z) const
+inline double
+CgGopal::impl(const double & tpr,
+	      const double & ppr,
+	      const double & ppc,
+	      const double & z) noexcept
 {
-  const double tpr = __tpr.raw();
-  const double ppr = __ppr.raw();
-
   double dzdppr = 0;
   if (0.2 <= ppr and ppr <= 1.2)
     {
@@ -210,23 +200,19 @@ CgGopal::impl(const Quantity<PseudoReducedTemperature> & __tpr,
   else // 5.4 < Ppr <= 15
     dzdppr = pow(0.711 + 3.66 * tpr, -1.4667);
                 
-  const double cgr = (1/ppr) - (1/z.raw()) * dzdppr;
+  const double cgr = (1/ppr) - (1/z) * dzdppr;
                 
-  const double cg = cgr/ppc.raw();
+  const double cg = cgr/ppc;
 
-  return Quantity<psia_1>(cg);
+  return cg;
 }
 
-
-inline Quantity<psia_1>
-CgBrillBeggs::impl(const Quantity<PseudoReducedTemperature> & __tpr,
-		   const Quantity<PseudoReducedPressure> & __ppr,
-		   const Quantity<psia> & ppc,
-		   const Quantity<Zfactor> & z) const
+inline double
+CgBrillBeggs::impl(const double & tpr,
+		   const double & ppr,
+		   const double & ppc,
+		   const double & z) noexcept
 {
-  const double tpr = __tpr.raw();
-  const double ppr = __ppr.raw();
-
   const double a = 1.39 * sqrt(tpr - 0.92) - 0.36*tpr - 0.1;
   const double b = (0.62 - 0.23*tpr)*ppr + 
     (0.066/(tpr - 0.86) - 0.037)*ppr*ppr +
@@ -245,33 +231,28 @@ CgBrillBeggs::impl(const Quantity<PseudoReducedTemperature> & __tpr,
 			(((0.132/(tpr - 0.86)) - 0.074) * ppr) + 
 			((1.92/   pow(10, 9*(tpr - 1))) * pow(ppr, 5)))*exp(b));
 
-  const double cgr = (1/ppr) - ((1/z.raw()) * dzdppr);
+  const double cgr = (1/ppr) - ((1/z) * dzdppr);
                 
-  const double cg = cgr/ppc.raw();
+  const double cg = cgr/ppc;
 
-  return Quantity<psia_1>(cg);
+  return cg;
 }
 
-
-inline Quantity<psia_1>
-CgPapay::impl(const Quantity<PseudoReducedTemperature> & __tpr,
-	      const Quantity<PseudoReducedPressure> & __ppr,
-	      const Quantity<psia> & ppc,
-	      const Quantity<Zfactor> & z) const
+inline double
+CgPapay::impl(const double & tpr,
+	      const double & ppr,
+	      const double & ppc,
+	      const double & z) noexcept
 {
-  const double tpr = __tpr.raw();
-  const double ppr = __ppr.raw();
-
   const double dzdppr = -3.52/pow(10, 0.9813*tpr) +
     0.548*ppr/pow(10, 0.8157*tpr);
 
-  const double cgr = 1/ppr - 1/z.raw()*dzdppr;
+  const double cgr = 1/ppr - 1/z*dzdppr;
                 
-  const double cg = cgr/ppc.raw();
+  const double cg = cgr/ppc;
 
-  return Quantity<psia_1>(cg);
+  return cg;
 }
-
 
 
 # endif

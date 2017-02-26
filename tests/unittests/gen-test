@@ -3,14 +3,12 @@
 
 require 'optparse'
 
-load 'correlations.rb'
-
 def test_preamble(name)
 %Q(
 # include <cassert>
 # include <tclap/CmdLine.h>
-# include <correlations/unittest-utils.H>
-# include <correlations/pvt-correlations.H>
+# include <units/unittest-utils.H>
+# include <units/pvt-units.H>
 
 using namespace TCLAP;
 
@@ -20,63 +18,39 @@ SwitchArg with_call = { "c", "calls", "print calls for failed tests", cmd };
 
 int main(int argc, char *argv[])
 {
-  CorrelationTester tester;
+  UnitTester tester;
 
   cmd.parse(argc, argv);
 )
 end
 
-def error_msg(msg, name, line)
-  fail msg + " for correlation #{name} line #{line}"
+def error_msg(msg, line)
+  fail msg + " line #{line}"
 end
-  
-def gen_test(csv_row, correlation, line)
-  corr_name = csv_row[0]
 
-  test_result = csv_row["result"]
-  error_msg "result value", corr_name, line unless test_result
-  
-  result_unit = csv_row["result unit"]
-  error_msg "result unit", corr_name, line unless result_unit
+def load_csv_col(csv_row, name, line)
+  v = csv_row[name]
+  error_msg("column name \"#{name}\" not specified in csv file", line) unless v
+  v
+end
 
-  tolerance = csv_row['tolerance'] || 1e-2
-  
-  refs = csv_row.to_a.select { |a| a[0] && a[1] && a[0].start_with?('ref ') }.
-         map { |a| a[0].sub('ref ', '').gsub("\"", '') }
+def gen_test(csv_name, csv_row, line)
 
-  note = csv_row["Note"] || ''
+  value = load_csv_col(csv_row, 'value', line)
+  src_unit = load_csv_col csv_row, 'convert from', line
+  tgt_unit = load_csv_col csv_row, 'convert to', line
+  expected = load_csv_col csv_row, 'result', line
+  tolerance = load_csv_col csv_row, 'tolerance', line
 
-  s = "tester.test(#{line},\n"\
-      "Quantity<#{result_unit}>(#{test_result.to_f}),\n"\
-      "#{tolerance},\n"\
-      "{"
-  refs.each do |ref|
-    s += "\"#{ref}\""
-    s += ", " if ref != refs.last
-  end
-
-  s += "},\n"\
-       "\"#{note}\",\n"\
-       "#{corr_name}::get_instance(),\n"
-  
-  correlation.pars.each do |par|
-    par_name = par.name
-    
-    test_value = csv_row[par_name]
-    error_msg "#{par_name} value not found", corr_name, line unless test_value
-    
-    test_unit = csv_row[par_name + " unit"]
-    error_msg "#{par_name} unit not found", corr_name, line unless test_unit
-
-    s += "Quantity<#{test_unit}>(#{test_value.to_f})"
-    s += "," if par != correlation.pars.last
-    s += "\n"
-  end
-  s += ");\n"
+  "  tester.define_test(\"#{csv_name}\", #{line}, \"#{src_unit}\",\n"\
+  "                     \"#{tgt_unit}\", #{value.to_f}, #{expected.to_f},\n"\
+  "                     #{tolerance.to_f});\n"
 end
 
 def test_epilogue
-  "tester.summary(with_call.getValue());\n"\
+  "  tester.perform();\n"\
+  "  tester.report();\n"\
+  "  return tester.all_passed() ? 0 : -1;\n"\
   "}"
 end
 
@@ -84,7 +58,7 @@ options = {}
 options_parser = OptionParser.new do |opts|
 
   opts.on('-f NAME', '--file NAME', 
-          'file name with correlation tests') do |file_name|
+          'csv file name with unit tests') do |file_name|
     options[:file_name] = file_name
   end
 
@@ -94,10 +68,12 @@ options_parser.parse!
 
 file = options[:file_name]
 
-fail 'correlations file not specified (option -f NAME)' if file.nil?
+fail 'unit test file not specified (option -f NAME)' if file.nil?
 
 require 'fileutils'
 require 'csv'
+
+fail "file #{file} not found" unless File.exist? file
 
 rows = CSV.read(file, headers: true)
 
@@ -105,11 +81,7 @@ puts test_preamble File.basename file, '.csv'
 
 rows.each_with_index do |row, line|
 
-  corr = $correlations_tbl[row[0]] # row[0] is the correlation name
-  fail "correlation #{row[0]} not found at line #{line + 2}" unless corr
-  next if row['disabled']
-  puts gen_test row, corr, line + 2
-  puts
-  
+  puts gen_test file, row, line + 2
+
 end
 puts test_epilogue

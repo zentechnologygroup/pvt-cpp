@@ -1,0 +1,10 @@
+,disabled,t,t unit,tpr,tpr unit,tpc,tpc unit,p,p unit,ppr,ppr unit,ppc,ppc unit,yg,yg unit,z,z unit,n2_concentration,n2_concentration unit,co2_concentration,co2_concentration unit,h2s_concentration,h2s_concentration unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""ahmed:2010""","ref ""gawish:2005""","ref ""ahmed:1989"""
+UgCarrKB,,194,Fahrenheit,1.35,PseudoReducedTemperature,,,,,5.6,PseudoReducedPressure,,,1.242,Sgg,,,0.0051,MoleFraction,0.1101,MoleFraction,0.0491,MoleFraction,0.03363,CP,1,,1,,,
+UgLeeGE,,654,Rankine,,,,,3810,psia,,,,,1.242,Sgg,0.78,Zfactor,,,,,,,0.05475,CP,1.2,,1,,,
+UgLeeGE,,600,Rankine,,,,,2000,psia,,,,,0.72,Sgg,0.78,Zfactor,,,,,,,0.0173,CP,1,,,1,,
+UgDeanStiel,,600,Rankine,,,330.46,Rankine,2000,psia,,,612.48,psia,0.6,Sgg,0.713,Zfactor,,,,,,,0.017,CP,1,tpr > 1.5,,,1,
+UgCarrKB,,200,Fahrenheit,1.8,PseudoReducedTemperature,,,,,5.21,PseudoReducedPressure,,,0.689,Sgg,,,0.05,MoleFraction,0.05,MoleFraction,0.02,MoleFraction,0.01981,CP,1,,,,,1
+UgCarrKB,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+UgLeeGE,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+UgDeanStiel,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,tpr <= 1.5,,,,
+UgDeanStiel,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,tpr > 1.5,,,,

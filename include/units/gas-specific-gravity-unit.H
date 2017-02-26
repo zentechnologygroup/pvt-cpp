@@ -3,7 +3,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(gasSpecificGravity, "Yg",
+Declare_Physical_Quantity(GasSpecificGravity, "Yg",
 		R"DESC(The specific gravity of a gas, γ, is the 
 		ratio of the density of the gas at standard pressure
 		and temperature to the density of air at the same 
@@ -16,19 +16,19 @@ Declare_Unit(Sgg, "Sgg",
 	     compared to the density of air in the same 
 	     pressure and temperature condition (ussualy standard condition)
 	     . it is a dimensionless ratio (density per density)DESC",
-	     gasSpecificGravity, 0.5, 5);
+	     GasSpecificGravity, 0.5, 5);
 
 Declare_Unit(rhog_kg_m3_atStandCond, "kg/m3atStandCond",
 	     R"DESC(gas density at standard condition.
 	     Acording to SPE: 15°C [288.15°K, 59°F] and 100 kPa.
 	     . Air density in this standard pressure and temperature 
-	     is 1.225 kg/m3)DESC", gasSpecificGravity, 0.6125, 6.125);
+	     is 1.225 kg/m3)DESC", GasSpecificGravity, 0.6125, 6.125);
 
 Declare_Unit(rhog_lb_ft3_atStandCond, "lb/ft3atStandCond",
 	     R"DESC(gas density at standard condition.
 	     Acording to SPE: 15°C [288.15°K, 59°F] and 100 kPa.
 	     . Air density in this standard pressure and temperature 
-	     is 0.0764740771 lb/ft3)DESC", gasSpecificGravity,
+	     is 0.0764740771 lb/ft3)DESC", GasSpecificGravity,
 	     0.03823703855, 0.38237038549999997);
 
 

@@ -5,16 +5,21 @@
 # include <memory>
 # include <algorithm>
 
+
 # include <tclap/CmdLine.h>
 
 # include <ahFunctional.H>
 # include <ah-string-utils.H>
+# include <ah-stl-utils.H>
+# include <htlist.H>
 
 # include <units/pvt-units.H>
 
 using namespace std;
 using namespace TCLAP;
 using namespace Aleph;
+
+size_t precision = 6;
 
 DynList<string>
 generate_row(const Unit & unit, double val, double epsilon, bool verbose)
@@ -54,8 +59,7 @@ generate_row(const Unit & unit, double val, double epsilon, bool verbose)
 	}
       catch (exception & e)
 	{
-	  cout << "Error " << q << " to " << unit_ptr->name
-	       << endl
+	  cout << "Error " << q << " to " << unit_ptr->name << endl
 	       << e.what() << endl;
 	  abort();
 	}
@@ -78,7 +82,7 @@ generate_row(const Unit & unit, double val, double epsilon, bool verbose)
 	  throw range_error(s.str());
 	}
 
-      conversions.append(to_string(conv.get_value()));
+      conversions.append(to_string(conv.get_value(), precision));
     }
 
   return conversions;
@@ -271,23 +275,46 @@ int main(int argc, char *argv[])
 			   false, 1e-4, "precision threshold", cmd);
 
   MultiArg<Epsilon> epsilons("e", "epsilon",
-			    "epsilon of form \"unit-symbol epsilon\"",
-			    false, "epsilon threshold", cmd);
+			     "epsilon of form \"unit-symbol epsilon\"",
+			     false, "epsilon threshold", cmd);
 
-  vector<string> pq;
+  vector<string> pq = to_vector(PhysicalQuantity::names());
   PhysicalQuantity::quantities().for_each([&pq] (auto p)
 					  { pq.push_back(p->name); });
-  ValuesConstraint<string> allowed(pq);
-  ValueArg<string> pm = { "P", "physical-quantity", "name of physical quantity",
-			  true, "", &allowed, cmd };
+				ValuesConstraint<string> allowed(pq);
+  ValueArg<string> pm = { "Q", "physical-quantity", "name of physical quantity",
+			  false, "", &allowed, cmd };
 
   SwitchArg extremes = { "x", "extremes", "test units extremes", cmd, false};
 
   SwitchArg print = { "p", "print", "print units", cmd, false };
 
+  SwitchArg print_pq =
+    { "P", "print-pq", "print physical quantities", cmd, false };
+
   SwitchArg ver = { "v", "verbose", "verbose mode", cmd, false };
 
+  ValueArg<size_t> d = { "d", "digits", "number of digits", false, 10,
+			 "number of digits", cmd };
+
   cmd.parse(argc, argv);
+
+  if (print_pq.getValue())
+    {
+      PhysicalQuantity::names().for_each([] (const string & name)
+        {
+	  cout << name << endl;
+	});
+      exit(0);
+    }
+				
+  if (not pm.isSet())
+    {
+      cout << "PARSE ERROR:" << endl
+	   << "             Required argument missing: physical-quantity"
+	   << endl;
+      abort();
+    }
 
   auto verbose = ver.getValue();
 
@@ -339,6 +366,9 @@ int main(int argc, char *argv[])
 				   << endl;
 			    });
     }
+
+  if (d.isSet())
+    precision = d.getValue();
 
   DynList<DynList<string>> mat;
   if (extremes.getValue())

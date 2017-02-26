@@ -48,7 +48,7 @@ Declare_Unit(Sg, "sg",
 
 Declare_Conversion(Kg_m3, Gr_cm3, v) { return 0.001 * v; }
 Declare_Conversion(Kg_L, Gr_cm3, v) { return v; }
-Declare_Conversion(Lb_ft3, Gr_cm3, v) { return  0.016018463374 * v ; }
+Declare_Conversion(Lb_ft3, Gr_cm3, v) { return  0.01601846337396014 * v ; }
 Declare_Conversion(Sg, Gr_cm3, v) { return  0.999016 * v ; }    
 Declare_Conversion(Lb_Gal, Gr_cm3, v) { return  0.119826793 * v  ; }    
 Declare_Conversion(Lb_Inch3, Gr_cm3, v) { return  27.679967537 * v  ; }    
@@ -57,16 +57,16 @@ Declare_Conversion(Lb_Inch3, Gr_cm3, v) { return  27.679967537 * v  ; }
 
 Declare_Conversion(Gr_cm3, Kg_m3, v) { return 1000 * v ; }
 Declare_Conversion(Kg_L, Kg_m3, v) { return 1000 * v ; }
-Declare_Conversion(Lb_ft3, Kg_m3, v) { return 16.018499958 * v; }  
+Declare_Conversion(Lb_ft3, Kg_m3, v) { return 16.018463374 * v; }
 Declare_Conversion(Sg, Kg_m3, v) { return 999.016 * v; }
 Declare_Conversion(Lb_Gal, Kg_m3, v) { return  119.826792768 * v; }
-Declare_Conversion(Lb_Inch3, Kg_m3, v) { return 27679.967536934 * v; }
+Declare_Conversion(Lb_Inch3, Kg_m3, v) { return 27679.898580851597 * v; }
 
 // To KilogramPerLiter  
  
 Declare_Conversion(Gr_cm3, Kg_L, v) { return v; }
 Declare_Conversion(Kg_m3, Kg_L, v) { return 0.001 * v ; }
-Declare_Conversion(Lb_ft3, Kg_L, v) { return 0.016018499958 * v ; }
+Declare_Conversion(Lb_ft3, Kg_L, v) { return  0.01601846337396014 * v ; }
 Declare_Conversion(Sg, Kg_L, v) { return 0.999016 * v; }
 Declare_Conversion(Lb_Gal, Kg_L, v) { return  0.119826792768 * v  ; }    
 Declare_Conversion(Lb_Inch3, Kg_L, v) { return  27.679967537 * v  ; }    
@@ -83,9 +83,9 @@ Declare_Conversion(Lb_Inch3, Sg, v) { return  v / 0.036091661 ; }
 
 // To Pound Per Cubic Feet
 
-Declare_Conversion(Gr_cm3, Lb_ft3, v) { return 62.427818000 * v ; }
-Declare_Conversion(Kg_m3, Lb_ft3, v) { return  0.062427818000 * v ; }
-Declare_Conversion(Kg_L, Lb_ft3, v) { return   62.427818000 * v ; }      
+Declare_Conversion(Gr_cm3, Lb_ft3, v) { return 62.4279605761446 * v ; }
+Declare_Conversion(Kg_m3, Lb_ft3, v) { return  0.0624279606 * v ; }
+Declare_Conversion(Kg_L, Lb_ft3, v) { return   62.4279605761446 * v ; }  
 Declare_Conversion(Sg, Lb_ft3, v) { return  62.366389027 * v ; }
 Declare_Conversion(Lb_Gal, Lb_ft3, v) { return   7.480525210 * v ; }      
 Declare_Conversion(Lb_Inch3, Lb_ft3, v) { return   1727.999975642 * v ; }
@@ -102,7 +102,7 @@ Declare_Conversion( Lb_Inch3, Lb_Gal, v) { return   230.9998198034 * v ; }
 
 // To Pound per cubic inches
 
-Declare_Conversion( Kg_m3, Lb_Inch3, v) { return  0.0000361272 * v; }
+Declare_Conversion( Kg_m3, Lb_Inch3, v) { return  0.0000361273 * v; }
 Declare_Conversion( Gr_cm3, Lb_Inch3, v) { return 0.0361272100 * v ; }
 Declare_Conversion( Kg_L, Lb_Inch3, v) { return   0.0361272100 * v ; }
 Declare_Conversion( Lb_ft3, Lb_Inch3, v) { return   0.0005787037 * v ; }

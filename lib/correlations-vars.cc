@@ -5,6 +5,8 @@
 
 # include <json.hpp>
 
+# include "gitversion.H"
+
 using namespace Aleph;
 using json = nlohmann::json;
   
@@ -48,6 +50,8 @@ static json to_json(const Correlation & c)
   j["type"] = c.type_name;
   j["name"] = c.name;
   j["hidden"] = c.hidden;
+  j["hidden_grid"] = c.hidden_grid;
+  j["hidden_calc"] = c.hidden_calc;
   j["id"] = c.id;
 
   auto jpars = c.get_preconditions().maps<json>([] (const auto & par)
@@ -70,6 +74,8 @@ static json to_json_concise(const Correlation & c)
   j["latex"] = c.latex_symbol;
   j["name"] = c.name;
   j["hidden"] = c.hidden;
+  j["hidden_grid"] = c.hidden_grid;
+  j["hidden_calc"] = c.hidden_calc;
   j["id"] = c.id;
 
   return j;
@@ -148,6 +154,7 @@ string Correlation::json_of_all_correlations()
   auto properties = to_vector(jl);
   json j;
   j["Physical_properties"] = properties;
+  j["version"] = GITVERSION;
 
   return j.dump(2);
 }

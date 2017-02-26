@@ -5,12 +5,12 @@
 
 # include <correlations/gas-compressibility.H>
 
-inline Quantity<Zfactor>
-ZfactorSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,
-		   const Quantity<PseudoReducedPressure> & ppr) const
+inline double
+ZfactorSarem::impl(const double & tpr,
+		   const double & ppr) noexcept
 {
-  const double x = (2*ppr.raw() - 15)/14.8;
-  const double y = (2*tpr.raw() - 4)/1.9;
+  const double x = (2*ppr - 15)/14.8;
+  const double y = (2*tpr - 4)/1.9;
 
   const double x2 = x*x;
   const double x3 = x2*x;
@@ -52,15 +52,15 @@ ZfactorSarem::impl(const Quantity<PseudoReducedTemperature> & tpr,
     0.0053096*p5x*p0y + 0.0089178*p5x*p1y + -0.0108948*p5x*p2y +
     0.0095594*p5x*p3y + -0.0060114*p5x*p4y + 0.0031175*p5x*p5y;
 
-  return Quantity<Zfactor>(z);
+  return z;
 }
 
 
-inline Quantity<Zfactor>
-ZfactorHallYarborough::impl(const Quantity<PseudoReducedTemperature> & tpr,
-			    const Quantity<PseudoReducedPressure> & ppr) const
+inline double
+ZfactorHallYarborough::impl(const double & tpr,
+			    const double & ppr) noexcept
 {
-  const double tpr_1 = 1/tpr.raw();
+  const double tpr_1 = 1/tpr;
   const double tpr_1_2 = tpr_1*tpr_1;
   const double tpr_1_3 = tpr_1_2*tpr_1;
   const double tpr_1_1 = 1 - tpr_1;
@@ -83,7 +83,7 @@ ZfactorHallYarborough::impl(const Quantity<PseudoReducedTemperature> & tpr,
       const double pr3 = pr2*pr;
       const double pr4 = pr3*pr;
       
-      const double f = - a*ppr.raw() +
+      const double f = - a*ppr +
 	(pr + pr2 + pr3 - pr4) / pow(1 - pr, 3) - b*pr2 + c*pow(pr, d);
       const double dfdpr= (1 + 4*pr + 4*pr2 - 4*pr3 + pr4) / pow(1 - pr, 4) -
 	2*b*pr + c*d*pow(pr, d - 1);
@@ -93,14 +93,14 @@ ZfactorHallYarborough::impl(const Quantity<PseudoReducedTemperature> & tpr,
 
   pr = prf;
             
-  const double z = (0.06125*ppr.raw()*tpr_1*exp(-1.2 * tpr_1_1*tpr_1_1)) / pr;
+  const double z = (0.06125*ppr*tpr_1*exp(-1.2 * tpr_1_1*tpr_1_1)) / pr;
 
-  return Quantity<Zfactor>(z);
+  return z;
 }
 
-inline Quantity<Zfactor>
-ZfactorDranchukPR::impl(const Quantity<PseudoReducedTemperature> & tpr,
-			const Quantity<PseudoReducedPressure> & ppr) const
+inline double
+ZfactorDranchukPR::impl(const double & tpr,
+			const double & ppr) noexcept
 {
   constexpr double a1 = 0.31506237;
   constexpr double a2 = -1.0467099;
@@ -111,8 +111,8 @@ ZfactorDranchukPR::impl(const Quantity<PseudoReducedTemperature> & tpr,
   constexpr double a7 = 0.68157001;
   constexpr double a8 = 0.68446549;
 
-  const double tpr2 = tpr.raw()*tpr.raw();
-  const double tpr3 = tpr2*tpr.raw();
+  const double tpr2 = tpr*tpr;
+  const double tpr3 = tpr2*tpr;
 
       // pr: Densidad reducida definida por el autor del metodo
   constexpr double epsilon = 1.0e-8;
@@ -124,33 +124,44 @@ ZfactorDranchukPR::impl(const Quantity<PseudoReducedTemperature> & tpr,
   while (fabs(zprev - z) > epsilon)
     {
       z = zprev;
-      const double pr = 0.27*ppr.raw()/(z * tpr.raw());
+      const double pr = 0.27*ppr/(z * tpr);
 
       const double pr2 = pr*pr;
       const double pr3 = pr2*pr;
       const double pr4 = pr3*pr;
       const double pr5 = pr4*pr;
             
-      const double f = z - (1 + (a1 + a2/tpr.raw() + a3/tpr3)*pr +
-			    (a4 + a5/tpr.raw())*pr2 + ((a5*a6*pr5)/tpr.raw()) +
+      const double f = z - (1 + (a1 + a2/tpr + a3/tpr3)*pr +
+			    (a4 + a5/tpr)*pr2 + ((a5*a6*pr5)/tpr) +
 			    a7*(1 + a8*pr2) * (pr2/tpr3) * exp(-a8*pr2));
 
       const double a8_x_pr2 = a8 * pr2;
       const double a8_x_pr2_2 = a8_x_pr2*a8_x_pr2;
-      const double dfdz = 1 + (a1 + a2/tpr.raw() + a3/tpr3)*(pr/z) +
-	2*(a4 + a5/tpr.raw())*pr2/z + (5*a5*a6*pr5)/(z * tpr.raw()) +
+      const double dfdz = 1 + (a1 + a2/tpr + a3/tpr3)*(pr/z) +
+	2*(a4 + a5/tpr)*pr2/z + (5*a5*a6*pr5)/(z * tpr) +
 	(2*a7*pr2)/(z * tpr3)*(1 + a8_x_pr2 - a8_x_pr2_2)*exp(-a8_x_pr2);
 
       zf = z - f/dfdz;
       zprev = zf;
     }
 
-  return Quantity<Zfactor>(zf);
+  return zf;
 }
 
-inline Quantity<Zfactor>
-ZfactorDranchukAK::impl(const Quantity<PseudoReducedTemperature> & tpr,
-			const Quantity<PseudoReducedPressure> & ppr) const
+void ZfactorDranchukAK::precondition(const Quantity<PseudoReducedTemperature> & tpr,
+			      const Quantity<PseudoReducedPressure> & ppr) const
+{
+  if ( (tpr >= 1 and not (0.2 <= ppr and ppr <= 30)) or (tpr < 1 and not (ppr <= 1)) )
+    {
+      ostringstream s;
+      s << "ZfactorDranchukAK::impl: Wrong combination of input values for tpr " << tpr << " and ppr " << ppr;
+      ZENTHROW(WrongCombinationInputValues, s.str());
+    }
+}
+
+inline double
+ZfactorDranchukAK::impl(const double & tpr,
+			const double & ppr) noexcept
 {
   //todo son dos conjuntos d erangos
   constexpr double a1 = 0.3265;
@@ -171,124 +182,123 @@ ZfactorDranchukAK::impl(const Quantity<PseudoReducedTemperature> & tpr,
   double zprev = 0.6;
   double zf;
 
-  const double tpr2 = tpr.raw()*tpr.raw();
-  const double tpr3 = tpr2*tpr.raw();
-  const double tpr4 = tpr3*tpr.raw();
-  const double tpr5 = tpr4*tpr.raw();
+  const double tpr2 = tpr*tpr;
+  const double tpr3 = tpr2*tpr;
+  const double tpr4 = tpr3*tpr;
+  const double tpr5 = tpr4*tpr;
 
   while (fabs(zprev - z) > epsilon)
     {
       z = zprev;
-      const double pr = 0.27*ppr.raw()/(z * tpr.raw());
+      const double pr = 0.27*ppr/(z * tpr);
       const double pr2 = pr*pr;
       const double pr3 = pr2*pr;
       const double pr4 = pr3*pr;
       const double pr5 = pr4*pr;
 
-      const double f = z - (1 + (a1 + a2/tpr.raw() + a3/tpr3 + a4/tpr4 +
-				 a5/tpr5)*pr +
-			    (a6 + a7/tpr.raw() + a8/tpr2)*pr2 -
-			    a9*(a7/tpr.raw() + a8/tpr2)*pr5 +
+      const double f = z - (1 + (a1 + a2/tpr + a3/tpr3 + a4/tpr4 + a5/tpr5)*pr +
+			    (a6 + a7/tpr + a8/tpr2)*pr2 -
+			    a9*(a7/tpr + a8/tpr2)*pr5 +
 			    a10*(1 + a11*pr2)*(pr2/tpr3)*exp(-a11*pr2));
 
       const double a11_x_pr2 = a11*pr2;
       const double a11_x_pr2_2 = a11_x_pr2*a11_x_pr2;
 
       const double dfdz = 1 +
-	((a1 + a2/tpr.raw() + a3/tpr3 + a4/tpr4 + a5/tpr5)*(pr/z)) +
-	(2*(a6 + a7/tpr.raw() + a8/tpr2)*(pr2/z)) -
-	(5*a9*(a7/tpr.raw() + a8/tpr2)*pr5/z) +
+	((a1 + a2/tpr + a3/tpr3 + a4/tpr4 + a5/tpr5)*(pr/z)) +
+	(2*(a6 + a7/tpr + a8/tpr2)*(pr2/z)) -
+	(5*a9*(a7/tpr + a8/tpr2)*pr5/z) +
 	(((2*a10*pr2)/(z* tpr3))*(1 + a11_x_pr2 - a11_x_pr2_2)*exp(-a11_x_pr2));
 
       zf = z - f/dfdz;
       zprev = zf;
     }     
 
-  return Quantity<Zfactor>(zf);
+  return zf;
 }
 
-inline Quantity<Zfactor>
-ZfactorGopal::impl(const Quantity<PseudoReducedTemperature> & tpr,
-		   const Quantity<PseudoReducedPressure> & ppr) const
+inline double
+ZfactorGopal::impl(const double & tpr,
+		   const double & ppr) noexcept
 {
   double z = 0;
   if (0.2 <= ppr and ppr <= 1.2)
     {
       if (1.05 <= tpr and tpr <= 1.2)
-	z = ppr.raw()*(1.6643*tpr.raw() - 2.2114) - 0.3647*tpr.raw() + 1.4385;
+	z = ppr*(1.6643*tpr - 2.2114) - 0.3647*tpr + 1.4385;
       else if (tpr > 1.2 and tpr <= 1.4)
-	z = ppr.raw()*(0.0522*tpr.raw() - 0.8511) - 0.0364*tpr.raw() + 1.0490;
+	z = ppr*(0.0522*tpr - 0.8511) - 0.0364*tpr + 1.0490;
       else if (tpr > 1.4 and tpr <= 2.0)
-	z = ppr.raw()*(0.1391*tpr.raw() - 0.2988) + 0.0007*tpr.raw() + 0.9969;
+	z = ppr*(0.1391*tpr - 0.2988) + 0.0007*tpr + 0.9969;
       else // 2.0 < Tpr <= 3.0
-	z = ppr.raw()*(0.0295*tpr.raw() - 0.0825) + 0.0009*tpr.raw() + 0.9967;
+	z = ppr*(0.0295*tpr - 0.0825) + 0.0009*tpr + 0.9967;
     }
   else if (1.2 < ppr and ppr <= 2.8)
     {
       if (1.05 <= tpr and tpr <= 1.2)
-	z = ppr.raw()*(-1.3570*tpr.raw() + 1.4942) + 4.6315*tpr.raw() - 4.7009;
+	z = ppr*(-1.3570*tpr + 1.4942) + 4.6315*tpr - 4.7009;
       else if (tpr > 1.2 and tpr <= 1.4)
-	z = ppr.raw()*(0.1717*tpr.raw() - 0.3232) + 0.5869*tpr.raw() + 0.1229;
+	z = ppr*(0.1717*tpr - 0.3232) + 0.5869*tpr + 0.1229;
       else if (tpr > 1.4 and tpr <= 2.0)
-	z = ppr.raw()*(0.0984*tpr.raw() - 0.2053) + 0.0621*tpr.raw() + 0.8580;
+	z = ppr*(0.0984*tpr - 0.2053) + 0.0621*tpr + 0.8580;
       else // 2.0 < Tpr <= 3.0
-	z = ppr.raw()*(0.0211*tpr.raw() - 0.0527) + 0.0127*tpr.raw() + 0.9549;
+	z = ppr*(0.0211*tpr - 0.0527) + 0.0127*tpr + 0.9549;
     }
   else if (ppr > 2.8 and ppr <= 5.4)
     {
       if (1.05 <= tpr and tpr <= 1.2)
-	z = ppr.raw()*(-0.3278*tpr.raw() + 0.4752) + 1.8223*tpr.raw() - 1.9036;
+	z = ppr*(-0.3278*tpr + 0.4752) + 1.8223*tpr - 1.9036;
       else if (tpr > 1.2 and tpr <= 1.4)
-	z = ppr.raw()*(-0.2521*tpr.raw() + 0.3871) + 1.6087*tpr.raw() - 1.6635;
+	z = ppr*(-0.2521*tpr + 0.3871) + 1.6087*tpr - 1.6635;
       else if (tpr > 1.4 and tpr <= 2.0)
-	z = ppr.raw()*(-0.0284*tpr.raw() + 0.0625) + 0.4714*tpr.raw() - 0.0011;
+	z = ppr*(-0.0284*tpr + 0.0625) + 0.4714*tpr - 0.0011;
       else // 2.0 < Tpr <= 3.0:
-	z = ppr.raw()*(0.0041*tpr.raw() + 0.0039) + 0.0607*tpr.raw() + 0.7927;
+	z = ppr*(0.0041*tpr + 0.0039) + 0.0607*tpr + 0.7927;
     }
   else // 5.4 < ppr <= 15
-    z = ppr.raw()*pow(0.711 + 3.66*tpr.raw() + 0.0039, -1.4667) -
-      1.637/(0.319*tpr.raw() + 0.522) + 2.071;
+    z = ppr*pow(0.711 + 3.66*tpr + 0.0039, -1.4667) -
+      1.637/(0.319*tpr + 0.522) + 2.071;
                             
-  return Quantity<Zfactor>(z);
+  return z;
 }
 
 
-inline Quantity<Zfactor>
-ZfactorBrillBeggs::impl(const Quantity<PseudoReducedTemperature> & tpr,
-			const Quantity<PseudoReducedPressure> & ppr) const
+inline double
+ZfactorBrillBeggs::impl(const double & tpr,
+			const double & ppr) noexcept
 {
-  const double a = 1.39*sqrt(tpr.raw() - 0.92) - 0.36*tpr.raw() - 0.10;
+  const double a = 1.39*sqrt(tpr - 0.92) - 0.36*tpr - 0.10;
 
-  const double ppr2 = ppr.raw()*ppr.raw();
-  const double b = (0.62 - 0.23*tpr.raw())*ppr.raw() +
-    (0.066/(tpr.raw() - 0.86) - 0.037)*ppr2 +
-    (0.32/pow(10, 9*(tpr.raw() - 1)))*pow(ppr, 6);
+  const double ppr2 = ppr*ppr;
+  const double b = (0.62 - 0.23*tpr)*ppr +
+    (0.066/(tpr - 0.86) - 0.037)*ppr2 +
+    (0.32/pow(10, 9*(tpr - 1)))*pow(ppr, 6);
 
   const double c = 0.132 - 0.32*log10(tpr);
 
-  const double tpr2 = tpr.raw()*tpr.raw();
-  const double d = pow(10, 0.3106 - 0.49 * tpr.raw() + 0.1824 * tpr2);
+  const double tpr2 = tpr*tpr;
+  const double d = pow(10, 0.3106 - 0.49 * tpr + 0.1824 * tpr2);
             
   double z = 0;
   if (b > 700)
-    z = a + c*pow(ppr.raw(), d); //The fraction (1 - A)/exp(B) becomes
+    z = a + c*pow(ppr, d); //The fraction (1 - A)/exp(B) becomes
 				 //zero with very high numbers in the
 				 //denominator (i.e. exp(B) > 1e+304) 
   else
-    z = a + ((1 - a)/exp(b)) + c*pow(ppr.raw(), d);
+    z = a + ((1 - a)/exp(b)) + c*pow(ppr, d);
 
-  return Quantity<Zfactor>(z);
+  return z;
 }
 
-inline Quantity<Zfactor>
-ZfactorPapay::impl(const Quantity<PseudoReducedTemperature> & tpr,
-		   const Quantity<PseudoReducedPressure> & ppr) const
+inline double
+ZfactorPapay::impl(const double & tpr,
+		   const double & ppr) noexcept
 {
-  const double ppr2 = ppr.raw()*ppr.raw();
-  const double z = 1 - 3.52*ppr.raw()/pow(10, 0.9813*tpr.raw()) +
-    0.274*ppr2/pow(10, 0.8157*tpr.raw());
+  const double ppr2 = ppr*ppr;
+  const double z = 1 - 3.52*ppr/pow(10, 0.9813*tpr) +
+    0.274*ppr2/pow(10, 0.8157*tpr);
 
-  return Quantity<Zfactor>(z);
+  return z;
 }
 
 

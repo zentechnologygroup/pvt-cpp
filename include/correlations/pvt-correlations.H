@@ -70,9 +70,12 @@ struct CorrelationInstantiater
         // Oil Bubble point
     PbAlMarhoun::get_instance();
     PbAlShammasi::get_instance();
-    PbDeGhetto::get_instance();
+    PbDeGhettoDetachedFromRs::get_instance();
+    PbDeGhettoEtAl::get_instance();
+    PbDindorukChristmanDetachedFromRs::get_instance();
     PbDindorukChristman::get_instance();
     PbDoklaOsman::get_instance();
+    PbHanafyDetachedFromRs::get_instance();
     PbHanafy::get_instance();
     PbKartoatmodjoSchmidt::get_instance();
     PbLasater::get_instance();
@@ -98,6 +101,7 @@ struct CorrelationInstantiater
     RsLasater::get_instance();
     RsPetroskyFarshad::get_instance();
     RsStanding::get_instance();
+    RsTotalCFPDetachedFromPb::get_instance();
     RsTotalCFP::get_instance();
     RsVasquezBeggs::get_instance();
     RsVelarde::get_instance();
@@ -122,16 +126,19 @@ struct CorrelationInstantiater
     BobVelardeMcCain::get_instance();
     BobMillanArcia::get_instance();
     BobManucciRosales::get_instance();
+    BobLasater::get_instance();
 
     BoaMcCain::get_instance();
-    BobMillanArcia::get_instance();
     BoaDeGhetto::get_instance();
     BoaHanafy::get_instance();
-    BoaKartoatmodjo::get_instance();
+    BoaKartoatmodjoSchmidt::get_instance();
+    BoaMillanArcia::get_instance();
+    BoaPerezML::get_instance();
     BoaPetroskyFarshad::get_instance();
     BoaVasquezBeggs::get_instance();
 
     CobMcCainEtAl::get_instance();
+
     CoaDeGhetto::get_instance();
     CoaHanafy::get_instance();
     CoaKartoatmodjoSchmidt::get_instance();

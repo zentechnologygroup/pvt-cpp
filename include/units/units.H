@@ -13,6 +13,7 @@
 # include <tpl_dynMapTree.H>
 
 # include "unititem.H"
+# include "unit-exceptions.H"
 
 using namespace std;
 
@@ -58,6 +59,8 @@ public:
 	return static_cast<const PhysicalQuantity * const>(p);
       });
   }
+
+  static DynList<string> names() { return tbl.names(); }
 
   static const PhysicalQuantity * search(const string & name)
   {
@@ -110,10 +113,11 @@ public:
 
     ostringstream s;
     s << "epsilon ratio " << ratio << " is not inside (0, " << ratio << ")";
-    throw domain_error(s.str());
+    ZENTHROW(WrongUnitRatio, s.str());
   }
 
   static const Unit null_unit;
+  static const double Invalid_Value;
 
   double get_epsilon() const { return epsilon; }
 
@@ -248,7 +252,7 @@ protected:
 	ostringstream s;
 	s << "Unit constructor: minimum value " << min_val
 	  << " is greater than maximum value " << max_val;
-	throw domain_error(s.str());
+	ZENTHROW(MinMaxReversed, s.str());
       }
 
     set_epsilon(epsilon_ratio);
@@ -318,12 +322,13 @@ double unit_convert(double /* val */)
   return 0;
 }
 
-inline Unit_Convert_Fct_Ptr search_conversion(const Unit & src, const Unit & tgt)
+inline Unit_Convert_Fct_Ptr
+search_conversion(const Unit & src, const Unit & tgt)
 {
   using UP = pair<const Unit*, const Unit*>;
-  using UF = pair<UP, Unit_Convert_Fct_Ptr>;
-  auto p = __unit_map.search(UF(UP(&src, &tgt), nullptr));
-  return p == nullptr ? nullptr : p->second;
+  pair<UP, Unit_Convert_Fct_Ptr> p; p.first = UP(&src, &tgt); // ahorra copia
+  auto ptr = __unit_map.search(p);
+  return ptr == nullptr ? nullptr : ptr->second;
 }
 
 template <class SrcUnit, class TgtUnit>
@@ -349,10 +354,10 @@ public:
       {
 	ostringstream s;
 	s << "Conversion from " << src_name << " to " << tgt_name
-	  << " does not shae the same physical quantities ("
+	  << " does not share the same physical quantities ("
 	  << src_instance.physical_quantity.name << ", "
 	  << tgt_instance.physical_quantity.name << ")";
-	throw domain_error(s.str());
+	ZENTHROW(WrongSiblingUnit, s.str());
       }
 
     if (&src_instance.physical_quantity != &tgt_instance.physical_quantity)
@@ -362,7 +367,7 @@ public:
 	  << " does not shae the same physical quantities ("
 	  << src_instance.physical_quantity.name << ", "
 	  << tgt_instance.physical_quantity.name << ")";
-	throw domain_error(s.str());
+	ZENTHROW(WrongSiblingUnit, s.str());
       }
     
     const string & src_symbol = src_instance.symbol;
@@ -373,7 +378,7 @@ public:
 	ostringstream s;
 	s << "Conversion from unit name " << src_name << " to unit name "
 	  << tgt_name << " has already been registered";
-	throw domain_error(s.str());
+	ZENTHROW(UnitConversionNotFound, s.str());
       }
 
     if (__unit_name_symbol_tbl.has(make_pair(src_name, tgt_symbol)))
@@ -381,7 +386,7 @@ public:
 	ostringstream s;
 	s << "Conversion from unit name " << src_name << " to symbol name "
 	  << tgt_symbol << " has already been registered";
-	throw domain_error(s.str());
+	ZENTHROW(DuplicatedUnitConversion, s.str());
       }
 
     if (__unit_symbol_name_tbl.has(make_pair(src_symbol, tgt_name)))
@@ -389,7 +394,7 @@ public:
 	ostringstream s;
 	s << "Conversion from symbol name " << src_symbol << " to unit name "
 	  << tgt_name << " has already been registered";
-	throw domain_error(s.str());
+	ZENTHROW(DuplicatedUnitConversion, s.str());
       }
 
     if (__unit_symbol_symbol_tbl.has(make_pair(src_symbol, tgt_symbol)))
@@ -397,12 +402,13 @@ public:
 	ostringstream s;
 	s << "Conversion from symbol name " << src_symbol << " to symbol name "
 	  << tgt_symbol << " has already been registered";
-	throw domain_error(s.str());
+	ZENTHROW(DuplicatedUnitConversion, s.str());
       }
 
     fct_ptr = &UnitConverter::convert;
 
-    __unit_map.insert(make_pair(make_pair(&src_instance, &tgt_instance), fct_ptr));
+    __unit_map.insert(make_pair(make_pair(&src_instance, &tgt_instance),
+				fct_ptr));
     __unit_name_name_tbl.insert(make_pair(src_name, tgt_name), fct_ptr);
     __unit_name_symbol_tbl.insert(make_pair(src_name, tgt_symbol), fct_ptr);
     __unit_symbol_name_tbl.insert(make_pair(src_symbol, tgt_name), fct_ptr);
@@ -463,7 +469,7 @@ inline double unit_convert(const Unit & src_unit,
       ostringstream s;
       s << "Conversion from unit name " << src_unit.name << " to unit name "
 	<< tgt_unit.name << " has not been registered";
-      throw domain_error(s.str());
+      ZENTHROW(UnitConversionNotFound, s.str());
     }
   return (*fct)(val);
 }
@@ -478,7 +484,7 @@ inline double unit_convert_name_to_name(const string & src_name,
       ostringstream s;
       s << "Conversion from unit name " << src_name << " to unit name "
 	<< tgt_name << " has not been registered";
-      throw domain_error(s.str());
+      ZENTHROW(UnitConversionNotFound, s.str());
     }
 
   auto fct = p->second;
@@ -496,7 +502,7 @@ inline double unit_convert_name_to_symbol(const string & src_name,
       ostringstream s;
       s << "Conversion from unit name " << src_name << " to unit symbol "
 	<< tgt_symbol << " has not been registered";
-      throw domain_error(s.str());
+      ZENTHROW(UnitConversionNotFound, s.str());
     }
 
   auto fct = p->second;
@@ -514,7 +520,7 @@ inline double unit_convert_symbol_to_name(const string & src_symbol,
       ostringstream s;
       s << "Conversion from symbol name " << src_symbol << " to unit name "
 	<< tgt_name << " has not been registered";
-      throw domain_error(s.str());
+      ZENTHROW(UnitConversionNotFound, s.str());
     }
 
   auto fct = p->second;
@@ -532,7 +538,7 @@ inline double unit_convert_symbol_to_symbol(const string & src_symbol,
       ostringstream s;
       s << "Conversion from symbol name " << src_symbol << " to symbool name "
 	<< tgt_symbol << " has not been registered";
-      throw domain_error(s.str());
+      ZENTHROW(UnitConversionNotFound, s.str());
     }
 
   auto fct = p->second;
@@ -643,19 +649,24 @@ protected:
 
   double value;
 
-  BaseQuantity(const Unit & __unit) : unit(__unit), value(unit.min_val) {}
+  BaseQuantity(const Unit & __unit) noexcept
+    : unit(__unit), value(unit.min_val) {}
   
-  BaseQuantity(const Unit & __unit, double val) : unit(__unit), value(val) {}
+  BaseQuantity(const Unit & __unit, double val) noexcept
+    : unit(__unit), value(val) {}
 
 public:
 
-  static bool is_valid(double value, const Unit & unit)
+  static bool is_valid(double value, const Unit & unit) noexcept
   {
     if (value >= unit.min_val and value <= unit.max_val)
       return true;
 
     if (fabs(value - unit.min_val) <= unit.get_epsilon() or
 	fabs(value - unit.max_val) <= unit.get_epsilon())
+      return true;
+
+    if (&unit == &Unit::null_unit)
       return true;
 
     return false;
@@ -671,10 +682,11 @@ protected:
       return;
 
     ostringstream s;
-    s << "Value " << value << " for unit " << unit.name << " (" << unit.symbol
+    s << "Value (" << value << " " << unit.symbol
       << ") is not inside in [" << unit.min_val << ", "
-      << unit.max_val << "] epsilon = " << unit.get_epsilon();
-    throw range_error(s.str());
+      << unit.max_val << "] epsilon = " << unit.get_epsilon()
+      << " defined for the unit";
+    ZENTHROW(OutOfUnitRange, s.str());
   }
 
   // throw exception if the units do not share the same physical quantity
@@ -687,7 +699,7 @@ protected:
     s << "Units do not refer to the same physical quantities" << endl
       << "Source physical quantity = " << unit.physical_quantity.name << endl
       << "target physical quantity = " << q.unit.physical_quantity.name;
-    throw domain_error(s.str());
+    ZENTHROW(WrongSiblingUnit, s.str());
   }
 
   void verify_same_unit(const Unit & __unit) const
@@ -697,14 +709,14 @@ protected:
 
     ostringstream s;
     s << "Different units: " << unit.name << " != " << __unit.name;
-    throw domain_error(s.str());
+    ZENTHROW(DifferentUnits, s.str());
   }
 
 public:
 
   double get_value() const noexcept { return value; }
 
-  double raw() const noexcept { return get_value(); }
+  double raw() const noexcept { return value; }
 
       /// Return the stringfied value (the unit symbol is concatenated)
   string to_string() const
@@ -818,14 +830,12 @@ public:
 
   VtlQuantity to_VtlQuantity() const;
 
-  Quantity(double val) 
-    : BaseQuantity(UnitName::get_instance(), val)
+  Quantity(double val) : BaseQuantity(UnitName::get_instance(), val)
   {
     check_value(); // value must be inside the specified range
   }
 
-  Quantity() 
-    : BaseQuantity(UnitName::get_instance())
+  Quantity() : BaseQuantity(UnitName::get_instance())
   {
     check_value(); // value must be inside the specified range
   }
@@ -1094,7 +1104,7 @@ public:
     ostringstream s;
     s << "There is no compund unit between " << unit1.name << " and "
       << unit2.name;
-    throw domain_error(s.str());
+    ZENTHROW(CompoundUnitNotFound, s.str());
   }
 
 private:
@@ -1107,7 +1117,7 @@ private:
 
     ostringstream s;
     s << "Nonexistent unit name " << name;
-    throw domain_error(s.str());
+    ZENTHROW(UnitNotFound, s.str());
   }
 
   const Unit & unit_given_symbol(const string & symbol) const
@@ -1118,7 +1128,7 @@ private:
 
     ostringstream s;
     s << "Nonexistent unit symbol " << symbol;
-    throw domain_error(s.str());
+    ZENTHROW(UnitNotFound, s.str());
   }
 
 public:
@@ -1149,14 +1159,12 @@ public:
     check_value();
   }
 
-  VtlQuantity(const Unit & unit, double val)
-    : BaseQuantity(unit, val)
+  VtlQuantity(const Unit & unit, double val) : BaseQuantity(unit, val)
   {
     check_value();
   }
 
-  VtlQuantity(const Unit & unit)
-    : BaseQuantity(unit)
+  VtlQuantity(const Unit & unit) : BaseQuantity(unit)
   {
     check_value();
   }
@@ -1190,6 +1198,9 @@ public:
     if (this == &q)
       return *this;
 
+    if (is_null())
+      return * new (this) VtlQuantity(q.unit, q.value);
+
     if (&unit.physical_quantity == &q.unit.physical_quantity)	
       {
 	value = q.get_value();
@@ -1208,6 +1219,9 @@ public:
   template <class U>
   VtlQuantity & operator = (const Quantity<Unit> & q)
   {
+    if (is_null())
+      return * new (this) VtlQuantity(q.unit, q.raw());
+
     if (&unit.physical_quantity == &q.unit.physical_quantity)
       {
 	value = q.get_value();

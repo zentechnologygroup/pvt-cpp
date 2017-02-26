@@ -4,7 +4,7 @@
 
 # include "temperature-unit.H"
 # include "pressure-unit.H"
-# include "compressibility-unit.H"
+# include "isothermal-compressibility-unit.H"
 # include "pseudo-reduced-pressure-unit.H"
 # include "pseudo-reduced-temp-unit.H"
 # include "density-unit.H"
@@ -18,5 +18,6 @@
 # include "interfacial-tension-unit.H"
 # include "z-unit.H"
 # include "gas-formation-volume-factor-unit.H"
+# include "water-cut-unit.H"
 
 # endif // PVT_UNITS_H

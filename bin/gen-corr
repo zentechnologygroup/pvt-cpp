@@ -54,6 +54,14 @@ class CorrelationGen
     @hidden = true;
   end
 
+  def set_hidden_calc
+    @hidden_calc = true;
+  end
+
+  def set_hidden_grid
+    @hidden_grid = true;
+  end
+
   def add_doc(str)
     @doc = str
   end
@@ -110,29 +118,51 @@ class CorrelationGen
   def impl_type() "Quantity<#{@unit}>" end
 
   def gen_pars
-    s = "("
+    s = ''
     @pars.each do |par|
       s += "const Quantity<#{par.unit}> & #{par.name}"
       s += ",\n" unless par == @pars.last
     end
-    s += ")"
+    s
   end
 
   def gen_doubles
     s = "("
     @pars.each do |par|
-      s += "double #{par.name}"
+      s += "const double & #{par.name}"
       s += ",\n" unless par == @pars.last
     end
     s += ")"
   end
 
   def gen_impl_declaration
-    s = "public:\n"\
-        "\n"
-    s += "inline " + impl_type + " impl"
-    s += gen_pars
-    s += " const"
+    s = "static inline double impl"
+    s += gen_doubles + 'noexcept'
+  end
+
+  def gen_call_declaration
+    s = "#{impl_type} call(#{gen_pars}) const\n"\
+        "{\n"
+    s += "     precondition(#{@pnames.join(',')});\n" if @pnames
+    s += "  return #{impl_type}(impl("
+    @pars.each do |par|
+      s += par.name + '.raw()'
+      s += ', ' unless par == @pars.last
+    end
+    s += "));\n"\
+         "}\n"
+  end
+
+  def gen_par_operator
+    s = "#{impl_type} operator () (#{gen_pars}) const\n"\
+        "{\n"
+    s += "  return #{impl_type}(call("
+    @pars.each do |par|
+      s += par.name
+      s += ', ' unless par == @pars.last
+    end
+    s += "));\n"\
+         "}\n"
   end
 
   def gen_precondition_pars
@@ -146,12 +176,8 @@ class CorrelationGen
   end
 
   def gen_precondition_declaration
-    "private:\n"\
-    "\n"\
     "inline void precondition(\n"\
     "#{gen_precondition_pars}) const;\n"\
-    "\n"\
-    "public:\n"\
     "\n"
   end
 
@@ -195,31 +221,24 @@ class CorrelationGen
   end
 
   def gen_call
-    "return impl(#{pars_list});\n"\
+    "return call(#{pars_list});\n"\
   end
 
   def gen_compute
-    s = "virtual VtlQuantity compute(const DynList<VtlQuantity> & __pars,\n"\
+    s = "virtual VtlQuantity compute(const DynList<VtlQuantity> & pars,\n"\
         "bool check = true) const\n"\
         "{\n"\
         "   if (check)\n"\
-        "     {\n"\
-        "       auto pars = verify_preconditions(__pars);\n"\
+        "     verify_preconditions(pars);\n"\
+        "\n"\
         "#{gen_pars_extraction}\n"\
-        "\n"
-    s += "     precondition(#{@pnames.join(',')});\n" if @pnames
-    s += "\n"\
+        "\n"\
          "     #{gen_call}\n"\
-         "    }\n"\
-         "\n"\
-         "const DynList<VtlQuantity> & pars = __pars;\n"\
-         "#{gen_pars_extraction}\n"\
-         "    #{gen_call}\n"\
-         "}\n"
+         "\n"
   end
 
   def extern_sign
-    "#{impl_type} #{@name}__correlation__fct #{gen_pars}"
+    "#{impl_type} #{@name}__correlation__fct(#{gen_pars})"
   end
 
   def extern_sign_doubles
@@ -227,7 +246,10 @@ class CorrelationGen
   end
 
   def gen_class
-    s = "/** #{@name}\n\n"
+    s = "/** #{@name}\n\n"\
+        "    Generated at #{Time.now}\n"\
+        "\n"\
+        "    Zen Technologies Group\n\n"
     s += @doc if @doc
     @internal_notes.each { |note| s += "#{note.ljust(60)}\n\n" }
     s += "\n"\
@@ -245,6 +267,8 @@ class CorrelationGen
     s += "set_author(\"#{@author}\");"
     s += "set_title(\"#{@title}\");" if @title
     s += "set_hidden();" if @hidden
+    s += "set_hidden_grid();" if @hidden_grid
+    s += "set_hidden_calc();" if @hidden_calc
     @pars.each { |par| s += par.make }
     @db.each { |db| s += "add_db(\"#{db}\");\n" }
     @notes.each { |note| s += "add_note(\"#{note}\");\n" }
@@ -255,16 +279,18 @@ class CorrelationGen
     #s += "add_latex_symbol("  \"#{par_symbols[@latex_symbol]}\""
     s += "}\n"\
          "\n"
-    s += "#{gen_impl_declaration};\n"\
-         "\n"
-    s += "#{impl_type} operator () #{gen_pars} const\n"\
-         "{\n"\
-         "  return impl(#{pars_list});\n"\
-         "}\n"\
+    s += gen_precondition_declaration if @pnames
+    s += "public:\n"\
+         "\n"\
+         "#{gen_impl_declaration};\n"\
+         "\n"\
+         "#{gen_call_declaration}\n"\
+         "\n"\
+         "#{gen_par_operator}\n"\
          "\n"
     s += gen_compute
-    s += gen_precondition_declaration if @pnames
-    s += "};\n"\
+    s += "}\n"\
+         "};\n"\
          "\n"\
          "extern #{extern_sign};\n"\
          "extern #{extern_sign_doubles};\n"\
@@ -295,8 +321,8 @@ class CorrelationGen
 
   def gen_impl
     s = "\n"\
-        "#{impl_type}\n"\
-        "#{@name}::impl#{gen_pars} const\n"\
+        "double\n"\
+        "#{@name}::impl#{gen_doubles} noexcept\n"\
         "{\n"\
         "    // put here the implementation\n"\
         "}\n"\
@@ -321,6 +347,14 @@ end
 
 def set_hidden
   $curr_corr.set_hidden
+end
+
+def set_hidden_grid
+  $curr_corr.set_hidden_grid
+end
+
+def set_hidden_calc
+  $curr_corr.set_hidden_calc
 end
 
 def add_parameter(name, unit, desc, min = nil, max = nil)
@@ -469,12 +503,13 @@ if options[:header]
   guard_name.gsub! 'rb', 'H'
   guard_name.upcase!
 
-  puts "# ifndef #{guard_name}"
-  puts "# define #{guard_name}"
-  puts 
-  puts "# include <correlations/correlation.H>"
-  puts
-  puts "#{gen_correlations}\n"\
+  puts "# ifndef #{guard_name}\n"\
+       "# define #{guard_name}\n"\
+       "\n"\
+       "# include <pvt-exceptions.H>\n"\
+       "# include <correlations/correlation.H>\n"\
+       "\n"\
+       "#{gen_correlations}\n"\
        "\n"\
        " # endif // #{guard_name}"  
   exit

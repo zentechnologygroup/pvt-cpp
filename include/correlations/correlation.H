@@ -16,6 +16,8 @@
 # include <units/pvt-units.H>
 # include <biblio.H>
 
+# include "pvt-exceptions.H"
+
 # include "par-list.H"
 
 struct CorrelationPar
@@ -74,7 +76,7 @@ public:
 	ostringstream s;
 	s << "CorrelationPar::add_synonym(): synonym unit " << unit.name
 	  << " is not physically related to parameter unit " << this->unit.name;
-	throw domain_error(s.str());
+	ZENTHROW(WrongSiblingUnit, s.str());
       }
 
     auto p = make_pair(name, &unit);
@@ -90,7 +92,7 @@ public:
 	ostringstream s;
 	s << "add_synonym(): unit name or symbol " << unit_sym_name
 	  << " not found";
-	throw domain_error(s.str());
+	ZENTHROW(WrongSiblingUnit, s.str());
       }
     add_synonym(name, *ptr);
   }
@@ -165,14 +167,14 @@ public:
       {
 	s << "Value " << q.get_value() << " is lesser than the minimum value "
 	  << min_val << " for precondition ";
-	throw range_error(s.str());
+	ZENTHROW(OutOfParameterRange, s.str());
       }
 
     if (q.get_value() > max_val.raw() + epsilon)
       {
 	s << "Value " << q << " is greater than the maximum value "
 	  << max_val << " for precondition ";
-	throw range_error(s.str());
+	ZENTHROW(OutOfParameterRange, s.str());
       }
   }
 };
@@ -192,7 +194,10 @@ struct Correlation
   mutable DynList<string> notes;
   mutable DynList<const BibEntry*> refs;
   mutable bool hidden = false; // indicates whether correlation is or not hidden
+  mutable bool hidden_calc = false;
+  mutable bool hidden_grid = false;
   mutable long id = -1;
+  mutable string __target_name = "NOT-DEFINED";
 
 private:
 
@@ -204,13 +209,15 @@ private:
 
   static Array<const Correlation *> correlations_tbl;
 
+  void set_target_name() const
+  {
+    __target_name = to_lower(split_camel_case(name).get_first());
+  }
+
 public:
 
   /// Returns the correlation target name
-  string target_name() const
-  {
-    return to_lower(split_camel_case(name).get_first());
-  }
+  const string & target_name() const { return __target_name; }
 
   // Returns the parameters names in the declaration order
   DynList<string> parameters_signature() const
@@ -279,7 +286,7 @@ private:
 	ostringstream s;
 	s << "Correlation::add_par_synonym(): par name " << par_name
 	  << " not found";
-	throw domain_error(s.str());
+	ZENTHROW(SynonymNotFound, s.str());
       }
 
     return const_cast<CorrelationPar*>(par_ptr);
@@ -314,7 +321,11 @@ private:
     par_ptr->def_latex_symbol(latex_symbol);
   }
 
-  void set_hidden() { hidden = true; }
+  void set_hidden() { hidden = hidden_calc = hidden_grid = true; }
+
+  void set_hidden_calc() { hidden_calc = true; }
+
+  void set_hidden_grid() { hidden_grid = true; }
 
   static string json_of_all_correlations();
 
@@ -511,12 +522,13 @@ protected:
       {
 	ostringstream s;
 	s << "Correlation::Correlation: duplicated correlation name" << name;
-	throw domain_error(s.str());
+	ZENTHROW(DuplicatedCorrelationName, s.str());
       }
 
     tbl.insert(name, this);
     correlations_tbl.append(this);
     id = counter++;
+    set_target_name();
   }
 
   Correlation(const string & type_name, const string & subtype_name,
@@ -545,7 +557,7 @@ protected:
 	ostringstream s;
 	s << "minimum value " << min_aux << " is greater than maximum value "
 	  << max_aux << " for parameter " << name;
-	throw domain_error(s.str());
+	ZENTHROW(OutOfParameterRange, s.str());
       }
 
     CorrelationPar par(name, unit, description, min, max);
@@ -560,7 +572,7 @@ protected:
   {
     CorrelationPar & ret = add_parameter(name, unit, description,
 					 min, VtlQuantity(unit, unit.max_val));
-    ret.max_from_author = true;
+    ret.max_from_author = false;
     return ret;
   }
 
@@ -575,7 +587,8 @@ protected:
   }
 
   CorrelationPar add_parameter(const string & name, const Unit & unit,
-			       const string & description, double min, double max)
+			       const string & description,
+			       double min, double max)
   {
     return add_parameter(name, unit, description,
 			 VtlQuantity(unit, min), VtlQuantity(unit, max));
@@ -699,15 +712,15 @@ public:
     return out << c.to_string();
   }
 
-  virtual
-  VtlQuantity compute(const DynList<VtlQuantity> &, bool check = true) const = 0;
+  virtual VtlQuantity
+  compute(const DynList<VtlQuantity> &, bool check = true) const = 0;
 
   template <typename ... Args>
-  VtlQuantity compute(Args ... args) const
+  VtlQuantity compute(bool check, Args ... args) const
   {
     DynList<VtlQuantity> pars_list;
     append_in_container(pars_list, args ...);
-    return compute(pars_list);
+    return compute(pars_list, check);
   }
 
   VtlQuantity compute_and_check(const DynList<VtlQuantity> & pars,
@@ -729,7 +742,9 @@ public:
 	ostringstream s;
 	s << "Correlation result " << result << " is out of range ["
 	  << min_val << ", " << max_val << "]";
-	return make_tuple(result.raw(), unit.symbol, false, s.str());
+	OutOfCorrelationRange e(__LINE__, __FILE__, "OutOfCorrelationRange",
+				s.str().c_str());
+	return make_tuple(result.raw(), unit.symbol, false, e.what());
       }
     catch (exception &e)
       {
@@ -754,7 +769,7 @@ public:
 	  << values.size()
 	  << " is different from number of declared parameters "
 	  << get_num_pars();
-	throw domain_error(s.str());
+	ZENTHROW(InvalidNumberOfParameters, s.str());
       }
 
     VtlQuantity ret = { unit, compute(pars, check) }; // here conversion is done
@@ -786,12 +801,13 @@ public:
 	      });
 
 	  });
+	
 	if (ptr_val == nullptr)
 	  {
 	    ostringstream s;
 	    s << "compute_by_names() for correlation " << name
 	      << ": parameter name " << par.name << " was not found";
-	    throw domain_error(s.str());
+	    ZENTHROW(ParameterNameNotFound, s.str());
 	  }
 	vals.append(VtlQuantity(par.unit, ptr_val->second));
       }
@@ -815,19 +831,21 @@ public:
 		return p.first == get<1>(t); 
 	      });
 	  });
+	
 	if (ptr_val == nullptr)
 	  {
 	    ostringstream s;
 	    s << "compute_by_names() for correlation " << name
 	      << ": parameter name " << par.name << " was not found";
-	    throw domain_error(s.str());
+	    ZENTHROW(ParameterNameNotFound, s.str());
 	  }
+	
 	if (not get<0>(*ptr_val))
 	  {
 	    ostringstream s;
 	    s << "compute_by_names() for correlation " << name
 	      << ": parameter name " << par.name << " is not set";
-	    throw domain_error(s.str());
+	    ZENTHROW(ParameterNameNotSet, s.str());
 	  }
 	vals.append(VtlQuantity(*get<3>(*ptr_val), get<2>(*ptr_val)));
       }
@@ -835,7 +853,8 @@ public:
     return compute(vals, check);
   }
 
-  VtlQuantity compute_by_names(const ParList & par_list, bool check = true) const
+  VtlQuantity
+  compute_by_names(const ParList & par_list, bool check = true) const
   {
     DynList<VtlQuantity> vals;
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
@@ -891,7 +910,7 @@ public:
 	  << values.size()
 	  << " is different from number of declared parameters "
 	  << get_num_pars();
-	throw domain_error(s.str());
+	ZENTHROW(InvalidNumberOfParameters, s.str());
       }
 
     VtlQuantity ret = { unit, c + m*compute(pars, check).raw() };
@@ -932,11 +951,9 @@ public:
       @throw domain_error if there is an conversion error
       @throw range_error if a parameter is out of precondition range
   */
-  DynList<VtlQuantity>
+  const DynList<VtlQuantity> &
   verify_preconditions(const DynList<VtlQuantity> & pars) const
   {
-    DynList<VtlQuantity> ret;
-
     auto it = get_enum_zip_it(preconditions, pars);
     for (/* already initialized */; it.has_curr(); it.next())
       {
@@ -944,17 +961,16 @@ public:
 	const auto & precondition = get<0>(p);
 	const string & par_name = precondition.name;
 	const auto & par = get<1>(p);
-	VtlQuantity curr_par(precondition.unit, par); // conversion is done
 	if (not (par_name == "p" or par_name == "t") and // TODO lista hash
-	    not precondition.check(curr_par))
+	    not precondition.check(par))
 	  {
 	    auto i = get<2>(p) + 1;
 	    ostringstream s;
-	    s << "Correlation parameter " << i << " (" << name
-	      << ") does not satisfy bound constraints";
-	      throw domain_error(s.str());
+	    s << "Parameter " << i << " (" << par_name << " = " << par
+	      << ") in correlation " << name 
+	      << " does not satisfy application development range"; 
+	    ZENTHROW(OutOfParameterRange, s.str());
 	  }
-	ret.append(curr_par);
       }
 
     if (not it.completed())
@@ -962,10 +978,10 @@ public:
 	ostringstream s;
 	s << "number of preconditions " << preconditions.size()
 	  << " is different than number of parameters " << pars.size();
-	throw domain_error(s.str());
+	ZENTHROW(InvalidNumberOfParameters, s.str());
       }
 
-    return ret;
+    return pars;
   }
 
   VtlQuantity verify_result(const VtlQuantity & result) const
@@ -975,12 +991,10 @@ public:
       {
 	ostringstream s;
 	s << "In correlation " << name << " " << subtype_name << " " << type_name
-	  << " : return value " << result.get_value() << " "
-	  << result.unit.symbol << " is out of range ["
-	  << min_val << ", " << max_val << "]" << endl
-	  << "Error was detected while converting from " << result
-	  << " to " << result.unit.symbol;
-	throw range_error(s.str());
+	  << " : return value (" << result.get_value() << " "
+	  << result.unit.symbol << ") is out of range ["
+	  << min_val << ", " << max_val << "] defined for the correlation";
+	ZENTHROW(OutOfCorrelationRange, s.str());
       }
 
     return result;
@@ -990,6 +1004,17 @@ public:
   {
     VtlQuantity ret = result;
     return ret.get_value() >= min_val and ret.get_value() <= max_val;
+  }
+
+  static DynList<string> all_parameter_names()
+  {
+    DynSetTree<string> names;
+    for (auto it = correlations_tbl.get_it(); it.has_curr(); it.next())
+      it.get_curr()->preconditions.for_each([&names] (auto p)
+					    {
+					      names.insert(p.name);
+					    });
+    return names.keys();
   }
 };
 
@@ -1100,6 +1125,11 @@ decltype(auto)
     return instance;							\
   }									\
 									\
+  static const Correlation * correlation()				\
+  {									\
+    return & get_instance();						\
+  }									\
+									\
   name(const name&) = delete;						\
   void operator = (const name&) = delete;				\
   									\
@@ -1108,7 +1138,29 @@ private:
 template <class CorrType, typename ... Args>
 auto direct_call(const Correlation & corr_ptr, Args ... args)
 {
+  return static_cast<CorrType*>(&corr_ptr)->call(args...);
+}
+
+template <class CorrType, typename ... Args>
+auto tuned_direct_call(const Correlation & corr_ptr, double c, double m,
+		       Args ... args)
+{
+  double r = static_cast<CorrType*>(&corr_ptr)->call(args...);
+  return c + m*r;
+}
+
+template <class CorrType, typename ... Args>
+auto direct_impl(const Correlation & corr_ptr, Args ... args)
+{
   return static_cast<CorrType*>(&corr_ptr)->impl(args...);
+}
+
+template <class CorrType, typename ... Args>
+auto tuned_direct_impl(const Correlation & corr_ptr, double c, double m,
+		       Args ... args)
+{
+  double r = static_cast<CorrType*>(&corr_ptr)->impl(args...);
+  return c + m*r;
 }
 
 Declare_Correlation_Subtype(TmpCorrelation, TmpFunction, "");
@@ -1132,15 +1184,18 @@ Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation, "\\sigma_{go}
 Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation, "\\mu_{od}");
 
     // correlations & functions associated to gas
-Declare_Correlation_Subtype(GasPseudocriticalPressure, GasCorrelation, "P_{pc}");
+Declare_Correlation_Subtype(HydrocarbonGasPseudocriticalPressure, GasCorrelation, "P_{pcHC}");
+Declare_Correlation_Subtype(MixtureGasPseudocriticalPressure, GasCorrelation, "P_{pcM}");
 Declare_Correlation_Subtype(GasPseudocriticalPressureC7, GasCorrelation,
 			    "P_{pcC_7+}");
 Declare_Correlation_Subtype(GasViscosity, GasCorrelation, "\\mu_{g}");
 Declare_Correlation_Subtype(GasDensity, GasFunction, "\\rho_{g}")
 Declare_Correlation_Subtype(GasVolumeFactor, GasFunction, "B_{g}");
 Declare_Correlation_Subtype(GasCompressibility, GasCorrelation, "Z\\ factor");
-Declare_Correlation_Subtype(GasPseudocriticalTemperature, GasCorrelation,
-			    "T_{pc}");
+Declare_Correlation_Subtype(HydrocarbonGasPseudocriticalTemperature, GasCorrelation,
+			    "T_{pcHC}");
+Declare_Correlation_Subtype(MixtureGasPseudocriticalTemperature, GasCorrelation,
+			    "T_{pcM}");
 //Declare_Correlation_Subtype(GasSpecificGravity, GasCorrelation, "\\gamma_g");
 Declare_Correlation_Subtype(HydrocarbonGasSpecificGravity, GasCorrelation, "\\gamma_{gHC}");
 Declare_Correlation_Subtype(GasIsothermalCompressibility, GasCorrelation,
@@ -1166,6 +1221,7 @@ Declare_Correlation_Subtype(UndersaturatedWaterIsothermalCompressibility,
 			    WaterCorrelation, "c_{wa}");
 Declare_Correlation_Subtype(SolutionGasWaterRelation, WaterCorrelation,
 			    "R_{sw}");
-
+Declare_Correlation_Subtype(VaporPressure, WaterCorrelation,
+			    "P_{v}");
 
 # endif // CORRELATION_H

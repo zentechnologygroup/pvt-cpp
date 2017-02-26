@@ -3,126 +3,118 @@
 
 # include <correlations/undersaturated-oil-compressibility.H>
 
-inline Quantity<psia_1>
-CoaDeGhetto::impl(const Quantity<Sgg> & yg,
-		  const Quantity<Api> & api,
-		  const Quantity<SCF_STB> & rsb,
-		  const Quantity<Fahrenheit> & t,
-		  const Quantity<Fahrenheit> & tsep,
-		  const Quantity<psia> & p,
-		  const Quantity<psia> & psep) const
+inline double
+CoaDeGhetto::impl(const double & yg,
+		  const double & api,
+		  const double & rsb,
+		  const double & t,
+		  const double & tsep,
+		  const double & p,
+		  const double & psep) noexcept
 {
-  const double raw_api = api.get_value();
-
-  const double c = 1 + 0.5912*raw_api*tsep.get_value()*log10(psep/114.7)*1e-4;
+  const double c = 1 + 0.5912*api*tsep*log10(psep/114.7)*1e-4;
         
   double co = 0;
 
-  const double ygcorr = c*yg.raw(); // Gas specific gravity correction
-				    // considering a separator
-				    // pressure of 114.7 psia 
+  const double ygcorr = c*yg; // Gas specific gravity correction
+			      // considering a separator pressure of
+			      // 114.7 psia 
 
   if (api <= 10) // Extra-heavy oil  
-    co = (-889.6 + 3.1374*rsb.raw() + 20*t.raw() -
-	  627.3*ygcorr - 81.4476*api.raw()) / (1e5*p.raw());
+    co = (-889.6 + 3.1374*rsb + 20*t - 627.3*ygcorr - 81.4476*api) / (1e5*p);
   else
-    co = (-2841.8 + 2.9646*rsb.raw() + 25.5439*t.raw() -
-	  1230.5*ygcorr + 41.91*api.raw()) / (1e5*p.raw());
+    co = (-2841.8 + 2.9646*rsb + 25.5439*t - 1230.5*ygcorr + 41.91*api) /
+      (1e5*p);
 
-  return Quantity<psia_1>(co);
+  return co;
 }
 
-inline Quantity<psia_1>
-CoaHanafy::impl(const Quantity<SCF_STB> & rsb) const
+inline double
+CoaHanafy::impl(const double & rsb) noexcept
 {
-  const double bob = 0.0006*rsb.raw() + 1.079; // Bubble point oil volume factor
+  const double bob = 0.0006*rsb + 1.079; // Bubble point oil volume factor
   const double pob = 1 / (2.366 - 1.358/bob); // Bubble point oil density
   const double co = 1e-6 * exp(2.582/pob - 0.990);
 
-  return Quantity<psia_1>(co);
+  return co;
 }
 
-inline Quantity<psia_1>
-CoaKartoatmodjoSchmidt::impl(const Quantity<Sgg> & yg,
-			    const Quantity<Api> & api, 
-			    const Quantity<SCF_STB> & rsb,
-			    const Quantity<Fahrenheit> & t,
-			    const Quantity<Fahrenheit> & tsep,
-			    const Quantity<psia> & p,
-			    const Quantity<psia> & psep) const
+inline double
+CoaKartoatmodjoSchmidt::impl(const double & yg,
+			    const double & api, 
+			    const double & rsb,
+			    const double & t,
+			    const double & tsep,
+			    const double & p,
+			    const double & psep) noexcept
 {
   const double c =
     1 + 0.1595 * pow(api, 0.4078) * pow(tsep, -0.2466) * log10(psep/114.7);
         
-  const double ygcorr = c*yg.raw(); // Gas specific gravity correction
-				    // (considering the standardized
-				    // separator pressure: Psep=100 psig) 
+  const double ygcorr = c*yg; // Gas specific gravity correction
+			      // (considering the standardized
+			      // separator pressure: Psep=100 psig)
 
-  const double a = 0.83415 + 0.5002 * log10(rsb) + 0.3613 * log10(api) + 0.7606 * log10(t) - 0.35505 * log10(ygcorr);
-  const double co = pow(10.0, a) / (p.raw() * 1e6);
+  const double a = 0.83415 + 0.5002 * log10(rsb) + 0.3613 * log10(api) +
+    0.7606 * log10(t) - 0.35505 * log10(ygcorr);
+  const double co = pow(10.0, a) / (p * 1e6);
 
-  return Quantity<psia_1>(co);
+  return co;
 }
 
-
-inline Quantity<psia_1>
-CoaPetroskyFarshad::impl(const Quantity<Sgg> & yg,
-			const Quantity<Api> & api,
-			const Quantity<SCF_STB> & rsb,
-			const Quantity<Fahrenheit> & t,
-			const Quantity<psia> & p) const
+inline double
+CoaPetroskyFarshad::impl(const double & yg,
+			const double & api,
+			const double & rsb,
+			const double & t,
+			const double & p) noexcept
 {
-  const double co = 1.705e-7 * pow(rsb, 0.69357) * pow(yg, 0.1885) *
+  return 1.705e-7 * pow(rsb, 0.69357) * pow(yg, 0.1885) *
     pow(api, 0.3272) * pow(t, 0.6729) * pow(p, -0.5906);
-  return Quantity<psia_1>(co);
 }
 
-inline Quantity<psia_1>
-CoaVasquezBeggs::impl(const Quantity<Sgg> & yg,
-		     const Quantity<Api> & api,
-		     const Quantity<SCF_STB> & rsb,
-		     const Quantity<Fahrenheit> & t,
-		     const Quantity<Fahrenheit> & tsep,
-		     const Quantity<psia> & p,
-		     const Quantity<psia> & psep) const
+inline double
+CoaVasquezBeggs::impl(const double & yg,
+		     const double & api,
+		     const double & rsb,
+		     const double & t,
+		     const double & tsep,
+		     const double & p,
+		     const double & psep) noexcept
 {
-
   // Gas gravity that would result from separator conditions of 100
   // psig (approximately 114.7 psia) 
-  const double ygs =
-    yg.raw() * (1. + 5.912e-5 * api.raw() * tsep.raw() * log10(psep/114.7));
+  const double ygs = yg * (1. + 5.912e-5 * api * tsep * log10(psep/114.7));
             
-  const double co = (-1433 + 5*rsb.raw() + 17.2*t.raw() - 1180*ygs +
-		     12.61*api.raw()) / (1e5*p.raw());
-    
-  return Quantity<psia_1>(co);
+  return (-1433 + 5*rsb + 17.2*t - 1180*ygs + 12.61*api) / (1e5*p);
 }
 
 void CoaPerezML::precondition(const Quantity<psia> & p,
-const Quantity<psia> & pb) const
+			      const Quantity<psia> & pb) const
 {
   if (not (p > pb))
     {
       ostringstream s;
-      s << "CoaPerezML::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      s << "CoaPerezML::impl: pressure " << p << " is not greater than pb "
+	<< pb;
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
-inline Quantity<psia_1>
-CoaPerezML::impl(const Quantity<Sgg> & yg,
-		const Quantity<Api> & api,
-		const Quantity<SCF_STB> & rsb,
-		const Quantity<Fahrenheit> & t,
-		const Quantity<psia> & p,
-		const Quantity<psia> & pb) const
+inline double
+CoaPerezML::impl(const double & yg,
+		const double & api,
+		const double & rsb,
+		const double & t,
+		const double & p,
+		const double & pb) noexcept
 {
   const double cob = 2.856e-7 * pow(rsb, 0.69357) * pow(yg, 0.1885) *
     pow(api, 0.3272) * pow(t, 0.6729) * pow(pb, -0.5906);
   
   const double co = cob * sqrt(p/pb);
 
-  return Quantity<psia_1>(co);
+  return co;
 }
 
 void CoaMillanArcia::precondition(const Quantity<psia> & p,
@@ -131,25 +123,23 @@ void CoaMillanArcia::precondition(const Quantity<psia> & p,
   if (not (p > pb))
     {
       ostringstream s;
-      s << "CoaMillanArcia::impl: pressure " << p << " is not greater than pb " << pb;
-      throw domain_error(s.str());
+      s << "CoaMillanArcia::impl: pressure " << p
+	<< " is not greater than pb " << pb;
+      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 
-
-inline Quantity<psia_1>
-CoaMillanArcia::impl(const Quantity<Api> & api,
-		    const Quantity<SCF_STB> & rsb,
-		    const Quantity<Fahrenheit> & t,
-		    const Quantity<psia> & p,
-		    const Quantity<psia> & pb) const
+inline double
+CoaMillanArcia::impl(const double & api,
+		    const double & rsb,
+		    const double & t,
+		    const double & p,
+		    const double & pb) noexcept
 {
   const double cob = 2.075883e-6 * pow(api, 0.5307) * pow(t, -0.1143) *
-    exp(2.0523e-4*pb.raw() + 4.0568e-4*rsb.raw());
+    exp(2.0523e-4*pb + 4.0568e-4*rsb);
 
-  const double co = 0.8557 * cob * exp(-0.00143 * p/pb);
-
-  return Quantity<psia_1>(co);
+  return 0.8557 * cob * exp(-0.00143 * p/pb);
 }
 
 # endif // UNDERSATURATED_OIL_COMPRESSIBILITY_IMPL_H

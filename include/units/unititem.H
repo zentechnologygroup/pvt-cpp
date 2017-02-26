@@ -60,6 +60,10 @@ public:
     return name_tbl.values();
   }
 
+  DynList<string> names() const { return name_tbl.keys(); }
+
+  DynList<string> symbols() const { return symbol_tbl.keys(); }
+
   // returns a iterator to pair<string, UnitItem*>
   auto get_it() { return name_tbl.get_it(); }
 

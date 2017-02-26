@@ -1,0 +1,9 @@
+,disabled,t,t unit,p,p unit,nacl_concentration,nacl_concentration unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""mcCain:1990""","ref ""petroleumOffice:2016"""
+RswCulbersonMcKetta,,200,Fahrenheit,5000,psia,20000,Dissolved_Salt_PPM,20.1,SCF_STB,1,,1,,
+RswMcCoy,,200,Fahrenheit,5000,psia,20000,Dissolved_Salt_PPM,17.8,SCF_STB,1,,1,,
+RswCulbersonMcKetta,,165,Fahrenheit,3176,psia,6.8,Dissolved_Salt_Percent,11.6,SCF_STB,1.15,,,1,
+RswCulbersonMcKetta,,165,Fahrenheit,3176,psia,6.8,Dissolved_Salt_Percent,11.4672414,SCF_STB,1,Software calculation using RswMcCain and RswpMcCain functions.,,,1
+RswSpiveyMN,,165,Fahrenheit,3176,psia,6.8,Dissolved_Salt_Percent,11.4672414,SCF_STB,1,To check only the order of magnitude.,,,1
+RswSpiveyMN,TRUE,,,,,,,,SCF_STB,,,,,
+RswCulbersonMcKetta,TRUE,,,,,,,,SCF_STB,,,,,
+RswMcCoy,TRUE,,,,,,,,SCF_STB,,,,,

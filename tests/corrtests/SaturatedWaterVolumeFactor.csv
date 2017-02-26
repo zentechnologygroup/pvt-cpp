@@ -1,0 +1,8 @@
+,disabled,t,t unit,p,p unit,nacl_concentration,nacl_concentration unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""mcCain:1990"""
+BwbMcCain,,200,Fahrenheit,5000,psia,,,1.02806,RB_STB,1,,1,
+BwbMcCoy,,200,Fahrenheit,5000,psia,20000,Dissolved_Salt_PPM,1.03098,RB_STB,1,,1,
+BwbMcCain,,165,Fahrenheit,3161,psig,,,1.022,RB_STB,1,,,1
+BwbSpiveyMN,,200,Fahrenheit,5000,psia,20000,Dissolved_Salt_PPM,1.03098,RB_STB,1,To check only the order of magnitude.,1,
+BwbSpiveyMN,TRUE,,,,,,,,,,,,
+BwbMcCain,TRUE,,,,,,,,,,,,
+BwbMcCoy,TRUE,,,,,,,,,,,,

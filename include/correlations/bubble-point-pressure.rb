@@ -31,7 +31,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("PbDeGhetto", "BubblePointPressure", "psia", 208.86, 4021.96)
+begin_correlation("PbDeGhettoDetachedFromRs", "BubblePointPressure", "psia", 208.86, 4021.96)
 add_title("DE GHETTO, PAONE & VILLA CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS (MODIFIED STANDING CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.623,  1.517)
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  17.21,  640.25)
@@ -45,6 +45,45 @@ add_ref("standing:1947")
 add_eq("P_b=\\left(\\frac{R_s}{\\gamma_g}\\right)^{(\\frac{1}{1.1128})}\\cdot{\\frac{10.7025}{10^{(0.0169\\cdot{API}-0.00156\\cdot{T})}}}")
 add_eq("P_b=15.7286 \\cdot \\left[ \\left(\\frac{{R_s}}{\\gamma_{g}}\\right)^{0.7885} \\cdot \\frac{10^{0.0020 \\cdot T}}{10^{0.0142 \\cdot API}}\\right]")
 add_internal_note("De Ghetto, Paone & Villa use Yg as the average specific gravity of total surface gases, while the original correlation (Standing) uses it as the gravity of dissolved gas. Since Standing doesn't specify if Yg is the gravity of total surface gases or of the separator, it is assumed that the data is from a one stage separation with average gas gravity.")
+add_internal_note("It was decided to eliminate this correlation.")
+set_hidden()
+end_correlation()
+
+################################################################
+
+begin_correlation("PbDeGhettoEtAl", "BubblePointPressure", "psia", 208.86, 4021.96)
+add_title("DE GHETTO, PAONE & VILLA CORRELATION FOR EXTRA-HEAVY (MODIFIED STANDING CORRELATION) AND HEAVY (MODIFIED VAZQUEZ & BEGGS CORRELATION) OILS, CALCULATION OF BUBBLE POINT PRESSURE")
+add_parameter("yg", "Sgg", "Gas specific gravity",  0.623,  1.517)
+add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  17.21,  640.25)
+add_parameter("api", "Api", "API oil gravity",  6,  22.3)
+add_parameter("t", "Fahrenheit", "Temperature",  131.4,  250.7)
+add_parameter("tsep", "Fahrenheit", "Separator temperature", 59, 177.8);
+add_parameter("psep", "psia", "Separator pressure", 14.5, 752.2);
+add_db("Based on 1200 measured data points of 63 heavy and extra-heavy oil samples obtained from the Mediterranean Basin, Africa and the Persian Gulf.")
+add_db("Oil samples have been divided in two different API gravity classes: extra-heavy oils for °API<=10, heavy oils for 10<°API<=22.3.")
+add_note("Solution gas oil ratio (Rs) correlations are reversed to solve for the bubble point pressure (a modified Vazquez & Beggs correlation for heavy oils and a modified Standing correlation for extra-heavy oils).")
+add_author("De Ghetto, Paone & Villa")
+add_ref("deGhetto:1995")
+add_ref("standing:1947")
+add_ref("fekete:2012")
+add_internal_note("De Ghetto, Paone & Villa use Yg as the average specific gravity of total surface gases, while the original correlation (Standing) uses it as the gravity of dissolved gas. Since Standing doesn't specify if Yg is the gravity of total surface gases or of the separator, it is assumed that the data is from a one stage separation with average gas gravity.")
+end_correlation()
+
+################################################################
+
+begin_correlation("PbDindorukChristmanDetachedFromRs", "BubblePointPressure", "psia", 926, 12230)
+add_title("DINDORUK & CHRISTMAN CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
+add_parameter("yg", "Sgg", "Gas specific gravity",  0.623,  1.517)
+add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  133,  3050)
+add_parameter("api", "Api", "API oil gravity",  14.7,  40)
+add_parameter("t", "Fahrenheit", "Temperature",  117,  276)
+add_db("Based on more than 100 PVT reports from the Gulf of Mexico.")
+add_author("Dindoruk & Christman")
+add_ref("dindoruk:2004")
+add_eq("P_b = a_8\\cdot\\left(\\frac{(R_s)\\,^{a_9}}{(\\gamma_g)\\,^{a_{10}}}\\cdot(10)^A+a_{11}\\right)")
+add_eq("A = \\frac{a_1 \\cdot (T)^{a_2}+a_3 \\cdot (API)^{a_4} }{{\\left(a_{5}+ \\frac{2\\cdot(R_s)^{a_6}}{(\\gamma_g)^{a7}} \\right)}^{2}}")
+add_internal_note("It was decided to eliminate this correlation.")
+set_hidden()
 end_correlation()
 
 ################################################################
@@ -56,10 +95,10 @@ add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  133,  3050)
 add_parameter("api", "Api", "API oil gravity",  14.7,  40)
 add_parameter("t", "Fahrenheit", "Temperature",  117,  276)
 add_db("Based on more than 100 PVT reports from the Gulf of Mexico.")
+add_note("Dindoruk & Christman presented separate equations for solution gas oil ratio (Rs) and bubble point pressure (Pb). Both equations provide nearly identical results for low GOR systems. For higher GOR systems (greater than 2,000 scf/STB), their Rs equation provides more realistic results; therefore, the correlation for Rs is used to calculate Pb through the Newton-Raphson numerical root-finding method.")
 add_author("Dindoruk & Christman")
 add_ref("dindoruk:2004")
-add_eq("P_b = a_8\\cdot\\left(\\frac{(R_s)\\,^{a_9}}{(\\gamma_g)\\,^{a_{10}}}\\cdot(10)^A+a_{11}\\right)")
-add_eq("A = \\frac{a_1 \\cdot (T)^{a_2}+a_3 \\cdot (API)^{a_4} }{{\\left(a_{5}+ \\frac{2\\cdot(R_s)^{a_6}}{(\\gamma_g)^{a7}} \\right)}^{2}}")
+add_ref("petroWiki:2016:7")
 end_correlation()
 
 ################################################################
@@ -79,7 +118,7 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("PbHanafy", "BubblePointPressure", "psia", 36, 5003)
+begin_correlation("PbHanafyDetachedFromRs", "BubblePointPressure", "psia", 36, 5003)
 add_title("HANAFY ET AL. CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  7,  4272)
 add_db("Based on experimental PVT data of 324 fluid samples taken from 176 wells located in 75 fields. This data represents 15 productive zones of 123 reservoirs distributed along three different regions of Egypt, including the Gulf of Suez, Western Desert, and Sinai.")
@@ -88,6 +127,18 @@ add_ref("hanafy:1997")
 add_eq("{R_{sft}}\\,=\\,{{69}\\,+\\,{1.071\\cdot{\\,R_{sb}}}}")
 add_eq("{R_{si}}\\,=\\,{{23.94}\\,+\\,{1.101\\cdot{\\,R_{sft}}}}")
 add_eq("{P_{b}}\\,=\\,{{157.27}\\,+\\,{3.205\\cdot{\\,R_{si}}}}")
+set_hidden()
+end_correlation()
+
+################################################################
+
+begin_correlation("PbHanafy", "BubblePointPressure", "psia", 36, 5003)
+add_title("HANAFY ET AL. CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
+add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  7,  4272)
+add_db("Based on experimental PVT data of 324 fluid samples taken from 176 wells located in 75 fields. This data represents 15 productive zones of 123 reservoirs distributed along three different regions of Egypt, including the Gulf of Suez, Western Desert, and Sinai.")
+add_author("Hanafy et al.")
+add_ref("hanafy:1997")
+add_eq("{P_{b}}\\,=\\,{{157.27}\\,+\\,{3.205\\cdot{\\,R_{sb}}}}")
 end_correlation()
 
 ################################################################
@@ -116,6 +167,7 @@ add_title("LASATER CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.574,  1.223)
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  3,  2905)
 add_parameter("yo", "Sg_do", "Oil specific gravity",  "Quantity<Api>(51.1)",  "Quantity<Api>(17.9)")
+add_synonym("yo", "api", "Api")
 add_parameter("t", "Fahrenheit", "Temperature",  82,  272)
 add_db("Based on 158 experimentally measured bubble point pressures of 137 independent systems.")
 add_db("The data were obtained from Canada, Western and Mid-Continental United States, and South America.")

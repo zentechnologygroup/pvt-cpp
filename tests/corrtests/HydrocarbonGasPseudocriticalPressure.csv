@@ -1,0 +1,7 @@
+,disabled,yghc,yghc unit,result,result unit,tolerance,Note,"ref ""banzer:1996"""
+PpchcSutton,,1.211,Sgg,592.9,psia,1,,1
+PpchcStanding,,1.211,Sgg,640.2,psia,1,,1
+PpchcElsharkawyEtAl,TRUE,,,,,,,
+PpchcSutton,TRUE,,,,,,,
+PpchcStanding,TRUE,,,,,,,
+PpchcStandingHeavierFractions,TRUE,,,,,,,

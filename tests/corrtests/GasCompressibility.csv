@@ -1,0 +1,18 @@
+,disabled,tpr,tpr unit,ppr,ppr unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""ahmed:1989""","ref ""petroleumOffice:2016"""
+ZfactorSarem,,1.35,PseudoReducedTemperature,5.6,PseudoReducedPressure,0.77343,Zfactor,1,,1,,
+ZfactorHallYarborough,,1.35,PseudoReducedTemperature,5.6,PseudoReducedPressure,0.78686,Zfactor,1,,1,,
+ZfactorDranchukPR,,1.35,PseudoReducedTemperature,5.6,PseudoReducedPressure,0.78899,Zfactor,1,,1,,
+ZfactorDranchukAK,,1.35,PseudoReducedTemperature,5.6,PseudoReducedPressure,0.7897,Zfactor,1,,1,,
+ZfactorGopal,,1.35,PseudoReducedTemperature,5.6,PseudoReducedPressure,0.79414,Zfactor,1,5.4 < ppr <= 15. 1.2 < tpr <= 1.4.,1,,
+ZfactorBrillBeggs,,1.35,PseudoReducedTemperature,5.6,PseudoReducedPressure,0.79513,Zfactor,1,,1,,
+ZfactorPapay,,1.35,PseudoReducedTemperature,5.6,PseudoReducedPressure,0.74746,Zfactor,1,,1,,
+ZfactorPapay,,1.433,PseudoReducedTemperature,1.375,PseudoReducedPressure,0.687,Zfactor,1,,,1,
+ZfactorDranchukAK,,1.433,PseudoReducedTemperature,1.375,PseudoReducedPressure,0.8454213852,Zfactor,1,Software calculation.,,,1
+ZfactorBrillBeggs,,1.433,PseudoReducedTemperature,1.375,PseudoReducedPressure,0.849469065,Zfactor,1,Software calculation.,,,1
+ZfactorSarem,TRUE,,PseudoReducedTemperature,,PseudoReducedPressure,,Zfactor,,,,,
+ZfactorHallYarborough,TRUE,,PseudoReducedTemperature,,PseudoReducedPressure,,Zfactor,,,,,
+ZfactorDranchukPR,TRUE,,PseudoReducedTemperature,,PseudoReducedPressure,,Zfactor,,,,,
+ZfactorDranchukAK,TRUE,,PseudoReducedTemperature,,PseudoReducedPressure,,Zfactor,,,,,
+ZfactorGopal,TRUE,,PseudoReducedTemperature,,PseudoReducedPressure,,Zfactor,,,,,
+ZfactorBrillBeggs,TRUE,,PseudoReducedTemperature,,PseudoReducedPressure,,Zfactor,,,,,
+ZfactorPapay,TRUE,,PseudoReducedTemperature,,PseudoReducedPressure,,Zfactor,,,,,

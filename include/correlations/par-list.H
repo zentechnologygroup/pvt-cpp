@@ -51,7 +51,8 @@ public:
 
   void insert(const string & name, double val, const Unit * unit_ptr)
   {
-    tbl.insert(ParPair(name, ValPair(val, unit_ptr)));
+    ParPair p(name, ValPair(val, unit_ptr)); // porque es más rápido que &&
+    tbl.insert(p);
   }
 
   void insert(const NamedPar & par)
@@ -65,10 +66,12 @@ public:
 
   VtlQuantity search(const string & name) const
   {
-    auto p = tbl.search(ParPair(name, ValPair(0, &Unit::null_unit)));
+    ParPair pp; pp.first = name;
+    auto p = tbl.search(pp);
+    //    auto p = tbl.search(ParPair(name, ValPair(0, &Unit::null_unit)));
     if (p == nullptr)
       throw domain_error("Parameter name " + name + " not found");
-    ValPair vpair = p->second;
+    const ValPair & vpair = p->second;
     return VtlQuantity(*vpair.second, vpair.first);
   }
 
@@ -77,21 +80,21 @@ public:
   /// parámetro y sus sinónimos 
   VtlQuantity search(const DynList<pair<string, const Unit*>> & names) const
   {
+    ParPair pp;
     for (auto it = names.get_it(); it.has_curr(); it.next())
       {
 	const auto & p = it.get_curr();
 	const string & name = p.first;
-	auto ptr = tbl.search(ParPair(name, ValPair(0, &Unit::null_unit)));
+	pp.first = name; // sin copia hacia second
+	auto ptr = tbl.search(pp);
 	if (ptr)
 	  {
-	    ValPair val_pair = ptr->second;
+	    const ValPair & val_pair = ptr->second;
 	    VtlQuantity ret(*val_pair.second, val_pair.first);
-	    if (val_pair.second == p.second) // el parámetro en la misma unidad?
-	      return ret;
-	    else
-	      return VtlQuantity(*p.second, ret);
+	    return VtlQuantity(*p.second, ret);
 	  }
       }
+    
     ostringstream s;
     s << "name or aliases for {";
     for (auto it = names.get_it(); it.has_curr(); it.next())
@@ -111,7 +114,8 @@ public:
     return search(name);
   }
 
-  VtlQuantity operator () (const DynList<pair<string, const Unit*>> & names) const
+  VtlQuantity
+  operator () (const DynList<pair<string, const Unit*>> & names) const
   {
     return search(names);
   }

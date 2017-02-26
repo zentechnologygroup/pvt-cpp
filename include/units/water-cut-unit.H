@@ -15,7 +15,7 @@ Declare_Unit(wc_percent, "wc_p",
       volume of total liquids measured in percentage)DESC",
 	     WaterCut, 0, 100);
 
-Declare_Unit(wc_fraction, "wc_p",
+Declare_Unit(wc_fraction, "wc_f",
        R"DESC(The ratio of water produced compared to the 
       volume of total liquids measured in fraction)DESC",
        WaterCut, 0, 1);

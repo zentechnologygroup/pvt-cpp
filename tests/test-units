@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'fileutils'
+require 'optparse'
+
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-X', '--extremes', 'test all unit extremes') do |file_name|
+    options[:extremes] = true
+  end
+
+  opts.on('-r', '--random', 'generate header with c++ correlations') do
+    options[:header] = true
+  end
+
+  opts.on('-C NAME', '--c++ NAME',
+          'generate c++ correlation implementation') do |corr_name|
+    options[:corr_name] = corr_name
+  end
+
+  opts.on('-e NAME', '--eq NAME',
+          'generate equation (if defined) for correlation NAME') do |corr_name|
+    options[:eq] = corr_name
+  end
+
+  opts.on('-E', '--equations', 'generate all equations') do
+    options[:equations] = true
+  end
+
+  opts.on('-X', '--extern-calls', 'generate extern calls') do
+    options[:extern] = true
+  end
+
+  opts.on('-d NAME', '--dir NAME',
+          'Target directory where equations will be generated') do |dir|
+    options[:dir] = dir
+  end
+  
+end
+
+options_parser.parse!
+
+

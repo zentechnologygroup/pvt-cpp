@@ -778,3 +778,249 @@
 - Comment      eso aceleraría notablemente porque evitaría los string
 - Finished     eso aceleraría notablemente porque evitaría los string
 
+## 131. dry de compute_by_names en defined-correlation
+- Created at   2016-12-30 13:53:19 -0400
+- Completed at 2017-01-03 17:54:06 -0400
+- Comment      
+- Finished     
+
+## 132. correlaciones con hidden en tru no deben ser mostradas por test-calibrate
+- Created at   2016-11-19 13:44:15 -0400
+- Completed at 2017-01-03 17:54:01 -0400
+- Comment      
+- Finished     
+
+## 133. Buscar parámetro yo y asegurar que exista sinónimo api. Análogamente para api
+- Created at   2016-11-29 10:23:50 -0400
+- Completed at 2017-01-08 13:29:48 -0400
+- Comment      
+- Finished     
+
+## 134. profiling (quiza con google-pprof
+- Created at   2016-12-01 11:44:25 -0400
+- Completed at 2017-01-08 13:29:34 -0400
+- Comment      
+- Finished     
+
+## 135. correlations en hidden no deben aparecer en test-calibrate ni plot-corr
+- Created at   2016-12-01 17:48:58 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 136. hash perfecto para conversiones
+- Created at   2017-01-03 17:54:22 -0400
+- Completed at 2017-01-09 12:36:37 -0400
+- Comment      
+- Finished     
+
+## 137. búsqueda de unidades por tabla hash óptima
+- Created at   2016-12-05 08:24:35 -0400
+- Completed at 2017-01-09 12:36:32 -0400
+- Comment      
+- Finished     
+
+## 138. Capturar excepcion en get_tp
+- Created at   2017-01-09 12:44:19 -0400
+- Completed at 2017-01-10 09:46:59 -0400
+- Comment      
+- Finished     
+
+## 139. poner en test-conversion flag para descripcion
+- Created at   2016-09-12 09:44:10 -0400
+- Completed at 2017-01-10 09:47:17 -0400
+- Comment      
+- Finished     
+
+## 140. test-corr podría recibir c y m para calibración
+- Created at   2016-11-18 09:02:50 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 141. probar olhash
+- Created at    pues como es string podría ser más rápido
+- Completed at 2017-01-11 10:33:49 -0400
+- Comment      
+- Finished     
+
+## 142. revisar rangos de tpcm en AdjustedtpcmWichertAziz
+- Created at   2017-01-09 12:36:07 -0400
+- Completed at 2017-01-12 11:16:15 -0400
+- Comment      
+- Finished     
+
+## 143. Revisar bien check y exception flags en plot
+- Created at   2017-01-09 12:47:29 -0400
+- Completed at 2017-01-28 11:03:18 -0400
+- Comment      
+- Finished     
+
+## 144. Hacer medidas de rendiemiento con varias funciones hash
+- Created at   2017-01-10 12:10:08 -0400
+- Completed at 2017-01-28 11:03:08 -0400
+- Comment      
+- Finished     
+
+## 145. jerarquia de excepciones zen
+- Created at   2017-01-25 15:10:00 -0400
+- Completed at 2017-01-28 11:03:04 -0400
+- Comment      
+- Finished     
+
+## 146. en plot: insert_in_container debe reemplazarse por uno especial que valide parámetro
+- Created at   2017-01-25 19:58:33 -0400
+- Completed at 2017-01-28 11:04:08 -0400
+- Comment      
+- Finished     
+
+## 147. NullUnit is_null() parace no estar funcionando
+- Created at   2017-01-27 16:40:42 -0400
+- Completed at 2017-01-28 11:02:52 -0400
+- Comment      
+- Finished     
+
+## 148. function get_tp no debe generar excepciones
+- Created at   2017-01-27 16:51:52 -0400
+- Completed at 2017-01-28 11:02:46 -0400
+- Comment      
+- Finished     
+
+## 149. Añadir t y p a compute de plot de manera que estén si hay excepción
+- Created at   2017-01-27 16:55:00 -0400
+- Completed at 2017-01-28 11:02:23 -0400
+- Comment      
+- Finished     
+
+## 150. Ixhel: revisar AdjustedtpcmWichertAziz rango de tpcm
+- Created at   2017-01-30 13:42:12 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 151. script que valid unidades
+- Created at   2017-01-27 17:40:35 -0400
+- Completed at 2017-01-31 09:09:54 -0400
+- Comment      
+- Finished     
+
+## 152. plot: poner un copute que n recibe parámetros de calibración
+- Created at   2017-01-30 17:59:05 -0400
+- Completed at 2017-01-31 09:09:46 -0400
+- Comment      
+- Finished     
+
+## 153. headers de plot debe construirse con función que tenga el mismo orden que row
+- Created at   2017-01-30 18:16:06 -0400
+- Completed at 2017-01-31 09:09:58 -0400
+- Comment      
+- Finished     
+
+## 154. plot: revisar cadena de cómputo en nonhydrocarborn ...
+- Created at   2017-01-30 09:31:11 -0400
+- Completed at 2017-01-31 09:18:06 -0400
+- Comment      
+- Finished     
+
+## 155. opcion all-tests que ejecute todos los test para todas la magnitude
+- Created at   2016-08-14 18:39:24 -0400
+- Completed at 2017-01-31 10:29:39 -0400
+- Comment      
+- Finished     
+
+## 156. evaluación de correlación por partes se puede aceltar notablemente si se ven los parámyteros y en lugar de pasar por nombre se construyen los arreglos
+- Created at   2016-11-26 16:08:21 -0400
+- Completed at 2017-01-31 10:30:01 -0400
+- Comment      
+- Finished     
+
+## 157. el test 2 debe validad nombres de símbolos y extremos
+- Created at   2016-08-14 19:43:07 -0400
+- Completed at 2017-01-31 17:32:08 -0400
+- Comment      
+- Finished     
+
+## 158. verificar rigurosamente orden y unidades de correlaciones
+- Created at   2016-08-24 14:34:13 -0400
+- Completed at 2017-01-31 17:32:11 -0400
+- Comment      
+- Finished     
+
+## 159. unificar FVF-colume-ratio con gas-formation-volume-factor
+- Created at   2016-12-29 17:36:29 -0400
+- Completed at 2017-01-31 17:32:40 -0400
+- Comment      
+- Finished     
+
+## 160. ajustar uod en test-calibrate
+- Created at   2016-12-03 09:07:15 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 161. Cambiar set_hidden por set_hidden_in_calc
+- Created at   2017-02-14 16:41:18 -0400
+- Completed at 2017-02-15 08:35:32 -0400
+- Comment      
+- Finished     
+
+## 162. Añadir set_hidden_grid
+- Created at   2017-02-14 16:41:39 -0400
+- Completed at 2017-02-15 08:35:35 -0400
+- Comment      
+- Finished     
+
+## 163. Dejar set_hidden (NO BORRARLO)
+- Created at   2017-02-14 16:41:58 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 164. todo lo hidden debe ir para json
+- Created at   2017-02-14 16:42:26 -0400
+- Completed at 2017-02-15 08:35:20 -0400
+- Comment      
+- Finished     
+
+## 165. si set_hidden está ==> ambos hidden[calc|grid] están activos
+- Created at   2017-02-14 16:46:13 -0400
+- Completed at 2017-02-15 08:35:16 -0400
+- Comment      
+- Finished     
+
+## 166. poner versión en plot
+- Created at   2017-02-22 17:49:16 -0400
+- Completed at 2017-02-24 10:27:55 -0400
+- Comment      
+- Finished     
+
+## 167. añadir correlciones por omisión para gas y agua (ver trello)
+- Created at   2017-02-23 17:10:49 -0400
+- Completed at 2017-02-24 10:27:49 -0400
+- Comment      
+- Finished     
+
+## 168. pasar gitversion a include
+- Created at   2017-02-23 17:19:24 -0400
+- Completed at 2017-02-24 10:27:40 -0400
+- Comment      
+- Finished     
+
+## 169. meter en json gitversion
+- Created at   2017-02-23 17:24:30 -0400
+- Completed at 2017-02-24 10:27:34 -0400
+- Comment      
+- Finished     
+
+## 170. plot debe incluir dos fila para pb y nextafter(pb)
+- Created at   2017-02-22 14:52:43 -0400
+- Completed at 2017-02-25 10:10:25 -0400
+- Comment      
+- Finished     
+
+## 171. progamar test_all_units2; usar hoja Unitconverter tests
+- Created at   2017-02-17 16:53:08 -0400
+- Completed at 2017-02-25 11:36:31 -0400
+- Comment      
+- Finished     
+

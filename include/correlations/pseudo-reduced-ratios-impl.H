@@ -3,18 +3,18 @@
 
 # include <correlations/pseudo-reduced-ratios.H>
 
-inline Quantity<PseudoReducedTemperature>
-Tpr::impl(const Quantity<Rankine> & t,
-	  const Quantity<Rankine> & tpc) const
+inline double
+Tpr::impl(const double & t,
+	  const double & tpc) noexcept
 {
-  return Quantity<PseudoReducedTemperature>(t.raw()/tpc.raw());
+  return t/tpc;
 }
 
-inline Quantity<PseudoReducedPressure>
-Ppr::impl(const Quantity<psia> & p,
-	  const Quantity<psia> & ppc) const
+inline double
+Ppr::impl(const double & p,
+	  const double & ppc) noexcept
 {
-  return Quantity<PseudoReducedPressure>(p.raw()/ppc.raw());
+  return p/ppc;
 }
 
 # endif // PSEUDO_REDUCED_RATIOS_IMPL_H
