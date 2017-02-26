@@ -163,14 +163,18 @@ public:
       });
   }
 
-  Interval * search_interval(const VtlQuantity & v) const noexcept
+  Interval * search_interval(double val) const noexcept
   {
-    const auto & val = v.raw();
     Interval i(nullptr, val, val);
     return intervals.search(i);
   }
 
-  const Correlation * search_correlation(const VtlQuantity & val) const noexcept
+  Interval * search_interval(const VtlQuantity & v) const
+  {
+    return search_interval(VtlQuantity(unit, v).raw());
+  }
+
+  const Correlation * search_correlation(double val) const 
   {
     auto interval_ptr = search_interval(val);
     if (not interval_ptr)
@@ -178,15 +182,30 @@ public:
     return interval_ptr->correlation_ptr;
   }
 
-  const DynSetTree<string> & search_parameters(const VtlQuantity & val) const
+  const Correlation * search_correlation(const VtlQuantity & val) const
+  {
+    return search_correlation(VtlQuantity(unit, val).raw());
+  }
+
+  const DynSetTree<string> & search_parameters(double val) const
   {
     auto interval_ptr = search_interval(val);
     if (not interval_ptr)
-      ZENTHROW(InvalidValue, "value " + val.to_string() + " not found");
+      ZENTHROW(InvalidValue, "value " + ::to_string(val) + " not found");
     return interval_ptr->par_names;
   }
 
-  bool contains(const VtlQuantity & val) const { return search_interval(val); }
+  const DynSetTree<string> & search_parameters(const VtlQuantity & val) const
+  {
+    return search_parameters(VtlQuantity(unit, val).raw());
+  }
+
+  bool contains(double val) const { return search_interval(val); }
+
+  bool contains(const VtlQuantity & val) const
+  {
+    return search_interval(VtlQuantity(unit, val).raw());
+  }
 
   DynList<Interval> interval_list() const { return intervals.keys(); }
 
@@ -194,12 +213,10 @@ public:
     : main_par_name(main_par_name), unit(unit) {}
 
   void add_tuned_correlation(const Correlation * correlation_ptr,
-			     const VtlQuantity & start, const VtlQuantity & end,
+			     double start, double end,
 			     double c, double m)
   {
-    auto result = intervals.insert(Interval(correlation_ptr,
-					    VtlQuantity(unit, start).raw(),
-					    VtlQuantity(unit, end).raw(), c, m));
+    auto result = intervals.insert(Interval(correlation_ptr, start, end, c, m));
     if (result)
       {
 	if (result_unit == nullptr)
@@ -217,21 +234,39 @@ public:
     throw domain_error(s.str());
   }
 
+  void add_tuned_correlation(const Correlation * correlation_ptr,
+			     const VtlQuantity & start, const VtlQuantity & end,
+			     double c, double m)
+  {
+    add_tuned_correlation(correlation_ptr, VtlQuantity(unit, start).raw(),
+			  VtlQuantity(unit, end).raw(), c, m);
+  }
+
+  void add_correlation(const Correlation * correlation_ptr,
+		       double start, double end)
+  {
+    intervals.insert(Interval(correlation_ptr, start, end, 0, 1));
+  }
+
   void add_correlation(const Correlation * correlation_ptr,
 		       const VtlQuantity & start, const VtlQuantity & end)
   {
-    intervals.insert(Interval(correlation_ptr, VtlQuantity(unit, start).raw(),
-			      VtlQuantity(unit, end).raw(), 0, 1));
+    add_correlation(correlation_ptr, VtlQuantity(unit, start).raw(),
+		    VtlQuantity(unit, end).raw());
   }
+
+  void set_min(double min_val) { this->min_val = min_val; }
+
+  void set_max(double max_val) { this->max_val = max_val; }
 
   void set_min(const VtlQuantity & min_val)
   {
-    this->min_val = VtlQuantity(unit, min_val).raw();
+    set_min(VtlQuantity(unit, min_val).raw());
   }
 
   void set_max(const VtlQuantity & max_val)
   {
-    this->max_val = VtlQuantity(unit, max_val).raw();
+    set_max(VtlQuantity(unit, max_val).raw());
   }
 
   double

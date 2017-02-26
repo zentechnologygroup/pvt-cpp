@@ -39,3 +39,6 @@
 ## 13. DefinedCorrelation debe recibir la unidad y la búsqueda del parámetro principal hacer la conversion
 - Created at   2017-02-25 18:30:54 -0400
 
+## 14. variables pressure y temperature deben ser VtlQuantity
+- Created at   2017-02-26 10:36:47 -0400
+

@@ -678,7 +678,7 @@ define_correlation(double pb_val,
 		   double ca = 0, double ma = 1)
 {
   double max_p = psia::get_instance().max_val;
-  DefinedCorrelation ret("p");
+  DefinedCorrelation ret("p", psia::get_instance());
   ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min_val, pb_val,
 			    cb, mb);
   ret.add_tuned_correlation(above_corr_ptr, nextafter(pb_val, max_p), max_p,
@@ -692,7 +692,7 @@ define_correlation(double pb_val,
 		   const Correlation * above_corr_ptr)
 {
   double max_p = psia::get_instance().max_val;
-  DefinedCorrelation ret("p");
+  DefinedCorrelation ret("p", psia::get_instance());
   ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min_val, pb_val,
 			    0, 1);
   ret.add_tuned_correlation(above_corr_ptr, nextafter(pb_val, max_p), max_p,

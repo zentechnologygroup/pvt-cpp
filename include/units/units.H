@@ -1198,7 +1198,9 @@ public:
     check_value();
   }
 
-  VtlQuantity(const VtlQuantity & q) noexcept : BaseQuantity(q.unit, q.value) {}
+  VtlQuantity(const VtlQuantity & q) noexcept
+    :
+				      BaseQuantity(q.unit, q.value) {}
 
   VtlQuantity next() const { return VtlQuantity(unit, this->__increase()); }
 
@@ -1231,7 +1233,7 @@ public:
     if (this == &q)
       return *this;
 
-    if (is_null())
+    if (this->is_null())
       return * new (this) VtlQuantity(q.unit, q.value);
 
     if (&unit.physical_quantity == &q.unit.physical_quantity)	
@@ -1397,12 +1399,12 @@ public:
 
 inline VtlQuantity Unit::max() const noexcept
 {
-  return VtlQuantity(*this, min_val);
+  return VtlQuantity(*this, max_val);
 }
 
 inline VtlQuantity Unit::min() const noexcept
 {
-  return VtlQuantity(*this, max_val);
+  return VtlQuantity(*this, min_val);
 }
 
 inline void BaseQuantity::increase()

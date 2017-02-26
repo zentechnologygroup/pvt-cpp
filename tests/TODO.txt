@@ -11,3 +11,4 @@ método parameter_names puede etner la lista ya construida,2017-02-25 17:12:31 -
 añadir columna aplot con el número de excepción,2017-02-25 17:34:56 -0400,,
 define_correlation puede estar buggy porque no recibe unidad,2017-02-25 17:57:03 -0400,,
 DefinedCorrelation debe recibir la unidad y la búsqueda del parámetro principal hacer la conversion,2017-02-25 18:30:54 -0400,,
+variables pressure y temperature deben ser VtlQuantity,2017-02-26 10:36:47 -0400,,

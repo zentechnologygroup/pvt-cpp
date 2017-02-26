@@ -1434,32 +1434,32 @@ void generate_grid()
       auto uod_val = dcompute(uod_corr, check, uod_pars, t_par);
 
       insert_in_container(rs_pars, t_par, pb_par);
-      auto rs_corr = define_correlation(pb, ::rs_corr, c_rs_arg.getValue(),
+      auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(),
 					m_rs_arg.getValue(),
 					&RsAbovePb::get_instance());
 
       insert_in_container(co_pars, t_par, pb_par);
       auto co_corr =
-	define_correlation(pb,
+	define_correlation(pb_q,
 			   cob_corr, c_cob_arg.getValue(), m_cob_arg.getValue(),
 			   coa_corr, c_coa_arg.getValue(), m_coa_arg.getValue());
       auto bo_corr =
-	define_correlation(pb,
+	define_correlation(pb_q,
 			   bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
 			   boa_corr, c_boa_arg.getValue(), m_boa_arg.getValue());
 
       insert_in_container(uo_pars, t_par, pb_par, npar("uod", uod_val));
       auto uo_corr =
-	define_correlation(pb,
+	define_correlation(pb_q,
 			   uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
 			   uoa_corr, c_uoa_arg.getValue(), m_uoa_arg.getValue());
       
-      auto po_corr = define_correlation(pb, &PobBradley::get_instance(),
+      auto po_corr = define_correlation(pb_q, &PobBradley::get_instance(),
 					&PoaBradley::get_instance());
 
-      auto bw_corr = define_correlation(pb, bwb_corr, bwa_corr);
+      auto bw_corr = define_correlation(pb_q, bwb_corr, bwa_corr);
 
-      auto cw_corr = define_correlation(pb, cwb_corr, cwa_corr);
+      auto cw_corr = define_correlation(pb_q, cwb_corr, cwa_corr);
 
       bo_pars.insert(t_par);
       auto bobp = compute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
@@ -1505,8 +1505,7 @@ void generate_grid()
 	  else 
 	    {
 	      pb_row = true;
-	      get<2>(p_par) =
-		VtlQuantity(p_q.unit, ++i == 1 ? pb_q : next_pb_q).raw();
+	      p_par = npar("p", ++i == 1 ? pb_q : next_pb_q);
 	      p_q = par(p_par);
 	      assert(i <= 2);
 	    }

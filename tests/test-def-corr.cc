@@ -3,7 +3,7 @@
 
 int main()
 {
-  DefinedCorrelation corr("p");
+  DefinedCorrelation corr("p", psia::get_instance());
 
   corr.add_correlation(nullptr, 21, 30);
   corr.add_correlation(nullptr, 10, 20);
