@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
   auto best_boa_correlation = get<2>(boa_fits.get_first());
   auto above_fit = pvt.boa_lfit(best_boa_correlation);
 
-  DefinedCorrelation defcorr("p");
+  DefinedCorrelation defcorr("p", psia::get_instance());
 
   defcorr.add_tuned_correlation(best_bob_correlation,
 				p_below.get_first(), p_below.get_last(),

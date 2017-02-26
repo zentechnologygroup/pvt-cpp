@@ -151,10 +151,12 @@ ZfactorDranchukPR::impl(const double & tpr,
 void ZfactorDranchukAK::precondition(const Quantity<PseudoReducedTemperature> & tpr,
 			      const Quantity<PseudoReducedPressure> & ppr) const
 {
-  if ( (tpr >= 1 and not (0.2 <= ppr and ppr <= 30)) or (tpr < 1 and not (ppr <= 1)) )
+  if ( (tpr >= 1 and not (0.2 <= ppr and ppr <= 30)) or
+       (tpr < 1 and not (ppr <= 1)) )
     {
       ostringstream s;
-      s << "ZfactorDranchukAK::impl: Wrong combination of input values for tpr " << tpr << " and ppr " << ppr;
+      s << "ZfactorDranchukAK::impl: Wrong combination of input values for tpr "
+	<< tpr << " and ppr " << ppr;
       ZENTHROW(WrongCombinationInputValues, s.str());
     }
 }
