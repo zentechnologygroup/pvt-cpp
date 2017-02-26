@@ -1164,7 +1164,7 @@ public:
 
   static const VtlQuantity null_quantity;
 
-  bool is_null() const { return &unit == &Unit::null_unit; }
+  bool is_null() const noexcept { return value == Unit::Invalid_Value; }
 
   void set(const BaseQuantity & q)
   {
@@ -1175,6 +1175,8 @@ public:
   {
     new (this) VtlQuantity(*unit_ptr, val);
   }
+
+  VtlQuantity() : BaseQuantity(Unit::null_unit, Unit::Invalid_Value) {}
 
   VtlQuantity(const string & unit_name, double val = 0)
     : BaseQuantity(unit_given_name(unit_name), val)
@@ -1199,8 +1201,7 @@ public:
   }
 
   VtlQuantity(const VtlQuantity & q) noexcept
-    :
-				      BaseQuantity(q.unit, q.value) {}
+    : BaseQuantity(q.unit, q.value) {}
 
   VtlQuantity next() const { return VtlQuantity(unit, this->__increase()); }
 
@@ -1236,7 +1237,7 @@ public:
     if (this->is_null())
       return * new (this) VtlQuantity(q.unit, q.value);
 
-    if (&unit.physical_quantity == &q.unit.physical_quantity)	
+    if (&unit == &q.unit)	
       {
 	value = q.get_value();
 	return *this;
@@ -1257,7 +1258,7 @@ public:
     if (is_null())
       return * new (this) VtlQuantity(q.unit, q.raw());
 
-    if (&unit.physical_quantity == &q.unit.physical_quantity)
+    if (&unit == &q.unit)
       {
 	value = q.get_value();
 	return *this;

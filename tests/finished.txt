@@ -169,3 +169,12 @@ pasar gitversion a include,2017-02-23 17:19:24 -0400,2017-02-24 10:27:40 -0400,,
 meter en json gitversion,2017-02-23 17:24:30 -0400,2017-02-24 10:27:34 -0400,,2017-02-24 10:28:01 -0400
 plot debe incluir dos fila para pb y nextafter(pb),2017-02-22 14:52:43 -0400,2017-02-25 10:10:25 -0400,,2017-02-25 10:10:29 -0400
 progamar test_all_units2; usar hoja Unitconverter tests,2017-02-17 16:53:08 -0400,2017-02-25 11:36:31 -0400,,2017-02-25 11:36:34 -0400
+variables pressure y temperature deben ser VtlQuantity,2017-02-26 10:36:47 -0400,,,2017-02-26 11:56:27 -0400
+DefinedCorrelation debe recibir la unidad y la búsqueda del parámetro principal hacer la conversion,2017-02-25 18:30:54 -0400,2017-02-26 11:56:35 -0400,,2017-02-26 11:56:59 -0400
+define_correlation puede estar buggy porque no recibe unidad,2017-02-25 17:57:03 -0400,2017-02-26 11:56:47 -0400,,2017-02-26 11:57:12 -0400
+,2017-02-26 14:10:26 -0400,,,2017-02-26 14:10:37 -0400
+is_null no debe llamar a numeric_lilimits::max(),2017-02-26 13:45:28 -0400,,,2017-02-26 14:11:55 -0400
+is_null no debe llamar a numeric_lilimits::max(),2017-02-26 13:44:53 -0400,2017-02-26 16:21:56 -0400,,2017-02-26 16:21:58 -0400
+revisar error con is_null(),2017-02-26 13:28:03 -0400,2017-02-26 16:22:07 -0400,,2017-02-26 16:22:11 -0400
+considerar elimionar is_null de asignación en VtlQuantity,2017-02-26 11:56:12 -0400,2017-02-26 16:23:20 -0400,,2017-02-26 16:23:23 -0400
+revisar valor de bg por debajo de pb pero que arroja un z inválido,2017-02-26 13:25:06 -0400,2017-02-26 16:23:35 -0400,,2017-02-26 16:23:39 -0400

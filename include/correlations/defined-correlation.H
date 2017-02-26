@@ -336,7 +336,7 @@ public:
 
   double compute_by_names(const ParList & pars, bool check = true) const
   {
-    VtlQuantity main_val = pars(main_par_name);
+    VtlQuantity main_val = pars.search(main_par_name);
     Interval * interval_ptr = search_interval(main_val);
     if (interval_ptr == nullptr)
       {

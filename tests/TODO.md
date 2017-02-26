@@ -33,12 +33,6 @@
 ## 11. añadir columna aplot con el número de excepción
 - Created at   2017-02-25 17:34:56 -0400
 
-## 12. define_correlation puede estar buggy porque no recibe unidad
-- Created at   2017-02-25 17:57:03 -0400
-
-## 13. DefinedCorrelation debe recibir la unidad y la búsqueda del parámetro principal hacer la conversion
-- Created at   2017-02-25 18:30:54 -0400
-
-## 14. variables pressure y temperature deben ser VtlQuantity
-- Created at   2017-02-26 10:36:47 -0400
+## 12. opción que solo liste las excepciones:
+- Created at   
 

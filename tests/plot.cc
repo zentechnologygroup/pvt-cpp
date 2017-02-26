@@ -151,7 +151,7 @@ void set_rsb()
 
 ValueArg<double> yg_arg = { "", "yg", "yg", true, 0, "yg in Sgg", cmd };
 Correlation::NamedPar yg_par;
-VtlQuantity yg = VtlQuantity::null_quantity;
+VtlQuantity yg;
 const Unit * yg_unit = nullptr;
 void set_yg()
 {
@@ -165,7 +165,7 @@ void set_yg()
 ValueArg<double> tsep_arg = { "", "tsep", "separator temperature", false, 0,
 			      "separator temperature in degF", cmd };
 Correlation::NamedPar tsep_par;
-VtlQuantity tsep = VtlQuantity::null_quantity;
+VtlQuantity tsep;
 const Unit * tsep_unit = nullptr;
 void set_tsep()
 {
@@ -178,7 +178,7 @@ void set_tsep()
 ValueArg<double> psep_arg = { "", "psep", "separator pressure", false, 0,
 			      "separator pressure in psia", cmd };
 Correlation::NamedPar psep_par;
-VtlQuantity psep = VtlQuantity::null_quantity;
+VtlQuantity psep;
 const Unit * psep_unit = nullptr;
 void set_psep()
 {
@@ -192,7 +192,7 @@ ValueArg<double> n2_concentration_arg =
   { "", "n2-concentration", "n2-concentration", false, 0,
     "n2-concentration in MolePercent", cmd };
 Correlation::NamedPar n2_concentration_par;
-VtlQuantity n2_concentration = VtlQuantity::null_quantity;
+VtlQuantity n2_concentration;
 const Unit * n2_concentration_unit = nullptr;
 void set_n2_concentration()
 {
@@ -209,7 +209,7 @@ ValueArg<double> co2_concentration_arg =
   { "", "co2-concentration", "co2-concentration", false, 0,
     "co2-concentration in MolePercent", cmd };
 Correlation::NamedPar co2_concentration_par;
-VtlQuantity co2_concentration = VtlQuantity::null_quantity;
+VtlQuantity co2_concentration;
 const Unit * co2_concentration_unit = nullptr;
 void set_co2_concentration()
 {
@@ -226,7 +226,7 @@ ValueArg<double> h2s_concentration_arg =
   { "", "h2s-concentration", "h2s-concentration", false, 0,
     "h2s-concentration in MolePercent", cmd };
 Correlation::NamedPar h2s_concentration_par;
-VtlQuantity h2s_concentration = VtlQuantity::null_quantity;
+VtlQuantity h2s_concentration;
 const Unit * h2s_concentration_unit = nullptr;
 void set_h2s_concentration()
 {
@@ -243,7 +243,7 @@ ValueArg<double> nacl_concentration_arg =
   { "", "nacl-concentration", "nacl-concentration", false, 0,
     "nacl-concentration in mol_NaCl/Kg_H2O", cmd };
 Correlation::NamedPar nacl_concentration_par;
-VtlQuantity nacl_concentration = VtlQuantity::null_quantity;
+VtlQuantity nacl_concentration;
 const Unit * nacl_concentration_unit = nullptr;
 void set_nacl_concentration()
 {
@@ -869,7 +869,7 @@ VtlQuantity compute(const Correlation * corr_ptr,
   try
     {
       if (not insert_in_pars_list(pars_list, args...))
-	return VtlQuantity::null_quantity;
+	return VtlQuantity();
 
       auto ret = corr_ptr->tuned_compute_by_names(pars_list, c, m, check);
       remove_from_container(pars_list, args...);
@@ -882,7 +882,7 @@ VtlQuantity compute(const Correlation * corr_ptr,
       
       remove_from_container(pars_list, args ...);
     }
-  return VtlQuantity::null_quantity; 
+  return VtlQuantity();
 }
 
 template <typename ... Args> inline
@@ -892,7 +892,7 @@ VtlQuantity dcompute(const Correlation * corr_ptr, bool check,
   try
     {
       if (not insert_in_pars_list(pars_list, args...))
-	return VtlQuantity::null_quantity;
+	return VtlQuantity();
 
       auto ret = corr_ptr->compute_by_names(pars_list, check);
       remove_from_container(pars_list, args...);
@@ -905,7 +905,7 @@ VtlQuantity dcompute(const Correlation * corr_ptr, bool check,
       
       remove_from_container(pars_list, args ...);
     }
-  return VtlQuantity::null_quantity; 
+  return VtlQuantity();
 }
 
 template <typename ... Args> inline
@@ -934,7 +934,7 @@ VtlQuantity dcompute_noexcep(const Correlation * corr_ptr, bool check,
   try
     {
       if (not insert_in_pars_list(pars_list, args...))
-	return VtlQuantity::null_quantity;
+	return VtlQuantity();
 
       auto ret = corr_ptr->compute_by_names(pars_list, check);
       remove_from_container(pars_list, args...);
@@ -947,7 +947,7 @@ VtlQuantity dcompute_noexcep(const Correlation * corr_ptr, bool check,
 	   << "@ " << e.what();
       abort();
     }
-  return VtlQuantity::null_quantity; 
+  return VtlQuantity();
 }
 
 // returna true si todos los args... son válidos
@@ -962,7 +962,7 @@ bool valid_args(const VtlQuantity & par, Args ... args)
 
 // Macro para crear variable var con el valor de la correlación corr_name
 # define CALL(corr_name, var, args...)					\
-  VtlQuantity var = VtlQuantity::null_quantity;				\
+  VtlQuantity var;							\
   try									\
     {									\
       if (valid_args(args))						\
@@ -988,9 +988,15 @@ bool insert_in_pars_list(const DefinedCorrelation & corr,
 {
   if (get<2>(par) == Invalid_Value)
     {
-      const string & par_name = get<1>(par);
+      const string & par_name = get<1>(par);      
       if (corr.search_parameters(p_q).contains(par_name))
-	return false;
+	{
+	  cout << "Detected Invalid for " << par_name << " (";
+      corr.search_parameters(p_q).for_each([] (auto & s) { cout << s << " "; });
+      cout << ")" << endl
+	   << "part is " << corr.search_correlation(p_q)->name << endl;
+	  return false;
+	}
     }
   
   pars_list.insert(par);
@@ -1021,7 +1027,7 @@ double compute(const DefinedCorrelation & corr, bool check,
 	{
 	  auto triggering_corr_ptr = corr.search_correlation(p_q);
 	  string names = corr.correlations().
-	    foldl<string>("", [triggering_corr_ptr] (const auto & acu, auto ptr)
+	    foldl<string>("", [triggering_corr_ptr] (auto & acu, auto ptr)
             {
 	      if (triggering_corr_ptr == ptr)
 		return acu + "*" + ptr->name + " ";
@@ -1521,7 +1527,7 @@ void generate_grid()
 	  auto uo = compute(uo_corr, check, p_q, uo_pars, p_par, rs_par);
 	  auto po = compute(po_corr, check, p_q, po_pars, p_par, rs_par, co_par,
 			    make_tuple(true, "bob", bo, bo_corr.result_unit));
-	  VtlQuantity z = VtlQuantity::null_quantity;
+	  VtlQuantity z;
 	  if (p_q <= pb_q)
 	    z = dcompute(zfactor_corr, check, ppr_par, tpr_par);
 	  auto z_par = NPAR(z);

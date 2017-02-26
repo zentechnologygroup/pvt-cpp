@@ -71,6 +71,7 @@ public:
     //    auto p = tbl.search(ParPair(name, ValPair(0, &Unit::null_unit)));
     if (p == nullptr)
       throw domain_error("Parameter name " + name + " not found");
+
     const ValPair & vpair = p->second;
     return VtlQuantity(*vpair.second, vpair.first);
   }
@@ -90,8 +91,8 @@ public:
 	if (ptr)
 	  {
 	    const ValPair & val_pair = ptr->second;
-	    VtlQuantity ret(*val_pair.second, val_pair.first);
-	    return VtlQuantity(*p.second, ret);
+	    VtlQuantity v(*val_pair.second, val_pair.first);
+	    return VtlQuantity(*p.second, v);
 	  }
       }
     

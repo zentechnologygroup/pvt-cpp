@@ -1024,3 +1024,57 @@
 - Comment      
 - Finished     
 
+## 172. variables pressure y temperature deben ser VtlQuantity
+- Created at   2017-02-26 10:36:47 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 173. DefinedCorrelation debe recibir la unidad y la búsqueda del parámetro principal hacer la conversion
+- Created at   2017-02-25 18:30:54 -0400
+- Completed at 2017-02-26 11:56:35 -0400
+- Comment      
+- Finished     
+
+## 174. define_correlation puede estar buggy porque no recibe unidad
+- Created at   2017-02-25 17:57:03 -0400
+- Completed at 2017-02-26 11:56:47 -0400
+- Comment      
+- Finished     
+
+## 175. 
+- Created at   2017-02-26 14:10:26 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 176. is_null no debe llamar a numeric_lilimits::max()
+- Created at   2017-02-26 13:45:28 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 177. is_null no debe llamar a numeric_lilimits::max()
+- Created at   2017-02-26 13:44:53 -0400
+- Completed at 2017-02-26 16:21:56 -0400
+- Comment      
+- Finished     
+
+## 178. revisar error con is_null()
+- Created at   2017-02-26 13:28:03 -0400
+- Completed at 2017-02-26 16:22:07 -0400
+- Comment      
+- Finished     
+
+## 179. considerar elimionar is_null de asignación en VtlQuantity
+- Created at   2017-02-26 11:56:12 -0400
+- Completed at 2017-02-26 16:23:20 -0400
+- Comment      
+- Finished     
+
+## 180. revisar valor de bg por debajo de pb pero que arroja un z inválido
+- Created at   2017-02-26 13:25:06 -0400
+- Completed at 2017-02-26 16:23:35 -0400
+- Comment      
+- Finished     
+

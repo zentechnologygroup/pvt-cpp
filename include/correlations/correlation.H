@@ -869,7 +869,11 @@ public:
   {
     DynList<VtlQuantity> vals;
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
-      vals.append(par_list(it.get_curr().names()));
+      {
+	auto & par = it.get_curr();
+	VtlQuantity val = par_list.search(par.names());
+	vals.append(val);
+      }
 
     return compute(vals, check);
   }
