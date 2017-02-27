@@ -1,4 +1,4 @@
-,disabled,yg,yg unit,yo,yo unit,api,api unit,rsb,rsb unit,t,t unit,tsep,tsep unit,psep,psep unit,n2_concentration,n2_concentration unit,co2_concentration,co2_concentration unit,h2s_concentration,h2s_concentration unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""ahmed:2010""","ref ""petroWiki:2016:3""","ref ""dokla:1992""","ref ""glaso:1980""","ref ""petroleumOffice:2016""","ref ""beggs:1987""","ref ""lui:2017""","ref ""deGhetto:1995"""
+,disabled,yg,yg unit,yo,yo unit,api,api unit,rsb,rsb unit,t,t unit,tsep,tsep unit,psep,psep unit,n2_concentration,n2_concentration unit,co2_concentration,co2_concentration unit,h2s_concentration,h2s_concentration unit,result,result unit,tolerance,Note,"ref ""banzer:1996""","ref ""ahmed:2010""","ref ""petroWiki:2016:3""","ref ""dokla:1992""","ref ""glaso:1980""","ref ""petroleumOffice:2016""","ref ""beggs:1987""","ref ""lui:2017:2""","ref ""deGhetto:1995"""
 PbAlMarhoun,,0.95,Sgg,31,Api,,,675,SCF_STB,180,Fahrenheit,,,,,,,,,,,2137,psia,0.14,,1,,,,,,,,
 PbKartoatmodjoSchmidt,,0.95,Sgg,,,31,Api,675,SCF_STB,180,Fahrenheit,85,Fahrenheit,100,psia,,,,,,,3014,psia,0.03,API > 30,1,,,,,,,,
 PbPetroskyFarshad,,0.95,Sgg,,,31,Api,675,SCF_STB,180,Fahrenheit,,,,,,,,,,,2680,psia,0.03,,1,,,,,,,,
@@ -37,8 +37,8 @@ PbDindorukChristman,,0.848,Sgg,,,27.3,Api,894.4995978,SCF_STB,180,Fahrenheit,,,,
 PbGlaso,,0.804,Sgg,,,37.9,Api,769,SCF_STB,120,Fahrenheit,,,,,0,MolePercent,0,MolePercent,0,MolePercent,2846.310699,psia,0.01,Software calculation.,,,,,,1,,,
 PbVasquezBeggs,,0.8,Sgg,,,30,Api,500,SCF_STB,220,Fahrenheit,100,Fahrenheit,114.7,psia,,,,,,,2650.306792,psia,0.06,API <= 30. Software calculation.,,,,,,1,,,
 PbLasater,,0.8,Sgg,30,Api,,,500,SCF_STB,200,Fahrenheit,,,,,,,,,,,2608,psia,0.21,API <= 40,,,,,,,1,,
-PbLasater,,0.8,Sgg,38,Api,,,500,SCF_STB,200,Fahrenheit,,,,,,,,,,,2186.311603,psia,0.07,API <= 40,,,,,,,,1,
-PbLasater,,0.8,Sgg,42,Api,,,500,SCF_STB,200,Fahrenheit,,,,,,,,,,,1963.845606,psia,0.07,API > 40,,,,,,,,1,
+PbLasater,,0.8,Sgg,38,Api,,,500,SCF_STB,200,Fahrenheit,,,,,,,,,,,2186.311603,psia,0.07,API <= 40. Software calculation.,,,,,,,,1,
+PbLasater,,0.8,Sgg,42,Api,,,500,SCF_STB,200,Fahrenheit,,,,,,,,,,,1963.845606,psia,0.07,API > 40. Software calculation.,,,,,,,,1,
 PbDeGhettoEtAl,,0.696,Sgg,,,6,Api,255.039,SCF_STB,147.9,Fahrenheit,131,Fahrenheit,58.02,psia,,,,,,,2903.39,psia,0.01,API <= 10. To check only that the equation is correctly reversed from the Rs correlation.,,,,,,,,,1
 PbDeGhettoEtAl,,0.812,Sgg,,,11.2,Api,294.988,SCF_STB,154.8,Fahrenheit,158,Fahrenheit,156.64,psia,,,,,,,2546.9,psia,0.01,API > 10. To check only that the equation is correctly reversed from the Rs correlation.,,,,,,,,,1
 PbAlMarhoun,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
