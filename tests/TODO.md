@@ -29,6 +29,7 @@
 
 ## 10. método parameter_names puede etner la lista ya construida
 - Created at   2017-02-25 17:12:31 -0400
+- Completed at 2017-02-27 15:21:49 -0400
 
 ## 11. añadir columna aplot con el número de excepción
 - Created at   2017-02-25 17:34:56 -0400

@@ -122,7 +122,18 @@ inline VtlQuantity par(const Correlation::NamedPar & par)
 // (VtlQuantity o Quantity<Unit>)
 inline Correlation::NamedPar npar(const string & name, const BaseQuantity & p)
 {
-  return make_tuple(true, name, p.raw(), &p.unit);
+  return Correlation::NamedPar(true, name, p.raw(), &p.unit);
+}
+
+inline Correlation::NamedPar npar(const string & name, double v, const Unit * unit)
+{
+  return Correlation::NamedPar(true, name, v, unit);
+}
+
+inline Correlation::NamedPar npar(const string & name,
+				  const Correlation::NamedPar & par)
+{
+  return Correlation::NamedPar(true, name, get<2>(par), get<3>(par));
 }
 
 // macro que construye un parámetro por nombre con nombre par a partir
@@ -137,7 +148,7 @@ Correlation::NamedPar api_par;
 void set_api()
 {
   auto api_unit = test_unit_change("api", Api::get_instance());
-  api_par = make_tuple(true, "api", api_arg.getValue(), api_unit);
+  api_par = npar("api", api_arg.getValue(), api_unit);
 }
 
 ValueArg<double> rsb_arg = { "", "rsb", "rsb", true, 0, "rsb in scf/STB", cmd };
@@ -146,7 +157,7 @@ const Unit * rsb_unit = nullptr;
 void set_rsb()
 {
   rsb_unit = test_unit_change("rsb", SCF_STB::get_instance());
-  rsb_par = make_tuple(true, "rsb", rsb_arg.getValue(), rsb_unit);
+  rsb_par = npar("rsb", rsb_arg.getValue(), rsb_unit);
 }
 
 ValueArg<double> yg_arg = { "", "yg", "yg", true, 0, "yg in Sgg", cmd };
@@ -156,7 +167,7 @@ const Unit * yg_unit = nullptr;
 void set_yg()
 {
   yg_unit = test_unit_change("yg", Sgg::get_instance());
-  yg_par = make_tuple(true, "yg", yg_arg.getValue(), yg_unit);
+  yg_par = npar("yg", yg_arg.getValue(), yg_unit);
   yg.set(par(yg_par));
 }
 
@@ -990,13 +1001,7 @@ bool insert_in_pars_list(const DefinedCorrelation & corr,
     {
       const string & par_name = get<1>(par);      
       if (corr.search_parameters(p_q).contains(par_name))
-	{
-	  cout << "Detected Invalid for " << par_name << " (";
-      corr.search_parameters(p_q).for_each([] (auto & s) { cout << s << " "; });
-      cout << ")" << endl
-	   << "part is " << corr.search_correlation(p_q)->name << endl;
-	  return false;
-	}
+	return false; // aquí la correlación recibiría Invalid_Value y fallaría
     }
   
   pars_list.insert(par);
@@ -1090,12 +1095,11 @@ DynList<DynList<double>> generate_rs_values()
       pars_list.insert(t_par);
       row.insert(get<2>(t_par));
 
-      auto pb_q = compute(pb_corr, c_pb_arg.getValue(), 1, check,
-			  pb_pars, t_par);
+      auto pb = compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
 
-      pars_list.insert(make_tuple(true, "pb", pb_q.raw(), &pb_q.unit));
+      pars_list.insert(NPAR(pb));
       auto rs_corr =
-	set_rs_correlation(pb_q, VtlQuantity(*rsb_unit, rsb_arg.getValue()),
+	set_rs_correlation(pb, VtlQuantity(*rsb_unit, rsb_arg.getValue()),
 			   below_corr_ptr, cb_arg.getValue(), mb_arg.getValue());
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
@@ -1168,11 +1172,10 @@ DynList<DynList<double>> generate_bo_values()
 
       // último bo de la correlación bob. Este será el punto de partida de boa
       auto bobp =
-	compute(below_corr_ptr, cb_arg.getValue(),
-		mb_arg.getValue(), check, bo_pars_list, npar("p", pb), 
-		make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par)));
+	compute(below_corr_ptr, cb_arg.getValue(), mb_arg.getValue(),
+		check, bo_pars_list, npar("p", pb), npar("rs", rsb_par));
 
-      bo_pars_list.insert(make_tuple(true, "bobp", bobp.raw(), &bobp.unit));
+      bo_pars_list.insert(NPAR(bobp));
 
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
@@ -1180,7 +1183,7 @@ DynList<DynList<double>> generate_bo_values()
 	  VtlQuantity p_q = par(p_par);
 	  auto rs = compute(rs_corr, check, p_q, rs_pars_list, p_par);
 	  auto bo = compute(bo_corr, check, p_q, bo_pars_list, p_par,
-			    make_tuple(true, "rs", rs, &::rs_corr->unit));
+			    npar("rs", rs, &::rs_corr->unit));
 	  size_t n = row.ninsert(get<2>(p_par), bo);
 	  vals.append(row);
 	  row.mutable_drop(n);
@@ -1217,7 +1220,7 @@ DynList<DynList<double>> generate_uo_values()
       auto pb = compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
       auto pb_par = NPAR(pb);
 
-      auto uod_val = dcompute(uod_corr, check, uod_pars_list, t_par);
+      auto uod = dcompute(uod_corr, check, uod_pars_list, t_par);
 
       insert_in_container(rs_pars_list, t_par, pb_par);
       auto rs_corr = define_correlation(pb, ::rs_corr,
@@ -1225,13 +1228,11 @@ DynList<DynList<double>> generate_uo_values()
 					&RsAbovePb::get_instance());
 
       auto uo_corr = target_correlation(pb);
-      insert_in_container(uo_pars_list, t_par, pb_par,
-			  make_tuple(true, "uod", uod_val.raw(), &uod_val.unit));
+      insert_in_container(uo_pars_list, t_par, pb_par, NPAR(uod));
 
       auto uobp =
 	compute(below_corr_ptr, cb_arg.getValue(), mb_arg.getValue(),
-		check, uo_pars_list, npar("p", pb),
-		make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par)));
+		check, uo_pars_list, npar("p", pb), npar("rs", rsb_par));
 
       uo_pars_list.insert("uobp", uobp.raw(), &uobp.unit);
 
@@ -1241,7 +1242,7 @@ DynList<DynList<double>> generate_uo_values()
 	  auto p_q = par(p_par);
 	  auto rs = compute(rs_corr, check, p_q, rs_pars_list, p_par);
 	  auto uo = compute(uo_corr, check, p_q, uo_pars_list, p_par,
-			    make_tuple(true, "rs", rs, &::rs_corr->unit));
+			    npar("rs", rs, &::rs_corr->unit));
 	  size_t n = row.ninsert(get<2>(p_par), uo);
 	  vals.append(row);
 	  row.mutable_drop(n);
@@ -1412,7 +1413,7 @@ void generate_grid()
 		   P("sgw", &sgw_corr->unit),
 		   P("pbrow", &Unit::null_unit));
 
-  auto rs_pb = make_tuple(true, "rs", get<2>(rsb_par), get<3>(rsb_par));
+  auto rs_pb = npar("rs", rsb_par);
 
   FixedStack<double> row(25); // aquí van los valores. Asegure que el
 			      // orden de inserción sea el mismo que
@@ -1520,13 +1521,13 @@ void generate_grid()
 	  CALL(Ppr, ppr, p_q, adjustedppcm);
 	  auto ppr_par = NPAR(ppr);
 	  auto rs = compute(rs_corr, check, p_q, rs_pars, p_par);
-	  auto rs_par = make_tuple(true, "rs", rs, &::rs_corr->unit);
+	  auto rs_par = npar("rs", rs, &::rs_corr->unit);
 	  auto co = compute(co_corr, check, p_q, co_pars, p_par);
-	  auto co_par = make_tuple(true, "co", co, co_corr.result_unit);
+	  auto co_par = npar("co", co, co_corr.result_unit);
 	  auto bo = compute(bo_corr, check, p_q, bo_pars, p_par, rs_par, co_par);
 	  auto uo = compute(uo_corr, check, p_q, uo_pars, p_par, rs_par);
 	  auto po = compute(po_corr, check, p_q, po_pars, p_par, rs_par, co_par,
-			    make_tuple(true, "bob", bo, bo_corr.result_unit));
+			    npar("bob", bo, bo_corr.result_unit));
 	  VtlQuantity z;
 	  if (p_q <= pb_q)
 	    z = dcompute(zfactor_corr, check, ppr_par, tpr_par);
@@ -1539,7 +1540,7 @@ void generate_grid()
 	  auto rsw_par = NPAR(rsw);
 	  auto cwa = dcompute(cwa_corr, check, cwa_pars, p_par, rsw_par);
 	  auto bw = compute(bw_corr, check, p_q, bw_pars, p_par, NPAR(cwa));
-	  auto bw_par = make_tuple(true, "bw", bw, bw_corr.result_unit);
+	  auto bw_par = npar("bw", bw, bw_corr.result_unit);
 	  auto pw = dcompute(pw_corr, check, pw_pars, p_par, bw_par);
 	  auto cw = compute(cw_corr, check, p_q, cw_pars, p_par, z_par, 
 			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));

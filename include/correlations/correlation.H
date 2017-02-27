@@ -199,6 +199,8 @@ struct Correlation
   mutable long id = -1;
   mutable string __target_name = "NOT-DEFINED";
 
+  mutable DynSetTree<string> par_names;
+
 private:
 
   DynList<CorrelationPar> preconditions;
@@ -237,15 +239,9 @@ public:
     return ret;
   }
 
-  DynSetTree<string> parameter_names() const
+  const DynSetTree<string> & parameter_names() const
   {
-    DynSetTree<string> ret;
-    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
-      {
-	auto & par = it.get_curr();
-	par.names().for_each([&ret] (auto & p) { ret.insert(p.first); });
-      }
-    return ret;
+    return par_names;
   }
 
   DynList<CorrelationPar::P> synonyms() const
@@ -323,6 +319,7 @@ private:
   {
     auto par_ptr = search_parameter(par_name);
     par_ptr->add_synonym(synonym, unit_name);
+    par_names.append(synonym);
   }
 
   void def_parameter_latex_symbol(const string & par_name,
@@ -574,6 +571,7 @@ protected:
     CorrelationPar par(name, unit, description, min, max);
     CorrelationPar & ret = preconditions.append(move(par));
     ++n;
+    par_names.append(name);
     return ret;
   }
 

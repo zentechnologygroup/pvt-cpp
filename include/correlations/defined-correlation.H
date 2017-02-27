@@ -10,7 +10,7 @@ class DefinedCorrelation
   {
     const Correlation * correlation_ptr = nullptr;
     double start, end;
-    DynSetTree<string> par_names;
+    const DynSetTree<string> * par_names = nullptr;
 
     double c, m; // set if the correlation is tuned
     bool tuned = false;
@@ -23,7 +23,7 @@ class DefinedCorrelation
       : correlation_ptr(ptr), start(start), end(end)
     {
       if (correlation_ptr)
-	par_names = ptr->parameter_names();
+	par_names = &ptr->parameter_names();
       if (start <= end)
 	return;
       ostringstream s;
@@ -192,7 +192,7 @@ public:
     auto interval_ptr = search_interval(val);
     if (not interval_ptr)
       ZENTHROW(InvalidValue, "value " + ::to_string(val) + " not found");
-    return interval_ptr->par_names;
+    return *interval_ptr->par_names;
   }
 
   const DynSetTree<string> & search_parameters(const VtlQuantity & val) const
