@@ -31,7 +31,7 @@ struct UnitTest
   bool pass()
   {
     result = convert();
-    auto error = 100*fabs(expected - result)/expected;
+    auto error = fabs(expected - result)/expected;
     return error <= tolerance;
   }
 
