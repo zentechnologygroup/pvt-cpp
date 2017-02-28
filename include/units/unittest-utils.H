@@ -43,7 +43,7 @@ struct UnitTest
     s << "file        = " << csv_name << endl
       << "line        = " << csv_line << endl
       << "source unit = " << src_unit_name << endl
-      << "target unit = " << src_unit_name << endl
+      << "target unit = " << tgt_unit_name << endl
       << "value       = " << value << endl
       << "expected    = " << expected << endl
       << "result      = " << result << endl
