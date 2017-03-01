@@ -14,6 +14,12 @@ struct UnitTest
   const double tolerance = 0;
   mutable double result = 0;
 
+private:
+
+  double error = 0;
+
+public:
+
   UnitTest() {}
 
   UnitTest(const string & csv_name, size_t csv_line,
@@ -31,7 +37,7 @@ struct UnitTest
   bool pass()
   {
     result = convert();
-    auto error = fabs(expected - result)/expected;
+    error = fabs(expected - result)/expected;
     return error <= tolerance;
   }
 
@@ -40,13 +46,13 @@ struct UnitTest
     ostringstream s;
 
     s.precision(numeric_limits<double>::max_digits10);
-    s << "file        = " << csv_name << endl
-      << "line        = " << csv_line << endl
+    s << "line        = " << csv_line << endl
       << "source unit = " << src_unit_name << endl
       << "target unit = " << tgt_unit_name << endl
       << "value       = " << value << endl
       << "expected    = " << expected << endl
       << "result      = " << result << endl
+      << "error       = " << error << endl
       << "tolerance   = " << tolerance;
 
     return s.str();
@@ -57,6 +63,7 @@ class UnitTester
 {
   DynList<UnitTest> test_list;
   DynList<string> failed_list;
+  DynList<string> passed_list;
 
 public:
 
@@ -74,17 +81,27 @@ public:
       {
 	auto & test = it.get_curr();
 	if (test.pass())
-	  continue;
-
-	failed_list.append(test.to_string());
+	  passed_list.append(test.to_string());
+	else
+	  failed_list.append(test.to_string());
       }
   }
 
-  void report() const
+  static void report(const DynList<string> & l)
   {
-    for (auto it = failed_list.get_it(); it.has_curr(); it.next())
+     for (auto it = l.get_it(); it.has_curr(); it.next())
       cout << it.get_curr() << endl
 	   << endl;
+  }
+  
+  void report_failed() const
+  {
+    report(failed_list);
+  }
+
+  void report_passed() const
+  {
+    report(passed_list);
   }
 
   bool all_passed() const { return failed_list.is_empty(); }

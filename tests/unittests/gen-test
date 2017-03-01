@@ -14,7 +14,7 @@ using namespace TCLAP;
 
 CmdLine cmd = { \"#{name}\", ' ', \"0\" };
 
-SwitchArg with_call = { "c", "calls", "print calls for failed tests", cmd };
+SwitchArg passed = { "p", "passed", "Only print passed tests", cmd };
 
 int main(int argc, char *argv[])
 {
@@ -49,7 +49,12 @@ end
 
 def test_epilogue
   "  tester.perform();\n"\
-  "  tester.report();\n"\
+  "  if (passed.getValue())\n"\
+  "    {\n"\
+  "      tester.report_passed();\n"\
+  "    }\n"\
+  "\n"\
+  "  tester.report_failed();\n"\
   "  return tester.all_passed() ? 0 : -1;\n"\
   "}"
 end

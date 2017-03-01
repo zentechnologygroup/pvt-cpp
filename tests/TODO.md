@@ -37,3 +37,6 @@
 ## 12. opción que solo liste las excepciones:
 - Created at   
 
+## 13. Indagar penultimos saltos en bob para test-calibrate
+- Created at   2017-03-01 16:10:40 -0400
+
