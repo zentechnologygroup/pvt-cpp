@@ -13,7 +13,7 @@ $unit_symbols =
 	'Lb_ft3' => "lb/ft^{3}",
 	'Lb_Gal' => "lb/gal",
 	'Lb_Inch3' => "lb/in^{3}",
-	'Sg' => "air=1",
+	'Sg' => "water=1\\\\ at\\\\ 60\\\\ \\\\degree{F}",
 	'kg_mxs' => "kg/m \\\\cdot s",
 	'lb_ftxs' => "lb/ft \\\\cdot s",
 	'g_cmxs' => "g/cm \\\\cdot s",
