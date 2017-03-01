@@ -68,8 +68,8 @@ command_line = "./#{property_name}"
 command_line += " -c" if options[:calls]
 test_status = system(command_line)
 
-fail "Test has aborted" unless test_status
+fail "Test has aborted\n\n" unless test_status
 
-puts "Test for #{property_name} executed successfully"
+puts "\nTest for #{property_name} executed successfully\n\n"
 
 
