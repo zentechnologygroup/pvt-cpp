@@ -11,3 +11,4 @@ método parameter_names puede etner la lista ya construida,2017-02-25 17:12:31 -
 añadir columna aplot con el número de excepción,2017-02-25 17:34:56 -0400,,
 opción que solo liste las excepciones:,,,
 Indagar penultimos saltos en bob para test-calibrate,2017-03-01 16:10:40 -0400,,
+programa que genere el json para calibrate,2017-03-02 15:13:38 -0400,,

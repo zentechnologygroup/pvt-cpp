@@ -40,3 +40,6 @@
 ## 13. Indagar penultimos saltos en bob para test-calibrate
 - Created at   2017-03-01 16:10:40 -0400
 
+## 14. programa que genere el json para calibrate
+- Created at   2017-03-02 15:13:38 -0400
+
