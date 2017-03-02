@@ -1078,3 +1078,15 @@
 - Comment      
 - Finished     
 
+## 181. corregir sutton et al en presion
+- Created at   2016-09-21 16:21:49 -0400
+- Completed at 2017-03-02 16:34:27 -0400
+- Comment      
+- Finished     
+
+## 182. definir en plor cuáles serán las excepciones que abortan
+- Created at   2017-01-31 10:29:24 -0400
+- Completed at 2017-02-07 15:37:08 -0400
+- Comment      
+- Finished     
+
