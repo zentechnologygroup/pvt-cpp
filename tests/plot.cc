@@ -1375,6 +1375,8 @@ void generate_grid()
   auto po_pars = load_constant_parameters({&PobBradley::get_instance(),
 	&PoaBradley::get_instance()});
   auto ug_pars = load_constant_parameters({ug_corr});
+  insert_in_container(ug_pars, npar("tpc", adjustedtpcm),
+		      npar("ppc", adjustedppcm));
   auto bw_pars = load_constant_parameters({bwb_corr, bwa_corr});
   auto uw_pars = load_constant_parameters({uw_corr});
   auto pw_pars = load_constant_parameters({pw_corr});
@@ -1481,7 +1483,7 @@ void generate_grid()
       auto bwbp = dcompute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));
 
       insert_in_container(po_pars, pb_par, NPAR(pobp));
-      insert_in_container(ug_pars, tpr_par, t_par);
+      insert_in_container(ug_pars, t_par);
       insert_in_container(bw_pars, t_par, pb_par, NPAR(bwbp));
       cg_pars.insert(tpr_par);
       uw_pars.insert(t_par);
@@ -1561,7 +1563,7 @@ void generate_grid()
       remove_from_container(bo_pars, "bobp", "pb", t_par);
       remove_from_container(uo_pars, "uobp", "pb", "uod", t_par);
       remove_from_container(po_pars, "pb", "pobp");
-      remove_from_container(ug_pars, t_par, tpr_par);
+      remove_from_container(ug_pars, t_par);
       remove_from_container(bw_pars, t_par, pb_par, "bwbp");
       sgo_pars.remove(t_par);
       sgw_pars.remove(t_par);
