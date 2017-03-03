@@ -40,3 +40,6 @@
 ## 13. Indagar penultimos saltos en bob para test-calibrate
 - Created at   2017-03-01 16:10:40 -0400
 
+## 14. opcion en calibrate que genere grid y plot
+- Created at   2017-03-02 08:39:44 -0400
+
