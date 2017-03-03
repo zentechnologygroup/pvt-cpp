@@ -178,3 +178,6 @@ is_null no debe llamar a numeric_lilimits::max(),2017-02-26 13:44:53 -0400,2017-
 revisar error con is_null(),2017-02-26 13:28:03 -0400,2017-02-26 16:22:07 -0400,,2017-02-26 16:22:11 -0400
 considerar elimionar is_null de asignación en VtlQuantity,2017-02-26 11:56:12 -0400,2017-02-26 16:23:20 -0400,,2017-02-26 16:23:23 -0400
 revisar valor de bg por debajo de pb pero que arroja un z inválido,2017-02-26 13:25:06 -0400,2017-02-26 16:23:35 -0400,,2017-02-26 16:23:39 -0400
+corregir sutton et al en presion,2016-09-21 16:21:49 -0400,2017-03-02 16:34:27 -0400,,2017-03-02 16:34:32 -0400
+definir en plor cuáles serán las excepciones que abortan,2017-01-31 10:29:24 -0400,2017-02-07 15:37:08 -0400,,2017-03-02 16:34:56 -0400
+,,,,2017-03-02 20:11:11 -0400

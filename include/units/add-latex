@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'optparse'
+
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-f NAME', '--file NAME', 'unit specification') do |file_name|
+    options[:file_name] = file_name
+  end
+
+end
+
+options_parser.parse!
+
+file = options[:file_name]
+
+fail 'unit file file not specified (option -f NAME)' if file.nil?
+
+load 'symbols'
+
+lines = File.open(file)
+
+lines.each do |line|
+
+  if line.include? 'Declare_Unit'
+    tokens = line.split ','
+    unit_name = tokens[0].split('(')[1]
+    if $unit_symbols.has_key? unit_name
+      tokens.insert 2, "\"#{$unit_symbols[unit_name]}\""
+    else
+      tokens.insert 2, "\"Undefined\""
+    end
+    puts tokens.join ','
+  else
+    puts line
+  end
+
+end
+

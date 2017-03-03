@@ -1,45 +1,47 @@
 # TODO list
-## 1. corregir sutton et al en presion
-- Created at   2016-09-21 16:21:49 -0400
-
-## 2. calibrar co
+## 1. calibrar co
 - Created at   2016-11-30 10:30:58 -0400
 
-## 3. compute en empirical_data 1405: se puede acer más raṕido
+## 2. compute en empirical_data 1405: se puede acer más raṕido
 - Created at   2016-12-01 17:30:02 -0400
 
-## 4. definir en plor cuáles serán las excepciones que abortan
-- Created at   2017-01-31 10:29:24 -0400
-- Completed at 2017-02-07 15:37:08 -0400
-
-## 5. implementar la unión de parámetros de famila de correlación
+## 3. implementar la unión de parámetros de famila de correlación
 - Created at   2017-02-08 15:06:07 -0400
 
-## 6. dry en plot de código común
+## 4. dry en plot de código común
 - Created at   2017-02-13 17:10:09 -0400
 
-## 7. documentar lot
+## 5. documentar lot
 - Created at   2017-02-13 17:10:16 -0400
 
-## 8. script que lea hoja de Virginia y genere los csv para distintos grids
+## 6. script que lea hoja de Virginia y genere los csv para distintos grids
 - Created at   2017-02-16 18:15:52 -0400
 
-## 9. generate_grid podría generarse automáticamente según los valores de la correlaciones
+## 7. generate_grid podría generarse automáticamente según los valores de la correlaciones
 - Created at   2017-02-19 10:14:59 -0400
 
-## 10. método parameter_names puede etner la lista ya construida
+## 8. método parameter_names puede etner la lista ya construida
 - Created at   2017-02-25 17:12:31 -0400
 - Completed at 2017-02-27 15:21:49 -0400
 
-## 11. añadir columna aplot con el número de excepción
+## 9. añadir columna aplot con el número de excepción
 - Created at   2017-02-25 17:34:56 -0400
 
-## 12. opción que solo liste las excepciones:
+## 10. opción que solo liste las excepciones:
 - Created at   
 
-## 13. Indagar penultimos saltos en bob para test-calibrate
+## 11. Indagar penultimos saltos en bob para test-calibrate
 - Created at   2017-03-01 16:10:40 -0400
 
-## 14. opcion en calibrate que genere grid y plot
+## 12. opcion en calibrate que genere grid y plot
 - Created at   2017-03-02 08:39:44 -0400
+
+## 13. programa que genere el json para calibrate
+- Created at   2017-03-02 15:13:38 -0400
+
+## 14. json debe tener nombre de unidades
+- Created at   2017-03-02 15:45:27 -0400
+
+## 15. script que añada símbolos latex a todas las unidades
+- Created at   2017-03-02 16:15:06 -0400
 
