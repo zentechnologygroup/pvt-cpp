@@ -1,0 +1,32 @@
+# coding: utf-8
+
+begin_correlation("Gpasp1McCain", "AdditionalGasProduced", "SCF_STB")
+add_title("CALCULATION OF ADDITIONAL GAS PRODUCED FOR TWO STAGES OF SEPARATION")
+add_parameter("tsp1", "Rankine", "Primary separator temperature")
+add_parameter("psp1", "psia", "Primary separator pressure")
+add_parameter("ygsp1", "Sgg", "Primary separator gas gravity")
+add_parameter("api", "Api", "API condensate gravity")
+add_author("McCain (Primary Separator)")
+add_note("Calculation of primary separator additional gas produced (for two stages of separation).")
+add_note("The additional gas produced is related to the mass of gas produced from the stock tank.")
+add_note("This equation is not recommended when the total nonhydrocarbon content of the gas exceeds 25 mol%.")
+add_ref("mcCain:1991")
+add_internal_note("The equation was verified by using the original reference: McCain (1991). Date: March 06 2017.")
+end_correlation()
+
+################################################################
+
+begin_correlation("Gpasp2McCain", "AdditionalGasProduced", "SCF_STB")
+add_title("CALCULATION OF ADDITIONAL GAS PRODUCED FOR THREE STAGES OF SEPARATION")
+add_parameter("tsp1", "Rankine", "Primary separator temperature")
+add_parameter("tsp2", "Rankine", "Second separator temperature")
+add_parameter("psp1", "psia", "Primary separator pressure")
+add_parameter("ygsp1", "Sgg", "Primary separator gas gravity")
+add_parameter("api", "Api", "API condensate gravity")
+add_author("McCain (Second Separator)")
+add_note("Calculation of second separator additional gas produced (for three stages of separation).")
+add_note("The additional gas produced is related to the mass of gas produced from the stock tank and the second separator.")
+add_note("This equation is not recommended when the total nonhydrocarbon content of the gas exceeds 25 mol%.")
+add_ref("mcCain:1991")
+add_internal_note("The equation was verified by using the original reference: McCain (1991). Date: March 06 2017.")
+end_correlation()

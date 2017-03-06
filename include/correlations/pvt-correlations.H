@@ -63,6 +63,11 @@
 # include "solution-gas-water-relation-impl.H"
 # include "spivey-dry-impl.H"
 
+# include "wet-gas-volume-factor-impl.H"
+# include "wet-gas-specific-gravity-impl.H"
+# include "equivalent-volume-impl.H"
+# include "additional-gas-produced-impl.H"
+
 struct CorrelationInstantiater
 {
   CorrelationInstantiater()
@@ -263,6 +268,14 @@ struct CorrelationInstantiater
 
     // Al no ejecutarse esta instanci ==> la correlació no se incluye en tabla
     BwSpiveyMNDry::get_instance();
+
+    Bwg::get_instance();
+    YwgrMcCain::get_instance();
+    Veqsp1McCain::get_instance();
+    Veqsp2McCain::get_instance();
+    Gpasp1McCain::get_instance();
+    Gpasp2McCain::get_instance();
+
   }
 };
 

@@ -1,0 +1,32 @@
+# coding: utf-8
+
+begin_correlation("Veqsp1McCain", "EquivalentVolume", "SCF_STB")
+add_title("CALCULATION OF EQUIVALENT VOLUME FOR TWO STAGES OF SEPARATION")
+add_parameter("tsp1", "Rankine", "Primary separator temperature")
+add_parameter("psp1", "psia", "Primary separator pressure")
+add_parameter("ygsp1", "Sgg", "Primary separator gas gravity")
+add_parameter("api", "Api", "API condensate gravity")
+add_author("McCain (Primary Separator)")
+add_note("Calculation of primary separator equivalent volume (for two stages of separation).")
+add_note("The equivalent volume is the volume of stock-tank gas plus the volume in scf that would be occupied by a barrel of stock-tank liquid if it were gas.")
+add_note("This equation is not recommended when the total nonhydrocarbon content of the gas exceeds 25 mol%.")
+add_ref("mcCain:1991")
+add_internal_note("The equation was verified by using the original reference: McCain (1991). Date: March 06 2017.")
+end_correlation()
+
+################################################################
+
+begin_correlation("Veqsp2McCain", "EquivalentVolume", "SCF_STB")
+add_title("CALCULATION OF EQUIVALENT VOLUME FOR THREE STAGES OF SEPARATION")
+add_parameter("tsp1", "Rankine", "Primary separator temperature")
+add_parameter("tsp2", "Rankine", "Second separator temperature")
+add_parameter("psp1", "psia", "Primary separator pressure")
+add_parameter("ygsp1", "Sgg", "Primary separator gas gravity")
+add_parameter("api", "Api", "API condensate gravity")
+add_author("McCain (Second Separator)")
+add_note("Calculation of second separator equivalent volume (for three stages of separation).")
+add_note("The equivalent volume is the volume of stock-tank gas and second-separator gas, plus the volume in scf that would be occupied by a barrel of stock-tank liquid if it were gas.")
+add_note("This equation is not recommended when the total nonhydrocarbon content of the gas exceeds 25 mol%.")
+add_ref("mcCain:1991")
+add_internal_note("The equation was verified by using the original reference: McCain (1991). Date: March 06 2017.")
+end_correlation()

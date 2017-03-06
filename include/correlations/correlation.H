@@ -1236,5 +1236,9 @@ Declare_Correlation_Subtype(SolutionGasWaterRelation, WaterCorrelation,
 			    "R_{sw}");
 Declare_Correlation_Subtype(VaporPressure, WaterCorrelation,
 			    "P_{v}");
+Declare_Correlation_Subtype(WetGasVolumeFactor, GasFunction, "B_{wg}");
+Declare_Correlation_Subtype(WetGasSpecificGravity, GasCorrelation, "Y_{wgR}");
+Declare_Correlation_Subtype(EquivalentVolume, GasCorrelation, "V_{eq}");
+Declare_Correlation_Subtype(AdditionalGasProduced, GasCorrelation, "G_{pa}");
 
 # endif // CORRELATION_H

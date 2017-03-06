@@ -43,6 +43,13 @@ $par_symbols =
     'rsw' => "R_{sw}",
     'tpc' => "T_{pc}",
     'uobp' => "\\\\mu_{obp}",
-    'yghc' => "\\\\gamma_{gHC}"
+    'yghc' => "\\\\gamma_{gHC}",
+    'ygsp1' => "\\\\gamma_{g-sp1}",
+    'rsp1' => "R_{sp1}",
+    'gpa' => "G_{pa}",
+    'veq' => "V_{eq}",
+    'tsp1' => "T_{sp1}",
+    'tsp2' => "T_{sp2}",
+    'psp1' => "P_{sp1}"
   }
 
