@@ -94,18 +94,18 @@ UgLeeGE::impl(const double & t,
 inline double
 UgDeanStiel::impl(const double & t,
 		  const double & p,
-		  const double & tsc,
-		  const double & psc,
+		  const double & tpc,
+		  const double & ppc,
 		  const double & yg,
 		  const double & z) noexcept
 {
-  const double tsr = t/tsc;
-  const double psr = p/psc;
+  const double tsr = t/tpc;
+  const double psr = p/ppc;
             
   const double mg = 28.96*yg; // gas molecular weight [lb/lbmol]
 
       // viscosity parameter
-  const double em = 5.4402*pow(tsc, 1.0/6.0) / (pow(mg, 0.5)*pow(psc, 2.0/3.0));
+  const double em = 5.4402*pow(tpc, 1.0/6.0) / (pow(mg, 0.5)*pow(ppc, 2.0/3.0));
             
   const double pgr = 0.27*psr/(z*tsr); // pgr: relative gas density
 

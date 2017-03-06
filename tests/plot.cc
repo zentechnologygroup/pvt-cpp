@@ -4,6 +4,7 @@
 # include <tclap/CmdLine.h>
 
 # include <ah-zip.H>
+# include <ah-dispatcher.H>
 # include <tpl_dynMapTree.H>
 
 # include <correlations/pvt-correlations.H>
@@ -283,24 +284,19 @@ void set_pb()
   if (pb_corr->target_name() != "pb")
     error_msg(pb_arg.getValue() + " correlation is not for pb");
 
+  set_api();
+  set_rsb();
+  set_yg();
+  set_tsep();
+  set_psep();
+  set_h2s_concentration();
+  set_co2_concentration();
+  set_n2_concentration();
+  set_nacl_concentration();
+
   pb_pars.insert(yg_par);
   pb_pars.insert(rsb_par);
   pb_pars.insert(api_par);
-
-  if (tsep_arg.isSet())
-    pb_pars.insert(tsep_par);
-
-  if (psep_arg.isSet())
-    pb_pars.insert(psep_par);
-
-  if (n2_concentration_arg.isSet())
-    pb_pars.insert(n2_concentration_par);
-
-  if (co2_concentration_arg.isSet())
-    pb_pars.insert(co2_concentration_par);
-
-  if (h2s_concentration_arg.isSet())
-    pb_pars.insert(h2s_concentration_par);
 }
 
 VtlQuantity compute_pb(const double t)
@@ -1379,6 +1375,8 @@ void generate_grid()
   auto po_pars = load_constant_parameters({&PobBradley::get_instance(),
 	&PoaBradley::get_instance()});
   auto ug_pars = load_constant_parameters({ug_corr});
+  insert_in_container(ug_pars, npar("tpc", adjustedtpcm),
+		      npar("ppc", adjustedppcm));
   auto bw_pars = load_constant_parameters({bwb_corr, bwa_corr});
   auto uw_pars = load_constant_parameters({uw_corr});
   auto pw_pars = load_constant_parameters({pw_corr});
@@ -1485,7 +1483,7 @@ void generate_grid()
       auto bwbp = dcompute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));
 
       insert_in_container(po_pars, pb_par, NPAR(pobp));
-      insert_in_container(ug_pars, tpr_par, t_par);
+      insert_in_container(ug_pars, t_par);
       insert_in_container(bw_pars, t_par, pb_par, NPAR(bwbp));
       cg_pars.insert(tpr_par);
       uw_pars.insert(t_par);
@@ -1565,7 +1563,7 @@ void generate_grid()
       remove_from_container(bo_pars, "bobp", "pb", t_par);
       remove_from_container(uo_pars, "uobp", "pb", "uod", t_par);
       remove_from_container(po_pars, "pb", "pobp");
-      remove_from_container(ug_pars, t_par, tpr_par);
+      remove_from_container(ug_pars, t_par);
       remove_from_container(bw_pars, t_par, pb_par, "bwbp");
       sgo_pars.remove(t_par);
       sgw_pars.remove(t_par);
@@ -1586,22 +1584,9 @@ void generate_grid()
 
 using OptionPtr = DynList<DynList<double>> (*)();
 
-DynMapTree<string, OptionPtr> dispatch_tbl;
-
-void init_dispatcher()
-{
-  dispatch_tbl.insert("rs", generate_rs_values);
-  dispatch_tbl.insert("bob", generate_bo_values);
-  dispatch_tbl.insert("uob", generate_uo_values);
-}
-
-DynList<DynList<double>> dispatch_option(const string & op)
-{
-  auto command = dispatch_tbl.search(op);
-  if (command == nullptr)
-    error_msg("Option " + op + " not registered");
-  return (*command->second)();
-}
+AHDispatcher<string, OptionPtr> dispatcher("rs", generate_rs_values,
+					   "bob", generate_bo_values,
+					   "uob", generate_uo_values);
 
 auto cmp_p = [] (const DynList<double> & row1, const DynList<double> & row2)
 {
@@ -1796,7 +1781,6 @@ string R_format(const DynList<DynList<double>> & mat)
 
 int main(int argc, char *argv[])
 {
-  init_dispatcher();
   cmd.parse(argc, argv);
 
   if (grid_arg.getValue())
@@ -1819,7 +1803,7 @@ int main(int argc, char *argv[])
   set_below_corr();
   set_above_corr();
 
-  auto vals = dispatch_option(target_name);
+  auto vals = dispatcher.run(target_name);
 
   sort(vals, get_sort_type(sort_type.getValue()));
 

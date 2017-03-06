@@ -16,6 +16,10 @@ options_parser = OptionParser.new do |opts|
   opts.on('-l', '--list', 'list properties') do
     options[:list] = true
   end
+  
+  opts.on('-p', '--passed', 'print only the passed tests') do
+    options[:passed] = true
+  end
 
 end
 
@@ -65,7 +69,7 @@ compile_status = system(compile_line)
 fail "Test compilation failed" unless compile_status
 
 command_line = "./#{property_name}"
-command_line += " -c" if options[:calls]
+command_line += " -p" if options[:passed]
 test_status = system(command_line)
 
 fail "Test has aborted\n\n" unless test_status
