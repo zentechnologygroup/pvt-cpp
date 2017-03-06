@@ -114,7 +114,7 @@ void test(int argc, char *argv[])
 	  cout << "Physical quantity " << pq_name << " not found" << endl;
 	  abort();
 	}
-      pq->units().for_each([] (auto uptr) { cout << uptr->symbol << endl; });
+      pq->units().for_each([] (auto uptr) { cout << uptr->name << endl; });
       exit(0);
     }
 
