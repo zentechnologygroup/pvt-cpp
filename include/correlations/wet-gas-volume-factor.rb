@@ -1,6 +1,6 @@
 # coding: utf-8
 
-begin_correlation("Bwg", "WetGasVolumeFactor", "RB_STB")
+begin_correlation("Bwg", "WetGasVolumeFactor", "RCFGas_STB")
 add_title("CALCULATION OF WET GAS FORMATION VOLUME FACTOR")
 add_parameter("t", "Rankine", "Temperature")
 add_parameter("p", "psia", "Pressure")

@@ -10,7 +10,7 @@ Bwg::impl(const double & t,
 	  const double & rsp1,
 	  const double & veq) noexcept
 {
-  return 0.00502*z*(rsp1 + veq)*t/p;
+  return 0.0282*z*(rsp1 + veq)*t/p;
 }
 
 

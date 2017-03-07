@@ -1,0 +1,3 @@
+,disabled,ygsp1,ygsp1 unit,yo,yo unit,rsp1,rsp1 unit,gpa,gpa unit,veq,veq unit,result,result unit,tolerance,Note,"ref ""mcCain:1990"""
+YwgrMcCain,,0.669,Sgg,0.736,Sg_do,61015,SCF_STB,756,SCF_STB,1600,SCF_STB,0.718,Sgg,0.02,Example 7-4. Three stages.,1
+YwgrMcCain,,0.679,Sgg,0.755,Sg_do,69551,SCF_STB,330,SCF_STB,1040,SCF_STB,0.723,Sgg,0.03,Example 7-5. Two stages.,1

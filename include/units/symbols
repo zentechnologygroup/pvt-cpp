@@ -66,5 +66,7 @@ $unit_symbols =
 	'Dissolved_Salt_Fraction' => "Mass\\\\ fraction\\\\ NaCl",
 	'Sgg' => "air=1",
 	'rhog_kg_m3_atStandCond' => "kg/m^{3}\\\\ at\\\\ STP",
-	'rhog_lb_ft3_atStandCond' => "lb/ft^{3}\\\\ at\\\\ STP"
+	'rhog_lb_ft3_atStandCond' => "lb/ft^{3}\\\\ at\\\\ STP",
+        'RCFGas_STB' => "RCF/STB",
+	'RBGas_STB' => "RB/STB"
   }
