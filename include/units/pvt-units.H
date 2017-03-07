@@ -19,5 +19,6 @@
 # include "z-unit.H"
 # include "gas-formation-volume-factor-unit.H"
 # include "water-cut-unit.H"
+# include "wet-gas-formation-volume-factor-unit.H"
 
 # endif // PVT_UNITS_H
