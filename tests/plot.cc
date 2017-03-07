@@ -566,7 +566,12 @@ void set_sgw_corr()
   set_correlation(sgw_corr_arg, "sgw", sgw_corr, false);
 }
 
-SwitchArg grid_arg = { "", "grid", "generate grid for all", cmd };
+
+vector<string> grid_types =
+  { "blackoil", "wetgas", "drygas", "brine", "gascondensated" };
+ValuesConstraint<string> allowed_grid_types = grid_types;
+ValueArg<string> grid = { "", "grid", "grid type", false,
+			  "blackoil", &allowed_grid_types, cmd };
 
 struct RangeDesc
 {
@@ -658,7 +663,7 @@ ValueArg<string> below_corr_arg = { "", "below", "below correlation name", false
 const Correlation * below_corr_ptr = nullptr;
 void set_below_corr()
 {
-  if (grid_arg.isSet())
+  if (grid.isSet())
     error_msg("grid option is incompatible with below option");
   below_corr_ptr = Correlation::search_by_name(below_corr_arg.getValue());
   if (below_corr_ptr == nullptr)
@@ -683,7 +688,7 @@ ValueArg<string> above_corr_arg = { "", "above", "above correlation name", false
 const Correlation * above_corr_ptr = nullptr;
 void set_above_corr()
 {
-  if (grid_arg.isSet())
+  if (grid.isSet())
     error_msg("grid option is incompatible with above option");
   if (target_name == "rs")
     {
@@ -1293,7 +1298,7 @@ void print_csv_header(Args ... args)
   printf("\n");
 }
 
-void generate_grid()
+void generate_grid_blackoil()
 {
   set_check(); // Inicialiación de datos constantes
   set_api();
@@ -1582,6 +1587,37 @@ void generate_grid()
     }
 }
 
+void generate_grid_wetgas()
+{
+  cout << "grid wetgas option not yet implemented" << endl;
+  abort();
+}
+
+void generate_grid_drygas()
+{
+  cout << "grid drygas option not yet implemented" << endl;
+  abort();
+}
+
+void generate_grid_brine()
+{
+  cout << "grid brine option not yet implemented" << endl;
+  abort();
+}
+
+void generate_grid_gascondensated()
+{
+  cout << "grid gacondensated option not yet implemented" << endl;
+  abort();
+}
+
+AHDispatcher<string, void (*)()>
+grid_dispatcher("blackoil", generate_grid_blackoil,
+		"wetgas", generate_grid_wetgas,
+		"drygas", generate_grid_drygas,
+		"brine", generate_grid_brine,
+		"gascondensated", generate_grid_gascondensated);
+
 using OptionPtr = DynList<DynList<double>> (*)();
 
 AHDispatcher<string, OptionPtr> dispatcher("rs", generate_rs_values,
@@ -1783,9 +1819,9 @@ int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
 
-  if (grid_arg.getValue())
+  if (grid.isSet())
     {
-      generate_grid();
+      grid_dispatcher.run(grid.getValue());
       return 0;
     }
 
