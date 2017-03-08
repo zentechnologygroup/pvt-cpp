@@ -50,6 +50,7 @@ $par_symbols =
     'veq' => "V_{eq}",
     'tsp1' => "T_{sp1}",
     'tsp2' => "T_{sp2}",
-    'psp1' => "P_{sp1}"
+    'psp1' => "P_{sp1}",
+    'ogr' => "OGR"
   }
 

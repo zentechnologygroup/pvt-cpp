@@ -39,10 +39,7 @@
 ## 13. programa que genere el json para calibrate
 - Created at   2017-03-02 15:13:38 -0400
 
-## 14. json debe tener nombre de unidades
-- Created at   2017-03-02 15:45:27 -0400
-
-## 15. script que añada símbolos latex a todas las unidades
+## 14. script que añada símbolos latex a todas las unidades
 - Created at   2017-03-02 16:15:06 -0400
 
 ## 16. borrar del json maxvu
