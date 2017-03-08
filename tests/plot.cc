@@ -42,12 +42,12 @@ DynSetTree<string> par_name_tbl =
 struct ArgUnit
 {
   string par_name;
-  string symbol;
+  string unit_name;
 
   ArgUnit & operator = (const string & str)
   {
     istringstream iss(str);
-    if (not (iss >> par_name >> symbol))
+    if (not (iss >> par_name >> unit_name))
       throw TCLAP::ArgParseException(str + " is not a pair par-name unit");
 
     if (not par_name_tbl.contains(par_name))
@@ -60,7 +60,7 @@ struct ArgUnit
 
   friend ostream& operator << (ostream &os, const ArgUnit & a) 
   {
-    return os << a.par_name << " " << a.symbol;
+    return os << a.par_name << " " << a.unit_name;
   }
 };
 
@@ -90,7 +90,7 @@ const Unit * test_unit_change(const string & par_name, const Unit & ref_unit)
   for (const auto & par : unit.getValue()) // recorra lista de cambios
     if (par.par_name == par_name)
       {
-	const Unit * ret = Unit::search_by_symbol(par.symbol);
+	const Unit * ret = Unit::search_by_name(par.unit_name);
 	if (ret == nullptr)
 	  {
 	    cout << "In unit change for " << par_name << ": unit symbol "

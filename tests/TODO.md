@@ -45,3 +45,9 @@
 ## 15. script que añada símbolos latex a todas las unidades
 - Created at   2017-03-02 16:15:06 -0400
 
+## 16. borrar del json maxvu
+- Created at   2017-03-08 15:09:20 -0400
+
+## 17. opcion a plot que retorna tipos de fluidos
+- Created at   2017-03-08 15:11:00 -0400
+
