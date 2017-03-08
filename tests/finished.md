@@ -1126,3 +1126,21 @@
 - Comment      
 - Finished     
 
+## 189. dry en plot de código común
+- Created at   2017-02-13 17:10:09 -0400
+- Completed at 2017-03-08 17:16:02 -0400
+- Comment      
+- Finished     
+
+## 190. documentar lot
+- Created at   2017-02-13 17:10:16 -0400
+- Completed at 2017-03-08 17:15:57 -0400
+- Comment      
+- Finished     
+
+## 191. generate_grid podría generarse automáticamente según los valores de la correlaciones
+- Created at   2017-02-19 10:14:59 -0400
+- Completed at 
+- Comment      
+- Finished     
+
