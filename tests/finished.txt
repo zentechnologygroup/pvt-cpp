@@ -181,3 +181,4 @@ revisar valor de bg por debajo de pb pero que arroja un z inválido,2017-02-26 1
 corregir sutton et al en presion,2016-09-21 16:21:49 -0400,2017-03-02 16:34:27 -0400,,2017-03-02 16:34:32 -0400
 definir en plor cuáles serán las excepciones que abortan,2017-01-31 10:29:24 -0400,2017-02-07 15:37:08 -0400,,2017-03-02 16:34:56 -0400
 ,,,,2017-03-02 20:11:11 -0400
+json debe tener nombre de unidades,2017-03-02 15:45:27 -0400,2017-03-08 11:23:49 -0400,,2017-03-08 11:23:51 -0400
