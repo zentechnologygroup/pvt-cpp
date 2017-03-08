@@ -1442,8 +1442,8 @@ void generate_grid_blackoil()
 		   P("cw", &cwb_corr->unit),
 		   P("sgo", &sgo_corr->unit),
 		   P("sgw", &sgw_corr->unit),
-		   P("pbrow", &Unit::null_unit),
-		   P("exception", &Unit::null_unit));
+		   P("exception", &Unit::null_unit),
+		   P("pbrow", &Unit::null_unit));
 
   auto rs_pb = npar("rs", rsb_par);
 
