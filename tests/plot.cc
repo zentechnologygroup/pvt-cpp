@@ -852,11 +852,11 @@ const double Invalid_Value = Unit::Invalid_Value;
 double temperature = 0, pressure = 0; // valores globales y puestos
 				      // por el grid mientras itera 
 
-bool thrown_exception = false;
+bool exception_thrown = false;
 
 void store_exception(const string & corr_name, const exception & e)
 {
-  thrown_exception = true;
+  exception_thrown = true;
   ostringstream s;
   s << corr_name << ": " << VtlQuantity(*t_unit, temperature)
     << ", " << VtlQuantity(*p_unit, pressure) << ": " << e.what()
@@ -1286,10 +1286,10 @@ void print_row(const FixedStack<double> & row, bool is_pb = false)
   else
     printf("\"false\",");
 
-  if (thrown_exception)
+  if (exception_thrown)
     {
       printf("\"true\",");
-      thrown_exception = false;
+      exception_thrown = false;
     }
   else
     printf("\"false\",");
