@@ -21,15 +21,13 @@ static json to_json(const CorrelationPar & p)
   json j;
   j["name"] = p.name;
   j["desc"] = p.description;
-  j["unit"] = p.unit.symbol;
+  j["unit"] = p.unit.name;
   j["unit_name"] = p.unit.name;
   j["physicalq"] = p.unit.physical_quantity.name;
   j["minv"] = p.min_val.get_value();
-  j["minvu"] = p.min_val.unit.symbol;
-  j["minvun"] = p.min_val.unit.name;
+  j["minvu"] = p.min_val.unit.name;
   j["maxv"] = p.max_val.get_value();
-  j["maxvu"] = p.min_val.unit.symbol;
-  j["maxvun"] = p.min_val.unit.name;
+  j["maxvu"] = p.min_val.unit.name;
   j["minauthor"] = p.min_from_author;
   j["maxauthor"] = p.max_from_author;
   j["latex"] = p.latex_symbol;
@@ -41,8 +39,7 @@ static json to_json(const Correlation & c)
   json j;
   j["maxv"] = c.max_val;
   j["minv"] = c.min_val;
-  j["unit"] = c.unit.symbol;
-  j["unit_name"] = c.unit.name;
+  j["unit"] = c.unit.name;
   j["refs"] = to_vector(c.refs.maps<string>([] (const auto & r)
     { return r->to_string(); }));
   j["notes"] = to_vector(c.notes);
