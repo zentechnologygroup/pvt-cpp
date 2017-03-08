@@ -7,6 +7,10 @@
 # include <ah-dispatcher.H>
 # include <tpl_dynMapTree.H>
 
+# include <json.hpp>
+
+using json = nlohmann::json;
+
 # include <correlations/pvt-correlations.H>
 # include <correlations/defined-correlation.H>
 
@@ -42,12 +46,12 @@ DynSetTree<string> par_name_tbl =
 struct ArgUnit
 {
   string par_name;
-  string symbol;
+  string unit_name;
 
   ArgUnit & operator = (const string & str)
   {
     istringstream iss(str);
-    if (not (iss >> par_name >> symbol))
+    if (not (iss >> par_name >> unit_name))
       throw TCLAP::ArgParseException(str + " is not a pair par-name unit");
 
     if (not par_name_tbl.contains(par_name))
@@ -60,7 +64,7 @@ struct ArgUnit
 
   friend ostream& operator << (ostream &os, const ArgUnit & a) 
   {
-    return os << a.par_name << " " << a.symbol;
+    return os << a.par_name << " " << a.unit_name;
   }
 };
 
@@ -90,11 +94,11 @@ const Unit * test_unit_change(const string & par_name, const Unit & ref_unit)
   for (const auto & par : unit.getValue()) // recorra lista de cambios
     if (par.par_name == par_name)
       {
-	const Unit * ret = Unit::search_by_symbol(par.symbol);
+	const Unit * ret = Unit::search_by_name(par.unit_name);
 	if (ret == nullptr)
 	  {
-	    cout << "In unit change for " << par_name << ": unit symbol "
-		 << par.symbol << " not found" << endl;
+	    cout << "In unit change for " << par_name << ": unit name "
+		 << par.unit_name << " not found" << endl;
 	    abort();
 	  }
 
@@ -572,6 +576,17 @@ vector<string> grid_types =
 ValuesConstraint<string> allowed_grid_types = grid_types;
 ValueArg<string> grid = { "", "grid", "grid type", false,
 			  "blackoil", &allowed_grid_types, cmd };
+
+SwitchArg print_types = { "", "fluid-types", "print fluid types", cmd };
+
+void print_fluid_types()
+{
+  assert(print_types.isSet() and print_types.getValue());
+
+  for (auto & type : grid_types)
+    cout << type << endl;
+  exit(0);
+}
 
 struct RangeDesc
 {
@@ -1585,30 +1600,36 @@ void generate_grid_blackoil()
 	   << "Exceptions:" << endl;
       exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
     }
+
+  exit(0);
 }
 
 void generate_grid_wetgas()
 {
   cout << "grid wetgas option not yet implemented" << endl;
   abort();
+  exit(0);
 }
 
 void generate_grid_drygas()
 {
   cout << "grid drygas option not yet implemented" << endl;
   abort();
+  exit(0);
 }
 
 void generate_grid_brine()
 {
   cout << "grid brine option not yet implemented" << endl;
   abort();
+  exit(0);
 }
 
 void generate_grid_gascondensated()
 {
   cout << "grid gacondensated option not yet implemented" << endl;
   abort();
+  exit(0);
 }
 
 AHDispatcher<string, void (*)()>
@@ -1819,11 +1840,11 @@ int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
 
+  if (print_types.getValue())
+    print_fluid_types();
+
   if (grid.isSet())
-    {
-      grid_dispatcher.run(grid.getValue());
-      return 0;
-    }
+    grid_dispatcher.run(grid.getValue());
 
   set_check();
   set_api();

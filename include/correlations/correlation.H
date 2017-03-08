@@ -1098,17 +1098,22 @@ Declare_Correlation_Type(WaterCorrelation);
   {									\
     subtype_name(const string & name, const Unit & result_unit,		\
 		 double min_val, double max_val)			\
-      : type_name(#subtype_name, name, symbol, result_unit, min_val, max_val) {} \
+      : type_name(#subtype_name, name, symbol, result_unit,		\
+		  min_val, max_val) {}					\
 									\
     subtype_name(const string & name, const Unit & unit, double min_val) \
-      : type_name(#subtype_name, name, symbol, unit, min_val, unit.max_val) {} \
+      : type_name(#subtype_name, name, symbol, unit,			\
+		  min_val, unit.max_val) {}				\
 									\
     subtype_name(const string & name, const Unit & unit)		\
       : type_name(#subtype_name, name, symbol, unit, unit.min_val,	\
 		  unit.max_val) {}					\
     virtual ~subtype_name() = 0;					\
+									\
   protected:								\
+									\
     using type_name::add_parameter;					\
+									\
   };									\
 									\
   inline subtype_name::~subtype_name() {}
