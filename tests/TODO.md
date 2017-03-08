@@ -20,31 +20,18 @@
 ## 7. generate_grid podría generarse automáticamente según los valores de la correlaciones
 - Created at   2017-02-19 10:14:59 -0400
 
-## 8. método parameter_names puede etner la lista ya construida
-- Created at   2017-02-25 17:12:31 -0400
-- Completed at 2017-02-27 15:21:49 -0400
-
-## 9. añadir columna aplot con el número de excepción
+## 8. añadir columna aplot con el número de excepción
 - Created at   2017-02-25 17:34:56 -0400
 
-## 10. opción que solo liste las excepciones:
-- Created at   
-
-## 11. Indagar penultimos saltos en bob para test-calibrate
+## 9. Indagar penultimos saltos en bob para test-calibrate
 - Created at   2017-03-01 16:10:40 -0400
 
-## 12. opcion en calibrate que genere grid y plot
+## 10. opcion en calibrate que genere grid y plot
 - Created at   2017-03-02 08:39:44 -0400
 
-## 13. programa que genere el json para calibrate
+## 11. programa que genere el json para calibrate
 - Created at   2017-03-02 15:13:38 -0400
 
-## 14. script que añada símbolos latex a todas las unidades
+## 12. script que añada símbolos latex a todas las unidades
 - Created at   2017-03-02 16:15:06 -0400
-
-## 16. borrar del json maxvu
-- Created at   2017-03-08 15:09:20 -0400
-
-## 17. opcion a plot que retorna tipos de fluidos
-- Created at   2017-03-08 15:11:00 -0400
 

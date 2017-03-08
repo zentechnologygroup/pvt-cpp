@@ -182,3 +182,7 @@ corregir sutton et al en presion,2016-09-21 16:21:49 -0400,2017-03-02 16:34:27 -
 definir en plor cuáles serán las excepciones que abortan,2017-01-31 10:29:24 -0400,2017-02-07 15:37:08 -0400,,2017-03-02 16:34:56 -0400
 ,,,,2017-03-02 20:11:11 -0400
 json debe tener nombre de unidades,2017-03-02 15:45:27 -0400,2017-03-08 11:23:49 -0400,,2017-03-08 11:23:51 -0400
+borrar del json maxvu,2017-03-08 15:09:20 -0400,2017-03-08 15:43:56 -0400,,2017-03-08 15:43:59 -0400
+opcion a plot que retorna tipos de fluidos,2017-03-08 15:11:00 -0400,2017-03-08 15:43:49 -0400,,2017-03-08 15:43:59 -0400
+método parameter_names puede etner la lista ya construida,2017-02-25 17:12:31 -0400,2017-02-27 15:21:49 -0400,,2017-03-08 15:50:58 -0400
+opción que solo liste las excepciones:,,,,2017-03-08 15:51:06 -0400

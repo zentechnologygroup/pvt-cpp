@@ -1102,3 +1102,27 @@
 - Comment      
 - Finished     
 
+## 185. borrar del json maxvu
+- Created at   2017-03-08 15:09:20 -0400
+- Completed at 2017-03-08 15:43:56 -0400
+- Comment      
+- Finished     
+
+## 186. opcion a plot que retorna tipos de fluidos
+- Created at   2017-03-08 15:11:00 -0400
+- Completed at 2017-03-08 15:43:49 -0400
+- Comment      
+- Finished     
+
+## 187. método parameter_names puede etner la lista ya construida
+- Created at   2017-02-25 17:12:31 -0400
+- Completed at 2017-02-27 15:21:49 -0400
+- Comment      
+- Finished     
+
+## 188. opción que solo liste las excepciones:
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
