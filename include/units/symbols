@@ -68,5 +68,9 @@ $unit_symbols =
 	'rhog_kg_m3_atStandCond' => "kg/m^{3}\\\\ at\\\\ STP",
 	'rhog_lb_ft3_atStandCond' => "lb/ft^{3}\\\\ at\\\\ STP",
         'RCFGas_STB' => "rcf/STB",
-	'RBGas_STB' => "RB/STB"
+	'RBGas_STB' => "RB/STB",
+	'STB_SCF' => "STB/scf",
+	'STB_Mscf' => "STB/Mscf",
+	'STB_MMscf' => "STB/MMscf",
+	'Sm3Liquid_Sm3' => "Sm^{3}/Sm^{3}"
   }

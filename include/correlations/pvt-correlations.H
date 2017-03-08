@@ -67,6 +67,7 @@
 # include "wet-gas-specific-gravity-impl.H"
 # include "equivalent-volume-impl.H"
 # include "additional-gas-produced-impl.H"
+# include "producing-gas-oil-ratio-impl.H"
 
 struct CorrelationInstantiater
 {
@@ -275,6 +276,7 @@ struct CorrelationInstantiater
     Veqsp2McCain::get_instance();
     Gpasp1McCain::get_instance();
     Gpasp2McCain::get_instance();
+    Gor::get_instance();
 
   }
 };

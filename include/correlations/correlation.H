@@ -1246,5 +1246,6 @@ Declare_Correlation_Subtype(WetGasVolumeFactor, GasFunction, "B_{wg}");
 Declare_Correlation_Subtype(WetGasSpecificGravity, GasCorrelation, "Y_{wgR}");
 Declare_Correlation_Subtype(EquivalentVolume, GasCorrelation, "V_{eq}");
 Declare_Correlation_Subtype(AdditionalGasProduced, GasCorrelation, "G_{pa}");
+Declare_Correlation_Subtype(ProducingGasOilRatio, GasFunction, "GOR");
 
 # endif // CORRELATION_H
