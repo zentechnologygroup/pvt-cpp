@@ -67,6 +67,6 @@ $unit_symbols =
 	'Sgg' => "air=1",
 	'rhog_kg_m3_atStandCond' => "kg/m^{3}\\\\ at\\\\ STP",
 	'rhog_lb_ft3_atStandCond' => "lb/ft^{3}\\\\ at\\\\ STP",
-        'RCFGas_STB' => "RCF/STB",
+        'RCFGas_STB' => "rcf/STB",
 	'RBGas_STB' => "RB/STB"
   }
