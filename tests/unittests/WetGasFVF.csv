@@ -1,0 +1,3 @@
+seed,value,convert from,convert to,result,tolerance,note,"ref ""petroleumOfficeUnitConverter:2017"""
+1485977877,289.3357671431,RCFGas_STB,RBGas_STB,51.5329010125002,1.00E-03,The conversion from scf to bbl is used.,1
+1485977877,17.2849161318,RBGas_STB,RCFGas_STB,97.04760203,1.00E-03,The conversion from bbl to scf is used.,1

@@ -60,4 +60,7 @@ Declare_Conversion(STB_SCF, Sm3Liquid_Sm3, v) { return  v / 0.17810760667903525 
 Declare_Conversion(STB_Mscf, Sm3Liquid_Sm3, v) { return  v / 178.10760667903525 ; }       
 Declare_Conversion(STB_MMscf, Sm3Liquid_Sm3, v) { return  v / 178107.60667903525 ; }
 
+
+// Reference: AAPG Wiki (2017). Petroleum reservoir fluid properties. http://wiki.aapg.org/Petroleum_reservoir_fluid_properties
+
 # endif //  OGR_LGR_VOLUME_RATIO_UNIT_H
