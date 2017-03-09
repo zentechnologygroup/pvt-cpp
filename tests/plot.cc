@@ -1225,7 +1225,7 @@ void generate_grid_blackoil()
       auto bwbp = dcompute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));
 
       insert_in_container(po_pars, pb_par, NPAR(pobp));
-      insert_in_container(ug_pars, t_par);
+      insert_in_container(ug_pars, t_par, tpr_par);
       insert_in_container(bw_pars, t_par, pb_par, NPAR(bwbp));
       cg_pars.insert(tpr_par);
       uw_pars.insert(t_par);
@@ -1239,7 +1239,7 @@ void generate_grid_blackoil()
       size_t n = row.ninsert(t_q.raw(), pb, uod_val.raw());
 
       size_t i = 0;
-      for (auto p_it = p_values.get_it(); p_it.has_curr(); /* nothing */)
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); /* nothing */) // pressure loop
 	{
 	  Correlation::NamedPar p_par = p_it.get_curr();
 	  VtlQuantity p_q = par(p_par);
@@ -1304,7 +1304,7 @@ void generate_grid_blackoil()
       remove_from_container(bo_pars, "bobp", "pb", t_par);
       remove_from_container(uo_pars, "uobp", "pb", "uod", t_par);
       remove_from_container(po_pars, "pb", "pobp");
-      remove_from_container(ug_pars, t_par);
+      remove_from_container(ug_pars, t_par, tpr_par);
       remove_from_container(bw_pars, t_par, pb_par, "bwbp");
       sgo_pars.remove(t_par);
       sgw_pars.remove(t_par);

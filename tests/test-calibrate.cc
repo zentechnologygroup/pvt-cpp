@@ -5,6 +5,7 @@
 
 # include <ah-comb.H>
 # include <tpl_dynMapTree.H>
+# include <ah-dispatcher.H>
 
 # include <metadata/pvt-analyse.H>
 # include <metadata/pvt-calibrate.H>
@@ -32,7 +33,7 @@ SwitchArg corr_all = { "a", "all", "list all associated correlations", cmd };
 SwitchArg corr_best = { "b", "best", "list best correlations", cmd };
 
 SwitchArg force_corr =
-  { "j", "join", "join by correlation value instead of sexperimental point",
+  { "j", "join", "join by correlation value instead of experimental point",
     cmd };
   
 ValueArg<string> below_corr = { "B", "below", "below correlation name", false,
@@ -751,8 +752,7 @@ json_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
     }
 
   json j;
-  j["data sets"] =
-    to_vector(samples.maps<json>([] (const auto & s) { return to_json(s); }));
+  j["data sets"] = to_vector(samples.maps<json>([] (auto & s) { return to_json(s); }));
   
   return j.dump(2);
 }
