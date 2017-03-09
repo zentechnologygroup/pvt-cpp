@@ -551,7 +551,7 @@ protected:
     : Correlation(type_name, subtype_name, name, latex_symbol,
 		  result_unit, min_val, result_unit.max_val) {}
 
-  virtual ~Correlation() = 0; // Correlation is abstract
+  virtual ~Correlation() = 0; // Correlation is an abstract class
 
   CorrelationPar &
   add_parameter(const string & name, const Unit & unit,
@@ -793,7 +793,7 @@ public:
 
   using ParByName = pair<string, double>;
 
-  /// Compute correlation by receiving an unseorted list of pair par-name,value
+  /// Compute correlation by receiving an unsorted list of pair par-name,value
   VtlQuantity
   compute_by_names(const DynList<ParByName> & pair_list,
 		   bool check = true) const
