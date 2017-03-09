@@ -852,8 +852,11 @@ const double Invalid_Value = Unit::Invalid_Value;
 double temperature = 0, pressure = 0; // valores globales y puestos
 				      // por el grid mientras itera 
 
+bool exception_thrown = false;
+
 void store_exception(const string & corr_name, const exception & e)
 {
+  exception_thrown = true;
   ostringstream s;
   s << corr_name << ": " << VtlQuantity(*t_unit, temperature)
     << ", " << VtlQuantity(*p_unit, pressure) << ": " << e.what()
@@ -1277,10 +1280,20 @@ void print_row(const FixedStack<double> & row, bool is_pb = false)
 {
   const size_t n = row.size();
   double * ptr = &row.base();
+
   if (is_pb)
     printf("\"true\",");
   else
     printf("\"false\",");
+
+  if (exception_thrown)
+    {
+      printf("\"true\",");
+      exception_thrown = false;
+    }
+  else
+    printf("\"false\",");
+
   for (long i = n - 1; i >= 0; --i)
     {
       const auto & val = ptr[i];
@@ -1429,6 +1442,7 @@ void generate_grid_blackoil()
 		   P("cw", &cwb_corr->unit),
 		   P("sgo", &sgo_corr->unit),
 		   P("sgw", &sgw_corr->unit),
+		   P("exception", &Unit::null_unit),
 		   P("pbrow", &Unit::null_unit));
 
   auto rs_pb = npar("rs", rsb_par);

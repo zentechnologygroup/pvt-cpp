@@ -746,18 +746,18 @@ public:
 	const auto result = compute(pars, check);
 	auto status = check_result(VtlQuantity(unit, result));
 	if (status)
-	  return make_tuple(result.raw(), unit.symbol, true, "");
+	  return make_tuple(result.raw(), unit.name, true, "");
 
 	ostringstream s;
 	s << "Correlation result " << result << " is out of range ["
 	  << min_val << ", " << max_val << "]";
 	OutOfCorrelationRange e(__LINE__, __FILE__, "OutOfCorrelationRange",
 				s.str().c_str());
-	return make_tuple(result.raw(), unit.symbol, false, e.what());
+	return make_tuple(result.raw(), unit.name, false, e.what());
       }
     catch (exception &e)
       {
-	return make_tuple(0, unit.symbol, false, e.what());
+	return make_tuple(0, unit.name, false, e.what());
       }
   }
 
@@ -883,25 +883,26 @@ public:
     return verify_result(VtlQuantity(unit, c + m*compute(pars, check).raw()));
   }
 
-  tuple<double, string, bool, string> tuned_execute(DynList<VtlQuantity> & pars,
-						    double c, double m,
-						    bool check = true) const
+  tuple<double, string, bool, string>
+  tuned_execute(DynList<VtlQuantity> & pars,
+		double c, double m,
+		bool check = true) const
   {
     try
       {
 	const auto result = c + m*compute(pars, check).raw();
 	auto status = check_result(VtlQuantity(unit, result));
 	if (status)
-	  return make_tuple(result, unit.symbol, true, "");
+	  return make_tuple(result, unit.name, true, "");
 
 	ostringstream s;
 	s << "Correlation result " << result << " is out of range ["
 	  << min_val << ", " << max_val << "]";
-	return make_tuple(result, unit.symbol, false, s.str());
+	return make_tuple(result, unit.name, false, s.str());
       }
     catch (exception &e)
       {
-	return make_tuple(0, unit.symbol, false, e.what());
+	return make_tuple(0, unit.name, false, e.what());
       }
   }
 
@@ -1003,8 +1004,8 @@ public:
     if (result.get_value() < min_val or result.get_value() > max_val)
       {
 	ostringstream s;
-	s << "In correlation " << name << " " << subtype_name << " " << type_name
-	  << " : return value (" << result.get_value() << " "
+	s << "In correlation " << name << " " << subtype_name << " "
+	  << type_name << " : return value (" << result.get_value() << " "
 	  << result.unit.symbol << ") is out of range ["
 	  << min_val << ", " << max_val << "] defined for the correlation";
 	ZENTHROW(OutOfCorrelationRange, s.str());
@@ -1245,5 +1246,6 @@ Declare_Correlation_Subtype(WetGasVolumeFactor, GasFunction, "B_{wg}");
 Declare_Correlation_Subtype(WetGasSpecificGravity, GasCorrelation, "Y_{wgR}");
 Declare_Correlation_Subtype(EquivalentVolume, GasCorrelation, "V_{eq}");
 Declare_Correlation_Subtype(AdditionalGasProduced, GasCorrelation, "G_{pa}");
+Declare_Correlation_Subtype(ProducingGasOilRatio, GasFunction, "GOR");
 
 # endif // CORRELATION_H

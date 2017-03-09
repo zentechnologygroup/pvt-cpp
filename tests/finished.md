@@ -1102,3 +1102,45 @@
 - Comment      
 - Finished     
 
+## 185. borrar del json maxvu
+- Created at   2017-03-08 15:09:20 -0400
+- Completed at 2017-03-08 15:43:56 -0400
+- Comment      
+- Finished     
+
+## 186. opcion a plot que retorna tipos de fluidos
+- Created at   2017-03-08 15:11:00 -0400
+- Completed at 2017-03-08 15:43:49 -0400
+- Comment      
+- Finished     
+
+## 187. método parameter_names puede etner la lista ya construida
+- Created at   2017-02-25 17:12:31 -0400
+- Completed at 2017-02-27 15:21:49 -0400
+- Comment      
+- Finished     
+
+## 188. opción que solo liste las excepciones:
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 189. dry en plot de código común
+- Created at   2017-02-13 17:10:09 -0400
+- Completed at 2017-03-08 17:16:02 -0400
+- Comment      
+- Finished     
+
+## 190. documentar lot
+- Created at   2017-02-13 17:10:16 -0400
+- Completed at 2017-03-08 17:15:57 -0400
+- Comment      
+- Finished     
+
+## 191. generate_grid podría generarse automáticamente según los valores de la correlaciones
+- Created at   2017-02-19 10:14:59 -0400
+- Completed at 
+- Comment      
+- Finished     
+

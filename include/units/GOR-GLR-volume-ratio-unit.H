@@ -17,13 +17,13 @@ Declare_Unit(SCF_STB, "scf/STB",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
          measured in cubic feet of gas at standard conditions per 
          barrel of liquid (oil,condensate or/and water).)DESC",
-         GORGLRvolumeRatio, 0, 1000000000000);
+         GORGLRvolumeRatio, 0, 1000000000);
 
 Declare_Unit(Mscf_STB, "Mscf/STB",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
          measured in thousand of cubic feet of gas at standard conditions per 
          barrel of liquid (oil,condensate or/and water).)DESC",
-         GORGLRvolumeRatio, 0, 1000000000);
+         GORGLRvolumeRatio, 0, 1000000);
 
 Declare_Unit(MMscf_STB, "MMscf/STB",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
@@ -35,7 +35,7 @@ Declare_Unit(Sm3_Sm3, "Sm3/Sm3",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
          measured in metrics units, cubic meters of gas at standard conditions
          per cubic meters of liquid (oil,condensate or/and water).)DESC",
-         GORGLRvolumeRatio, 0, 5643340857.78781);
+         GORGLRvolumeRatio, 0, 178107606.67903525);
 
 // Declare_Unit(Scm3_Scm3, "Scm3/Scm3",
 //          R"DESC(Dimensionless volumen ratio (volume per volume) 
