@@ -17,25 +17,25 @@ Declare_Unit(STB_SCF, "STB/scf",
          R"DESC(Dimensionless volume ratio (volume per volume) 
          measured in barrels of liquid per cubic feet of gas 
 	 at standard conditions.)DESC",
-         OGRLGRvolumeRatio, 0, 1e-9);
+         OGRLGRvolumeRatio, 1e-9, 1e-4);
 
 Declare_Unit(STB_Mscf, "STB/Mscf",
          R"DESC(Dimensionless volume ratio (volume per volume) 
          measured in barrels of liquid per thousand of cubic feet of gas 
 	 at standard conditions.)DESC",
-         OGRLGRvolumeRatio, 0, 1e-6);
+         OGRLGRvolumeRatio, 1e-6, 1e-1);
 
 Declare_Unit(STB_MMscf, "STB/MMscf",
          R"DESC(Dimensionless volume ratio (volume per volume) 
          measured in measured in barrels of liquid per million of cubic feet of gas 
 	 at standard conditions.)DESC",
-         OGRLGRvolumeRatio, 0, 1e-3);
+         OGRLGRvolumeRatio, 1e-3, 1e2);
 
 Declare_Unit(Sm3Liquid_Sm3, "Sm3 Liquid/Sm3",
          R"DESC(Dimensionless volume ratio (volume per volume) 
 	 measured in cubic meters of liquid per cubic meters of gas 
 	 at standard conditions.)DESC",
-         OGRLGRvolumeRatio, 0, 5.61458333333333e-9);
+         OGRLGRvolumeRatio, 5.614583e-9, 5.614583e-4);
 
 
 // The condensate/gas ratio (OGR) and the liquid/gas ratio (LGR) conversions 
