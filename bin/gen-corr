@@ -97,6 +97,7 @@ class CorrelationGen
   def add_parameter(name, unit, desc, min = nil, max = nil)
     @pars << Parameter.new(name, unit, desc, min, max)
     @latex_symbol = $par_symbols[name]
+    $pars_set.add name
   end
 
   def add_synonym(par_name, syn_name, unit_name)
@@ -339,8 +340,12 @@ class CorrelationGen
   end
 end
 
+require 'set'
+
+$pars_set = Set.new
 $corr_list = []
 $curr_corr = nil
+
 def begin_correlation(name, subtype, unit, min = nil, max = nil)
   $curr_corr = CorrelationGen.new(name, subtype, unit, min, max)
 end
@@ -471,6 +476,10 @@ options_parser = OptionParser.new do |opts|
           'Target directory where equations will be generated') do |dir|
     options[:dir] = dir
   end
+
+  opts.on('-n', '--par-names', 'print union of all parameter names') do
+    options[:par_names] = true
+  end
   
 end
 
@@ -491,6 +500,11 @@ def add_ref(tag)
 end
 
 load file
+
+if options[:par_names]
+  puts $pars_set.entries.join ', '
+  exit
+end
 
 if options[:equations]
   $corr_list.each { |corr| corr.make_eq($eq_dir) }
