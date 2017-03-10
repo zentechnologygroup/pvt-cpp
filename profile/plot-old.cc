@@ -25,7 +25,7 @@ void error_msg(const string & msg)
 
 CmdLine cmd = { "plot-corr", ' ', "0" };
 
-// indicates that correlation parameter ranges must be verified
+// indica que se deben verificar rangos de parámetros de correlaciones
 SwitchArg check_arg = { "", "check", "check correlation ranges", cmd };
 bool check = false;
 void set_check()
@@ -33,14 +33,13 @@ void set_check()
   check = check_arg.getValue();
 }
 
-// indicates that exceptions must be reported
+// indica que las excepciones deben reportarse
 SwitchArg catch_exceptions = { "", "exceptions", "report exceptions", cmd };
 bool report_exceptions = false;
-DynList<string> exception_list; // Exceptions messages are saved in this list
+DynList<string> exception_list; // en esta lista se guaradan las excepciones
 
-// allowed parameter names (they are values ​​or ranges, but they are
-// not correlations). This table is used for validating change of
-// units
+// nombres de parámetros permitidos (son valores o rangos, pero no son
+// correlaciones). Esta tabla es usada para validad cambio de unidades
 DynSetTree<string> par_name_tbl =
   { "api", "rsb", "yg", "tsep", "t", "p", "psep", "h2s-concentration",
     "co2-concentration", "n2-concentration", "nacl-concentration" };
@@ -74,13 +73,14 @@ namespace TCLAP
   template<> struct ArgTraits<ArgUnit> { typedef StringLike ValueCategory; };
 }
 
-// Unit change specification. Suitable for any parameter
+// Especificación de cambio de unidad. Sirve para cualquier parámetro
 MultiArg<ArgUnit> unit = { "", "unit", "unit \"par-name unit\"", false,
 			   "unit \"par-name unit\"", cmd };
 
-// Checks whether the parameter par_name has a change of
-// unity. ref_unit is the default unit of the parameter. If there was
-// no change specification for par_name, then returns ref_unit
+// Verifica si el parámetro par_name tiene un cambio de
+// unidad. ref_unit es la unidad por omisión del parámetro. Si no hubo
+// especificación de cambio de unidad para par_name, entonces se
+// retorna ref_unit
 const Unit * test_unit_change(const string & par_name, const Unit & ref_unit)
 {
   if (not par_name_tbl.contains(par_name))
@@ -91,7 +91,7 @@ const Unit * test_unit_change(const string & par_name, const Unit & ref_unit)
     }
   
   const Unit * ret = &ref_unit;
-  for (const auto & par : unit.getValue()) // traverse list of changes
+  for (const auto & par : unit.getValue()) // recorra lista de cambios
     if (par.par_name == par_name)
       {
 	const Unit * ret = Unit::search_by_name(par.unit_name);
@@ -114,15 +114,17 @@ const Unit * test_unit_change(const string & par_name, const Unit & ref_unit)
   return ret;
 }
 
-// helper to handle parameter passing to correlations
 
-// construct a VtlQuantity from a parameter by name
+// helper para manejar pase de parámetros a las correlaciones
+
+// construye un VtlQuantity a partir de un parámetro por nombre
 inline VtlQuantity par(const Correlation::NamedPar & par)
 {
   return VtlQuantity(*get<3>(par), get<2>(par));
 }
 
-// construct a parameter by name name from an amount (VtlQuantity or Quantity <Unit>)
+// construye un parámetro por nombre name a partir de una cantidad
+// (VtlQuantity o Quantity<Unit>)
 inline Correlation::NamedPar npar(const string & name, const BaseQuantity & p)
 {
   return Correlation::NamedPar(true, name, p.raw(), &p.unit);
@@ -139,11 +141,12 @@ inline Correlation::NamedPar npar(const string & name,
   return Correlation::NamedPar(true, name, get<2>(par), get<3>(par));
 }
 
-// macro that constructs a parameter by name with name par from a VtlQuantity
+// macro que construye un parámetro por nombre con nombre par a partir
+// de una cantidad par
 # define NPAR(par) npar(#par, par)
 
-// Mandatory arguments in the command line that are validated in the
-// command line parsing
+// Argumentos obrlogatorios en la línea de comandos que son validados
+// en el parsing
 
 ValueArg<double> api_arg = { "", "api", "api", true, 0, "api", cmd };
 Correlation::NamedPar api_par;
@@ -173,7 +176,7 @@ void set_yg()
   yg.set(par(yg_par));
 }
 
-// optional command line arguments
+// optional command arguments
 
 ValueArg<double> tsep_arg = { "", "tsep", "separator temperature", false, 0,
 			      "separator temperature in degF", cmd };
@@ -309,13 +312,13 @@ VtlQuantity compute_pb(const double t)
   return ret;
 }
 
-// Initialize a correlation specified from the command line via
-// corr_name_arg. Verify that the correlation is for the target_name
-// property and if so, then the found correlation is placed in the
-// output parameter corr_ptr.
+// Inicializa una correlación especificada desde la línea de comandos
+// vía corr_name_arg. Verifica que la correlación sea para la
+// propiedad target_name y si es el caso entonces la correlación
+// encontrada se coloca en el parámetro de salida corr_ptr.
 //
-// The force_set parameter indicates that the correlation is required
-// on the command line.
+// El parámetro force_set indica que es obligatorio que la correlación
+// sea especificada en la línea de comandos.
 void set_correlation(ValueArg<string> & corr_name_arg,
 		     const string & target_name,
 		     const Correlation *& corr_ptr,
@@ -567,6 +570,7 @@ void set_sgw_corr()
   set_correlation(sgw_corr_arg, "sgw", sgw_corr, false);
 }
 
+
 vector<string> grid_types =
   { "blackoil", "wetgas", "drygas", "brine", "gascondensated" };
 ValuesConstraint<string> allowed_grid_types = grid_types;
@@ -669,6 +673,104 @@ ValueArg<double> ma_arg = { "", "ma", "m for above range", false, 1,
 
 string target_name;
 
+ValueArg<string> below_corr_arg = { "", "below", "below correlation name", false, 
+				    "", "below correlation name", cmd };
+const Correlation * below_corr_ptr = nullptr;
+void set_below_corr()
+{
+  if (grid.isSet())
+    error_msg("grid option is incompatible with below option");
+  below_corr_ptr = Correlation::search_by_name(below_corr_arg.getValue());
+  if (below_corr_ptr == nullptr)
+    error_msg(below_corr_arg.getValue() + " below correlation not found");
+  target_name = below_corr_ptr->target_name();
+  if (target_name != "rs" and target_name != "bob" and target_name != "uob")
+    error_msg(below_corr_arg.getValue() +
+	      " below correlation has an invalid target name"
+	      " (must be rs, bob or uob family)");
+  if ((target_name == "bob" or target_name == "uob") and not rs_corr_arg.isSet())
+    error_msg("Correlation for rs has not been specified");
+  if (target_name == "uob" and not bob_corr_arg.isSet())
+    error_msg("Correlation for bob has not been specified");
+  if (target_name == "uob" and not boa_corr_arg.isSet())
+    error_msg("Correlation for boa has not been specified");
+  if (target_name == "uob" and not uod_corr_arg.isSet())
+    error_msg("Correlation for uod has not been specified");
+}
+
+ValueArg<string> above_corr_arg = { "", "above", "above correlation name", false,
+				    "", "above correlation name", cmd };
+const Correlation * above_corr_ptr = nullptr;
+void set_above_corr()
+{
+  if (grid.isSet())
+    error_msg("grid option is incompatible with above option");
+  if (target_name == "rs")
+    {
+      if (not above_corr_arg.isSet())
+	{
+	  above_corr_ptr = &RsAbovePb::get_instance();
+	  return;
+	}
+      else
+	error_msg("Above correlation must not be defined for rs");
+    }
+
+  above_corr_ptr = Correlation::search_by_name(above_corr_arg.getValue());
+  if (above_corr_ptr == nullptr)
+    error_msg(above_corr_arg.getValue() + " above correlation not found");
+  
+  const string above_target_name = above_corr_ptr->target_name();
+  if (above_target_name == "boa")
+    {
+      if (target_name != "bob")
+	error_msg("Above target " + above_target_name +
+		  " cannot be combined with below correlation " +
+		  below_corr_ptr->name);
+      else
+	return;
+    }
+
+  if (above_target_name == "uoa" and target_name == "uob")
+    return;
+  
+  error_msg("Above target " + above_target_name + " cannot be combined with "
+	    "below correlation " + below_corr_ptr->name);
+}
+
+vector<string> out_type = { "csv", "mat", "json", "R" };
+ValuesConstraint<string> allowed_out_type = out_type;
+ValueArg<string> output_type = { "t", "output-type", "output type", false,
+				 "mat", &allowed_out_type, cmd };
+
+enum class OutputType { mat, csv, R, json, undefined };
+
+OutputType get_output_type(const string & type)
+{
+  if (type == "mat") return OutputType::mat;
+  if (type == "csv") return OutputType::csv;
+  if (type == "R") return OutputType::R;
+  if (type == "json") return OutputType::json;
+  error_msg("Invalid output type " + type);
+  return OutputType::undefined;
+}
+
+vector<string> sort_values = { "p", "t", "value"};
+ValuesConstraint<string> allow_sort = sort_values;
+ValueArg<string> sort_type = { "s", "sort", "output sorting type", false,
+			       "t", &allow_sort, cmd };
+
+enum class SortType { Pressure, Temperature, Value, Undefined };
+
+SortType get_sort_type(const string & type)
+{
+  if (type == "p") return SortType::Pressure;
+  if (type == "t") return SortType::Temperature;
+  if (type == "value") return SortType::Value;
+  error_msg("Invalid sort type");
+  return SortType::Undefined;
+}
+
 DefinedCorrelation
 define_correlation(const VtlQuantity & pb,
 		   const Correlation * below_corr_ptr, double cb, double mb,
@@ -696,6 +798,14 @@ define_correlation(const VtlQuantity & pb,
   return ret;
 }
 
+DefinedCorrelation target_correlation(const VtlQuantity & pb)
+{
+  return define_correlation(pb, below_corr_ptr,
+			    cb_arg.getValue(), mb_arg.getValue(),
+			    above_corr_ptr, 
+			    ca_arg.getValue(), ma_arg.getValue());
+}
+
 DefinedCorrelation
 set_rs_correlation(const VtlQuantity & pb,
 		   const VtlQuantity & rsb, const Correlation * rs_corr,
@@ -716,9 +826,32 @@ test_parameter(const DynList<pair<string, DynList<string>>> & required,
     pars_list.insert(par);
 }
 
+ParList compute_pb_and_load_constant_parameters()
+{
+  ParList pars_list;
+  auto t_par = t_values.get_first();
+  pb_pars.insert(t_par);
+  auto pb =
+    pb_corr->tuned_compute_by_names(pb_pars, c_pb_arg.getValue(), 1, check);
+  pb_pars.remove(t_par);
+  auto required_pars = target_correlation(pb).parameter_list();
+  test_parameter(required_pars, api_par, pars_list);
+  test_parameter(required_pars, rsb_par, pars_list);
+  test_parameter(required_pars, yg_par, pars_list);
+  test_parameter(required_pars, tsep_par, pars_list);
+  test_parameter(required_pars, psep_par, pars_list);
+  test_parameter(required_pars, n2_concentration_par, pars_list);
+  test_parameter(required_pars, co2_concentration_par, pars_list);
+  test_parameter(required_pars, h2s_concentration_par, pars_list);
+
+  return pars_list;
+}
+
 const double Invalid_Value = Unit::Invalid_Value;
 
-double temperature = 0, pressure = 0; // global values set during the grid generation
+double temperature = 0, pressure = 0; // valores globales y puestos
+				      // por el grid mientras itera 
+
 bool exception_thrown = false;
 
 void store_exception(const string & corr_name, const exception & e)
@@ -731,13 +864,14 @@ void store_exception(const string & corr_name, const exception & e)
   exception_list.append(s.str());
 }
 
-/* Meta-inserts par into pars_list but stops if any parameter is invalid.
+/* meta inserta par en pars_list pero se detiene si algún parámetro es
+  inválido. 
 
-  Returns true if all parameters were valid (! = Invalid_Value)
+  Retorna true si todos los parámetros fueron válidos (!= Invalid_Value)
 
-  Otherwise the insertion stops at the first invalid parameter, the
-  parameters previously inserted in the list are deleted and false is
-  returned
+  De lo contrario la inserción se detiene en el primer parámetro
+  inválido, los parámetros previamente insertados en la lista son
+  eliminados y se retorna false
 */
 inline bool insert_in_pars_list(ParList&) { return true; }
 
@@ -752,7 +886,7 @@ bool insert_in_pars_list(ParList & pars_list,
   if (insert_in_pars_list(pars_list, args...))
     return true;
 
-  pars_list.remove(par); // If recursive insertion fails ==> remove pair
+  pars_list.remove(par); // si inserción recursiva falla ==> eliminar par
 
   return false;
 }
@@ -846,7 +980,7 @@ VtlQuantity dcompute_noexcep(const Correlation * corr_ptr, bool check,
   return VtlQuantity();
 }
 
-// return true if all args... are valid
+// returna true si todos los args... son válidos
 inline bool valid_args() { return true; }
   template <typename ... Args> inline
 bool valid_args(const VtlQuantity & par, Args ... args)
@@ -856,7 +990,7 @@ bool valid_args(const VtlQuantity & par, Args ... args)
   return valid_args(args...);
 }  
 
-// Macro for creating `var` variable with value returned by correlation corr_name
+// Macro para crear variable var con el valor de la correlación corr_name
 # define CALL(corr_name, var, args...)					\
   VtlQuantity var;							\
   try									\
@@ -886,14 +1020,14 @@ bool insert_in_pars_list(const DefinedCorrelation & corr,
     {
       const string & par_name = get<1>(par);      
       if (corr.search_parameters(p_q).contains(par_name))
-	return false; // here the correlation would receive Invalid_Value and would fail
+	return false; // aquí la correlación recibiría Invalid_Value y fallaría
     }
   
   pars_list.insert(par);
   if (insert_in_pars_list(corr, p_q, pars_list, args...))
     return true;
 
-  pars_list.remove(par); // If recursive insertion fails ==> remove par
+  pars_list.remove(par); // si inserción recursiva falla ==> eliminar par
 
   return false;
 }
@@ -934,18 +1068,16 @@ double compute(const DefinedCorrelation & corr, bool check,
 template <typename ... Args> inline
 VtlQuantity compute(const Correlation * corr_ptr,
 		    double c, double m, bool check, Args ... args)
-{ // static for creating it once and thus to gain time. But beware!
-  // The function is not reentrant and can not be used in a
-  // multithreaded environment
+{ // se pone estática para crearla una sola vez. Pero cuidado! la
+  // función deja de ser reentrante y no puede usarse en un entorno multithread
   static ParList pars_list;
   return compute(corr_ptr, c, m, check, pars_list, args...);
 }
 
 template <typename ... Args> inline
 VtlQuantity dcompute(const Correlation * corr_ptr, bool check, Args ... args)
-{ // static for creating it once and thus to gain time. But beware!
-  // The function is not reentrant and can not be used in a
-  // multithreaded environment
+{ // se pone estática para crearla una sola vez. Pero cuidado! la
+  // función deja de ser reentrante y no puede usarse en un entorno multithread
   static ParList pars_list;
   return dcompute(corr_ptr, check, pars_list, args...);
 }
@@ -953,9 +1085,8 @@ VtlQuantity dcompute(const Correlation * corr_ptr, bool check, Args ... args)
 template <typename ... Args> inline
 VtlQuantity
 dcompute_noexcep(const Correlation * corr_ptr, bool check, Args ... args)
-{ // static for creating it once and thus to gain time. But beware!
-  // The function is not reentrant and can not be used in a
-  // multithreaded environment
+{ // se pone estática para crearla una sola vez. Pero cuidado! la
+  // función deja de ser reentrante y no puede usarse en un entorno multithread
   static ParList pars_list;
   return dcompute_noexcep(corr_ptr, check, pars_list, args...);
 }
@@ -963,14 +1094,53 @@ dcompute_noexcep(const Correlation * corr_ptr, bool check, Args ... args)
 template <typename ... Args> inline
 double compute(const DefinedCorrelation & corr, bool check,
 	       const VtlQuantity & p_q, Args ... args)
-{ // static for creating it once and thus to gain time. But beware!
-  // The function is not reentrant and can not be used in a
-  // multithreaded environment
+{ // se pone estática para crearla una sola vez. Pero cuidado! la
+  // función deja de ser reentrante y no puede usarse en un entorno multithread
   static ParList pars_list;
   return compute(corr, check, pars_list, p_q, args...);
 }
 
-/// Returns the list of parameters required by the set of correlations that are in l
+/// target, p, t
+DynList<DynList<double>> generate_rs_values()
+{
+  auto pars_list = compute_pb_and_load_constant_parameters();
+
+  DynList<DynList<double>> vals; /// target, p, t
+  DynList<double> row;
+
+  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
+    {
+      auto t_par = t_it.get_curr();
+      pars_list.insert(t_par);
+      row.insert(get<2>(t_par));
+
+      auto pb = compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
+
+      pars_list.insert(NPAR(pb));
+      auto rs_corr =
+	set_rs_correlation(pb, VtlQuantity(*rsb_unit, rsb_arg.getValue()),
+			   below_corr_ptr, cb_arg.getValue(), mb_arg.getValue());
+
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
+	{
+	  auto p_par = p_it.get_curr();
+	  VtlQuantity p_q = par(p_par);
+	  auto val = compute(rs_corr, check, p_q, pars_list, p_par);
+	  size_t n = row.ninsert(get<2>(p_par), val);
+	  vals.append(row);
+	  row.mutable_drop(n);
+	}
+
+      row.remove_first(); // t_par
+
+      remove_from_container(pars_list, "pb", "t");
+    }
+
+  return vals;
+}
+
+/// Retorna la lista de parámetros necesarios por el conjunto de
+/// correlaciones que están en l
 ParList load_constant_parameters(const DynList<const Correlation*> & l)
 {
   ParList pars_list;
@@ -987,6 +1157,123 @@ ParList load_constant_parameters(const DynList<const Correlation*> & l)
   test_parameter(required_pars, nacl_concentration_par, pars_list);
 
   return pars_list;
+}
+
+/// target, p, t
+DynList<DynList<double>> generate_bo_values()
+{
+  assert(rs_corr);
+  auto bo_pars_list = compute_pb_and_load_constant_parameters();
+  
+  auto rs_pars_list =
+    load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
+
+  DynList<DynList<double>> vals; /// target, p, t
+  DynList<double> row;
+
+  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
+    {
+      auto t_par = t_it.get_curr();
+
+      row.insert(get<2>(t_par));
+
+      auto pb =
+	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
+      auto pb_par = NPAR(pb);
+
+      auto bo_corr = target_correlation(pb);
+      insert_in_container(bo_pars_list, t_par, pb_par);
+
+      auto rs_corr = define_correlation(pb, ::rs_corr,
+					c_rs_arg.getValue(), m_rs_arg.getValue(),
+					&RsAbovePb::get_instance());
+      insert_in_container(rs_pars_list, t_par, pb_par);
+
+      // último bo de la correlación bob. Este será el punto de partida de boa
+      auto bobp =
+	compute(below_corr_ptr, cb_arg.getValue(), mb_arg.getValue(),
+		check, bo_pars_list, npar("p", pb), npar("rs", rsb_par));
+
+      bo_pars_list.insert(NPAR(bobp));
+
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
+	{
+	  auto p_par = p_it.get_curr();
+	  VtlQuantity p_q = par(p_par);
+	  auto rs = compute(rs_corr, check, p_q, rs_pars_list, p_par);
+	  auto bo = compute(bo_corr, check, p_q, bo_pars_list, p_par,
+			    npar("rs", rs, &::rs_corr->unit));
+	  size_t n = row.ninsert(get<2>(p_par), bo);
+	  vals.append(row);
+	  row.mutable_drop(n);
+	}
+
+      row.remove_first(); // t_par
+
+      remove_from_container(rs_pars_list, pb_par, t_par); 
+      remove_from_container(bo_pars_list, "bobp", "pb", t_par);
+    }
+
+  return vals;
+}
+
+/// target, p, t
+DynList<DynList<double>> generate_uo_values()
+{
+  assert(rs_corr);
+  auto uo_pars_list = compute_pb_and_load_constant_parameters();
+  
+  auto rs_pars_list =
+    load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
+
+  auto uod_pars_list = load_constant_parameters({uod_corr});
+
+  DynList<DynList<double>> vals; /// target, p, t
+  DynList<double> row;
+
+  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
+    {
+      auto t_par = t_it.get_curr();
+      row.insert(get<2>(t_par));
+
+      auto pb = compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
+      auto pb_par = NPAR(pb);
+
+      auto uod = dcompute(uod_corr, check, uod_pars_list, t_par);
+
+      insert_in_container(rs_pars_list, t_par, pb_par);
+      auto rs_corr = define_correlation(pb, ::rs_corr,
+					c_rs_arg.getValue(), m_rs_arg.getValue(),
+					&RsAbovePb::get_instance());
+
+      auto uo_corr = target_correlation(pb);
+      insert_in_container(uo_pars_list, t_par, pb_par, NPAR(uod));
+
+      auto uobp =
+	compute(below_corr_ptr, cb_arg.getValue(), mb_arg.getValue(),
+		check, uo_pars_list, npar("p", pb), npar("rs", rsb_par));
+
+      uo_pars_list.insert("uobp", uobp.raw(), &uobp.unit);
+
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
+	{
+	  auto p_par = p_it.get_curr();
+	  auto p_q = par(p_par);
+	  auto rs = compute(rs_corr, check, p_q, rs_pars_list, p_par);
+	  auto uo = compute(uo_corr, check, p_q, uo_pars_list, p_par,
+			    npar("rs", rs, &::rs_corr->unit));
+	  size_t n = row.ninsert(get<2>(p_par), uo);
+	  vals.append(row);
+	  row.mutable_drop(n);
+	}
+
+      row.remove_first(); // t_par
+
+      remove_from_container(rs_pars_list, "pb", t_par);
+      remove_from_container(uo_pars_list, "uobp", "pb", "uod", t_par);
+    }
+
+  return vals;
 }
 
 void print_row(const FixedStack<double> & row, bool is_pb = false)
@@ -1012,7 +1299,7 @@ void print_row(const FixedStack<double> & row, bool is_pb = false)
       const auto & val = ptr[i];
       if (val != Invalid_Value)
 	printf("%f", val);
-      //printf("%.17g", val); // uncomment this and comment above for maximum precision
+      //printf("%.17g", val);
       if (i > 0)
 	printf(",");
     }
@@ -1041,7 +1328,7 @@ void print_csv_header(Args ... args)
 
 void generate_grid_blackoil()
 {
-  set_check(); // Initialisation of constant data
+  set_check(); // Inicialiación de datos constantes
   set_api();
   set_rsb();
   set_yg();
@@ -1053,7 +1340,7 @@ void generate_grid_blackoil()
   set_nacl_concentration();
   set_pb();
   
-  set_rs_corr(true); // Initialization of correlations
+  set_rs_corr(true); // Inicialización de correlaciones
   set_bob_corr(true);
   set_boa_corr(true);
   set_uod_corr(true);
@@ -1084,7 +1371,12 @@ void generate_grid_blackoil()
   set_t_range();
   set_p_range();
 
-  // Calculation of constants for Z
+  if (below_corr_arg.isSet())
+    error_msg("below option is incompatible with grid option");
+  if (above_corr_arg.isSet())
+    error_msg("above option is incompatible with grid option");
+
+  // cálculo de constantes para Z
   auto yghc = dcompute_noexcep(YghcWichertAziz::correlation(), true, NPAR(yg),
 			       NPAR(n2_concentration), NPAR(co2_concentration),
 			       NPAR(h2s_concentration));
@@ -1104,9 +1396,9 @@ void generate_grid_blackoil()
   auto adjustedtpcm = dcompute_noexcep(adjustedtpcm_corr, true, NPAR(tpcm),
 				       NPAR(co2_concentration),
 				       NPAR(h2s_concentration));
-  // End calculation constants for z
+  // Fin cálculo constantes para z
 
-  // Initialization of correlation parameter lists
+  // Inicialización de listas de parámetros de correlaciones
   auto pb_pars = load_constant_parameters({pb_corr});
   auto rs_pars = load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
   auto uod_pars = load_constant_parameters({uod_corr});
@@ -1155,10 +1447,10 @@ void generate_grid_blackoil()
 
   auto rs_pb = npar("rs", rsb_par);
 
-  FixedStack<double> row(25); // Here are the values. Ensure that the
-			      // insertion order is the same as for
-			      // the csv header
-  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next()) // temperature loop
+  FixedStack<double> row(25); // aquí van los valores. Asegure que el
+			      // orden de inserción sea el mismo que
+			      // para el header
+  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
     {
       Correlation::NamedPar t_par = t_it.get_curr();
       VtlQuantity t_q = par(t_par);
@@ -1225,7 +1517,7 @@ void generate_grid_blackoil()
       auto bwbp = dcompute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));
 
       insert_in_container(po_pars, pb_par, NPAR(pobp));
-      insert_in_container(ug_pars, t_par, tpr_par);
+      insert_in_container(ug_pars, t_par);
       insert_in_container(bw_pars, t_par, pb_par, NPAR(bwbp));
       cg_pars.insert(tpr_par);
       uw_pars.insert(t_par);
@@ -1239,12 +1531,13 @@ void generate_grid_blackoil()
       size_t n = row.ninsert(t_q.raw(), pb, uod_val.raw());
 
       size_t i = 0;
-      for (auto p_it = p_values.get_it(); p_it.has_curr(); /* nothing */) // pressure loop
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); /* nothing */)
 	{
 	  Correlation::NamedPar p_par = p_it.get_curr();
 	  VtlQuantity p_q = par(p_par);
 
-	  bool pb_row = false; // true if line concerns to bubble point
+	  // esto es para insertar en línea las filas del punto de burbuja
+	  bool pb_row = false;
 
 	  if (p_q <= pb_q or (not (i < 2)) or first_p_above_pb)
 	    p_it.next();
@@ -1304,7 +1597,7 @@ void generate_grid_blackoil()
       remove_from_container(bo_pars, "bobp", "pb", t_par);
       remove_from_container(uo_pars, "uobp", "pb", "uod", t_par);
       remove_from_container(po_pars, "pb", "pobp");
-      remove_from_container(ug_pars, t_par, tpr_par);
+      remove_from_container(ug_pars, t_par);
       remove_from_container(bw_pars, t_par, pb_par, "bwbp");
       sgo_pars.remove(t_par);
       sgw_pars.remove(t_par);
@@ -1362,6 +1655,201 @@ grid_dispatcher("blackoil", generate_grid_blackoil,
 
 using OptionPtr = DynList<DynList<double>> (*)();
 
+AHDispatcher<string, OptionPtr> dispatcher("rs", generate_rs_values,
+					   "bob", generate_bo_values,
+					   "uob", generate_uo_values);
+
+auto cmp_p = [] (const DynList<double> & row1, const DynList<double> & row2)
+{
+  const auto & p1 = row1.nth(1);
+  const auto & p2 = row2.nth(1);
+  if (p1 == p2)
+    return row1.get_last() < row2.get_last();
+  return p1 < p2;
+};
+
+auto cmp_t = [] (const DynList<double> & row1, const DynList<double> & row2)
+{
+  const auto & t1 = row1.get_last();
+  const auto & t2 = row2.get_last();
+  if (t1 == t2)
+    return row1.nth(1) < row2.nth(1);
+  return t1 < t2;
+};
+
+void sort(DynList<DynList<double>> & vals, SortType type)
+{
+  switch (type)
+    {
+    case SortType::Pressure:
+      in_place_sort(vals, cmp_p);
+      break;
+    case SortType::Temperature:
+      in_place_sort(vals, cmp_t);
+      break;
+    case SortType::Value:
+            in_place_sort(vals, [] (const auto & row1, const auto & row2)
+		    {
+		      return row1.get_first() < row2.get_first();
+		    });
+	    break;
+    default:
+      error_msg("Invalid sort type");
+      break;
+  }
+}
+
+string mat_format(const DynList<DynList<double>> & vals)
+{
+ DynList<DynList<string>> mat = vals.maps<DynList<string>>([] (const auto & row)
+  {
+    return row.template maps<string>([] (auto v) { return to_string(v); }).rev();
+  });
+  mat.insert({"t", "p", target_name});
+
+  return to_string(format_string(mat)); 
+}
+
+string csv_format(const DynList<DynList<double>> & vals)
+{
+ DynList<DynList<string>> mat = vals.maps<DynList<string>>([] (const auto & row)
+  {
+    return row.template maps<string>([] (auto v) { return to_string(v); }).rev();
+  });
+  mat.insert({"t", "p", target_name});
+
+  return to_string(format_string_csv(mat));
+}
+
+string R_format(const DynList<DynList<double>> & mat)
+{
+  auto values = transpose(mat);
+  auto vals = values.get_first();
+  auto pressure = values.nth(1);
+  auto temperature = values.get_last();
+
+  auto min_v = numeric_limits<double>::max();
+  auto max_v = numeric_limits<double>::min();
+
+  ostringstream s;
+
+  if (get_sort_type(sort_type.getValue()) == SortType::Temperature)
+    {
+      const size_t num_samples = p_range.getValue().n;
+      auto min_p = numeric_limits<double>::max();
+      auto max_p = numeric_limits<double>::min();
+      Array<DynList<double>> p_array;
+      Array<DynList<double>> v_array;
+      DynList<string> suffix;
+      for (auto it = get_zip_it(temperature, pressure, vals); it.has_curr();)
+	{
+	  auto t = it.get_curr();
+	  suffix.append(to_string(get<0>(t)));
+	  DynList<double> p;
+	  DynList<double> v;
+
+	  for (size_t i = 0; i < num_samples; ++i, it.next())
+	    {
+	      auto tt = it.get_curr();
+	      auto p_val = get<1>(tt);
+	      auto v_val = get<2>(tt);
+	      p.append(p_val);
+	      v.append(v_val);
+	      min_p = min(min_p, p_val);
+	      max_p = max(max_p, p_val);
+	      min_v = min(min_v, v_val);
+	      max_v = max(max_v, v_val);
+	    }
+	  p_array.append(move(p));
+	  v_array.append(move(v));
+	}
+
+      DynList<string> p_names, v_names, t_names;
+      for (auto it = get_zip_it(suffix, p_array, v_array);
+	   it.has_curr(); it.next())
+	{
+	  auto t = it.get_curr();	  
+	  string p_name = "p_" + get<0>(t);
+	  string v_name = "v_" + get<0>(t);
+	  string t_name = "\"T = " + get<0>(t) + "\"";
+	  s << Rvector(p_name, get<1>(t)) << endl
+	    << Rvector(v_name, get<2>(t)) << endl;
+	  p_names.append(move(p_name));
+	  v_names.append(move(v_name));
+	  t_names.append(move(t_name));
+	}
+      s << "plot(0, type=\"n\", xlim=c(" << min_p << "," << max_p << "),ylim=c("
+	<< min_v << "," << max_v << "))" << endl;
+      for (auto it = get_enum_zip_it(p_names, v_names); it.has_curr(); it.next())
+	{
+	  auto t = it.get_curr();
+	  s << "lines(" << get<0>(t) << "," << get<1>(t) << ",col="
+	    << get<2>(t) + 1 << ")" << endl;
+	}
+      s << Rvector("cnames", t_names) << endl
+	<< Rvector("cols", range<size_t>(1, p_array.size())) << endl
+	<< "legend(\"topleft\", legend=cnames, lty=1, col=cols)";
+      return s.str();
+    }
+
+  const size_t num_samples = t_range.getValue().n;
+  auto min_t = numeric_limits<double>::max();
+  auto max_t = numeric_limits<double>::min();
+  Array<DynList<double>> t_array;
+  Array<DynList<double>> v_array;
+  DynList<string> suffix;
+  for (auto it = get_zip_it(temperature, pressure, vals); it.has_curr();)
+    {
+      auto tt = it.get_curr();
+      suffix.append(to_string(get<1>(tt)));
+      DynList<double> t;
+      DynList<double> v;
+
+      for (size_t i = 0; i < num_samples; ++i, it.next())
+	{
+	  auto tt = it.get_curr();
+	  auto t_val = get<0>(tt);
+	  auto v_val = get<2>(tt);
+	  t.append(t_val);
+	  v.append(v_val);
+	  min_t = min(min_t, t_val);
+	  max_t = max(max_t, t_val);
+	  min_v = min(min_v, v_val);
+	  max_v = max(max_v, v_val);
+	}
+      t_array.append(move(t));
+      v_array.append(move(v));
+    }
+
+  DynList<string> p_names, v_names, t_names;
+  for (auto it = get_zip_it(suffix, t_array, v_array); it.has_curr(); it.next())
+    {
+      auto t = it.get_curr();	  
+      string t_name = "t_" + get<0>(t);
+      string v_name = "v_" + get<0>(t);
+      string p_name = "\"P = " + get<0>(t) + "\"";
+      s << Rvector(t_name, get<1>(t)) << endl
+	<< Rvector(v_name, get<2>(t)) << endl;
+      p_names.append(move(p_name));
+      v_names.append(move(v_name));
+      t_names.append(move(t_name));
+    }
+  s << "plot(0, type=\"n\", xlim=c(" << min_t << "," << max_t << "),ylim=c("
+    << min_v << "," << max_v << "))" << endl;
+  for (auto it = get_enum_zip_it(t_names, v_names); it.has_curr(); it.next())
+    {
+      auto t = it.get_curr();
+      s << "lines(" << get<0>(t) << "," << get<1>(t) << ",col="
+	<< get<2>(t) + 1 << ")" << endl;
+    }
+  s << Rvector("cnames", p_names) << endl
+    << Rvector("cols", range<size_t>(1, t_array.size())) << endl
+    << "legend(\"topleft\", legend=cnames, lty=1, col=cols)";
+
+  return s.str();
+}
+
+
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
@@ -1372,11 +1860,39 @@ int main(int argc, char *argv[])
   if (grid.isSet())
     grid_dispatcher.run(grid.getValue());
 
-  cout << "No " << grid.getFlag() << " or " << print_types.getFlag()
-       << " have been set" << endl;
-  abort();
+  set_check();
+  set_api();
+  set_rsb();
+  set_yg();
+  set_tsep();
+  set_psep();
+  set_pb();
+  set_rs_corr();
+  set_uod_corr();
+  set_t_range();
+  set_p_range();
+  set_below_corr();
+  set_above_corr();
+
+  auto vals = dispatcher.run(target_name);
+
+  sort(vals, get_sort_type(sort_type.getValue()));
+
+  switch (get_output_type(output_type.getValue()))
+    {
+    case OutputType::mat:
+      cout << mat_format(vals) << endl;
+      break;
+    case OutputType::csv:
+      cout << csv_format(vals) << endl;
+      break;
+    case OutputType::json:
+      error_msg("json not yet implemented");
+      break;
+    case OutputType::R:
+      cout << R_format(vals) << endl;
+      break;
+    default:
+      error_msg("Invalid output type");
+    }
 }
-
-
-
-
