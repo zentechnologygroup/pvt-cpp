@@ -1178,7 +1178,7 @@ void generate_grid_blackoil()
       bool first_p_above_pb = VtlQuantity(*get<3>(first_p_point),
 					  get<2>(first_p_point)) > pb_q;
   
-      auto uod_val = dcompute(uod_corr, check, uod_pars, t_par);
+      auto uod_val = dcompute(uod_corr, check, uod_pars, t_par, pb_par);
 
       insert_in_container(rs_pars, t_par, pb_par);
       auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(),

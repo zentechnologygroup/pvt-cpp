@@ -49,7 +49,7 @@ ValuesConstraint<string> allowed_compute = compute_types;
 ValueArg<string> compute_type = { "c", "compute-type", "compute type", false,
 				 "single", &allowed_compute, cmd };
 
-vector<string> sort_values = { "r2", "sumsq", "mse", "distance", "m" };
+vector<string> sort_values = { "r2", "sumsq", "mse", "distance", "m", "c" };
 ValuesConstraint<string> allow_sort = sort_values;
 ValueArg<string> sort_type = { "o", "order", "output order type", false,
 			       "sumsq", &allow_sort, cmd };
@@ -127,6 +127,15 @@ auto cmp_m = [] (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
   return fabs(1 - f1.m) < fabs(1 - f2.m);
 };
 
+auto cmp_c = [] (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
+{
+  const CorrStat::Desc & s1 = get<2>(d1);
+  const CorrStat::Desc & s2 = get<2>(d2);
+  const CorrStat::LFit & f1 = get<3>(s1);
+  const CorrStat::LFit & f2 = get<3>(s2);
+  return fabs(f1.c) < fabs(f2.c);
+};
+
 auto get_cmp(const string & sort_type) -> bool
   (*) (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
 {
@@ -135,6 +144,7 @@ auto get_cmp(const string & sort_type) -> bool
   if (sort_type == "distance") return cmp_dist;
   if (sort_type == "mse") return cmp_mse;
   if (sort_type == "m") return cmp_m;
+  if (sort_type == "c") return cmp_c;
   cout << "Invalid sort type " << sort_type << endl;
   abort();
 }
