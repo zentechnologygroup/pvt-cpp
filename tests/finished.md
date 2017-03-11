@@ -1144,3 +1144,21 @@
 - Comment      
 - Finished     
 
+## 192. script que añada símbolos latex a todas las unidades
+- Created at   2017-03-02 16:15:06 -0400
+- Completed at 2017-03-11 16:30:23 -0400
+- Comment      
+- Finished     
+
+## 193. añadir columna aplot con el número de excepción
+- Created at   2017-02-25 17:34:56 -0400
+- Completed at 2017-03-11 16:32:07 -0400
+- Comment      
+- Finished     
+
+## 194. implementar la unión de parámetros de famila de correlación
+- Created at   2017-02-08 15:06:07 -0400
+- Completed at 2017-03-11 16:32:23 -0400
+- Comment      
+- Finished     
+

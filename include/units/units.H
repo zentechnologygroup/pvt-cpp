@@ -142,6 +142,7 @@ public:
     ostringstream s;
     s << "Unit name         = " << name << endl
       << "symbol            = " << symbol << endl
+      << "latex symbol      = " << latex_symbol << endl
       << "physical quantity = " << physical_quantity.name << endl
       << "min               = " << min_val << endl
       << "max               = " << max_val << endl
@@ -155,6 +156,7 @@ public:
     ostringstream s;
     s << margin << "Unit name         = " << name << endl
       << margin << "symbol            = " << symbol << endl
+      << margin << "latex symbol      = " << latex_symbol << endl
       << margin << "description       = "
       << align_text_to_left_except_first(description, width, left_margin + 20)
       << endl
