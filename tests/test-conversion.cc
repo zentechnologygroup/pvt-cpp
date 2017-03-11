@@ -32,11 +32,11 @@ void convert(const Unit * src_unit, const Unit * tgt_unit, istream & in)
 void list_all_units()
 {
   DynList<DynList<string>> rows;
-  PhysicalQuantity::quantities().for_each([&rows] (const auto & pq)
+  PhysicalQuantity::quantities().for_each([&rows] (auto & pq)
     {
       rows.append(pq->units().template maps<DynList<string>>([&pq] (auto p)
         {
-	  return DynList<string>({ pq->name, pq->symbol, p->latex_symbol,
+	  return DynList<string>({ pq->name, pq->symbol, pq->latex_symbol,
 		p->name, p->symbol, p->latex_symbol });
 	}));
     });

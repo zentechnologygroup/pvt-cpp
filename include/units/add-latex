@@ -24,7 +24,7 @@ lines = File.open(file)
 
 lines.each do |line|
 
-  if line.include? 'Declare_Unit'
+  if line.include? 'Declare_Unit' or line.include? 'Declare_Physical_Quantity'
     tokens = line.split ','
     unit_name = tokens[0].split('(')[1]
     if $unit_symbols.has_key? unit_name

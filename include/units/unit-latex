@@ -1,0 +1,10 @@
+#!/bin/bash
+
+list=`ls *-unit.H`
+for f in $list
+do
+    ./add-latex -f $f
+done
+
+
+
