@@ -49,9 +49,9 @@ CompoundUnitTbl __compound_unit_tbl;
 
 const PhysicalQuantity
 PhysicalQuantity::null_physical_quantity("NullPhysicalQuantity", "NullPQ",
-					 "Null Physical Quantity");
+					 "Null" "Null Physical Quantity");
 
-const Unit Unit::null_unit("NullUnit", "Null Unit", "Null unit",
+const Unit Unit::null_unit("NullUnit", "Null Unit", "Null unit", "Null",
 			   PhysicalQuantity::null_physical_quantity,
 			   numeric_limits<double>::min(),
 			   numeric_limits<double>::max());
@@ -81,6 +81,7 @@ static json to_json(const Unit * unit_ptr)
   j["name"] = unit_ptr->name;
   j["description"] = unit_ptr->description;
   j["symbol"] = unit_ptr->symbol;
+  j["latex_symbol"] = unit_ptr->latex_symbol;
   j["minimum_value"] = unit_ptr->min_val;
   j["maximum_value"] = unit_ptr->max_val;
   j["epsilon"] = unit_ptr->get_epsilon();
@@ -93,6 +94,7 @@ static json to_json(const PhysicalQuantity * const pq)
   j["name"] = pq->name;
   j["description"] = pq->description;
   j["symbol"] = pq->symbol;
+  j["latex_symbol"] = pq->latex_symbol;
   j["units"] =
     to_vector(pq->units().maps<json>([] (auto p) { return to_json(p); }));
   

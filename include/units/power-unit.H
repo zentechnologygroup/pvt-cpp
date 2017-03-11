@@ -3,11 +3,11 @@
 
 # include "units/units.H"
 
-Declare_Physical_Quantity(Power, "P", "power is the rate of doing work. It is the amount of energy consumed per unit time");
+Declare_Physical_Quantity(Power, "P","Undefined", "power is the rate of doing work. It is the amount of energy consumed per unit time");
 
-Declare_Unit(HorsePower, "hp", "Unit of measurement of power hp", Power, 0, 2000);
+Declare_Unit(HorsePower, "hp","Undefined", "Unit of measurement of power hp", Power, 0, 2000);
 
-Declare_Unit(watt, "W", "Unit of measurement of power watt", Power, 0, 1491399.74316);
+Declare_Unit(watt, "W","Undefined", "Unit of measurement of power watt", Power, 0, 1491399.74316);
 
 // To HorsePower
 Declare_Conversion(watt, HorsePower, V) { return 1.3410220896e-3 * V; }

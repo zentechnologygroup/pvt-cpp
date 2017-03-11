@@ -3,7 +3,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(OGRLGRvolumeRatio, "OGRLGR_V_V",
+Declare_Physical_Quantity(OGRLGRvolumeRatio, "OGRLGR_V_V", "Undefined",
 			  R"DESC(The condensate/gas ratio (OGR) is the ratio of the
 			  volume of hydrocarbons that condensate to the volume of gas 
 			  (both at standard conditions). OGR refers to the amount of surface 
@@ -13,25 +13,25 @@ Declare_Physical_Quantity(OGRLGRvolumeRatio, "OGRLGR_V_V",
 			  (usually hydrocarbon + water) to the volume of gas (both at standard conditions).
 			  OGR and LGR are dimensionless ratios (volume per volume).)DESC");
     
-Declare_Unit(STB_SCF, "STB/scf",
+Declare_Unit(STB_SCF, "STB/scf","STB/scf",
          R"DESC(Dimensionless volume ratio (volume per volume) 
          measured in barrels of liquid per cubic feet of gas 
 	 at standard conditions.)DESC",
          OGRLGRvolumeRatio, 1e-9, 1e-4);
 
-Declare_Unit(STB_Mscf, "STB/Mscf",
+Declare_Unit(STB_Mscf, "STB/Mscf","STB/Mscf",
          R"DESC(Dimensionless volume ratio (volume per volume) 
          measured in barrels of liquid per thousand of cubic feet of gas 
 	 at standard conditions.)DESC",
          OGRLGRvolumeRatio, 1e-6, 1e-1);
 
-Declare_Unit(STB_MMscf, "STB/MMscf",
+Declare_Unit(STB_MMscf, "STB/MMscf","STB/MMscf",
          R"DESC(Dimensionless volume ratio (volume per volume) 
          measured in measured in barrels of liquid per million of cubic feet of gas 
 	 at standard conditions.)DESC",
          OGRLGRvolumeRatio, 1e-3, 1e2);
 
-Declare_Unit(Sm3Liquid_Sm3, "Sm3 Liquid/Sm3",
+Declare_Unit(Sm3Liquid_Sm3, "Sm3 Liquid/Sm3","Sm^{3}/Sm^{3}",
          R"DESC(Dimensionless volume ratio (volume per volume) 
 	 measured in cubic meters of liquid per cubic meters of gas 
 	 at standard conditions.)DESC",

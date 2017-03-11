@@ -3,7 +3,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(GasFVF, "Bg",
+Declare_Physical_Quantity(GasFVF, "Bg", "B_{g}",
    R"DESC(The formation volume factor of gas is defined 
    as the ratio of the volume of gas at the reservoir 
    temperature and pressure to the volume at the standard 
@@ -13,31 +13,31 @@ Declare_Physical_Quantity(GasFVF, "Bg",
    cubic foot of gas or barrels of reservoir volume per 
    standard cubic foot of gas.)DESC");
   
-Declare_Unit(RCF_SCF, "rcf/scf",
+Declare_Unit(RCF_SCF, "rcf/scf","rcf/scf",
      R"DESC(Gas Formation Volume Factor, gas volume 
      relationship measured as reservoir
      cubic feet into standard cubic feet)DESC",
      GasFVF, 0, 10);
 
-Declare_Unit(RM3_SM3, "rm3/sm3",
+Declare_Unit(RM3_SM3, "rm3/sm3","Rm^{3}/Sm^{3}",
      R"DESC(Gas Formation Volume Factor, gas volume 
      relationship measured as reservoir
      cubic meters into standard cubic meter)DESC",
      GasFVF, 0, 10);
 
-Declare_Unit(RCF_MSCF, "rcf/Mscf",
+Declare_Unit(RCF_MSCF, "rcf/Mscf","rcf/Mscf",
     R"DESC(Gas Formation Volume Factor, gas volume 
     relationship measured as reservoir
     cubic feet into thousand standard cubic feet)DESC",
     GasFVF, 0, 10000);
 
-Declare_Unit(RB_SCF, "RB/scf",
+Declare_Unit(RB_SCF, "RB/scf","RB/scf",
     R"DESC(Gas Formation Volume Factor, gas volume 
     relationship measured as reservoir
     barrels into standard cubic feet)DESC",
     GasFVF, 0, 1.7810766679);
 
-Declare_Unit(RB_MSCF, "RB/Mscf",
+Declare_Unit(RB_MSCF, "RB/Mscf","RB/Mscf",
     R"DESC(Gas Formation Volume Factor, gas volume 
     relationship measured as reservoir
     barrels into thousand standard cubic feet)DESC",
