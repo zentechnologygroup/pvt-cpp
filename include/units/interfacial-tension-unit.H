@@ -5,7 +5,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(InterfacialTension, "sg","Undefined",
+Declare_Physical_Quantity(InterfacialTension, "sg", "Undefined",
 			  R"DESC(Interfacial or surface tension exists when two phases are present. 
 			  These phases can be gas/oil, oil/water, or gas/water. Interfacial tension 
 			  is the force that holds the surface of a particular phase together 

@@ -4,7 +4,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(OilGravity, "rho_o","Undefined",
+Declare_Physical_Quantity(OilGravity, "rho_o", "\\rho",
 			  R"DESC(Oil gravity is relates to specific density 
                                  measurements of liquids petroleum products 
 		                 at dead oil conditions)DESC");

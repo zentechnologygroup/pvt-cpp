@@ -5,7 +5,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(IsothermalCompressibility, "C","Undefined",
+Declare_Physical_Quantity(IsothermalCompressibility, "C", "C",
 			  R"DESC(Isothermal compressibility is the 
 			  change in volume of a hydrocarbon system as the pressure 
 			  changes while temperature remains constant.)DESC");

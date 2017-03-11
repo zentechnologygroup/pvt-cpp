@@ -3,7 +3,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(Density, "rho","Undefined",
+Declare_Physical_Quantity(Density, "rho", "\\rho",
 		R"DESC(The density of a substance (oil) is its mass
         per unit volume. NOTE: The official density of 
         water at 60 °F according to the 2008 edition of

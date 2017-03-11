@@ -77,24 +77,24 @@ public:
     @param[in] desc description 
 
  */
-# define Declare_Physical_Quantity(__name, symbol, desc)	\
-  struct __name : public PhysicalQuantity			\
-  {								\
-    								\
-    static const __name & get_instance()			\
-    {								\
-      static __name instance;					\
-      return instance;						\
-    }								\
-    								\
-  private:							\
-    								\
-    __name() : PhysicalQuantity(#__name, symbol, desc) {}	\
-    								\
-  public:							\
-    								\
-    __name(const __name&) = delete;				\
-    void operator = (const __name&) = delete;			\
+# define Declare_Physical_Quantity(__name, symbol, lsymbol, desc)	\
+  struct __name : public PhysicalQuantity				\
+  {									\
+									\
+    static const __name & get_instance()				\
+    {									\
+      static __name instance;						\
+      return instance;							\
+    }									\
+									\
+  private:								\
+									\
+    __name() : PhysicalQuantity(#__name, symbol, lsymbol, desc) {}	\
+									\
+  public:								\
+									\
+    __name(const __name&) = delete;					\
+    void operator = (const __name&) = delete;				\
   };
 
 class VtlQuantity; // forward declaration

@@ -3,7 +3,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(GasSpecificGravity, "Yg","Undefined",
+Declare_Physical_Quantity(GasSpecificGravity, "Yg", "Y_g",
 		R"DESC(The specific gravity of a gas, γ, is the 
 		ratio of the density of the gas at standard pressure
 		and temperature to the density of air at the same 

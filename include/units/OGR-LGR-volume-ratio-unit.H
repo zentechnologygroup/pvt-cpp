@@ -3,7 +3,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(OGRLGRvolumeRatio, "OGRLGR_V_V","Undefined",
+Declare_Physical_Quantity(OGRLGRvolumeRatio, "OGRLGR_V_V", "Undefined",
 			  R"DESC(The condensate/gas ratio (OGR) is the ratio of the
 			  volume of hydrocarbons that condensate to the volume of gas 
 			  (both at standard conditions). OGR refers to the amount of surface 

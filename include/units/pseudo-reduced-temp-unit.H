@@ -3,7 +3,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(TemperatureRatio, "TemperatureRatio","Undefined",
+Declare_Physical_Quantity(TemperatureRatio, "TemperatureRatio", "Undefined",
 			  "ration between two temperatures");
 
 

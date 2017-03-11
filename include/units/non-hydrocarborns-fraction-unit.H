@@ -3,7 +3,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(NonHydrocarbonsFraction, "fvi","Undefined",
+Declare_Physical_Quantity(NonHydrocarbonsFraction, "fvi", "Undefined",
 			  R"DESC(volume fraction of a non-hydrocarbon component)DESC");
 
 Declare_Unit(MoleFraction, "MoleFraction","mol\\ fraction",

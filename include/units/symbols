@@ -1,3 +1,34 @@
+# coding: utf-8
+# Hola Ixhel:
+
+# Este archivo ya no debe usarse más.
+
+# Ya puse los símbolos LaTeX para las unidades. Seguramente habrán
+# algunas incompletas.
+
+# El comando
+
+#    ./test-conversion -l
+
+
+# Te lista las unidades. La mayoría de ellas deben tener los símbolos
+# latex definidos. Las que no están marcadas con la palabra "Undefined".
+
+# Los archivos de interés son aquellos en el directorio
+# include/units/*-unit.H
+
+# Se debe poner cuidado a dos declaraciones.
+
+# 1- Declare_Physical_Quantity
+
+# 2- Declare_Unit
+
+# Para ambas declaraciones el 3er parámetro es la cadena correspondiente
+# al símbolo LaTeX. Como estamos en C++, no en ruby, cuando haya un
+# backslash debes poner 2 seguidos (no 4 como se hacía en ruby). Por
+# ejemplo para la letra griega alfa, se pondría "\\alpha"
+
+fail "read instructions in include/units/symbols file"
 
 $unit_symbols =
   {

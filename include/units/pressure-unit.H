@@ -4,7 +4,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(Pressure, "P","Undefined",
+Declare_Physical_Quantity(Pressure, "P", "P",
 			  R"DESC(Pressure is the force applied perpendicular
 			  to the surface of an object per unit area over which
 			  that force is distributed)DESC");
