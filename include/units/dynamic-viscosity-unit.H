@@ -3,42 +3,42 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(DynamicViscosity, "U",
+Declare_Physical_Quantity(DynamicViscosity, "U","Undefined",
                 R"DESC(The viscosity of a fluid is a measure of its resistance
                to gradual deformation by shear stress or tensile stress.
                The dynamic (shear) viscosity of a fluid expresses its 
                resistance to shearing flows, where adjacent layers
                move parallel to each other with different speeds.)DESC");
 
-Declare_Unit(kg_mxs, "kg/m*s",
+Declare_Unit(kg_mxs, "kg/m*s","kg/m \\cdot s",
          "Dynamic Viscosity measured as kilogram divided into meter per second.",
          DynamicViscosity, 0, 10000000);
 
-Declare_Unit(lb_ftxs, "lb/ft*s",
+Declare_Unit(lb_ftxs, "lb/ft*s","lb/ft \\cdot s",
          "Dynamic Viscosity measured as pound divided into foot per second.",
           DynamicViscosity, 0, 6719689.75);
 
-Declare_Unit(g_cmxs, "g/cm*s",
+Declare_Unit(g_cmxs, "g/cm*s","g/cm \\cdot s",
          "Dynamic Viscosity measured as gram divided into centimeter per second.",
           DynamicViscosity, 0, 100000000);
 
-Declare_Unit(CP, "cP",
+Declare_Unit(CP, "cP","cP",
          "Dynamic Viscosity measured as centipoise.",
           DynamicViscosity, 0, 10000000000);
 
-Declare_Unit(Paxs, "Pa*s",
+Declare_Unit(Paxs, "Pa*s","Pa \\cdot s",
          "Dynamic Viscosity measured as Pascal per second.",
           DynamicViscosity, 0, 10000000);
 
-Declare_Unit(lb_ftxh, "lb/ft*h",
+Declare_Unit(lb_ftxh, "lb/ft*h","lb/ft \\cdot h",
          "Dynamic Viscosity measured as pound divided into foot per hour.",
           DynamicViscosity, 0, 24190881500);
 
-Declare_Unit(Poise, "poise",
+Declare_Unit(Poise, "poise","P",
          "Dynamic Viscosity measured as poise.",
           DynamicViscosity, 0, 100000000);
 
-Declare_Unit(mP, "mP", "Dynamic Viscosity measured as micropoise.",
+Declare_Unit(mP, "mP","mP", "Dynamic Viscosity measured as micropoise.",
           DynamicViscosity, 0, 100000000e6);
 
 // Dynamic Viscosity Conversions

@@ -3,15 +3,15 @@
 
 # include "units/units.H"
 
-Declare_Physical_Quantity(FlowRate, "Q", "Volume rate of some fluid flow that is transported through a given cross-sectional area");
+Declare_Physical_Quantity(FlowRate, "Q","Undefined", "Volume rate of some fluid flow that is transported through a given cross-sectional area");
 
-Declare_Unit(BPD, "bpd", "Volume rate measured in barrels per day", FlowRate, 0, 1e10);
+Declare_Unit(BPD, "bpd","Undefined", "Volume rate measured in barrels per day", FlowRate, 0, 1e10);
 
-Declare_Unit(GPM, "gpm", "Volume rate measured in U.S. Gallon Per Minute ", FlowRate, 0, 1e10);
+Declare_Unit(GPM, "gpm","Undefined", "Volume rate measured in U.S. Gallon Per Minute ", FlowRate, 0, 1e10);
 
-Declare_Unit(CMD, "cmd", "Volume rate measured in cubic meter per day ", FlowRate, 0, 1e10);
+Declare_Unit(CMD, "cmd","Undefined", "Volume rate measured in cubic meter per day ", FlowRate, 0, 1e10);
 
-Declare_Unit(CMS, "cms", "Volume rate measured in cubic meter per second ", FlowRate, 0, 1e10);
+Declare_Unit(CMS, "cms","Undefined", "Volume rate measured in cubic meter per second ", FlowRate, 0, 1e10);
 
 
 // to BPD 

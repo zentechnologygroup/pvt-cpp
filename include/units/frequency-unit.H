@@ -3,11 +3,11 @@
 
 # include "units/units.H"
 
-Declare_Physical_Quantity(Frequency, "f", "Number of occurrences of a repeating event per unit time");
+Declare_Physical_Quantity(Frequency, "f","Undefined", "Number of occurrences of a repeating event per unit time");
 
-Declare_Unit(Hertz, "Hz", "Unit of frequency in the International System of Units (SI) and is defined as one cycle per second", Frequency, 0, 120);
+Declare_Unit(Hertz, "Hz","Undefined", "Unit of frequency in the International System of Units (SI) and is defined as one cycle per second", Frequency, 0, 120);
 
-Declare_Unit(Revolution_per_minute, "RPM", "Unit of frequency and is defined as revolution (cycle) per minute", Frequency, 0, 7200);
+Declare_Unit(Revolution_per_minute, "RPM","Undefined", "Unit of frequency and is defined as revolution (cycle) per minute", Frequency, 0, 7200);
 
 
 

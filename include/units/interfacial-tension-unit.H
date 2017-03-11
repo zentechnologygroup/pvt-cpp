@@ -5,29 +5,29 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(InterfacialTension, "sg",
+Declare_Physical_Quantity(InterfacialTension, "sg","Undefined",
 			  R"DESC(Interfacial or surface tension exists when two phases are present. 
 			  These phases can be gas/oil, oil/water, or gas/water. Interfacial tension 
 			  is the force that holds the surface of a particular phase together 
 			  and is normally measured in dynes/cm)DESC");
 
-Declare_Unit(dynes_cm, "dynes/cm",
+Declare_Unit(dynes_cm, "dynes/cm","dyne/cm",
 	     R"DESC(nterfacial or surface tension measured in dyne per centimeter)DESC",
 	     InterfacialTension, 0 , 1000000);
 
-Declare_Unit(N_m, "N/m",
+Declare_Unit(N_m, "N/m","N/m",
 	     R"DESC(nterfacial or surface tension measured in newton per meter)DESC",
 	     InterfacialTension, 0 , 1000);
 
-Declare_Unit(mN_m, "mN/m",
+Declare_Unit(mN_m, "mN/m","mN/m",
 	     R"DESC(nterfacial or surface tension measured in milinewton per meter)DESC",
 	     InterfacialTension, 0 , 1000000);
 
-Declare_Unit(gram_force_cm, "gram-force/cm",
+Declare_Unit(gram_force_cm, "gram-force/cm","gf/cm",
 	     R"DESC(nterfacial or surface tension measured in gram force per centimeter)DESC",
 	     InterfacialTension, 0 , 1019.716213);
 
-Declare_Unit(pound_force_inch, "pound-force/inch",
+Declare_Unit(pound_force_inch, "pound-force/inch","lbf/in",
 	     R"DESC(nterfacial or surface tension measured in pound force per inch)DESC",
 	     InterfacialTension, 0 , 5.710147098);
 

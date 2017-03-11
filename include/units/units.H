@@ -41,8 +41,9 @@ protected:
 
   PhysicalQuantity(const string & name,
 		   const string & symbol,
+		   const string & latex_symbol,
 		   const string & desc)
-    : UnitItem(name, symbol, desc)
+    : UnitItem(name, symbol, latex_symbol, desc)
   {
     tbl.register_item(this);
   }
@@ -246,10 +247,10 @@ public:
 
 protected:
 
-  Unit(const string & name, const string & symbol, const string & desc,
-       const PhysicalQuantity & phy_q, const double min, const double max,
-       const double epsilon_ratio = 0.05)
-    : UnitItem(name, symbol, desc), physical_quantity(phy_q),
+  Unit(const string & name, const string & symbol, const string & latex_symbol,
+       const string & desc, const PhysicalQuantity & phy_q,
+       const double min, const double max, const double epsilon_ratio = 0.05)
+    : UnitItem(name, symbol, latex_symbol, desc), physical_quantity(phy_q),
       min_val(min), max_val(max)
   {
     if (min_val > max_val)
@@ -564,10 +565,10 @@ extern double unit_convert(const char * src_symbol, const char * tgt_symbol,
     @param[in] min minimum value of the unit
     @param[in] max maximum value of the unit
 */
-# define Declare_Unit(__name, symbol, desc, physical_quantity, min, max)\
+# define Declare_Unit(__name, symbol, lsymbol, desc, physical_quantity, min, max) \
   class __name : public Unit						\
   {									\
-    __name() : Unit(#__name, symbol, desc,				\
+    __name() : Unit(#__name, symbol, lsymbol, desc,			\
 		    physical_quantity::get_instance(), min, max) {}	\
 									\
   public:								\

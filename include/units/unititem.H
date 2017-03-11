@@ -22,6 +22,14 @@ struct UnitItem
     // empty
   }
 
+  UnitItem(const std::string & name, const std::string & symbol,
+	   const std::string & latex_symbol,
+	   const std::string & desc) noexcept
+    : name(name), symbol(symbol), description(desc), latex_symbol(latex_symbol)
+  {
+    // empty
+  }
+
   string to_string() const
   {
     ostringstream s;

@@ -4,12 +4,12 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(OilGravity, "rho_o",
+Declare_Physical_Quantity(OilGravity, "rho_o","Undefined",
 			  R"DESC(Oil gravity is relates to specific density 
                                  measurements of liquids petroleum products 
 		                 at dead oil conditions)DESC");
 
-Declare_Unit(Api, "api",
+Declare_Unit(Api, "api","\\degree{API}",
 	     R"DESC(The API gravity is a method used for measuring 
                     the density of petroleum and it is considered one
                     of the most important standards of The American Petroleum 
@@ -18,7 +18,7 @@ Declare_Unit(Api, "api",
 	     OilGravity, 4, 110);
 
 
-Declare_Unit(Sg_do, "sg_do",
+Declare_Unit(Sg_do, "sg_do","water=1\\ at\\ 60\\ \\degree{F}",
 	     R"DESC(This specific gravity is related to the calculations
                     of the API and it is defined a density ratio of 
                     a dead crude oil at 60 degrees Fahrenheit compared 

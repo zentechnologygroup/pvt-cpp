@@ -3,18 +3,18 @@
 
 # include "units/units.H"
 
-Declare_Physical_Quantity(Head, "H",  R"DESC(The static head of a pump is the maximum height 
+Declare_Physical_Quantity(Head, "H","Undefined",  R"DESC(The static head of a pump is the maximum height 
 										(pressure) it can deliver. The capability of the pump 
 										at a certain RPM can be read from its Q-H curve 
 										(flow vs. height). ");
 										)DESC");
 
 
-Declare_Unit(headFeet, "Hft", "The static head of a pump measured in feet", Head, 0, 16000); 
+Declare_Unit(headFeet, "Hft","Undefined", "The static head of a pump measured in feet", Head, 0, 16000); 
 
-Declare_Unit(headInch, "Hin", "The static head of a pump measured in inches", Head, 0, 192000); 
+Declare_Unit(headInch, "Hin","Undefined", "The static head of a pump measured in inches", Head, 0, 192000); 
 
-Declare_Unit(headMeter, "Hmts", "The static head of a pump measured in meters", Head, 0, 4876.8); 
+Declare_Unit(headMeter, "Hmts","Undefined", "The static head of a pump measured in meters", Head, 0, 4876.8); 
 
 // To headFoot 
 Declare_Conversion(headInch, headFoot, H) { return 8.3333333333333333e-2 * H; }

@@ -3,7 +3,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(GORGLRvolumeRatio, "GORGLR_V_V",
+Declare_Physical_Quantity(GORGLRvolumeRatio, "GORGLR_V_V","Undefined",
 			  "The gas/oil ratio (GOR) is the ratio of the"
 			  "volume of gas that comes out of solution, "
 			  "to the volume of oil at standard conditions, "
@@ -13,31 +13,31 @@ Declare_Physical_Quantity(GORGLRvolumeRatio, "GORGLR_V_V",
 			  "conditions. Both are a dimensionless ratio "
 			  "(volume per volume)");
     
-Declare_Unit(SCF_STB, "scf/STB",
+Declare_Unit(SCF_STB, "scf/STB","scf/STB",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
          measured in cubic feet of gas at standard conditions per 
          barrel of liquid (oil,condensate or/and water).)DESC",
          GORGLRvolumeRatio, 0, 1000000000);
 
-Declare_Unit(Mscf_STB, "Mscf/STB",
+Declare_Unit(Mscf_STB, "Mscf/STB","Mscf/STB",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
          measured in thousand of cubic feet of gas at standard conditions per 
          barrel of liquid (oil,condensate or/and water).)DESC",
          GORGLRvolumeRatio, 0, 1000000);
 
-Declare_Unit(MMscf_STB, "MMscf/STB",
+Declare_Unit(MMscf_STB, "MMscf/STB","MMscf/STB",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
          measured in million of cubic feet of gas at standard conditions per 
          barrel of liquid (oil,condensate or/and water).)DESC",
          GORGLRvolumeRatio, 0, 1000);
 
-Declare_Unit(Sm3_Sm3, "Sm3/Sm3",
+Declare_Unit(Sm3_Sm3, "Sm3/Sm3","Sm^{3}/Sm^{3}",
          R"DESC(Dimensionless volumen ratio (volume per volume) 
          measured in metrics units, cubic meters of gas at standard conditions
          per cubic meters of liquid (oil,condensate or/and water).)DESC",
          GORGLRvolumeRatio, 0, 178107606.67903525);
 
-// Declare_Unit(Scm3_Scm3, "Scm3/Scm3",
+// Declare_Unit(Scm3_Scm3, "Scm3/Scm3","Undefined",
 //          R"DESC(Dimensionless volumen ratio (volume per volume) 
 //          measured in metrics units, cubic meters of gas at standard conditions
 //          per cubic centimeters of liquid (oil,condensate or/and water).)DESC",

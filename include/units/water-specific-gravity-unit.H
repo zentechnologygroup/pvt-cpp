@@ -13,7 +13,7 @@
 // SOURCE: Carlos Banzer S, Correlaciones Numericas P.V.T. Instituto
 // de Investigaciones Petroleras Universidad del Zulia   
 
-Declare_Physical_Quantity(WaterSpecificGravity, "Sgw",
+Declare_Physical_Quantity(WaterSpecificGravity, "Sgw","Undefined",
 	    R"DESC(density of a brine (in this case formation 
         water) in normal conditions based on total
         solid disolved, it is defined as the ratio
@@ -22,34 +22,34 @@ Declare_Physical_Quantity(WaterSpecificGravity, "Sgw",
         and temperature (usually atmopheric pressure
         to the seal level and 60 degF) )DESC");
 
-Declare_Unit(Pwl_lb_ft3, "pwl_lb/ft3",
+Declare_Unit(Pwl_lb_ft3, "pwl_lb/ft3","lb/ft^{3}",
 	     R"DESC(unit used to measure density of produce water (brine) 
          in normal conditions denoted as pound per cubic feet)DESC",
 	     WaterSpecificGravity, 62.366389027, 76.96514502699999);
 
-Declare_Unit(Dissolved_Salt_Percent, "dissolvedSaltPercent",
+Declare_Unit(Dissolved_Salt_Percent, "dissolvedSaltPercent","wt\\%",
 	     R"DESC(Unit used to measure salinity of a brine
 	     in normal conditions in percentage of disolved salt)DESC",
 	     WaterSpecificGravity, 0, 30);
 
-Declare_Unit(Sgw_sg, "swsg",
+Declare_Unit(Sgw_sg, "swsg","water=1\\ at\\ 60\\ \\degree{F}",
 	     R"DESC(Specific gravity of a brine in normal conditions, it is
          the ratio of the density of a brine to the density of a
          pure water;)DESC", WaterSpecificGravity, 1, 1.2341063383784996);
 
-Declare_Unit(Dissolved_Salt_PPM, "dissolvedSaltPPM",
+Declare_Unit(Dissolved_Salt_PPM, "dissolvedSaltPPM","wt\\ ppm",
 	     R"DESC(Total solid disolved in a brine
 	     measure in Part Per Million PPM)DESC",
 	     WaterSpecificGravity, 0, 300000);
 
-Declare_Unit(Molality_NaCl, "mol_NaCl/Kg_H2O", "Molality of sodium chloride",
+Declare_Unit(Molality_NaCl, "mol_NaCl/Kg_H2O","mol\\ NaCl/kg\\ H_2O", "Molality of sodium chloride",
   	     WaterSpecificGravity, 0, 7.333177544050398);
 
-Declare_Unit(CgL, "g_NaCl/L", R"DESC(Total solid disolved in a brine
+Declare_Unit(CgL, "g_NaCl/L","g\\ NaCl/L\\ H_2O", R"DESC(Total solid disolved in a brine
        measure in grams of NaCl disolved in one liter of water)DESC",
 	     WaterSpecificGravity, 0, 300.2306536197343);
 
-Declare_Unit(Dissolved_Salt_Fraction, "dissolvedSaltFraction", 
+Declare_Unit(Dissolved_Salt_Fraction, "dissolvedSaltFraction","Mass\\ fraction\\ NaCl", 
        R"DESC(Unit used to measure salinity of a brine
        in normal conditions in fraction of disolved salt)DESC",
 	     WaterSpecificGravity, 0, 0.3);
