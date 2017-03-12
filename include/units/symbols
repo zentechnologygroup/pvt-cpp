@@ -1,4 +1,5 @@
 # coding: utf-8
+
 # Hola Ixhel:
 
 # Este archivo ya no debe usarse más.
@@ -11,8 +12,9 @@
 #    ./test-conversion -l
 
 
-# Te lista las unidades. La mayoría de ellas deben tener los símbolos
-# latex definidos. Las que no, están marcadas con la palabra "Undefined".
+# Te lista las unidades. La mayoría de ellas ya deben tener los
+# símbolos latex definidos. Las que no, están marcadas con la palabra
+# "Undefined".
 
 # Los archivos de interés son aquellos en el directorio
 # include/units/*-unit.H

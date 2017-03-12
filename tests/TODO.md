@@ -17,3 +17,6 @@
 ## 6. programa que genere el json para calibrate
 - Created at   2017-03-02 15:13:38 -0400
 
+## 7. test-conversion debe tener opción que genre tabla ruby con unidades
+- Created at   2017-03-12 11:29:53 -0400
+

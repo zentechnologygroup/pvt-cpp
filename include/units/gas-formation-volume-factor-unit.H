@@ -3,7 +3,7 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(GasFVF, "Bg", "B_{g}",
+Declare_Physical_Quantity(GasFVF, "Bg", "B_g",
    R"DESC(The formation volume factor of gas is defined 
    as the ratio of the volume of gas at the reservoir 
    temperature and pressure to the volume at the standard 

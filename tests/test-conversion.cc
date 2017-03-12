@@ -43,6 +43,18 @@ void list_all_units()
   rows.insert({"Physical-Quantity", "symbol", "LaTeX symbol", "Unit name",
 	"Unit symbol", "LaTeX symbol"});
   cout << to_string(format_string(rows)) << endl;
+  exit(0);
+}
+
+void ruby_hash()
+{
+  cout << "{" << endl;
+  Unit::units().for_each([] (const Unit * ptr)
+    {
+      cout << "  '" << ptr->name << "' => '" << ptr->symbol << "'," << endl;
+    });
+  cout << "}" << endl;
+  exit(0);
 }
 
 void list_sibling_units(const Unit & unit)
@@ -54,6 +66,7 @@ void list_sibling_units(const Unit & unit)
      });
   rows.insert({"name", "symbol", "LaTeX symbol"});
   cout << to_string(format_string(rows)) << endl;
+  exit(0);
 }
 
 void test(int argc, char *argv[])
@@ -90,6 +103,8 @@ void test(int argc, char *argv[])
 
   SwitchArg json("j", "json", "json list of units", cmd, false);
 
+  SwitchArg ruby("r", "ruby", "ruby list of units", cmd, false);
+
   ValueArg<string> file = { "f", "file", "input file name", false, "",
 			    "input file name", cmd };
   SwitchArg pipe = { "p", "pipe", "input by cin", cmd };
@@ -97,13 +112,13 @@ void test(int argc, char *argv[])
   cmd.parse(argc, argv);
 
   if (l.getValue())
-    {
-      if (not unit.isSet())
-	list_all_units();
-      else
-	list_sibling_units(*search_unit(unit.getValue()));
-      exit(0);
-    }
+    if (not unit.isSet())
+      list_all_units();
+    else
+      list_sibling_units(*search_unit(unit.getValue()));
+
+  if (ruby.getValue())
+    ruby_hash();
 
   if (unit_list.isSet())
     {
