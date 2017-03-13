@@ -20,3 +20,6 @@
 ## 7. test-conversion debe tener opción que genre tabla ruby con unidades
 - Created at   2017-03-12 11:29:53 -0400
 
+## 8. json de calibrate debe recibir unidades en nombre no en símbolos
+- Created at   2017-03-13 10:16:03 -0400
+
