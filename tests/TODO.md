@@ -23,3 +23,12 @@
 ## 8. json de calibrate debe recibir unidades en nombre no en símbolos
 - Created at   2017-03-13 10:16:03 -0400
 
+## 9. Establecer en plot claramente las diff entre compute y dompute
+- Created at   2017-03-13 16:34:43 -0400
+
+## 10. correlacion sgo no s está valdando bien
+- Created at   2017-03-13 16:51:59 -0400
+
+## 11. nueva versión de plot con cambio de unidades en salida
+- Created at   2017-03-13 17:44:26 -0400
+

@@ -1162,3 +1162,9 @@
 - Comment      
 - Finished     
 
+## 195. Establecer en plot claramente las diff entre compute y dompute
+- Created at   2017-03-13 16:34:49 -0400
+- Completed at 
+- Comment      
+- Finished     
+
