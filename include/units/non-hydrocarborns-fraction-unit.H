@@ -3,25 +3,25 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(NonHydrocarbonsFraction, "fvi",
+Declare_Physical_Quantity(NonHydrocarbonsFraction, "fvi", "Undefined",
 			  R"DESC(volume fraction of a non-hydrocarbon component)DESC");
 
-Declare_Unit(MoleFraction, "MoleFraction",
+Declare_Unit(MoleFraction, "MoleFraction","mol\\ fraction",
 	     R"DESC(volume fraction of a non-hydrocarbon component 
 	     base on a division mole by mole)DESC",
 	     NonHydrocarbonsFraction, 0 , 1);
 
-Declare_Unit(VolumeFraction, "VolumeFraction",
+Declare_Unit(VolumeFraction, "VolumeFraction","vol\\ fraction",
 	     R"DESC(volume fraction of a non-hydrocarbon component 
 	     base on a division volume by volume)DESC",
 	     NonHydrocarbonsFraction, 0, 1);
 
-Declare_Unit(MolePercent, "MolePercent",
+Declare_Unit(MolePercent, "MolePercent","mol\\%",
 	     R"DESC(Mole percentage of a non-hydrocarbon component 
 	     base on a division mole by mole)DESC",
 	     NonHydrocarbonsFraction, 0 , 100);
 
-Declare_Unit(VolumePercent, "VolumePercent",
+Declare_Unit(VolumePercent, "VolumePercent","vol\\%",
 	     R"DESC(volume percentage of a non-hydrocarbon component 
 	     base on a division volume by volume)DESC",
 	     NonHydrocarbonsFraction, 0, 100);

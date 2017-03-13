@@ -1158,7 +1158,8 @@ void generate_grid_blackoil()
   FixedStack<double> row(25); // Here are the values. Ensure that the
 			      // insertion order is the same as for
 			      // the csv header
-  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next()) // temperature loop
+      // temperature loop
+  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next()) 
     {
       Correlation::NamedPar t_par = t_it.get_curr();
       VtlQuantity t_q = par(t_par);
@@ -1178,7 +1179,7 @@ void generate_grid_blackoil()
       bool first_p_above_pb = VtlQuantity(*get<3>(first_p_point),
 					  get<2>(first_p_point)) > pb_q;
   
-      auto uod_val = dcompute(uod_corr, check, uod_pars, t_par);
+      auto uod_val = dcompute(uod_corr, check, uod_pars, t_par, pb_par);
 
       insert_in_container(rs_pars, t_par, pb_par);
       auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(),
@@ -1239,14 +1240,15 @@ void generate_grid_blackoil()
       size_t n = row.ninsert(t_q.raw(), pb, uod_val.raw());
 
       size_t i = 0;
-      for (auto p_it = p_values.get_it(); p_it.has_curr(); /* nothing */) // pressure loop
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); ) // pressure loop
 	{
 	  Correlation::NamedPar p_par = p_it.get_curr();
 	  VtlQuantity p_q = par(p_par);
 
-	  bool pb_row = false; // true if line concerns to bubble point
+	  bool pb_row = false; // true if this line concerns to bubble point
 
-	  if (p_q <= pb_q or (not (i < 2)) or first_p_above_pb)
+	  // WARNING: these predicates must be evaluated exactly in this order
+	  if (p_q <= pb_q or (not (i < 2)) or first_p_above_pb) 
 	    p_it.next();
 	  else 
 	    {

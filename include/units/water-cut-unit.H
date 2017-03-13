@@ -5,17 +5,17 @@
 # include "units.H"
  
 
-Declare_Physical_Quantity(WaterCut, "wc",
+Declare_Physical_Quantity(WaterCut, "wc","Undefined",
 	    R"DESC(The ratio of water produced compared to the 
       volume of total liquids produced. The water cut in
        waterdrive reservoirs. )DESC");
 
-Declare_Unit(wc_percent, "wc_p",
+Declare_Unit(wc_percent, "wc_p","Undefined",
 	     R"DESC(The ratio of water produced compared to the 
       volume of total liquids measured in percentage)DESC",
 	     WaterCut, 0, 100);
 
-Declare_Unit(wc_fraction, "wc_f",
+Declare_Unit(wc_fraction, "wc_f","Undefined",
        R"DESC(The ratio of water produced compared to the 
       volume of total liquids measured in fraction)DESC",
        WaterCut, 0, 1);

@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+
+fail './test-conversion not found' unless File.exist? './test-conversion'
+
+$unit_names = eval(`./test-conversion -r`)
+$unit_symbols = $unit_names.invert
+
+def valid_unit(name_or_symbol)
+  if !($unit_names.key?(name_or_symbol) or $unit_symbols.key?(name_or_symbol))
+    fail "unit #{unit} not found"
+  end
+end
+
+def is_unit_symbol(str)
+  $unit_symbols.key? str
+end
+
+class DataSet
+
+  attr_accessor :api, :t, :pb, :rsb, :yg, :tsep, :psep
+  attr_accessor :below_mat, :above_mat
+  
+end
+
+data = DataSet.new
+
+def set_api(api, unit = 'api')
+  valid_unit unit
+  data.api = [api, unit]
+end
+
+def set_t(t, unit = 'Fahrenheit')
+  valid_unit unit
+  data.t = [t, unit]
+end
+
+
+require 'optparse'

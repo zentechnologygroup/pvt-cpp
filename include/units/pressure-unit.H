@@ -4,45 +4,45 @@
 
 # include "units.H"
 
-Declare_Physical_Quantity(Pressure, "P",
+Declare_Physical_Quantity(Pressure, "P", "P",
 			  R"DESC(Pressure is the force applied perpendicular
 			  to the surface of an object per unit area over which
 			  that force is distributed)DESC");
 
-Declare_Unit(Bar, "bar",
+Declare_Unit(Bar, "bar","bar",
 	     R"DESC(A bar is a metric measurement unit of pressure. One bar
              is equivalent to ten newtons (N) per square centimeter (cm2))DESC",
 	     Pressure, 0, 2068.43);
 
-Declare_Unit(Pascal, "Pa",
+Declare_Unit(Pascal, "Pa","Pa",
 	     R"DESC(The pascal is the SI derived unit of pressure used to quantify 
                     internal pressure, stress, Young's modulus and
                     ultimate tensile strength. It is defined as one newton
                     per square metre.)DESC", Pressure, 0, 206843405.31);
 
-Declare_Unit(kPascal, "kPa",
+Declare_Unit(kPascal, "kPa","kPa",
          "a kPascal is a common multiple unit of the pascal 1 kPa = 1000 Pa,",
           Pressure, 0, 206843.41);
 
-Declare_Unit(mPascal, "MPa",
+Declare_Unit(mPascal, "MPa","MPa",
          "a MPascal is a common multiple unit of the pascal 1 MPa = 1000000 Pa,",
           Pressure, 0, 206.843410);
 
-Declare_Unit(psia, "psia",
+Declare_Unit(psia, "psia","psia",
 	     R"DESC(Pounds per square inch absolute (psia) is used to make
 	            it clear that the pressure is relative to a vacuum rather than
 	            the ambient atmospheric pressure. Since atmospheric pressure 
 	            at sea level is around 14.7 psi)DESC", Pressure,
 	     0, 29985.3);
 
-Declare_Unit(psig, "psig",
+Declare_Unit(psig, "psig","psig",
 	     R"DESC(Pound-force per square inch is a unit of pressure or of
                     stress based on avoirdupois units. It is the pressure
                     resulting from a force of one pound-force applied to an
                     area of one square inch)DESC", Pressure,
 	     -14.69594877551, 30000);
 
-Declare_Unit(Atmosphere, "atm",
+Declare_Unit(Atmosphere, "atm","atm",
 	     R"DESC(Pound-force per square inch is a unit of pressure or of
                     stress based on avoirdupois units. It is the pressure
                     resulting from a force of one pound-force applied to 

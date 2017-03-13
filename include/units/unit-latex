@@ -1,0 +1,12 @@
+#!/bin/bash
+
+list=`ls *-unit.H`
+for f in $list
+do
+    echo $f
+    ./add-latex -f $f > $f.tmp
+    cp $f.tmp $f
+done
+
+
+

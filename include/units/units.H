@@ -41,8 +41,9 @@ protected:
 
   PhysicalQuantity(const string & name,
 		   const string & symbol,
+		   const string & latex_symbol,
 		   const string & desc)
-    : UnitItem(name, symbol, desc)
+    : UnitItem(name, symbol, latex_symbol, desc)
   {
     tbl.register_item(this);
   }
@@ -76,24 +77,24 @@ public:
     @param[in] desc description 
 
  */
-# define Declare_Physical_Quantity(__name, symbol, desc)	\
-  struct __name : public PhysicalQuantity			\
-  {								\
-    								\
-    static const __name & get_instance()			\
-    {								\
-      static __name instance;					\
-      return instance;						\
-    }								\
-    								\
-  private:							\
-    								\
-    __name() : PhysicalQuantity(#__name, symbol, desc) {}	\
-    								\
-  public:							\
-    								\
-    __name(const __name&) = delete;				\
-    void operator = (const __name&) = delete;			\
+# define Declare_Physical_Quantity(__name, symbol, lsymbol, desc)	\
+  struct __name : public PhysicalQuantity				\
+  {									\
+									\
+    static const __name & get_instance()				\
+    {									\
+      static __name instance;						\
+      return instance;							\
+    }									\
+									\
+  private:								\
+									\
+    __name() : PhysicalQuantity(#__name, symbol, lsymbol, desc) {}	\
+									\
+  public:								\
+									\
+    __name(const __name&) = delete;					\
+    void operator = (const __name&) = delete;				\
   };
 
 class VtlQuantity; // forward declaration
@@ -141,6 +142,7 @@ public:
     ostringstream s;
     s << "Unit name         = " << name << endl
       << "symbol            = " << symbol << endl
+      << "latex symbol      = " << latex_symbol << endl
       << "physical quantity = " << physical_quantity.name << endl
       << "min               = " << min_val << endl
       << "max               = " << max_val << endl
@@ -154,6 +156,7 @@ public:
     ostringstream s;
     s << margin << "Unit name         = " << name << endl
       << margin << "symbol            = " << symbol << endl
+      << margin << "latex symbol      = " << latex_symbol << endl
       << margin << "description       = "
       << align_text_to_left_except_first(description, width, left_margin + 20)
       << endl
@@ -246,10 +249,10 @@ public:
 
 protected:
 
-  Unit(const string & name, const string & symbol, const string & desc,
-       const PhysicalQuantity & phy_q, const double min, const double max,
-       const double epsilon_ratio = 0.05)
-    : UnitItem(name, symbol, desc), physical_quantity(phy_q),
+  Unit(const string & name, const string & symbol, const string & latex_symbol,
+       const string & desc, const PhysicalQuantity & phy_q,
+       const double min, const double max, const double epsilon_ratio = 0.05)
+    : UnitItem(name, symbol, latex_symbol, desc), physical_quantity(phy_q),
       min_val(min), max_val(max)
   {
     if (min_val > max_val)
@@ -564,10 +567,10 @@ extern double unit_convert(const char * src_symbol, const char * tgt_symbol,
     @param[in] min minimum value of the unit
     @param[in] max maximum value of the unit
 */
-# define Declare_Unit(__name, symbol, desc, physical_quantity, min, max)\
+# define Declare_Unit(__name, symbol, lsymbol, desc, physical_quantity, min, max) \
   class __name : public Unit						\
   {									\
-    __name() : Unit(#__name, symbol, desc,				\
+    __name() : Unit(#__name, symbol, lsymbol, desc,			\
 		    physical_quantity::get_instance(), min, max) {}	\
 									\
   public:								\

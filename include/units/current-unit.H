@@ -3,8 +3,8 @@
 
 # include "units/units.H"
 
-Declare_Physical_Quantity(Current, "I", "Flow of electrical charge");
+Declare_Physical_Quantity(Current, "I","Undefined", "Flow of electrical charge");
 
-Declare_Unit(Ampere, "amp", "One coulomb per second", Current, 0, 1000);
+Declare_Unit(Ampere, "amp","Undefined", "One coulomb per second", Current, 0, 1000);
 
 #endif
