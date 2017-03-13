@@ -1007,15 +1007,10 @@ ParList load_constant_parameters(const DynList<const Correlation*> & l)
   return pars_list;
 }
 
-void print_row(const FixedStack<double> & row, bool is_pb = false)
+void print_row(const FixedStack<double> & row)
 {
   const size_t n = row.size();
   double * ptr = &row.base();
-
-  if (is_pb)
-    printf("\"true\",");
-  else
-    printf("\"false\",");
 
   if (exception_thrown)
     {
@@ -1035,6 +1030,16 @@ void print_row(const FixedStack<double> & row, bool is_pb = false)
 	printf(",");
     }
   printf("\n");
+}
+
+void print_row(const FixedStack<double> & row, bool is_pb)
+{
+  if (is_pb)
+    printf("\"true\",");
+  else
+    printf("\"false\",");
+
+  print_row(row);
 }
 
 template <typename ... Args>
@@ -1433,8 +1438,7 @@ void generate_grid_drygas()
 		   P("rsw", &rsw_corr->unit),
 		   P("cwb", &cwb_corr->unit),
 		   P("sgw", &sgw_corr->unit),
-		   P("exception", &Unit::null_unit),
-		   P("pbrow", &Unit::null_unit));
+		   P("exception", &Unit::null_unit));
 
   FixedStack<double> row(25); // Here are the values. Ensure that the
 			      // insertion order is the same as for
