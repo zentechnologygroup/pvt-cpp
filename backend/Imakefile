@@ -24,7 +24,7 @@ TESTOBJS = $(TESTSRCS:.cc=.o)
 
 SRCS = $(TESTSRCS)
 
-all:: backend-conversion backend-corr backend-plot backend-calibrate backend-plot-corr backend-vector-conversion
+all:: backend-conversion backend-corr backend-plot backend-calibrate backend-vector-conversion
 
 backend-conversion: test-conversion
 	$(RM) backend-conversion; 	\	@@\
@@ -37,10 +37,6 @@ backend-corr: test-corr
 backend-plot: plot
 	$(RM) backend-plot; 	\	@@\
 	$(CP) plot backend-plot;
-
-backend-plot-corr: plot-corr
-	$(RM) backend-plot-corr; 	\	@@\
-	$(CP) plot backend-plot-corr
 
 backend-calibrate: test-calibrate
 	$(RM) backend-calibrate; 	\	@@\
@@ -64,8 +60,5 @@ NormalProgramTarget(test-calibrate,test-calibrate.o,$(DEPLIBS),$(LOCAL_LIBRARIES
 
 AllTarget(plot)
 NormalProgramTarget(plot,plot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
-
-AllTarget(plot-corr)
-NormalProgramTarget(plot-corr,plot-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()
