@@ -192,3 +192,4 @@ generate_grid podría generarse automáticamente según los valores de la correl
 script que añada símbolos latex a todas las unidades,2017-03-02 16:15:06 -0400,2017-03-11 16:30:23 -0400,,2017-03-11 16:30:25 -0400
 añadir columna aplot con el número de excepción,2017-02-25 17:34:56 -0400,2017-03-11 16:32:07 -0400,,2017-03-11 16:32:11 -0400
 implementar la unión de parámetros de famila de correlación,2017-02-08 15:06:07 -0400,2017-03-11 16:32:23 -0400,,2017-03-11 16:32:28 -0400
+Establecer en plot claramente las diff entre compute y dompute,2017-03-13 16:34:49 -0400,,,2017-03-13 16:35:01 -0400

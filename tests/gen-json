@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# coding: utf-8
 
 require 'fileutils'
 
@@ -9,32 +10,70 @@ $unit_symbols = $unit_names.invert
 
 def valid_unit(name_or_symbol)
   if !($unit_names.key?(name_or_symbol) or $unit_symbols.key?(name_or_symbol))
-    fail "unit #{unit} not found"
+    fail "unit #{name_or_symbol} not found"
   end
+  true
 end
 
-def is_unit_symbol(str)
+def unit_symbol?(str)
   $unit_symbols.key? str
 end
 
 class DataSet
 
-  attr_accessor :api, :t, :pb, :rsb, :yg, :tsep, :psep
-  attr_accessor :below_mat, :above_mat
+  attr_accessor :api, :t, :pb, :rsb, :yg, :tsep, :psep, :n2_concentration,
+                :h2s_concentration, :co2_concentration, :nacl_concentration
+  attr_accessor :below_p, :below_rs, :below_bo, :below_uo,
+                :above_p, :above_rs, :above_bo, :above_uo,
+                :below_p_unit, :below_rs_unit, :below_bo_unit, :below_uo_unit,
+                :above_p_unit, :above_rs_unit, :above_bo_unit, :above_uo_unit 
   
 end
 
-data = DataSet.new
-
-def set_api(api, unit = 'api')
-  valid_unit unit
-  data.api = [api, unit]
+def define_set_constant(name)
+  define_method "set_#{name}" do |val, unit|
+    valid_unit unit
+    $data.send "#{name}=", [val, unit]
+  end
 end
 
-def set_t(t, unit = 'Fahrenheit')
-  valid_unit unit
-  data.t = [t, unit]
+def define_set_mat(name)
+  fail "name must be below or above" unless name == "below" || name == "above"
+  define_method "set_#{name}" do | p, p_unit, rs, rs_unit, bo, bo_unit, uo, uo_unit|
+    valid_unit(p_unit); valid_unit(rs_unit);
+    valid_unit(bo_unit); valid_unit(uo_unit)
+    fail 'p array must be sorted' unless p == p.sort
+    if p.size != rs.size || p.size != bo.size || p.size != uo.size
+      fail "p, rs, bo, and uo array must be the same size"
+    end
+    $data.send "#{name}_p_unit=", p_unit
+    $data.send "#{name}_rs_unit=", rs_unit
+    $data.send "#{name}_bo_unit=", bo_unit
+    $data.send "#{name}_uo_unit=", uo_unit
+    $data.send "#{name}_p=", p
+    $data.send "#{name}_rs=", rs
+    $data.send "#{name}_bo=", bo
+    $data.send "#{name}_uo=", uo
+  end
+    
 end
 
+# TODO: cómo poner las matrices: hablar con Neylith y Fernando
+
+$data = DataSet.new
+
+define_set_constant 'api'
+define_set_constant 't'
+define_set_constant 'pb'
+define_set_constant 'rsb'
+define_set_constant 'tsep'
+define_set_constant 'psep'
+define_set_constant 'nacl_concentration'
+define_set_constant 'h2s_concentration'
+define_set_constant 'co2_concentration'
+define_set_constant 'co2_concentration'
+define_set_constant 'n2_concentration'
+define_set_mat 'below'
+define_set_mat 'above'
 
 require 'optparse'

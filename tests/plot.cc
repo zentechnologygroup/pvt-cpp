@@ -42,8 +42,8 @@ DynList<string> exception_list; // Exceptions messages are saved in this list
 // not correlations). This table is used for validating change of
 // units
 DynSetTree<string> par_name_tbl =
-  { "api", "rsb", "yg", "tsep", "t", "p", "psep", "h2s-concentration",
-    "co2-concentration", "n2-concentration", "nacl-concentration" };
+  { "api", "rsb", "yg", "tsep", "tsep2" "t", "p", "psep", "h2s-concentration",
+    "co2-concentration", "n2-concentration", "nacl-concentration", "org" };
 struct ArgUnit
 {
   string par_name;
@@ -188,6 +188,33 @@ void set_tsep()
   tsep.set(par(tsep_par));
 }
 
+ValueArg<double> tsep2_arg = { "", "tsep2", "second separator temperature",
+			       false, 0,
+			       "second separator temperature in degF", cmd };
+Correlation::NamedPar tsep2_par;
+VtlQuantity tsep2;
+const Unit * tsep2_unit = nullptr;
+void set_tsep2()
+{
+  tsep2_unit = test_unit_change("tsep2", Fahrenheit::get_instance());
+  tsep2_par = make_tuple(tsep2_arg.isSet(), "tsep2",
+			 tsep2_arg.getValue(), tsep2_unit);
+  tsep2.set(par(tsep2_par));
+}
+
+ValueArg<double> ogr_arg = { "", "ogr", "Condensed gas ratio",
+			       false, 0, "Condensed gas ratio", cmd };
+Correlation::NamedPar ogr_par;
+VtlQuantity ogr;
+const Unit * ogr_unit = nullptr;
+void set_ogr()
+{
+  ogr_unit = test_unit_change("ogr", STB_MMscf::get_instance());
+  ogr_par = make_tuple(ogr_arg.isSet(), "ogr",
+		       ogr_arg.getValue(), ogr_unit);
+  ogr.set(par(ogr_par));
+}
+
 ValueArg<double> psep_arg = { "", "psep", "separator pressure", false, 0,
 			      "separator pressure in psia", cmd };
 Correlation::NamedPar psep_par;
@@ -271,11 +298,11 @@ void set_nacl_concentration()
 
 ValueArg<double> c_pb_arg = { "", "c-pb", "pb adjustment", false, 0,
 			      "pb adjustment", cmd };
-ValueArg<string> pb_arg = { "", "pb", "correlation for pb", true, "",
+ValueArg<string> pb_arg = { "", "pb", "correlation for pb", false, "",
 			    "correlation for pb", cmd };
 const Correlation * pb_corr = nullptr;
 ParList pb_pars;
-void set_pb()
+void set_pb_corr()
 {
   assert(yg_arg.isSet() and rsb_arg.isSet() and api_arg.isSet());
   pb_corr = Correlation::search_by_name(pb_arg.getValue());
@@ -284,16 +311,6 @@ void set_pb()
 
   if (pb_corr->target_name() != "pb")
     error_msg(pb_arg.getValue() + " correlation is not for pb");
-
-  set_api();
-  set_rsb();
-  set_yg();
-  set_tsep();
-  set_psep();
-  set_h2s_concentration();
-  set_co2_concentration();
-  set_n2_concentration();
-  set_nacl_concentration();
 
   pb_pars.insert(yg_par);
   pb_pars.insert(rsb_par);
@@ -970,7 +987,8 @@ double compute(const DefinedCorrelation & corr, bool check,
   return compute(corr, check, pars_list, p_q, args...);
 }
 
-/// Returns the list of parameters required by the set of correlations that are in l
+/// Returns the list of parameters required by the set of correlations
+/// that are in l 
 ParList load_constant_parameters(const DynList<const Correlation*> & l)
 {
   ParList pars_list;
@@ -989,15 +1007,10 @@ ParList load_constant_parameters(const DynList<const Correlation*> & l)
   return pars_list;
 }
 
-void print_row(const FixedStack<double> & row, bool is_pb = false)
+void print_row(const FixedStack<double> & row)
 {
   const size_t n = row.size();
   double * ptr = &row.base();
-
-  if (is_pb)
-    printf("\"true\",");
-  else
-    printf("\"false\",");
 
   if (exception_thrown)
     {
@@ -1017,6 +1030,16 @@ void print_row(const FixedStack<double> & row, bool is_pb = false)
 	printf(",");
     }
   printf("\n");
+}
+
+void print_row(const FixedStack<double> & row, bool is_pb)
+{
+  if (is_pb)
+    printf("\"true\",");
+  else
+    printf("\"false\",");
+
+  print_row(row);
 }
 
 template <typename ... Args>
@@ -1041,7 +1064,7 @@ void print_csv_header(Args ... args)
 
 void generate_grid_blackoil()
 {
-  set_check(); // Initialisation of constant data
+  set_check(); // Initialization of constant data
   set_api();
   set_rsb();
   set_yg();
@@ -1051,8 +1074,8 @@ void generate_grid_blackoil()
   set_co2_concentration();
   set_n2_concentration();
   set_nacl_concentration();
-  set_pb();
   
+  set_pb_corr();  
   set_rs_corr(true); // Initialization of correlations
   set_bob_corr(true);
   set_boa_corr(true);
@@ -1336,8 +1359,166 @@ void generate_grid_wetgas()
 
 void generate_grid_drygas()
 {
-  cout << "grid drygas option not yet implemented" << endl;
-  abort();
+  set_check(); // Initialization of constant data
+  set_api();
+  set_rsb();
+  set_yg();
+  set_tsep();
+  set_psep();
+  set_h2s_concentration();
+  set_co2_concentration();
+  set_n2_concentration();
+  set_nacl_concentration();
+  
+  set_ppchc_corr();
+  set_tpchc_corr();
+  set_ppcm_mixing_corr();
+  set_tpcm_mixing_corr();
+  set_adjustedppcm_corr();
+  set_adjustedtpcm_corr();
+  set_zfactor_corr();
+  set_cg_corr();
+  set_ug_corr();
+  set_bwb_corr();
+  set_uw_corr();
+  set_pw_corr();
+  set_rsw_corr();
+  set_cwb_corr();
+  set_sgw_corr();
+  report_exceptions = catch_exceptions.getValue();
+
+  set_t_range();
+  set_p_range();
+
+  // Calculation of constants for Z
+  auto yghc = dcompute_noexcep(YghcWichertAziz::correlation(), true, NPAR(yg),
+			       NPAR(n2_concentration), NPAR(co2_concentration),
+			       NPAR(h2s_concentration));
+  auto ppchc = dcompute_noexcep(ppchc_corr, true, NPAR(yghc),
+				NPAR(n2_concentration), NPAR(co2_concentration),
+				NPAR(h2s_concentration));
+  auto ppcm = dcompute_noexcep(ppcm_mixing_corr, true, NPAR(ppchc),
+			       NPAR(n2_concentration), NPAR(co2_concentration),
+			       NPAR(h2s_concentration));		       
+  auto tpchc = tpchc_corr->compute(check, yghc);
+  auto tpcm = dcompute_noexcep(tpcm_mixing_corr, true, NPAR(tpchc),
+			       NPAR(n2_concentration), NPAR(co2_concentration),
+			       NPAR(h2s_concentration));
+  auto adjustedppcm = dcompute_noexcep(adjustedppcm_corr, true, NPAR(ppcm),
+				       NPAR(tpcm), NPAR(co2_concentration),
+				       NPAR(h2s_concentration));
+  auto adjustedtpcm = dcompute_noexcep(adjustedtpcm_corr, true, NPAR(tpcm),
+				       NPAR(co2_concentration),
+				       NPAR(h2s_concentration));
+  // End calculation constants for z
+
+  // Initialization of correlation parameter lists
+  auto ug_pars = load_constant_parameters({ug_corr});
+  insert_in_container(ug_pars, npar("tpc", adjustedtpcm),
+		      npar("ppc", adjustedppcm));
+  auto bwb_pars = load_constant_parameters({bwb_corr});
+  auto uw_pars = load_constant_parameters({uw_corr});
+  auto pw_pars = load_constant_parameters({pw_corr});
+  auto rsw_pars = load_constant_parameters({rsw_corr});
+  auto cwb_pars = load_constant_parameters({cwb_corr});
+  ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));
+  ParList sgw_pars;
+
+  using P = pair<string, const Unit*>;
+  print_csv_header(P("t", get<3>(t_values.get_first())),
+		   P("p", get<3>(p_values.get_first())),
+		   P("zfactor", &Zfactor::get_instance()),
+		   P("cg", &cg_corr->unit),
+		   P("bg", &Bg::get_instance().unit),
+		   P("ug", &ug_corr->unit),
+		   P("pg", &Pg::get_instance().unit),
+		   P("bwb", &bwb_corr->unit),
+		   P("uw", &uw_corr->unit),
+		   P("pw", &pw_corr->unit),
+		   P("rsw", &rsw_corr->unit),
+		   P("cwb", &cwb_corr->unit),
+		   P("sgw", &sgw_corr->unit),
+		   P("exception", &Unit::null_unit));
+
+  FixedStack<double> row(25); // Here are the values. Ensure that the
+			      // insertion order is the same as for
+			      // the csv header
+      // temperature loop
+  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next()) 
+    {
+      Correlation::NamedPar t_par = t_it.get_curr();
+      VtlQuantity t_q = par(t_par);
+      temperature = t_q.raw();
+      CALL(Tpr, tpr, t_q, adjustedtpcm);
+      auto tpr_par = NPAR(tpr);
+  
+      insert_in_container(ug_pars, t_par, tpr_par);
+      bwb_pars.insert(t_par);
+      cg_pars.insert(tpr_par);
+      rsw_pars.insert(t_par);
+      uw_pars.insert(t_par);
+      pw_pars.insert(t_par);
+      cwb_pars.insert(t_par);
+      sgw_pars.insert(t_par);
+      
+
+      size_t n = row.ninsert(t_q.raw());
+
+          // pressure loop
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
+	{
+	  Correlation::NamedPar p_par = p_it.get_curr();
+	  VtlQuantity p_q = par(p_par);
+
+	  pressure = p_q.raw();
+	  CALL(Ppr, ppr, p_q, adjustedppcm);
+	  auto ppr_par = NPAR(ppr);
+
+	  VtlQuantity z = dcompute(zfactor_corr, check, ppr_par, tpr_par);
+	  auto z_par = NPAR(z);
+	  auto cg = dcompute(cg_corr, check, cg_pars, ppr_par, z_par);
+	  CALL(Bg, bg, t_q, p_q, z);
+	  auto ug = dcompute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
+	  CALL(Pg, pg, yg, t_q, p_q, z);
+	  auto rsw = dcompute(rsw_corr, check, rsw_pars, p_par);
+	  auto rsw_par = NPAR(rsw);
+	  auto bwb = dcompute(bwb_corr, check, bwb_pars, p_par);
+	  auto bw_par = npar("bw", bwb);
+	  auto pw = dcompute(pw_corr, check, pw_pars, p_par, bw_par);
+	  auto cwb = dcompute(cwb_corr, check, cwb_pars, p_par, z_par, 
+			      NPAR(bg), rsw_par, bw_par);
+	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
+	  auto uw = dcompute(uw_corr, check, uw_pars, p_par, NPAR(ppw)).raw();
+	  auto sgw = dcompute(sgw_corr, check, sgw_pars, p_par).raw();
+
+	  size_t n = row.ninsert(p_q.raw(), z.raw(), cg.raw(), bg.raw(),
+				 ug.raw(), pg.raw(), bwb.raw(),
+				 uw, pw.raw(), rsw.raw(), cwb.raw(), sgw);
+
+	  assert(row.size() == 13);
+
+	  print_row(row);
+	  row.popn(n);
+	}
+
+      row.popn(n);
+      remove_from_container(ug_pars, t_par, tpr_par);
+      bwb_pars.remove(t_par);
+      sgw_pars.remove(t_par);
+      cg_pars.remove(tpr_par);
+      uw_pars.remove(t_par); 
+      pw_pars.remove(t_par);
+      cwb_pars.remove(t_par);
+      rsw_pars.remove(t_par);
+    }
+
+  if (report_exceptions)
+    {
+      cout << endl
+	   << "Exceptions:" << endl;
+      exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
+    }
+
   exit(0);
 }
 
