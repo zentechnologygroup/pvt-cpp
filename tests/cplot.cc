@@ -678,6 +678,7 @@ ValueArg<string> sgo_corr_arg =
 const Correlation * sgo_corr = nullptr;
 void set_sgo_corr()
 {
+  sgo_corr = SgoBakerSwerdloff::get_instance();
   set_correlation(sgo_corr_arg, "sgo", sgo_corr, false);
 }
 
