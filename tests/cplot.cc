@@ -1187,12 +1187,14 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
   auto ret = build_stack_of_property_units(header);
 
   const size_t n = header.size();
-  pair<string, const Unit*> * ptr = &header.base();
+  pair<string, const Unit*> * col_ptr = &header.base();
+
+  const Unit ** final_units = &ret.first.base();
   
   for (long i = n - 1; i >= 0; --i)
     {
-      const pair<string, const Unit*> & val = ptr[i];
-      printf("%s %s", val.first.c_str(), val.second->name.c_str());
+      const pair<string, const Unit*> & val = col_ptr[i];
+      printf("%s %s", val.first.c_str(), final_units[i]->name.c_str());
       if (i > 0)
 	printf(",");
     }
@@ -1292,7 +1294,7 @@ void generate_grid_blackoil()
   ParList sgw_pars;
 
   using P = pair<string, const Unit*>;
-  auto row_units =
+  auto row_units = 
     print_csv_header(P("t", get<3>(t_values.get_first())),
 		     P("pb", &pb_corr->unit),
 		     P("uod", &uod_corr->unit),
