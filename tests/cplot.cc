@@ -197,6 +197,7 @@ build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
       if (not p)
 	{
 	  ret.insert(curr.second);
+	  fcts.insert(nullptr);
 	  continue;
 	}
 
@@ -1152,12 +1153,10 @@ inline void print_row(const FixedStack<const VtlQuantity*> & row,
       Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
       const VtlQuantity & q = *ptr[i];
       if (not q.is_null())
-	if (convert_fct)
-	  printf("%f", convert_fct(q.raw()));
-	else
-	  printf("%f", q.raw());
+	printf("%f", convert_fct ? convert_fct(q.raw()) : q.raw());
 
-      //printf("%.17g", VtlQuantity(*tgt_unit_ptr[i], q).raw());
+      // Comment line above and uncomment below in order to get maximum precision
+      //printf("%.17g", convert_fct ? convert_fct(q.raw()) : q.raw());
       if (i > 0)
 	printf(",");
     }
