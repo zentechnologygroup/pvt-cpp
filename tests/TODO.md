@@ -32,3 +32,9 @@
 ## 11. nueva versión de plot con cambio de unidades en salida
 - Created at   2017-03-13 17:44:26 -0400
 
+## 12. copiar version de cplot a plot; luego transformar cplot para cambio de unidad
+- Created at   2017-03-13 20:33:46 -0400
+
+## 13. optimizar build_stack_of_property_units
+- Created at   2017-03-14 10:36:21 -0400
+

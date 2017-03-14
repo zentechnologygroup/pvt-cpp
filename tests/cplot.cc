@@ -46,17 +46,17 @@ DynSetTree<string> par_name_tbl =
     "co2-concentration", "n2-concentration", "nacl-concentration", "org" };
 struct ArgUnit
 {
-  string par_name;
+  string name;
   string unit_name;
 
   ArgUnit & operator = (const string & str)
   {
     istringstream iss(str);
-    if (not (iss >> par_name >> unit_name))
+    if (not (iss >> name >> unit_name))
       throw TCLAP::ArgParseException(str + " is not a pair par-name unit");
 
-    if (not par_name_tbl.contains(par_name))
-      throw TCLAP::ArgParseException(par_name + " is an invalid parameter name");
+    if (not par_name_tbl.contains(name))
+      throw TCLAP::ArgParseException(name + " is an invalid parameter name");
 
     return *this;
   }
@@ -65,7 +65,7 @@ struct ArgUnit
 
   friend ostream& operator << (ostream &os, const ArgUnit & a) 
   {
-    return os << a.par_name << " " << a.unit_name;
+    return os << a.name << " " << a.unit_name;
   }
 };
 
@@ -75,13 +75,14 @@ namespace TCLAP
 }
 
 // Unit change specification. Suitable for any parameter
-MultiArg<ArgUnit> unit = { "", "unit", "unit \"par-name unit\"", false,
-			   "unit \"par-name unit\"", cmd };
+MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
+				"unit \"par-name unit\"", cmd };
 
 // Checks whether the parameter par_name has a change of
 // unity. ref_unit is the default unit of the parameter. If there was
 // no change specification for par_name, then returns ref_unit
-const Unit * test_unit_change(const string & par_name, const Unit & ref_unit)
+const Unit * test_par_unit_change(const string & par_name,
+				  const Unit & ref_unit)
 {
   if (not par_name_tbl.contains(par_name))
     {
@@ -92,7 +93,7 @@ const Unit * test_unit_change(const string & par_name, const Unit & ref_unit)
   
   const Unit * ret = &ref_unit;
   for (const auto & par : unit.getValue()) // traverse list of changes
-    if (par.par_name == par_name)
+    if (par.name == par_name)
       {
 	const Unit * ret = Unit::search_by_name(par.unit_name);
 	if (ret == nullptr)
@@ -111,6 +112,110 @@ const Unit * test_unit_change(const string & par_name, const Unit & ref_unit)
 	return ret;
       }
   
+  return ret;
+}
+
+struct PropertyUnit
+{
+  string name;
+  string unit_name;
+
+  PropertyUnit & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> name >> unit_name))
+      throw TCLAP::ArgParseException(str + " is not a pair par-name unit");
+
+    return *this;
+  }
+
+  PropertyUnit() {}
+
+  friend ostream& operator << (ostream &os, const PropertyUnit & a) 
+  {
+    return os << a.name << " " << a.unit_name;
+  }
+};
+
+namespace TCLAP
+{
+  template<> struct ArgTraits<PropertyUnit> { typedef StringLike ValueCategory; };
+}
+
+MultiArg<PropertyUnit> property_unit = { "", "property-unit",
+					 "change unit of property", false,
+					 "unit \"property-name unit\"", cmd };
+
+DynMapTree<string, const Unit*> property_units_changes;
+
+// Build the property_units_changes table containing pairs of form
+// property,unit_ptr. Only verify that given unit name exists. The
+// property name will be verified after when the row name is given
+void test_property_unit_changes()
+{
+  for (auto & p : property_unit.getValue())
+    {
+      const string & unit_name = p.unit_name;
+      const Unit * unit_ptr = Unit::search_by_name(unit_name);
+      if (unit_ptr)
+	{
+	  property_units_changes.insert(p.name, unit_ptr);
+	  continue;
+	}
+      ostringstream s;
+      s << "For correlation unit change (flag " << property_unit.getName()
+	<< "): unit name " << unit_name << " does not exist";\
+      ZENTHROW(InvalidValue, s.str());
+    }
+}
+
+FixedStack<const Unit*>
+build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
+{
+  FixedStack<const Unit*> ret(h.size()); // our result
+  
+  if (property_units_changes.size() == 0) // just for avoiding time consumption
+    {
+      h.for_each([&ret] (auto & p) { ret.insert(p.second); });
+      return ret;
+    }
+
+  for (auto it = h.get_it(); it.has_curr(); it.next())
+    {
+      const pair<string, const Unit*> & curr = it.get_curr();
+      const string & csv_col = curr.first;
+      const string property_name = split_to_list(csv_col, " ").get_first();
+      auto p = property_units_changes.search(property_name);
+      if (not p)
+	{
+	  ret.insert(curr.second);
+	  continue;
+	}
+
+      // validate that changed unit is sibling
+      auto old_unit_ptr = curr.second;
+      auto new_unit_ptr = p->second;
+      if (not old_unit_ptr->is_sibling(*new_unit_ptr))
+	{
+	  ostringstream s;
+	  s << "In flag --" << property_unit.getName() << " \"" << property_name
+	    << " " << new_unit_ptr->name << "\" : unit " << new_unit_ptr->name
+	    << " is not sibling of " << old_unit_ptr->name;
+	  ZENTHROW(InvalidValue, s.str());
+	}
+      ret.insert(p->second);
+      property_units_changes.remove(property_name);
+    }
+
+  if (not property_units_changes.is_empty())
+    {
+      ostringstream s;
+      s << "For correlation unit change (flag " << property_unit.getName()
+	<< "): " << property_units_changes.get_first().first
+	<< " is not a valid property name";
+      ZENTHROW(InvalidValue, s.str());
+    }
+
   return ret;
 }
 
@@ -149,7 +254,7 @@ ValueArg<double> api_arg = { "", "api", "api", true, 0, "api", cmd };
 Correlation::NamedPar api_par;
 void set_api()
 {
-  auto api_unit = test_unit_change("api", Api::get_instance());
+  auto api_unit = test_par_unit_change("api", Api::get_instance());
   api_par = npar("api", api_arg.getValue(), api_unit);
 }
 
@@ -158,7 +263,7 @@ Correlation::NamedPar rsb_par;
 const Unit * rsb_unit = nullptr;
 void set_rsb()
 {
-  rsb_unit = test_unit_change("rsb", SCF_STB::get_instance());
+  rsb_unit = test_par_unit_change("rsb", SCF_STB::get_instance());
   rsb_par = npar("rsb", rsb_arg.getValue(), rsb_unit);
 }
 
@@ -168,7 +273,7 @@ VtlQuantity yg;
 const Unit * yg_unit = nullptr;
 void set_yg()
 {
-  yg_unit = test_unit_change("yg", Sgg::get_instance());
+  yg_unit = test_par_unit_change("yg", Sgg::get_instance());
   yg_par = npar("yg", yg_arg.getValue(), yg_unit);
   yg.set(par(yg_par));
 }
@@ -182,7 +287,7 @@ VtlQuantity tsep;
 const Unit * tsep_unit = nullptr;
 void set_tsep()
 {
-  tsep_unit = test_unit_change("tsep", Fahrenheit::get_instance());
+  tsep_unit = test_par_unit_change("tsep", Fahrenheit::get_instance());
   tsep_par = make_tuple(tsep_arg.isSet(), "tsep",
 			tsep_arg.getValue(), tsep_unit);
   tsep.set(par(tsep_par));
@@ -196,7 +301,7 @@ VtlQuantity tsep2;
 const Unit * tsep2_unit = nullptr;
 void set_tsep2()
 {
-  tsep2_unit = test_unit_change("tsep2", Fahrenheit::get_instance());
+  tsep2_unit = test_par_unit_change("tsep2", Fahrenheit::get_instance());
   tsep2_par = make_tuple(tsep2_arg.isSet(), "tsep2",
 			 tsep2_arg.getValue(), tsep2_unit);
   tsep2.set(par(tsep2_par));
@@ -209,7 +314,7 @@ VtlQuantity ogr;
 const Unit * ogr_unit = nullptr;
 void set_ogr()
 {
-  ogr_unit = test_unit_change("ogr", STB_MMscf::get_instance());
+  ogr_unit = test_par_unit_change("ogr", STB_MMscf::get_instance());
   ogr_par = make_tuple(ogr_arg.isSet(), "ogr",
 		       ogr_arg.getValue(), ogr_unit);
   ogr.set(par(ogr_par));
@@ -222,7 +327,7 @@ VtlQuantity psep;
 const Unit * psep_unit = nullptr;
 void set_psep()
 {
-  psep_unit = test_unit_change("psep", psia::get_instance());
+  psep_unit = test_par_unit_change("psep", psia::get_instance());
   psep_par = make_tuple(psep_arg.isSet(), "psep",
 			psep_arg.getValue(), psep_unit);
   psep.set(par(psep_par));
@@ -236,7 +341,7 @@ VtlQuantity n2_concentration;
 const Unit * n2_concentration_unit = nullptr;
 void set_n2_concentration()
 {
-  n2_concentration_unit = test_unit_change("n2-concentration",
+  n2_concentration_unit = test_par_unit_change("n2-concentration",
 						MolePercent::get_instance());
   n2_concentration_par = make_tuple(n2_concentration_arg.isSet(),
 				    "n2_concentration",
@@ -253,7 +358,7 @@ VtlQuantity co2_concentration;
 const Unit * co2_concentration_unit = nullptr;
 void set_co2_concentration()
 {
-  co2_concentration_unit = test_unit_change("co2-concentration",
+  co2_concentration_unit = test_par_unit_change("co2-concentration",
 					    MolePercent::get_instance());
   co2_concentration_par = make_tuple(co2_concentration_arg.isSet(),
 				     "co2_concentration",
@@ -270,7 +375,7 @@ VtlQuantity h2s_concentration;
 const Unit * h2s_concentration_unit = nullptr;
 void set_h2s_concentration()
 {
-  h2s_concentration_unit = test_unit_change("h2s-concentration",
+  h2s_concentration_unit = test_par_unit_change("h2s-concentration",
 					    MolePercent::get_instance());
   h2s_concentration_par = make_tuple(h2s_concentration_arg.isSet(),
 				     "h2s_concentration",
@@ -287,7 +392,7 @@ VtlQuantity nacl_concentration;
 const Unit * nacl_concentration_unit = nullptr;
 void set_nacl_concentration()
 {
-  nacl_concentration_unit = test_unit_change("nacl-concentration",
+  nacl_concentration_unit = test_par_unit_change("nacl-concentration",
 					     Molality_NaCl::get_instance());
   nacl_concentration_par = make_tuple(nacl_concentration_arg.isSet(),
 				      "nacl_concentration",
@@ -648,7 +753,7 @@ DynList<Correlation::NamedPar> t_values;
 const Unit * t_unit = nullptr;
 void set_t_range()
 {
-  t_unit = test_unit_change("t", Fahrenheit::get_instance());
+  t_unit = test_par_unit_change("t", Fahrenheit::get_instance());
   set_range(t_range.getValue(), "t", *t_unit, t_values);
 }
 
@@ -659,7 +764,7 @@ DynList<Correlation::NamedPar> p_values;
 const Unit * p_unit = nullptr;
 void set_p_range()
 {
-  p_unit = test_unit_change("p", psia::get_instance());
+  p_unit = test_par_unit_change("p", psia::get_instance());
   set_range(p_range.getValue(), "p", *p_unit, p_values);
 }
 
@@ -1018,7 +1123,8 @@ size_t insert_in_row(FixedStack<const VtlQuantity*> & row,
   return n;
 }
 
-void print_row(const FixedStack<const VtlQuantity*> & row)
+void print_row(const FixedStack<const VtlQuantity*> & row,
+	       const FixedStack<const Unit*> & row_units)
 {
   const size_t n = row.size();
   const VtlQuantity ** ptr = &row.base();
@@ -1031,26 +1137,29 @@ void print_row(const FixedStack<const VtlQuantity*> & row)
   else
     printf("\"false\",");
 
+  const Unit ** tgt_unit_ptr = &row_units.base();
   for (long i = n - 1; i >= 0; --i)
     {
-      const auto & val = ptr[i]->raw();
-      if (val != Invalid_Value)
-	printf("%f", val);
-      //printf("%.17g", val); // uncomment this and comment above for maximum precision
+      const VtlQuantity & q = *ptr[i];
+      if (not q.is_null())
+	printf("%f", VtlQuantity(*tgt_unit_ptr[i], q).raw());
+      // uncomment this and comment above for maximum precision
+      //printf("%.17g", VtlQuantity(*tgt_unit_ptr[i], q).raw());
       if (i > 0)
 	printf(",");
     }
   printf("\n");
 }
 
-void print_row(const FixedStack<const VtlQuantity*> & row, bool is_pb)
+void print_row(const FixedStack<const VtlQuantity*> & row,
+	       const FixedStack<const Unit*> & row_units, bool is_pb)
 {
   if (is_pb)
     printf("\"true\",");
   else
     printf("\"false\",");
 
-  print_row(row);
+  print_row(row, row_units);
 }
 
 // TODO: debe retornar un vector de unidades que se le pasa a
@@ -1059,10 +1168,12 @@ void print_row(const FixedStack<const VtlQuantity*> & row, bool is_pb)
 // unidad. De este modo print_row simplemente recibe lel valor en
 // VtlQuantity y la conversión sucedería si fiese distinta
 template <typename ... Args>
-void print_csv_header(Args ... args)
+FixedStack<const Unit*> print_csv_header(Args ... args)
 {
   FixedStack<pair<string, const Unit*>> header;
   insert_in_container(header, args...);
+
+  FixedStack<const Unit*> ret = build_stack_of_property_units(header);
 
   ostringstream s;
   const size_t n = header.size();
@@ -1074,8 +1185,10 @@ void print_csv_header(Args ... args)
       if (i > 0)
 	printf(",");
     }
-  
+
   printf("\n");
+
+  return ret;
 }
 
 void generate_grid_blackoil()
@@ -1168,29 +1281,30 @@ void generate_grid_blackoil()
   ParList sgw_pars;
 
   using P = pair<string, const Unit*>;
-  print_csv_header(P("t", get<3>(t_values.get_first())),
-		   P("pb", &pb_corr->unit),
-		   P("uod", &uod_corr->unit),
-		   P("p", get<3>(p_values.get_first())),
-		   P("rs", &::rs_corr->unit),
-		   P("co", &cob_corr->unit), 
-		   P("bo", &bob_corr->unit),
-		   P("uo", &uob_corr->unit),
-		   P("po", &PobBradley::get_instance().unit),
-		   P("zfactor", &Zfactor::get_instance()),
-		   P("cg", &cg_corr->unit),
-		   P("bg", &Bg::get_instance().unit),
-		   P("ug", &ug_corr->unit),
-		   P("pg", &Pg::get_instance().unit),
-		   P("bw", &bwb_corr->unit),
-		   P("uw", &uw_corr->unit),
-		   P("pw", &pw_corr->unit),
-		   P("rsw", &rsw_corr->unit),
-		   P("cw", &cwb_corr->unit),
-		   P("sgo", &sgo_corr->unit),
-		   P("sgw", &sgw_corr->unit),
-		   P("exception", &Unit::null_unit),
-		   P("pbrow", &Unit::null_unit));
+  auto row_units =
+    print_csv_header(P("t", get<3>(t_values.get_first())),
+		     P("pb", &pb_corr->unit),
+		     P("uod", &uod_corr->unit),
+		     P("p", get<3>(p_values.get_first())),
+		     P("rs", &::rs_corr->unit),
+		     P("co", &cob_corr->unit), 
+		     P("bo", &bob_corr->unit),
+		     P("uo", &uob_corr->unit),
+		     P("po", &PobBradley::get_instance().unit),
+		     P("zfactor", &Zfactor::get_instance()),
+		     P("cg", &cg_corr->unit),
+		     P("bg", &Bg::get_instance().unit),
+		     P("ug", &ug_corr->unit),
+		     P("pg", &Pg::get_instance().unit),
+		     P("bw", &bwb_corr->unit),
+		     P("uw", &uw_corr->unit),
+		     P("pw", &pw_corr->unit),
+		     P("rsw", &rsw_corr->unit),
+		     P("cw", &cwb_corr->unit),
+		     P("sgo", &sgo_corr->unit),
+		     P("sgw", &sgw_corr->unit),
+		     P("exception", &Unit::null_unit),
+		     P("pbrow", &Unit::null_unit));
 
   auto rs_pb = npar("rs", rsb_par);
 
@@ -1335,7 +1449,7 @@ void generate_grid_blackoil()
 
 	  assert(row.size() == 21);
 
-	  print_row(row, pb_row);
+	  print_row(row, row_units, pb_row);
 	  row.popn(n);
 	}
 
@@ -1441,20 +1555,20 @@ void generate_grid_drygas()
   ParList sgw_pars;
 
   using P = pair<string, const Unit*>;
-  print_csv_header(P("t", get<3>(t_values.get_first())),
-		   P("p", get<3>(p_values.get_first())),
-		   P("zfactor", &Zfactor::get_instance()),
-		   P("cg", &cg_corr->unit),
-		   P("bg", &Bg::get_instance().unit),
-		   P("ug", &ug_corr->unit),
-		   P("pg", &Pg::get_instance().unit),
-		   P("bwb", &bwb_corr->unit),
-		   P("uw", &uw_corr->unit),
-		   P("pw", &pw_corr->unit),
-		   P("rsw", &rsw_corr->unit),
-		   P("cwb", &cwb_corr->unit),
-		   P("sgw", &sgw_corr->unit),
-		   P("exception", &Unit::null_unit));
+  auto row_units = print_csv_header(P("t", get<3>(t_values.get_first())),
+				    P("p", get<3>(p_values.get_first())),
+				    P("zfactor", &Zfactor::get_instance()),
+				    P("cg", &cg_corr->unit),
+				    P("bg", &Bg::get_instance().unit),
+				    P("ug", &ug_corr->unit),
+				    P("pg", &Pg::get_instance().unit),
+				    P("bwb", &bwb_corr->unit),
+				    P("uw", &uw_corr->unit),
+				    P("pw", &pw_corr->unit),
+				    P("rsw", &rsw_corr->unit),
+				    P("cwb", &cwb_corr->unit),
+				    P("sgw", &sgw_corr->unit),
+				    P("exception", &Unit::null_unit));
 
   FixedStack<const VtlQuantity*> row(25); // Here are the
 					  // values. Ensure that the
@@ -1513,7 +1627,7 @@ void generate_grid_drygas()
 
 	  assert(row.size() == 13);
 
-	  print_row(row);
+	  print_row(row, row_units);
 	  row.popn(n);
 	}
 
@@ -1568,10 +1682,12 @@ int main(int argc, char *argv[])
   if (print_types.getValue())
     print_fluid_types();
 
+  test_property_unit_changes();
+
   if (grid.isSet())
     grid_dispatcher.run(grid.getValue());
 
-  cout << "No " << grid.getFlag() << " or " << print_types.getFlag()
+  cout << "No " << grid.getName() << " or " << print_types.getName()
        << " have been set" << endl;
   abort();
 }

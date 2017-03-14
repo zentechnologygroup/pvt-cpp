@@ -269,7 +269,7 @@ public:
     set_max(VtlQuantity(unit, max_val).raw());
   }
 
-  double
+  VtlQuantity
   compute_by_names(const DynList<Correlation::ParByName> & pars,
 		   bool check = true) const
   {
@@ -294,16 +294,16 @@ public:
 	throw domain_error(s.str());
       }
 
-    double val = interval_ptr->compute(pars, check).raw();
+    VtlQuantity val = interval_ptr->compute(pars, check);
     if (val < min_val)
-      return min_val;
+      return VtlQuantity(val.unit, min_val);
     if (val > max_val)
-      return max_val;
+      return VtlQuantity(val.unit, max_val);
     return val;
   }
 
-  double compute_by_names(const DynList<Correlation::NamedPar> & pars,
-			  bool check = true) const
+  VtlQuantity compute_by_names(const DynList<Correlation::NamedPar> & pars,
+			       bool check = true) const
   {
     auto main_par_ptr =
       pars.find_ptr([this] (auto t) { return get<1>(t) == main_par_name; });
@@ -326,15 +326,15 @@ public:
 	throw domain_error(s.str());
       }
 
-    double val = interval_ptr->compute(pars, check).raw();
+    VtlQuantity val = interval_ptr->compute(pars, check);
     if (val < min_val)
-      return min_val;
+      return VtlQuantity(val.unit, min_val);
     if (val > max_val)
-      return max_val;
+      return VtlQuantity(val.unit, max_val);
     return val;
   }
 
-  double compute_by_names(const ParList & pars, bool check = true) const
+  VtlQuantity compute_by_names(const ParList & pars, bool check = true) const
   {
     VtlQuantity main_val = pars.search(main_par_name);
     Interval * interval_ptr = search_interval(main_val);
@@ -346,11 +346,11 @@ public:
 	throw domain_error(s.str());
       }
 
-    double val = interval_ptr->compute(pars, check).raw();
+    VtlQuantity val = interval_ptr->compute(pars, check);
     if (val < min_val)
-      return min_val;
+      return VtlQuantity(val.unit, min_val);
     if (val > max_val)
-      return max_val;
+      return VtlQuantity(val.unit, max_val);
     return val;
   }
 };
