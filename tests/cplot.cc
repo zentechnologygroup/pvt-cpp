@@ -1125,8 +1125,8 @@ size_t insert_in_row(FixedStack<const VtlQuantity*> & row,
   return n;
 }
 
-void print_row(const FixedStack<const VtlQuantity*> & row,
-	       const FixedStack<const Unit*> & row_units)
+inline void print_row(const FixedStack<const VtlQuantity*> & row,
+		      const FixedStack<const Unit*> & row_units)
 {
   const size_t n = row.size();
   const VtlQuantity ** ptr = &row.base();
@@ -1153,8 +1153,8 @@ void print_row(const FixedStack<const VtlQuantity*> & row,
   printf("\n");
 }
 
-void print_row(const FixedStack<const VtlQuantity*> & row,
-	       const FixedStack<const Unit*> & row_units, bool is_pb)
+inline void print_row(const FixedStack<const VtlQuantity*> & row,
+		      const FixedStack<const Unit*> & row_units, bool is_pb)
 {
   if (is_pb)
     printf("\"true\",");
@@ -1164,11 +1164,8 @@ void print_row(const FixedStack<const VtlQuantity*> & row,
   print_row(row, row_units);
 }
 
-// TODO: debe retornar un vector de unidades que se le pasa a
-// print_row. Pero antes hay que determinar, por una tabla de cambios
-// de unidad de correlación, cuáles columnas tienen cambios de
-// unidad. De este modo print_row simplemente recibe lel valor en
-// VtlQuantity y la conversión sucedería si fiese distinta
+// Print out the csv header according to passed args and return a
+// stack of definitive units for each column
 template <typename ... Args>
 FixedStack<const Unit*> print_csv_header(Args ... args)
 {
