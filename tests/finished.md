@@ -1192,3 +1192,33 @@
 - Comment      
 - Finished     
 
+## 200. Establecer en plot claramente las diff entre compute y dompute
+- Created at   2017-03-13 16:34:43 -0400
+- Completed at 2017-03-14 17:42:59 -0400
+- Comment      
+- Finished     
+
+## 201. actualiza hide en jsons
+- Created at   2017-03-14 16:53:30 -0400
+- Completed at 2017-03-14 17:18:22 -0400
+- Comment      
+- Finished     
+
+## 202. calibrar co
+- Created at   2016-11-30 10:30:58 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 203. opcion en calibrate que genere grid y plot
+- Created at   2017-03-02 08:39:44 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 204. programa que genere el json para calibrate
+- Created at   2017-03-02 15:13:38 -0400
+- Completed at 
+- Comment      
+- Finished     
+

@@ -179,6 +179,7 @@ public:
   }
 };
 
+
 struct Correlation
 {
   const string type_name;
@@ -195,7 +196,9 @@ struct Correlation
   mutable DynList<const BibEntry*> refs;
   mutable bool hidden = false; // indicates whether correlation is or not hidden
   mutable bool hidden_calc = false;
-  mutable bool hidden_grid = false;
+  mutable bool hidden_blackoil_grid = false;
+  mutable bool hidden_drygas_grid = false;
+  mutable bool hidden_wetgas_grid = false;
   mutable long id = -1;
   mutable string __target_name = "NOT-DEFINED";
 
@@ -329,11 +332,19 @@ private:
     par_ptr->def_latex_symbol(latex_symbol);
   }
 
-  void set_hidden() { hidden = hidden_calc = hidden_grid = true; }
+  void set_hidden()
+  {
+    hidden = hidden_calc = hidden_blackoil_grid = hidden_drygas_grid =
+      hidden_wetgas_grid = true;
+  }
 
   void set_hidden_calc() { hidden_calc = true; }
 
-  void set_hidden_grid() { hidden_grid = true; }
+  void set_hidden_blackoil_grid() { hidden_blackoil_grid = true; }
+
+  void set_hidden_drygas_grid() { hidden_drygas_grid = true; }
+
+  void set_hidden_wetgas_grid() { hidden_wetgas_grid = true; }
 
   static string json_of_all_correlations();
 

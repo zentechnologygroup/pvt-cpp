@@ -17,14 +17,14 @@ DEPLIBS	= $(TOP)/lib/libpvt-op.a
 
 LOCAL_LIBRARIES = $(TOP)/lib/libpvt-op.a
 
-TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot.cc \
+TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot.cc cplot.cc \
 	vector-conversion.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
 SRCS = $(TESTSRCS)
 
-all:: backend-conversion backend-corr backend-plot backend-calibrate backend-vector-conversion
+all:: backend-conversion backend-corr backend-plot backend-cplot backend-calibrate backend-vector-conversion
 
 backend-conversion: test-conversion
 	$(RM) backend-conversion; 	\	@@\
@@ -37,6 +37,10 @@ backend-corr: test-corr
 backend-plot: plot
 	$(RM) backend-plot; 	\	@@\
 	$(CP) plot backend-plot;
+
+backend-cplot: cplot
+	$(RM) backend-cplot; 	\	@@\
+	$(CP) cplot backend-cplot;
 
 backend-calibrate: test-calibrate
 	$(RM) backend-calibrate; 	\	@@\
@@ -60,5 +64,8 @@ NormalProgramTarget(test-calibrate,test-calibrate.o,$(DEPLIBS),$(LOCAL_LIBRARIES
 
 AllTarget(plot)
 NormalProgramTarget(plot,plot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(cplot)
+NormalProgramTarget(cplot,cplot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()

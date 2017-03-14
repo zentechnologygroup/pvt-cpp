@@ -197,6 +197,7 @@ build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
       if (not p)
 	{
 	  ret.insert(curr.second);
+	  fcts.insert(nullptr);
 	  continue;
 	}
 
@@ -677,7 +678,7 @@ ValueArg<string> sgo_corr_arg =
 const Correlation * sgo_corr = nullptr;
 void set_sgo_corr()
 {
-  set_correlation(sgo_corr_arg, "sgo", sgo_corr, true);
+  set_correlation(sgo_corr_arg, "sgo", sgo_corr, false);
 }
 
 ValueArg<string> sgw_corr_arg =
@@ -879,10 +880,29 @@ bool insert_in_pars_list(ParList & pars_list,
   return false;
 }
 
+/* CONVENTION ON THE NAMES OF WRAPPERS TO CALL THE CORRELATIONS
+
+   - compute(corr_ptr, check, pars_list, args...): direct call to
+     corr_ptr correlation
+
+   - compute_exc(corr_ptr, check, pars_list, args...): direct call to
+     corr_ptr correlation but aborts program if an exception is thrown
+
+   - tcompute(corr_ptr, c, m, check, pars_list, args...): Call to
+     corr_ptr correlation with tuning parameters c and m
+   
+   - dcompute(def_corr, check, p_q, pars_list, args...): call to defined
+     correlation def_corr with pivot parameter p_q
+
+   - CALL(corr_name, var, args...): this macro first declares a VtlQuantity
+     var then assigns it the result of correlation call
+     corr_name::get_instance().impl(args...);
+ */
+
 template <typename ... Args> inline
 VtlQuantity tcompute(const Correlation * corr_ptr,
-			  double c, double m, bool check,
-			  ParList & pars_list, Args ... args)
+		     double c, double m, bool check,
+		     ParList & pars_list, Args ... args)
 {
   try
     {
@@ -904,7 +924,7 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
 }
 
 template <typename ... Args> inline
-VtlQuantity dcompute(const Correlation * corr_ptr, bool check,
+VtlQuantity compute(const Correlation * corr_ptr, bool check,
 		    ParList & pars_list, Args ... args)
 {
   try
@@ -946,8 +966,8 @@ string correlation_call(const Correlation * corr_ptr, Args ... args)
 }
 
 template <typename ... Args> inline
-VtlQuantity dcompute_noexcep(const Correlation * corr_ptr, bool check,
-			     ParList & pars_list, Args ... args)
+VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
+			ParList & pars_list, Args ... args)
 {
   try
     {
@@ -1008,7 +1028,8 @@ bool insert_in_pars_list(const DefinedCorrelation & corr,
     {
       const string & par_name = get<1>(par);      
       if (corr.search_parameters(p_q).contains(par_name))
-	return false; // here the correlation would receive Invalid_Value and would fail
+	return false; // here the correlation would receive
+		      // Invalid_Value and would fail
     }
   
   pars_list.insert(par);
@@ -1021,9 +1042,9 @@ bool insert_in_pars_list(const DefinedCorrelation & corr,
 }
 
 template <typename ... Args> inline
-VtlQuantity compute(const DefinedCorrelation & corr, bool check,
-		    const VtlQuantity & p_q,
-		    ParList & pars_list, Args ... args)
+VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
+		     const VtlQuantity & p_q,
+		     ParList & pars_list, Args ... args)
 {
   try
     {
@@ -1064,32 +1085,31 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
 }
 
 template <typename ... Args> inline
-VtlQuantity dcompute(const Correlation * corr_ptr, bool check, Args ... args)
+VtlQuantity compute(const Correlation * corr_ptr, bool check, Args ... args)
 { // static for creating it once and thus to gain time. But beware!
   // The function is not reentrant and can not be used in a
   // multithreaded environment
   static ParList pars_list;
-  return dcompute(corr_ptr, check, pars_list, args...);
+  return compute(corr_ptr, check, pars_list, args...);
 }
 
 template <typename ... Args> inline
-VtlQuantity
-dcompute_noexcep(const Correlation * corr_ptr, bool check, Args ... args)
+VtlQuantity compute_exc(const Correlation * corr_ptr, bool check, Args ... args)
 { // static for creating it once and thus to gain time. But beware!
   // The function is not reentrant and can not be used in a
   // multithreaded environment
   static ParList pars_list;
-  return dcompute_noexcep(corr_ptr, check, pars_list, args...);
+  return compute_exc(corr_ptr, check, pars_list, args...);
 }
 
 template <typename ... Args> inline
-VtlQuantity compute(const DefinedCorrelation & corr, bool check,
+VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
 		    const VtlQuantity & p_q, Args ... args)
 { // static for creating it once and thus to gain time. But beware!
   // The function is not reentrant and can not be used in a
   // multithreaded environment
   static ParList pars_list;
-  return compute(corr, check, pars_list, p_q, args...);
+  return dcompute(corr, check, pars_list, p_q, args...);
 }
 
 /// Returns the list of parameters required by the set of correlations
@@ -1152,12 +1172,10 @@ inline void print_row(const FixedStack<const VtlQuantity*> & row,
       Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
       const VtlQuantity & q = *ptr[i];
       if (not q.is_null())
-	if (convert_fct)
-	  printf("%f", convert_fct(q.raw()));
-	else
-	  printf("%f", q.raw());
+	printf("%f", convert_fct ? convert_fct(q.raw()) : q.raw());
 
-      //printf("%.17g", VtlQuantity(*tgt_unit_ptr[i], q).raw());
+      // Comment line above and uncomment below in order to get maximum precision
+      //printf("%.17g", convert_fct ? convert_fct(q.raw()) : q.raw());
       if (i > 0)
 	printf(",");
     }
@@ -1250,25 +1268,25 @@ void generate_grid_blackoil()
   set_p_range();
 
   // Calculation of constants for Z
-  auto yghc = dcompute_noexcep(YghcWichertAziz::correlation(), true, NPAR(yg),
-			       NPAR(n2_concentration), NPAR(co2_concentration),
-			       NPAR(h2s_concentration));
-  auto ppchc = dcompute_noexcep(ppchc_corr, true, NPAR(yghc),
-				NPAR(n2_concentration), NPAR(co2_concentration),
-				NPAR(h2s_concentration));
-  auto ppcm = dcompute_noexcep(ppcm_mixing_corr, true, NPAR(ppchc),
-			       NPAR(n2_concentration), NPAR(co2_concentration),
-			       NPAR(h2s_concentration));		       
+  auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),
+			  NPAR(n2_concentration), NPAR(co2_concentration),
+			  NPAR(h2s_concentration));
+  auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),
+			   NPAR(n2_concentration), NPAR(co2_concentration),
+			   NPAR(h2s_concentration));
+  auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),
+			  NPAR(n2_concentration), NPAR(co2_concentration),
+			  NPAR(h2s_concentration));		       
   auto tpchc = tpchc_corr->compute(check, yghc);
-  auto tpcm = dcompute_noexcep(tpcm_mixing_corr, true, NPAR(tpchc),
-			       NPAR(n2_concentration), NPAR(co2_concentration),
-			       NPAR(h2s_concentration));
-  auto adjustedppcm = dcompute_noexcep(adjustedppcm_corr, true, NPAR(ppcm),
-				       NPAR(tpcm), NPAR(co2_concentration),
-				       NPAR(h2s_concentration));
-  auto adjustedtpcm = dcompute_noexcep(adjustedtpcm_corr, true, NPAR(tpcm),
-				       NPAR(co2_concentration),
-				       NPAR(h2s_concentration));
+  auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),
+			  NPAR(n2_concentration), NPAR(co2_concentration),
+			  NPAR(h2s_concentration));
+  auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),
+				  NPAR(tpcm), NPAR(co2_concentration),
+				  NPAR(h2s_concentration));
+  auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),
+				  NPAR(co2_concentration),
+				  NPAR(h2s_concentration));
   // End calculation constants for z
 
   // Initialization of correlation parameter lists
@@ -1346,7 +1364,7 @@ void generate_grid_blackoil()
       bool first_p_above_pb = VtlQuantity(*get<3>(first_p_point),
 					  get<2>(first_p_point)) > pb_q;
   
-      auto uod_val = dcompute(uod_corr, check, uod_pars, t_par, pb_par);
+      auto uod_val = compute(uod_corr, check, uod_pars, t_par, pb_par);
 
       insert_in_container(rs_pars, t_par, pb_par);
       auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(),
@@ -1387,10 +1405,10 @@ void generate_grid_blackoil()
 
       uo_pars.insert("uobp", uobp.raw(), &uobp.unit);
 
-      auto pobp = dcompute(&PobBradley::get_instance(), check, po_pars,
+      auto pobp = compute(&PobBradley::get_instance(), check, po_pars,
 			  rs_pb, npar("bob", bobp));
 
-      auto bwbp = dcompute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));
+      auto bwbp = compute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));
 
       insert_in_container(po_pars, pb_par, NPAR(pobp));
       insert_in_container(ug_pars, t_par, tpr_par);
@@ -1428,34 +1446,34 @@ void generate_grid_blackoil()
 	  pressure = p_q.raw();
 	  CALL(Ppr, ppr, p_q, adjustedppcm);
 	  auto ppr_par = NPAR(ppr);
-	  auto rs = compute(rs_corr, check, p_q, rs_pars, p_par);
+	  auto rs = dcompute(rs_corr, check, p_q, rs_pars, p_par);
 	  auto rs_par = NPAR(rs);
-	  auto co = compute(co_corr, check, p_q, co_pars, p_par);
+	  auto co = dcompute(co_corr, check, p_q, co_pars, p_par);
 	  auto co_par = NPAR(co);
-	  auto bo = compute(bo_corr, check, p_q, bo_pars, p_par, rs_par, co_par);
-	  auto uo = compute(uo_corr, check, p_q, uo_pars, p_par, rs_par);
-	  auto po = compute(po_corr, check, p_q, po_pars, p_par, rs_par, co_par,
-			    npar("bob", bo));
+	  auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, co_par);
+	  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par);
+	  auto po = dcompute(po_corr, check, p_q, po_pars, p_par, rs_par, co_par,
+			     npar("bob", bo));
 	  VtlQuantity z;
 	  if (p_q <= pb_q)
-	    z = dcompute(zfactor_corr, check, ppr_par, tpr_par);
+	    z = compute(zfactor_corr, check, ppr_par, tpr_par);
 	  auto z_par = NPAR(z);
-	  auto cg = dcompute(cg_corr, check, cg_pars, ppr_par, z_par);
+	  auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);
 	  CALL(Bg, bg, t_q, p_q, z);
-	  auto ug = dcompute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
+	  auto ug = compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
 	  CALL(Pg, pg, yg, t_q, p_q, z);
-	  auto rsw = dcompute(rsw_corr, check, rsw_pars, p_par);
+	  auto rsw = compute(rsw_corr, check, rsw_pars, p_par);
 	  auto rsw_par = NPAR(rsw);
-	  auto cwa = dcompute(cwa_corr, check, cwa_pars, p_par, rsw_par);
-	  auto bw = compute(bw_corr, check, p_q, bw_pars, p_par, NPAR(cwa));
+	  auto cwa = compute(cwa_corr, check, cwa_pars, p_par, rsw_par);
+	  auto bw = dcompute(bw_corr, check, p_q, bw_pars, p_par, NPAR(cwa));
 	  auto bw_par = NPAR(bw);
-	  auto pw = dcompute(pw_corr, check, pw_pars, p_par, bw_par);
-	  auto cw = compute(cw_corr, check, p_q, cw_pars, p_par, z_par, 
-			    NPAR(bg), rsw_par, bw_par, NPAR(cwa));
+	  auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);
+	  auto cw = dcompute(cw_corr, check, p_q, cw_pars, p_par, z_par, 
+			     NPAR(bg), rsw_par, bw_par, NPAR(cwa));
 	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
-	  auto uw = dcompute(uw_corr, check, uw_pars, p_par, NPAR(ppw));
-	  auto sgo = dcompute(sgo_corr, check, sgo_pars, p_par);
-	  auto sgw = dcompute(sgw_corr, check, sgw_pars, p_par);
+	  auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));
+	  auto sgo = compute(sgo_corr, check, sgo_pars, p_par);
+	  auto sgw = compute(sgw_corr, check, sgw_pars, p_par);
 
 	  size_t n = insert_in_row(row, p_q, rs, co, bo, uo, po, z, cg, bg,
 				   ug, pg, bw, uw, pw, rsw, cw, sgo, sgw);
@@ -1534,25 +1552,25 @@ void generate_grid_drygas()
   set_p_range();
 
   // Calculation of constants for Z
-  auto yghc = dcompute_noexcep(YghcWichertAziz::correlation(), true, NPAR(yg),
-			       NPAR(n2_concentration), NPAR(co2_concentration),
-			       NPAR(h2s_concentration));
-  auto ppchc = dcompute_noexcep(ppchc_corr, true, NPAR(yghc),
-				NPAR(n2_concentration), NPAR(co2_concentration),
-				NPAR(h2s_concentration));
-  auto ppcm = dcompute_noexcep(ppcm_mixing_corr, true, NPAR(ppchc),
-			       NPAR(n2_concentration), NPAR(co2_concentration),
-			       NPAR(h2s_concentration));		       
+  auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),
+			  NPAR(n2_concentration), NPAR(co2_concentration),
+			  NPAR(h2s_concentration));
+  auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),
+			   NPAR(n2_concentration), NPAR(co2_concentration),
+			   NPAR(h2s_concentration));
+  auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),
+			  NPAR(n2_concentration), NPAR(co2_concentration),
+			  NPAR(h2s_concentration));		       
   auto tpchc = tpchc_corr->compute(check, yghc);
-  auto tpcm = dcompute_noexcep(tpcm_mixing_corr, true, NPAR(tpchc),
-			       NPAR(n2_concentration), NPAR(co2_concentration),
-			       NPAR(h2s_concentration));
-  auto adjustedppcm = dcompute_noexcep(adjustedppcm_corr, true, NPAR(ppcm),
-				       NPAR(tpcm), NPAR(co2_concentration),
-				       NPAR(h2s_concentration));
-  auto adjustedtpcm = dcompute_noexcep(adjustedtpcm_corr, true, NPAR(tpcm),
-				       NPAR(co2_concentration),
-				       NPAR(h2s_concentration));
+  auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),
+			  NPAR(n2_concentration), NPAR(co2_concentration),
+			  NPAR(h2s_concentration));
+  auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),
+				  NPAR(tpcm), NPAR(co2_concentration),
+				  NPAR(h2s_concentration));
+  auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),
+				  NPAR(co2_concentration),
+				  NPAR(h2s_concentration));
   // End calculation constants for z
 
   // Initialization of correlation parameter lists
@@ -1618,22 +1636,22 @@ void generate_grid_drygas()
 	  CALL(Ppr, ppr, p_q, adjustedppcm);
 	  auto ppr_par = NPAR(ppr);
 
-	  VtlQuantity z = dcompute(zfactor_corr, check, ppr_par, tpr_par);
+	  VtlQuantity z = compute(zfactor_corr, check, ppr_par, tpr_par);
 	  auto z_par = NPAR(z);
-	  auto cg = dcompute(cg_corr, check, cg_pars, ppr_par, z_par);
+	  auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);
 	  CALL(Bg, bg, t_q, p_q, z);
-	  auto ug = dcompute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
+	  auto ug = compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
 	  CALL(Pg, pg, yg, t_q, p_q, z);
-	  auto rsw = dcompute(rsw_corr, check, rsw_pars, p_par);
+	  auto rsw = compute(rsw_corr, check, rsw_pars, p_par);
 	  auto rsw_par = NPAR(rsw);
-	  auto bwb = dcompute(bwb_corr, check, bwb_pars, p_par);
+	  auto bwb = compute(bwb_corr, check, bwb_pars, p_par);
 	  auto bw_par = npar("bw", bwb);
-	  auto pw = dcompute(pw_corr, check, pw_pars, p_par, bw_par);
-	  auto cwb = dcompute(cwb_corr, check, cwb_pars, p_par, z_par, 
+	  auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);
+	  auto cwb = compute(cwb_corr, check, cwb_pars, p_par, z_par, 
 			      NPAR(bg), rsw_par, bw_par);
 	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
-	  auto uw = dcompute(uw_corr, check, uw_pars, p_par, NPAR(ppw));
-	  auto sgw = dcompute(sgw_corr, check, sgw_pars, p_par);
+	  auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));
+	  auto sgw = compute(sgw_corr, check, sgw_pars, p_par);
 
 	  size_t n = insert_in_row(row, p_q, z, cg, bg, ug, pg, bwb, uw,
 				   pw, rsw, cwb, sgw);

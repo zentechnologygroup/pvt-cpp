@@ -8,7 +8,9 @@ add_author("Spivey, McCain & North")
 add_ref("spivey:2004")
 add_ref("mcCain:2011")
 add_internal_note("The correlation was verified by using the original reference and McCain et al. (2011) as a secondary reference. Date: October 19 2016.")
-set_hidden_grid()
+set_hidden_blackoil_grid()
+set_hidden_drygas_grid()
+set_hidden_wetgas_grid()
 end_correlation()
 
 ################################################################

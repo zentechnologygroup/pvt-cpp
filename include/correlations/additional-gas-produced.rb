@@ -12,7 +12,9 @@ add_note("The additional gas produced is related to the mass of gas produced fro
 add_note("This equation is not recommended when the total nonhydrocarbon content of the gas exceeds 25 mol%.")
 add_ref("mcCain:1991")
 add_internal_note("The equation was verified by using the original reference: McCain (1991). Date: March 06 2017.")
-set_hidden_grid()
+set_hidden_blackoil_grid()
+set_hidden_drygas_grid()
+set_hidden_wetgas_grid()
 end_correlation()
 
 ################################################################
@@ -30,5 +32,7 @@ add_note("The additional gas produced is related to the mass of gas produced fro
 add_note("This equation is not recommended when the total nonhydrocarbon content of the gas exceeds 25 mol%.")
 add_ref("mcCain:1991")
 add_internal_note("The equation was verified by using the original reference: McCain (1991). Date: March 06 2017.")
-set_hidden_grid()
+set_hidden_blackoil_grid()
+set_hidden_drygas_grid()
+set_hidden_wetgas_grid()
 end_correlation()
