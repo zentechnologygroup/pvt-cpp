@@ -873,9 +873,9 @@ bool insert_in_pars_list(ParList & pars_list,
 }
 
 template <typename ... Args> inline
-VtlQuantity compute(const Correlation * corr_ptr,
-		    double c, double m, bool check,
-		    ParList & pars_list, Args ... args)
+VtlQuantity tcompute(const Correlation * corr_ptr,
+			  double c, double m, bool check,
+			  ParList & pars_list, Args ... args)
 {
   try
     {
@@ -1047,13 +1047,13 @@ VtlQuantity compute(const DefinedCorrelation & corr, bool check,
 }
 
 template <typename ... Args> inline
-VtlQuantity compute(const Correlation * corr_ptr,
-		    double c, double m, bool check, Args ... args)
+VtlQuantity tcompute(const Correlation * corr_ptr,
+			  double c, double m, bool check, Args ... args)
 { // static for creating it once and thus to gain time. But beware!
   // The function is not reentrant and can not be used in a
   // multithreaded environment
   static ParList pars_list;
-  return compute(corr_ptr, c, m, check, pars_list, args...);
+  return tcompute(corr_ptr, c, m, check, pars_list, args...);
 }
 
 template <typename ... Args> inline
@@ -1321,7 +1321,7 @@ void generate_grid_blackoil()
       auto tpr_par = NPAR(tpr);
 
       VtlQuantity pb_q =
-	compute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
+	tcompute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
       auto pb = pb_q.raw();
       double next_pb = nextafter(pb, numeric_limits<double>::max());
       VtlQuantity next_pb_q = { pb_q.unit, next_pb };
@@ -1363,10 +1363,10 @@ void generate_grid_blackoil()
       auto cw_corr = define_correlation(pb_q, cwb_corr, cwa_corr);
 
       bo_pars.insert(t_par);
-      auto bobp = compute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
-			  check, bo_pars, p_pb, rs_pb);
+      auto bobp = tcompute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
+			   check, bo_pars, p_pb, rs_pb);
       
-      auto uobp = compute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
+      auto uobp = tcompute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
 			  check, uo_pars, p_pb, rs_pb);
 
       insert_in_container(bo_pars, pb_par, NPAR(bobp));
