@@ -11,6 +11,3 @@
 ## 4. json de calibrate debe recibir unidades en nombre no en símbolos
 - Created at   2017-03-13 10:16:03 -0400
 
-## 5. correlacion sgo no s está valdando bien
-- Created at   2017-03-13 16:51:59 -0400
-

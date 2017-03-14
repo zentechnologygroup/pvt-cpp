@@ -1222,3 +1222,9 @@
 - Comment      
 - Finished     
 
+## 205. correlacion sgo no s está valdando bien
+- Created at   2017-03-13 16:51:59 -0400
+- Completed at 2017-03-14 18:03:26 -0400
+- Comment      
+- Finished     
+
