@@ -17,7 +17,7 @@ DEPLIBS	= $(TOP)/lib/libpvt-op.a
 
 LOCAL_LIBRARIES = $(TOP)/lib/libpvt-op.a
 
-TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot.cc plot-corr.cc \
+TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot.cc \
 	vector-conversion.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)

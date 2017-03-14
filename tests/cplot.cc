@@ -171,15 +171,21 @@ void test_property_unit_changes()
 
 // Given the csv stack with names and units, it builds a parallel
 // stack of changed unit columns through --property-unit
-FixedStack<const Unit*>
+pair<FixedStack<const Unit*>, FixedStack<Unit_Convert_Fct_Ptr>>
 build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
 {
-  FixedStack<const Unit*> ret(h.size()); // our result
+  const size_t n = h.size();
+  FixedStack<const Unit*> ret(n); // our result
+  FixedStack<Unit_Convert_Fct_Ptr> fcts(n);
   
   if (property_units_changes.size() == 0) // just for avoiding time consumption
     {
-      h.for_each([&ret] (auto & p) { ret.insert(p.second); });
-      return ret;
+      h.for_each([&ret, &fcts] (auto & p)
+		 {
+		   ret.insert(p.second);
+		   fcts.insert(nullptr);
+		 });
+      return make_pair(ret, fcts);
     }
 
   for (auto it = h.get_it(); it.has_curr(); it.next())
@@ -206,19 +212,20 @@ build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
 	  ZENTHROW(InvalidValue, s.str());
 	}
       ret.insert(p->second);
+      fcts.insert(search_conversion(*old_unit_ptr, *new_unit_ptr));
       property_units_changes.remove(property_name);
     }
 
   if (not property_units_changes.is_empty())
     {
       ostringstream s;
-      s << "For correlation unit change (flag " << property_unit.getName()
+      s << "For correlation unit change (flag --" << property_unit.getName()
 	<< "): " << property_units_changes.get_first().first
 	<< " is not a valid property name";
       ZENTHROW(InvalidValue, s.str());
     }
 
-  return ret;
+  return make_pair(ret, fcts);
 }
 
 // helper to handle parameter passing to correlations
@@ -1126,7 +1133,7 @@ size_t insert_in_row(FixedStack<const VtlQuantity*> & row,
 }
 
 inline void print_row(const FixedStack<const VtlQuantity*> & row,
-		      const FixedStack<const Unit*> & row_units)
+		      const FixedStack<Unit_Convert_Fct_Ptr> & row_convert)
 {
   const size_t n = row.size();
   const VtlQuantity ** ptr = &row.base();
@@ -1139,13 +1146,17 @@ inline void print_row(const FixedStack<const VtlQuantity*> & row,
   else
     printf("\"false\",");
 
-  const Unit ** tgt_unit_ptr = &row_units.base();
+  const Unit_Convert_Fct_Ptr * tgt_unit_ptr = &row_convert.base();
   for (long i = n - 1; i >= 0; --i)
     {
+      Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
       const VtlQuantity & q = *ptr[i];
       if (not q.is_null())
-	printf("%f", VtlQuantity(*tgt_unit_ptr[i], q).raw());
-      // uncomment this and comment above for maximum precision
+	if (convert_fct)
+	  printf("%f", convert_fct(q.raw()));
+	else
+	  printf("%f", q.raw());
+
       //printf("%.17g", VtlQuantity(*tgt_unit_ptr[i], q).raw());
       if (i > 0)
 	printf(",");
@@ -1154,29 +1165,30 @@ inline void print_row(const FixedStack<const VtlQuantity*> & row,
 }
 
 inline void print_row(const FixedStack<const VtlQuantity*> & row,
-		      const FixedStack<const Unit*> & row_units, bool is_pb)
+		      const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
+		      bool is_pb)
 {
   if (is_pb)
     printf("\"true\",");
   else
     printf("\"false\",");
 
-  print_row(row, row_units);
+  print_row(row, row_convert);
 }
 
 // Print out the csv header according to passed args and return a
 // stack of definitive units for each column
 template <typename ... Args>
-FixedStack<const Unit*> print_csv_header(Args ... args)
+FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 {
   FixedStack<pair<string, const Unit*>> header;
   insert_in_container(header, args...);
 
-  FixedStack<const Unit*> ret = build_stack_of_property_units(header);
+  auto ret = build_stack_of_property_units(header);
 
-  ostringstream s;
   const size_t n = header.size();
   pair<string, const Unit*> * ptr = &header.base();
+  
   for (long i = n - 1; i >= 0; --i)
     {
       const pair<string, const Unit*> & val = ptr[i];
@@ -1187,7 +1199,7 @@ FixedStack<const Unit*> print_csv_header(Args ... args)
 
   printf("\n");
 
-  return ret;
+  return ret.second;
 }
 
 void generate_grid_blackoil()
