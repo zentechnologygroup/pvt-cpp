@@ -180,7 +180,6 @@ public:
 };
 
 
-
 struct Correlation
 {
   const string type_name;
@@ -333,7 +332,11 @@ private:
     par_ptr->def_latex_symbol(latex_symbol);
   }
 
-  void set_hidden() { hidden = hidden_calc = hidden_blackoil_grid = true; }
+  void set_hidden()
+  {
+    hidden = hidden_calc = hidden_blackoil_grid = hidden_drygas_grid =
+      hidden_wetgas_grid = true;
+  }
 
   void set_hidden_calc() { hidden_calc = true; }
 
