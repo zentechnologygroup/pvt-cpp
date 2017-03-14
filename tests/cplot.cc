@@ -169,6 +169,8 @@ void test_property_unit_changes()
     }
 }
 
+// Given the csv stack with names and units, it builds a parallel
+// stack of changed unit columns through --property-unit
 FixedStack<const Unit*>
 build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
 {

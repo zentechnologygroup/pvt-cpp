@@ -193,3 +193,7 @@ script que añada símbolos latex a todas las unidades,2017-03-02 16:15:06 -0400
 añadir columna aplot con el número de excepción,2017-02-25 17:34:56 -0400,2017-03-11 16:32:07 -0400,,2017-03-11 16:32:11 -0400
 implementar la unión de parámetros de famila de correlación,2017-02-08 15:06:07 -0400,2017-03-11 16:32:23 -0400,,2017-03-11 16:32:28 -0400
 Establecer en plot claramente las diff entre compute y dompute,2017-03-13 16:34:49 -0400,,,2017-03-13 16:35:01 -0400
+copiar version de cplot a plot; luego transformar cplot para cambio de unidad,2017-03-13 20:33:46 -0400,2017-03-14 12:47:48 -0400,,2017-03-14 12:50:24 -0400
+optimizar build_stack_of_property_units,2017-03-14 10:36:21 -0400,2017-03-14 12:47:43 -0400,,2017-03-14 12:50:25 -0400
+nueva versión de plot con cambio de unidades en salida,2017-03-13 17:44:26 -0400,2017-03-14 12:50:34 -0400,,2017-03-14 12:50:38 -0400
+test-conversion debe tener opción que genre tabla ruby con unidades,2017-03-12 11:29:53 -0400,2017-03-14 12:51:15 -0400,,2017-03-14 12:51:18 -0400
