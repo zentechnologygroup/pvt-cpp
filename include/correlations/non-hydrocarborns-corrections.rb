@@ -13,7 +13,7 @@ add_author("Wichert & Aziz (Gas Gravity Correction)")
 add_ref("wichert:1972")
 add_ref("standing:1977")
 # add_ref("banzer:1996") Secondary reference
-set_hidden_grid()
+set_hidden_blackoil_grid()
 end_correlation()
 
 ################################################################
@@ -32,7 +32,7 @@ add_ref("whitson:2000")
 add_ref("standing:1977")
 # add_ref("banzer:1996") Secondary reference
 add_internal_note("The original reference is not available. The correlation was verified by using secondary references: Whitson & Brulé (2000), Standing (1977) and Bánzer (1996). Date: September 12 2016.")
-set_hidden_grid()
+set_hidden_blackoil_grid()
 end_correlation()
 
 ################################################################
@@ -52,7 +52,7 @@ add_author("Wichert & Aziz (Mixture Correction)")
 add_ref("wichert:1972")
 add_ref("standing:1977")
 add_ref("petroWiki:2016:6")
-set_hidden_grid()
+set_hidden_blackoil_grid()
 end_correlation()
 
 ################################################################
@@ -71,7 +71,7 @@ add_ref("whitson:2000")
 add_ref("standing:1977")
 # add_ref("banzer:1996") Secondary reference
 add_author("Kay (Mixing Rule)")
-set_hidden_grid()
+set_hidden_blackoil_grid()
 end_correlation()
 
 ################################################################
@@ -91,5 +91,5 @@ add_ref("petroWiki:2016:6")
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Standing (1977). Date: September 12 2016.")
 add_internal_note("The development ranges were taken from PetroWiki (http://petrowiki.org/Real_gases).")
 add_author("Wichert & Aziz (Mixture Correction)")
-set_hidden_grid()
+set_hidden_blackoil_grid()
 end_correlation()

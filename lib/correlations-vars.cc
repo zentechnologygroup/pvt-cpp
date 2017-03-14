@@ -51,7 +51,9 @@ static json to_json(const Correlation & c)
   j["type"] = c.type_name;
   j["name"] = c.name;
   j["hidden"] = c.hidden;
-  j["hidden_grid"] = c.hidden_grid;
+  j["hidden_blackoil_grid"] = c.hidden_blackoil_grid;
+  j["hidden_wetgas_grid"] = c.hidden_wetgas_grid;
+  j["hidden_drygas_grid"] = c.hidden_drygas_grid;
   j["hidden_calc"] = c.hidden_calc;
   j["id"] = c.id;
 
@@ -75,7 +77,9 @@ static json to_json_concise(const Correlation & c)
   j["latex"] = c.latex_symbol;
   j["name"] = c.name;
   j["hidden"] = c.hidden;
-  j["hidden_grid"] = c.hidden_grid;
+  j["hidden_blackoil_grid"] = c.hidden_blackoil_grid;
+  j["hidden_wetgas_grid"] = c.hidden_wetgas_grid;
+  j["hidden_drygas_grid"] = c.hidden_drygas_grid;
   j["hidden_calc"] = c.hidden_calc;
   j["id"] = c.id;
 

@@ -58,8 +58,16 @@ class CorrelationGen
     @hidden_calc = true;
   end
 
-  def set_hidden_grid
-    @hidden_grid = true;
+  def set_hidden_blackoil_grid
+    @hidden_blackoil_grid = true;
+  end
+
+  def set_hidden_wetgas_grid
+    @hidden_wetgas_grid = true;
+  end
+
+  def set_hidden_drygas_grid
+    @hidden_drygas_grid = true;
   end
 
   def add_doc(str)
@@ -268,7 +276,9 @@ class CorrelationGen
     s += "set_author(\"#{@author}\");"
     s += "set_title(\"#{@title}\");" if @title
     s += "set_hidden();" if @hidden
-    s += "set_hidden_grid();" if @hidden_grid
+    s += "set_hidden_blackoil_grid();" if @hidden_blackoil_grid
+    s += "set_hidden_wetgas_grid();" if @hidden_wetgas_grid
+    s += "set_hidden_drygas_grid();" if @hidden_drygas_grid
     s += "set_hidden_calc();" if @hidden_calc
     @pars.each { |par| s += par.make }
     @db.each { |db| s += "add_db(\"#{db}\");\n" }
@@ -354,8 +364,8 @@ def set_hidden
   $curr_corr.set_hidden
 end
 
-def set_hidden_grid
-  $curr_corr.set_hidden_grid
+def set_hidden_blackoil_grid
+  $curr_corr.set_hidden_blackoil_grid
 end
 
 def set_hidden_calc

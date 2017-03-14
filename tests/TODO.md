@@ -26,3 +26,6 @@
 ## 9. correlacion sgo no s está valdando bien
 - Created at   2017-03-13 16:51:59 -0400
 
+## 10. actualiza hide en jsons
+- Created at   2017-03-14 16:53:30 -0400
+
