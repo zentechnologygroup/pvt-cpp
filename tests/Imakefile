@@ -33,9 +33,8 @@ LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
 TESTSRCS = test-all-units-1.cc test-conversion.cc test-corr.cc test-seq.cc \
 	test-biblio.cc test-json.cc test-tuning.cc test-analyse.cc \
 	test-empirical-json.cc test-fluid-analysis.cc test-hash.cc\
-	test-bob-cal.cc test-boa-cal.cc test-rs-cal.cc test-def-corr.cc \
-	test-uo-cal.cc test-calibrate.cc plot-corr.cc test-par.cc plot.cc \
-	test-exception.cc vector-conversion.cc
+	test-def-corr.cc test-calibrate.cc test-par.cc plot.cc cplot.cc \
+	test-exception.cc vector-conversion.cc 
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
@@ -76,18 +75,6 @@ NormalProgramTarget(test-analyse,test-analyse.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(
 AllTarget(test-empirical-json)
 NormalProgramTarget(test-empirical-json,test-empirical-json.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
-AllTarget(test-bob-cal)
-NormalProgramTarget(test-bob-cal,test-bob-cal.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
-
-AllTarget(test-boa-cal)
-NormalProgramTarget(test-boa-cal,test-boa-cal.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
-
-AllTarget(test-rs-cal)
-NormalProgramTarget(test-rs-cal,test-rs-cal.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
-
-AllTarget(test-uo-cal)
-NormalProgramTarget(test-uo-cal,test-uo-cal.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
-
 AllTarget(test-def-corr)
 NormalProgramTarget(test-def-corr,test-def-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
@@ -97,10 +84,10 @@ NormalProgramTarget(test-calibrate,test-calibrate.o,$(DEPLIBS),$(LOCAL_LIBRARIES
 AllTarget(test-par)
 NormalProgramTarget(test-par,test-par.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
-AllTarget(plot-corr)
-NormalProgramTarget(plot-corr,plot-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
-
 AllTarget(plot)
 NormalProgramTarget(plot,plot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(cplot)
+NormalProgramTarget(cplot,cplot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()

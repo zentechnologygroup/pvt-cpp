@@ -1168,3 +1168,27 @@
 - Comment      
 - Finished     
 
+## 196. copiar version de cplot a plot; luego transformar cplot para cambio de unidad
+- Created at   2017-03-13 20:33:46 -0400
+- Completed at 2017-03-14 12:47:48 -0400
+- Comment      
+- Finished     
+
+## 197. optimizar build_stack_of_property_units
+- Created at   2017-03-14 10:36:21 -0400
+- Completed at 2017-03-14 12:47:43 -0400
+- Comment      
+- Finished     
+
+## 198. nueva versión de plot con cambio de unidades en salida
+- Created at   2017-03-13 17:44:26 -0400
+- Completed at 2017-03-14 12:50:34 -0400
+- Comment      
+- Finished     
+
+## 199. test-conversion debe tener opción que genre tabla ruby con unidades
+- Created at   2017-03-12 11:29:53 -0400
+- Completed at 2017-03-14 12:51:15 -0400
+- Comment      
+- Finished     
+
