@@ -16,5 +16,7 @@ add_note("This equation is not recommended when the total nonhydrocarbon content
 add_internal_note("Producing GOR is the inverse of Condensate gas ratio.")
 add_internal_note("The equation was verified by using the original reference: McCain (1991). Date: March 06 2017.")
 set_hidden_blackoil_grid()
+set_hidden_drygas_grid()
+set_hidden_wetgas_grid()
 add_ref("mcCain:1991")
 end_correlation()

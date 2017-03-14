@@ -13,6 +13,8 @@ add_note("This equation is not recommended when the total nonhydrocarbon content
 add_ref("mcCain:1991")
 add_internal_note("The equation was verified by using the original reference: McCain (1991). Date: March 06 2017.")
 set_hidden_blackoil_grid()
+set_hidden_drygas_grid()
+set_hidden_wetgas_grid()
 end_correlation()
 
 ################################################################
@@ -31,4 +33,6 @@ add_note("This equation is not recommended when the total nonhydrocarbon content
 add_ref("mcCain:1991")
 add_internal_note("The equation was verified by using the original reference: McCain (1991). Date: March 06 2017.")
 set_hidden_blackoil_grid()
+set_hidden_drygas_grid()
+set_hidden_wetgas_grid()
 end_correlation()
