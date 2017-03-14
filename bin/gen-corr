@@ -368,6 +368,14 @@ def set_hidden_blackoil_grid
   $curr_corr.set_hidden_blackoil_grid
 end
 
+def set_hidden_drygas_grid
+  $curr_corr.set_hidden_blackoil_grid
+end
+
+def set_hidden_wetgas_grid
+  $curr_corr.set_hidden_blackoil_grid
+end
+
 def set_hidden_calc
   $curr_corr.set_hidden_calc
 end

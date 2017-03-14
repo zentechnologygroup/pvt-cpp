@@ -197,3 +197,8 @@ copiar version de cplot a plot; luego transformar cplot para cambio de unidad,20
 optimizar build_stack_of_property_units,2017-03-14 10:36:21 -0400,2017-03-14 12:47:43 -0400,,2017-03-14 12:50:25 -0400
 nueva versión de plot con cambio de unidades en salida,2017-03-13 17:44:26 -0400,2017-03-14 12:50:34 -0400,,2017-03-14 12:50:38 -0400
 test-conversion debe tener opción que genre tabla ruby con unidades,2017-03-12 11:29:53 -0400,2017-03-14 12:51:15 -0400,,2017-03-14 12:51:18 -0400
+Establecer en plot claramente las diff entre compute y dompute,2017-03-13 16:34:43 -0400,2017-03-14 17:42:59 -0400,,2017-03-14 17:43:02 -0400
+actualiza hide en jsons,2017-03-14 16:53:30 -0400,2017-03-14 17:18:22 -0400,,2017-03-14 17:43:15 -0400
+calibrar co,2016-11-30 10:30:58 -0400,,,2017-03-14 17:43:30 -0400
+opcion en calibrate que genere grid y plot,2017-03-02 08:39:44 -0400,,,2017-03-14 17:43:41 -0400
+programa que genere el json para calibrate,2017-03-02 15:13:38 -0400,,,2017-03-14 17:44:07 -0400
