@@ -14,6 +14,7 @@
 ## 5. verificar que Invalid_Value y VtlQuantity() se estén procesando en cplot
 - Created at   2017-03-14 20:51:35 -0400
 
-## 6. set_check() y report_exceptions = catch_exceptions.getValue() pueden ir en main
-- Created at   2017-03-14 21:01:33 -0400
+## 6. definir política de unidades
+- Created at    pues se comparte pvt con bep y más
+- Completed at 2017-03-15 09:58:31 -0400
 

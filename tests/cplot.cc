@@ -151,7 +151,7 @@ DynMapTree<string, const Unit*> property_units_changes;
 // Build the property_units_changes table containing pairs of form
 // property,unit_ptr. Only verify that given unit name exists. The
 // property name will be verified after when the row name is given
-void test_property_unit_changes()
+void process_property_unit_changes()
 {
   for (auto & p : property_unit.getValue())
     {
@@ -1176,6 +1176,7 @@ inline void print_row(const FixedStack<const VtlQuantity*> & row,
 
       // Comment line above and uncomment below in order to get maximum precision
       //printf("%.17g", convert_fct ? convert_fct(q.raw()) : q.raw());
+
       if (i > 0)
 	printf(",");
     }
@@ -1224,8 +1225,7 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 
 void generate_grid_blackoil()
 {
-  set_check(); // Initialization of constant data
-  set_api();
+  set_api(); // Initialization of constant data
   set_rsb();
   set_yg();
   set_tsep();
@@ -1235,8 +1235,8 @@ void generate_grid_blackoil()
   set_n2_concentration();
   set_nacl_concentration();
   
-  set_pb_corr();  
-  set_rs_corr(true); // Initialization of correlations
+  set_pb_corr();      // Initialization of correlations
+  set_rs_corr(true); 
   set_bob_corr(true);
   set_boa_corr(true);
   set_uod_corr(true);
@@ -1262,10 +1262,6 @@ void generate_grid_blackoil()
   set_cwa_corr();
   set_sgo_corr();
   set_sgw_corr();
-  report_exceptions = catch_exceptions.getValue();
-
-  set_t_range();
-  set_p_range();
 
   // Calculation of constants for Z
   auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),
@@ -1500,28 +1496,17 @@ void generate_grid_blackoil()
       cw_pars.remove(t_par);
       rsw_pars.remove(t_par);
     }
-
-  if (report_exceptions)
-    {
-      cout << endl
-	   << "Exceptions:" << endl;
-      exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
-    }
-
-  exit(0);
 }
 
 void generate_grid_wetgas()
 {
   cout << "grid wetgas option not yet implemented" << endl;
   abort();
-  exit(0);
 }
 
 void generate_grid_drygas()
 {
-  set_check(); // Initialization of constant data
-  set_api();
+  set_api(); // Initialization of constant data
   set_rsb();
   set_yg();
   set_tsep();
@@ -1546,10 +1531,6 @@ void generate_grid_drygas()
   set_rsw_corr();
   set_cwb_corr();
   set_sgw_corr();
-  report_exceptions = catch_exceptions.getValue();
-
-  set_t_range();
-  set_p_range();
 
   // Calculation of constants for Z
   auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),
@@ -1621,8 +1602,7 @@ void generate_grid_drygas()
       uw_pars.insert(t_par);
       pw_pars.insert(t_par);
       cwb_pars.insert(t_par);
-      sgw_pars.insert(t_par);
-      
+      sgw_pars.insert(t_par);      
 
       size_t n = insert_in_row(row, t_q);
 
@@ -1672,15 +1652,6 @@ void generate_grid_drygas()
       cwb_pars.remove(t_par);
       rsw_pars.remove(t_par);
     }
-
-  if (report_exceptions)
-    {
-      cout << endl
-	   << "Exceptions:" << endl;
-      exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
-    }
-
-  exit(0);
 }
 
 void generate_grid_brine()
@@ -1704,6 +1675,27 @@ grid_dispatcher("blackoil", generate_grid_blackoil,
 		"brine", generate_grid_brine,
 		"gascondensed", generate_grid_gascondensed);
 
+void generate_grid(const string & fluid_type)
+{
+  set_check(); 
+  report_exceptions = catch_exceptions.getValue();
+
+  set_t_range();
+  set_p_range();
+  
+  grid_dispatcher.run(fluid_type);
+
+  if (report_exceptions)
+    {
+      cout << endl
+	   << "Exceptions:" << endl;
+      exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
+    }
+
+  exit(0);
+
+}
+
 using OptionPtr = DynList<DynList<double>> (*)();
 
 int main(int argc, char *argv[])
@@ -1713,10 +1705,10 @@ int main(int argc, char *argv[])
   if (print_types.getValue())
     print_fluid_types();
 
-  test_property_unit_changes();
+  process_property_unit_changes();
 
   if (grid.isSet())
-    grid_dispatcher.run(grid.getValue());
+    generate_grid(grid.getValue());
 
   cout << "No " << grid.getName() << " or " << print_types.getName()
        << " have been set" << endl;

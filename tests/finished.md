@@ -1228,3 +1228,9 @@
 - Comment      
 - Finished     
 
+## 206. set_check() y report_exceptions = catch_exceptions.getValue() pueden ir en main
+- Created at   2017-03-14 21:01:33 -0400
+- Completed at 2017-03-15 09:17:49 -0400
+- Comment      
+- Finished     
+
