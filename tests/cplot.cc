@@ -699,7 +699,7 @@ void set_sgw_corr()
 }
 
 vector<string> grid_types =
-  { "blackoil", "wetgas", "drygas", "brine", "gascondensated" };
+  { "blackoil", "wetgas", "drygas", "brine", "gascondensed" };
 ValuesConstraint<string> allowed_grid_types = grid_types;
 ValueArg<string> grid = { "", "grid", "grid type", false,
 			  "blackoil", &allowed_grid_types, cmd };
@@ -1690,9 +1690,9 @@ void generate_grid_brine()
   exit(0);
 }
 
-void generate_grid_gascondensated()
+void generate_grid_gascondensed()
 {
-  cout << "grid gacondensated option not yet implemented" << endl;
+  cout << "grid gascondensed option not yet implemented" << endl;
   abort();
   exit(0);
 }
@@ -1702,7 +1702,7 @@ grid_dispatcher("blackoil", generate_grid_blackoil,
 		"wetgas", generate_grid_wetgas,
 		"drygas", generate_grid_drygas,
 		"brine", generate_grid_brine,
-		"gascondensated", generate_grid_gascondensated);
+		"gascondensed", generate_grid_gascondensed);
 
 using OptionPtr = DynList<DynList<double>> (*)();
 
