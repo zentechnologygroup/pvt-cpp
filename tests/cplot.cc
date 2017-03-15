@@ -169,40 +169,45 @@ void test_property_unit_changes()
     }
 }
 
-// Given the csv stack with names and units, it builds a parallel
-// stack of changed unit columns through --property-unit
+// Given the csv stack with names and units, this routine builds a
+// parallel stack of changed unit columns through --property-unit flags
 pair<FixedStack<const Unit*>, FixedStack<Unit_Convert_Fct_Ptr>>
 build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
 {
   const size_t n = h.size();
-  FixedStack<const Unit*> ret(n); // our result
-  FixedStack<Unit_Convert_Fct_Ptr> fcts(n);
-  
-  if (property_units_changes.size() == 0) // just for avoiding time consumption
+  FixedStack<const Unit*> ret(n); // this will be field first of return value
+  FixedStack<Unit_Convert_Fct_Ptr> fcts(n); // and this will be the field second
+
+  // just for avoiding time consumption in case where user has not set
+  // any --property-unit flag, we first test if there are unit changes
+  if (property_units_changes.size() == 0) 
     {
-      h.for_each([&ret, &fcts] (auto & p)
+      h.for_each([&ret, &fcts] (auto & p) // build return value 
 		 {
-		   ret.insert(p.second);
-		   fcts.insert(nullptr);
+		   ret.insert(p.second); // original unit
+		   fcts.insert(nullptr); // no conversion
 		 });
       return make_pair(ret, fcts);
     }
 
+  // traverse the header and for each column verify if there is an unit change
   for (auto it = h.get_it(); it.has_curr(); it.next())
     {
-      const pair<string, const Unit*> & curr = it.get_curr();
-      const string & csv_col = curr.first;
+      const pair<string, const Unit*> & col = it.get_curr(); // header column
+      const string & csv_col = col.first;
       const string property_name = split_to_list(csv_col, " ").get_first();
       auto p = property_units_changes.search(property_name);
-      if (not p)
-	{
-	  ret.insert(curr.second);
-	  fcts.insert(nullptr);
+      if (not p) // does property_name have an unit change?
+	{ // No!
+	  ret.insert(col.second);
+	  fcts.insert(nullptr); // nullptr as sentinel for knowing if
+				// conversion is needed
 	  continue;
 	}
 
-      // validate that changed unit is sibling
-      auto old_unit_ptr = curr.second;
+      // here we have an unit change ==> we validate that changed unit
+      // is sibling of original unit
+      auto old_unit_ptr = col.second;
       auto new_unit_ptr = p->second;
       if (not old_unit_ptr->is_sibling(*new_unit_ptr))
 	{
@@ -237,13 +242,15 @@ inline VtlQuantity par(const Correlation::NamedPar & par)
   return VtlQuantity(*get<3>(par), get<2>(par));
 }
 
-// construct a parameter by name name from an amount (VtlQuantity or Quantity <Unit>)
+// construct a parameter by name name from an amount (VtlQuantity or
+// Quantity <Unit>)
 inline Correlation::NamedPar npar(const string & name, const BaseQuantity & p)
 {
   return Correlation::NamedPar(true, name, p.raw(), &p.unit);
 }
 
-inline Correlation::NamedPar npar(const string & name, double v, const Unit * unit)
+inline Correlation::NamedPar
+npar(const string & name, double v, const Unit * unit)
 {
   return Correlation::NamedPar(true, name, v, unit);
 }
@@ -820,17 +827,6 @@ define_correlation(const VtlQuantity & pb,
   return ret;
 }
 
-DefinedCorrelation
-set_rs_correlation(const VtlQuantity & pb,
-		   const VtlQuantity & rsb, const Correlation * rs_corr,
-		   double c, double m)
-{
-  DefinedCorrelation ret = define_correlation(pb, rs_corr, c, m,
-					      &RsAbovePb::get_instance());
-  ret.set_max(rsb);
-  return ret;
-}
-
 void
 test_parameter(const DynList<pair<string, DynList<string>>> & required,
 	       const Correlation::NamedPar & par, ParList & pars_list)
@@ -842,9 +838,11 @@ test_parameter(const DynList<pair<string, DynList<string>>> & required,
 
 const double Invalid_Value = Unit::Invalid_Value;
 
-double temperature = 0, pressure = 0; // global values set during the grid generation
+// global values only set during the grid generation and can be accessed by anyone
+double temperature = 0, pressure = 0; 
 bool exception_thrown = false;
 
+// save exception e that was thrown during calculation of correlation corr_name
 void store_exception(const string & corr_name, const exception & e)
 {
   exception_thrown = true;
@@ -855,9 +853,10 @@ void store_exception(const string & corr_name, const exception & e)
   exception_list.append(s.str());
 }
 
-/* Meta-inserts par into pars_list but stops if any parameter is invalid.
+/* Helper that meta-inserts par into pars_list but stops if any
+   parameter is invalid.
 
-  Returns true if all parameters were valid (! = Invalid_Value)
+  Returns true if all parameters were valid (!= Invalid_Value)
 
   Otherwise the insertion stops at the first invalid parameter, the
   parameters previously inserted in the list are deleted and false is

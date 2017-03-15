@@ -2,3 +2,5 @@ compute en empirical_data 1405: se puede acer más raṕido,2016-12-01 17:30:02 
 script que lea hoja de Virginia y genere los csv para distintos grids,2017-02-16 18:15:52 -0400,,
 Indagar penultimos saltos en bob para test-calibrate,2017-03-01 16:10:40 -0400,,
 json de calibrate debe recibir unidades en nombre no en símbolos,2017-03-13 10:16:03 -0400,,
+verificar que Invalid_Value y VtlQuantity() se estén procesando en cplot,2017-03-14 20:51:35 -0400,,
+set_check() y report_exceptions = catch_exceptions.getValue() pueden ir en main,2017-03-14 21:01:33 -0400,,
