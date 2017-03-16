@@ -25,3 +25,7 @@
 ## 8. cplot: veqsp_corr y gpa_corr están casadas al uso de uno o dos separadores (tsep)
 - Created at   2017-03-15 17:12:49 -0400
 
+## 9. en cplot considerar que cob
+- Created at    coa y uod no estén calibradas
+- Completed at 2017-03-16 16:11:05 -0400
+

@@ -299,13 +299,6 @@ Command_Arg_Value(h2s_concentration, MolePercent,
 Command_Arg_Value(nacl_concentration, Molality_NaCl,
 		  "nacl-concentration in mol_NaCl/Kg_H2O");
 
-ValueArg<double> c_pb_arg = { "", "c-pb", "pb adjustment", false, 0,
-			      "pb adjustment", cmd };
-
-ValueArg<string> pb_corr_arg = { "", "pb", "correlation for pb", false, "",
-				 "correlation for pb", cmd };
-const Correlation * pb_corr = nullptr;
-
 // Initialize a correlation specified from the command line via
 // corr_name_arg. Verify that the correlation is for the target_name
 // property and if so, then the found correlation is placed in the
@@ -333,313 +326,81 @@ void set_correlation(ValueArg<string> & corr_name_arg,
     error_msg("Correlation " + corr_ptr->name + " is not for " + target_name);
 }
 
-# define Declare_Corr_Arg(name)						\
-  ValueArg<string> name##corr_arg =					\
-    { "", #name, "correlation for " ##name, false, "",			\
-      "correlation for " ##name, cmd };
+# define Declare_Corr_Arg(name)			      \
+  ValueArg<string> name##_corr_arg =		      \
+    { "", #name, "correlation for " #name, false, "", \
+      "correlation for " #name, cmd };		      \
+						      \
+  const Correlation * name##_corr = nullptr;
 
 # define Command_Arg_Mandatory_Correlation(name)			\
   Declare_Corr_Arg(name);						\
 									\
   void set_##name##_corr()						\
   {									\
-    set_correlation(name##_corr_arg, name, name##_corr, true);		\
+    set_correlation(name##_corr_arg, #name, name##_corr, true);		\
   }
 
-//# defi
+# define Command_Arg_Optional_Correlation(name, CorrName)		\
+  Declare_Corr_Arg(name);						\
+									\
+  void set_##name##_corr()						\
+  {									\
+    name##_corr = &CorrName::get_instance();				\
+    set_correlation(name##_corr_arg, #name, name##_corr, false);	\
+  }
 
-//# define Command_Arg_Correlation(name)		
-  
+# define Declare_c_par(name)			\
+  ValueArg<double> c_##name##_arg =				\
+    { "", "c-" #name, #name " c", false, 0, #name " c", cmd };
 
-void set_pb_corr() { set_correlation(pb_corr_arg, "pb", pb_corr, true); }
+# define Declare_m_par(name)			\
+  ValueArg<double> m_##name##_arg =				\
+    { "", "m-" #name, #name " m", false, 1, #name " m", cmd };
 
-ValueArg<double> c_rs_arg = { "", "c-rs", "rs c", false, 0, "rs c", cmd };
-ValueArg<double> m_rs_arg = { "", "m-rs", "rs m", false, 1, "rs m", cmd };
-ValueArg<string> rs_corr_arg = { "", "rs", "correlation for rs", false, "",
-				 "correlation for rs", cmd };
-const Correlation * rs_corr = nullptr;
-void set_rs_corr(bool force = false)
-{ set_correlation(rs_corr_arg, "rs", rs_corr, force); }
+// Defines a calibrated correlation along with its parameters, which is mandatory
+# define Command_Arg_Tuned_Correlation(name)	\
+  Command_Arg_Mandatory_Correlation(name);	\
+  Declare_c_par(name);				\
+  Declare_m_par(name);
 
-ValueArg<double> c_bob_arg = { "", "c-bob", "ob c", false, 0, "bob c", cmd };
-ValueArg<double> m_bob_arg = { "", "m-bob", "bob m", false, 1, "bob m", cmd };
-ValueArg<string> bob_corr_arg = { "", "bob", "correlation for bob", false, "",
-				  "correlation for bob", cmd };
-const Correlation * bob_corr = nullptr;
-void set_bob_corr(bool force = false)
-{ set_correlation(bob_corr_arg, "bob", bob_corr, force); }
+Command_Arg_Mandatory_Correlation(pb);
+Declare_c_par(pb);
 
-ValueArg<double> c_boa_arg = { "", "c-boa", "ob c", false, 0, "boa c", cmd };
-ValueArg<double> m_boa_arg = { "", "m-boa", "boa m", false, 1, "boa m", cmd };
-ValueArg<string> boa_corr_arg = { "", "boa", "correlation for boa", false, "",
-				  "correlation for boa", cmd };
-const Correlation * boa_corr = nullptr;
-void set_boa_corr(bool force = false)
-{ set_correlation(boa_corr_arg, "boa", boa_corr, force); }
+Command_Arg_Tuned_Correlation(rs);
+Command_Arg_Tuned_Correlation(bob);
+Command_Arg_Tuned_Correlation(boa);
+Command_Arg_Mandatory_Correlation(uod);
+Command_Arg_Tuned_Correlation(cob);
+Command_Arg_Tuned_Correlation(coa);
+Command_Arg_Tuned_Correlation(uob);
+Command_Arg_Tuned_Correlation(uoa);
 
-ValueArg<double> c_uod_arg = { "", "c-uod", "uod c", false, 0, "uod c", cmd };
-ValueArg<double> m_uod_arg = { "", "m-ruod", "uod m", false, 1, "uod m", cmd };
-ValueArg<string> uod_corr_arg = { "", "uod", "correlation for uod", false, "",
-				 "correlation for ruod", cmd };
-const Correlation * uod_corr = nullptr;
-void set_uod_corr(bool force = false)
-{ set_correlation(uod_corr_arg, "uod", uod_corr, force); }
+Command_Arg_Optional_Correlation(ppchc, PpchcStanding);
+Command_Arg_Optional_Correlation(ppcm_mixing, PpcmKayMixingRule);
+Command_Arg_Optional_Correlation(adjustedppcm, AdjustedppcmWichertAziz);
+Command_Arg_Optional_Correlation(tpchc, TpchcStanding);
+Command_Arg_Optional_Correlation(tpcm_mixing, TpcmKayMixingRule);
+Command_Arg_Optional_Correlation(adjustedtpcm, AdjustedtpcmWichertAziz);
+Command_Arg_Optional_Correlation(zfactor, ZfactorDranchukAK);
+Command_Arg_Optional_Correlation(cg, CgMattarBA);
+Command_Arg_Optional_Correlation(ug, UgCarrKB);
+Command_Arg_Optional_Correlation(bwb, BwbSpiveyMN);
+Command_Arg_Optional_Correlation(bwa, BwaSpiveyMN);
+Command_Arg_Optional_Correlation(uw, UwMcCain);
+Command_Arg_Optional_Correlation(pw, PwSpiveyMN);
+Command_Arg_Optional_Correlation(cwb, CwbSpiveyMN);
+Command_Arg_Optional_Correlation(cwa, CwaSpiveyMN);
+Command_Arg_Optional_Correlation(rsw, RswSpiveyMN);
+Command_Arg_Optional_Correlation(sgo, SgoBakerSwerdloff);
+Command_Arg_Optional_Correlation(sgw, SgwJenningsNewman);
 
-ValueArg<double> c_cob_arg = { "", "c-cob", "cob c", false, 0, "cob c", cmd };
-ValueArg<double> m_cob_arg = { "", "m-cob", "cob m", false, 1, "cob m", cmd };
-ValueArg<string> cob_corr_arg = { "", "cob", "correlation for cob", false, "",
-				  "correlation for cob", cmd };
-const Correlation * cob_corr = nullptr;
-void set_cob_corr(bool force = false)
-{ set_correlation(cob_corr_arg, "cob", cob_corr, force); }
-
-ValueArg<double> c_coa_arg = { "", "c-coa", "coa c", false, 0, "coa c", cmd };
-ValueArg<double> m_coa_arg = { "", "m-coa", "coa m", false, 1, "coa m", cmd };
-ValueArg<string> coa_corr_arg = { "", "coa", "correlation for coa", false, "",
-				  "correlation for coa", cmd };
-const Correlation * coa_corr = nullptr;
-void set_coa_corr(bool force = false)
-{ set_correlation(coa_corr_arg, "coa", coa_corr, force); }
-
-ValueArg<double> c_uob_arg = { "", "c-uob", "uob c", false, 0, "uob c", cmd };
-ValueArg<double> m_uob_arg = { "", "m-uob", "uob m", false, 1, "uob m", cmd };
-ValueArg<string> uob_corr_arg = { "", "uob", "correlation for uob", false, "",
-				  "correlation for uob", cmd };
-const Correlation * uob_corr = nullptr;
-void set_uob_corr(bool force = false)
-{ set_correlation(uob_corr_arg, "uob", uob_corr, force); }
-
-ValueArg<double> c_uoa_arg = { "", "c-uoa", "uoa c", false, 0, "uoa c", cmd };
-ValueArg<double> m_uoa_arg = { "", "m-uoa", "uoa m", false, 1, "uoa m", cmd };
-ValueArg<string> uoa_corr_arg = { "", "uoa", "correlation for uoa", false, "",
-				  "correlation for uoa", cmd };
-const Correlation * uoa_corr = nullptr;
-void set_uoa_corr(bool force = false)
-{ set_correlation(uoa_corr_arg, "uoa", uoa_corr, force); }
-
-ValueArg<string> ppchc_corr_arg = { "", "ppchc", "Correlation for ppchc",
-				    false, "", "Correlation for ppchc", cmd };
-const Correlation * ppchc_corr = nullptr;
-void set_ppchc_corr()
-{
-  ppchc_corr = &PpchcStanding::get_instance(); // mandotory here!
-  set_correlation(ppchc_corr_arg, "ppchc", ppchc_corr, false);
-}
-
-ValueArg<string> ppcm_mixing_corr_arg =
-  { "", "ppcm-mixing", "Correlation for ppcm mixing rule",
-    false, "PpcmKayMixingRule", "Correlation for ppcm mixing rule", cmd };
-const Correlation * ppcm_mixing_corr = nullptr;
-void set_ppcm_mixing_corr()
-{
-  ppcm_mixing_corr = &PpcmKayMixingRule::get_instance(); // mandotory here!
-  set_correlation(ppcm_mixing_corr_arg, "ppccm", ppcm_mixing_corr, false);
-}
-
-ValueArg<string> adjustedppcm_corr_arg =
-  { "", "adjustedppcm", "Correlation for ajustedppcm",
-    false, "AdjustedppcmWichertAziz", "Correlation for adjustedppcm", cmd };
-const Correlation * adjustedppcm_corr = nullptr;
-void set_adjustedppcm_corr()
-{
-  adjustedppcm_corr = &AdjustedppcmWichertAziz::get_instance(); // mandotory here!
-  set_correlation(adjustedppcm_corr_arg, "adjustedppccm",
-		  adjustedppcm_corr, false);
-}
-
-ValueArg<string> tpchc_corr_arg = { "", "tpchc", "Correlation for tpchc",
-				    false, "", "Correlation for tpchc", cmd };
-const Correlation * tpchc_corr = nullptr;
-void set_tpchc_corr()
-{
-  tpchc_corr = &TpchcStanding::get_instance(); // by default
-  set_correlation(tpchc_corr_arg, "tpchc", tpchc_corr, false);
-}
-
-ValueArg<string> tpcm_mixing_corr_arg =
-  { "", "tpcm", "Correlation for tpcm mixing rule",
-    false, "TpcmKayMixingRule", "Correlation for tpcm mixing rule", cmd };
-const Correlation * tpcm_mixing_corr = nullptr;
-void set_tpcm_mixing_corr()
-{
-  tpcm_mixing_corr = &TpcmKayMixingRule::get_instance(); // mandotory here!
-  set_correlation(tpcm_mixing_corr_arg, "tpcm", tpcm_mixing_corr, false);
-}
-
-ValueArg<string> adjustedtpcm_corr_arg =
-  { "", "adjustedtpcm", "Correlation for adjustedtpcm",
-    false, "AdjustedtpcmWichertAziz", "Correlation for adjustedtpcm", cmd };
-const Correlation * adjustedtpcm_corr = nullptr;
-void set_adjustedtpcm_corr()
-{
-  adjustedtpcm_corr = &AdjustedtpcmWichertAziz::get_instance(); // mandotory here!
-  set_correlation(adjustedtpcm_corr_arg, "adjustedtpcm", adjustedtpcm_corr, false);
-}
-
-ValueArg<string> zfactor_corr_arg =
-  { "", "zfactor", "Correlation for zfactor", false, "",
-    "Correlation for zfactor", cmd };
-const Correlation * zfactor_corr = nullptr;
-void set_zfactor_corr()
-{
-  zfactor_corr = &ZfactorDranchukAK::get_instance(); // by default
-  set_correlation(zfactor_corr_arg, "zfactor", zfactor_corr, false);
-}
-
-ValueArg<string> cg_corr_arg =
-  { "", "cg", "Correlation for cg", false, "", "Correlation for cg", cmd };
-const Correlation * cg_corr = nullptr;
-void set_cg_corr()
-{
-  cg_corr = &CgMattarBA::get_instance();
-  set_correlation(cg_corr_arg, "cg", cg_corr, false);
-}
-
-ValueArg<string> ug_corr_arg =
-  { "", "ug", "Correlation for ug", false, "", "Correlation for ug", cmd };
-const Correlation * ug_corr = nullptr;
-void set_ug_corr()
-{
-  ug_corr = &UgCarrKB::get_instance(); // by default
-  set_correlation(ug_corr_arg, "ug", ug_corr, false);
-}
-
-ValueArg<string> bwb_corr_arg =
-  { "", "bwb", "Correlation for bwb", false, "", "Correlation for bwb", cmd };
-const Correlation * bwb_corr = nullptr;
-void set_bwb_corr()
-{
-  bwb_corr = &BwbSpiveyMN::get_instance();
-  set_correlation(bwb_corr_arg, "bwb", bwb_corr, false);
-}
-
-ValueArg<string> bwa_corr_arg =
-  { "", "bwa", "Correlation for bwa", false, "", "Correlation for bwa", cmd };
-const Correlation * bwa_corr = nullptr;
-void set_bwa_corr()
-{
-  bwa_corr = &BwaSpiveyMN::get_instance();
-  set_correlation(bwa_corr_arg, "bwa", bwa_corr, false);
-}
-
-ValueArg<string> uw_corr_arg =
-  { "", "uw", "Correlation for uw", false, "", "Correlation for uw", cmd };
-const Correlation * uw_corr = nullptr;
-void set_uw_corr()
-{
-  uw_corr = &UwMcCain::get_instance();
-  set_correlation(uw_corr_arg, "uw", uw_corr, false);
-}
-
-ValueArg<string> pw_corr_arg =
-  { "", "pw", "Correlation for pw", false, "", "Correlation for pw", cmd };
-const Correlation * pw_corr = nullptr;
-void set_pw_corr()
-{
-  pw_corr = &PwSpiveyMN::get_instance();
-  set_correlation(pw_corr_arg, "pw", pw_corr, false);
-}
-
-ValueArg<string> cwb_corr_arg =
-  { "", "cwb", "Correlation for cwb", false, "", "Correlation for cwb", cmd };
-const Correlation * cwb_corr = nullptr;
-void set_cwb_corr()
-{
-  cwb_corr = &CwbSpiveyMN::get_instance();
-  set_correlation(cwb_corr_arg, "cwb", cwb_corr, false);
-}
-
-ValueArg<string> cwa_corr_arg =
-  { "", "cwa", "Correlation for cwa", false, "", "Correlation for cwa", cmd };
-const Correlation * cwa_corr = nullptr;
-void set_cwa_corr()
-{
-  cwa_corr = &CwaSpiveyMN::get_instance();
-  set_correlation(cwa_corr_arg, "cwa", cwa_corr, false);
-}
-
-ValueArg<string> rsw_corr_arg =
-  { "", "rsw", "Correlation for rsw", false, "", "Correlation for rsw", cmd };
-const Correlation * rsw_corr = nullptr;
-void set_rsw_corr()
-{
-  rsw_corr = &RswSpiveyMN::get_instance();
-  set_correlation(rsw_corr_arg, "rsw", rsw_corr, false);
-}
-
-ValueArg<string> sgo_corr_arg =
-  { "", "sgo", "Correlation for sgo", false, "", "Correlation for sgo", cmd };
-const Correlation * sgo_corr = nullptr;
-void set_sgo_corr()
-{
-  sgo_corr = &SgoBakerSwerdloff::get_instance();
-  set_correlation(sgo_corr_arg, "sgo", sgo_corr, false);
-}
-
-ValueArg<string> sgw_corr_arg =
-  { "", "sgw", "Correlation for sgw", false, "", "Correlation for sgw", cmd };
-const Correlation * sgw_corr = nullptr;
-void set_sgw_corr()
-{
-  sgw_corr = &SgwJenningsNewman::get_instance();
-  set_correlation(sgw_corr_arg, "sgw", sgw_corr, false);
-}
-
-ValueArg<string> rsp1_corr_arg =
-  { "", "rsp1", "Correlation for rsp1", false, "", "Correlation for rsp1", cmd };
-const Correlation * rsp1_corr = nullptr;
-void set_rsp1_corr()
-{
-  rsp1_corr = &Rsp1::get_instance();
-  set_correlation(rsp1_corr_arg, "rsp1", rsp1_corr, false);
-}
-
-ValueArg<string> veqsp_corr_arg = { "", "veqsp", "Correlation for veqsp",
-				    false, "", "Correlation for veqsp", cmd };
-
-ValueArg<string> veqsp2_corr_arg = { "", "veqsp2", "Correlation for veqsp2",
-				     false, "", "Correlation for veqsp2", cmd };
-const Correlation * veqsp_corr = nullptr;
-const Correlation * veqsp2_corr = nullptr;
-
-void set_veqsp_corr()
-{
-  if (veqsp2_corr_arg.isSet())
-    error_msg("veqsp and veqsp2 have been set (they are exclusive)");
-  veqsp_corr = &VeqspMcCain::get_instance();
-  set_correlation(veqsp_corr_arg, "veqsp", veqsp_corr, false);
-}
-
-void set_veqsp2_corr()
-{
-  if (veqsp_corr_arg.isSet())
-    error_msg("veqsp and veqsp2 have been set (they are exclusive)");
-  veqsp2_corr = &Veqsp2McCain::get_instance();
-  set_correlation(veqsp2_corr_arg, "veqsp2", veqsp2_corr, false);
-}
-
-ValueArg<string> gpasp_corr_arg =
-  { "", "gpasp", "Correlation for gpasp", false, "", "Correlation for gpasp", cmd };
-const Correlation * gpasp_corr = nullptr;
-ValueArg<string> gpasp2_corr_arg = { "", "gpasp2", "Correlation for gpasp2",
-				     false, "", "Correlation for gpasp2", cmd };
-const Correlation * gpasp2_corr = nullptr;
-
-void set_gpasp_corr()
-{
-  if (gpasp2_corr_arg.isSet())
-    error_msg("gpasp and gpasp2 have been set (they are exclusive)");
-  gpasp_corr = &GpaspMcCain::get_instance();
-  set_correlation(gpasp_corr_arg, "gpasp", gpasp_corr, false);
-}
-
-void set_gpasp2_corr()
-{
-  if (gpasp_corr_arg.isSet())
-    error_msg("gpasp and gpasp2 have been set (they are exclusive)");
-  gpasp2_corr = &Gpasp2McCain::get_instance();
-  set_correlation(gpasp2_corr_arg, "gpasp2", gpasp2_corr, false);
-}
+// These correlations only apply in wetgas case
+Command_Arg_Optional_Correlation(rsp1, Rsp1);
+Command_Arg_Optional_Correlation(veqsp, VeqspMcCain);
+Command_Arg_Optional_Correlation(veqsp2, Veqsp2McCain);
+Command_Arg_Optional_Correlation(gpasp, GpaspMcCain);
+Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
 
 vector<string> grid_types =
   { "blackoil", "wetgas", "drygas", "brine", "gascondensate" };
@@ -1164,14 +925,14 @@ void generate_grid_blackoil()
   set_nacl_concentration();
   
   set_pb_corr();      // Initialization of correlations
-  set_rs_corr(true); 
-  set_bob_corr(true);
-  set_boa_corr(true);
-  set_uod_corr(true);
-  set_cob_corr(true);
-  set_coa_corr(true);
-  set_uob_corr(true);
-  set_uoa_corr(true);
+  set_rs_corr(); 
+  set_bob_corr();
+  set_boa_corr();
+  set_uod_corr();
+  set_cob_corr();
+  set_coa_corr();
+  set_uob_corr();
+  set_uoa_corr();
   set_ppchc_corr();
   set_tpchc_corr();
   set_ppcm_mixing_corr();
@@ -1426,11 +1187,15 @@ void generate_grid_blackoil()
     }
 }
 
-void generate_grid_wetgas()
+// This routine is invoked to validate the use of one or two separators
+void check_second_separator_case()
 {
   if (not tsep_arg.isSet())
     error_msg("It is mandatory to specify at least a separator temperature");
+}
 
+void generate_grid_wetgas()
+{ 
   set_api(); // Initialization of constant data
   set_yg();
   set_tsep();
@@ -1464,6 +1229,8 @@ void generate_grid_wetgas()
   set_gpasp2_corr();
   set_veqsp_corr();
   set_veqsp2_corr();
+
+  check_second_separator_case();
 
   // Calculation of constants required for grid generation
   auto rsp1 = compute_exc(rsp1_corr, true, ogr_par);
