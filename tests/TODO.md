@@ -20,6 +20,7 @@
 
 ## 7. familia de set_par() para args debe validar si hubo o no entrada (para cplot)
 - Created at   2017-03-15 16:25:32 -0400
+- Completed at 2017-03-16 11:55:51 -0400
 
 ## 8. cplot: veqsp_corr y gpa_corr están casadas al uso de uno o dos separadores (tsep)
 - Created at   2017-03-15 17:12:49 -0400

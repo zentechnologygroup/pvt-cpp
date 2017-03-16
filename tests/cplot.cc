@@ -42,8 +42,8 @@ DynList<string> exception_list; // Exceptions messages are saved in this list
 // not correlations). This table is used for validating change of
 // units
 DynSetTree<string> par_name_tbl =
-  { "api", "rsb", "yg", "tsep", "tsep2", "t", "p", "psep", "h2s-concentration",
-    "co2-concentration", "n2-concentration", "nacl-concentration", "ogr" };
+  { "api", "rsb", "yg", "tsep", "tsep2", "t", "p", "psep", "h2s_concentration",
+    "co2_concentration", "n2_concentration", "nacl_concentration", "ogr" };
 struct ArgUnit
 {
   string name;
@@ -264,201 +264,61 @@ inline Correlation::NamedPar npar(const string & name,
 // macro that constructs a parameter by name with name par from a VtlQuantity
 # define NPAR(par) npar(#par, par)
 
+# define Command_Arg_Value(name, UnitName, desc)	\
+  ValueArg<double> name##_arg = { "", #name, #name, false, 0, desc, cmd }; \
+  Correlation::NamedPar name##_par;					\
+  VtlQuantity name;							\
+  void set_##name()							\
+  {									\
+    if (not name##_arg.isSet())						\
+      error_msg("mandatory parameter " #name " has not been set");	\
+    auto name##_unit = test_par_unit_change(#name, UnitName::get_instance()); \
+    name##_par = npar(#name, name##_arg.getValue(), name##_unit);	\
+    name.set(par(name##_par));						\
+  }
 
+Command_Arg_Value(api, Api, "api");
+Command_Arg_Value(rsb, SCF_STB, "rsb in scf/STB");
+Command_Arg_Value(yg, Sgg, "yg in Sgg");
+Command_Arg_Value(tsep, Fahrenheit , "separator temperature in degF");
+Command_Arg_Value(tsep2, Fahrenheit , "temperature of 2nd separator in degF");
 
-// Mandatory arguments in the command line that are validated in the
-// command line parsing
-
-ValueArg<double> api_arg = { "", "api", "api", false, 0, "api", cmd };
-Correlation::NamedPar api_par;
-void set_api()
+inline bool two_separators()
 {
-  auto api_unit = test_par_unit_change("api", Api::get_instance());
-  api_par = npar("api", api_arg.getValue(), api_unit);
+  return tsep_arg.isSet() and tsep2_arg.isSet();
 }
 
-ValueArg<double> rsb_arg = { "", "rsb", "rsb", false, 0, "rsb in scf/STB", cmd };
-Correlation::NamedPar rsb_par;
-const Unit * rsb_unit = nullptr;
-void set_rsb()
-{
-  rsb_unit = test_par_unit_change("rsb", SCF_STB::get_instance());
-  rsb_par = npar("rsb", rsb_arg.getValue(), rsb_unit);
-}
-
-ValueArg<double> yg_arg = { "", "yg", "yg", false, 0, "yg in Sgg", cmd };
-Correlation::NamedPar yg_par;
-VtlQuantity yg;
-const Unit * yg_unit = nullptr;
-void set_yg()
-{
-  yg_unit = test_par_unit_change("yg", Sgg::get_instance());
-  yg_par = npar("yg", yg_arg.getValue(), yg_unit);
-  yg.set(par(yg_par));
-}
-
-// optional command line arguments
-
-ValueArg<double> tsep_arg = { "", "tsep", "separator temperature", false, 0,
-			      "separator temperature in degF", cmd };
-Correlation::NamedPar tsep_par;
-VtlQuantity tsep;
-const Unit * tsep_unit = nullptr;
-void set_tsep()
-{
-  tsep_unit = test_par_unit_change("tsep", Fahrenheit::get_instance());
-  tsep_par = make_tuple(tsep_arg.isSet(), "tsep",
-			tsep_arg.getValue(), tsep_unit);
-  tsep.set(par(tsep_par));
-}
-
-ValueArg<double> tsep2_arg = { "", "tsep2", "second separator temperature",
-			       false, 0,
-			       "second separator temperature in degF", cmd };
-Correlation::NamedPar tsep2_par;
-VtlQuantity tsep2;
-const Unit * tsep2_unit = nullptr;
-bool two_separators = false;
-void set_tsep2()
-{
-  if (not tsep_arg.isSet())
-    error_msg("parameter tsep is not set but it is mandatory if tsep2 is set");
-
-  tsep2_unit = test_par_unit_change("tsep2", Fahrenheit::get_instance());
-  tsep2_par = make_tuple(tsep2_arg.isSet(), "tsep2",
-			 tsep2_arg.getValue(), tsep2_unit);
-  tsep2.set(par(tsep2_par));
-  two_separators = true;
-}
-
-ValueArg<double> ogr_arg = { "", "ogr", "Condensate gas ratio",
-			       false, 0, "Condensate gas ratio", cmd };
-Correlation::NamedPar ogr_par;
-VtlQuantity ogr;
-const Unit * ogr_unit = nullptr;
-void set_ogr()
-{
-  ogr_unit = test_par_unit_change("ogr", STB_MMscf::get_instance());
-  ogr_par = make_tuple(ogr_arg.isSet(), "ogr",
-		       ogr_arg.getValue(), ogr_unit);
-  ogr.set(par(ogr_par));
-}
-
-ValueArg<double> psep_arg = { "", "psep", "separator pressure", false, 0,
-			      "separator pressure in psia", cmd };
-Correlation::NamedPar psep_par;
-VtlQuantity psep;
-const Unit * psep_unit = nullptr;
-void set_psep()
-{
-  psep_unit = test_par_unit_change("psep", psia::get_instance());
-  psep_par = make_tuple(psep_arg.isSet(), "psep",
-			psep_arg.getValue(), psep_unit);
-  psep.set(par(psep_par));
-}
-
-ValueArg<double> n2_concentration_arg =
-  { "", "n2-concentration", "n2-concentration", false, 0,
-    "n2-concentration in MolePercent", cmd };
-Correlation::NamedPar n2_concentration_par;
-VtlQuantity n2_concentration;
-const Unit * n2_concentration_unit = nullptr;
-void set_n2_concentration()
-{
-  n2_concentration_unit = test_par_unit_change("n2-concentration",
-						MolePercent::get_instance());
-  n2_concentration_par = make_tuple(n2_concentration_arg.isSet(),
-				    "n2_concentration",
-				    n2_concentration_arg.getValue(),
-				    n2_concentration_unit);
-  n2_concentration.set(par(n2_concentration_par));
-}
-
-ValueArg<double> co2_concentration_arg =
-  { "", "co2-concentration", "co2-concentration", false, 0,
-    "co2-concentration in MolePercent", cmd };
-Correlation::NamedPar co2_concentration_par;
-VtlQuantity co2_concentration;
-const Unit * co2_concentration_unit = nullptr;
-void set_co2_concentration()
-{
-  co2_concentration_unit = test_par_unit_change("co2-concentration",
-					    MolePercent::get_instance());
-  co2_concentration_par = make_tuple(co2_concentration_arg.isSet(),
-				     "co2_concentration",
-				     co2_concentration_arg.getValue(),
-				     co2_concentration_unit);
-  co2_concentration.set(par(co2_concentration_par));
-}
-
-ValueArg<double> h2s_concentration_arg =
-  { "", "h2s-concentration", "h2s-concentration", false, 0,
-    "h2s-concentration in MolePercent", cmd };
-Correlation::NamedPar h2s_concentration_par;
-VtlQuantity h2s_concentration;
-const Unit * h2s_concentration_unit = nullptr;
-void set_h2s_concentration()
-{
-  h2s_concentration_unit = test_par_unit_change("h2s-concentration",
-					    MolePercent::get_instance());
-  h2s_concentration_par = make_tuple(h2s_concentration_arg.isSet(),
-				     "h2s_concentration",
-				     h2s_concentration_arg.getValue(),
-				     h2s_concentration_unit);
-  h2s_concentration.set(par(h2s_concentration_par));
-}
-
-ValueArg<double> nacl_concentration_arg =
-  { "", "nacl-concentration", "nacl-concentration", false, 0,
-    "nacl-concentration in mol_NaCl/Kg_H2O", cmd };
-Correlation::NamedPar nacl_concentration_par;
-VtlQuantity nacl_concentration;
-const Unit * nacl_concentration_unit = nullptr;
-void set_nacl_concentration()
-{
-  nacl_concentration_unit = test_par_unit_change("nacl-concentration",
-					     Molality_NaCl::get_instance());
-  nacl_concentration_par = make_tuple(nacl_concentration_arg.isSet(),
-				      "nacl_concentration",
-				      nacl_concentration_arg.getValue(),
-				      nacl_concentration_unit);
-  nacl_concentration.set(par(nacl_concentration_par));
-}
+Command_Arg_Value(ogr, STB_MMscf, "Condensate gas ratio in STB_MMscf")
+Command_Arg_Value(psep, psia, "separator pressure in psia");
+Command_Arg_Value(n2_concentration, MolePercent,
+		  "n2-concentration in MolePercent");
+Command_Arg_Value(co2_concentration, MolePercent,
+		  "co2-concentration in MolePercent");
+Command_Arg_Value(h2s_concentration, MolePercent,
+		  "h2s-concentration in MolePercent");
+Command_Arg_Value(nacl_concentration, Molality_NaCl,
+		  "nacl-concentration in mol_NaCl/Kg_H2O");
 
 ValueArg<double> c_pb_arg = { "", "c-pb", "pb adjustment", false, 0,
 			      "pb adjustment", cmd };
-ValueArg<string> pb_arg = { "", "pb", "correlation for pb", false, "",
-			    "correlation for pb", cmd };
+
+ValueArg<string> pb_corr_arg = { "", "pb", "correlation for pb", false, "",
+				 "correlation for pb", cmd };
 const Correlation * pb_corr = nullptr;
-ParList pb_pars;
-void set_pb_corr()
-{
-  assert(yg_arg.isSet() and rsb_arg.isSet() and api_arg.isSet());
-  pb_corr = Correlation::search_by_name(pb_arg.getValue());
-  if (pb_corr == nullptr)
-    error_msg(pb_arg.getValue() + " correlation not found");
-
-  if (pb_corr->target_name() != "pb")
-    error_msg(pb_arg.getValue() + " correlation is not for pb");
-
-  pb_pars.insert(yg_par);
-  pb_pars.insert(rsb_par);
-  pb_pars.insert(api_par);
-}
 
 // Initialize a correlation specified from the command line via
 // corr_name_arg. Verify that the correlation is for the target_name
 // property and if so, then the found correlation is placed in the
 // output parameter corr_ptr.
 //
-// The force_set parameter indicates that the correlation is required
+// The mandatory parameter indicates that the correlation is required
 // on the command line.
 void set_correlation(ValueArg<string> & corr_name_arg,
 		     const string & target_name,
 		     const Correlation *& corr_ptr,
-		     bool force_set = false)
+		     bool mandatory)
 {
-  if (force_set and not corr_name_arg.isSet())
+  if (mandatory and not corr_name_arg.isSet())
     error_msg("Correlation for "+ target_name +
 	      " has not been specified in command line (" +
 	      corr_name_arg.longID() + ")");
@@ -472,6 +332,26 @@ void set_correlation(ValueArg<string> & corr_name_arg,
   if (corr_ptr->target_name() != target_name)
     error_msg("Correlation " + corr_ptr->name + " is not for " + target_name);
 }
+
+# define Declare_Corr_Arg(name)						\
+  ValueArg<string> name##corr_arg =					\
+    { "", #name, "correlation for " ##name, false, "",			\
+      "correlation for " ##name, cmd };
+
+# define Command_Arg_Mandatory_Correlation(name)			\
+  Declare_Corr_Arg(name);						\
+									\
+  void set_##name##_corr()						\
+  {									\
+    set_correlation(name##_corr_arg, name, name##_corr, true);		\
+  }
+
+//# defi
+
+//# define Command_Arg_Correlation(name)		
+  
+
+void set_pb_corr() { set_correlation(pb_corr_arg, "pb", pb_corr, true); }
 
 ValueArg<double> c_rs_arg = { "", "c-rs", "rs c", false, 0, "rs c", cmd };
 ValueArg<double> m_rs_arg = { "", "m-rs", "rs m", false, 1, "rs m", cmd };
@@ -848,20 +728,6 @@ void set_p_range()
   p_unit = test_par_unit_change("p", psia::get_instance());
   set_range(p_range.getValue(), "p", *p_unit, p_values);
 }
-
-ValueArg<double> cb_arg = { "", "cb", "c for below range", false, 0,
-			    "c for below range", cmd };
-
-ValueArg<double> mb_arg = { "", "mb", "m for below range", false, 1,
-			    "m for below range", cmd };
-
-ValueArg<double> ca_arg = { "", "ca", "m for above range", false, 0,
-			    "c for above range", cmd };
-
-ValueArg<double> ma_arg = { "", "ma", "m for above range", false, 1,
-			    "c for above range", cmd };
-
-string target_name;
 
 DefinedCorrelation
 define_correlation(const VtlQuantity & pb,
@@ -1601,14 +1467,12 @@ void generate_grid_wetgas()
 
   // Calculation of constants required for grid generation
   auto rsp1 = compute_exc(rsp1_corr, true, ogr_par);
-  auto gpa = compute_exc(two_separators ? gpasp2_corr : gpasp_corr, true,
+  auto gpa = compute_exc(two_separators() ? gpasp2_corr : gpasp_corr, true,
 			 tsep_par, tsep2_par, psep_par, yg_par, api_par);
-
-  Quantity<Api> api(api_arg.getValue());
 
   auto yo = Quantity<Sg_do>(api);
 
-  auto veq = compute_exc(two_separators ? veqsp2_corr : veqsp_corr, true,
+  auto veq = compute_exc(two_separators() ? veqsp2_corr : veqsp_corr, true,
 			 tsep_par, tsep2_par, psep_par, yg_par, api_par);
   
   auto ywgr = compute_exc(YwgrMcCain::correlation(), true, yg_par, NPAR(yo),
