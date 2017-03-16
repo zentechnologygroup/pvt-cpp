@@ -4,8 +4,8 @@
 # include <correlations/additional-gas-produced.H>
 
 inline double
-GpaspMcCain::impl(const double & tsp1,
-		  const double & psp1,
+GpaspMcCain::impl(const double & tsep,
+		  const double & psep,
 		  const double & yg,
 		  const double & api) noexcept
 {
@@ -15,14 +15,14 @@ GpaspMcCain::impl(const double & tsp1,
   constexpr double a4 = 1.14356;
   constexpr double a5 = -0.93446;
 
-  return a1 * pow(psp1 - 14.65, a2) * pow(yg, a3) * pow(api, a4) * pow(tsp1, a5);
+  return a1*pow(psep - 14.65, a2)*pow(yg, a3)*pow(api, a4)*pow(tsep, a5);
 }
 
 
 inline double
-Gpasp2McCain::impl(const double & tsp1,
-	     const double & tsp2,
-	     const double & psp1,
+Gpasp2McCain::impl(const double & tsep,
+	     const double & tsep2,
+	     const double & psep,
              const double & yg,
 	     const double & api) noexcept
 {
@@ -33,7 +33,8 @@ Gpasp2McCain::impl(const double & tsp1,
   constexpr double a5 = -1.19605;
   constexpr double a6 = 0.553669;
 
-  return a1 * pow(psp1 - 14.65, a2) * pow(yg, a3) * pow(api, a4) * pow(tsp1, a5) * pow(tsp2, a6);
+  return a1*pow(psep - 14.65, a2)*pow(yg, a3)*
+    pow(api, a4)*pow(tsep, a5)*pow(tsep2, a6);
 }
 
 # endif // ADDITIONAL_GAS_PRODUCED_IMPL_H

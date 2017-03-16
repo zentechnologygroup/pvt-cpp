@@ -993,7 +993,8 @@ public:
 	    ostringstream s;
 	    s << "Parameter " << i << " (" << par_name << " = " << par.raw()
 	      << " " << par.unit.name << ") in correlation " << name 
-	      << " does not satisfy application development range"; 
+	      << " does not satisfy application development range ["
+	      << precondition.min_val << ", " << precondition.max_val << "]";
 	    ZENTHROW(OutOfParameterRange, s.str());
 	  }
       }

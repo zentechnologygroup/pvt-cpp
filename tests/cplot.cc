@@ -264,8 +264,15 @@ inline Correlation::NamedPar npar(const string & name,
 // macro that constructs a parameter by name with name par from a VtlQuantity
 # define NPAR(par) npar(#par, par)
 
+# define Declare_Command_Line_Arg(name, UnitName, desc)	\
+  ValueArg<double> name##_arg = { "", #name, #name, false, 0,		\
+				  desc " in " #name, cmd };		\
+  Correlation::NamedPar name##_par;					\
+  VtlQuantity name;
+
 # define Command_Arg_Value(name, UnitName, desc)	\
-  ValueArg<double> name##_arg = { "", #name, #name, false, 0, desc, cmd }; \
+  ValueArg<double> name##_arg = { "", #name, #name, false, 0,		\
+				  desc " in " #name, cmd };		\
   Correlation::NamedPar name##_par;					\
   VtlQuantity name;							\
   void set_##name()							\
@@ -277,27 +284,32 @@ inline Correlation::NamedPar npar(const string & name,
     name.set(par(name##_par));						\
   }
 
+# define Command_Arg_Optional_Value(name, UnitName, desc)	\
+  Declare_Command_Line_Arg(name, UnitName, desc);			\
+  void set_##name()							\
+  {									\
+    auto name##_unit = test_par_unit_change(#name, UnitName::get_instance()); \
+    name##_par = npar(#name, name##_arg.getValue(), name##_unit);	\
+    name.set(par(name##_par));						\
+  }
+
 Command_Arg_Value(api, Api, "api");
-Command_Arg_Value(rsb, SCF_STB, "rsb in scf/STB");
-Command_Arg_Value(yg, Sgg, "yg in Sgg");
-Command_Arg_Value(tsep, Fahrenheit , "separator temperature in degF");
-Command_Arg_Value(tsep2, Fahrenheit , "temperature of 2nd separator in degF");
+Command_Arg_Value(rsb, SCF_STB, "rsb");
+Command_Arg_Value(yg, Sgg, "yg");
+Command_Arg_Value(tsep, Fahrenheit , "separator temperature");
+Command_Arg_Optional_Value(tsep2, Fahrenheit , "temperature of 2nd separator");
 
 inline bool two_separators()
 {
   return tsep_arg.isSet() and tsep2_arg.isSet();
 }
 
-Command_Arg_Value(ogr, STB_MMscf, "Condensate gas ratio in STB_MMscf")
-Command_Arg_Value(psep, psia, "separator pressure in psia");
-Command_Arg_Value(n2_concentration, MolePercent,
-		  "n2-concentration in MolePercent");
-Command_Arg_Value(co2_concentration, MolePercent,
-		  "co2-concentration in MolePercent");
-Command_Arg_Value(h2s_concentration, MolePercent,
-		  "h2s-concentration in MolePercent");
-Command_Arg_Value(nacl_concentration, Molality_NaCl,
-		  "nacl-concentration in mol_NaCl/Kg_H2O");
+Command_Arg_Value(ogr, STB_MMscf, "Condensate gas ratio")
+Command_Arg_Value(psep, psia, "separator pressure");
+Command_Arg_Value(n2_concentration, MolePercent, "n2-concentration");
+Command_Arg_Value(co2_concentration, MolePercent, "co2-concentration");
+Command_Arg_Value(h2s_concentration, MolePercent, "h2s-concentration");
+Command_Arg_Value(nacl_concentration, Molality_NaCl, "nacl-concentration");
 
 // Initialize a correlation specified from the command line via
 // corr_name_arg. Verify that the correlation is for the target_name
