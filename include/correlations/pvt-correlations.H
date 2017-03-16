@@ -272,11 +272,11 @@ struct CorrelationInstantiater
 
     Bwg::get_instance();
     YwgrMcCain::get_instance();
-    Veqsp1McCain::get_instance();
+    VeqspMcCain::get_instance();
     Veqsp2McCain::get_instance();
-    Gpasp1McCain::get_instance();
+    GpaspMcCain::get_instance();
     Gpasp2McCain::get_instance();
-    Gor::get_instance();
+    Rsp1::get_instance();
 
   }
 };

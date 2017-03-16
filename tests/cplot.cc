@@ -43,7 +43,7 @@ DynList<string> exception_list; // Exceptions messages are saved in this list
 // units
 DynSetTree<string> par_name_tbl =
   { "api", "rsb", "yg", "tsep", "tsep2", "t", "p", "psep", "h2s-concentration",
-    "co2-concentration", "n2-concentration", "nacl-concentration", "org" };
+    "co2-concentration", "n2-concentration", "nacl-concentration", "ogr" };
 struct ArgUnit
 {
   string name;
@@ -264,10 +264,12 @@ inline Correlation::NamedPar npar(const string & name,
 // macro that constructs a parameter by name with name par from a VtlQuantity
 # define NPAR(par) npar(#par, par)
 
+
+
 // Mandatory arguments in the command line that are validated in the
 // command line parsing
 
-ValueArg<double> api_arg = { "", "api", "api", true, 0, "api", cmd };
+ValueArg<double> api_arg = { "", "api", "api", false, 0, "api", cmd };
 Correlation::NamedPar api_par;
 void set_api()
 {
@@ -275,7 +277,7 @@ void set_api()
   api_par = npar("api", api_arg.getValue(), api_unit);
 }
 
-ValueArg<double> rsb_arg = { "", "rsb", "rsb", true, 0, "rsb in scf/STB", cmd };
+ValueArg<double> rsb_arg = { "", "rsb", "rsb", false, 0, "rsb in scf/STB", cmd };
 Correlation::NamedPar rsb_par;
 const Unit * rsb_unit = nullptr;
 void set_rsb()
@@ -284,7 +286,7 @@ void set_rsb()
   rsb_par = npar("rsb", rsb_arg.getValue(), rsb_unit);
 }
 
-ValueArg<double> yg_arg = { "", "yg", "yg", true, 0, "yg in Sgg", cmd };
+ValueArg<double> yg_arg = { "", "yg", "yg", false, 0, "yg in Sgg", cmd };
 Correlation::NamedPar yg_par;
 VtlQuantity yg;
 const Unit * yg_unit = nullptr;
@@ -316,16 +318,21 @@ ValueArg<double> tsep2_arg = { "", "tsep2", "second separator temperature",
 Correlation::NamedPar tsep2_par;
 VtlQuantity tsep2;
 const Unit * tsep2_unit = nullptr;
+bool two_separators = false;
 void set_tsep2()
 {
+  if (not tsep_arg.isSet())
+    error_msg("parameter tsep is not set but it is mandatory if tsep2 is set");
+
   tsep2_unit = test_par_unit_change("tsep2", Fahrenheit::get_instance());
   tsep2_par = make_tuple(tsep2_arg.isSet(), "tsep2",
 			 tsep2_arg.getValue(), tsep2_unit);
   tsep2.set(par(tsep2_par));
+  two_separators = true;
 }
 
-ValueArg<double> ogr_arg = { "", "ogr", "Condensed gas ratio",
-			       false, 0, "Condensed gas ratio", cmd };
+ValueArg<double> ogr_arg = { "", "ogr", "Condensate gas ratio",
+			       false, 0, "Condensate gas ratio", cmd };
 Correlation::NamedPar ogr_par;
 VtlQuantity ogr;
 const Unit * ogr_unit = nullptr;
@@ -698,8 +705,64 @@ void set_sgw_corr()
   set_correlation(sgw_corr_arg, "sgw", sgw_corr, false);
 }
 
+ValueArg<string> rsp1_corr_arg =
+  { "", "rsp1", "Correlation for rsp1", false, "", "Correlation for rsp1", cmd };
+const Correlation * rsp1_corr = nullptr;
+void set_rsp1_corr()
+{
+  rsp1_corr = &Rsp1::get_instance();
+  set_correlation(rsp1_corr_arg, "rsp1", rsp1_corr, false);
+}
+
+ValueArg<string> veqsp_corr_arg = { "", "veqsp", "Correlation for veqsp",
+				    false, "", "Correlation for veqsp", cmd };
+
+ValueArg<string> veqsp2_corr_arg = { "", "veqsp2", "Correlation for veqsp2",
+				     false, "", "Correlation for veqsp2", cmd };
+const Correlation * veqsp_corr = nullptr;
+const Correlation * veqsp2_corr = nullptr;
+
+void set_veqsp_corr()
+{
+  if (veqsp2_corr_arg.isSet())
+    error_msg("veqsp and veqsp2 have been set (they are exclusive)");
+  veqsp_corr = &VeqspMcCain::get_instance();
+  set_correlation(veqsp_corr_arg, "veqsp", veqsp_corr, false);
+}
+
+void set_veqsp2_corr()
+{
+  if (veqsp_corr_arg.isSet())
+    error_msg("veqsp and veqsp2 have been set (they are exclusive)");
+  veqsp2_corr = &Veqsp2McCain::get_instance();
+  set_correlation(veqsp2_corr_arg, "veqsp2", veqsp2_corr, false);
+}
+
+ValueArg<string> gpasp_corr_arg =
+  { "", "gpasp", "Correlation for gpasp", false, "", "Correlation for gpasp", cmd };
+const Correlation * gpasp_corr = nullptr;
+ValueArg<string> gpasp2_corr_arg = { "", "gpasp2", "Correlation for gpasp2",
+				     false, "", "Correlation for gpasp2", cmd };
+const Correlation * gpasp2_corr = nullptr;
+
+void set_gpasp_corr()
+{
+  if (gpasp2_corr_arg.isSet())
+    error_msg("gpasp and gpasp2 have been set (they are exclusive)");
+  gpasp_corr = &GpaspMcCain::get_instance();
+  set_correlation(gpasp_corr_arg, "gpasp", gpasp_corr, false);
+}
+
+void set_gpasp2_corr()
+{
+  if (gpasp_corr_arg.isSet())
+    error_msg("gpasp and gpasp2 have been set (they are exclusive)");
+  gpasp2_corr = &Gpasp2McCain::get_instance();
+  set_correlation(gpasp2_corr_arg, "gpasp2", gpasp2_corr, false);
+}
+
 vector<string> grid_types =
-  { "blackoil", "wetgas", "drygas", "brine", "gascondensed" };
+  { "blackoil", "wetgas", "drygas", "brine", "gascondensate" };
 ValuesConstraint<string> allowed_grid_types = grid_types;
 ValueArg<string> grid = { "", "grid", "grid type", false,
 			  "blackoil", &allowed_grid_types, cmd };
@@ -847,9 +910,8 @@ void store_exception(const string & corr_name, const exception & e)
 {
   exception_thrown = true;
   ostringstream s;
-  s << corr_name << ": " << VtlQuantity(*t_unit, temperature)
-    << ", " << VtlQuantity(*p_unit, pressure) << ": " << e.what()
-    << endl;
+  s << corr_name << ": " << temperature << " " << t_unit->name << ", "
+    << pressure << " " << p_unit->name << ": " << e.what() << endl;
   exception_list.append(s.str());
 }
 
@@ -1500,8 +1562,177 @@ void generate_grid_blackoil()
 
 void generate_grid_wetgas()
 {
-  cout << "grid wetgas option not yet implemented" << endl;
-  abort();
+  if (not tsep_arg.isSet())
+    error_msg("It is mandatory to specify at least a separator temperature");
+
+  set_api(); // Initialization of constant data
+  set_yg();
+  set_tsep();
+  set_tsep2();
+  set_psep();
+  set_h2s_concentration();
+  set_co2_concentration();
+  set_n2_concentration();
+  set_nacl_concentration();
+  set_ogr();
+  
+  // TODO: falta inicializar estas correlaciones
+
+  set_ppchc_corr();
+  set_tpchc_corr();
+  set_ppcm_mixing_corr();
+  set_tpcm_mixing_corr();
+  set_adjustedppcm_corr();
+  set_adjustedtpcm_corr();
+  set_zfactor_corr();
+  set_cg_corr();
+  set_ug_corr();
+  set_bwb_corr();
+  set_uw_corr();
+  set_pw_corr();
+  set_rsw_corr();
+  set_cwb_corr();
+  set_sgw_corr();
+  set_rsp1_corr();
+  set_gpasp_corr();
+  set_gpasp2_corr();
+  set_veqsp_corr();
+  set_veqsp2_corr();
+
+  // Calculation of constants required for grid generation
+  auto rsp1 = compute_exc(rsp1_corr, true, ogr_par);
+  auto gpa = compute_exc(two_separators ? gpasp2_corr : gpasp_corr, true,
+			 tsep_par, tsep2_par, psep_par, yg_par, api_par);
+
+  Quantity<Api> api(api_arg.getValue());
+
+  auto yo = Quantity<Sg_do>(api);
+
+  auto veq = compute_exc(two_separators ? veqsp2_corr : veqsp_corr, true,
+			 tsep_par, tsep2_par, psep_par, yg_par, api_par);
+  
+  auto ywgr = compute_exc(YwgrMcCain::correlation(), true, yg_par, NPAR(yo),
+   			  NPAR(rsp1), NPAR(gpa), NPAR(veq));
+			  
+  auto yghc = compute_exc(YghcWichertAziz::correlation(), true, npar("yg", ywgr),
+			  NPAR(n2_concentration), NPAR(co2_concentration),
+			  NPAR(h2s_concentration));
+  auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),
+			   NPAR(n2_concentration), NPAR(co2_concentration),
+			   NPAR(h2s_concentration));
+  auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),
+			  NPAR(n2_concentration), NPAR(co2_concentration),
+			  NPAR(h2s_concentration));		       
+  auto tpchc = tpchc_corr->compute(check, yghc);
+  auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),
+			  NPAR(n2_concentration), NPAR(co2_concentration),
+			  NPAR(h2s_concentration));
+  auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),
+				  NPAR(tpcm), NPAR(co2_concentration),
+				  NPAR(h2s_concentration));
+  auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),
+				  NPAR(co2_concentration),
+				  NPAR(h2s_concentration));
+  // End calculation constants required for grid generation
+
+  // Initialization of correlation parameter lists
+  auto ug_pars = load_constant_parameters({ug_corr});
+  insert_in_container(ug_pars, npar("tpc", adjustedtpcm),
+		      npar("ppc", adjustedppcm));
+  auto bwb_pars = load_constant_parameters({bwb_corr});
+  auto uw_pars = load_constant_parameters({uw_corr});
+  auto pw_pars = load_constant_parameters({pw_corr});
+  auto rsw_pars = load_constant_parameters({rsw_corr});
+  auto cwb_pars = load_constant_parameters({cwb_corr});
+  ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));
+  ParList sgw_pars;
+
+  using P = pair<string, const Unit*>;
+  auto row_units = print_csv_header(P("t", get<3>(t_values.get_first())),
+				    P("p", get<3>(p_values.get_first())),
+				    P("zfactor", &Zfactor::get_instance()),
+				    P("cg", &cg_corr->unit),
+				    P("bwg", &Bwg::get_instance().unit),
+				    P("ug", &ug_corr->unit),
+				    P("pg", &Pg::get_instance().unit),
+				    P("bwb", &bwb_corr->unit),
+				    P("uw", &uw_corr->unit),
+				    P("pw", &pw_corr->unit),
+				    P("rsw", &rsw_corr->unit),
+				    P("cwb", &cwb_corr->unit),
+				    P("sgw", &sgw_corr->unit),
+				    P("exception", &Unit::null_unit));
+
+  FixedStack<const VtlQuantity*> row(25); // Here are the
+					  // values. Ensure that the
+					  // insertion order is the
+					  // same as for the csv
+					  // header temperature loop
+  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next()) 
+    {
+      Correlation::NamedPar t_par = t_it.get_curr();
+      VtlQuantity t_q = par(t_par);
+      temperature = t_q.raw();
+      CALL(Tpr, tpr, t_q, adjustedtpcm);
+      auto tpr_par = NPAR(tpr);
+  
+      insert_in_container(ug_pars, t_par, tpr_par);
+      bwb_pars.insert(t_par);
+      cg_pars.insert(tpr_par);
+      rsw_pars.insert(t_par);
+      uw_pars.insert(t_par);
+      pw_pars.insert(t_par);
+      cwb_pars.insert(t_par);
+      sgw_pars.insert(t_par);      
+
+      size_t n = insert_in_row(row, t_q);
+
+      // pressure loop
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
+	{
+	  Correlation::NamedPar p_par = p_it.get_curr();
+	  VtlQuantity p_q = par(p_par);
+
+	  pressure = p_q.raw();
+	  CALL(Ppr, ppr, p_q, adjustedppcm);
+	  auto ppr_par = NPAR(ppr);
+
+	  VtlQuantity z = compute(zfactor_corr, check, ppr_par, tpr_par);
+	  auto z_par = NPAR(z);
+	  auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);
+	  CALL(Bwg, bwg, t_q, p_q, z, rsp1, veq);
+	  auto ug = compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
+	  CALL(Pg, pg, yg, t_q, p_q, z);
+	  auto rsw = compute(rsw_corr, check, rsw_pars, p_par);
+	  auto rsw_par = NPAR(rsw);
+	  auto bwb = compute(bwb_corr, check, bwb_pars, p_par);
+	  auto bw_par = npar("bw", bwb);
+	  auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);
+	  auto cwb = compute(cwb_corr, check, cwb_pars, p_par, z_par, 
+			     NPAR(bwg), rsw_par, bw_par);
+	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
+	  auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));
+	  auto sgw = compute(sgw_corr, check, sgw_pars, p_par);
+
+	  size_t n = insert_in_row(row, p_q, z, cg, bwg, ug, pg, bwb, uw,
+				   pw, rsw, cwb, sgw);
+
+	  assert(row.size() == 13);
+
+	  print_row(row, row_units);
+	  row.popn(n);
+	}
+
+      row.popn(n);
+      remove_from_container(ug_pars, t_par, tpr_par);
+      bwb_pars.remove(t_par);
+      sgw_pars.remove(t_par);
+      cg_pars.remove(tpr_par);
+      uw_pars.remove(t_par); 
+      pw_pars.remove(t_par);
+      cwb_pars.remove(t_par);
+      rsw_pars.remove(t_par);
+    }
 }
 
 void generate_grid_drygas()
@@ -1661,7 +1892,7 @@ void generate_grid_brine()
   exit(0);
 }
 
-void generate_grid_gascondensed()
+void generate_grid_gascondensate()
 {
   cout << "grid gascondensed option not yet implemented" << endl;
   abort();
@@ -1673,7 +1904,7 @@ grid_dispatcher("blackoil", generate_grid_blackoil,
 		"wetgas", generate_grid_wetgas,
 		"drygas", generate_grid_drygas,
 		"brine", generate_grid_brine,
-		"gascondensed", generate_grid_gascondensed);
+		"gascondensate", generate_grid_gascondensate);
 
 void generate_grid(const string & fluid_type)
 {

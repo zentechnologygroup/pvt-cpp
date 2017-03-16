@@ -985,14 +985,14 @@ public:
 	auto p = it.get_curr();
 	const auto & precondition = get<0>(p);
 	const string & par_name = precondition.name;
-	const auto & par = get<1>(p);
+	const VtlQuantity & par = get<1>(p);
 	if (not (par_name == "p" or par_name == "t") and // TODO lista hash
 	    not precondition.check(par))
 	  {
 	    auto i = get<2>(p) + 1;
 	    ostringstream s;
-	    s << "Parameter " << i << " (" << par_name << " = " << par
-	      << ") in correlation " << name 
+	    s << "Parameter " << i << " (" << par_name << " = " << par.raw()
+	      << " " << par.unit.name << ") in correlation " << name 
 	      << " does not satisfy application development range"; 
 	    ZENTHROW(OutOfParameterRange, s.str());
 	  }
@@ -1017,7 +1017,7 @@ public:
 	ostringstream s;
 	s << "In correlation " << name << " " << subtype_name << " "
 	  << type_name << " : return value (" << result.get_value() << " "
-	  << result.unit.symbol << ") is out of range ["
+	  << result.unit.name << ") is out of range ["
 	  << min_val << ", " << max_val << "] defined for the correlation";
 	ZENTHROW(OutOfCorrelationRange, s.str());
       }

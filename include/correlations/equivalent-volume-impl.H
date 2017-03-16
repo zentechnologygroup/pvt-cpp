@@ -4,9 +4,9 @@
 # include <correlations/equivalent-volume.H>
 
 inline double
-Veqsp1McCain::impl(const double & tsp1,
+VeqspMcCain::impl(const double & tsp1,
 	     const double & psp1,
-             const double & ygsp1,
+             const double & yg,
 	     const double & api) noexcept
 {
   constexpr double a0 = 635.53;
@@ -16,7 +16,7 @@ Veqsp1McCain::impl(const double & tsp1,
   constexpr double a4 = 1.58124;
   constexpr double a5 = -0.791301;
 
-  return a0 + a1 * pow(psp1, a2) * pow(ygsp1, a3) * pow(api, a4) * pow(tsp1, a5);
+  return a0 + a1 * pow(psp1, a2) * pow(yg, a3) * pow(api, a4) * pow(tsp1, a5);
 }
 
 
@@ -24,7 +24,7 @@ inline double
 Veqsp2McCain::impl(const double & tsp1,
 	     const double & tsp2,
 	     const double & psp1,
-             const double & ygsp1,
+             const double & yg,
 	     const double & api) noexcept
 {
   constexpr double a0 = 535.916;
@@ -35,7 +35,7 @@ Veqsp2McCain::impl(const double & tsp1,
   constexpr double a5 = -0.849115;
   constexpr double a6 = 0.269869;
 
-  return a0 + a1 * pow(psp1, a2) * pow(ygsp1, a3) * pow(api, a4) * pow(tsp1, a5) * pow(tsp2, a6);
+  return a0 + a1 * pow(psp1, a2) * pow(yg, a3) * pow(api, a4) * pow(tsp1, a5) * pow(tsp2, a6);
 }
 
 # endif // EQUIVALENT_VOLUME_IMPL_H
