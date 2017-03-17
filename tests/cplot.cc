@@ -6,6 +6,7 @@
 # include <ah-zip.H>
 # include <ah-dispatcher.H>
 # include <tpl_dynMapTree.H>
+# include <tpl_dynBinHeap.H>
 
 # include <json.hpp>
 
@@ -80,7 +81,7 @@ namespace TCLAP
 
 // Unit change specification. Suitable for any parameter
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
-				"unit \"par-name unit\"", cmd };
+			   "unit \"par-name unit\"", cmd };
 
 // Checks whether the parameter par_name has a change of
 // unity. ref_unit is the default unit of the parameter. If there was
@@ -268,17 +269,31 @@ inline Correlation::NamedPar npar(const string & name,
 // macro that constructs a parameter by name with name par from a VtlQuantity
 # define NPAR(par) npar(#par, par)
 
-# define Declare_Command_Line_Arg(name, UnitName, desc)	\
+// Declare a command line argument for a double type.
+//
+// Parameters:
+//
+// - name: name of variable set to be declared
+// - UnitName: type of unit
+// - desc: string describing the parameter command line parameter
+//
+// The macro creates:
+//
+// - A variable ValueArg<double> with name name_arg
+// - A variable Correlation::NamedPar with name name_par
+// - A variable VtlQuantity with name name
+# define Declare_Command_Line_Arg(name, UnitName, desc)			\
   ValueArg<double> name##_arg = { "", #name, #name, false, 0,		\
 				  desc " in " #name, cmd };		\
   Correlation::NamedPar name##_par;					\
   VtlQuantity name;
 
-# define Command_Arg_Value(name, UnitName, desc)	\
-  ValueArg<double> name##_arg = { "", #name, #name, false, 0,		\
-				  desc " in " #name, cmd };		\
-  Correlation::NamedPar name##_par;					\
-  VtlQuantity name;							\
+// Declare a command line argument for a double type plus a validation
+// function with name set_name(). The validation makes the parameter
+// mandatory. That is, the routine aborts if the parameter was not
+// specified on the command line
+# define Command_Arg_Value(name, UnitName, desc)			\
+  Declare_Command_Line_Arg(name, UnitName, desc);			\
   void set_##name()							\
   {									\
     if (not name##_arg.isSet())						\
@@ -288,6 +303,10 @@ inline Correlation::NamedPar npar(const string & name,
     name.set(par(name##_par));						\
   }
 
+// Declare a command line argument for a double type plus a validation
+// function with name set_name(). The validation does not make the
+// parameter mandatory. That is, the routine does not abort if the
+// parameter was not specified on the command line
 # define Command_Arg_Optional_Value(name, UnitName, desc)	\
   Declare_Command_Line_Arg(name, UnitName, desc);			\
   void set_##name()							\
@@ -303,6 +322,7 @@ Command_Arg_Value(yg, Sgg, "yg");
 Command_Arg_Value(tsep, Fahrenheit , "separator temperature");
 Command_Arg_Optional_Value(tsep2, Fahrenheit , "temperature of 2nd separator");
 
+// return true if two separator temperatures were specified
 inline bool two_separators()
 {
   return tsep_arg.isSet() and tsep2_arg.isSet();
@@ -342,46 +362,80 @@ void set_correlation(ValueArg<string> & corr_name_arg,
     error_msg("Correlation " + corr_ptr->name + " is not for " + target_name);
 }
 
-# define Declare_Corr_Arg(name)			      \
-  ValueArg<string> name##_corr_arg =		      \
-    { "", #name, "correlation for " #name, false, "", \
-      "correlation for " #name, cmd };		      \
-						      \
-  const Correlation * name##_corr = nullptr;
+// Declare a command line argument for receiving the a correlation target_name.
+//
+// The target name is the agreed name for the physical property. For
+// example, for the bubble point, the target name would be pb.
+//
+// The macro instantiates two variables:
+//
+// - target_name_corr_arg: the command line argument for the
+//   correlation target name.
+// - target_name_corr: a pointer to the correlation (it would be
+//   validated by the set_target_name_corr() routine that is generated
+//   by another macro 
+# define Declare_Corr_Arg(target_name)				    \
+  ValueArg<string> target_name##_corr_arg =			    \
+    { "", #target_name, "correlation for " #target_name, false, "", \
+      "correlation for " #target_name, cmd };			    \
+  								    \
+  const Correlation * target_name##_corr = nullptr;
 
-# define Command_Arg_Mandatory_Correlation(name)			\
-  Declare_Corr_Arg(name);						\
-									\
-  void set_##name##_corr()						\
+// Declare a command line argument for receiving a correlation
+// target_name plus the mandatory validation function
+// set_target_name_corr(). After call to this routine, the
+// target_name_corr pointer is set to the correlation specified in the
+// command line
+# define Command_Arg_Mandatory_Correlation(target_name)			\
+  Declare_Corr_Arg(target_name);					\
+  									\
+  void set_##target_name##_corr()					\
   {									\
-    set_correlation(name##_corr_arg, #name, name##_corr, true);		\
+    set_correlation(target_name##_corr_arg, #target_name,		\
+		    target_name##_corr, true);				\
   }
 
-# define Command_Arg_Optional_Correlation(name, CorrName)		\
-  Declare_Corr_Arg(name);						\
+// Declare a command line argument for receiving a correlation
+// target_name plus the validation function
+// set_target_name_corr(). After call to this routine, the
+// target_name_corr pointer is set to the correlation specified in the
+// command line. If no correlation is specified in the command line,
+// then the pointer is set to the default value CorrName
+# define Command_Arg_Optional_Correlation(target_name, CorrName)	\
+  Declare_Corr_Arg(target_name);					\
 									\
-  void set_##name##_corr()						\
+  void set_##target_name##_corr()					\
   {									\
-    name##_corr = &CorrName::get_instance();				\
-    set_correlation(name##_corr_arg, #name, name##_corr, false);	\
+    target_name##_corr = &CorrName::get_instance();			\
+    set_correlation(target_name##_corr_arg, #target_name,		\
+		    target_name##_corr, false);				\
   }
 
-# define Declare_c_par(name)			\
-  ValueArg<double> c_##name##_arg =				\
-    { "", "c-" #name, #name " c", false, 0, #name " c", cmd };
+// Declare a command line argument for a tuning parameter c for the
+// target correlation name target_name. By default, if the argument is
+// not input, then the value is 0.0
+# define Declare_c_par(target_name)			\
+  ValueArg<double> c_##target_name##_arg =		  \
+    { "", "c-" #target_name, #target_name " c", false, 0, \
+      #target_name " c", cmd };
 
-# define Declare_m_par(name)			\
-  ValueArg<double> m_##name##_arg =				\
-    { "", "m-" #name, #name " m", false, 1, #name " m", cmd };
+// Declare a command line argument for a tuning parameter m for the
+// target correlation name target_name. By default, if the argument is
+// not input, then the value is 1.0
+# define Declare_m_par(target_name)			\
+  ValueArg<double> m_##target_name##_arg =			\
+    { "", "m-" #target_name, #target_name " m", false, 1,	\
+      #target_name " m", cmd };
 
-// Defines a calibrated correlation along with its parameters, which is mandatory
-# define Command_Arg_Tuned_Correlation(name)	\
-  Command_Arg_Mandatory_Correlation(name);	\
-  Declare_c_par(name);				\
-  Declare_m_par(name);
+// Defines a calibrated correlation along with its calibration
+// parameters. The command line argument is mandatory
+# define Command_Arg_Tuned_Correlation(target_name)	\
+  Command_Arg_Mandatory_Correlation(target_name);	\
+  Declare_c_par(target_name);				\
+  Declare_m_par(target_name);
 
 Command_Arg_Mandatory_Correlation(pb);
-Declare_c_par(pb);
+Declare_c_par(pb); // pb does not have m parameter
 
 Command_Arg_Tuned_Correlation(rs);
 Command_Arg_Tuned_Correlation(bob);
@@ -411,13 +465,6 @@ Command_Arg_Optional_Correlation(rsw, RswSpiveyMN);
 Command_Arg_Optional_Correlation(sgo, SgoBakerSwerdloff);
 Command_Arg_Optional_Correlation(sgw, SgwJenningsNewman);
 
-// These correlations only apply in wetgas case
-Command_Arg_Optional_Correlation(rsp1, Rsp1);
-Command_Arg_Optional_Correlation(veqsp, VeqspMcCain);
-Command_Arg_Optional_Correlation(veqsp2, Veqsp2McCain);
-Command_Arg_Optional_Correlation(gpasp, GpaspMcCain);
-Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
-
 vector<string> grid_types =
   { "blackoil", "wetgas", "drygas", "brine", "gascondensate" };
 ValuesConstraint<string> allowed_grid_types = grid_types;
@@ -435,6 +482,11 @@ void print_fluid_types()
   exit(0);
 }
 
+// Command line range specification.
+//
+// To be used for the temperature and pressure
+//
+// Parameter has form --property "min max num-of-steps"
 struct RangeDesc
 {
   double min = 0, max = 0;
@@ -445,6 +497,9 @@ struct RangeDesc
     istringstream iss(str);
     if (not (iss >> min >> max >> n))
       throw TCLAP::ArgParseException(str + " is not of form \"min max n\"");
+
+    if (n == 0)
+      throw TCLAP::ArgParseException(::to_string(n) + " n cannot be zero");
 
     if (min > max)
       {
@@ -462,11 +517,6 @@ struct RangeDesc
   {
     return os << d.min<< " " << d.max << " " << d.n;
   }
-  
-  ostream& print(ostream &os) const
-  {
-    return os << *this;
-  }
 };
 
 namespace TCLAP
@@ -474,6 +524,9 @@ namespace TCLAP
   template<> struct ArgTraits<RangeDesc> { typedef StringLike ValueCategory; };
 }
 
+// Given a RangeDesc, put in the correlation parameters list l the
+// range values Each value is a correlation parameter; i.e. a tuple
+// <true, name, value, unit>
 void set_range(const RangeDesc & range, const string & name,
 	       const Unit & unit, DynList<Correlation::NamedPar> & l)
 {
@@ -484,26 +537,101 @@ void set_range(const RangeDesc & range, const string & name,
     l.append(make_tuple(true, name, val, &unit));
 }
 
-ValueArg<RangeDesc> t_range =
-  { "", "t", "min max n", true, RangeDesc(),
-    "range spec \"min max n\" for temperature", cmd };
-DynList<Correlation::NamedPar> t_values;
-const Unit * t_unit = nullptr;
-void set_t_range()
+// Declare a range command line parameter compound by
+//
+// - prefix: prefix for _range
+// - name: name of property
+// - UnitName
+# define Command_Line_Range(prefix, name)				\
+  ValueArg<RangeDesc> prefix##_range =					\
+    { "", #prefix, "min max n", false, RangeDesc(),			\
+      "range spec \"min max n\" for " #name, cmd };			\
+									\
+  DynList<Correlation::NamedPar> prefix##_values;			\
+									\
+  const Unit * prefix##_unit = nullptr;					\
+									\
+  void set_##prefix##_range()						\
+  {									\
+    set_range(prefix##_range.getValue(), #prefix,			\
+	      *prefix##_unit, prefix##_values);				\
+  }
+
+struct RowDesc
 {
-  t_unit = test_par_unit_change("t", Fahrenheit::get_instance());
-  set_range(t_range.getValue(), "t", *t_unit, t_values);
+  double t, p; // temperature and pressure
+
+  RowDesc & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> t >> p))
+      throw TCLAP::ArgParseException(str + " is not of form \"t p\"");
+
+    if (t <= 0 or p <= 0)
+      throw TCLAP::ArgParseException("t and p must be greater than zero");
+
+    return *this;
+  }
+
+  friend ostream & operator << (ostream & os, const RowDesc & d)
+  {
+    return os << d.t<< " " << d.p;
+  }
+};
+
+namespace TCLAP
+{
+  template<> struct ArgTraits<RowDesc> { typedef StringLike ValueCategory; };
 }
 
-ValueArg<RangeDesc> p_range =
-  { "", "p", "min max n", true, RangeDesc(),
-    "range spec \"min max n\" for pressure", cmd };
-DynList<Correlation::NamedPar> p_values;
-const Unit * p_unit = nullptr;
-void set_p_range()
+MultiArg<RowDesc> row = { "", "tp_pair", "add a pair of t, p values",
+			  false, "tp_pair \"t p\"", cmd };
+
+# define T_UNIT Fahrenheit
+# define P_UNIT psia
+
+Command_Line_Range(t, "temperature");
+Command_Line_Range(p, "pressure");
+
+void set_ranges()
 {
+  // putting these two unit setting here makes this test unique for
+  // both cases (--t --p and --tp_pair)
+  t_unit = test_par_unit_change("t", Fahrenheit::get_instance());
   p_unit = test_par_unit_change("p", psia::get_instance());
-  set_range(p_range.getValue(), "p", *p_unit, p_values);
+
+  if (t_range.isSet() and p_range.isSet())
+    {
+      if (row.isSet())
+	error_msg(t_range.getName() + " and " + p_range.getName() +
+		  " options cannot be used with " + row.getName() + " option");
+      set_t_range();
+      set_p_range();
+      return;
+    }
+
+  if (t_range.isSet() or p_range.isSet())
+    error_msg(t_range.getName() + " and " + p_range.getName() +
+	      " options cannot be used together");
+
+  auto & pairs = row.getValue();
+  if (pairs.size() == 0)
+    error_msg("option " + row.getName() + " is mandatory in absence of " +
+	      t_range.getName() + " and " + p_range.getName() + " options");
+
+  DynBinHeap<double> theap, pheap;
+
+  for (auto & p : pairs)
+    {
+      theap.insert(p.t);
+      pheap.insert(p.p);
+    }
+
+  while (not theap.is_empty())
+    t_values.append(make_tuple(true, "t", theap.get(), t_unit));
+
+  while (not pheap.is_empty())
+    p_values.append(make_tuple(true, "p", pheap.get(), p_unit));
 }
 
 DefinedCorrelation
@@ -1210,6 +1338,13 @@ void check_second_separator_case()
     error_msg("It is mandatory to specify at least a separator temperature");
 }
 
+// These correlations only apply in wetgas case
+Command_Arg_Optional_Correlation(rsp1, Rsp1);
+Command_Arg_Optional_Correlation(veqsp, VeqspMcCain);
+Command_Arg_Optional_Correlation(veqsp2, Veqsp2McCain);
+Command_Arg_Optional_Correlation(gpasp, GpaspMcCain);
+Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
+
 void generate_grid_wetgas()
 { 
   set_api(); // Initialization of constant data
@@ -1558,8 +1693,7 @@ void generate_grid(const string & fluid_type)
   set_check(); 
   report_exceptions = catch_exceptions.getValue();
 
-  set_t_range();
-  set_p_range();
+  set_ranges();
   
   grid_dispatcher.run(fluid_type);
 

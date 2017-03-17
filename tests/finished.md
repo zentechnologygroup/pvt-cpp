@@ -1234,3 +1234,21 @@
 - Comment      
 - Finished     
 
+## 207. en cplot considerar que cob
+- Created at    coa y uod no estén calibradas
+- Completed at 2017-03-16 16:11:05 -0400
+- Comment      
+- Finished     
+
+## 208. familia de set_par() para args debe validar si hubo o no entrada (para cplot)
+- Created at   2017-03-15 16:25:32 -0400
+- Completed at 2017-03-16 11:55:51 -0400
+- Comment      
+- Finished     
+
+## 209. cplot: veqsp_corr y gpa_corr están casadas al uso de uno o dos separadores (tsep)
+- Created at   2017-03-15 17:12:49 -0400
+- Completed at 2017-03-17 15:51:35 -0400
+- Comment      
+- Finished     
+
