@@ -44,6 +44,10 @@ DynList<string> exception_list; // Exceptions messages are saved in this list
 DynSetTree<string> par_name_tbl =
   { "api", "rsb", "yg", "tsep", "tsep2", "t", "p", "psep", "h2s_concentration",
     "co2_concentration", "n2_concentration", "nacl_concentration", "ogr" };
+
+// input parameter unit change specification
+//
+// form is: --unit "par-name unit"
 struct ArgUnit
 {
   string name;
@@ -181,7 +185,7 @@ build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
   // just for avoiding time consumption in case where user has not set
   // any --property-unit flag, we first test if there are unit changes
   if (property_units_changes.size() == 0) 
-    {
+    { // no unit change ==> return original units and null conversions
       h.for_each([&ret, &fcts] (auto & p) // build return value 
 		 {
 		   ret.insert(p.second); // original unit
