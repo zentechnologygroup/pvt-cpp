@@ -595,8 +595,8 @@ Command_Line_Range(p, "pressure");
 
 void set_ranges()
 {
-  // putting these two unit setting here makes this test unique for
-  // both cases (--t --p and --tp_pair)
+  // putting these two unit settings here makes this test unique for
+  // both cases (--t + --p and --tp_pair)
   t_unit = test_par_unit_change("t", Fahrenheit::get_instance());
   p_unit = test_par_unit_change("p", psia::get_instance());
 
@@ -620,7 +620,6 @@ void set_ranges()
 	      t_range.getName() + " and " + p_range.getName() + " options");
 
   DynBinHeap<double> theap, pheap;
-
   for (auto & p : pairs)
     {
       theap.insert(p.t);
