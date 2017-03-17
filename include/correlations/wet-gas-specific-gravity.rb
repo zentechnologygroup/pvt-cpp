@@ -2,7 +2,7 @@
 
 begin_correlation("YwgrMcCain", "WetGasSpecificGravity", "Sgg", 0.8, 1.55)
 add_title("CALCULATION OF RESERVOIR WET GAS SPECIFIC GRAVITY")
-add_parameter("ygsp1", "Sgg", "Primary separator gas gravity", 0.6, 0.8)
+add_parameter("yg", "Sgg", "Primary separator gas gravity", 0.6, 0.8)
 add_parameter("yo", "Sg_do", "Condensate gravity", "Quantity<Api>(70)",  "Quantity<Api>(40)")
 add_synonym("yo", "api", "api")
 #add_parameter("ogrsp1", "STB_MMSCF", "Primary separator condensate gas ratio")

@@ -4,7 +4,7 @@
 # include <correlations/producing-gas-oil-ratio.H>
 
 inline double
-Gor::impl(const double & ogr) noexcept
+Rsp1::impl(const double & ogr) noexcept
 {
   // Transformation from STB/MMscf to STB/SCF
   const double ogratio = unit_convert<STB_MMscf, STB_SCF>(ogr);

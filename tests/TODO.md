@@ -14,6 +14,18 @@
 ## 5. verificar que Invalid_Value y VtlQuantity() se estén procesando en cplot
 - Created at   2017-03-14 20:51:35 -0400
 
-## 6. set_check() y report_exceptions = catch_exceptions.getValue() pueden ir en main
-- Created at   2017-03-14 21:01:33 -0400
+## 6. definir política de unidades
+- Created at    pues se comparte pvt con bep y más
+- Completed at 2017-03-15 09:58:31 -0400
+
+## 7. familia de set_par() para args debe validar si hubo o no entrada (para cplot)
+- Created at   2017-03-15 16:25:32 -0400
+- Completed at 2017-03-16 11:55:51 -0400
+
+## 8. cplot: veqsp_corr y gpa_corr están casadas al uso de uno o dos separadores (tsep)
+- Created at   2017-03-15 17:12:49 -0400
+
+## 9. en cplot considerar que cob
+- Created at    coa y uod no estén calibradas
+- Completed at 2017-03-16 16:11:05 -0400
 

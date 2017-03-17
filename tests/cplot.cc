@@ -42,8 +42,8 @@ DynList<string> exception_list; // Exceptions messages are saved in this list
 // not correlations). This table is used for validating change of
 // units
 DynSetTree<string> par_name_tbl =
-  { "api", "rsb", "yg", "tsep", "tsep2", "t", "p", "psep", "h2s-concentration",
-    "co2-concentration", "n2-concentration", "nacl-concentration", "org" };
+  { "api", "rsb", "yg", "tsep", "tsep2", "t", "p", "psep", "h2s_concentration",
+    "co2_concentration", "n2_concentration", "nacl_concentration", "ogr" };
 struct ArgUnit
 {
   string name;
@@ -151,7 +151,7 @@ DynMapTree<string, const Unit*> property_units_changes;
 // Build the property_units_changes table containing pairs of form
 // property,unit_ptr. Only verify that given unit name exists. The
 // property name will be verified after when the row name is given
-void test_property_unit_changes()
+void process_property_unit_changes()
 {
   for (auto & p : property_unit.getValue())
     {
@@ -264,194 +264,66 @@ inline Correlation::NamedPar npar(const string & name,
 // macro that constructs a parameter by name with name par from a VtlQuantity
 # define NPAR(par) npar(#par, par)
 
-// Mandatory arguments in the command line that are validated in the
-// command line parsing
+# define Declare_Command_Line_Arg(name, UnitName, desc)	\
+  ValueArg<double> name##_arg = { "", #name, #name, false, 0,		\
+				  desc " in " #name, cmd };		\
+  Correlation::NamedPar name##_par;					\
+  VtlQuantity name;
 
-ValueArg<double> api_arg = { "", "api", "api", true, 0, "api", cmd };
-Correlation::NamedPar api_par;
-void set_api()
+# define Command_Arg_Value(name, UnitName, desc)	\
+  ValueArg<double> name##_arg = { "", #name, #name, false, 0,		\
+				  desc " in " #name, cmd };		\
+  Correlation::NamedPar name##_par;					\
+  VtlQuantity name;							\
+  void set_##name()							\
+  {									\
+    if (not name##_arg.isSet())						\
+      error_msg("mandatory parameter " #name " has not been set");	\
+    auto name##_unit = test_par_unit_change(#name, UnitName::get_instance()); \
+    name##_par = npar(#name, name##_arg.getValue(), name##_unit);	\
+    name.set(par(name##_par));						\
+  }
+
+# define Command_Arg_Optional_Value(name, UnitName, desc)	\
+  Declare_Command_Line_Arg(name, UnitName, desc);			\
+  void set_##name()							\
+  {									\
+    auto name##_unit = test_par_unit_change(#name, UnitName::get_instance()); \
+    name##_par = npar(#name, name##_arg.getValue(), name##_unit);	\
+    name.set(par(name##_par));						\
+  }
+
+Command_Arg_Value(api, Api, "api");
+Command_Arg_Value(rsb, SCF_STB, "rsb");
+Command_Arg_Value(yg, Sgg, "yg");
+Command_Arg_Value(tsep, Fahrenheit , "separator temperature");
+Command_Arg_Optional_Value(tsep2, Fahrenheit , "temperature of 2nd separator");
+
+inline bool two_separators()
 {
-  auto api_unit = test_par_unit_change("api", Api::get_instance());
-  api_par = npar("api", api_arg.getValue(), api_unit);
+  return tsep_arg.isSet() and tsep2_arg.isSet();
 }
 
-ValueArg<double> rsb_arg = { "", "rsb", "rsb", true, 0, "rsb in scf/STB", cmd };
-Correlation::NamedPar rsb_par;
-const Unit * rsb_unit = nullptr;
-void set_rsb()
-{
-  rsb_unit = test_par_unit_change("rsb", SCF_STB::get_instance());
-  rsb_par = npar("rsb", rsb_arg.getValue(), rsb_unit);
-}
-
-ValueArg<double> yg_arg = { "", "yg", "yg", true, 0, "yg in Sgg", cmd };
-Correlation::NamedPar yg_par;
-VtlQuantity yg;
-const Unit * yg_unit = nullptr;
-void set_yg()
-{
-  yg_unit = test_par_unit_change("yg", Sgg::get_instance());
-  yg_par = npar("yg", yg_arg.getValue(), yg_unit);
-  yg.set(par(yg_par));
-}
-
-// optional command line arguments
-
-ValueArg<double> tsep_arg = { "", "tsep", "separator temperature", false, 0,
-			      "separator temperature in degF", cmd };
-Correlation::NamedPar tsep_par;
-VtlQuantity tsep;
-const Unit * tsep_unit = nullptr;
-void set_tsep()
-{
-  tsep_unit = test_par_unit_change("tsep", Fahrenheit::get_instance());
-  tsep_par = make_tuple(tsep_arg.isSet(), "tsep",
-			tsep_arg.getValue(), tsep_unit);
-  tsep.set(par(tsep_par));
-}
-
-ValueArg<double> tsep2_arg = { "", "tsep2", "second separator temperature",
-			       false, 0,
-			       "second separator temperature in degF", cmd };
-Correlation::NamedPar tsep2_par;
-VtlQuantity tsep2;
-const Unit * tsep2_unit = nullptr;
-void set_tsep2()
-{
-  tsep2_unit = test_par_unit_change("tsep2", Fahrenheit::get_instance());
-  tsep2_par = make_tuple(tsep2_arg.isSet(), "tsep2",
-			 tsep2_arg.getValue(), tsep2_unit);
-  tsep2.set(par(tsep2_par));
-}
-
-ValueArg<double> ogr_arg = { "", "ogr", "Condensed gas ratio",
-			       false, 0, "Condensed gas ratio", cmd };
-Correlation::NamedPar ogr_par;
-VtlQuantity ogr;
-const Unit * ogr_unit = nullptr;
-void set_ogr()
-{
-  ogr_unit = test_par_unit_change("ogr", STB_MMscf::get_instance());
-  ogr_par = make_tuple(ogr_arg.isSet(), "ogr",
-		       ogr_arg.getValue(), ogr_unit);
-  ogr.set(par(ogr_par));
-}
-
-ValueArg<double> psep_arg = { "", "psep", "separator pressure", false, 0,
-			      "separator pressure in psia", cmd };
-Correlation::NamedPar psep_par;
-VtlQuantity psep;
-const Unit * psep_unit = nullptr;
-void set_psep()
-{
-  psep_unit = test_par_unit_change("psep", psia::get_instance());
-  psep_par = make_tuple(psep_arg.isSet(), "psep",
-			psep_arg.getValue(), psep_unit);
-  psep.set(par(psep_par));
-}
-
-ValueArg<double> n2_concentration_arg =
-  { "", "n2-concentration", "n2-concentration", false, 0,
-    "n2-concentration in MolePercent", cmd };
-Correlation::NamedPar n2_concentration_par;
-VtlQuantity n2_concentration;
-const Unit * n2_concentration_unit = nullptr;
-void set_n2_concentration()
-{
-  n2_concentration_unit = test_par_unit_change("n2-concentration",
-						MolePercent::get_instance());
-  n2_concentration_par = make_tuple(n2_concentration_arg.isSet(),
-				    "n2_concentration",
-				    n2_concentration_arg.getValue(),
-				    n2_concentration_unit);
-  n2_concentration.set(par(n2_concentration_par));
-}
-
-ValueArg<double> co2_concentration_arg =
-  { "", "co2-concentration", "co2-concentration", false, 0,
-    "co2-concentration in MolePercent", cmd };
-Correlation::NamedPar co2_concentration_par;
-VtlQuantity co2_concentration;
-const Unit * co2_concentration_unit = nullptr;
-void set_co2_concentration()
-{
-  co2_concentration_unit = test_par_unit_change("co2-concentration",
-					    MolePercent::get_instance());
-  co2_concentration_par = make_tuple(co2_concentration_arg.isSet(),
-				     "co2_concentration",
-				     co2_concentration_arg.getValue(),
-				     co2_concentration_unit);
-  co2_concentration.set(par(co2_concentration_par));
-}
-
-ValueArg<double> h2s_concentration_arg =
-  { "", "h2s-concentration", "h2s-concentration", false, 0,
-    "h2s-concentration in MolePercent", cmd };
-Correlation::NamedPar h2s_concentration_par;
-VtlQuantity h2s_concentration;
-const Unit * h2s_concentration_unit = nullptr;
-void set_h2s_concentration()
-{
-  h2s_concentration_unit = test_par_unit_change("h2s-concentration",
-					    MolePercent::get_instance());
-  h2s_concentration_par = make_tuple(h2s_concentration_arg.isSet(),
-				     "h2s_concentration",
-				     h2s_concentration_arg.getValue(),
-				     h2s_concentration_unit);
-  h2s_concentration.set(par(h2s_concentration_par));
-}
-
-ValueArg<double> nacl_concentration_arg =
-  { "", "nacl-concentration", "nacl-concentration", false, 0,
-    "nacl-concentration in mol_NaCl/Kg_H2O", cmd };
-Correlation::NamedPar nacl_concentration_par;
-VtlQuantity nacl_concentration;
-const Unit * nacl_concentration_unit = nullptr;
-void set_nacl_concentration()
-{
-  nacl_concentration_unit = test_par_unit_change("nacl-concentration",
-					     Molality_NaCl::get_instance());
-  nacl_concentration_par = make_tuple(nacl_concentration_arg.isSet(),
-				      "nacl_concentration",
-				      nacl_concentration_arg.getValue(),
-				      nacl_concentration_unit);
-  nacl_concentration.set(par(nacl_concentration_par));
-}
-
-ValueArg<double> c_pb_arg = { "", "c-pb", "pb adjustment", false, 0,
-			      "pb adjustment", cmd };
-ValueArg<string> pb_arg = { "", "pb", "correlation for pb", false, "",
-			    "correlation for pb", cmd };
-const Correlation * pb_corr = nullptr;
-ParList pb_pars;
-void set_pb_corr()
-{
-  assert(yg_arg.isSet() and rsb_arg.isSet() and api_arg.isSet());
-  pb_corr = Correlation::search_by_name(pb_arg.getValue());
-  if (pb_corr == nullptr)
-    error_msg(pb_arg.getValue() + " correlation not found");
-
-  if (pb_corr->target_name() != "pb")
-    error_msg(pb_arg.getValue() + " correlation is not for pb");
-
-  pb_pars.insert(yg_par);
-  pb_pars.insert(rsb_par);
-  pb_pars.insert(api_par);
-}
+Command_Arg_Value(ogr, STB_MMscf, "Condensate gas ratio")
+Command_Arg_Value(psep, psia, "separator pressure");
+Command_Arg_Value(n2_concentration, MolePercent, "n2-concentration");
+Command_Arg_Value(co2_concentration, MolePercent, "co2-concentration");
+Command_Arg_Value(h2s_concentration, MolePercent, "h2s-concentration");
+Command_Arg_Value(nacl_concentration, Molality_NaCl, "nacl-concentration");
 
 // Initialize a correlation specified from the command line via
 // corr_name_arg. Verify that the correlation is for the target_name
 // property and if so, then the found correlation is placed in the
 // output parameter corr_ptr.
 //
-// The force_set parameter indicates that the correlation is required
+// The mandatory parameter indicates that the correlation is required
 // on the command line.
 void set_correlation(ValueArg<string> & corr_name_arg,
 		     const string & target_name,
 		     const Correlation *& corr_ptr,
-		     bool force_set = false)
+		     bool mandatory)
 {
-  if (force_set and not corr_name_arg.isSet())
+  if (mandatory and not corr_name_arg.isSet())
     error_msg("Correlation for "+ target_name +
 	      " has not been specified in command line (" +
 	      corr_name_arg.longID() + ")");
@@ -466,240 +338,84 @@ void set_correlation(ValueArg<string> & corr_name_arg,
     error_msg("Correlation " + corr_ptr->name + " is not for " + target_name);
 }
 
-ValueArg<double> c_rs_arg = { "", "c-rs", "rs c", false, 0, "rs c", cmd };
-ValueArg<double> m_rs_arg = { "", "m-rs", "rs m", false, 1, "rs m", cmd };
-ValueArg<string> rs_corr_arg = { "", "rs", "correlation for rs", false, "",
-				 "correlation for rs", cmd };
-const Correlation * rs_corr = nullptr;
-void set_rs_corr(bool force = false)
-{ set_correlation(rs_corr_arg, "rs", rs_corr, force); }
+# define Declare_Corr_Arg(name)			      \
+  ValueArg<string> name##_corr_arg =		      \
+    { "", #name, "correlation for " #name, false, "", \
+      "correlation for " #name, cmd };		      \
+						      \
+  const Correlation * name##_corr = nullptr;
 
-ValueArg<double> c_bob_arg = { "", "c-bob", "ob c", false, 0, "bob c", cmd };
-ValueArg<double> m_bob_arg = { "", "m-bob", "bob m", false, 1, "bob m", cmd };
-ValueArg<string> bob_corr_arg = { "", "bob", "correlation for bob", false, "",
-				  "correlation for bob", cmd };
-const Correlation * bob_corr = nullptr;
-void set_bob_corr(bool force = false)
-{ set_correlation(bob_corr_arg, "bob", bob_corr, force); }
+# define Command_Arg_Mandatory_Correlation(name)			\
+  Declare_Corr_Arg(name);						\
+									\
+  void set_##name##_corr()						\
+  {									\
+    set_correlation(name##_corr_arg, #name, name##_corr, true);		\
+  }
 
-ValueArg<double> c_boa_arg = { "", "c-boa", "ob c", false, 0, "boa c", cmd };
-ValueArg<double> m_boa_arg = { "", "m-boa", "boa m", false, 1, "boa m", cmd };
-ValueArg<string> boa_corr_arg = { "", "boa", "correlation for boa", false, "",
-				  "correlation for boa", cmd };
-const Correlation * boa_corr = nullptr;
-void set_boa_corr(bool force = false)
-{ set_correlation(boa_corr_arg, "boa", boa_corr, force); }
+# define Command_Arg_Optional_Correlation(name, CorrName)		\
+  Declare_Corr_Arg(name);						\
+									\
+  void set_##name##_corr()						\
+  {									\
+    name##_corr = &CorrName::get_instance();				\
+    set_correlation(name##_corr_arg, #name, name##_corr, false);	\
+  }
 
-ValueArg<double> c_uod_arg = { "", "c-uod", "uod c", false, 0, "uod c", cmd };
-ValueArg<double> m_uod_arg = { "", "m-ruod", "uod m", false, 1, "uod m", cmd };
-ValueArg<string> uod_corr_arg = { "", "uod", "correlation for uod", false, "",
-				 "correlation for ruod", cmd };
-const Correlation * uod_corr = nullptr;
-void set_uod_corr(bool force = false)
-{ set_correlation(uod_corr_arg, "uod", uod_corr, force); }
+# define Declare_c_par(name)			\
+  ValueArg<double> c_##name##_arg =				\
+    { "", "c-" #name, #name " c", false, 0, #name " c", cmd };
 
-ValueArg<double> c_cob_arg = { "", "c-cob", "cob c", false, 0, "cob c", cmd };
-ValueArg<double> m_cob_arg = { "", "m-cob", "cob m", false, 1, "cob m", cmd };
-ValueArg<string> cob_corr_arg = { "", "cob", "correlation for cob", false, "",
-				  "correlation for cob", cmd };
-const Correlation * cob_corr = nullptr;
-void set_cob_corr(bool force = false)
-{ set_correlation(cob_corr_arg, "cob", cob_corr, force); }
+# define Declare_m_par(name)			\
+  ValueArg<double> m_##name##_arg =				\
+    { "", "m-" #name, #name " m", false, 1, #name " m", cmd };
 
-ValueArg<double> c_coa_arg = { "", "c-coa", "coa c", false, 0, "coa c", cmd };
-ValueArg<double> m_coa_arg = { "", "m-coa", "coa m", false, 1, "coa m", cmd };
-ValueArg<string> coa_corr_arg = { "", "coa", "correlation for coa", false, "",
-				  "correlation for coa", cmd };
-const Correlation * coa_corr = nullptr;
-void set_coa_corr(bool force = false)
-{ set_correlation(coa_corr_arg, "coa", coa_corr, force); }
+// Defines a calibrated correlation along with its parameters, which is mandatory
+# define Command_Arg_Tuned_Correlation(name)	\
+  Command_Arg_Mandatory_Correlation(name);	\
+  Declare_c_par(name);				\
+  Declare_m_par(name);
 
-ValueArg<double> c_uob_arg = { "", "c-uob", "uob c", false, 0, "uob c", cmd };
-ValueArg<double> m_uob_arg = { "", "m-uob", "uob m", false, 1, "uob m", cmd };
-ValueArg<string> uob_corr_arg = { "", "uob", "correlation for uob", false, "",
-				  "correlation for uob", cmd };
-const Correlation * uob_corr = nullptr;
-void set_uob_corr(bool force = false)
-{ set_correlation(uob_corr_arg, "uob", uob_corr, force); }
+Command_Arg_Mandatory_Correlation(pb);
+Declare_c_par(pb);
 
-ValueArg<double> c_uoa_arg = { "", "c-uoa", "uoa c", false, 0, "uoa c", cmd };
-ValueArg<double> m_uoa_arg = { "", "m-uoa", "uoa m", false, 1, "uoa m", cmd };
-ValueArg<string> uoa_corr_arg = { "", "uoa", "correlation for uoa", false, "",
-				  "correlation for uoa", cmd };
-const Correlation * uoa_corr = nullptr;
-void set_uoa_corr(bool force = false)
-{ set_correlation(uoa_corr_arg, "uoa", uoa_corr, force); }
+Command_Arg_Tuned_Correlation(rs);
+Command_Arg_Tuned_Correlation(bob);
+Command_Arg_Tuned_Correlation(boa);
+Command_Arg_Mandatory_Correlation(uod);
+Command_Arg_Tuned_Correlation(cob);
+Command_Arg_Tuned_Correlation(coa);
+Command_Arg_Tuned_Correlation(uob);
+Command_Arg_Tuned_Correlation(uoa);
 
-ValueArg<string> ppchc_corr_arg = { "", "ppchc", "Correlation for ppchc",
-				    false, "", "Correlation for ppchc", cmd };
-const Correlation * ppchc_corr = nullptr;
-void set_ppchc_corr()
-{
-  ppchc_corr = &PpchcStanding::get_instance(); // mandotory here!
-  set_correlation(ppchc_corr_arg, "ppchc", ppchc_corr, false);
-}
+Command_Arg_Optional_Correlation(ppchc, PpchcStanding);
+Command_Arg_Optional_Correlation(ppcm_mixing, PpcmKayMixingRule);
+Command_Arg_Optional_Correlation(adjustedppcm, AdjustedppcmWichertAziz);
+Command_Arg_Optional_Correlation(tpchc, TpchcStanding);
+Command_Arg_Optional_Correlation(tpcm_mixing, TpcmKayMixingRule);
+Command_Arg_Optional_Correlation(adjustedtpcm, AdjustedtpcmWichertAziz);
+Command_Arg_Optional_Correlation(zfactor, ZfactorDranchukAK);
+Command_Arg_Optional_Correlation(cg, CgMattarBA);
+Command_Arg_Optional_Correlation(ug, UgCarrKB);
+Command_Arg_Optional_Correlation(bwb, BwbSpiveyMN);
+Command_Arg_Optional_Correlation(bwa, BwaSpiveyMN);
+Command_Arg_Optional_Correlation(uw, UwMcCain);
+Command_Arg_Optional_Correlation(pw, PwSpiveyMN);
+Command_Arg_Optional_Correlation(cwb, CwbSpiveyMN);
+Command_Arg_Optional_Correlation(cwa, CwaSpiveyMN);
+Command_Arg_Optional_Correlation(rsw, RswSpiveyMN);
+Command_Arg_Optional_Correlation(sgo, SgoBakerSwerdloff);
+Command_Arg_Optional_Correlation(sgw, SgwJenningsNewman);
 
-ValueArg<string> ppcm_mixing_corr_arg =
-  { "", "ppcm-mixing", "Correlation for ppcm mixing rule",
-    false, "PpcmKayMixingRule", "Correlation for ppcm mixing rule", cmd };
-const Correlation * ppcm_mixing_corr = nullptr;
-void set_ppcm_mixing_corr()
-{
-  ppcm_mixing_corr = &PpcmKayMixingRule::get_instance(); // mandotory here!
-  set_correlation(ppcm_mixing_corr_arg, "ppccm", ppcm_mixing_corr, false);
-}
-
-ValueArg<string> adjustedppcm_corr_arg =
-  { "", "adjustedppcm", "Correlation for ajustedppcm",
-    false, "AdjustedppcmWichertAziz", "Correlation for adjustedppcm", cmd };
-const Correlation * adjustedppcm_corr = nullptr;
-void set_adjustedppcm_corr()
-{
-  adjustedppcm_corr = &AdjustedppcmWichertAziz::get_instance(); // mandotory here!
-  set_correlation(adjustedppcm_corr_arg, "adjustedppccm",
-		  adjustedppcm_corr, false);
-}
-
-ValueArg<string> tpchc_corr_arg = { "", "tpchc", "Correlation for tpchc",
-				    false, "", "Correlation for tpchc", cmd };
-const Correlation * tpchc_corr = nullptr;
-void set_tpchc_corr()
-{
-  tpchc_corr = &TpchcStanding::get_instance(); // by default
-  set_correlation(tpchc_corr_arg, "tpchc", tpchc_corr, false);
-}
-
-ValueArg<string> tpcm_mixing_corr_arg =
-  { "", "tpcm", "Correlation for tpcm mixing rule",
-    false, "TpcmKayMixingRule", "Correlation for tpcm mixing rule", cmd };
-const Correlation * tpcm_mixing_corr = nullptr;
-void set_tpcm_mixing_corr()
-{
-  tpcm_mixing_corr = &TpcmKayMixingRule::get_instance(); // mandotory here!
-  set_correlation(tpcm_mixing_corr_arg, "tpcm", tpcm_mixing_corr, false);
-}
-
-ValueArg<string> adjustedtpcm_corr_arg =
-  { "", "adjustedtpcm", "Correlation for adjustedtpcm",
-    false, "AdjustedtpcmWichertAziz", "Correlation for adjustedtpcm", cmd };
-const Correlation * adjustedtpcm_corr = nullptr;
-void set_adjustedtpcm_corr()
-{
-  adjustedtpcm_corr = &AdjustedtpcmWichertAziz::get_instance(); // mandotory here!
-  set_correlation(adjustedtpcm_corr_arg, "adjustedtpcm", adjustedtpcm_corr, false);
-}
-
-ValueArg<string> zfactor_corr_arg =
-  { "", "zfactor", "Correlation for zfactor", false, "",
-    "Correlation for zfactor", cmd };
-const Correlation * zfactor_corr = nullptr;
-void set_zfactor_corr()
-{
-  zfactor_corr = &ZfactorDranchukAK::get_instance(); // by default
-  set_correlation(zfactor_corr_arg, "zfactor", zfactor_corr, false);
-}
-
-ValueArg<string> cg_corr_arg =
-  { "", "cg", "Correlation for cg", false, "", "Correlation for cg", cmd };
-const Correlation * cg_corr = nullptr;
-void set_cg_corr()
-{
-  cg_corr = &CgMattarBA::get_instance();
-  set_correlation(cg_corr_arg, "cg", cg_corr, false);
-}
-
-ValueArg<string> ug_corr_arg =
-  { "", "ug", "Correlation for ug", false, "", "Correlation for ug", cmd };
-const Correlation * ug_corr = nullptr;
-void set_ug_corr()
-{
-  ug_corr = &UgCarrKB::get_instance(); // by default
-  set_correlation(ug_corr_arg, "ug", ug_corr, false);
-}
-
-ValueArg<string> bwb_corr_arg =
-  { "", "bwb", "Correlation for bwb", false, "", "Correlation for bwb", cmd };
-const Correlation * bwb_corr = nullptr;
-void set_bwb_corr()
-{
-  bwb_corr = &BwbSpiveyMN::get_instance();
-  set_correlation(bwb_corr_arg, "bwb", bwb_corr, false);
-}
-
-ValueArg<string> bwa_corr_arg =
-  { "", "bwa", "Correlation for bwa", false, "", "Correlation for bwa", cmd };
-const Correlation * bwa_corr = nullptr;
-void set_bwa_corr()
-{
-  bwa_corr = &BwaSpiveyMN::get_instance();
-  set_correlation(bwa_corr_arg, "bwa", bwa_corr, false);
-}
-
-ValueArg<string> uw_corr_arg =
-  { "", "uw", "Correlation for uw", false, "", "Correlation for uw", cmd };
-const Correlation * uw_corr = nullptr;
-void set_uw_corr()
-{
-  uw_corr = &UwMcCain::get_instance();
-  set_correlation(uw_corr_arg, "uw", uw_corr, false);
-}
-
-ValueArg<string> pw_corr_arg =
-  { "", "pw", "Correlation for pw", false, "", "Correlation for pw", cmd };
-const Correlation * pw_corr = nullptr;
-void set_pw_corr()
-{
-  pw_corr = &PwSpiveyMN::get_instance();
-  set_correlation(pw_corr_arg, "pw", pw_corr, false);
-}
-
-ValueArg<string> cwb_corr_arg =
-  { "", "cwb", "Correlation for cwb", false, "", "Correlation for cwb", cmd };
-const Correlation * cwb_corr = nullptr;
-void set_cwb_corr()
-{
-  cwb_corr = &CwbSpiveyMN::get_instance();
-  set_correlation(cwb_corr_arg, "cwb", cwb_corr, false);
-}
-
-ValueArg<string> cwa_corr_arg =
-  { "", "cwa", "Correlation for cwa", false, "", "Correlation for cwa", cmd };
-const Correlation * cwa_corr = nullptr;
-void set_cwa_corr()
-{
-  cwa_corr = &CwaSpiveyMN::get_instance();
-  set_correlation(cwa_corr_arg, "cwa", cwa_corr, false);
-}
-
-ValueArg<string> rsw_corr_arg =
-  { "", "rsw", "Correlation for rsw", false, "", "Correlation for rsw", cmd };
-const Correlation * rsw_corr = nullptr;
-void set_rsw_corr()
-{
-  rsw_corr = &RswSpiveyMN::get_instance();
-  set_correlation(rsw_corr_arg, "rsw", rsw_corr, false);
-}
-
-ValueArg<string> sgo_corr_arg =
-  { "", "sgo", "Correlation for sgo", false, "", "Correlation for sgo", cmd };
-const Correlation * sgo_corr = nullptr;
-void set_sgo_corr()
-{
-  sgo_corr = &SgoBakerSwerdloff::get_instance();
-  set_correlation(sgo_corr_arg, "sgo", sgo_corr, false);
-}
-
-ValueArg<string> sgw_corr_arg =
-  { "", "sgw", "Correlation for sgw", false, "", "Correlation for sgw", cmd };
-const Correlation * sgw_corr = nullptr;
-void set_sgw_corr()
-{
-  sgw_corr = &SgwJenningsNewman::get_instance();
-  set_correlation(sgw_corr_arg, "sgw", sgw_corr, false);
-}
+// These correlations only apply in wetgas case
+Command_Arg_Optional_Correlation(rsp1, Rsp1);
+Command_Arg_Optional_Correlation(veqsp, VeqspMcCain);
+Command_Arg_Optional_Correlation(veqsp2, Veqsp2McCain);
+Command_Arg_Optional_Correlation(gpasp, GpaspMcCain);
+Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
 
 vector<string> grid_types =
-  { "blackoil", "wetgas", "drygas", "brine", "gascondensed" };
+  { "blackoil", "wetgas", "drygas", "brine", "gascondensate" };
 ValuesConstraint<string> allowed_grid_types = grid_types;
 ValueArg<string> grid = { "", "grid", "grid type", false,
 			  "blackoil", &allowed_grid_types, cmd };
@@ -786,20 +502,6 @@ void set_p_range()
   set_range(p_range.getValue(), "p", *p_unit, p_values);
 }
 
-ValueArg<double> cb_arg = { "", "cb", "c for below range", false, 0,
-			    "c for below range", cmd };
-
-ValueArg<double> mb_arg = { "", "mb", "m for below range", false, 1,
-			    "m for below range", cmd };
-
-ValueArg<double> ca_arg = { "", "ca", "m for above range", false, 0,
-			    "c for above range", cmd };
-
-ValueArg<double> ma_arg = { "", "ma", "m for above range", false, 1,
-			    "c for above range", cmd };
-
-string target_name;
-
 DefinedCorrelation
 define_correlation(const VtlQuantity & pb,
 		   const Correlation * below_corr_ptr, double cb, double mb,
@@ -847,9 +549,8 @@ void store_exception(const string & corr_name, const exception & e)
 {
   exception_thrown = true;
   ostringstream s;
-  s << corr_name << ": " << VtlQuantity(*t_unit, temperature)
-    << ", " << VtlQuantity(*p_unit, pressure) << ": " << e.what()
-    << endl;
+  s << corr_name << ": " << temperature << " " << t_unit->name << ", "
+    << pressure << " " << p_unit->name << ": " << e.what() << endl;
   exception_list.append(s.str());
 }
 
@@ -1176,6 +877,7 @@ inline void print_row(const FixedStack<const VtlQuantity*> & row,
 
       // Comment line above and uncomment below in order to get maximum precision
       //printf("%.17g", convert_fct ? convert_fct(q.raw()) : q.raw());
+
       if (i > 0)
 	printf(",");
     }
@@ -1224,8 +926,7 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 
 void generate_grid_blackoil()
 {
-  set_check(); // Initialization of constant data
-  set_api();
+  set_api(); // Initialization of constant data
   set_rsb();
   set_yg();
   set_tsep();
@@ -1235,15 +936,15 @@ void generate_grid_blackoil()
   set_n2_concentration();
   set_nacl_concentration();
   
-  set_pb_corr();  
-  set_rs_corr(true); // Initialization of correlations
-  set_bob_corr(true);
-  set_boa_corr(true);
-  set_uod_corr(true);
-  set_cob_corr(true);
-  set_coa_corr(true);
-  set_uob_corr(true);
-  set_uoa_corr(true);
+  set_pb_corr();      // Initialization of correlations
+  set_rs_corr(); 
+  set_bob_corr();
+  set_boa_corr();
+  set_uod_corr();
+  set_cob_corr();
+  set_coa_corr();
+  set_uob_corr();
+  set_uoa_corr();
   set_ppchc_corr();
   set_tpchc_corr();
   set_ppcm_mixing_corr();
@@ -1262,10 +963,6 @@ void generate_grid_blackoil()
   set_cwa_corr();
   set_sgo_corr();
   set_sgw_corr();
-  report_exceptions = catch_exceptions.getValue();
-
-  set_t_range();
-  set_p_range();
 
   // Calculation of constants for Z
   auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),
@@ -1500,28 +1197,190 @@ void generate_grid_blackoil()
       cw_pars.remove(t_par);
       rsw_pars.remove(t_par);
     }
+}
 
-  if (report_exceptions)
-    {
-      cout << endl
-	   << "Exceptions:" << endl;
-      exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
-    }
-
-  exit(0);
+// This routine is invoked to validate the use of one or two separators
+void check_second_separator_case()
+{
+  if (not tsep_arg.isSet())
+    error_msg("It is mandatory to specify at least a separator temperature");
 }
 
 void generate_grid_wetgas()
-{
-  cout << "grid wetgas option not yet implemented" << endl;
-  abort();
-  exit(0);
+{ 
+  set_api(); // Initialization of constant data
+  set_yg();
+  set_tsep();
+  set_tsep2();
+  set_psep();
+  set_h2s_concentration();
+  set_co2_concentration();
+  set_n2_concentration();
+  set_nacl_concentration();
+  set_ogr();
+  
+  // TODO: falta inicializar estas correlaciones
+
+  set_ppchc_corr();
+  set_tpchc_corr();
+  set_ppcm_mixing_corr();
+  set_tpcm_mixing_corr();
+  set_adjustedppcm_corr();
+  set_adjustedtpcm_corr();
+  set_zfactor_corr();
+  set_cg_corr();
+  set_ug_corr();
+  set_bwb_corr();
+  set_uw_corr();
+  set_pw_corr();
+  set_rsw_corr();
+  set_cwb_corr();
+  set_sgw_corr();
+  set_rsp1_corr();
+  set_gpasp_corr();
+  set_gpasp2_corr();
+  set_veqsp_corr();
+  set_veqsp2_corr();
+
+  check_second_separator_case();
+
+  // Calculation of constants required for grid generation
+  auto rsp1 = compute_exc(rsp1_corr, true, ogr_par);
+  auto gpa = compute_exc(two_separators() ? gpasp2_corr : gpasp_corr, true,
+			 tsep_par, tsep2_par, psep_par, yg_par, api_par);
+
+  auto yo = Quantity<Sg_do>(api);
+
+  auto veq = compute_exc(two_separators() ? veqsp2_corr : veqsp_corr, true,
+			 tsep_par, tsep2_par, psep_par, yg_par, api_par);
+  
+  auto ywgr = compute_exc(YwgrMcCain::correlation(), true, yg_par, NPAR(yo),
+   			  NPAR(rsp1), NPAR(gpa), NPAR(veq));
+			  
+  auto yghc = compute_exc(YghcWichertAziz::correlation(), true, npar("yg", ywgr),
+			  NPAR(n2_concentration), NPAR(co2_concentration),
+			  NPAR(h2s_concentration));
+  auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),
+			   NPAR(n2_concentration), NPAR(co2_concentration),
+			   NPAR(h2s_concentration));
+  auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),
+			  NPAR(n2_concentration), NPAR(co2_concentration),
+			  NPAR(h2s_concentration));		       
+  auto tpchc = tpchc_corr->compute(check, yghc);
+  auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),
+			  NPAR(n2_concentration), NPAR(co2_concentration),
+			  NPAR(h2s_concentration));
+  auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),
+				  NPAR(tpcm), NPAR(co2_concentration),
+				  NPAR(h2s_concentration));
+  auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),
+				  NPAR(co2_concentration),
+				  NPAR(h2s_concentration));
+  // End calculation constants required for grid generation
+
+  // Initialization of correlation parameter lists
+  auto ug_pars = load_constant_parameters({ug_corr});
+  insert_in_container(ug_pars, npar("tpc", adjustedtpcm),
+		      npar("ppc", adjustedppcm));
+  auto bwb_pars = load_constant_parameters({bwb_corr});
+  auto uw_pars = load_constant_parameters({uw_corr});
+  auto pw_pars = load_constant_parameters({pw_corr});
+  auto rsw_pars = load_constant_parameters({rsw_corr});
+  auto cwb_pars = load_constant_parameters({cwb_corr});
+  ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));
+  ParList sgw_pars;
+
+  using P = pair<string, const Unit*>;
+  auto row_units = print_csv_header(P("t", get<3>(t_values.get_first())),
+				    P("p", get<3>(p_values.get_first())),
+				    P("zfactor", &Zfactor::get_instance()),
+				    P("cg", &cg_corr->unit),
+				    P("bwg", &Bwg::get_instance().unit),
+				    P("ug", &ug_corr->unit),
+				    P("pg", &Pg::get_instance().unit),
+				    P("bwb", &bwb_corr->unit),
+				    P("uw", &uw_corr->unit),
+				    P("pw", &pw_corr->unit),
+				    P("rsw", &rsw_corr->unit),
+				    P("cwb", &cwb_corr->unit),
+				    P("sgw", &sgw_corr->unit),
+				    P("exception", &Unit::null_unit));
+
+  FixedStack<const VtlQuantity*> row(25); // Here are the
+					  // values. Ensure that the
+					  // insertion order is the
+					  // same as for the csv
+					  // header temperature loop
+  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next()) 
+    {
+      Correlation::NamedPar t_par = t_it.get_curr();
+      VtlQuantity t_q = par(t_par);
+      temperature = t_q.raw();
+      CALL(Tpr, tpr, t_q, adjustedtpcm);
+      auto tpr_par = NPAR(tpr);
+  
+      insert_in_container(ug_pars, t_par, tpr_par);
+      bwb_pars.insert(t_par);
+      cg_pars.insert(tpr_par);
+      rsw_pars.insert(t_par);
+      uw_pars.insert(t_par);
+      pw_pars.insert(t_par);
+      cwb_pars.insert(t_par);
+      sgw_pars.insert(t_par);      
+
+      size_t n = insert_in_row(row, t_q);
+
+      // pressure loop
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
+	{
+	  Correlation::NamedPar p_par = p_it.get_curr();
+	  VtlQuantity p_q = par(p_par);
+
+	  pressure = p_q.raw();
+	  CALL(Ppr, ppr, p_q, adjustedppcm);
+	  auto ppr_par = NPAR(ppr);
+
+	  VtlQuantity z = compute(zfactor_corr, check, ppr_par, tpr_par);
+	  auto z_par = NPAR(z);
+	  auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);
+	  CALL(Bwg, bwg, t_q, p_q, z, rsp1, veq);
+	  auto ug = compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
+	  CALL(Pg, pg, yg, t_q, p_q, z);
+	  auto rsw = compute(rsw_corr, check, rsw_pars, p_par);
+	  auto rsw_par = NPAR(rsw);
+	  auto bwb = compute(bwb_corr, check, bwb_pars, p_par);
+	  auto bw_par = npar("bw", bwb);
+	  auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);
+	  auto cwb = compute(cwb_corr, check, cwb_pars, p_par, z_par, 
+			     NPAR(bwg), rsw_par, bw_par);
+	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
+	  auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));
+	  auto sgw = compute(sgw_corr, check, sgw_pars, p_par);
+
+	  size_t n = insert_in_row(row, p_q, z, cg, bwg, ug, pg, bwb, uw,
+				   pw, rsw, cwb, sgw);
+
+	  assert(row.size() == 13);
+
+	  print_row(row, row_units);
+	  row.popn(n);
+	}
+
+      row.popn(n);
+      remove_from_container(ug_pars, t_par, tpr_par);
+      bwb_pars.remove(t_par);
+      sgw_pars.remove(t_par);
+      cg_pars.remove(tpr_par);
+      uw_pars.remove(t_par); 
+      pw_pars.remove(t_par);
+      cwb_pars.remove(t_par);
+      rsw_pars.remove(t_par);
+    }
 }
 
 void generate_grid_drygas()
 {
-  set_check(); // Initialization of constant data
-  set_api();
+  set_api(); // Initialization of constant data
   set_rsb();
   set_yg();
   set_tsep();
@@ -1546,10 +1405,6 @@ void generate_grid_drygas()
   set_rsw_corr();
   set_cwb_corr();
   set_sgw_corr();
-  report_exceptions = catch_exceptions.getValue();
-
-  set_t_range();
-  set_p_range();
 
   // Calculation of constants for Z
   auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),
@@ -1621,8 +1476,7 @@ void generate_grid_drygas()
       uw_pars.insert(t_par);
       pw_pars.insert(t_par);
       cwb_pars.insert(t_par);
-      sgw_pars.insert(t_par);
-      
+      sgw_pars.insert(t_par);      
 
       size_t n = insert_in_row(row, t_q);
 
@@ -1672,15 +1526,6 @@ void generate_grid_drygas()
       cwb_pars.remove(t_par);
       rsw_pars.remove(t_par);
     }
-
-  if (report_exceptions)
-    {
-      cout << endl
-	   << "Exceptions:" << endl;
-      exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
-    }
-
-  exit(0);
 }
 
 void generate_grid_brine()
@@ -1690,7 +1535,7 @@ void generate_grid_brine()
   exit(0);
 }
 
-void generate_grid_gascondensed()
+void generate_grid_gascondensate()
 {
   cout << "grid gascondensed option not yet implemented" << endl;
   abort();
@@ -1702,7 +1547,28 @@ grid_dispatcher("blackoil", generate_grid_blackoil,
 		"wetgas", generate_grid_wetgas,
 		"drygas", generate_grid_drygas,
 		"brine", generate_grid_brine,
-		"gascondensed", generate_grid_gascondensed);
+		"gascondensate", generate_grid_gascondensate);
+
+void generate_grid(const string & fluid_type)
+{
+  set_check(); 
+  report_exceptions = catch_exceptions.getValue();
+
+  set_t_range();
+  set_p_range();
+  
+  grid_dispatcher.run(fluid_type);
+
+  if (report_exceptions)
+    {
+      cout << endl
+	   << "Exceptions:" << endl;
+      exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
+    }
+
+  exit(0);
+
+}
 
 using OptionPtr = DynList<DynList<double>> (*)();
 
@@ -1713,10 +1579,10 @@ int main(int argc, char *argv[])
   if (print_types.getValue())
     print_fluid_types();
 
-  test_property_unit_changes();
+  process_property_unit_changes();
 
   if (grid.isSet())
-    grid_dispatcher.run(grid.getValue());
+    generate_grid(grid.getValue());
 
   cout << "No " << grid.getName() << " or " << print_types.getName()
        << " have been set" << endl;

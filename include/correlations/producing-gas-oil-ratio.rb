@@ -1,6 +1,6 @@
 # coding: utf-8
 
-begin_correlation("Gor", "ProducingGasOilRatio", "SCF_STB")
+begin_correlation("Rsp1", "ProducingGasOilRatio", "SCF_STB")
 add_title("CALCULATION OF PRODUCING GAS OIL RATIO (GOR)")
 add_parameter("ogr", "STB_MMscf", "Primary sparator condensate gas ratio")
 add_author("Standard Equation")
