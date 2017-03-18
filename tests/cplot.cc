@@ -623,15 +623,15 @@ void sort_by_t()
 void sort_by_p()
 {
   in_place_sort(tp_values, [] (const TPPair & p1, const TPPair & p2)
-    {
-      const double & pr1 = get<2>(p1.second);
-      const double & pr2 = get<2>(p2.second);
-      if (pr1 != pr2)
-	return pr1 < pr2;
-      const double & t1 = get<2>(p1.first);
-      const double & t2 = get<2>(p2.first);
-      return t1 < t2;
-    });
+		{
+		  const double & pr1 = get<2>(p1.second);
+		  const double & pr2 = get<2>(p2.second);
+		  if (pr1 != pr2)
+		    return pr1 < pr2;
+		  const double & t1 = get<2>(p1.first);
+		  const double & t2 = get<2>(p2.first);
+		  return t1 < t2;
+		});
 }
 
 AHDispatcher<string, void (*)()> sort_dispatcher("no_sort", [] () {},
