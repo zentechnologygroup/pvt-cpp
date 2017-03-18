@@ -608,23 +608,21 @@ DynList<TPPair> tp_values;
 
 void sort_by_t()
 {
-  auto t_cmp = [] (const TPPair & p1, const TPPair & p2)
-    {
-      const double & t1 = get<2>(p1.first);
-      const double & t2 = get<2>(p2.first);
-      if (t1 != t2)
-	return t1 < t2;
-      const double & pr1 = get<2>(p1.second);
-      const double & pr2 = get<2>(p2.second);
-      return pr1 < pr2;
-    };
-
-  in_place_sort(tp_values, t_cmp);
+  in_place_sort(tp_values, [] (const TPPair & p1, const TPPair & p2)
+		{
+		  const double & t1 = get<2>(p1.first);
+		  const double & t2 = get<2>(p2.first);
+		  if (t1 != t2)
+		    return t1 < t2;
+		  const double & pr1 = get<2>(p1.second);
+		  const double & pr2 = get<2>(p2.second);
+		  return pr1 < pr2;
+		});
 }
 
 void sort_by_p()
 {
-  auto p_cmp = [] (const TPPair & p1, const TPPair & p2)
+  in_place_sort(tp_values, [] (const TPPair & p1, const TPPair & p2)
     {
       const double & pr1 = get<2>(p1.second);
       const double & pr2 = get<2>(p2.second);
@@ -633,8 +631,7 @@ void sort_by_p()
       const double & t1 = get<2>(p1.first);
       const double & t2 = get<2>(p2.first);
       return t1 < t2;
-    };
-  in_place_sort(tp_values, p_cmp);
+    });
 }
 
 AHDispatcher<string, void (*)()> sort_dispatcher("no_sort", [] () {},
@@ -678,7 +675,6 @@ void set_ranges()
         {
 	  cout << get<2>(p.first) << ", " << get<2>(p.second) << endl;
 	});
-
 
       sort_dispatcher.run(sort_type.getValue());
 
