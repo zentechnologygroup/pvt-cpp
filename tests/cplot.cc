@@ -587,11 +587,16 @@ namespace TCLAP
 MultiArg<RowDesc> row = { "", "tp_pair", "add a pair of t, p values",
 			  false, "tp_pair \"t p\"", cmd };
 
+SwitchArg permute = { "", "permute", "permute tp pairs", cmd }; 
+
 # define T_UNIT Fahrenheit
 # define P_UNIT psia
 
 Command_Line_Range(t, "temperature");
 Command_Line_Range(p, "pressure");
+
+// This list is only used with --tp_pair option and --no_permute is set
+DynList<pair<Correlation::NamedPar, Correlation::NamedPar>> tp_values;
 
 void set_ranges()
 {
@@ -618,6 +623,21 @@ void set_ranges()
   if (pairs.size() == 0)
     error_msg("option " + row.getName() + " is mandatory in absence of " +
 	      t_range.getName() + " and " + p_range.getName() + " options");
+
+  if (not permute.getValue())
+    {
+      for (auto & p : pairs)
+	tp_values.append(pair<Correlation::NamedPar, Correlation::NamedPar>
+			 (make_tuple(true, "t", p.t, t_unit),
+			  make_tuple(true, "p", p.p, p_unit)));
+      cout << "pairs" << endl;
+      tp_values.for_each([] (auto & p)
+        {
+	  cout << get<2>(p.first) << ", " << get<2>(p.second) << endl;
+	});
+      // TODO: opción que ordene estos pares
+      return;
+    }
 
   DynBinHeap<double> theap, pheap;
   for (auto & p : pairs)
@@ -1055,202 +1075,264 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
   return ret.second;
 }
 
+# define Blackoil_Init()			\
+  set_api(); /* Initialization of constant data */	\
+  set_rsb();						\
+  set_yg();						\
+  set_tsep();								\
+  set_psep();								\
+  set_h2s_concentration();						\
+  set_co2_concentration();						\
+  set_n2_concentration();						\
+  set_nacl_concentration();						\
+									\
+  set_pb_corr(); /* Initialization of correlations */			\
+  set_rs_corr();							\
+  set_bob_corr();							\
+  set_boa_corr();							\
+  set_uod_corr();							\
+  set_cob_corr();							\
+  set_coa_corr();							\
+  set_uob_corr();							\
+  set_uoa_corr();							\
+  set_ppchc_corr();							\
+  set_tpchc_corr();							\
+  set_ppcm_mixing_corr();						\
+  set_tpcm_mixing_corr();						\
+  set_adjustedppcm_corr();						\
+  set_adjustedtpcm_corr();						\
+  set_zfactor_corr();							\
+  set_cg_corr();							\
+  set_ug_corr();							\
+  set_bwb_corr();							\
+  set_bwa_corr();							\
+  set_uw_corr();							\
+  set_pw_corr();							\
+  set_rsw_corr();							\
+  set_cwb_corr();							\
+  set_cwa_corr();							\
+  set_sgo_corr();							\
+  set_sgw_corr();							\
+									\
+  /* Calculation of constants for Z */					\
+  auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),\
+			  NPAR(n2_concentration), NPAR(co2_concentration),\
+			  NPAR(h2s_concentration));			\
+  auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),		\
+			   NPAR(n2_concentration), NPAR(co2_concentration),\
+			   NPAR(h2s_concentration));			\
+  auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),		\
+			  NPAR(n2_concentration), NPAR(co2_concentration),\
+			  NPAR(h2s_concentration));			\
+  auto tpchc = tpchc_corr->compute(check, yghc);			\
+  auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),		\
+			  NPAR(n2_concentration), NPAR(co2_concentration),\
+			  NPAR(h2s_concentration));			\
+  auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),	\
+				  NPAR(tpcm), NPAR(co2_concentration),	\
+				  NPAR(h2s_concentration));		\
+  auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),	\
+				  NPAR(co2_concentration),		\
+				  NPAR(h2s_concentration));		\
+  /* End calculation constants for z */					\
+									\
+  /* Initialization of correlation parameter lists */			\
+  auto pb_pars = load_constant_parameters({pb_corr});			\
+  auto rs_pars = load_constant_parameters({rs_corr,			\
+	&RsAbovePb::get_instance()});					\
+  auto uod_pars = load_constant_parameters({uod_corr});			\
+  auto bo_pars = load_constant_parameters({bob_corr, boa_corr});	\
+  auto co_pars = load_constant_parameters({cob_corr, coa_corr});	\
+  auto uo_pars = load_constant_parameters({uob_corr, uoa_corr});	\
+  auto po_pars = load_constant_parameters({&PobBradley::get_instance(),	\
+	&PoaBradley::get_instance()});					\
+  auto ug_pars = load_constant_parameters({ug_corr});			\
+  insert_in_container(ug_pars, npar("tpc", adjustedtpcm),		\
+		      npar("ppc", adjustedppcm));			\
+  auto bw_pars = load_constant_parameters({bwb_corr, bwa_corr});	\
+  auto uw_pars = load_constant_parameters({uw_corr});			\
+  auto pw_pars = load_constant_parameters({pw_corr});			\
+  auto rsw_pars = load_constant_parameters({rsw_corr});			\
+  auto cw_pars = load_constant_parameters({cwb_corr, cwa_corr});	\
+  auto cwa_pars = load_constant_parameters({cwa_corr});			\
+  ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));			\
+  auto sgo_pars = load_constant_parameters({sgo_corr});			\
+  ParList sgw_pars;							\
+									\
+  using P = pair<string, const Unit*>;					\
+  auto row_units =							\
+	     print_csv_header(P("t", t_unit),				\
+			      P("pb", &pb_corr->unit),			\
+			      P("uod", &uod_corr->unit),		\
+			      P("p", p_unit),				\
+			      P("rs", &::rs_corr->unit),		\
+			      P("co", &cob_corr->unit),			\
+			      P("bo", &bob_corr->unit),			\
+			      P("uo", &uob_corr->unit),			\
+			      P("po", &PobBradley::get_instance().unit), \
+			      P("zfactor", &Zfactor::get_instance()),	\
+			      P("cg", &cg_corr->unit),			\
+			      P("bg", &Bg::get_instance().unit),	\
+			      P("ug", &ug_corr->unit),			\
+			      P("pg", &Pg::get_instance().unit),	\
+			      P("bw", &bwb_corr->unit),			\
+			      P("uw", &uw_corr->unit),			\
+			      P("pw", &pw_corr->unit),			\
+			      P("rsw", &rsw_corr->unit),		\
+			      P("cw", &cwb_corr->unit),			\
+			      P("sgo", &sgo_corr->unit),		\
+			      P("sgw", &sgw_corr->unit),		\
+			      P("exception", &Unit::null_unit),		\
+			      P("pbrow", &Unit::null_unit));		\
+									\
+  auto rs_pb = npar("rs", rsb_par);					\
+									\
+  /* Here are the values. Ensure that the insertion order is the same*/	\
+  /* as for the csv header temperature loop */				\
+									\
+  FixedStack<const VtlQuantity*> row(25); 
+
+# define Blackoil_Temperature_Calculations()				\
+  VtlQuantity t_q = par(t_par);						\
+  temperature = t_q.raw();						\
+  CALL(Tpr, tpr, t_q, adjustedtpcm);					\
+  auto tpr_par = NPAR(tpr);						\
+									\
+  VtlQuantity pb_q =							\
+    tcompute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);   \
+  auto pb_par = npar("pb", pb_q);					\
+  auto p_pb = npar("p", pb_q);						\
+									\
+  auto uod_val = compute(uod_corr, check, uod_pars, t_par, pb_par);	\
+									\
+  insert_in_container(rs_pars, t_par, pb_par);				\
+  auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(),\
+				    m_rs_arg.getValue(),		\
+				    &RsAbovePb::get_instance());	\
+									\
+  insert_in_container(co_pars, t_par, pb_par);				\
+  auto co_corr =							\
+    define_correlation(pb_q,			                        \
+		       cob_corr, c_cob_arg.getValue(), m_cob_arg.getValue(),\
+		       coa_corr, c_coa_arg.getValue(), m_coa_arg.getValue());\
+  auto bo_corr =							\
+    define_correlation(pb_q,			                        \
+		       bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),\
+		       boa_corr, c_boa_arg.getValue(), m_boa_arg.getValue());\
+									\
+  insert_in_container(uo_pars, t_par, pb_par, npar("uod", uod_val));	\
+  auto uo_corr =							\
+    define_correlation(pb_q,			                        \
+		       uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),\
+		       uoa_corr, c_uoa_arg.getValue(), m_uoa_arg.getValue());\
+									\
+  auto po_corr = define_correlation(pb_q, &PobBradley::get_instance(),	\
+				    &PoaBradley::get_instance());	\
+									\
+  auto bw_corr = define_correlation(pb_q, bwb_corr, bwa_corr);		\
+									\
+  auto cw_corr = define_correlation(pb_q, cwb_corr, cwa_corr);		\
+									\
+  bo_pars.insert(t_par);						\
+  auto bobp = tcompute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),\
+		       check, bo_pars, p_pb, rs_pb);			\
+									\
+  auto uobp = tcompute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),\
+		       check, uo_pars, p_pb, rs_pb);			\
+									\
+  insert_in_container(bo_pars, pb_par, NPAR(bobp));			\
+									\
+  uo_pars.insert("uobp", uobp.raw(), &uobp.unit);			\
+									\
+  auto pobp = compute(&PobBradley::get_instance(), check, po_pars,	\
+		      rs_pb, npar("bob", bobp));			\
+									\
+  auto bwbp = compute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));\
+									\
+  insert_in_container(po_pars, pb_par, NPAR(pobp));			\
+  insert_in_container(ug_pars, t_par, tpr_par);				\
+  insert_in_container(bw_pars, t_par, pb_par, NPAR(bwbp));		\
+  cg_pars.insert(tpr_par);						\
+  uw_pars.insert(t_par);						\
+  pw_pars.insert(t_par);						\
+  rsw_pars.insert(t_par);						\
+  cw_pars.insert(t_par);						\
+  cwa_pars.insert(t_par);						\
+  sgo_pars.insert(t_par);						\
+  sgw_pars.insert(t_par);						\
+									\
+  size_t n = insert_in_row(row, t_q, pb_q, uod_val);
+
+# define Blackoil_Pressure_Calculations()	\
+  pressure = p_q.raw();							\
+  CALL(Ppr, ppr, p_q, adjustedppcm);					\
+  auto ppr_par = NPAR(ppr);						\
+  auto rs = dcompute(rs_corr, check, p_q, rs_pars, p_par);		\
+  auto rs_par = NPAR(rs);						\
+  auto co = dcompute(co_corr, check, p_q, co_pars, p_par);		\
+  auto co_par = NPAR(co);						\
+  auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, co_par);\
+  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par);	\
+  auto po = dcompute(po_corr, check, p_q, po_pars, p_par, rs_par, co_par,\
+		     npar("bob", bo));					\
+  VtlQuantity z;							\
+  if (p_q <= pb_q)							\
+    z = compute(zfactor_corr, check, ppr_par, tpr_par);			\
+  auto z_par = NPAR(z);							\
+  auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);		\
+  CALL(Bg, bg, t_q, p_q, z);						\
+  auto ug = compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);	\
+  CALL(Pg, pg, yg, t_q, p_q, z);					\
+  auto rsw = compute(rsw_corr, check, rsw_pars, p_par);			\
+  auto rsw_par = NPAR(rsw);						\
+  auto cwa = compute(cwa_corr, check, cwa_pars, p_par, rsw_par);	\
+  auto bw = dcompute(bw_corr, check, p_q, bw_pars, p_par, NPAR(cwa));	\
+  auto bw_par = NPAR(bw);						\
+  auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);		\
+  auto cw = dcompute(cw_corr, check, p_q, cw_pars, p_par, z_par,	\
+		     NPAR(bg), rsw_par, bw_par, NPAR(cwa));		\
+  CALL(PpwSpiveyMN, ppw, t_q, p_q);					\
+  auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));		\
+  auto sgo = compute(sgo_corr, check, sgo_pars, p_par);			\
+  auto sgw = compute(sgw_corr, check, sgw_pars, p_par);			\
+									\
+  size_t n = insert_in_row(row, p_q, rs, co, bo, uo, po, z, cg, bg,	\
+			   ug, pg, bw, uw, pw, rsw, cw, sgo, sgw);	\
+									\
+  assert(row.size() == 21);
+
+# define Blackoil_Pop_Temperature_Parameters()\
+  row.popn(n);							\
+  remove_from_container(rs_pars, "pb", t_par);			\
+  remove_from_container(co_pars, "pb", t_par);			\
+  remove_from_container(bo_pars, "bobp", "pb", t_par);		\
+  remove_from_container(uo_pars, "uobp", "pb", "uod", t_par);	\
+  remove_from_container(po_pars, "pb", "pobp");			\
+  remove_from_container(ug_pars, t_par, tpr_par);		\
+  remove_from_container(bw_pars, t_par, pb_par, "bwbp");	\
+  sgo_pars.remove(t_par);					\
+  sgw_pars.remove(t_par);					\
+  cg_pars.remove(tpr_par);					\
+  uw_pars.remove(t_par);					\
+  pw_pars.remove(t_par);					\
+  cw_pars.remove(t_par);					\
+  rsw_pars.remove(t_par);
+
 void generate_grid_blackoil()
 {
-  set_api(); // Initialization of constant data
-  set_rsb();
-  set_yg();
-  set_tsep();
-  set_psep();
-  set_h2s_concentration();
-  set_co2_concentration();
-  set_n2_concentration();
-  set_nacl_concentration();
-  
-  set_pb_corr();      // Initialization of correlations
-  set_rs_corr(); 
-  set_bob_corr();
-  set_boa_corr();
-  set_uod_corr();
-  set_cob_corr();
-  set_coa_corr();
-  set_uob_corr();
-  set_uoa_corr();
-  set_ppchc_corr();
-  set_tpchc_corr();
-  set_ppcm_mixing_corr();
-  set_tpcm_mixing_corr();
-  set_adjustedppcm_corr();
-  set_adjustedtpcm_corr();
-  set_zfactor_corr();
-  set_cg_corr();
-  set_ug_corr();
-  set_bwb_corr();
-  set_bwa_corr();
-  set_uw_corr();
-  set_pw_corr();
-  set_rsw_corr();
-  set_cwb_corr();
-  set_cwa_corr();
-  set_sgo_corr();
-  set_sgw_corr();
+  Blackoil_Init();
 
-  // Calculation of constants for Z
-  auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),
-			  NPAR(n2_concentration), NPAR(co2_concentration),
-			  NPAR(h2s_concentration));
-  auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),
-			   NPAR(n2_concentration), NPAR(co2_concentration),
-			   NPAR(h2s_concentration));
-  auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),
-			  NPAR(n2_concentration), NPAR(co2_concentration),
-			  NPAR(h2s_concentration));		       
-  auto tpchc = tpchc_corr->compute(check, yghc);
-  auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),
-			  NPAR(n2_concentration), NPAR(co2_concentration),
-			  NPAR(h2s_concentration));
-  auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),
-				  NPAR(tpcm), NPAR(co2_concentration),
-				  NPAR(h2s_concentration));
-  auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),
-				  NPAR(co2_concentration),
-				  NPAR(h2s_concentration));
-  // End calculation constants for z
-
-  // Initialization of correlation parameter lists
-  auto pb_pars = load_constant_parameters({pb_corr});
-  auto rs_pars = load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
-  auto uod_pars = load_constant_parameters({uod_corr});
-  auto bo_pars = load_constant_parameters({bob_corr, boa_corr});
-  auto co_pars = load_constant_parameters({cob_corr, coa_corr});
-  auto uo_pars = load_constant_parameters({uob_corr, uoa_corr});
-  auto po_pars = load_constant_parameters({&PobBradley::get_instance(),
-	&PoaBradley::get_instance()});
-  auto ug_pars = load_constant_parameters({ug_corr});
-  insert_in_container(ug_pars, npar("tpc", adjustedtpcm),
-		      npar("ppc", adjustedppcm));
-  auto bw_pars = load_constant_parameters({bwb_corr, bwa_corr});
-  auto uw_pars = load_constant_parameters({uw_corr});
-  auto pw_pars = load_constant_parameters({pw_corr});
-  auto rsw_pars = load_constant_parameters({rsw_corr});
-  auto cw_pars = load_constant_parameters({cwb_corr, cwa_corr});
-  auto cwa_pars = load_constant_parameters({cwa_corr});
-  ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));
-  auto sgo_pars = load_constant_parameters({sgo_corr});
-  ParList sgw_pars;
-
-  using P = pair<string, const Unit*>;
-  auto row_units = 
-    print_csv_header(P("t", get<3>(t_values.get_first())),
-		     P("pb", &pb_corr->unit),
-		     P("uod", &uod_corr->unit),
-		     P("p", get<3>(p_values.get_first())),
-		     P("rs", &::rs_corr->unit),
-		     P("co", &cob_corr->unit), 
-		     P("bo", &bob_corr->unit),
-		     P("uo", &uob_corr->unit),
-		     P("po", &PobBradley::get_instance().unit),
-		     P("zfactor", &Zfactor::get_instance()),
-		     P("cg", &cg_corr->unit),
-		     P("bg", &Bg::get_instance().unit),
-		     P("ug", &ug_corr->unit),
-		     P("pg", &Pg::get_instance().unit),
-		     P("bw", &bwb_corr->unit),
-		     P("uw", &uw_corr->unit),
-		     P("pw", &pw_corr->unit),
-		     P("rsw", &rsw_corr->unit),
-		     P("cw", &cwb_corr->unit),
-		     P("sgo", &sgo_corr->unit),
-		     P("sgw", &sgw_corr->unit),
-		     P("exception", &Unit::null_unit),
-		     P("pbrow", &Unit::null_unit));
-
-  auto rs_pb = npar("rs", rsb_par);
-
-  FixedStack<const VtlQuantity*> row(25); // Here are the
-					  // values. Ensure that the
-					  // insertion order is the
-					  // same as for the csv
-					  // header temperature loop
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next()) 
     {
       Correlation::NamedPar t_par = t_it.get_curr();
-      VtlQuantity t_q = par(t_par);
-      temperature = t_q.raw();
-      CALL(Tpr, tpr, t_q, adjustedtpcm);
-      auto tpr_par = NPAR(tpr);
-
-      VtlQuantity pb_q =
-	tcompute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);
+      Blackoil_Temperature_Calculations();
       auto pb = pb_q.raw();
       double next_pb = nextafter(pb, numeric_limits<double>::max());
       VtlQuantity next_pb_q = { pb_q.unit, next_pb };
-      auto pb_par = npar("pb", pb_q);
-      auto p_pb = npar("p", pb_q);
 
       auto first_p_point = p_values.get_first();
       bool first_p_above_pb = VtlQuantity(*get<3>(first_p_point),
-					  get<2>(first_p_point)) > pb_q;
-  
-      auto uod_val = compute(uod_corr, check, uod_pars, t_par, pb_par);
-
-      insert_in_container(rs_pars, t_par, pb_par);
-      auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(),
-					m_rs_arg.getValue(),
-					&RsAbovePb::get_instance());
-
-      insert_in_container(co_pars, t_par, pb_par);
-      auto co_corr =
-	define_correlation(pb_q,
-			   cob_corr, c_cob_arg.getValue(), m_cob_arg.getValue(),
-			   coa_corr, c_coa_arg.getValue(), m_coa_arg.getValue());
-      auto bo_corr =
-	define_correlation(pb_q,
-			   bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
-			   boa_corr, c_boa_arg.getValue(), m_boa_arg.getValue());
-
-      insert_in_container(uo_pars, t_par, pb_par, npar("uod", uod_val));
-      auto uo_corr =
-	define_correlation(pb_q,
-			   uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
-			   uoa_corr, c_uoa_arg.getValue(), m_uoa_arg.getValue());
-      
-      auto po_corr = define_correlation(pb_q, &PobBradley::get_instance(),
-					&PoaBradley::get_instance());
-
-      auto bw_corr = define_correlation(pb_q, bwb_corr, bwa_corr);
-
-      auto cw_corr = define_correlation(pb_q, cwb_corr, cwa_corr);
-
-      bo_pars.insert(t_par);
-      auto bobp = tcompute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
-			   check, bo_pars, p_pb, rs_pb);
-      
-      auto uobp = tcompute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
-			  check, uo_pars, p_pb, rs_pb);
-
-      insert_in_container(bo_pars, pb_par, NPAR(bobp));
-
-      uo_pars.insert("uobp", uobp.raw(), &uobp.unit);
-
-      auto pobp = compute(&PobBradley::get_instance(), check, po_pars,
-			  rs_pb, npar("bob", bobp));
-
-      auto bwbp = compute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));
-
-      insert_in_container(po_pars, pb_par, NPAR(pobp));
-      insert_in_container(ug_pars, t_par, tpr_par);
-      insert_in_container(bw_pars, t_par, pb_par, NPAR(bwbp));
-      cg_pars.insert(tpr_par);
-      uw_pars.insert(t_par);
-      pw_pars.insert(t_par);
-      rsw_pars.insert(t_par);
-      cw_pars.insert(t_par);
-      cwa_pars.insert(t_par);
-      sgo_pars.insert(t_par);
-      sgw_pars.insert(t_par);
-
-      size_t n = insert_in_row(row, t_q, pb_q, uod_val);
+					  get<2>(first_p_point)) > pb_q; 
 
       size_t i = 0;
       for (auto p_it = p_values.get_it(); p_it.has_curr(); ) // pressure loop
@@ -1258,76 +1340,57 @@ void generate_grid_blackoil()
 	  Correlation::NamedPar p_par = p_it.get_curr();
 	  VtlQuantity p_q = par(p_par);
 
-	  bool pb_row = false; // true if this line concerns to bubble point
+	  bool pb_row = false; /* true if this line concerns to bubble point */	
 
-	  // WARNING: these predicates must be evaluated exactly in this order
-	  if (p_q <= pb_q or (not (i < 2)) or first_p_above_pb) 
+	  /* WARNING: these predicates must be evaluated exactly in
+	     this order */
+	  if (p_q <= pb_q or (not (i < 2)) or first_p_above_pb)
 	    p_it.next();
-	  else 
+	  else
 	    {
 	      pb_row = true;
 	      p_par = npar("p", ++i == 1 ? pb_q : next_pb_q);
 	      p_q = par(p_par);
 	      assert(i <= 2);
-	    }
+	    }		
 
-	  pressure = p_q.raw();
-	  CALL(Ppr, ppr, p_q, adjustedppcm);
-	  auto ppr_par = NPAR(ppr);
-	  auto rs = dcompute(rs_corr, check, p_q, rs_pars, p_par);
-	  auto rs_par = NPAR(rs);
-	  auto co = dcompute(co_corr, check, p_q, co_pars, p_par);
-	  auto co_par = NPAR(co);
-	  auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, co_par);
-	  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par);
-	  auto po = dcompute(po_corr, check, p_q, po_pars, p_par, rs_par, co_par,
-			     npar("bob", bo));
-	  VtlQuantity z;
-	  if (p_q <= pb_q)
-	    z = compute(zfactor_corr, check, ppr_par, tpr_par);
-	  auto z_par = NPAR(z);
-	  auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);
-	  CALL(Bg, bg, t_q, p_q, z);
-	  auto ug = compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
-	  CALL(Pg, pg, yg, t_q, p_q, z);
-	  auto rsw = compute(rsw_corr, check, rsw_pars, p_par);
-	  auto rsw_par = NPAR(rsw);
-	  auto cwa = compute(cwa_corr, check, cwa_pars, p_par, rsw_par);
-	  auto bw = dcompute(bw_corr, check, p_q, bw_pars, p_par, NPAR(cwa));
-	  auto bw_par = NPAR(bw);
-	  auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);
-	  auto cw = dcompute(cw_corr, check, p_q, cw_pars, p_par, z_par, 
-			     NPAR(bg), rsw_par, bw_par, NPAR(cwa));
-	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
-	  auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));
-	  auto sgo = compute(sgo_corr, check, sgo_pars, p_par);
-	  auto sgw = compute(sgw_corr, check, sgw_pars, p_par);
-
-	  size_t n = insert_in_row(row, p_q, rs, co, bo, uo, po, z, cg, bg,
-				   ug, pg, bw, uw, pw, rsw, cw, sgo, sgw);
-
-	  assert(row.size() == 21);
-
+	  Blackoil_Pressure_Calculations();
 	  print_row(row, row_units, pb_row);
 	  row.popn(n);
 	}
-
-      row.popn(n);
-      remove_from_container(rs_pars, "pb", t_par);
-      remove_from_container(co_pars, "pb", t_par);
-      remove_from_container(bo_pars, "bobp", "pb", t_par);
-      remove_from_container(uo_pars, "uobp", "pb", "uod", t_par);
-      remove_from_container(po_pars, "pb", "pobp");
-      remove_from_container(ug_pars, t_par, tpr_par);
-      remove_from_container(bw_pars, t_par, pb_par, "bwbp");
-      sgo_pars.remove(t_par);
-      sgw_pars.remove(t_par);
-      cg_pars.remove(tpr_par);
-      uw_pars.remove(t_par); 
-      pw_pars.remove(t_par);
-      cw_pars.remove(t_par);
-      rsw_pars.remove(t_par);
+      Blackoil_Pop_Temperature_Parameters();
     }
+}
+
+void generate_rows_blackoil()
+{
+  assert(not tp_values.is_empty());
+  
+  Blackoil_Init();
+  for (auto it = tp_values.get_it(); it.has_curr(); it.next())
+    {
+      auto & curr = it.get_curr();
+      cout << "****************" << endl;
+      Correlation::NamedPar t_par = curr.first;
+      Correlation::NamedPar p_par = curr.second;
+      Blackoil_Temperature_Calculations();
+
+      VtlQuantity p_q = par(p_par);
+      {
+	Blackoil_Pressure_Calculations();
+	print_row(row, row_units, false);
+	row.popn(n);
+      }
+      Blackoil_Pop_Temperature_Parameters();
+    }
+}
+
+void process_blackoil()
+{
+  if (tp_values.is_empty())
+    generate_grid_blackoil();
+  else
+    generate_rows_blackoil();
 }
 
 // This routine is invoked to validate the use of one or two separators
@@ -1681,7 +1744,7 @@ void generate_grid_gascondensate()
 }
 
 AHDispatcher<string, void (*)()>
-grid_dispatcher("blackoil", generate_grid_blackoil,
+grid_dispatcher("blackoil", process_blackoil,
 		"wetgas", generate_grid_wetgas,
 		"drygas", generate_grid_drygas,
 		"brine", generate_grid_brine,
