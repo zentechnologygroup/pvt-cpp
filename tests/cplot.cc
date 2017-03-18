@@ -585,9 +585,14 @@ namespace TCLAP
 }
 
 MultiArg<RowDesc> row = { "", "tp_pair", "add a pair of t, p values",
-			  false, "tp_pair \"t p\"", cmd };
+			  false, "tp \"t p\"", cmd };
 
-SwitchArg permute = { "", "permute", "permute tp pairs", cmd }; 
+SwitchArg permute = { "", "permute", "permute tp pairs", cmd };
+
+vector<string> sort_types = { "no_sort", "t", "p" };
+ValuesConstraint<string> allowed_sort_types = sort_types;
+ValueArg<string> sort = { "", "sort", "sorting type", false,
+			  "no_sort", &allowed_sort_types, cmd };
 
 # define T_UNIT Fahrenheit
 # define P_UNIT psia
@@ -596,7 +601,14 @@ Command_Line_Range(t, "temperature");
 Command_Line_Range(p, "pressure");
 
 // This list is only used with --tp_pair option and --no_permute is set
+
 DynList<pair<Correlation::NamedPar, Correlation::NamedPar>> tp_values;
+
+auto t_cmp = [] (const Correlation::NamedPar & p1,
+		 const Correlation::NamedPar & p2)
+{
+  const double & t1 = 
+}
 
 void set_ranges()
 {
@@ -1370,7 +1382,6 @@ void generate_rows_blackoil()
   for (auto it = tp_values.get_it(); it.has_curr(); it.next())
     {
       auto & curr = it.get_curr();
-      cout << "****************" << endl;
       Correlation::NamedPar t_par = curr.first;
       Correlation::NamedPar p_par = curr.second;
       Blackoil_Temperature_Calculations();
@@ -1383,14 +1394,6 @@ void generate_rows_blackoil()
       }
       Blackoil_Pop_Temperature_Parameters();
     }
-}
-
-void process_blackoil()
-{
-  if (tp_values.is_empty())
-    generate_grid_blackoil();
-  else
-    generate_rows_blackoil();
 }
 
 // This routine is invoked to validate the use of one or two separators
@@ -1407,348 +1410,421 @@ Command_Arg_Optional_Correlation(veqsp2, Veqsp2McCain);
 Command_Arg_Optional_Correlation(gpasp, GpaspMcCain);
 Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
 
+# define Webgas_Init()				\
+  /* Initialization of constant data */					\
+  set_api();								\
+  set_yg();								\
+  set_tsep();								\
+  set_tsep2();								\
+  set_psep();								\
+  set_h2s_concentration();						\
+  set_co2_concentration();						\
+  set_n2_concentration();						\
+  set_nacl_concentration();						\
+  set_ogr();								\
+									\
+  set_ppchc_corr();							\
+  set_tpchc_corr();							\
+  set_ppcm_mixing_corr();						\
+  set_tpcm_mixing_corr();						\
+  set_adjustedppcm_corr();						\
+  set_adjustedtpcm_corr();						\
+  set_zfactor_corr();							\
+  set_cg_corr();							\
+  set_ug_corr();							\
+  set_bwb_corr();							\
+  set_uw_corr();							\
+  set_pw_corr();							\
+  set_rsw_corr();							\
+  set_cwb_corr();							\
+  set_sgw_corr();							\
+  set_rsp1_corr();							\
+  set_gpasp_corr();							\
+  set_gpasp2_corr();							\
+  set_veqsp_corr();							\
+  set_veqsp2_corr();							\
+									\
+  check_second_separator_case();					\
+									\
+  /* Calculation of constants required for grid generation */		\
+  auto rsp1 = compute_exc(rsp1_corr, true, ogr_par);			\
+  auto gpa = compute_exc(two_separators() ? gpasp2_corr : gpasp_corr, true, \
+			 tsep_par, tsep2_par, psep_par, yg_par, api_par); \
+									\
+  auto yo = Quantity<Sg_do>(api);					\
+									\
+  auto veq = compute_exc(two_separators() ? veqsp2_corr : veqsp_corr, true, \
+			 tsep_par, tsep2_par, psep_par, yg_par, api_par); \
+									\
+  auto ywgr = compute_exc(YwgrMcCain::correlation(), true, yg_par,	\
+			  NPAR(yo),					\
+   			  NPAR(rsp1), NPAR(gpa), NPAR(veq));		\
+									\
+  auto yghc = compute_exc(YghcWichertAziz::correlation(), true,		\
+			  npar("yg", ywgr),				\
+			  NPAR(n2_concentration), NPAR(co2_concentration), \
+			  NPAR(h2s_concentration));			\
+  auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),		\
+			   NPAR(n2_concentration), NPAR(co2_concentration), \
+			   NPAR(h2s_concentration));			\
+  auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),		\
+			  NPAR(n2_concentration), NPAR(co2_concentration), \
+			  NPAR(h2s_concentration));			\
+  auto tpchc = tpchc_corr->compute(check, yghc);			\
+  auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),		\
+			  NPAR(n2_concentration), NPAR(co2_concentration), \
+			  NPAR(h2s_concentration));			\
+  auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),	\
+				  NPAR(tpcm), NPAR(co2_concentration),	\
+				  NPAR(h2s_concentration));		\
+  auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),	\
+				  NPAR(co2_concentration),		\
+				  NPAR(h2s_concentration));		\
+  /* End calculation constants required for grid generation */		\
+									\
+  /* Initialization of correlation parameter lists */			\
+  auto ug_pars = load_constant_parameters({ug_corr});			\
+  insert_in_container(ug_pars, npar("tpc", adjustedtpcm),		\
+		      npar("ppc", adjustedppcm));			\
+  auto bwb_pars = load_constant_parameters({bwb_corr});			\
+  auto uw_pars = load_constant_parameters({uw_corr});			\
+  auto pw_pars = load_constant_parameters({pw_corr});			\
+  auto rsw_pars = load_constant_parameters({rsw_corr});			\
+  auto cwb_pars = load_constant_parameters({cwb_corr});			\
+  ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));			\
+  ParList sgw_pars;							\
+									\
+  using P = pair<string, const Unit*>;					\
+  auto row_units = print_csv_header(P("t", t_unit),			\
+				    P("p", p_unit),			\
+				    P("zfactor", &Zfactor::get_instance()), \
+				    P("cg", &cg_corr->unit),		\
+				    P("bwg", &Bwg::get_instance().unit), \
+				    P("ug", &ug_corr->unit),		\
+				    P("pg", &Pg::get_instance().unit),	\
+				    P("bwb", &bwb_corr->unit),		\
+				    P("uw", &uw_corr->unit),		\
+				    P("pw", &pw_corr->unit),		\
+				    P("rsw", &rsw_corr->unit),		\
+				    P("cwb", &cwb_corr->unit),		\
+				    P("sgw", &sgw_corr->unit),		\
+				    P("exception", &Unit::null_unit));	\
+  /* Here are the values. Ensure that the insertion order is the same as */ \
+  /* for the csv header temperature loop */				\
+  FixedStack<const VtlQuantity*> row(25)
+
+# define Wetgas_Temperature_Calculations()	\
+  VtlQuantity t_q = par(t_par);			\
+  temperature = t_q.raw();			\
+  CALL(Tpr, tpr, t_q, adjustedtpcm);		\
+  auto tpr_par = NPAR(tpr);			\
+							\
+  insert_in_container(ug_pars, t_par, tpr_par);		\
+  bwb_pars.insert(t_par);				\
+  cg_pars.insert(tpr_par);				\
+  rsw_pars.insert(t_par);				\
+  uw_pars.insert(t_par);				\
+  pw_pars.insert(t_par);				\
+  cwb_pars.insert(t_par);				\
+  sgw_pars.insert(t_par);				\
+							\
+  size_t n = insert_in_row(row, t_q)
+
+# define Wetgas_Pressure_Calculations()		\
+  VtlQuantity p_q = par(p_par);			\
+						\
+  pressure = p_q.raw();				\
+  CALL(Ppr, ppr, p_q, adjustedppcm);		\
+  auto ppr_par = NPAR(ppr);			\
+									\
+  VtlQuantity z = compute(zfactor_corr, check, ppr_par, tpr_par);	\
+  auto z_par = NPAR(z);							\
+  auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);		\
+  CALL(Bwg, bwg, t_q, p_q, z, rsp1, veq);				\
+  auto ug = compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);	\
+  CALL(Pg, pg, yg, t_q, p_q, z);					\
+  auto rsw = compute(rsw_corr, check, rsw_pars, p_par);			\
+  auto rsw_par = NPAR(rsw);						\
+  auto bwb = compute(bwb_corr, check, bwb_pars, p_par);			\
+  auto bw_par = npar("bw", bwb);					\
+  auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);		\
+  auto cwb = compute(cwb_corr, check, cwb_pars, p_par, z_par,		\
+		     NPAR(bwg), rsw_par, bw_par);			\
+  CALL(PpwSpiveyMN, ppw, t_q, p_q);					\
+  auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));		\
+  auto sgw = compute(sgw_corr, check, sgw_pars, p_par);			\
+									\
+  size_t n = insert_in_row(row, p_q, z, cg, bwg, ug, pg, bwb, uw,	\
+			   pw, rsw, cwb, sgw);				\
+									\
+  assert(row.size() == 13);						\
+									\
+  print_row(row, row_units);						\
+  row.popn(n)
+
+# define Wetgas_Pop_Temperature_Parameters()	\
+  row.popn(n);						\
+  remove_from_container(ug_pars, t_par, tpr_par);	\
+  bwb_pars.remove(t_par);				\
+  sgw_pars.remove(t_par);				\
+  cg_pars.remove(tpr_par);				\
+  uw_pars.remove(t_par);				\
+  pw_pars.remove(t_par);				\
+  cwb_pars.remove(t_par);				\
+  rsw_pars.remove(t_par)
+
 void generate_grid_wetgas()
 { 
-  set_api(); // Initialization of constant data
-  set_yg();
-  set_tsep();
-  set_tsep2();
-  set_psep();
-  set_h2s_concentration();
-  set_co2_concentration();
-  set_n2_concentration();
-  set_nacl_concentration();
-  set_ogr();
-  
-  // TODO: falta inicializar estas correlaciones
+  Webgas_Init();
 
-  set_ppchc_corr();
-  set_tpchc_corr();
-  set_ppcm_mixing_corr();
-  set_tpcm_mixing_corr();
-  set_adjustedppcm_corr();
-  set_adjustedtpcm_corr();
-  set_zfactor_corr();
-  set_cg_corr();
-  set_ug_corr();
-  set_bwb_corr();
-  set_uw_corr();
-  set_pw_corr();
-  set_rsw_corr();
-  set_cwb_corr();
-  set_sgw_corr();
-  set_rsp1_corr();
-  set_gpasp_corr();
-  set_gpasp2_corr();
-  set_veqsp_corr();
-  set_veqsp2_corr();
-
-  check_second_separator_case();
-
-  // Calculation of constants required for grid generation
-  auto rsp1 = compute_exc(rsp1_corr, true, ogr_par);
-  auto gpa = compute_exc(two_separators() ? gpasp2_corr : gpasp_corr, true,
-			 tsep_par, tsep2_par, psep_par, yg_par, api_par);
-
-  auto yo = Quantity<Sg_do>(api);
-
-  auto veq = compute_exc(two_separators() ? veqsp2_corr : veqsp_corr, true,
-			 tsep_par, tsep2_par, psep_par, yg_par, api_par);
-  
-  auto ywgr = compute_exc(YwgrMcCain::correlation(), true, yg_par, NPAR(yo),
-   			  NPAR(rsp1), NPAR(gpa), NPAR(veq));
-			  
-  auto yghc = compute_exc(YghcWichertAziz::correlation(), true, npar("yg", ywgr),
-			  NPAR(n2_concentration), NPAR(co2_concentration),
-			  NPAR(h2s_concentration));
-  auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),
-			   NPAR(n2_concentration), NPAR(co2_concentration),
-			   NPAR(h2s_concentration));
-  auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),
-			  NPAR(n2_concentration), NPAR(co2_concentration),
-			  NPAR(h2s_concentration));		       
-  auto tpchc = tpchc_corr->compute(check, yghc);
-  auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),
-			  NPAR(n2_concentration), NPAR(co2_concentration),
-			  NPAR(h2s_concentration));
-  auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),
-				  NPAR(tpcm), NPAR(co2_concentration),
-				  NPAR(h2s_concentration));
-  auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),
-				  NPAR(co2_concentration),
-				  NPAR(h2s_concentration));
-  // End calculation constants required for grid generation
-
-  // Initialization of correlation parameter lists
-  auto ug_pars = load_constant_parameters({ug_corr});
-  insert_in_container(ug_pars, npar("tpc", adjustedtpcm),
-		      npar("ppc", adjustedppcm));
-  auto bwb_pars = load_constant_parameters({bwb_corr});
-  auto uw_pars = load_constant_parameters({uw_corr});
-  auto pw_pars = load_constant_parameters({pw_corr});
-  auto rsw_pars = load_constant_parameters({rsw_corr});
-  auto cwb_pars = load_constant_parameters({cwb_corr});
-  ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));
-  ParList sgw_pars;
-
-  using P = pair<string, const Unit*>;
-  auto row_units = print_csv_header(P("t", get<3>(t_values.get_first())),
-				    P("p", get<3>(p_values.get_first())),
-				    P("zfactor", &Zfactor::get_instance()),
-				    P("cg", &cg_corr->unit),
-				    P("bwg", &Bwg::get_instance().unit),
-				    P("ug", &ug_corr->unit),
-				    P("pg", &Pg::get_instance().unit),
-				    P("bwb", &bwb_corr->unit),
-				    P("uw", &uw_corr->unit),
-				    P("pw", &pw_corr->unit),
-				    P("rsw", &rsw_corr->unit),
-				    P("cwb", &cwb_corr->unit),
-				    P("sgw", &sgw_corr->unit),
-				    P("exception", &Unit::null_unit));
-
-  FixedStack<const VtlQuantity*> row(25); // Here are the
-					  // values. Ensure that the
-					  // insertion order is the
-					  // same as for the csv
-					  // header temperature loop
+  // Temperature loop
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next()) 
     {
       Correlation::NamedPar t_par = t_it.get_curr();
-      VtlQuantity t_q = par(t_par);
-      temperature = t_q.raw();
-      CALL(Tpr, tpr, t_q, adjustedtpcm);
-      auto tpr_par = NPAR(tpr);
-  
-      insert_in_container(ug_pars, t_par, tpr_par);
-      bwb_pars.insert(t_par);
-      cg_pars.insert(tpr_par);
-      rsw_pars.insert(t_par);
-      uw_pars.insert(t_par);
-      pw_pars.insert(t_par);
-      cwb_pars.insert(t_par);
-      sgw_pars.insert(t_par);      
-
-      size_t n = insert_in_row(row, t_q);
+      
+      Wetgas_Temperature_Calculations();
 
       // pressure loop
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  Correlation::NamedPar p_par = p_it.get_curr();
-	  VtlQuantity p_q = par(p_par);
-
-	  pressure = p_q.raw();
-	  CALL(Ppr, ppr, p_q, adjustedppcm);
-	  auto ppr_par = NPAR(ppr);
-
-	  VtlQuantity z = compute(zfactor_corr, check, ppr_par, tpr_par);
-	  auto z_par = NPAR(z);
-	  auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);
-	  CALL(Bwg, bwg, t_q, p_q, z, rsp1, veq);
-	  auto ug = compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
-	  CALL(Pg, pg, yg, t_q, p_q, z);
-	  auto rsw = compute(rsw_corr, check, rsw_pars, p_par);
-	  auto rsw_par = NPAR(rsw);
-	  auto bwb = compute(bwb_corr, check, bwb_pars, p_par);
-	  auto bw_par = npar("bw", bwb);
-	  auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);
-	  auto cwb = compute(cwb_corr, check, cwb_pars, p_par, z_par, 
-			     NPAR(bwg), rsw_par, bw_par);
-	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
-	  auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));
-	  auto sgw = compute(sgw_corr, check, sgw_pars, p_par);
-
-	  size_t n = insert_in_row(row, p_q, z, cg, bwg, ug, pg, bwb, uw,
-				   pw, rsw, cwb, sgw);
-
-	  assert(row.size() == 13);
-
-	  print_row(row, row_units);
-	  row.popn(n);
+	  Wetgas_Pressure_Calculations();
 	}
-
-      row.popn(n);
-      remove_from_container(ug_pars, t_par, tpr_par);
-      bwb_pars.remove(t_par);
-      sgw_pars.remove(t_par);
-      cg_pars.remove(tpr_par);
-      uw_pars.remove(t_par); 
-      pw_pars.remove(t_par);
-      cwb_pars.remove(t_par);
-      rsw_pars.remove(t_par);
+      Wetgas_Pop_Temperature_Parameters();
     }
 }
 
+void generate_rows_wetgas()
+{ 
+  Webgas_Init();
+
+  for (auto it = tp_values.get_it(); it.has_curr(); it.next())
+    {
+      auto & curr = it.get_curr();
+      Correlation::NamedPar t_par = curr.first;
+      Correlation::NamedPar p_par = curr.second;
+
+      Wetgas_Temperature_Calculations();
+      {
+	Wetgas_Pressure_Calculations();
+      }
+      Wetgas_Pop_Temperature_Parameters();
+    }
+}
+
+# define Drygas_Init()							\
+  /* Initialization of constant data */					\
+  set_api();								\
+  set_rsb();								\
+  set_yg();								\
+  set_tsep();								\
+  set_psep();								\
+  set_h2s_concentration();						\
+  set_co2_concentration();						\
+  set_n2_concentration();						\
+  set_nacl_concentration();						\
+									\
+  set_ppchc_corr();							\
+  set_tpchc_corr();							\
+  set_ppcm_mixing_corr();						\
+  set_tpcm_mixing_corr();						\
+  set_adjustedppcm_corr();						\
+  set_adjustedtpcm_corr();						\
+  set_zfactor_corr();							\
+  set_cg_corr();							\
+  set_ug_corr();							\
+  set_bwb_corr();							\
+  set_uw_corr();							\
+  set_pw_corr();							\
+  set_rsw_corr();							\
+  set_cwb_corr();							\
+  set_sgw_corr();							\
+									\
+  /* Calculation of constants for Z */					\
+  auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg), \
+			  NPAR(n2_concentration), NPAR(co2_concentration), \
+			  NPAR(h2s_concentration));			\
+  auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),		\
+			   NPAR(n2_concentration), NPAR(co2_concentration), \
+			   NPAR(h2s_concentration));			\
+  auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),		\
+			  NPAR(n2_concentration), NPAR(co2_concentration), \
+			  NPAR(h2s_concentration));			\
+  auto tpchc = tpchc_corr->compute(check, yghc);			\
+  auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),		\
+			  NPAR(n2_concentration), NPAR(co2_concentration), \
+			  NPAR(h2s_concentration));			\
+  auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),	\
+				  NPAR(tpcm), NPAR(co2_concentration),	\
+				  NPAR(h2s_concentration));		\
+  auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),	\
+				  NPAR(co2_concentration),		\
+				  NPAR(h2s_concentration));		\
+  /* End calculation constants for z */					\
+									\
+  /* Initialization of correlation parameter lists */			\
+  auto ug_pars = load_constant_parameters({ug_corr});			\
+  insert_in_container(ug_pars, npar("tpc", adjustedtpcm),		\
+		      npar("ppc", adjustedppcm));			\
+  auto bwb_pars = load_constant_parameters({bwb_corr});			\
+  auto uw_pars = load_constant_parameters({uw_corr});			\
+  auto pw_pars = load_constant_parameters({pw_corr});			\
+  auto rsw_pars = load_constant_parameters({rsw_corr});			\
+  auto cwb_pars = load_constant_parameters({cwb_corr});			\
+  ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));			\
+  ParList sgw_pars;							\
+									\
+  using P = pair<string, const Unit*>;					\
+  auto row_units = print_csv_header(P("t", t_unit),			\
+				    P("p", p_unit),			\
+				    P("zfactor", &Zfactor::get_instance()), \
+				    P("cg", &cg_corr->unit),		\
+				    P("bg", &Bg::get_instance().unit),	\
+				    P("ug", &ug_corr->unit),		\
+				    P("pg", &Pg::get_instance().unit),	\
+				    P("bwb", &bwb_corr->unit),		\
+				    P("uw", &uw_corr->unit),		\
+				    P("pw", &pw_corr->unit),		\
+				    P("rsw", &rsw_corr->unit),		\
+				    P("cwb", &cwb_corr->unit),		\
+				    P("sgw", &sgw_corr->unit),		\
+				    P("exception", &Unit::null_unit));	\
+									\
+  /* Here are the values. Ensure that the insertion order is the same as */ \
+  /* for the csv header temperature loop */				\
+  FixedStack<const VtlQuantity*> row(25)
+
+# define Drygas_Temperature_Calculations()	\
+  VtlQuantity t_q = par(t_par);			\
+  temperature = t_q.raw();			\
+  CALL(Tpr, tpr, t_q, adjustedtpcm);		\
+  auto tpr_par = NPAR(tpr);			\
+							\
+  insert_in_container(ug_pars, t_par, tpr_par);		\
+  bwb_pars.insert(t_par);				\
+  cg_pars.insert(tpr_par);				\
+  rsw_pars.insert(t_par);				\
+  uw_pars.insert(t_par);				\
+  pw_pars.insert(t_par);				\
+  cwb_pars.insert(t_par);				\
+  sgw_pars.insert(t_par);				\
+							\
+  size_t n = insert_in_row(row, t_q)
+
+# define Drygas_Pressure_Calculations()		\
+  VtlQuantity p_q = par(p_par);			\
+						\
+  pressure = p_q.raw();				\
+  CALL(Ppr, ppr, p_q, adjustedppcm);		\
+  auto ppr_par = NPAR(ppr);			\
+								\
+  VtlQuantity z = compute(zfactor_corr, check, ppr_par, tpr_par);	\
+  auto z_par = NPAR(z);							\
+  auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);		\
+  CALL(Bg, bg, t_q, p_q, z);						\
+  auto ug = compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);	\
+  CALL(Pg, pg, yg, t_q, p_q, z);					\
+  auto rsw = compute(rsw_corr, check, rsw_pars, p_par);			\
+  auto rsw_par = NPAR(rsw);						\
+  auto bwb = compute(bwb_corr, check, bwb_pars, p_par);			\
+  auto bw_par = npar("bw", bwb);					\
+  auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);		\
+  auto cwb = compute(cwb_corr, check, cwb_pars, p_par, z_par,		\
+		     NPAR(bg), rsw_par, bw_par);			\
+  CALL(PpwSpiveyMN, ppw, t_q, p_q);					\
+  auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));		\
+  auto sgw = compute(sgw_corr, check, sgw_pars, p_par);			\
+									\
+  size_t n = insert_in_row(row, p_q, z, cg, bg, ug, pg, bwb, uw,	\
+			   pw, rsw, cwb, sgw);				\
+									\
+  assert(row.size() == 13);						\
+									\
+  print_row(row, row_units);						\
+  row.popn(n)
+
+# define Drygas_Pop_Temperature_Parameters()	\
+  row.popn(n);						\
+  remove_from_container(ug_pars, t_par, tpr_par);	\
+  bwb_pars.remove(t_par);				\
+  sgw_pars.remove(t_par);				\
+  cg_pars.remove(tpr_par);				\
+  uw_pars.remove(t_par);				\
+  pw_pars.remove(t_par);				\
+  cwb_pars.remove(t_par);				\
+  rsw_pars.remove(t_par)
+
 void generate_grid_drygas()
 {
-  set_api(); // Initialization of constant data
-  set_rsb();
-  set_yg();
-  set_tsep();
-  set_psep();
-  set_h2s_concentration();
-  set_co2_concentration();
-  set_n2_concentration();
-  set_nacl_concentration();
-  
-  set_ppchc_corr();
-  set_tpchc_corr();
-  set_ppcm_mixing_corr();
-  set_tpcm_mixing_corr();
-  set_adjustedppcm_corr();
-  set_adjustedtpcm_corr();
-  set_zfactor_corr();
-  set_cg_corr();
-  set_ug_corr();
-  set_bwb_corr();
-  set_uw_corr();
-  set_pw_corr();
-  set_rsw_corr();
-  set_cwb_corr();
-  set_sgw_corr();
-
-  // Calculation of constants for Z
-  auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),
-			  NPAR(n2_concentration), NPAR(co2_concentration),
-			  NPAR(h2s_concentration));
-  auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),
-			   NPAR(n2_concentration), NPAR(co2_concentration),
-			   NPAR(h2s_concentration));
-  auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),
-			  NPAR(n2_concentration), NPAR(co2_concentration),
-			  NPAR(h2s_concentration));		       
-  auto tpchc = tpchc_corr->compute(check, yghc);
-  auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),
-			  NPAR(n2_concentration), NPAR(co2_concentration),
-			  NPAR(h2s_concentration));
-  auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),
-				  NPAR(tpcm), NPAR(co2_concentration),
-				  NPAR(h2s_concentration));
-  auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),
-				  NPAR(co2_concentration),
-				  NPAR(h2s_concentration));
-  // End calculation constants for z
-
-  // Initialization of correlation parameter lists
-  auto ug_pars = load_constant_parameters({ug_corr});
-  insert_in_container(ug_pars, npar("tpc", adjustedtpcm),
-		      npar("ppc", adjustedppcm));
-  auto bwb_pars = load_constant_parameters({bwb_corr});
-  auto uw_pars = load_constant_parameters({uw_corr});
-  auto pw_pars = load_constant_parameters({pw_corr});
-  auto rsw_pars = load_constant_parameters({rsw_corr});
-  auto cwb_pars = load_constant_parameters({cwb_corr});
-  ParList cg_pars; cg_pars.insert(npar("ppc", ppcm));
-  ParList sgw_pars;
-
-  using P = pair<string, const Unit*>;
-  auto row_units = print_csv_header(P("t", get<3>(t_values.get_first())),
-				    P("p", get<3>(p_values.get_first())),
-				    P("zfactor", &Zfactor::get_instance()),
-				    P("cg", &cg_corr->unit),
-				    P("bg", &Bg::get_instance().unit),
-				    P("ug", &ug_corr->unit),
-				    P("pg", &Pg::get_instance().unit),
-				    P("bwb", &bwb_corr->unit),
-				    P("uw", &uw_corr->unit),
-				    P("pw", &pw_corr->unit),
-				    P("rsw", &rsw_corr->unit),
-				    P("cwb", &cwb_corr->unit),
-				    P("sgw", &sgw_corr->unit),
-				    P("exception", &Unit::null_unit));
-
-  FixedStack<const VtlQuantity*> row(25); // Here are the
-					  // values. Ensure that the
-					  // insertion order is the
-					  // same as for the csv
-					  // header temperature loop
+  Drygas_Init();
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next()) 
     {
       Correlation::NamedPar t_par = t_it.get_curr();
-      VtlQuantity t_q = par(t_par);
-      temperature = t_q.raw();
-      CALL(Tpr, tpr, t_q, adjustedtpcm);
-      auto tpr_par = NPAR(tpr);
-  
-      insert_in_container(ug_pars, t_par, tpr_par);
-      bwb_pars.insert(t_par);
-      cg_pars.insert(tpr_par);
-      rsw_pars.insert(t_par);
-      uw_pars.insert(t_par);
-      pw_pars.insert(t_par);
-      cwb_pars.insert(t_par);
-      sgw_pars.insert(t_par);      
 
-      size_t n = insert_in_row(row, t_q);
+      Drygas_Temperature_Calculations();
 
           // pressure loop
       for (auto p_it = p_values.get_it(); p_it.has_curr(); p_it.next())
 	{
 	  Correlation::NamedPar p_par = p_it.get_curr();
-	  VtlQuantity p_q = par(p_par);
-
-	  pressure = p_q.raw();
-	  CALL(Ppr, ppr, p_q, adjustedppcm);
-	  auto ppr_par = NPAR(ppr);
-
-	  VtlQuantity z = compute(zfactor_corr, check, ppr_par, tpr_par);
-	  auto z_par = NPAR(z);
-	  auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);
-	  CALL(Bg, bg, t_q, p_q, z);
-	  auto ug = compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
-	  CALL(Pg, pg, yg, t_q, p_q, z);
-	  auto rsw = compute(rsw_corr, check, rsw_pars, p_par);
-	  auto rsw_par = NPAR(rsw);
-	  auto bwb = compute(bwb_corr, check, bwb_pars, p_par);
-	  auto bw_par = npar("bw", bwb);
-	  auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);
-	  auto cwb = compute(cwb_corr, check, cwb_pars, p_par, z_par, 
-			      NPAR(bg), rsw_par, bw_par);
-	  CALL(PpwSpiveyMN, ppw, t_q, p_q);
-	  auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));
-	  auto sgw = compute(sgw_corr, check, sgw_pars, p_par);
-
-	  size_t n = insert_in_row(row, p_q, z, cg, bg, ug, pg, bwb, uw,
-				   pw, rsw, cwb, sgw);
-
-	  assert(row.size() == 13);
-
-	  print_row(row, row_units);
-	  row.popn(n);
+	  Drygas_Pressure_Calculations();
 	}
 
-      row.popn(n);
-      remove_from_container(ug_pars, t_par, tpr_par);
-      bwb_pars.remove(t_par);
-      sgw_pars.remove(t_par);
-      cg_pars.remove(tpr_par);
-      uw_pars.remove(t_par); 
-      pw_pars.remove(t_par);
-      cwb_pars.remove(t_par);
-      rsw_pars.remove(t_par);
+      Drygas_Pop_Temperature_Parameters();
     }
 }
 
-void generate_grid_brine()
+void generate_rows_drygas()
 {
-  cout << "grid brine option not yet implemented" << endl;
-  abort();
-  exit(0);
+  Drygas_Init();
+
+    for (auto it = tp_values.get_it(); it.has_curr(); it.next())
+    {
+      auto & curr = it.get_curr();
+      Correlation::NamedPar t_par = curr.first;
+      Correlation::NamedPar p_par = curr.second;
+
+      Drygas_Temperature_Calculations();
+
+      {
+	Drygas_Pressure_Calculations();
+      }
+
+      Drygas_Pop_Temperature_Parameters();
+    }
 }
 
-void generate_grid_gascondensate()
+void process_brine()
 {
-  cout << "grid gascondensed option not yet implemented" << endl;
+  cout << "brine options not yet implemented" << endl;
   abort();
-  exit(0);
 }
+
+void process_gascondensate()
+{
+  cout << "gascondensed options not yet implemented" << endl;
+  abort();
+}
+
+# define Define_Process_Fluid_Fct(name)		\
+  void process_##name()				\
+  {						\
+    if (tp_values.is_empty())			\
+      generate_grid_##name();			\
+    else					\
+      generate_rows_##name();			\
+  }
+
+Define_Process_Fluid_Fct(blackoil);
+Define_Process_Fluid_Fct(wetgas);
+Define_Process_Fluid_Fct(drygas);
 
 AHDispatcher<string, void (*)()>
 grid_dispatcher("blackoil", process_blackoil,
-		"wetgas", generate_grid_wetgas,
-		"drygas", generate_grid_drygas,
-		"brine", generate_grid_brine,
-		"gascondensate", generate_grid_gascondensate);
+		"wetgas", process_wetgas,
+		"drygas", process_drygas,
+		"brine", process_brine,
+		"gascondensate", process_gascondensate);
 
 void generate_grid(const string & fluid_type)
 {
@@ -1767,7 +1843,6 @@ void generate_grid(const string & fluid_type)
     }
 
   exit(0);
-
 }
 
 using OptionPtr = DynList<DynList<double>> (*)();
@@ -1788,7 +1863,3 @@ int main(int argc, char *argv[])
        << " have been set" << endl;
   abort();
 }
-
-
-
-
