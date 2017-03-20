@@ -23,7 +23,7 @@ DEPLIBS	= $(TOP)/lib/libpvtp.a
 
 LOCAL_LIBRARIES = $(TOP)/lib/libpvtp.a
 
-TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot.cc
+TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot.cc cplot.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
@@ -38,7 +38,7 @@ NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LI
 AllTarget(test-calibrate)
 NormalProgramTarget(test-calibrate,test-calibrate.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
-AllTarget(plot)
-NormalProgramTarget(plot,plot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+AllTarget(cplot)
+NormalProgramTarget(cplot,cplot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()
