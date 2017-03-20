@@ -602,8 +602,7 @@ Command_Line_Range(p, "pressure");
 
 using TPPair = pair<Correlation::NamedPar, Correlation::NamedPar>;
 
-// This list is only used with --tp_pair option and --no_permute is set
-
+// This list is only used with --tp_pair option and --permute is not set
 DynList<TPPair> tp_values;
 
 void sort_by_t()
