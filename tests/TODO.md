@@ -24,3 +24,15 @@
 ## 8. verificar cambio de unidades con combinación de  --unit y --row 
 - Created at   2017-03-17 16:27:44 -0400
 
+## 9. calibrar co
+- Created at   2017-03-20 15:17:41 -0400
+
+## 10. calibrar zfactor
+- Created at   2017-03-20 16:15:08 -0400
+
+## 11. separar unidades en lib aparte
+- Created at   2017-03-20 16:15:42 -0400
+
+## 12. terminar gen-json
+- Created at   2017-03-20 16:18:12 -0400
+

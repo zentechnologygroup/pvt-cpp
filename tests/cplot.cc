@@ -791,7 +791,6 @@ bool insert_in_pars_list(ParList & pars_list,
      var then assigns it the result of correlation call
      corr_name::get_instance().impl(args...);
  */
-
 template <typename ... Args> inline
 VtlQuantity tcompute(const Correlation * corr_ptr,
 		     double c, double m, bool check,

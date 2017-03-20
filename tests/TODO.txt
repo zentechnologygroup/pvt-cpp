@@ -6,3 +6,7 @@ verificar que Invalid_Value y VtlQuantity() se estén procesando en cplot,2017-0
 definir política de unidades, pues se comparte pvt con bep y más,2017-03-15 09:58:31 -0400,
 cplot debe prepararse para recibir pares t-p e lugar de rangos,2017-03-17 15:50:33 -0400,,
 verificar cambio de unidades con combinación de  --unit y --row ,2017-03-17 16:27:44 -0400,,
+calibrar co,2017-03-20 15:17:41 -0400,,
+calibrar zfactor,2017-03-20 16:15:08 -0400,,
+separar unidades en lib aparte,2017-03-20 16:15:42 -0400,,
+terminar gen-json,2017-03-20 16:18:12 -0400,,
