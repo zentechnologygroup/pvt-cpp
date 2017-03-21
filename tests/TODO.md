@@ -36,3 +36,9 @@
 ## 12. terminar gen-json
 - Created at   2017-03-20 16:18:12 -0400
 
+## 13. calibrate puede recibir matrices incompletas; que trabaje con vectores y no con matrices
+- Created at   2017-03-21 08:34:50 -0400
+
+## 14. considerar hash perfecto para unidades
+- Created at   2017-03-21 09:19:26 -0400
+
