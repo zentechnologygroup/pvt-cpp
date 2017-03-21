@@ -204,3 +204,6 @@ opcion en calibrate que genere grid y plot,2017-03-02 08:39:44 -0400,,,2017-03-1
 programa que genere el json para calibrate,2017-03-02 15:13:38 -0400,,,2017-03-14 17:44:07 -0400
 correlacion sgo no s está valdando bien,2017-03-13 16:51:59 -0400,2017-03-14 18:03:26 -0400,,2017-03-14 18:03:33 -0400
 set_check() y report_exceptions = catch_exceptions.getValue() pueden ir en main,2017-03-14 21:01:33 -0400,2017-03-15 09:17:49 -0400,,2017-03-15 09:17:51 -0400
+en cplot considerar que cob, coa y uod no estén calibradas,2017-03-16 16:11:05 -0400,,2017-03-17 15:51:28 -0400
+familia de set_par() para args debe validar si hubo o no entrada (para cplot),2017-03-15 16:25:32 -0400,2017-03-16 11:55:51 -0400,,2017-03-17 15:51:40 -0400
+cplot: veqsp_corr y gpa_corr están casadas al uso de uno o dos separadores (tsep),2017-03-15 17:12:49 -0400,2017-03-17 15:51:35 -0400,,2017-03-17 15:51:50 -0400

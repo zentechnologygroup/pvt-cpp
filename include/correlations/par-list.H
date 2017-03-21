@@ -5,7 +5,7 @@
 
 # include <tpl_odhash.H>
 
-# include <units/pvt-units.H>
+# include <pvt-units.H>
 
 using namespace std;
 
@@ -39,7 +39,7 @@ class ParList
 public:
   HashParTbl tbl;
 
-  static const size_t tbl_size = 40;
+  static const size_t tbl_size = 100;
 
 public:
 
@@ -76,9 +76,8 @@ public:
     return VtlQuantity(*vpair.second, vpair.first);
   }
 
-  /// Busca un parámetro de entre los posibles nombres en
-  /// `names`. `names` es una lista que contiene el nombre del
-  /// parámetro y sus sinónimos 
+  // Find a parameter from the possible names in `names`. `names` is a
+  // list that contains the names of the parameters and their synonyms
   VtlQuantity search(const DynList<pair<string, const Unit*>> & names) const
   {
     ParPair pp;
@@ -86,7 +85,7 @@ public:
       {
 	const auto & p = it.get_curr();
 	const string & name = p.first;
-	pp.first = name; // sin copia hacia second
+	pp.first = name; // no copy of second
 	auto ptr = tbl.search(pp);
 	if (ptr)
 	  {

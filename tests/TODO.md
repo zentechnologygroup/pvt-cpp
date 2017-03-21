@@ -18,14 +18,27 @@
 - Created at    pues se comparte pvt con bep y más
 - Completed at 2017-03-15 09:58:31 -0400
 
-## 7. familia de set_par() para args debe validar si hubo o no entrada (para cplot)
-- Created at   2017-03-15 16:25:32 -0400
-- Completed at 2017-03-16 11:55:51 -0400
+## 7. cplot debe prepararse para recibir pares t-p e lugar de rangos
+- Created at   2017-03-17 15:50:33 -0400
 
-## 8. cplot: veqsp_corr y gpa_corr están casadas al uso de uno o dos separadores (tsep)
-- Created at   2017-03-15 17:12:49 -0400
+## 8. verificar cambio de unidades con combinación de  --unit y --row 
+- Created at   2017-03-17 16:27:44 -0400
 
-## 9. en cplot considerar que cob
-- Created at    coa y uod no estén calibradas
-- Completed at 2017-03-16 16:11:05 -0400
+## 9. calibrar co
+- Created at   2017-03-20 15:17:41 -0400
+
+## 10. calibrar zfactor
+- Created at   2017-03-20 16:15:08 -0400
+
+## 11. separar unidades en lib aparte
+- Created at   2017-03-20 16:15:42 -0400
+
+## 12. terminar gen-json
+- Created at   2017-03-20 16:18:12 -0400
+
+## 13. calibrate puede recibir matrices incompletas; que trabaje con vectores y no con matrices
+- Created at   2017-03-21 08:34:50 -0400
+
+## 14. considerar hash perfecto para unidades
+- Created at   2017-03-21 09:19:26 -0400
 

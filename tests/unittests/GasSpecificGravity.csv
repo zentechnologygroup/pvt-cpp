@@ -1,7 +1,0 @@
-seed,value,convert from,convert to,result,tolerance,note,"ref ""petroleumOfficeUnitConverter:2017""","ref ""engineeringtoolbox:2017"""
-1485977877,2.817764,Sgg,rhog_kg_m3_atStandCond,3.4517609,1.00E-06,The conversion is made using density of air at 1 atm and 15 Cdeg,,1
-1485977877,2.817764,Sgg,rhog_lb_ft3_atStandCond,0.215486394,1.00E-05,The conversion is made using density of air at 14.6959 psia and 59 Fdeg,,1
-1485977877,1.565331,rhog_kg_m3_atStandCond,Sgg,1.277821224,1.00E-06,The conversion is made using density of air at 1 atm and 15 Cdeg,,1
-1485977877,1.565331,rhog_kg_m3_atStandCond,rhog_lb_ft3_atStandCond,0.09772042196,1.00E-05,Conversion equivalent to kg_m3 to lb_ft3,1,
-1485977877,0.220574,rhog_lb_ft3_atStandCond,Sgg,2.884291042,1.00E-05,The conversion is made using density of air at 14.6959 psia and 59 Fdeg,,1
-1485977877,0.220574,rhog_lb_ft3_atStandCond,rhog_kg_m3_atStandCond,3.53325654,1.00E-05,Conversion equivalent to lb_ft3 to kg_m3 ,1,

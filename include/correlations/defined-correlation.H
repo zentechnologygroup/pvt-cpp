@@ -86,7 +86,7 @@ class DefinedCorrelation
 
   struct Cmp
   {
-    bool operator () (const Interval & i1, const Interval & i2) const
+    bool operator () (const Interval & i1, const Interval & i2) const noexcept
     {
       return i1.end < i2.start;
     }
