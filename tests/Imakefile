@@ -22,7 +22,7 @@ LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
 
 TESTSRCS = test-all-units-1.cc test-conversion.cc test-corr.cc test-seq.cc \
 	test-biblio.cc test-json.cc test-tuning.cc test-analyse.cc \
-	test-empirical-json.cc test-fluid-analysis.cc test-hash.cc\
+	test-empirical-json.cc test-fluid-analysis.cc \
 	test-def-corr.cc test-calibrate.cc test-par.cc plot.cc cplot.cc \
 	test-exception.cc vector-conversion.cc 
 
@@ -38,9 +38,6 @@ NormalProgramTarget(vector-conversion,vector-conversion.o,$(DEPLIBS),$(LOCAL_LIB
 
 AllTarget(test-exception)
 NormalProgramTarget(test-exception,test-exception.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
-
-AllTarget(test-hash)
-NormalProgramTarget(test-hash,test-hash.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(test-corr)
 NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
