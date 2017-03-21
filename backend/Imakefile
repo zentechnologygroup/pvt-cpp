@@ -1,9 +1,8 @@
 DEPEND = sh ./depend.sh
 
-INCLUDES = -I$(TOP)/include -I$(ALEPHW) 
+INCLUDES = -I$(TOP)/include -I$(ZEN)/include -I$(ALEPHW) 
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
 	-Wno-parentheses
-
 
 OPTFLAGS = -Ofast -DNDEBUG
 FLAGS = -std=c++14 $(WARN) $(OPTFLAGS)
@@ -11,7 +10,7 @@ FLAGS = -std=c++14 $(WARN) $(OPTFLAGS)
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
-SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
+SYS_LIBRARIES = -L$(ZEN)/lib -lzen -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
 
 DEPLIBS	= $(TOP)/lib/libpvt-op.a
 

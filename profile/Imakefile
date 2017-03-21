@@ -1,11 +1,6 @@
 DEPEND = sh ./depend.sh
 
-
-CXXPATH=$(shell echo $$CLANGPATH)
-
-#CXX = $(CXXPATH)/bin/clang++  
-
-INCLUDES = -I$(TOP)/include -I$(ALEPHW) 
+INCLUDES = -I$(TOP)/include -I$(ZEN)/include -I$(ALEPHW) 
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
 	-Wno-parentheses
 
@@ -17,7 +12,7 @@ LDFLAGS=-pg
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
-SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc -pg
+SYS_LIBRARIES = -L$(ZEN)/lib -lzen -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc -pg
 
 DEPLIBS	= $(TOP)/lib/libpvtp.a
 

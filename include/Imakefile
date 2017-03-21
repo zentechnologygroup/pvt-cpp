@@ -1,7 +1,7 @@
 # define IHaveSubdirs
 # define PassCDebugFlags
 
-SUBDIRS =  units correlations
+SUBDIRS = correlations
 
 MakeSubdirs($(SUBDIRS))
 DependSubdirs($(SUBDIRS))

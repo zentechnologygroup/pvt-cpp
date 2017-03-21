@@ -31,6 +31,11 @@
 # include "undersaturated-water-isothermal-compressibility.H"
 # include "solution-gas-water-relation.H"
 # include "spivey-dry.H"
+# include "wet-gas-volume-factor.H"
+# include "wet-gas-specific-gravity.H"
+# include "equivalent-volume.H"
+# include "additional-gas-produced.H"
+# include "producing-gas-oil-ratio.H"
 
 # include "bubble-point-pressure-impl.H"
 # include "solution-gas-oil-relation-impl.H"
