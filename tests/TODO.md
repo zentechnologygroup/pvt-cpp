@@ -14,31 +14,15 @@
 ## 5. verificar que Invalid_Value y VtlQuantity() se estén procesando en cplot
 - Created at   2017-03-14 20:51:35 -0400
 
-## 6. definir política de unidades
-- Created at    pues se comparte pvt con bep y más
-- Completed at 2017-03-15 09:58:31 -0400
-
-## 7. cplot debe prepararse para recibir pares t-p e lugar de rangos
-- Created at   2017-03-17 15:50:33 -0400
-
-## 8. verificar cambio de unidades con combinación de  --unit y --row 
-- Created at   2017-03-17 16:27:44 -0400
-
-## 9. calibrar co
+## 6. calibrar co
 - Created at   2017-03-20 15:17:41 -0400
 
-## 10. calibrar zfactor
+## 7. calibrar zfactor
 - Created at   2017-03-20 16:15:08 -0400
 
-## 11. separar unidades en lib aparte
-- Created at   2017-03-20 16:15:42 -0400
-
-## 12. terminar gen-json
+## 8. terminar gen-json
 - Created at   2017-03-20 16:18:12 -0400
 
-## 13. calibrate puede recibir matrices incompletas; que trabaje con vectores y no con matrices
+## 9. calibrate puede recibir matrices incompletas; que trabaje con vectores y no con matrices
 - Created at   2017-03-21 08:34:50 -0400
-
-## 14. considerar hash perfecto para unidades
-- Created at   2017-03-21 09:19:26 -0400
 

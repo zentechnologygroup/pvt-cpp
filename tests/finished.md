@@ -1252,3 +1252,33 @@
 - Comment      
 - Finished     
 
+## 210. considerar hash perfecto para unidades
+- Created at   2017-03-21 09:19:26 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 211. separar unidades en lib aparte
+- Created at   2017-03-20 16:15:42 -0400
+- Completed at 2017-03-22 08:01:47 -0400
+- Comment      
+- Finished     
+
+## 212. verificar cambio de unidades con combinación de  --unit y --row 
+- Created at   2017-03-17 16:27:44 -0400
+- Completed at 2017-03-22 08:02:06 -0400
+- Comment      
+- Finished     
+
+## 213. cplot debe prepararse para recibir pares t-p e lugar de rangos
+- Created at   2017-03-17 15:50:33 -0400
+- Completed at 2017-03-22 08:02:23 -0400
+- Comment      
+- Finished     
+
+## 214. definir política de unidades
+- Created at    pues se comparte pvt con bep y más
+- Completed at 2017-03-15 09:58:31 -0400
+- Comment      
+- Finished     
+
