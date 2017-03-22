@@ -78,6 +78,8 @@ struct CorrelationInstantiater
 {
   CorrelationInstantiater()
   {
+    UnitsInstancer instance_units;
+
         // Oil Bubble point
     PbAlMarhoun::get_instance();
     PbAlShammasi::get_instance();
@@ -271,8 +273,7 @@ struct CorrelationInstantiater
     BwbMcCoy::get_instance();
     BwaSpiveyMN::get_instance();
     BwaMcCain::get_instance();
-
-    // Al no ejecutarse esta instanci ==> la correlació no se incluye en tabla
+    // Al no ejecutarse esta instancia ==> la correlación no se incluye en tabla
     BwSpiveyMNDry::get_instance();
 
     Bwg::get_instance();
@@ -282,7 +283,6 @@ struct CorrelationInstantiater
     GpaspMcCain::get_instance();
     Gpasp2McCain::get_instance();
     Rsp1::get_instance();
-
   }
 };
 

@@ -38,6 +38,12 @@ struct EmpiricalData
 
   DynMapTree<string, pair<double*, const Unit*>> const_table;
 
+  struct DataSet
+  {
+    const string xname = "no-name";
+    const string yname = "no-name";
+  };
+
   struct VarSet
   {
     string name = "NO-NAME";
@@ -523,7 +529,8 @@ struct EmpiricalData
 	else
 	  a.first.for_each([&] (auto v)
             {
-	      ret.append(VtlQuantity(*ret_unit, VtlQuantity(*a.second, v)).raw());
+	      ret.append(VtlQuantity(*ret_unit,
+				     VtlQuantity(*a.second, v)).raw());
 	    });
       });
     return make_pair(ret, ret_unit);
@@ -562,7 +569,8 @@ struct EmpiricalData
 	else
 	  a.first.for_each([&] (auto v)
             {
-	      ret.append(VtlQuantity(*ret_unit, VtlQuantity(*a.second, v)).raw());
+	      ret.append(VtlQuantity(*ret_unit,
+				     VtlQuantity(*a.second, v)).raw());
 	    });
       });
     return make_pair(ret, ret_unit);
