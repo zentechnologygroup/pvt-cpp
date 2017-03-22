@@ -78,7 +78,7 @@ struct CorrelationInstantiater
 {
   CorrelationInstantiater()
   {
-    UnitsInstancer instance_units;
+    UnitsInstancer::init();
 
         // Oil Bubble point
     PbAlMarhoun::get_instance();
