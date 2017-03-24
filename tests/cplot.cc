@@ -1303,7 +1303,7 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 									\
   size_t n = insert_in_row(row, t_q, pb_q, uod_val);
 
-# define Blackoil_Pressure_Calculations()	\
+# define Blackoil_Pressure_Calculations()				\
   pressure = p_q.raw();							\
   CALL(Ppr, ppr, p_q, adjustedppcm);					\
   auto ppr_par = NPAR(ppr);						\
@@ -1341,7 +1341,7 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 									\
   assert(row.size() == 21);
 
-# define Blackoil_Pop_Temperature_Parameters()\
+# define Blackoil_Pop_Temperature_Parameters()			\
   row.popn(n);							\
   remove_from_container(rs_pars, "pb", t_par);			\
   remove_from_container(co_pars, "pb", t_par);			\

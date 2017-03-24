@@ -303,7 +303,7 @@ private:
     return const_cast<CorrelationPar*>(par_ptr);
   }
 
-  public:
+public:
 
   static DynList<pair<string, string>> latex_symbols()
   {

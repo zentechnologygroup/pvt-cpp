@@ -38,6 +38,19 @@ struct VectorDesc
   {
     return yname < rhs.yname;
   }
+
+  size_t get_yindex(double yval) const noexcept
+  {
+    return y.find_index([yval] (auto v) { return v == yval; });
+  }
+
+  double gety(double xval) const
+  {
+    size_t i = x.find_index([xval] (auto x) { return x == xval; });
+    if (i >= x.size())
+      ZENTHROW(ValueNotFound, ::to_string(xval) + " not found in vector");
+    return y(i);
+  }
 };
 
 struct ConstDesc
@@ -83,9 +96,9 @@ struct PvtData
     names.append(name);
   }
 
-  void add_vector(const string xname, const string yname,
-	     const Unit & xunit, const Unit & yunit,
-	     const Array<double> & x, const Array<double> & y)
+  void
+  add_vector(const string xname, const Unit & xunit, const Array<double> & x,
+	     const string yname, const Unit & yunit, const Array<double> & y)
   {
     vectors.emplace(xname, yname, &xunit, &yunit, x, y);
     names.append(yname);
@@ -108,14 +121,39 @@ struct PvtData
     return corr_ptr->get_preconditions().all([this] (auto & par)
       {
 	return par.names().exists([this] (auto & p)
-				  {
-				    return names.has(p.first);
-				  });
+          {
+	    return names.has(p.first);
+	  });
       });
   }
 
-  // Return true if corr_ptr can be applied; that is, if the values in
-  // this data set matches with correlation development ranges
+  DynList<const Correlation*>
+  matches_with_pars(const string & target_name) const
+  {
+    return Correlation::array().filter([this, &target_name] (auto corr_ptr)
+      {
+	return corr_ptr->target_name() == target_name and
+	  this->matches_with_pars(corr_ptr);
+      });
+  }
+
+  enum class Type { NotFound, Constant, Vector };
+
+  //                   name  , true if it is a constant
+  using ParType = pair<string, Type>;
+
+  DynList<ParType> parameters_types(const Correlation * corr_ptr) const
+  {
+    for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
+	 it.next())
+      {
+	auto & par = it.get_curr();
+      }
+  }
+
+  // Return true if corr_ptr can be applied; that is, if all values
+  // required by the correlation re available and these match with
+  // correlation development ranges
   bool can_be_applied(const Correlation * corr_ptr) const
   {
     for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
@@ -129,19 +167,24 @@ struct PvtData
 	if (ptr == nullptr)
 	  return false; // this parameter is not in the data set
 
-	const string & name_in_data = ptr->first; // can be a name or an alias
+	const string & name_in_data = ptr->first;
 	const ConstDesc * const_ptr = search_const(name_in_data);
-	if (const_ptr)
+	if (const_ptr) // is name_in_data as constant?
 	  {
-	    if (name_in_data == "t" or name_in_data == "p")
-	      continue;
-	    if (not par.check(VtlQuantity(*const_ptr->unit_ptr,
-					  const_ptr->value)))
+	    if (name_in_data != "t" and
+		(not par.check(VtlQuantity(*const_ptr->unit_ptr,
+					   const_ptr->value))))
 	      return false;
 	    continue;
 	  }
 
-	//const VectorDesc * vector_ptr = 
+	const VectorDesc * vector_ptr = search_vector(name_in_data);
+	if (vector_ptr == nullptr)
+	  return false; // name_in_data not found as constant neither vector
+
+	if (not vector_ptr->y.all([&par, unit_ptr = vector_ptr->yunit] (auto v)
+             { return par.check(VtlQuantity(*unit_ptr, v)); }))
+	  return false;
        }
 
     return true;
