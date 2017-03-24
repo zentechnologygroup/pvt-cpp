@@ -29,3 +29,13 @@
 ## 10. correlaciones pueden agruparsepor subtipo
 - Created at   2017-03-23 12:25:40 -0400
 
+## 11. Separar la maquinaria de correlaciones de pvt; ponerla en libzen
+- Created at   2017-03-24 14:26:02 -0400
+
+## 12. Separar las referencias de pvt; ponerl en zen
+- Created at   2017-03-24 14:27:25 -0400
+
+## 13. en cplot: cálculo de BoaMcCain debería de recibir coa
+- Created at    no co
+- Completed at 2017-03-24 16:52:12 -0400
+
