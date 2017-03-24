@@ -1282,3 +1282,9 @@
 - Comment      
 - Finished     
 
+## 215. UnitsIntances debe ser un singleton para asegurar una sola llamada
+- Created at   2017-03-22 12:07:23 -0400
+- Completed at 2017-03-23 11:41:22 -0400
+- Comment      
+- Finished     
+

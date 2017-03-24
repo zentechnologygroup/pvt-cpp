@@ -26,6 +26,6 @@
 ## 9. calibrate puede recibir matrices incompletas; que trabaje con vectores y no con matrices
 - Created at   2017-03-21 08:34:50 -0400
 
-## 10. UnitsIntances debe ser un singleton para asegurar una sola llamada
-- Created at   2017-03-22 12:07:23 -0400
+## 10. correlaciones pueden agruparsepor subtipo
+- Created at   2017-03-23 12:25:40 -0400
 

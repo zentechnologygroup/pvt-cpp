@@ -1127,7 +1127,6 @@ Declare_Correlation_Type(WaterCorrelation);
   protected:								\
 									\
     using type_name::add_parameter;					\
-									\
   };									\
 									\
   inline subtype_name::~subtype_name() {}
