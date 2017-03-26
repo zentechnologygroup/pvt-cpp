@@ -246,8 +246,16 @@ struct PvtData
 	return Ptype("p", v, get<1>(pressure));
       });
 
-    DynList<DynList<Ptype>> vpars = vars.maps<DynList<Ptype>>([] (auto & t)
-      { // TODO: verificar que presiones coincidan
+    DynList<DynList<Ptype>> vpars = vars.maps<DynList<Ptype>>([&p] (auto & t)
+      { // verify that pressures coincide
+	zip_for_each([&t] (auto tt)
+          {
+	    if (not get<0>(tt) == get<1>(tt))
+	      ZENTHROW(PressureMismatch, "Pressure mismatch in property " +
+	     	       get<0>(t) + ": " + ::to_string(get<0>(tt)) + " != " +
+		       ::to_string(get<1>(tt)));
+	  }, p, get<2>(t));	  
+
 	return get<2>(t).template maps<Ptype>([&t] (auto & v)
           { return Ptype(get<0>(t), v, get<3>(t)); });
       });
