@@ -887,6 +887,23 @@ public:
 
     return compute(vals, check);
   }
+
+  template <typename ... Args>
+  VtlQuantity
+  compute_by_names(ParList & par_list, bool check, Args & ...  args) const
+  {
+    insert_in_container(par_list, args...);
+    try
+      {
+	VtlQuantity ret = compute_by_names(par_list, check);
+	remove_from_container(par_list, args...);
+	return ret;
+      }
+    catch (...)
+      {
+	remove_from_container(par_list, args...);
+      }
+  }
   
   VtlQuantity tuned_compute_and_check(const DynList<VtlQuantity> & pars,
 				      double c, double m,

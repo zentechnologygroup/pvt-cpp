@@ -5,6 +5,8 @@
 
 DEFINE_ZEN_EXCEPTION(VarNameNotFound, "variable not found in empirical set");
 
+DEFINE_ZEN_EXCEPTION(PressureMismatch, "Pressure values mismatch");
+
 DEFINE_ZEN_EXCEPTION(DuplicatedVarName, "Duplicated var name");
 
 DEFINE_ZEN_EXCEPTION(DuplicatedConstName, "Duplicated const name");

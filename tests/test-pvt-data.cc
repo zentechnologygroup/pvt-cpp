@@ -9,6 +9,8 @@
 
 using namespace TCLAP;
 
+CmdLine cmd = { "calibrate", ' ', "0" };
+
 int main(int argc, char *argv[])
 {
   PvtData pvtdata;

@@ -142,15 +142,6 @@ struct PvtData
   //                   name  , true if it is a constant
   using ParType = pair<string, Type>;
 
-  DynList<ParType> parameters_types(const Correlation * corr_ptr) const
-  {
-    for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
-	 it.next())
-      {
-	auto & par = it.get_curr();
-      }
-  }
-
   // Return true if corr_ptr can be applied; that is, if all values
   // required by the correlation re available and these match with
   // correlation development ranges
@@ -168,12 +159,14 @@ struct PvtData
 	  return false; // this parameter is not in the data set
 
 	const string & name_in_data = ptr->first;
+	if (name_in_data == "t" or name_in_data == "p")
+	  continue;
+
 	const ConstDesc * const_ptr = search_const(name_in_data);
 	if (const_ptr) // is name_in_data as constant?
 	  {
-	    if (name_in_data != "t" and
-		(not par.check(VtlQuantity(*const_ptr->unit_ptr,
-					   const_ptr->value))))
+	    if ( (not par.check(VtlQuantity(*const_ptr->unit_ptr,
+					    const_ptr->value))))
 	      return false;
 	    continue;
 	  }
@@ -188,6 +181,95 @@ struct PvtData
        }
 
     return true;
+  }
+
+  //        pressure, target_name
+  DynList<pair<double, double>> apply(const Correlation * corr_ptr) const
+  {
+    const string target_name = corr_ptr->target_name();
+    const VectorDesc * vector_ptr = search_vector(target_name);
+    if (vector_ptr == nullptr)
+      ZENTHROW(VarNameNotFound, target_name + " target name not found");
+
+    assert(vector_ptr->yname == target_name and vector_ptr->xname == "p");
+
+    ParList pars;
+    DynList<tuple<string, DynList<double>, DynList<double>, const Unit*>> vars;
+    tuple<DynList<double>, const Unit*> pressure;
+    for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
+	 it.next())
+      {
+	auto & par = it.get_curr();
+	if (par.name == "p")
+	  {
+	    if (not vectors.exists([] (auto ptr) { return ptr.xname == "p"; }))
+	      ZENTHROW(VarNameNotFound, "variable p not found");
+
+	    auto ptr = search_vector(target_name);
+	    if (ptr == nullptr)
+	      ZENTHROW(VarNameNotFound, target_name + " not found in data set");
+
+	    pressure = make_tuple(ptr->x.to_dynlist(), ptr->xunit);
+	    continue;
+	  }
+	
+	auto * ptr = par.names().find_ptr([this] (auto & p)
+					  {
+					    return names.has(p.first);
+					  });
+	if (ptr == nullptr)
+	  ZENTHROW(VarNameNotFound, "correlation parameter " + par.name +
+		   " not found in data set");
+
+	const string & name_in_data = ptr->first;
+
+	const ConstDesc * const_ptr = search_const(name_in_data);
+	if (const_ptr)
+	  {
+	    pars.insert(par.name, const_ptr->value, const_ptr->unit_ptr);
+	    continue;
+	  }
+
+	const VectorDesc * vector_ptr = search_vector(name_in_data);
+	if (vector_ptr == nullptr)
+	  ZENTHROW(VarNameNotFound, name_in_data + " not found in data set");
+	vars.append(make_tuple(name_in_data, vector_ptr->x.to_dynlist(),
+			       vector_ptr->y.to_dynlist(),
+			       vector_ptr->yunit));
+      }
+
+    using Ptype = tuple<string, double, const Unit*>;
+    DynList<double> p = get<0>(pressure);
+    DynList<Ptype> vpars;
+    vpars.append(p.maps<Ptype>([&pressure] (auto & v)
+			       {
+				 return Ptype("p", v, get<1>(pressure));
+			       }));
+    for (auto it = vars.get_it(); it.has_curr(); it.next())
+      {
+	tuple<string, DynList<double>, DynList<double>, const Unit*> & curr =
+	  it.get_curr();
+	if (not t_zip_all([&] (auto t) { return get<0>(t) == get<1>(t); },
+			  p, get<1>(curr)))
+	  ZENTHROW(PressureMismatch, "pressure values mismatch for property " +
+		   get<0>(curr));
+	vpars.append(get<2>(curr).maps<Ptype>([&curr] (auto & v)
+          {
+	    return Ptype(get<0>(curr), v, get<3>(curr));
+	  }));
+      }
+    
+    DynList<pair<double, double>> ret;
+    for (auto it = vpars.get_it(); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	const auto & p = get<0>(t);
+	const auto & v = get<1>(t);
+	//pars.insert("p", p, vector_ptr->xunit);
+	//pars.insert(targ, p, vector_ptr->xunit);
+      }
+
+    return ret;
   }
 
   // DynList<const Correlation*> target_correlations(const VectorDesc & v) const
