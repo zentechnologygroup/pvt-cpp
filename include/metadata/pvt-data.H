@@ -240,33 +240,30 @@ struct PvtData
 
     using Ptype = tuple<string, double, const Unit*>;
     DynList<double> p = get<0>(pressure);
-    DynList<Ptype> vpars;
-    vpars.append(p.maps<Ptype>([&pressure] (auto & v)
-			       {
-				 return Ptype("p", v, get<1>(pressure));
-			       }));
-    for (auto it = vars.get_it(); it.has_curr(); it.next())
+
+    DynList<Ptype> pressures = p.maps<Ptype>([&pressure] (auto v)
       {
-	tuple<string, DynList<double>, DynList<double>, const Unit*> & curr =
-	  it.get_curr();
-	if (not t_zip_all([&] (auto t) { return get<0>(t) == get<1>(t); },
-			  p, get<1>(curr)))
-	  ZENTHROW(PressureMismatch, "pressure values mismatch for property " +
-		   get<0>(curr));
-	vpars.append(get<2>(curr).maps<Ptype>([&curr] (auto & v)
-          {
-	    return Ptype(get<0>(curr), v, get<3>(curr));
-	  }));
-      }
-    
+	return Ptype("p", v, get<1>(pressure));
+      });
+
+    DynList<DynList<Ptype>> vpars = vars.maps<DynList<Ptype>>([] (auto & t)
+      { // TODO: verificar que presiones coincidan
+	return get<2>(t).template maps<Ptype>([&t] (auto & v)
+          { return Ptype(get<0>(t), v, get<3>(t)); });
+      });
+
     DynList<pair<double, double>> ret;
-    for (auto it = vpars.get_it(); it.has_curr(); it.next())
+    for (auto it = zip_it(pressures, vpars); it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
 	const auto & p = get<0>(t);
-	const auto & v = get<1>(t);
-	//pars.insert("p", p, vector_ptr->xunit);
-	//pars.insert(targ, p, vector_ptr->xunit);
+	pars.insert(p);
+	get<1>(t).for_each([&pars] (auto & v) { pars.insert(v); });
+
+	// llamar correlación
+	
+	pars.remove(p);
+	get<1>(t).for_each([&pars] (auto & v) { pars.remove(v); });
       }
 
     return ret;

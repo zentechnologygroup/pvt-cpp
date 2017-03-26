@@ -55,6 +55,11 @@ public:
     tbl.insert(p);
   }
 
+  void insert(const tuple<string, double, const Unit*> & par)
+  {
+    insert(get<0>(par), get<1>(par), get<2>(par));
+  }
+
   void insert(const NamedPar & par)
   {
     if (not get<0>(par))
@@ -123,6 +128,11 @@ public:
   void remove(const string & name)
   {
     tbl.remove(ParPair(name, ValPair(0, &Unit::null_unit)));
+  }
+
+  void remove(const tuple<string, double, const Unit*> & par)
+  {
+    remove(get<0>(par));
   }
 
   void remove(const NamedPar & par)
