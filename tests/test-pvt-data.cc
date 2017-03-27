@@ -64,7 +64,7 @@ struct ValuesArg
 					 " is not a double");
 
 	p.append(atof(pdata));
-	values.append(atof(vdata));
++	values.append(atof(vdata));
       }
 
     return *this;
