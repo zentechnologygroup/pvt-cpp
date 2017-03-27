@@ -890,7 +890,7 @@ public:
 
   template <typename ... Args>
   VtlQuantity
-  compute_by_names(ParList & par_list, bool check, Args & ...  args) const
+  compute_by_names(bool check, ParList & par_list, Args & ...  args) const
   {
     insert_in_container(par_list, args...);
     try
