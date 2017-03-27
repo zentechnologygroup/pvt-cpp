@@ -7,7 +7,9 @@
 
 # include <metadata/pvt-data.H>
 
+using namespace std;
 using namespace TCLAP;
+using namespace Aleph;
 
 CmdLine cmd = { "calibrate", ' ', "0" };
 
@@ -64,7 +66,7 @@ struct ValuesArg
 					 " is not a double");
 
 	p.append(atof(pdata));
-+	values.append(atof(vdata));
+	values.append(atof(vdata));
       }
 
     return *this;
@@ -137,6 +139,8 @@ int main(int argc, char *argv[])
   cmd.parse(argc, argv);
 
   PvtData pvtdata = build_pvt_data();
+
+  cout << pvtdata << endl;
 
   pvtdata.add_const("t", 189, Fahrenheit::get_instance());
   pvtdata.add_const("api", 26, Api::get_instance());

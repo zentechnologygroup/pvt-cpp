@@ -5,6 +5,8 @@
 
 # include <json.hpp>
 
+# include <tpl_array.H>
+
 # include <correlations/correlation-stats.H>
 # include "metadata-exceptions.H"
 
@@ -51,6 +53,29 @@ struct VectorDesc
       ZENTHROW(ValueNotFound, ::to_string(xval) + " not found in vector");
     return y(i);
   }
+
+  DynList<DynList<string>> to_dynlist() const
+  {
+    DynList<DynList<string>> ret = zip_maps<DynList<string>>([] (auto t)
+      {
+	return build_dynlist<string>(::to_string(get<0>(t)),
+				     ::to_string(get<1>(t)));
+			       
+       }, x, y);
+    ret.insert(build_dynlist<string>(xname + " " + xunit->name,
+				     yname + " " + yunit->name));
+    return ret;
+  }
+
+  string to_string() const
+  {
+    return Aleph::to_string(format_string(to_dynlist()));
+  }
+
+  friend ostream & operator << (ostream & out, const VectorDesc & d)
+  {
+    return out << d.to_string();
+  }
 };
 
 struct ConstDesc
@@ -80,6 +105,11 @@ struct ConstDesc
   {
     return out << d.to_string();
   }
+
+  DynList<string> to_dynlist() const
+  {
+    return build_dynlist<string>(name, ::to_string(value), unit_ptr->name);
+  }
 };
 
 struct PvtData
@@ -89,6 +119,34 @@ struct PvtData
   DynSetTree<VectorDesc> vectors;
 
   DynSetTree<string> names;
+
+  string to_string() const
+  {
+    DynList<DynList<string>> const_list =
+      const_values.maps<DynList<string>>
+      ([] (auto & c) { return c.to_dynlist(); });
+    const_list.insert(build_dynlist<string>("name", "value", "unit"));
+
+    ostringstream s;
+    s << "Constants:" << endl
+      << shift_lines_to_left(Aleph::to_string(format_string(const_list)), 2)
+      << endl
+      << endl
+      << "Variables:" << endl;
+    for (auto it = vectors.get_it(); it.has_curr(); it.next())
+      {
+	auto & v = it.get_curr();
+	s << shift_lines_to_left(v.to_string(), 2);
+	if (&v != &vectors.get_last())
+	  s << endl << endl;
+      }
+    return s.str();
+  }
+
+  friend ostream & operator << (ostream & out, const PvtData & d)
+  {
+    return out << d.to_string();
+  }
 
   void add_const(const string & name, double v, const Unit & unit)
   {
@@ -247,6 +305,9 @@ struct PvtData
 			       vector_ptr->y.to_dynlist(),
 			       vector_ptr->yunit));
       }
+
+    // vars.for_each([] (auto & d) { cout << d.to_string() << endl; });
+    // exit(0);
 
     using Ptype = tuple<string, double, const Unit*>;
     DynList<double> p = get<0>(pressure);

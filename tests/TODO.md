@@ -45,3 +45,7 @@
 ## 15. operator <<  to_string para pvtdata
 - Created at   2017-03-27 11:37:15 -0400
 
+## 16. considerar cambiar pares p
+- Created at   property por secuencia p luego secuenci property
+- Completed at 2017-03-27 18:07:17 -0400
+

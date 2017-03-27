@@ -1,7 +1,7 @@
--I/home/lrleon/zen/include
--I/home/lrleon/pvt/include
--I/home/lrleon/Aleph-w
 -std=c++14
 -Wall
 -Wextra
 -DDEBUG
+-I/home/lrleon/Aleph-w
+-I/home/lrleon/zen/include
+-I/home/lrleon/pvt/include
