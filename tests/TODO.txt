@@ -12,3 +12,4 @@ Separar la maquinaria de correlaciones de pvt; ponerla en libzen,2017-03-24 14:2
 Separar las referencias de pvt; ponerl en zen,2017-03-24 14:27:25 -0400,,
 en cplot: cálculo de BoaMcCain debería de recibir coa, no co,2017-03-24 16:52:12 -0400,,
 correlaciones puede agruparse por target_name,2017-03-27 08:55:43 -0400,,
+operator <<  to_string para pvtdata,2017-03-27 11:37:15 -0400,,

@@ -42,3 +42,6 @@
 ## 14. correlaciones puede agruparse por target_name
 - Created at   2017-03-27 08:55:43 -0400
 
+## 15. operator <<  to_string para pvtdata
+- Created at   2017-03-27 11:37:15 -0400
+
