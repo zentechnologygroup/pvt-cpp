@@ -100,6 +100,8 @@ struct PvtData
   add_vector(const string xname, const Unit & xunit, const Array<double> & x,
 	     const string yname, const Unit & yunit, const Array<double> & y)
   {
+    if (not is_sorted(x))
+      ZENTHROW(SamplesUnsorted, "pressure values are not sorted");
     vectors.emplace(xname, yname, &xunit, &yunit, x, y);
     names.append(yname);
   }
@@ -183,6 +185,14 @@ struct PvtData
     return true;
   }
 
+  DynList<const Correlation*> can_be_applied(const string & target_name) const
+  {
+    return Correlation::array().filter([&target_name, this] (auto ptr)
+      {
+	return ptr->target_name() == target_name and this->can_be_applied(ptr);
+      });
+  }
+
   //        pressure, target_name
   DynList<pair<double, double>> apply(const Correlation * corr_ptr) const
   {
@@ -250,7 +260,7 @@ struct PvtData
       { // verify that pressures coincide
 	zip_for_each([&t] (auto tt)
           {
-	    if (not get<0>(tt) == get<1>(tt))
+	    if (get<0>(tt) != get<1>(tt))
 	      ZENTHROW(PressureMismatch, "Pressure mismatch in property " +
 	     	       get<0>(t) + ": " + ::to_string(get<0>(tt)) + " != " +
 		       ::to_string(get<1>(tt)));

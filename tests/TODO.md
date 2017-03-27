@@ -39,3 +39,6 @@
 - Created at    no co
 - Completed at 2017-03-24 16:52:12 -0400
 
+## 14. correlaciones puede agruparse por target_name
+- Created at   2017-03-27 08:55:43 -0400
+
