@@ -176,6 +176,12 @@ public:
     return make_tuple(r2, mse, sigma, fit);
   }
 
+  DynList<double> stats_list(const Array<double> & yc) const
+  {
+    auto d = stats(yc);
+    return build_dynlist<double>(r2(d), mse(d), sigma(d), sumsq(d), c(d), m(d));
+  }
+
   // each sample contains a row of parameters plus the value
   CorrStat(const Array<double> & y) : y(y) { compute_base(); }
 

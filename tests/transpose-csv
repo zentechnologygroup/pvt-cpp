@@ -25,6 +25,6 @@ a = rows.map do |r|
   r.to_a.map { |e| e[1].to_f }
 end
 
-a.transpose.each do |e|
-  puts e.join ','
+a.transpose.zip(rows.headers).each do |e|
+  puts "#{e[1].split[0]} #{e[1].split[1]} #{e[0].join(' ')}"
 end

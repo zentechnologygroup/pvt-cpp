@@ -25,6 +25,7 @@
 
 ## 9. calibrate puede recibir matrices incompletas; que trabaje con vectores y no con matrices
 - Created at   2017-03-21 08:34:50 -0400
+- Completed at 2017-03-28 10:20:58 -0400
 
 ## 10. correlaciones pueden agruparsepor subtipo
 - Created at   2017-03-23 12:25:40 -0400
@@ -42,10 +43,6 @@
 ## 14. correlaciones puede agruparse por target_name
 - Created at   2017-03-27 08:55:43 -0400
 
-## 15. operator <<  to_string para pvtdata
-- Created at   2017-03-27 11:37:15 -0400
-
-## 16. considerar cambiar pares p
-- Created at   property por secuencia p luego secuenci property
-- Completed at 2017-03-27 18:07:17 -0400
+## 15. verificar que unidades de salida en can_be_applied sean consistentes
+- Created at   2017-03-28 10:20:41 -0400
 

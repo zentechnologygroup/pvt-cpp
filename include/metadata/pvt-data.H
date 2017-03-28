@@ -306,9 +306,6 @@ struct PvtData
 			       vector_ptr->yunit));
       }
 
-    // vars.for_each([] (auto & d) { cout << d.to_string() << endl; });
-    // exit(0);
-
     using Ptype = tuple<string, double, const Unit*>;
     DynList<double> p = get<0>(pressure);
 
@@ -339,8 +336,9 @@ struct PvtData
 	pars.insert(p);
 	get<1>(t).for_each([&pars] (auto & v) { pars.insert(v); });
 
-	// llamar correlación
-	
+	// TODO: verificar consistencia de unidad de resultado
+	ret.append(make_pair(get<1>(p), corr_ptr->compute_by_names(pars).raw()));
+
 	pars.remove(p);
 	get<1>(t).for_each([&pars] (auto & v) { pars.remove(v); });
       }

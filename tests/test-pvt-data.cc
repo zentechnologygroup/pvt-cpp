@@ -13,8 +13,11 @@ using namespace Aleph;
 
 CmdLine cmd = { "calibrate", ' ', "0" };
 
-ValueArg<string> match = { "m", "match", "get matching correlations", false, "",
+ValueArg<string> match = { "", "match", "get matching correlations", false, "",
 			   "get matching correlations", cmd };
+
+ValueArg<string> apply = { "", "apply", "get applying correlations", false, "",
+			   "get applying correlations", cmd };
 
 struct ValuesArg
 {
@@ -56,20 +59,24 @@ struct ValuesArg
       throw TCLAP::ArgParseException(unit_name + " does not exist as unit");
 
     DynList<double> vals;
-    
-    string pdata, vdata;
-    for (size_t i = 1; iss >> pdata >> vdata; ++i)
+    size_t n = 0;
+    string data;
+    for (; iss >> data; ++n)
       {
-	if (not is_double(pdata))
-	  throw TCLAP::ArgParseException(pdata + " for pressure in pair " +
-					 to_string(i) + " is not a double");
-	if (not is_double(vdata))
-	  throw TCLAP::ArgParseException(vdata + " in pair " + to_string(i) +
-					 " is not a double");
-
-	p.append(atof(pdata));
-	values.append(atof(vdata));
+	if (not is_double(data))
+	  throw TCLAP::ArgParseException(data + " is not a double");
+	vals.append(atof(data));
       }
+
+    if (n % 2 != 0)
+      throw TCLAP::ArgParseException("number of values is not even");
+
+    auto it = vals.get_it();
+    for (size_t i = 0; i < n/2; ++i, it.next())
+      p.append(it.get_curr());
+
+    for (size_t i = 0; i < n/2; ++i, it.next())
+      values.append(it.get_curr());
 
     return *this;
   }
@@ -105,6 +112,8 @@ ValueArg<double> n2 = { "", "n2", "n2", false, 0, "n2 in MolePercent", cmd };
 ValueArg<double> nacl = { "", "nacl", "nacl", false, 0, "nacl in Molality_NaCl",
 			  cmd };
 
+SwitchArg print_data = { "", "print", "print loaded data", cmd };
+
 PvtData build_pvt_data()
 {
   PvtData data;
@@ -136,51 +145,41 @@ PvtData build_pvt_data()
   return data;
 }
 
+void print(const PvtData & data)
+{
+  cout << data << endl;
+  exit(0);
+}
+
+void print_matches(const PvtData & data)
+{
+  data.matches_with_pars(match.getValue()).for_each([] (auto p)
+						    {
+						      cout << p->name << endl;
+						    });
+  exit(0);
+}
+
+void print_apply(const PvtData & data)
+{
+  auto corr_list = data.can_be_applied(apply.getValue());
+  //auto vals = corr_list
+  data.can_be_applied(apply.getValue()).for_each([] (auto p)
+						 {
+						   cout << p->name << endl;
+						 });
+  exit(0);
+}
+
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
 
   PvtData pvtdata = build_pvt_data();
 
-  cout << pvtdata << endl;
-
-  pvtdata.add_const("t", 189, Fahrenheit::get_instance());
-  pvtdata.add_const("api", 26, Api::get_instance());
-  pvtdata.add_const("pb", 3891.98, psia::get_instance());
-  pvtdata.add_const("rsb", 1110, SCF_STB::get_instance());
-  pvtdata.add_const("yg", 0.71, Sgg::get_instance());
-  pvtdata.add_const("tsep", 90, Fahrenheit::get_instance());
-  pvtdata.add_const("psep", 60, psia::get_instance());
-  pvtdata.add_vector("p", psia::get_instance(),
-		     { 1000, 2000, 3000, 3500, 3602.9, 3891.98 },
-		     "bob", RB_STB::get_instance(),
-		     { 1.32591, 1.45799, 1.61047, 1.70097, 1.70942, 1.77922 });
-  pvtdata.add_vector("p", psia::get_instance(),
-		     { 1000, 2000, 3000, 3500, 3602.9, 3891.98 },
-		     "rs", SCF_STB::get_instance(),
-		     { 287.701, 521.132, 801.125, 967.446, 982.957, 1110 });
-  // fin parte temporal
+  if (print_data.getValue())
+    print(pvtdata);
 
   if (match.isSet())
-    {
-      pvtdata.matches_with_pars(match.getValue()).for_each([] (auto p)
-        {
-	  cout << p->name << endl;
-	});
-      exit(0);
-    }
-
-  cout << "bob matches:" << endl;
-  pvtdata.matches_with_pars("bob").for_each([] (auto ptr)
-    {
-      cout << ptr->name << endl;
-    });
-  cout << endl
-       << "bob apply:" << endl;
-
-  pvtdata.can_be_applied("bob").for_each([] (auto ptr)
-    {
-      cout << ptr->name << endl;
-    });
-  cout << endl;
+    print_matches(pvtdata);
 }

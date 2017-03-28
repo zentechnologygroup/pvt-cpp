@@ -73,7 +73,6 @@ public:
   {
     ParPair pp; pp.first = name;
     auto p = tbl.search(pp);
-    //    auto p = tbl.search(ParPair(name, ValPair(0, &Unit::null_unit)));
     if (p == nullptr)
       throw domain_error("Parameter name " + name + " not found");
 
