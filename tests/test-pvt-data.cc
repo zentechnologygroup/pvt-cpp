@@ -55,6 +55,8 @@ struct ValuesArg
     if (unit_ptr == nullptr)
       throw TCLAP::ArgParseException(unit_name + " does not exist as unit");
 
+    DynList<double> vals;
+    
     string pdata, vdata;
     for (size_t i = 1; iss >> pdata >> vdata; ++i)
       {
