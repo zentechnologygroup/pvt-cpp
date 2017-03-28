@@ -133,4 +133,8 @@ time ./cplot --t "100 350 10" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --p
 
 LLamada para drygas
 
-./cplot --yg 1 --unit "yg Sgg" --nacl_concentration 5 --unit "nacl_concentration Dissolved_Salt_PPM" --h2s_concentration 0.003 --unit "h2s_concentration VolumeFraction" --n2_concentration  0.001 --unit "n2_concentration  VolumeFraction" --co2_concentration 0.002 --unit "co2_concentration VolumeFraction" --t  "80 300 10" --unit "t Fahrenheit" --p  "100 7000 40" --unit "p psia" --ppchc PpchcStanding --tpchc TpchcStanding --zfactor ZfactorDranchukPR --cg CgMattarBA --ug UgCarrKB --bwb BwbSpiveyMN --uw  UwMcCain --pw  PwSpiveyMN --rsw RswSpiveyMN --cwb CwbSpiveyMN --sgw SgwJenningsNewman --grid drygas 
+./cplot --yg 1 --unit "yg Sgg" --nacl_concentration 5 --unit "nacl_concentration Dissolved_Salt_PPM" --h2s_concentration 0.003 --unit "h2s_concentration VolumeFraction" --n2_concentration  0.001 --unit "n2_concentration  VolumeFraction" --co2_concentration 0.002 --unit "co2_concentration VolumeFraction" --t  "80 300 10" --unit "t Fahrenheit" --p  "100 7000 40" --unit "p psia" --ppchc PpchcStanding --tpchc TpchcStanding --zfactor ZfactorDranchukPR --cg CgMattarBA --ug UgCarrKB --bwb BwbSpiveyMN --uw  UwMcCain --pw  PwSpiveyMN --rsw RswSpiveyMN --cwb CwbSpiveyMN --sgw SgwJenningsNewman --grid drygas
+
+llamada para wetgas
+
+./cplot --t "80 300 100" --p "100 4022 100" --api 0.736 --unit "api Sg_do" --yg .669 --tsep 73 --psep 300 --h2s_concentration 1 --co2_concentration 3 --n2_concentration 1  --unit "p psig" --ppchc PpchcStanding --tpchc TpchcStanding --zfactor ZfactorSarem --cg CgSarem --bwb BwbSpiveyMN --nacl_concentration 7 --uw UwMaoDuan --pw PwSpiveyMN --rsw RswSpiveyMN --cwb CwbSpiveyMN --cwa CwaSpiveyMN  --sgw SgwJenningsNewman --grid wetgas --ogr 0.000016389 --unit "ogr STB_SCF"

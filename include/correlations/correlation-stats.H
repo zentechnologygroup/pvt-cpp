@@ -182,6 +182,11 @@ public:
     return build_dynlist<double>(r2(d), mse(d), sigma(d), sumsq(d), c(d), m(d));
   }
 
+  static DynList<string> stats_header()
+  {
+    return build_dynlist<string>("r2", "mse", "sigma", "sumsq", "c", "m");
+  }
+
   // each sample contains a row of parameters plus the value
   CorrStat(const Array<double> & y) : y(y) { compute_base(); }
 

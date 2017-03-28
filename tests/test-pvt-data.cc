@@ -160,14 +160,44 @@ void print_matches(const PvtData & data)
   exit(0);
 }
 
+// TODO: este trabajo puede ir en header separado
 void print_apply(const PvtData & data)
 {
   auto corr_list = data.can_be_applied(apply.getValue());
-  //auto vals = corr_list
-  data.can_be_applied(apply.getValue()).for_each([] (auto p)
-						 {
-						   cout << p->name << endl;
-						 });
+
+  cout << "can be applied for " << apply.getValue() << endl;
+  corr_list.for_each([] (auto p) { cout << "  " << p->name << endl; });
+
+  using T = //                 pressure vals,   target vals,   statistics
+    tuple<const Correlation*, DynList<double>, DynList<double>, DynList<double>>;
+
+  DynList<T> stats = corr_list.maps<T>([&data] (auto corr_ptr)
+    {
+      auto vals = data.apply(corr_ptr);
+      auto stats = CorrStat(data.get_samples(corr_ptr->target_name())).
+        stats_list(Array<double>(vals.second));
+      return make_tuple(corr_ptr, move(vals.first), move(vals.second),
+			move(stats));
+    });
+
+  DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
+    {
+      DynList<string> ret = build_dynlist<string>(get<0>(t)->name);
+      auto stats =
+        get<3>(t).template maps<string>([] (auto v) { return ::to_string(v); });
+      ret.append(stats);
+      return ret;
+    });
+
+  DynList<string> header = build_dynlist<string>("Correlation");
+  header.append(CorrStat::stats_header());
+
+  rows.insert(header);
+
+  // TODO: opción para tipo de salida
+
+  cout << Aleph::to_string(format_string(rows)) << endl;
+
   exit(0);
 }
 
@@ -177,9 +207,14 @@ int main(int argc, char *argv[])
 
   PvtData pvtdata = build_pvt_data();
 
+  // TODO: posible dispatcher para opcione de print, match y apply
+
   if (print_data.getValue())
     print(pvtdata);
 
   if (match.isSet())
     print_matches(pvtdata);
+
+  if (apply.isSet())
+    print_apply(pvtdata);
 }

@@ -45,4 +45,18 @@
 
 ## 15. verificar que unidades de salida en can_be_applied sean consistentes
 - Created at   2017-03-28 10:20:41 -0400
+- Completed at 2017-03-28 14:59:00 -0400
+
+## 16. como calibrar con varias tmperaturas?
+- Created at   2017-03-28 14:58:47 -0400
+
+## 17. pasar excepciones de tclap a zen
+- Created at   2017-03-28 15:26:32 -0400
+- Completed at 
+- Comment      Para eso hacer una excepcion TCLAP
+
+## 18. test-pvt-data debe tener opciones de salida mat
+- Created at    csv
+- Completed at  R
+- Comment      2017-03-28 17:12:14 -0400
 

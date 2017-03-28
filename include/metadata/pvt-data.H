@@ -174,6 +174,14 @@ struct PvtData
     return vectors.search(VectorDesc(name));
   }
 
+  DynList<double> get_samples(const string & target_name) const
+  {
+    auto desc_ptr = search_vector(target_name);
+    if (desc_ptr == nullptr)
+      ZENTHROW(VarNameNotFound, target_name + " not found");
+    return desc_ptr->y.to_dynlist();
+  }
+
   // Return true if corr_ptr parameters matches with the data
   // contained in this set
   bool matches_with_pars(const Correlation * corr_ptr) const
@@ -252,7 +260,7 @@ struct PvtData
   }
 
   //        pressure, target_name
-  DynList<pair<double, double>> apply(const Correlation * corr_ptr) const
+  pair<DynList<double>, DynList<double>> apply(const Correlation * corr_ptr) const
   {
     const string target_name = corr_ptr->target_name();
     const VectorDesc * vector_ptr = search_vector(target_name);
@@ -328,7 +336,8 @@ struct PvtData
           { return Ptype(get<0>(t), v, get<3>(t)); });
       });
 
-    DynList<pair<double, double>> ret;
+    const Unit * expected_unit = vector_ptr->yunit;
+    DynList<double> pret, vret;
     for (auto it = zip_it(pressures, vpars); it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
@@ -336,21 +345,17 @@ struct PvtData
 	pars.insert(p);
 	get<1>(t).for_each([&pars] (auto & v) { pars.insert(v); });
 
-	// TODO: verificar consistencia de unidad de resultado
-	ret.append(make_pair(get<1>(p), corr_ptr->compute_by_names(pars).raw()));
+	VtlQuantity result = VtlQuantity(*expected_unit,
+					 corr_ptr->compute_by_names(pars));
+	pret.append(get<1>(p));
+	vret.append(result.raw());
 
 	pars.remove(p);
 	get<1>(t).for_each([&pars] (auto & v) { pars.remove(v); });
       }
 
-    return ret;
+    return make_pair(move(pret), move(vret));
   }
-
-  // DynList<const Correlation*> target_correlations(const VectorDesc & v) const
-  // {
-  //   const string & tgt_name = v.yname;
-  //   return Correlation::
-  // }
 };
 
 # endif
