@@ -26,7 +26,12 @@ struct ValuesArg
 {
   string target_name;
   const Unit * punit_ptr = nullptr;
+  double pb;
   Array<double> p;
+
+  const Unit * tunit_ptr = nullptr;
+  double t;
+
   const Unit * unit_ptr = nullptr;
   Array<double> values;
 

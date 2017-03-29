@@ -55,3 +55,11 @@
 ## 17. evitar transpose
 - Created at   2017-03-29 09:52:48 -0400
 
+## 18. firma única de familia de correlación: que reciba union de todos los parámtros
+- Created at   2017-03-29 16:31:35 -0400
+- Completed at 
+- Comment      qu se apoye en gen-corr
+
+## 19. cuantificar errores para un rango de temperturas para bo y uo caibrados
+- Created at   2017-03-29 16:55:18 -0400
+
