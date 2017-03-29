@@ -23,40 +23,35 @@
 ## 8. terminar gen-json
 - Created at   2017-03-20 16:18:12 -0400
 
-## 9. calibrate puede recibir matrices incompletas; que trabaje con vectores y no con matrices
-- Created at   2017-03-21 08:34:50 -0400
-- Completed at 2017-03-28 10:20:58 -0400
-
-## 10. correlaciones pueden agruparsepor subtipo
+## 9. correlaciones pueden agruparsepor subtipo
 - Created at   2017-03-23 12:25:40 -0400
 
-## 11. Separar la maquinaria de correlaciones de pvt; ponerla en libzen
+## 10. Separar la maquinaria de correlaciones de pvt; ponerla en libzen
 - Created at   2017-03-24 14:26:02 -0400
 
-## 12. Separar las referencias de pvt; ponerl en zen
+## 11. Separar las referencias de pvt; ponerl en zen
 - Created at   2017-03-24 14:27:25 -0400
 
-## 13. en cplot: cálculo de BoaMcCain debería de recibir coa
+## 12. en cplot: cálculo de BoaMcCain debería de recibir coa
 - Created at    no co
 - Completed at 2017-03-24 16:52:12 -0400
 
-## 14. correlaciones puede agruparse por target_name
+## 13. correlaciones puede agruparse por target_name
 - Created at   2017-03-27 08:55:43 -0400
 
-## 15. verificar que unidades de salida en can_be_applied sean consistentes
-- Created at   2017-03-28 10:20:41 -0400
-- Completed at 2017-03-28 14:59:00 -0400
-
-## 16. como calibrar con varias tmperaturas?
+## 14. como calibrar con varias tmperaturas?
 - Created at   2017-03-28 14:58:47 -0400
 
-## 17. pasar excepciones de tclap a zen
+## 15. pasar excepciones de tclap a zen
 - Created at   2017-03-28 15:26:32 -0400
 - Completed at 
 - Comment      Para eso hacer una excepcion TCLAP
 
-## 18. test-pvt-data debe tener opciones de salida mat
+## 16. test-pvt-data debe tener opciones de salida mat
 - Created at    csv
 - Completed at  R
 - Comment      2017-03-28 17:12:14 -0400
+
+## 17. evitar transpose
+- Created at   2017-03-29 09:52:48 -0400
 

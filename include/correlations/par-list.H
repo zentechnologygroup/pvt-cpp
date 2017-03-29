@@ -41,8 +41,6 @@ public:
 
   static const size_t tbl_size = 100;
 
-public:
-
   ParList(size_t sz = tbl_size)
     : tbl(sz, first_par_hash, second_par_hash, ParEqual())
   {

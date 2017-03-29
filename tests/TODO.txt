@@ -6,13 +6,12 @@ verificar que Invalid_Value y VtlQuantity() se estén procesando en cplot,2017-0
 calibrar co,2017-03-20 15:17:41 -0400,,
 calibrar zfactor,2017-03-20 16:15:08 -0400,,
 terminar gen-json,2017-03-20 16:18:12 -0400,,
-calibrate puede recibir matrices incompletas; que trabaje con vectores y no con matrices,2017-03-21 08:34:50 -0400,2017-03-28 10:20:58 -0400,
 correlaciones pueden agruparsepor subtipo,2017-03-23 12:25:40 -0400,,
 Separar la maquinaria de correlaciones de pvt; ponerla en libzen,2017-03-24 14:26:02 -0400,,
 Separar las referencias de pvt; ponerl en zen,2017-03-24 14:27:25 -0400,,
 en cplot: cálculo de BoaMcCain debería de recibir coa, no co,2017-03-24 16:52:12 -0400,
 correlaciones puede agruparse por target_name,2017-03-27 08:55:43 -0400,,
-verificar que unidades de salida en can_be_applied sean consistentes,2017-03-28 10:20:41 -0400,2017-03-28 14:59:00 -0400,
 como calibrar con varias tmperaturas?,2017-03-28 14:58:47 -0400,,
 pasar excepciones de tclap a zen,2017-03-28 15:26:32 -0400,,Para eso hacer una excepcion TCLAP
-test-pvt-data debe tener opciones de salida mat, csv, R,2017-03-28 17:12:14 -0400,,
+test-pvt-data debe tener opciones de salida mat, csv, R,2017-03-28 17:12:14 -0400
+evitar transpose,2017-03-29 09:52:48 -0400,,

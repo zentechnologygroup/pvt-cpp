@@ -13,6 +13,9 @@ using namespace Aleph;
 
 CmdLine cmd = { "calibrate", ' ', "0" };
 
+ValueArg<string> list_corr = { "", "list", "get related correlations", false, "",
+			   "get related correlations", cmd };
+
 ValueArg<string> match = { "", "match", "get matching correlations", false, "",
 			   "get matching correlations", cmd };
 
@@ -151,6 +154,25 @@ void print(const PvtData & data)
   exit(0);
 }
 
+void print_correlations()
+{
+  Correlation::array().filter([name = list_corr.getValue()] (auto p)
+			      {
+				return p->target_name() == name;
+			      }).
+    for_each([] (auto p)
+	     {
+	       cout << p->name << ":";
+	       p->parameters_signature().for_each([] (auto & p)
+						  {
+						    cout << " " << p;
+						  });
+	       cout << endl;
+	     });
+
+  exit(0);
+}
+
 void print_matches(const PvtData & data)
 {
   data.matches_with_pars(match.getValue()).for_each([] (auto p)
@@ -174,6 +196,9 @@ void print_apply(const PvtData & data)
   DynList<T> stats = corr_list.maps<T>([&data] (auto corr_ptr)
     {
       auto vals = data.apply(corr_ptr);
+      cout << corr_ptr->name << " samples:";
+      data.get_samples(corr_ptr->target_name()).for_each([] (auto v)
+    { cout << " " << v;}); cout << endl;
       auto stats = CorrStat(data.get_samples(corr_ptr->target_name())).
         stats_list(Array<double>(vals.second));
       return make_tuple(corr_ptr, move(vals.first), move(vals.second),
@@ -211,6 +236,9 @@ int main(int argc, char *argv[])
 
   if (print_data.getValue())
     print(pvtdata);
+
+  if (list_corr.isSet())
+    print_correlations();
 
   if (match.isSet())
     print_matches(pvtdata);

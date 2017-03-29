@@ -1300,3 +1300,15 @@
 - Comment      
 - Finished     
 
+## 218. calibrate puede recibir matrices incompletas; que trabaje con vectores y no con matrices
+- Created at   2017-03-21 08:34:50 -0400
+- Completed at 2017-03-28 10:20:58 -0400
+- Comment      
+- Finished     
+
+## 219. verificar que unidades de salida en can_be_applied sean consistentes
+- Created at   2017-03-28 10:20:41 -0400
+- Completed at 2017-03-28 14:59:00 -0400
+- Comment      
+- Finished     
+

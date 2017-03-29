@@ -215,3 +215,5 @@ definir política de unidades, pues se comparte pvt con bep y más,2017-03-15 09
 UnitsIntances debe ser un singleton para asegurar una sola llamada,2017-03-22 12:07:23 -0400,2017-03-23 11:41:22 -0400,,2017-03-23 11:41:28 -0400
 operator <<  to_string para pvtdata,2017-03-27 11:37:15 -0400,2017-03-28 10:21:20 -0400,,2017-03-28 10:21:22 -0400
 considerar cambiar pares p,property por secuencia p luego secuenci property,2017-03-27 18:07:17 -0400,,2017-03-28 10:21:41 -0400
+calibrate puede recibir matrices incompletas; que trabaje con vectores y no con matrices,2017-03-21 08:34:50 -0400,2017-03-28 10:20:58 -0400,,2017-03-29 09:53:26 -0400
+verificar que unidades de salida en can_be_applied sean consistentes,2017-03-28 10:20:41 -0400,2017-03-28 14:59:00 -0400,,2017-03-29 09:54:01 -0400
