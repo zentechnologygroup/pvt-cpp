@@ -29,7 +29,9 @@ struct VectorDesc
     assert(is_sorted(p));
   }
 
-  VectorDesc(double t, const string & name = "no-name") : t(t), yname(name) {}
+  VectorDesc() {}
+
+  VectorDesc(double t, const string & name) : t(t), yname(name) {}
 
   CorrStat::Desc stats(const Array<double> & yc, const Unit * unit_ptr) const
   {
@@ -182,12 +184,12 @@ struct PvtData
     if (v.is_empty())
       ZENTHROW(VarNameNotFound, target_name + " not found");
 
-    auto & desc = v.get_first();
-    return make_pair(desc.punit, desc.yunit);
+    auto & desc_ptr = v.get_first();
+    return make_pair(desc_ptr->punit, desc_ptr->yunit);
   }
 
   void
-  add_vector(double t, const Array<double> & p, const Unit & punit, 
+  add_vector(double t, double pb, const Array<double> & p, const Unit & punit,
 	     const string yname, const Array<double> & y, const Unit & yunit)
   {
     if (&punit.physical_quantity != &Pressure::get_instance())
@@ -202,7 +204,7 @@ struct PvtData
       ZENTHROW(InvalidTargetUnit, yunit.name + " is not sibling");
 
     temperatures.insert(t);
-    vectors.emplace(t, p, &punit, yname, &yunit, y);
+    vectors.emplace(t, pb, p, &punit, yname, &yunit, y);
     names.append(yname);
   }
 
@@ -340,7 +342,8 @@ struct PvtData
 	if (not pars_list.all([&par] (auto & l)
              {
 	       auto & curr_par = l.get_last();
-	       return par.check(VtlQuantity(get<2>(curr_par), get<1>(curr_par)));
+	       return par.check(VtlQuantity(*get<2>(curr_par),
+					    get<1>(curr_par)));
 	     }))
 	  return false;
        }
@@ -395,9 +398,9 @@ struct PvtData
     DynList<double> pressures;
     DynList<double> values;
     for (auto it = samples.get_it(); it.has_curr(); it.next())
-      it.get_curr().for_each([&pars, &pressures] (auto & l)
+      it.get_curr().for_each([&] (auto & l)
         {
-	  l.for_each([&pars, &pressures] (auto & p)
+	  l.for_each([&] (auto & p)
             {
 	      if (get<0>(p) == "p")
 		pressures.append(unit_convert(*get<2>(p), get<1>(p), *punit));
@@ -410,10 +413,10 @@ struct PvtData
 	  l.for_each([&pars] (auto & v) { pars.remove(v); });
 	});
 
-    auto pp = sort(t_zip(pressures, values),
-		   [] (auto t) { return get<0>(t) < get<1>(t); });
+    auto pp = t_unzip(sort(t_zip(pressures, values), [] (auto p1, auto p2)
+      { return get<0>(p1) < get<0>(p2); }));
 
-    return make_pair(move(get<0>(pp), move(get<1>(pp)));
+    return make_tuple(move(get<0>(pp)), punit, move(get<1>(pp)), yunit);
   }
 };
 
