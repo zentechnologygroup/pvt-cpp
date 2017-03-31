@@ -24,13 +24,12 @@ ValueArg<string> apply = { "", "apply", "get applying correlations", false, "",
 
 struct ValuesArg
 {
+  double t;
+
   string target_name;
   const Unit * punit_ptr = nullptr;
   double pb;
   Array<double> p;
-
-  const Unit * tunit_ptr = nullptr;
-  double t;
 
   const Unit * unit_ptr = nullptr;
   Array<double> values;
@@ -40,6 +39,16 @@ struct ValuesArg
   ValuesArg & operator = (const string & str)
   {
     istringstream iss(str);
+
+    {
+      string data;
+      if (not (iss >> data))
+	throw TCLAP::ArgParseException("temperature value not found");
+      if (not is_double(data))
+	throw TCLAP::ArgParseException("temperature value " + data +
+				       " is not a double");
+      t = atof(data);
+    }
 
     if (not (iss >> target_name))
       throw TCLAP::ArgParseException(str + " does not contain target name");
@@ -92,7 +101,8 @@ struct ValuesArg
   friend ostream & operator << (ostream & out, const ValuesArg & a)
   {
     out << a.punit_ptr->name << " " << a.unit_ptr->name;
-    zip_for_each([&out] (auto t) { out << " " << get<0>(t) << " " << get<1>(t); },
+    zip_for_each([&out] (auto t)
+		 { out << " " << get<0>(t) << " " << get<1>(t); },
 		 a.p, a.values);
     return out;
   }
@@ -106,9 +116,6 @@ namespace TCLAP
 MultiArg<ValuesArg> target = { "", "target", "target name", false, 
 			       "property target name", cmd };
 ValueArg<double> api = { "", "api", "api", true, 0, "api", cmd };
-ValueArg<double> t = { "", "t", "temperature", true, 0,
-		       "temperature in Fahrenheit", cmd };
-ValueArg<double> pb = { "", "pb", "pb", true, 0, "pb in psia", cmd };
 ValueArg<double> rsb = { "", "rsb", "rsb", true, 0, "rsb in SCF_STB", cmd };
 ValueArg<double> yg = { "", "yg", "yg", true, 0, "yg in Sgg", cmd };
 ValueArg<double> tsep = { "", "tsep", "tsep", false, 0, "tsep in Fahrenheit",

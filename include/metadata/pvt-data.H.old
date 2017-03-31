@@ -236,46 +236,17 @@ struct PvtData
 			   const Unit*, DynList<double>, // pressure unit &values
 			   const Unit*, DynList<double>>; // target unit & values
 
-  using Ptype = tuple<string, double, const Unit*>;
+  static double temp(const FlatSample & s) { return s.t; }
+  static double pb(const FlatSample & s) { return s.pb; }
+  static const DynList<double> & pvals(const FlatSample & s)
+  { return get<3>(s); }
 
-  DynList<DynList<Ptype>> get_parameters(const string & target_name) const
-  {
-    auto samples = search_vector(target_name);
-    if (samples.is_empty())
-      ZENTHROW(VarNameNotFound, target_name + " not found");
+  static const DynList<double> & yvals(const FlatSample & s)
+  { return get<5>(s); }
 
-    auto ptr = samples.get_first();
-    DynList<size_t> sz = { ptr->p.size() };
-    const Unit * punit = ptr->punit;
-    Ptype tpar = Ptype("t", ptr->t, &Fahrenheit::get_instance());
-    Ptype pbpar = Ptype("pb", ptr->pb, punit);
-    const Unit * yunit = ptr->yunit;
-    DynList<DynList<Ptype>> ret =
-      zip_maps<DynList<Ptype>>([&] (auto t)
-        {
-	  return build_dynlist<Ptype>(tpar, pbpar,
-				      Ptype("p", get<0>(t), punit),
-				      Ptype(target_name, get<1>(t), yunit));
-	}, ptr->p, ptr->y);
+  static const Unit * punit(const FlatSample & s) { return get<2>(s); }
+  static const Unit * yunit(const FlatSample & s) { return get<4>(s); }
 
-    for (auto it = samples.get_it(); it.has_curr(); it.next())
-      {
-	ptr = it.get_curr();
-	get<1>(tpar) = ptr->t;
-	get<1>(pbpar) = ptr->pb;
-	ret.append(zip_maps<DynList<Ptype>>([&] (auto t)
-          {
-	    return build_dynlist<Ptype>(tpar, pbpar,
-					Ptype("p", get<0>(t), punit),
-					Ptype(target_name, get<1>(t), yunit));
-	  }, unit_convert(*ptr->punit, ptr->p, *punit),
-             unit_convert(*ptr->yunit, ptr->y, *yunit);
-      }
-				
-    return ret;
-  }
-
-    // TODO: posiblemente este método no se use ==> eliminarlo
   FlatSample get_flat_samples(const string & target_name) const
   {
     auto samples = search_vector(target_name);
@@ -380,6 +351,8 @@ struct PvtData
   //        pressure, target_name
   pair<DynList<double>, DynList<double>> apply(const Correlation * corr_ptr) const
   {
+    using Ptype = tuple<string, double, const Unit*>;
+
     const string target_name = corr_ptr->target_name();
 
     auto samples = get_flat_samples(target_name);

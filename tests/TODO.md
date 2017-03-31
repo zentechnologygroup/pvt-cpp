@@ -63,3 +63,12 @@
 ## 19. cuantificar errores para un rango de temperturas para bo y uo caibrados
 - Created at   2017-03-29 16:55:18 -0400
 
+## 20. en cplot los pars _concentration dejarlos sin este sufijo
+- Created at   2017-03-29 20:50:51 -0400
+
+## 21. desc para vector en test-pvt-data
+- Created at   2017-03-30 10:35:34 -0400
+
+## 22. validar que tuplas de t y pb coincidan
+- Created at   2017-03-31 12:52:30 -0400
+

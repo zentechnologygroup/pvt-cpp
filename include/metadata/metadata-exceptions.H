@@ -4,24 +4,17 @@
 # include <zen-exceptions.H>
 
 DEFINE_ZEN_EXCEPTION(VarNameNotFound, "variable not found in empirical set");
-
 DEFINE_ZEN_EXCEPTION(PressureMismatch, "Pressure values mismatch");
-
 DEFINE_ZEN_EXCEPTION(DuplicatedVarName, "Duplicated var name");
-
 DEFINE_ZEN_EXCEPTION(DuplicatedConstName, "Duplicated const name");
-
 DEFINE_ZEN_EXCEPTION(ConstNameNotFound, "constant not found in empirical set");
-
 DEFINE_ZEN_EXCEPTION(ConstOutOfRangeUnit, "constant out of unit range");
-
 DEFINE_ZEN_EXCEPTION(InvalidConst, "invalid const");
-
 DEFINE_ZEN_EXCEPTION(EmptyVarSet, "variable set is empty")
-
 DEFINE_ZEN_EXCEPTION(ColumnIndexNameMismatch,
 		     "mismatch between column name and index")
-
+DEFINE_ZEN_EXCEPTION(InvalidPressureUnit, "Invalid unit for pressure")
+DEFINE_ZEN_EXCEPTION(InvalidTargetUnit, "Invalid target unit");
 DEFINE_ZEN_EXCEPTION(SamplesUnsorted, "samples are not sorted")
 DEFINE_ZEN_EXCEPTION(SamplesSetAlreadySet, "samples set is already set");
 DEFINE_ZEN_EXCEPTION(SamplesSetEmpty, "samples set is empty");
