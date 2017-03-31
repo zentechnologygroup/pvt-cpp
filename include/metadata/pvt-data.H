@@ -176,6 +176,16 @@ struct PvtData
     return ret;
   }
 
+  pair<const Unit*, const Unit*> search_units(const string & target_name) const
+  {
+    auto v = search_vector(target_name);
+    if (v.is_empty())
+      ZENTHROW(VarNameNotFound, target_name + " not found");
+
+    auto & desc = v.get_first();
+    return make_pair(desc.punit, desc.yunit);
+  }
+
   void
   add_vector(double t, const Array<double> & p, const Unit & punit, 
 	     const string yname, const Array<double> & y, const Unit & yunit)
@@ -231,11 +241,6 @@ struct PvtData
     return ret;
   }
 
-  //                                    t,      pb,       num of pair t,pb
-  using FlatSample = tuple<DynList<pair<double, double>>, DynList<size_t>,
-			   const Unit*, DynList<double>, // pressure unit &values
-			   const Unit*, DynList<double>>; // target unit & values
-
   using Ptype = tuple<string, double, const Unit*>;
 
   DynList<DynList<Ptype>> get_parameters(const string & target_name) const
@@ -250,8 +255,7 @@ struct PvtData
     Ptype tpar = Ptype("t", ptr->t, &Fahrenheit::get_instance());
     Ptype pbpar = Ptype("pb", ptr->pb, punit);
     const Unit * yunit = ptr->yunit;
-    DynList<DynList<Ptype>> ret =
-      zip_maps<DynList<Ptype>>([&] (auto t)
+    DynList<DynList<Ptype>> ret = zip_maps<DynList<Ptype>>([&] (auto t)
         {
 	  return build_dynlist<Ptype>(tpar, pbpar,
 				      Ptype("p", get<0>(t), punit),
@@ -269,37 +273,10 @@ struct PvtData
 					Ptype("p", get<0>(t), punit),
 					Ptype(target_name, get<1>(t), yunit));
 	  }, unit_convert(*ptr->punit, ptr->p, *punit),
-             unit_convert(*ptr->yunit, ptr->y, *yunit);
+             unit_convert(*ptr->yunit, ptr->y, *yunit))); 
       }
 				
     return ret;
-  }
-
-    // TODO: posiblemente este método no se use ==> eliminarlo
-  FlatSample get_flat_samples(const string & target_name) const
-  {
-    auto samples = search_vector(target_name);
-    if (samples.is_empty())
-      ZENTHROW(VarNameNotFound, target_name + " not found");
-
-    auto ptr = samples.get_first();
-    DynList<double> t = { ptr->t };
-    DynList<size_t> sz = { ptr->p.size() };
-    const Unit * punit = ptr->punit;
-    const Unit * yunit = ptr->yunit;
-    DynList<double> p = to_dynlist(ptr->p);
-    DynList<double> y = to_dynlist(ptr->y);
-
-    for (auto it = samples.get_it(); it.has_curr(); it.next())
-      {
-	ptr = it.get_curr();
-	t.append(ptr->t);
-	sz.append(ptr->p.size());
-	p.append(to_dynlist(unit_convert(*ptr->punit, ptr->p, *punit)));
-	y.append(to_dynlist(unit_convert(*ptr->yunit, ptr->y, *yunit)));
-      }
-				
-    return FlatSample(t, sz, punit, p, yunit, y);
   }
 
   // Return true if corr_ptr parameters matches with the data
@@ -359,10 +336,12 @@ struct PvtData
 	    continue;
 	  }
 
-	auto samples = get_flat_samples(name_in_data);
-	auto & y = get<5>(samples);
-	if (not y.all([&par, unit_ptr = get<4>(samples)] (auto v)
-             { return par.check(VtlQuantity(*unit_ptr, v)); }))
+	auto pars_list = get_parameters(name_in_data);
+	if (not pars_list.all([&par] (auto & l)
+             {
+	       auto & curr_par = l.get_last();
+	       return par.check(VtlQuantity(get<2>(curr_par), get<1>(curr_par)));
+	     }))
 	  return false;
        }
 
@@ -377,31 +356,20 @@ struct PvtData
       });
   }
 
-  //        pressure, target_name
-  pair<DynList<double>, DynList<double>> apply(const Correlation * corr_ptr) const
+  // pressure values, pressure unit, target values, target unit
+  tuple<DynList<double>, const Unit*, DynList<double>, const Unit*>
+  apply(const Correlation * corr_ptr) const
   {
     const string target_name = corr_ptr->target_name();
 
-    auto samples = get_flat_samples(target_name);
-
-    const DynList<Ptype> pressures =
-      pvals(samples).maps<Ptype>([unit = punit(samples)] (auto v)
-				 {
-				   return Ptype("p", v, unit);
-				 });
-
-    //            var name, t,     pb,        pressures,     pressures unit
-    DynList<tuple<string, double, double, DynList<double>, const Unit*,
-		  DynList<double>, const Unit*>> vars; // values, values unit
-    ParList pars;
+    ParList pars; // parameter to be passed to correlation corr_ptr
+    DynList<DynList<DynList<Ptype>>> samples;
     for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
 	 it.next())
       {
 	auto & par = it.get_curr();
-	auto * ptr = par.names().find_ptr([this] (auto & p)
-					  {
-					    return names.has(p.first);
-					  });
+	auto * ptr =
+	  par.names().find_ptr([this] (auto & p) { return names.has(p.first); });
 	if (ptr == nullptr)
 	  ZENTHROW(VarNameNotFound, "correlation parameter " + par.name +
 		   " not found in data set");
@@ -415,50 +383,37 @@ struct PvtData
 	    continue;
 	  }
 
-	auto s = get_flat_samples(name_in_data);
-	vars.append(make_tuple(name_in_data, pvals(s), punit(s),
-			       yvals(s), yunit(s)));
+	auto s = get_parameters(name_in_data);
+	samples.append(s);
       }
 
-    cout << "vars:";
-    vars.for_each([] (auto &t)
-		  {
-		    cout << " " << get<0>(t) << ":";
-		    get<3>(t).for_each([] (auto v) { cout << " " << v; });
-		  });
-    cout << endl;
+    // TODO: queda por ver una manera consistente y constante de
+    // determinar las unidades para la presión y el target
+    auto units = search_units(target_name);
+    const Unit * punit = units.first;
+    const Unit * yunit = units.second;
+    DynList<double> pressures;
+    DynList<double> values;
+    for (auto it = samples.get_it(); it.has_curr(); it.next())
+      it.get_curr().for_each([&pars, &pressures] (auto & l)
+        {
+	  l.for_each([&pars, &pressures] (auto & p)
+            {
+	      if (get<0>(p) == "p")
+		pressures.append(unit_convert(*get<2>(p), get<1>(p), *punit));
+	      pars.insert(p);
+	    });
 
-    DynList<DynList<Ptype>> vpars =
-      transpose(vars.maps<DynList<Ptype>>([&pressures] (auto & t)
-      { // verify that pressures coincide
-	zip_for_each([&t] (auto tt)
-          {
-	    if (get<1>(get<0>(tt)) != get<1>(tt))
-	      ZENTHROW(PressureMismatch, "Pressure mismatch in property " +
-	     	       get<0>(t) + ": " + ::to_string(get<1>(get<0>(tt))) +
-		       " != " + ::to_string(get<1>(tt)));
-	  }, pressures, get<1>(t));	  
+	  values.append(VtlQuantity(*yunit,
+				    corr_ptr->compute_by_names(pars)).raw());
 
-	return get<3>(t).template maps<Ptype>([&t] (auto & v)
-          { return Ptype(get<0>(t), v, get<4>(t)); });
-      }));
+	  l.for_each([&pars] (auto & v) { pars.remove(v); });
+	});
 
-    const Unit * expected_unit = yunit(samples);
-    DynList<double> vret;
-    for (auto it = vpars.get_it(); it.has_curr(); it.next())
-      {
-	const auto & l = it.get_curr();
-	l.for_each([&pars] (auto & v) { pars.insert(v); });
+    auto pp = sort(t_zip(pressures, values),
+		   [] (auto t) { return get<0>(t) < get<1>(t); });
 
-	VtlQuantity result = VtlQuantity(*expected_unit,
-					 corr_ptr->compute_by_names(pars));
-	vret.append(result.raw());
-
-	l.for_each([&pars] (auto & v) { pars.remove(v); });
-      }
-
-    return make_pair(pressures.maps<double>([] (auto & t) { return get<1>(t); }),
-		     move(vret));
+    return make_pair(move(get<0>(pp), move(get<1>(pp)));
   }
 };
 
