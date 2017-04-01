@@ -1,6 +1,7 @@
 
 # include <istream>
 
+# include <ah-dispatcher.H>
 # include <ah-stl-utils.H>
 
 # include <tclap/CmdLine.h>
@@ -166,7 +167,87 @@ namespace TCLAP
   template<> struct ArgTraits<ArgUnit> { typedef StringLike ValueCategory; };
 }
 
+struct ActionType
+{
+  static const DynSetTree<string> valid_actions;
+  static const AHDispatcher<string, void (*)(ActionType*, istringstream*)>
+  dispatcher;
+  string type;
+  DynList<const Correlation*> corr_list;
+  DynList<pair<const Correlation*, const Correlation*>> pair_list;
+
+  ActionType() {}
+
+  ActionType & operator = (const string & str)
+  {
+    istringstream iss(str);
+
+    if (not (iss >> type))
+      ZENTHROW(CommandLineError, "cannot read action type");
+    if (not valid_actions.contains(type))
+      {
+	ostringstream s;
+	s << type << " is not a valid action (must be";
+	valid_actions.for_each([&s] (auto & a) { s << " " << a; });
+	s << ")";
+	ZENTHROW(CommandLineError, s.str());
+      }
+
+    dispatcher.run(type, this, &iss);
+
+    return *this;
+  }
+
+  static void list_correlations(ActionType * action, istringstream * iss)
+  {
+    string property_name;
+    if (not (*iss >> property_name))
+      ZENTHROW(CommandLineError, "cannot read property name");
+    action->corr_list = Correlation::array().filter([&property_name] (auto p)
+      {
+	return p->target_name() == property_name;
+      });
+    if (action->corr_list.is_empty())
+      ZENTHROW(CommandLineError, property_name + " not found");
+  }
+
+  static void dummy(ActionType*, istringstream*)
+  {
+    cout << "Not implemented" << endl;
+    abort();
+  };
+};
+
+namespace TCLAP
+{
+  template<> struct ArgTraits<ActionType> { typedef StringLike ValueCategory; };
+}
+
+const DynSetTree<string> ActionType::valid_actions = 
+    { "list", "match", "apply", "local_calibration", "global_calibration" };
+
+const string actions =
+ ActionType::valid_actions.take(ActionType::valid_actions.size() - 1).
+	    foldl<string>("", [] (auto & a, auto & s)
+	      {
+		return a + s + " | ";
+	      }) + ActionType::valid_actions.get_last();
+
+const AHDispatcher<string, void (*)(ActionType*, istringstream*)>
+ActionType::dispatcher 
+(
+ "list", ActionType::list_correlations,
+ "match", ActionType::dummy,
+ "apply", ActionType::dummy,
+ "local_calibration", ActionType::dummy,
+ "global_calibration", ActionType::dummy
+);
+
 CmdLine cmd = { "calibrate", ' ', "0" };
+
+/// TODO: documentar action lista 
+ValueArg<ActionType> action = { "", "action", "action", true, ActionType(),
+				actions, cmd };
 
 // Unit change specification. Suitable for any parameter
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
@@ -185,8 +266,12 @@ ValueArg<double> n2 = { "", "n2", "n2", false, 0, "n2 in MolePercent", cmd };
 ValueArg<double> nacl = { "", "nacl", "nacl", false, 0, "nacl in Molality_NaCl",
 			  cmd };
 
-MultiArg<ValuesArg> target = { "", "property", "property array", false, 
-			       "property array", cmd };
+MultiArg<ValuesArg> target =
+  { "", "property", "property array", false, 
+    "property array in format \"property property-unit t tunit pb punit p-list "
+    "property-list\"", cmd };
+
+
 
 const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 {
@@ -239,7 +324,36 @@ void build_pvt_data()
 		    a.target_name, a.values, *a.unit_ptr);
 }
 
+void dummy()
+{
+  cout << "No implemented" << endl;
+}
+
+// TODO:"que process retornen listas de lineas ==> ordenamiento es natural
+
+void process_list()
+{
+  ActionType & action = ::action.getValue();
+  
+  assert(action.type == "list");
+  // TODO: ponerlos parámetros con sus tipos
+  action.corr_list.for_each([] (auto p) { cout << p->name << endl; });
+}
+
+const AHDispatcher<string, void (*)()> dispatcher =
+  {
+    "list", process_list,
+    "match", dummy,
+    "apply", dummy,
+    "local_calibration", dummy,
+    "global_calibration", dummy
+  };
+
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
+
+  dispatcher.run(action.getValue().type);
+
+  // TODO: falta sort
 }
