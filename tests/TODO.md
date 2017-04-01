@@ -72,3 +72,6 @@
 ## 22. validar que tuplas de t y pb coincidan
 - Created at   2017-03-31 12:52:30 -0400
 
+## 23. falta eliminar repetidos de presión en apply
+- Created at   2017-03-31 21:02:01 -0400
+
