@@ -191,6 +191,8 @@ public:
   CorrStat(const Array<double> & y) : y(y) { compute_base(); }
 
   CorrStat(Array<double> && y) : y(move(y)) { compute_base(); }
+
+  CorrStat(const DynList<double> & y) : y(y) { compute_base(); }
 };
 
 		 

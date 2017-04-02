@@ -633,9 +633,9 @@ void sort_by_p()
 		});
 }
 
-AHDispatcher<string, void (*)()> sort_dispatcher("no_sort", [] () {},
-						 "t", sort_by_t,
-						 "p", sort_by_p);
+const AHDispatcher<string, void (*)()> sort_dispatcher("no_sort", [] () {},
+						       "t", sort_by_t,
+						       "p", sort_by_p);
 
 void set_ranges()
 {
