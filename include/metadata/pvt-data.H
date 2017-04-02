@@ -76,7 +76,8 @@ struct VectorDesc
   string to_string() const
   {
     ostringstream s;
-    s << "For t = " << t << Fahrenheit::get_instance().name << ":" << endl
+    s << "For t = " << t << " " << Fahrenheit::get_instance().name << " pb = "
+      << pb << " " << punit->name << " :" << endl
       << shift_lines_to_left(Aleph::to_string(format_string(to_dynlist())), 2);
     return s.str();
   }
@@ -205,6 +206,9 @@ struct PvtData
 
     temperatures.insert(t);
     vectors.emplace(t, pb, p, &punit, yname, &yunit, y);
+    names.append("p");
+    names.append("pb");
+    names.append("t");
     names.append(yname);
   }
 
@@ -241,6 +245,28 @@ struct PvtData
       }
 				
     return ret;
+  }
+
+  tuple<DynList<double>, const Unit*, DynList<double>, const Unit*>
+  get_target_samples(const string & target_name) const
+  {
+    auto samples = search_vector(target_name);
+    if (samples.is_empty())
+      ZENTHROW(VarNameNotFound, target_name + " not found in data set");
+
+    auto ptr = samples.get_first();
+    DynList<double> p = to_dynlist(ptr->p);
+    const Unit * punit = ptr->punit;
+    DynList<double> y = to_dynlist(ptr->y);
+    const Unit * yunit = ptr->yunit;
+    for (auto it = samples.get_it(); it.has_curr(); it.next())
+      {
+	ptr = it.get_curr();
+	p.append(to_dynlist(unit_convert(*ptr->punit, ptr->p, *punit)));
+	y.append(to_dynlist(unit_convert(*ptr->yunit, ptr->y, *yunit)));
+      }
+				
+    return make_tuple(p, punit, y, yunit);
   }
 
   using Ptype = tuple<string, double, const Unit*>;

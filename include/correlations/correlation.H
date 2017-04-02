@@ -644,6 +644,14 @@ public:
     return s.str();
   }
 
+  /// Return correlation signature in a dynlist
+  DynList<string> to_dynlist() const
+  {
+    DynList<string> ret = { name };
+    ret.append(preconditions.maps<string>([] (auto & p) { return p.to_string(); }));
+    return ret;
+  }
+
   static string ruby_class()
   {
     ostringstream s;

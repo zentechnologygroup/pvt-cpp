@@ -12,6 +12,8 @@ using namespace std;
 using namespace TCLAP;
 using namespace Aleph;
 
+PvtData data;
+
 // Defines a input of form
 // "property-name property-unit t tunit pb punit p-list property-list"
 struct ValuesArg
@@ -56,7 +58,7 @@ struct ValuesArg
       if (not (iss >> property_unit))
 	ZENTHROW(CommandLineError, "cannot read property unit");
       unit_ptr = Unit::search(property_unit);
-      if (punit_ptr == nullptr)
+      if (unit_ptr == nullptr)
 	ZENTHROW(CommandLineError, property_unit + " unit for " + target_name +
 		 " property not found");
     }
@@ -173,8 +175,9 @@ struct ActionType
   static const AHDispatcher<string, void (*)(ActionType*, istringstream*)>
   dispatcher;
   string type;
-  DynList<const Correlation*> corr_list;
-  DynList<pair<const Correlation*, const Correlation*>> pair_list;
+  string property_name;
+  DynList<string> corr_name_list;
+  DynList<pair<string, string>> corr_pair_list;
 
   ActionType() {}
 
@@ -198,17 +201,10 @@ struct ActionType
     return *this;
   }
 
-  static void list_correlations(ActionType * action, istringstream * iss)
+  static void read_property_name(ActionType * action, istringstream * iss)
   {
-    string property_name;
-    if (not (*iss >> property_name))
+    if (not (*iss >> action->property_name))
       ZENTHROW(CommandLineError, "cannot read property name");
-    action->corr_list = Correlation::array().filter([&property_name] (auto p)
-      {
-	return p->target_name() == property_name;
-      });
-    if (action->corr_list.is_empty())
-      ZENTHROW(CommandLineError, property_name + " not found");
   }
 
   static void dummy(ActionType*, istringstream*)
@@ -224,7 +220,8 @@ namespace TCLAP
 }
 
 const DynSetTree<string> ActionType::valid_actions = 
-    { "list", "match", "apply", "local_calibration", "global_calibration" };
+  { "print", "list", "match", "apply", "global_apply", "local_calibration",
+    "global_calibration" };
 
 const string actions =
  ActionType::valid_actions.take(ActionType::valid_actions.size() - 1).
@@ -236,9 +233,11 @@ const string actions =
 const AHDispatcher<string, void (*)(ActionType*, istringstream*)>
 ActionType::dispatcher 
 (
- "list", ActionType::list_correlations,
- "match", ActionType::dummy,
- "apply", ActionType::dummy,
+ "print", [] (ActionType*, istringstream*) {},
+ "list", ActionType::read_property_name,
+ "match", ActionType::read_property_name,
+ "apply", ActionType::read_property_name,
+ "global_apply", ActionType::dummy,
  "local_calibration", ActionType::dummy,
  "global_calibration", ActionType::dummy
 );
@@ -271,7 +270,10 @@ MultiArg<ValuesArg> target =
     "property array in format \"property property-unit t tunit pb punit p-list "
     "property-list\"", cmd };
 
-
+vector<string> output_types = { "R", "csv", "mat" };
+ValuesConstraint<string> allowed_output_types = output_types;
+ValueArg<string> grid = { "", "output", "output type", false,
+			  "mat", &allowed_output_types, cmd };
 
 const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 {
@@ -292,8 +294,6 @@ const Unit * test_unit(const string & par_name, const Unit & dft_unit)
     }
   return ret;
 }
-
-PvtData data;
 
 void build_pvt_data()
 {
@@ -329,22 +329,90 @@ void dummy()
   cout << "No implemented" << endl;
 }
 
-// TODO:"que process retornen listas de lineas ==> ordenamiento es natural
+void print_correlations(const DynList<DynList<string>> & l)
+{
+  l.for_each([] (auto & l)
+	     {
+	       cout << l.get_first() << "(";
+	       auto & last = l.get_last();
+	       for (auto it = l.get_it(1); it.has_curr(); it.next())
+		 {
+		   auto & curr = it.get_curr();
+		   cout << curr;
+		   if (&curr != &last)
+		     cout << ", ";
+		 }
+	       cout << ")" << endl;
+	     });
+}
+
+void print_data()
+{
+  cout << data << endl;
+}
 
 void process_list()
 {
-  ActionType & action = ::action.getValue();
+  print_correlations(Correlation::array().
+    filter([tgt = action.getValue().property_name] (auto p)
+	   {
+	     return p->target_name() == tgt;
+	   }).maps<DynList<string>>([] (auto p) { return p->to_dynlist(); }));
+}
+
+void process_match()
+{
+  print_correlations(data.matches_with_pars(action.getValue().property_name).
+		     maps<DynList<string>>([] (auto p)
+					   { return p->to_dynlist(); }));
+}
+
+void process_apply()
+{
+  auto corr_list = data.can_be_applied(action.getValue().property_name);
+  using T = //                 pressure vals,   target vals,   statistics
+    tuple<const Correlation*, DynList<double>, DynList<double>, DynList<double>>;
+
+  DynList<T> stats = corr_list.maps<T>([] (auto corr_ptr)
+    {
+      auto samples = data.get_target_samples(corr_ptr->target_name());
+      auto & y = get<2>(samples);
+      auto samples_unit = get<3>(samples);
+       
+      auto vals = data.apply(corr_ptr);
+      auto yc_unit = get<3>(vals);
+      auto yc = unit_convert(*yc_unit, get<2>(vals), *samples_unit);
+      
+      auto stats = CorrStat(y).stats_list(yc);
+      return make_tuple(corr_ptr, move(get<0>(vals)), move(yc), move(stats));
+    });
+
+  DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
+    {
+      DynList<string> ret = build_dynlist<string>(get<0>(t)->name);
+      auto stats =
+        get<3>(t).template maps<string>([] (auto v) { return ::to_string(v); });
+      ret.append(stats);
+      return ret;
+    });
   
-  assert(action.type == "list");
-  // TODO: ponerlos parámetros con sus tipos
-  action.corr_list.for_each([] (auto p) { cout << p->name << endl; });
+  DynList<string> header = build_dynlist<string>("Correlation");
+  header.append(CorrStat::stats_header());
+
+  rows.insert(header);
+
+  // TODO: opción para tipo de salida
+
+  cout << Aleph::to_string(format_string(rows)) << endl;
+
 }
 
 const AHDispatcher<string, void (*)()> dispatcher =
   {
+    "print", print_data,
     "list", process_list,
-    "match", dummy,
-    "apply", dummy,
+    "match", process_match,
+    "apply", process_apply,
     "local_calibration", dummy,
     "global_calibration", dummy
   };
@@ -352,7 +420,7 @@ const AHDispatcher<string, void (*)()> dispatcher =
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
-
+  build_pvt_data();
   dispatcher.run(action.getValue().type);
 
   // TODO: falta sort
