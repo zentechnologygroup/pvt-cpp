@@ -20,9 +20,9 @@ void PwSpiveyMN::precondition(const Quantity<Celsius> & t,
 inline double
 PwSpiveyMN::impl(const double & t, // comes in Celsius
 		 const double & p,
-		 const double & nacl_concentration) noexcept
+		 const double & nacl) noexcept
 {
-  const double m = nacl_concentration;
+  const double m = nacl;
 
   const double tk = unit_convert<Celsius, Kelvin>(t);
 
@@ -52,7 +52,7 @@ PwSpiveyMN::impl(const double & t, // comes in Celsius
   // Density of methane-free brine at the temperature and pressure of
   // evaluation 
   const double pgfw =
-    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl_concentration);
+    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl);
 
   // Specific volume of the gas-free brine [cm³/g]
   const double vgfw = 1.0/pgfw;
@@ -69,11 +69,11 @@ PwSpiveyMN::impl(const double & t, // comes in Celsius
 inline double
 PwSpiveyMNGasFree::impl(const double & t, // comes in Celsius
 			const double & p,
-			const double & nacl_concentration) noexcept
+			const double & nacl) noexcept
 {
   const double t_100 = t/100;
   const double t_100_2 = t_100*t_100;
-  const double m = nacl_concentration;
+  const double m = nacl;
 
   // Pure water density [g/cm³] at the reference pressure (70 Mpa) and
   // evaluation temperature 
@@ -120,10 +120,10 @@ PwSpiveyMNGasFree::impl(const double & t, // comes in Celsius
 }
 
 inline double
-PwMcCain::impl(const double & nacl_concentration,
+PwMcCain::impl(const double & nacl,
 	       const double & bw) noexcept
 { 
-  const double s = nacl_concentration;
+  const double s = nacl;
   const double s2 = s*s;
   // Water density at standard conditions
   const double pwl = 62.368 + 0.438603*s + 1.60074e-3*s2;

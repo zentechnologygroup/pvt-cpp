@@ -391,12 +391,12 @@ PbManucciRosales::impl(const double & yg,
   return  84.88 * pow(rsb/yg, 0.53) * pow(10, x);
 }
 
-void PbGlaso::precondition(const Quantity<MoleFraction> & n2_concentration,
-			   const Quantity<MoleFraction> & co2_concentration,
-			   const Quantity<MoleFraction> & h2s_concentration) const
+void PbGlaso::precondition(const Quantity<MoleFraction> & n2,
+			   const Quantity<MoleFraction> & co2,
+			   const Quantity<MoleFraction> & h2s) const
 {
-  if (n2_concentration.raw() + co2_concentration.raw() +
-      h2s_concentration.raw() >= 1)
+  if (n2.raw() + co2.raw() +
+      h2s.raw() >= 1)
     {
       ostringstream s;
       s << "In PbGlaso::impl: invalid values for nonhydrocarbon concentrations.";
@@ -409,9 +409,9 @@ PbGlaso::impl(const double & yg,
 	      const double & rsb,
 	      const double & api,
 	      const double & t,
-	      const double & n2_concentration,
-	      const double & co2_concentration,
-	      const double & h2s_concentration) noexcept
+	      const double & n2,
+	      const double & co2,
+	      const double & h2s) noexcept
 {
   const double x = pow(rsb/yg, 0.816)*pow(t, 0.172)/pow(api, 0.989);
 
@@ -421,13 +421,13 @@ PbGlaso::impl(const double & yg,
       // Effects of nonhydrocarbons on bubble point pressure
   const double n2effect = 1 + ((-2.65e-4*api + 5.5e-3)*t +
 			       (0.0931*api - 0.8295)) *
-    n2_concentration + (1.954e-11*pow(api, 4.699)*t + 0.027*api - 2.366) *
-    n2_concentration*n2_concentration;
+    n2 + (1.954e-11*pow(api, 4.699)*t + 0.027*api - 2.366) *
+    n2*n2;
 
-  const double co2effect = 1 - 693.8*co2_concentration * pow(t, -1.553);
+  const double co2effect = 1 - 693.8*co2 * pow(t, -1.553);
   
-  const double h2seffect = 1 - (0.9035 + 0.0015*api) * h2s_concentration +
-    0.019*(45 - api)*h2s_concentration*h2s_concentration;
+  const double h2seffect = 1 - (0.9035 + 0.0015*api) * h2s +
+    0.019*(45 - api)*h2s*h2s;
   
   const double pb = pbhc * n2effect * co2effect * h2seffect;
 

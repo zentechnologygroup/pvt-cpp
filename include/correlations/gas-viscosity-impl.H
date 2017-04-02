@@ -3,12 +3,12 @@
 
 # include <correlations/gas-viscosity.H>
 
-void UgCarrKB::precondition(const Quantity<MoleFraction> & n2_concentration,
-			    const Quantity<MoleFraction> & co2_concentration,
-			    const Quantity<MoleFraction> & h2s_concentration) const
+void UgCarrKB::precondition(const Quantity<MoleFraction> & n2,
+			    const Quantity<MoleFraction> & co2,
+			    const Quantity<MoleFraction> & h2s) const
 {
-  if (n2_concentration.raw() + co2_concentration.raw() +
-      h2s_concentration.raw() >= 1)
+  if (n2.raw() + co2.raw() +
+      h2s.raw() >= 1)
     {
     ostringstream s;
     s << "In UgCarrKB::impl: invalid values for nonhydrocarbon concentrations";
@@ -21,9 +21,9 @@ UgCarrKB::impl(const double & t,
 	       const double & tpr,
 	       const double & ppr,
 	       const double & yg,
-	       const double & n2_concentration,
-	       const double & co2_concentration,
-	       const double & h2s_concentration) noexcept
+	       const double & n2,
+	       const double & co2,
+	       const double & h2s) noexcept
 {
   const double & tsr = tpr;
   const double & psr = ppr;
@@ -32,9 +32,9 @@ UgCarrKB::impl(const double & t,
 
   const double ugs = (1.709e-5 - 2.062e-6*yg) * t + 8.188e-3 - 6.15e-3*log10yg;
         
-  const double cco2 = 1e-3*co2_concentration * (9.08 * log10yg + 6.24);
-  const double cn2 = 1e-3*n2_concentration * (8.48 * log10yg + 9.59);
-  const double ch2s = 1e-3*h2s_concentration * (8.49 * log10yg + 3.73);
+  const double cco2 = 1e-3*co2 * (9.08 * log10yg + 6.24);
+  const double cn2 = 1e-3*n2 * (8.48 * log10yg + 9.59);
+  const double ch2s = 1e-3*h2s * (8.49 * log10yg + 3.73);
         
   const double ugsc = ugs + cco2 + ch2s + cn2;
         

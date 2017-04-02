@@ -32,7 +32,7 @@ inline double
 MwSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & p,
 		  const double & pv,
-		  const double & nacl_concentration) noexcept
+		  const double & nacl) noexcept
 {
   const Quantity<Celsius> tc = t; 
 
@@ -51,7 +51,7 @@ MwSpiveyMN::impl(const double & t, // comes in Celsius
   const double p2 = p*p;
   const double c1 = 7.015e-2 + 1.074e-4*tk + 2.260e-1*p/tk + -1.227e-3*p2/tk;
   constexpr double c2 = -6.28e-3;
-  const double & m = nacl_concentration;
+  const double & m = nacl;
   const double m2 = m*m;
 
   const double mch4w = mch4pw * exp(-2*c1*m - c2*m2);
@@ -62,9 +62,9 @@ MwSpiveyMN::impl(const double & t, // comes in Celsius
 inline double
 CgfwSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & p,
-		  const double & nacl_concentration) noexcept
+		  const double & nacl) noexcept
 {
-  const double & m = nacl_concentration; 
+  const double & m = nacl; 
 
   // Coefficients of compressibility of pure water
   const double t_100 = t/100;
@@ -112,9 +112,9 @@ inline double
 BwSpiveyMNDry::impl(const double & t, // comes in Celsius
 		    const double & p,
 		    const double & pv,
-		    const double & nacl_concentration) noexcept
+		    const double & nacl) noexcept
 {
-  const double & m = nacl_concentration;
+  const double & m = nacl;
 
   // Transformation from °C to °K
   const double tk = unit_convert<Celsius, Kelvin>(t);
@@ -123,7 +123,7 @@ BwSpiveyMNDry::impl(const double & t, // comes in Celsius
   // Density of methane-free brine at the temperature and pressure of
   // evaluation 
   const double pgfw =
-    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl_concentration);
+    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl);
 
   // Specific volume of the gas-free brine [cm³/g]
   const double vgfw = 1.0/pgfw;
@@ -131,7 +131,7 @@ BwSpiveyMNDry::impl(const double & t, // comes in Celsius
   // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
   // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
   const double mch4w =
-    MwSpiveyMN::get_instance().impl(t, p, pv, nacl_concentration);
+    MwSpiveyMN::get_instance().impl(t, p, pv, nacl);
 
   // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE
   // TEMPERATURE AND PRESSURE OF EVALUATION
@@ -153,7 +153,7 @@ BwSpiveyMNDry::impl(const double & t, // comes in Celsius
 
   // Density of methane-free brine [g/cm³] at standard temperature and pressure
   const double pgfwstd =
-    PwSpiveyMNGasFree::get_instance().impl(Tstd.raw(), Pstd, nacl_concentration);
+    PwSpiveyMNGasFree::get_instance().impl(Tstd.raw(), Pstd, nacl);
 
   // Specific volume of methane-free brine [cm³/g]
   const double vgfwstd = 1.0/pgfwstd;

@@ -27,12 +27,12 @@ PpchcGuoGhalambor::impl(const double & yghc,
   return ppchc;
 }
 
-void PpcAhmed::precondition(const Quantity<MoleFraction> & n2_concentration,
-			    const Quantity<MoleFraction> & co2_concentration,
-			    const Quantity<MoleFraction> & h2s_concentration) const
+void PpcAhmed::precondition(const Quantity<MoleFraction> & n2,
+			    const Quantity<MoleFraction> & co2,
+			    const Quantity<MoleFraction> & h2s) const
 {
-  if (n2_concentration.raw() + co2_concentration.raw() +
-      h2s_concentration.raw() >= 1)
+  if (n2.raw() + co2.raw() +
+      h2s.raw() >= 1)
     {
     ostringstream s;
     s << "In PpcAhmed::impl: invalid values for nonhydrocarbon concentrations";
@@ -42,12 +42,12 @@ void PpcAhmed::precondition(const Quantity<MoleFraction> & n2_concentration,
 
 inline double
 PpcAhmed::impl(const double & yghc,
-	       const double & n2_concentration,
-	       const double & co2_concentration,
-	       const double & h2s_concentration) noexcept
+	       const double & n2,
+	       const double & co2,
+	       const double & h2s) noexcept
 {
-  const double ppc = 678 - 50*(yghc - 0.5) - 206.7*n2_concentration +
-    440*co2_concentration + 606.7*h2s_concentration;
+  const double ppc = 678 - 50*(yghc - 0.5) - 206.7*n2 +
+    440*co2 + 606.7*h2s;
 
   return ppc;
 }

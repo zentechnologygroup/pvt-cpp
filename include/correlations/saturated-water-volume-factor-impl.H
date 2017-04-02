@@ -20,12 +20,12 @@ void BwbSpiveyMN::precondition(const Quantity<Celsius> & t,
 inline double
 BwbSpiveyMN::impl(const double & t, // comes in Celsius
 		  const double & p,
-		  const double & nacl_concentration) noexcept
+		  const double & nacl) noexcept
 {
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
   const double tk = unit_convert<Celsius, Kelvin>(t);
   const double pv = PvSpiveyMN::get_instance().impl(tk);
-  return BwSpiveyMNDry::get_instance().impl(t, p, pv, nacl_concentration);
+  return BwSpiveyMNDry::get_instance().impl(t, p, pv, nacl);
 }
 
 inline double
@@ -48,9 +48,9 @@ BwbMcCain::impl(const double & t,
 inline double
 BwbMcCoy::impl(const double & t,
 	      const double & p,
-	      const double & nacl_concentration) noexcept
+	      const double & nacl) noexcept
 {
-  const double & s = nacl_concentration;
+  const double & s = nacl;
   const double t2 = t*t;
   const double p2 = p*p;
   

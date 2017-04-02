@@ -43,8 +43,8 @@ DynList<string> exception_list; // Exceptions messages are saved in this list
 // not correlations). This table is used for validating change of
 // units
 DynSetTree<string> par_name_tbl =
-  { "api", "rsb", "yg", "tsep", "tsep2", "t", "p", "psep", "h2s_concentration",
-    "co2_concentration", "n2_concentration", "nacl_concentration", "ogr" };
+  { "api", "rsb", "yg", "tsep", "tsep2", "t", "p", "psep", "h2s", "co2", "n2",
+    "nacl", "ogr" };
 
 // input parameter unit change specification
 //
@@ -330,10 +330,10 @@ inline bool two_separators()
 
 Command_Arg_Value(ogr, STB_MMscf, "Condensate gas ratio")
 Command_Arg_Value(psep, psia, "separator pressure");
-Command_Arg_Value(n2_concentration, MolePercent, "n2-concentration");
-Command_Arg_Value(co2_concentration, MolePercent, "co2-concentration");
-Command_Arg_Value(h2s_concentration, MolePercent, "h2s-concentration");
-Command_Arg_Value(nacl_concentration, Molality_NaCl, "nacl-concentration");
+Command_Arg_Value(n2, MolePercent, "n2");
+Command_Arg_Value(co2, MolePercent, "co2");
+Command_Arg_Value(h2s, MolePercent, "h2s");
+Command_Arg_Value(nacl, Molality_NaCl, "nacl");
 
 // Initialize a correlation specified from the command line via
 // corr_name_arg. Verify that the correlation is for the target_name
@@ -1016,10 +1016,10 @@ ParList load_constant_parameters(const DynList<const Correlation*> & l)
   test_parameter(required_pars, yg_par, pars_list);
   test_parameter(required_pars, tsep_par, pars_list);
   test_parameter(required_pars, psep_par, pars_list);
-  test_parameter(required_pars, n2_concentration_par, pars_list);
-  test_parameter(required_pars, co2_concentration_par, pars_list);
-  test_parameter(required_pars, h2s_concentration_par, pars_list);
-  test_parameter(required_pars, nacl_concentration_par, pars_list);
+  test_parameter(required_pars, n2_par, pars_list);
+  test_parameter(required_pars, co2_par, pars_list);
+  test_parameter(required_pars, h2s_par, pars_list);
+  test_parameter(required_pars, nacl_par, pars_list);
 
   return pars_list;
 }
@@ -1115,16 +1115,16 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
   return ret.second;
 }
 
-# define Blackoil_Init()			\
-  set_api(); /* Initialization of constant data */	\
-  set_rsb();						\
-  set_yg();						\
+# define Blackoil_Init()						\
+  set_api(); /* Initialization of constant data */			\
+  set_rsb();								\
+  set_yg();								\
   set_tsep();								\
   set_psep();								\
-  set_h2s_concentration();						\
-  set_co2_concentration();						\
-  set_n2_concentration();						\
-  set_nacl_concentration();						\
+  set_h2s();								\
+  set_co2();								\
+  set_n2();								\
+  set_nacl();								\
 									\
   set_pb_corr(); /* Initialization of correlations */			\
   set_rs_corr();							\
@@ -1156,24 +1156,18 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 									\
   /* Calculation of constants for Z */					\
   auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),\
-			  NPAR(n2_concentration), NPAR(co2_concentration),\
-			  NPAR(h2s_concentration));			\
+			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
   auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),		\
-			   NPAR(n2_concentration), NPAR(co2_concentration),\
-			   NPAR(h2s_concentration));			\
+			   NPAR(n2), NPAR(co2), NPAR(h2s));		\
   auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),		\
-			  NPAR(n2_concentration), NPAR(co2_concentration),\
-			  NPAR(h2s_concentration));			\
+			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
   auto tpchc = tpchc_corr->compute(check, yghc);			\
   auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),		\
-			  NPAR(n2_concentration), NPAR(co2_concentration),\
-			  NPAR(h2s_concentration));			\
+			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
   auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),	\
-				  NPAR(tpcm), NPAR(co2_concentration),	\
-				  NPAR(h2s_concentration));		\
+				  NPAR(tpcm), NPAR(co2), NPAR(h2s));	\
   auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),	\
-				  NPAR(co2_concentration),		\
-				  NPAR(h2s_concentration));		\
+				  NPAR(co2), NPAR(h2s));		\
   /* End calculation constants for z */					\
 									\
   /* Initialization of correlation parameter lists */			\
@@ -1445,10 +1439,10 @@ Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
   set_tsep();								\
   set_tsep2();								\
   set_psep();								\
-  set_h2s_concentration();						\
-  set_co2_concentration();						\
-  set_n2_concentration();						\
-  set_nacl_concentration();						\
+  set_h2s();								\
+  set_co2();								\
+  set_n2();								\
+  set_nacl();								\
   set_ogr();								\
 									\
   set_ppchc_corr();							\
@@ -1490,24 +1484,18 @@ Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
 									\
   auto yghc = compute_exc(YghcWichertAziz::correlation(), true,		\
 			  npar("yg", ywgr),				\
-			  NPAR(n2_concentration), NPAR(co2_concentration), \
-			  NPAR(h2s_concentration));			\
+			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
   auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),		\
-			   NPAR(n2_concentration), NPAR(co2_concentration), \
-			   NPAR(h2s_concentration));			\
+			   NPAR(n2), NPAR(co2), NPAR(h2s));		\
   auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),		\
-			  NPAR(n2_concentration), NPAR(co2_concentration), \
-			  NPAR(h2s_concentration));			\
+			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
   auto tpchc = tpchc_corr->compute(check, yghc);			\
   auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),		\
-			  NPAR(n2_concentration), NPAR(co2_concentration), \
-			  NPAR(h2s_concentration));			\
+			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
   auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),	\
-				  NPAR(tpcm), NPAR(co2_concentration),	\
-				  NPAR(h2s_concentration));		\
+				  NPAR(tpcm), NPAR(co2), NPAR(h2s));	\
   auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),	\
-				  NPAR(co2_concentration),		\
-				  NPAR(h2s_concentration));		\
+				  NPAR(co2), NPAR(h2s));		\
   /* End calculation constants required for grid generation */		\
 									\
   /* Initialization of correlation parameter lists */			\
@@ -1643,10 +1631,10 @@ void generate_rows_wetgas()
 # define Drygas_Init()							\
   /* Initialization of constant data */					\
   set_yg();								\
-  set_h2s_concentration();						\
-  set_co2_concentration();						\
-  set_n2_concentration();						\
-  set_nacl_concentration();						\
+  set_h2s();								\
+  set_co2();								\
+  set_n2();								\
+  set_nacl();								\
 									\
   set_ppchc_corr();							\
   set_tpchc_corr();							\
@@ -1666,24 +1654,18 @@ void generate_rows_wetgas()
 									\
   /* Calculation of constants for Z */					\
   auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg), \
-			  NPAR(n2_concentration), NPAR(co2_concentration), \
-			  NPAR(h2s_concentration));			\
+			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
   auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),		\
-			   NPAR(n2_concentration), NPAR(co2_concentration), \
-			   NPAR(h2s_concentration));			\
+			   NPAR(n2), NPAR(co2), NPAR(h2s));		\
   auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),		\
-			  NPAR(n2_concentration), NPAR(co2_concentration), \
-			  NPAR(h2s_concentration));			\
+			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
   auto tpchc = tpchc_corr->compute(check, yghc);			\
   auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),		\
-			  NPAR(n2_concentration), NPAR(co2_concentration), \
-			  NPAR(h2s_concentration));			\
+			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
   auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),	\
-				  NPAR(tpcm), NPAR(co2_concentration),	\
-				  NPAR(h2s_concentration));		\
+				  NPAR(tpcm), NPAR(co2), NPAR(h2s));	\
   auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),	\
-				  NPAR(co2_concentration),		\
-				  NPAR(h2s_concentration));		\
+				  NPAR(co2), NPAR(h2s));		\
   /* End calculation constants for z */					\
 									\
   /* Initialization of correlation parameter lists */			\

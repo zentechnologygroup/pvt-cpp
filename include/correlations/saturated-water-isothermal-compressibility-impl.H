@@ -22,7 +22,7 @@ void CwbSpiveyMN::precondition(const Quantity<Celsius> & t,
 inline double
 CwbSpiveyMN::impl(const double & t, // comes in Celsius
 		 const double & p,
-		 const double & nacl_concentration,
+		 const double & nacl,
 		 const double & z) noexcept
 {
   const double tk = unit_convert<Celsius, Kelvin>(t);
@@ -34,7 +34,7 @@ CwbSpiveyMN::impl(const double & t, // comes in Celsius
   // Density of methane-free brine at the temperature and pressure of
   // evaluation [g/cm³]
   const double pgfw =
-    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl_concentration);
+    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl);
   
   // Specific volume of methane-free brine [cm³/g]
   const double vgfw = 1.0/pgfw;
@@ -42,11 +42,11 @@ CwbSpiveyMN::impl(const double & t, // comes in Celsius
   // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
   // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
   const double mch4w =
-    MwSpiveyMN::get_instance().impl(t, p, pv, nacl_concentration);
+    MwSpiveyMN::get_instance().impl(t, p, pv, nacl);
 
   // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE
   // TEMPERATURE AND PRESSURE OF EVALUATION 
-  const double m = nacl_concentration;
+  const double m = nacl;
   // Derivatives with respect to P
   const double c3 = -8.5658e-2 + 1.31961e-2*log(tk) + 7.338/tk +
     9.05e-2/(680 - tk);
@@ -62,7 +62,7 @@ CwbSpiveyMN::impl(const double & t, // comes in Celsius
   // dvgfwdP: DERIVATIVE OF SPECIFIC VOLUME WITH RESPECT TO PRESSURE 
 
   const double cgfw =
-    CgfwSpiveyMN::get_instance().impl(t, p, nacl_concentration);
+    CgfwSpiveyMN::get_instance().impl(t, p, nacl);
   
   const double dvgfwdp = -vgfw * cgfw;  
 
@@ -97,12 +97,12 @@ CwbSpiveyMN::impl(const double & t, // comes in Celsius
 inline double
 CwbMcCain::impl(const double & t,
 		const double & p,
-		const double & nacl_concentration,
+		const double & nacl,
 		const double & bg,
 		const double & bw,
 		const double & cwa) noexcept
 {
-  const double s = nacl_concentration;
+  const double s = nacl;
   const double t2 = t*t;
   const double t3 = t2*t;
   const double t4 = t3*t;
@@ -128,16 +128,16 @@ CwbMcCain::impl(const double & t,
 inline double
 CwbMcCainOsif::impl(const double & t,
 		    const double & p,
-		    const double & nacl_concentration,
+		    const double & nacl,
 		    const double & bg,
 		    const double & bw) noexcept
 {
   const double nacl_in_cgl =
-    unit_convert<Dissolved_Salt_Percent, CgL>(nacl_concentration);
+    unit_convert<Dissolved_Salt_Percent, CgL>(nacl);
 
   const double cwa = CwaOsif::get_instance().impl(t, p, nacl_in_cgl);
 
-  const double s = nacl_concentration;
+  const double s = nacl;
   const double t2 = t*t;
   const double t3 = t2*t;
   const double t4 = t3*t;

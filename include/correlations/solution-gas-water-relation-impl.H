@@ -21,9 +21,9 @@ void RswSpiveyMN::precondition(const Quantity<Celsius> & t,
 inline double
 RswSpiveyMN::impl(const double & t, // cames in celsius
 		 const double & p,
-		 const double & nacl_concentration) noexcept
+		 const double & nacl) noexcept
 {
-  const double & m = nacl_concentration;
+  const double & m = nacl;
 
   // Vapor pressure of pure water, calculated from the IAWPS-95 formulation
   const double tk = unit_convert<Celsius, Kelvin>(t);
@@ -61,7 +61,7 @@ RswSpiveyMN::impl(const double & t, // cames in celsius
 inline double
 RswCulbersonMcKetta::impl(const double & t,
 			  const double & p,
-			  const double & nacl_concentration) noexcept
+			  const double & nacl) noexcept
 {
   const double t2 = t*t;
   const double t3 = t2*t;
@@ -79,7 +79,7 @@ RswCulbersonMcKetta::impl(const double & t,
   const double rspw = a + b*raw_p + c*p2; 
    
   // Solubility of gas in brine  
-  const double d =  -0.0840655*nacl_concentration*pow(t, -0.285854);  
+  const double d =  -0.0840655*nacl*pow(t, -0.285854);  
   const double rsw = rspw * pow(10, d); 
                         
   return rsw;
@@ -88,7 +88,7 @@ RswCulbersonMcKetta::impl(const double & t,
 inline double
 RswMcCoy::impl(const double & t,
 	       const double & p,
-	       const double & nacl_concentration) noexcept
+	       const double & nacl) noexcept
 {
   const double t2 = t*t;
 
@@ -102,7 +102,7 @@ RswMcCoy::impl(const double & t,
   const double rspw = a + b*p + c*p2; 
    
   // Solubility of gas in brine    
-  const double rsw = rspw * (1 - (0.0753 - 1.73e-4*t)*nacl_concentration);
+  const double rsw = rspw * (1 - (0.0753 - 1.73e-4*t)*nacl);
                         
   return rsw;
 }
