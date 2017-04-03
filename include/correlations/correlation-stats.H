@@ -176,9 +176,8 @@ public:
     return make_tuple(r2, mse, sigma, fit);
   }
 
-  DynList<double> stats_list(const Array<double> & yc) const
+  static DynList<double> desc_to_dynlist(const Desc & d)
   {
-    auto d = stats(yc);
     return build_dynlist<double>(r2(d), mse(d), sigma(d), sumsq(d), c(d), m(d));
   }
 

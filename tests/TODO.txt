@@ -21,3 +21,4 @@ en cplot los pars _concentration dejarlos sin este sufijo,2017-03-29 20:50:51 -0
 desc para vector en test-pvt-data,2017-03-30 10:35:34 -0400,,
 validar que tuplas de t y pb coincidan,2017-03-31 12:52:30 -0400,,
 falta eliminar repetidos de presión en apply,2017-03-31 21:02:01 -0400,,
+test-pvt-data opcion para cambiarunidades de salida,2017-04-03 16:50:06 -0400,,

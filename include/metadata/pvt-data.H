@@ -229,7 +229,7 @@ struct PvtData
     if (samples.is_empty())
       return ret;
 
-    auto ptr = samples.get_first();
+    auto ptr = samples.remove_first();
     const Unit * punit = ptr->punit;
     const Unit * yunit = ptr->yunit;
 
@@ -254,7 +254,7 @@ struct PvtData
     if (samples.is_empty())
       ZENTHROW(VarNameNotFound, target_name + " not found in data set");
 
-    auto ptr = samples.get_first();
+    auto ptr = samples.remove_first();
     DynList<double> p = to_dynlist(ptr->p);
     const Unit * punit = ptr->punit;
     DynList<double> y = to_dynlist(ptr->y);
@@ -277,7 +277,7 @@ struct PvtData
     if (samples.is_empty())
       ZENTHROW(VarNameNotFound, target_name + " not found");
 
-    auto ptr = samples.get_first();
+    auto ptr = samples.remove_first();
     DynList<size_t> sz = { ptr->p.size() };
     const Unit * punit = ptr->punit;
     Ptype tpar = Ptype("t", ptr->t, &Fahrenheit::get_instance());
@@ -404,6 +404,8 @@ struct PvtData
 		   " not found in data set");
 
 	const string & name_in_data = ptr->first;
+	if (name_in_data == "t" or name_in_data == "p" or name_in_data == "pb")
+	  continue;
 
 	const ConstDesc * const_ptr = search_const(name_in_data);
 	if (const_ptr)
@@ -416,8 +418,9 @@ struct PvtData
 	samples.append(s);
       }
 
-    // TODO: queda por ver una manera consistente y constante de
-    // determinar las unidades para la presión y el target
+    if (samples.is_empty())
+      samples.append(get_parameters(target_name));
+
     auto units = search_units(target_name);
     const Unit * punit = units.first;
     const Unit * yunit = units.second;
@@ -433,8 +436,8 @@ struct PvtData
 	      pars.insert(p);
 	    });
 
-	  values.append(VtlQuantity(*yunit,
-				    corr_ptr->compute_by_names(pars)).raw());
+	  VtlQuantity result = corr_ptr->compute_by_names(pars, false);
+	  values.append(VtlQuantity(*yunit, result).raw());
 
 	  l.for_each([&pars] (auto & v) { pars.remove(v); });
 	});
@@ -443,6 +446,25 @@ struct PvtData
       { return get<0>(p1) < get<0>(p2); }));
 
     return make_tuple(move(get<0>(pp)), punit, move(get<1>(pp)), yunit);
+  }
+
+  //                                  pressure vals,   target vals,   statistics
+  using T =
+    tuple<const Correlation*, DynList<double>, DynList<double>, CorrStat::Desc>;
+
+  T stats(const Correlation * corr_ptr) const
+  {
+    auto samples = get_target_samples(corr_ptr->target_name());
+    auto & y = get<2>(samples);
+    auto yunit = get<3>(samples);
+       
+    auto vals = apply(corr_ptr);
+    auto yc_unit = get<3>(vals);
+    auto yc = unit_convert(*yc_unit, get<2>(vals), *yunit);
+    
+    auto stats = CorrStat(y).stats(yc);
+
+    return make_tuple(corr_ptr, move(get<0>(vals)), move(yc), move(stats));
   }
 };
 

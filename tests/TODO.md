@@ -75,3 +75,6 @@
 ## 23. falta eliminar repetidos de presión en apply
 - Created at   2017-03-31 21:02:01 -0400
 
+## 24. test-pvt-data opcion para cambiarunidades de salida
+- Created at   2017-04-03 16:50:06 -0400
+

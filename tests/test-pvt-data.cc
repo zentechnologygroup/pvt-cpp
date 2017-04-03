@@ -176,8 +176,8 @@ struct ActionType
   dispatcher;
   string type;
   string property_name;
-  DynList<string> corr_name_list;
-  DynList<pair<string, string>> corr_pair_list;
+  DynList<const Correlation*> corr_list;
+  DynList<pair<const Correlation*, const Correlation*>> corr_pair_list;
 
   ActionType() {}
 
@@ -205,6 +205,26 @@ struct ActionType
   {
     if (not (*iss >> action->property_name))
       ZENTHROW(CommandLineError, "cannot read property name");
+  }
+
+  static void read_local_calibration(ActionType * action, istringstream * iss)
+  {
+    string corr_name;
+    while (*iss >> corr_name)
+      {
+	auto corr_ptr = Correlation::search_by_name(corr_name);
+	if (corr_ptr == nullptr)
+	  ZENTHROW(CommandLineError, "correlation " + corr_name + " not found");
+	action->corr_list.append(corr_ptr);
+      }
+
+    if (action->corr_list.is_empty())
+      ZENTHROW(CommandLineError, "list of correlations is empty");
+
+    const string & subtype = action->corr_list.get_first()->subtype_name;
+    if (not action->corr_list.all([&subtype] (auto p)
+				  { return p->subtype_name == subtype; }))
+      ZENTHROW(CommandLineError, "correlation must be of same subtype");
   }
 
   static void dummy(ActionType*, istringstream*)
@@ -238,7 +258,7 @@ ActionType::dispatcher
  "match", ActionType::read_property_name,
  "apply", ActionType::read_property_name,
  "global_apply", ActionType::dummy,
- "local_calibration", ActionType::dummy,
+ "local_calibration", ActionType::read_local_calibration,
  "global_calibration", ActionType::dummy
 );
 
@@ -272,8 +292,18 @@ MultiArg<ValuesArg> target =
 
 vector<string> output_types = { "R", "csv", "mat" };
 ValuesConstraint<string> allowed_output_types = output_types;
-ValueArg<string> grid = { "", "output", "output type", false,
-			  "mat", &allowed_output_types, cmd };
+ValueArg<string> output = { "", "output", "output type", false,
+			    "mat", &allowed_output_types, cmd };
+
+vector<string> sort_types = { "r2", "mse", "sigma", "sumsq", "c", "m" };
+ValuesConstraint<string> allowed_sort_types = sort_types;
+ValueArg<string> sort = { "", "sort", "sort type", false,
+			  "r2", &allowed_sort_types, cmd };
+
+vector<string> mode_types = { "single", "calibrated", "both" };
+ValuesConstraint<string> allowed_mode_types = mode_types;
+ValueArg<string> mode_type = { "", "mode", "mode", false, "both",
+			       &allowed_mode_types, cmd };
 
 const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 {
@@ -298,7 +328,8 @@ const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 void build_pvt_data()
 {
   data.add_const("api", api.getValue(), *test_unit("api", Api::get_instance()));
-  data.add_const("rsb", rsb.getValue(), *test_unit("rsb", psia::get_instance()));
+  data.add_const("rsb", rsb.getValue(), *test_unit("rsb",
+						   SCF_STB::get_instance()));
   data.add_const("yg", yg.getValue(), *test_unit("yg", Sgg::get_instance()));
   if (tsep.isSet())
     data.add_const("tsep", tsep.getValue(),
@@ -367,31 +398,50 @@ void process_match()
 					   { return p->to_dynlist(); }));
 }
 
+using T = PvtData::T;
+
+# define Define_Cmp(name)			\
+  auto cmp_##name = [] (const T & d1, const T & d2)			\
+  {									\
+    return CorrStat::name(get<3>(d1)) < CorrStat::name(get<3>(d2));	\
+  }
+
+# define Define_1_Cmp(name)			\
+  auto cmp_##name = [] (const T & d1, const T & d2)			\
+  {									\
+    return abs(1 - CorrStat::name(get<3>(d1))) <			\
+    abs(1 - CorrStat::name(get<3>(d2)));				\
+  }
+
+Define_1_Cmp(r2);
+Define_Cmp(mse);
+Define_Cmp(sumsq);
+Define_Cmp(sigma);
+Define_1_Cmp(m);
+
+auto cmp_c = [] (const T & d1, const T & d2)
+{
+  return abs(CorrStat::c(get<3>(d1))) < abs(CorrStat::c(get<3>(d2)));
+};
+
+DynMapTree<string, bool (*)(const T&, const T&)> cmp =
+  { { "r2", cmp_r2}, {"mse", cmp_mse}, {"sigma", cmp_sigma},
+    {"sumsq", cmp_sumsq}, {"c", cmp_c}, {"m", cmp_m} }; 
+
 void process_apply()
 {
   auto corr_list = data.can_be_applied(action.getValue().property_name);
-  using T = //                 pressure vals,   target vals,   statistics
-    tuple<const Correlation*, DynList<double>, DynList<double>, DynList<double>>;
 
-  DynList<T> stats = corr_list.maps<T>([] (auto corr_ptr)
+  DynList<T> stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
     {
-      auto samples = data.get_target_samples(corr_ptr->target_name());
-      auto & y = get<2>(samples);
-      auto samples_unit = get<3>(samples);
-       
-      auto vals = data.apply(corr_ptr);
-      auto yc_unit = get<3>(vals);
-      auto yc = unit_convert(*yc_unit, get<2>(vals), *samples_unit);
-      
-      auto stats = CorrStat(y).stats_list(yc);
-      return make_tuple(corr_ptr, move(get<0>(vals)), move(yc), move(stats));
-    });
+      return data.stats(corr_ptr);
+    }), cmp[::sort.getValue()]);
 
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {
       DynList<string> ret = build_dynlist<string>(get<0>(t)->name);
-      auto stats =
-        get<3>(t).template maps<string>([] (auto v) { return ::to_string(v); });
+      auto stats = CorrStat::desc_to_dynlist(get<3>(t)).
+      template maps<string>([] (auto v) { return ::to_string(v); });
       ret.append(stats);
       return ret;
     });
@@ -401,10 +451,84 @@ void process_apply()
 
   rows.insert(header);
 
-  // TODO: opción para tipo de salida
+  const auto & out_type = output.getValue();
+  if (out_type == "csv")
+    cout << Aleph::to_string(format_string_csv(rows)) << endl;
+  else
+    cout << Aleph::to_string(format_string(rows)) << endl;
+}
 
-  cout << Aleph::to_string(format_string(rows)) << endl;
+void proccess_local_calibration()
+{
+  const auto & corr_list = action.getValue().corr_list;
+  DynList<pair<double, double>> comb; // coefficients c and m
 
+  // First we must verify that each read correlation applies to the data set
+  for (auto it = corr_list.get_it(); it.has_curr(); it.next())
+    {
+      auto corr_ptr = it.get_curr();
+      if (not data.can_be_applied(corr_ptr))
+	ZENTHROW(CommandLineError,
+		 corr_ptr->name + " does not apply to data set");
+
+      auto mode = mode_type.getValue();
+      if (mode != "single")
+	{
+	  auto stats = data.stats(corr_ptr);
+	  comb.append(make_pair(CorrStat::c(get<3>(stats)),
+				CorrStat::m(get<3>(stats))));
+	}
+      else
+	comb.append(make_pair(0, 1));
+    }
+
+  const Correlation * corr_ptr = corr_list.get_first();
+  auto vals = data.apply(corr_ptr);
+  DynList<double> pressures = get<0>(vals);
+  DynList<double> y = get<2>(vals);
+  const Unit * punit = get<1>(vals);
+  const Unit * yunit = get<3>(vals);
+  auto p = comb.get_first();
+  auto c = p.first;
+  auto m = p.second;
+
+  DynList<DynList<double>> rows = build_dynlist<DynList<double>>(pressures, y);
+  DynList<string> header =
+    build_dynlist<string>("p " + punit->name,
+			  corr_ptr->name + " " + yunit->name);
+
+  auto & mode = mode_type.getValue();
+  if (mode != "single")
+    {
+      rows.append(y.maps([c, m] (auto y) { return c + m*y; }));
+      header.append(corr_ptr->name + " adjusted " + yunit->name);
+    }
+
+  for (auto it = zip_it_pos(1, corr_list, comb); it.has_curr(); it.next())
+    {
+      auto curr = it.get_curr();
+      corr_ptr = get<0>(curr);
+      vals = data.apply(corr_ptr);
+      auto & pvals = get<0>(vals);
+      if (not zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
+		      pressures, pvals))
+	ZENTHROW(InvariantError, "pressures for correlation " + corr_ptr->name);
+      y = get<2>(vals);
+      rows.append(y);
+      header.append(corr_ptr->name + " " + yunit->name);
+      if (mode != "single")
+	{
+	  p = get<1>(curr);
+	  c = p.first;
+	  m = p.second;
+	  rows.append(y.maps([c, m] (auto y) { return c + m*y; }));
+	  header.append(corr_ptr->name + " adjusted " + yunit->name);
+	}
+    }
+
+  assert(equal_length(rows, header));
+
+  cout << "falta" << endl;
 }
 
 const AHDispatcher<string, void (*)()> dispatcher =
@@ -413,12 +537,14 @@ const AHDispatcher<string, void (*)()> dispatcher =
     "list", process_list,
     "match", process_match,
     "apply", process_apply,
-    "local_calibration", dummy,
+    "global_apply", dummy,
+    "local_calibration", proccess_local_calibration,
     "global_calibration", dummy
   };
 
 int main(int argc, char *argv[])
 {
+  UnitsInstancer::init();
   cmd.parse(argc, argv);
   build_pvt_data();
   dispatcher.run(action.getValue().type);
