@@ -458,6 +458,24 @@ void process_apply()
     cout << Aleph::to_string(format_string(rows)) << endl;
 }
 
+string print_R(const DynList<DynList<string>> & l)
+{
+  return "R mode not implemented yet";
+}
+
+string print_csv(const DynList<DynList<string>> & l)
+{
+  return to_string(format_string_csv(l));
+}
+
+string print_mat(const DynList<DynList<string>> & l)
+{
+  return to_string(format_string(l));
+}
+
+AHDispatcher<string, string (*)(const DynList<DynList<string>>&)>
+print_dispatcher = { "R", print_R, "csv", print_csv, "mat", print_mat };
+
 void proccess_local_calibration()
 {
   const auto & corr_list = action.getValue().corr_list;
@@ -526,9 +544,15 @@ void proccess_local_calibration()
 	}
     }
 
+  DynList<DynList<string>> result = rows.maps<DynList<string>>([] (auto & l)
+    {
+      return l.template maps<string>([] (auto v) { return to_string(v); });
+    });
+  result.insert(header);
+
   assert(equal_length(rows, header));
 
-  cout << "falta" << endl;
+  cout << print_dispatcher.run(output.getValue(), result) << endl;
 }
 
 const AHDispatcher<string, void (*)()> dispatcher =
