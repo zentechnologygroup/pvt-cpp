@@ -490,26 +490,24 @@ void proccess_local_calibration()
     auto names = l.get_first();
     auto vals = transpose(l.drop(1));
 
-    ostringstream s;
-
     auto p = vals.remove_first();
-    s << Rvector(split_to_list(names.remove_first(), " ").get_first(), p) << endl;
-    double pmin = p.foldl(numeric_limits<double>::max(), [] (auto acu, auto & s)
-    {
-      return min(acu, atof(s));
-    });
-    double pmax = p.foldl(0.0, [] (auto acu, auto & s)
-    {
-      return min(acu, atof(s));
-    });
+    auto y = vals.remove_first();
+    s << Rvector("p", p) << endl;
 
+    ostringstream s;
     double ymin = numeric_limits<double>::max(), ymax = 0;
     for (auto it = get_zip_it_pos(1, names, vals); it.has_curr(); it.next())
     {
       auto t = it.get_curr();
-      auto & y = get<1>(t);
-      s << Rvector(get<0>(t), y) << endl;
+      auto & yc = get<1>(t);
+      s << Rvector(get<0>(t), yc) << endl;
+      ymin = yc.foldl(ymin, [] (auto a, auto y) { return min(a, atof(y)); });
+      ymax = yc.foldl(ymax, [] (auto a, auto y) { return max(a, atof(y)); });
     }
+
+    s << "plot(p, " << second_name << ",ylim=c(" << ymin << "," << ymax << "))"
+    << endl;
+
     return s.str();
   };
 

@@ -131,7 +131,7 @@ struct PropertyUnit
     if (not (iss >> name >> unit_name))
       throw TCLAP::ArgParseException(str + " is not a pair par-name unit");
 
-    return *this;
+v    return *this;
   }
 
   PropertyUnit() {}
@@ -325,7 +325,11 @@ Command_Arg_Optional_Value(tsep2, Fahrenheit , "temperature of 2nd separator");
 // return true if two separator temperatures were specified
 inline bool two_separators()
 {
-  return tsep_arg.isSet() and tsep2_arg.isSet();
+  bool ret = tsep_arg.isSet() and tsep2_arg.isSet();
+  if (ret and tsep < tsep2)
+    ZENTHROW(WrongCombinationInputValues, "separator temp " + tsep.to_string() +
+	     " is less than separator temp " + tsep2.to_string());
+  return ret;
 }
 
 Command_Arg_Value(ogr, STB_MMscf, "Condensate gas ratio")
