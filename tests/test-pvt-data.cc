@@ -472,14 +472,14 @@ void put_sample(const Correlation * corr_ptr,
   else if (mode == "calibrated")
     {
       rows.append(yc.maps([c, m] (auto y) { return c + m*y; }));
-      header.append(corr_ptr->name + " adjusted");
+      header.append(corr_ptr->name + "_adjusted");
     }
   else
     {
       rows.append(yc);
       rows.append(yc.maps([c, m] (auto y) { return c + m*y; }));
       header.append(corr_ptr->name);
-      header.append(corr_ptr->name + " adjusted");
+      header.append(corr_ptr->name + "_adjusted");
     }
 }
 
@@ -490,23 +490,42 @@ void proccess_local_calibration()
     auto names = l.get_first();
     auto vals = transpose(l.drop(1));
 
-    auto p = vals.remove_first();
+    auto p = vals.remove_first(); names.remove_first();
     auto y = vals.remove_first();
-    s << Rvector("p", p) << endl;
+    auto yname = split_to_list(names.remove_first(), " ").get_first();
 
     ostringstream s;
+    s << Rvector("p", p) << endl
+      << Rvector(yname, y) << endl;
     double ymin = numeric_limits<double>::max(), ymax = 0;
-    for (auto it = get_zip_it_pos(1, names, vals); it.has_curr(); it.next())
+    DynList<string> ynames;
+    for (auto it = get_zip_it(names, vals); it.has_curr(); it.next())
     {
       auto t = it.get_curr();
       auto & yc = get<1>(t);
-      s << Rvector(get<0>(t), yc) << endl;
+      auto & yname = get<0>(t);
+      s << Rvector(yname, yc) << endl;
+      ynames.append(yname);
       ymin = yc.foldl(ymin, [] (auto a, auto y) { return min(a, atof(y)); });
       ymax = yc.foldl(ymax, [] (auto a, auto y) { return max(a, atof(y)); });
     }
 
-    s << "plot(p, " << second_name << ",ylim=c(" << ymin << "," << ymax << "))"
-    << endl;
+    s << "plot(p, " << yname << ",ylim=c(" << ymin << "," << ymax << "))"
+      << endl;
+    size_t col = 1;
+    DynList<string> colnames;
+    DynList<string> cols;
+    for (auto it = ynames.get_it(); it.has_curr(); it.next(), ++col)
+      {
+	auto & yname = it.get_curr();
+	colnames.append("\"" + yname + "\"");
+	cols.append(to_string(col));
+	s << "lines(p, " << yname << ", col=" << col << ")" << endl;
+      }
+
+    s << Rvector("cnames", colnames) << endl
+      << Rvector("cols", cols) << endl
+      <<  "legend(\"topleft\", legend=cnames, lty=1, col=cols)" << endl;
 
     return s.str();
   };

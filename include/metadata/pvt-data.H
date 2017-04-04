@@ -407,8 +407,6 @@ struct PvtData
 	if (name_in_data == "t" or name_in_data == "p" or name_in_data == "pb")
 	  continue;
 
-	cout << "Searching " << name_in_data << endl;
-
 	const ConstDesc * const_ptr = search_const(name_in_data);
 	if (const_ptr)
 	  {
@@ -440,12 +438,6 @@ struct PvtData
 	  l.for_each([&pars] (auto & v) { pars.remove(v); });
 	});
 
-    cout << "pressures ="; pressures.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-
-    cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-
-    cout << "values ="; values.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-
     auto pp = t_unzip(sort(t_zip(pressures, y, values), [] (auto p1, auto p2)
       { return get<0>(p1) < get<0>(p2); }));
 
@@ -460,9 +452,6 @@ struct PvtData
   T stats(const Correlation * corr_ptr) const
   {
     auto vals = apply(corr_ptr);
-    cout << "P ="; get<0>(vals).for_each([] (auto v) { cout << " " << v; }); cout << endl;
-    cout << "y ="; get<2>(vals).for_each([] (auto v) { cout << " " << v; }); cout << endl;
-    cout << "yc ="; get<3>(vals).for_each([] (auto v) { cout << " " << v; }); cout << endl;
     auto & y = get<2>(vals);
     auto & yc = get<3>(vals);    
     auto stats = CorrStat(y).stats(yc);
