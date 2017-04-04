@@ -218,3 +218,5 @@ considerar cambiar pares p,property por secuencia p luego secuenci property,2017
 calibrate puede recibir matrices incompletas; que trabaje con vectores y no con matrices,2017-03-21 08:34:50 -0400,2017-03-28 10:20:58 -0400,,2017-03-29 09:53:26 -0400
 verificar que unidades de salida en can_be_applied sean consistentes,2017-03-28 10:20:41 -0400,2017-03-28 14:59:00 -0400,,2017-03-29 09:54:01 -0400
 test-pvt-data opcion para cambiarunidades de salida,2017-04-03 17:19:13 -0400,,,2017-04-03 17:19:22 -0400
+salida de test-pvt es la traspuesta,2017-04-03 19:48:41 -0400,2017-04-04 10:42:26 -0400,,2017-04-04 10:42:29 -0400
+en cplot los pars _concentration dejarlos sin este sufijo,2017-03-29 20:50:51 -0400,2017-04-04 10:43:00 -0400,,2017-04-04 10:43:02 -0400

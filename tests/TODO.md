@@ -63,18 +63,18 @@
 ## 19. cuantificar errores para un rango de temperturas para bo y uo caibrados
 - Created at   2017-03-29 16:55:18 -0400
 
-## 20. en cplot los pars _concentration dejarlos sin este sufijo
-- Created at   2017-03-29 20:50:51 -0400
-
-## 21. desc para vector en test-pvt-data
+## 20. desc para vector en test-pvt-data
 - Created at   2017-03-30 10:35:34 -0400
 
-## 22. validar que tuplas de t y pb coincidan
+## 21. validar que tuplas de t y pb coincidan
 - Created at   2017-03-31 12:52:30 -0400
 
-## 23. falta eliminar repetidos de presión en apply
+## 22. falta eliminar repetidos de presión en apply
 - Created at   2017-03-31 21:02:01 -0400
 
-## 24. test-pvt-data opcion para cambiarunidades de salida
+## 23. test-pvt-data opcion para cambiarunidades de salida
 - Created at   2017-04-03 16:50:06 -0400
+
+## 24. Zen exception en par-liats
+- Created at   2017-04-04 08:49:24 -0400
 

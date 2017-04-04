@@ -458,26 +458,76 @@ void process_apply()
     cout << Aleph::to_string(format_string(rows)) << endl;
 }
 
-string print_R(const DynList<DynList<string>> & l)
+void put_sample(const Correlation * corr_ptr,
+		DynList<DynList<double>> & rows, DynList<string> & header,
+		const DynList<double> & yc, double c, double m)
 {
-  return "R mode not implemented yet";
-}
+  const auto & mode = mode_type.getValue();
 
-string print_csv(const DynList<DynList<string>> & l)
-{
-  return to_string(format_string_csv(l));
+  if (mode == "single")
+    {
+      rows.append(yc);
+      header.append(corr_ptr->name);
+    }
+  else if (mode == "calibrated")
+    {
+      rows.append(yc.maps([c, m] (auto y) { return c + m*y; }));
+      header.append(corr_ptr->name + " adjusted");
+    }
+  else
+    {
+      rows.append(yc);
+      rows.append(yc.maps([c, m] (auto y) { return c + m*y; }));
+      header.append(corr_ptr->name);
+      header.append(corr_ptr->name + " adjusted");
+    }
 }
-
-string print_mat(const DynList<DynList<string>> & l)
-{
-  return to_string(format_string(l));
-}
-
-AHDispatcher<string, string (*)(const DynList<DynList<string>>&)>
-print_dispatcher = { "R", print_R, "csv", print_csv, "mat", print_mat };
 
 void proccess_local_calibration()
 {
+  static auto print_R = [] (const DynList<DynList<string>> & l) -> string
+  {
+    auto names = l.get_first();
+    auto vals = transpose(l.drop(1));
+
+    ostringstream s;
+
+    auto p = vals.remove_first();
+    s << Rvector(split_to_list(names.remove_first(), " ").get_first(), p) << endl;
+    double pmin = p.foldl(numeric_limits<double>::max(), [] (auto acu, auto & s)
+    {
+      return min(acu, atof(s));
+    });
+    double pmax = p.foldl(0.0, [] (auto acu, auto & s)
+    {
+      return min(acu, atof(s));
+    });
+
+    double ymin = numeric_limits<double>::max(), ymax = 0;
+    for (auto it = get_zip_it_pos(1, names, vals); it.has_curr(); it.next())
+    {
+      auto t = it.get_curr();
+      auto & y = get<1>(t);
+      s << Rvector(get<0>(t), y) << endl;
+    }
+    return s.str();
+  };
+
+  static auto print_csv = [] (const DynList<DynList<string>> & l)
+  {
+    return to_string(format_string_csv(l));
+  };
+
+  static auto print_mat = [] (const DynList<DynList<string>> & l)
+  {
+    return to_string(format_string(l));
+  };
+
+  static AHDispatcher<string, string (*)(const DynList<DynList<string>>&)>
+    print_dispatcher = { "R", print_R, "csv", print_csv, "mat", print_mat };
+
+  const auto & mode = mode_type.getValue();
+  
   const auto & corr_list = action.getValue().corr_list;
   DynList<pair<double, double>> comb; // coefficients c and m
 
@@ -488,8 +538,7 @@ void proccess_local_calibration()
       if (not data.can_be_applied(corr_ptr))
 	ZENTHROW(CommandLineError,
 		 corr_ptr->name + " does not apply to data set");
-
-      auto mode = mode_type.getValue();
+      
       if (mode != "single")
 	{
 	  auto stats = data.stats(corr_ptr);
@@ -504,8 +553,9 @@ void proccess_local_calibration()
   auto vals = data.apply(corr_ptr);
   DynList<double> pressures = get<0>(vals);
   DynList<double> y = get<2>(vals);
+  DynList<double> yc = get<3>(vals);
   const Unit * punit = get<1>(vals);
-  const Unit * yunit = get<3>(vals);
+  const Unit * yunit = get<4>(vals);
   auto p = comb.get_first();
   auto c = p.first;
   auto m = p.second;
@@ -513,14 +563,9 @@ void proccess_local_calibration()
   DynList<DynList<double>> rows = build_dynlist<DynList<double>>(pressures, y);
   DynList<string> header =
     build_dynlist<string>("p " + punit->name,
-			  corr_ptr->name + " " + yunit->name);
+			  corr_ptr->target_name() + " " + yunit->name);
 
-  auto & mode = mode_type.getValue();
-  if (mode != "single")
-    {
-      rows.append(y.maps([c, m] (auto y) { return c + m*y; }));
-      header.append(corr_ptr->name + " adjusted " + yunit->name);
-    }
+  put_sample(corr_ptr, rows, header, yc, c, m);
 
   for (auto it = zip_it_pos(1, corr_list, comb); it.has_curr(); it.next())
     {
@@ -531,23 +576,16 @@ void proccess_local_calibration()
       if (not zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
 		      pressures, pvals))
 	ZENTHROW(InvariantError, "pressures for correlation " + corr_ptr->name);
-      y = get<2>(vals);
-      rows.append(y);
-      header.append(corr_ptr->name + " " + yunit->name);
-      if (mode != "single")
-	{
-	  p = get<1>(curr);
-	  c = p.first;
-	  m = p.second;
-	  rows.append(y.maps([c, m] (auto y) { return c + m*y; }));
-	  header.append(corr_ptr->name + " adjusted " + yunit->name);
-	}
+
+      yc = get<2>(vals);
+      put_sample(corr_ptr, rows, header, yc, c, m);
     }
 
-  DynList<DynList<string>> result = rows.maps<DynList<string>>([] (auto & l)
+  DynList<DynList<string>> result =
+    transpose(rows.maps<DynList<string>>([] (auto & l)
     {
       return l.template maps<string>([] (auto v) { return to_string(v); });
-    });
+    }));
   result.insert(header);
 
   assert(equal_length(rows, header));

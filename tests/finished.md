@@ -1318,3 +1318,15 @@
 - Comment      
 - Finished     
 
+## 221. salida de test-pvt es la traspuesta
+- Created at   2017-04-03 19:48:41 -0400
+- Completed at 2017-04-04 10:42:26 -0400
+- Comment      
+- Finished     
+
+## 222. en cplot los pars _concentration dejarlos sin este sufijo
+- Created at   2017-03-29 20:50:51 -0400
+- Completed at 2017-04-04 10:43:00 -0400
+- Comment      
+- Finished     
+

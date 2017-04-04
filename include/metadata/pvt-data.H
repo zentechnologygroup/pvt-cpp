@@ -385,8 +385,8 @@ struct PvtData
       });
   }
 
-  // pressure values, pressure unit, target values, target unit
-  tuple<DynList<double>, const Unit*, DynList<double>, const Unit*>
+  // pressure values, pressure unit,  lab values, target values, target unit
+  tuple<DynList<double>, const Unit*, DynList<double>, DynList<double>, const Unit*>
   apply(const Correlation * corr_ptr) const
   {
     const string target_name = corr_ptr->target_name();
@@ -407,6 +407,8 @@ struct PvtData
 	if (name_in_data == "t" or name_in_data == "p" or name_in_data == "pb")
 	  continue;
 
+	cout << "Searching " << name_in_data << endl;
+
 	const ConstDesc * const_ptr = search_const(name_in_data);
 	if (const_ptr)
 	  {
@@ -418,23 +420,19 @@ struct PvtData
 	samples.append(s);
       }
 
+    auto target_samples = get_target_samples(target_name);
+    const DynList<double> & pressures = get<0>(target_samples);
+    const DynList<double> & y = get<2>(target_samples);
+    const Unit * punit = get<1>(target_samples);
+    const Unit * yunit = get<3>(target_samples);
     if (samples.is_empty())
       samples.append(get_parameters(target_name));
 
-    auto units = search_units(target_name);
-    const Unit * punit = units.first;
-    const Unit * yunit = units.second;
-    DynList<double> pressures;
     DynList<double> values;
     for (auto it = samples.get_it(); it.has_curr(); it.next())
       it.get_curr().for_each([&] (auto & l)
         {
-	  l.for_each([&] (auto & p)
-            {
-	      if (get<0>(p) == "p")
-		pressures.append(unit_convert(*get<2>(p), get<1>(p), *punit));
-	      pars.insert(p);
-	    });
+	  l.for_each([&] (auto & p) { pars.insert(p); });
 
 	  VtlQuantity result = corr_ptr->compute_by_names(pars, false);
 	  values.append(VtlQuantity(*yunit, result).raw());
@@ -442,29 +440,34 @@ struct PvtData
 	  l.for_each([&pars] (auto & v) { pars.remove(v); });
 	});
 
-    auto pp = t_unzip(sort(t_zip(pressures, values), [] (auto p1, auto p2)
+    cout << "pressures ="; pressures.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+
+    cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+
+    cout << "values ="; values.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+
+    auto pp = t_unzip(sort(t_zip(pressures, y, values), [] (auto p1, auto p2)
       { return get<0>(p1) < get<0>(p2); }));
 
-    return make_tuple(move(get<0>(pp)), punit, move(get<1>(pp)), yunit);
+    return make_tuple(move(get<0>(pp)), punit, move(get<1>(pp)),
+		      move(get<2>(pp)), yunit);
   }
 
-  //                                  pressure vals,   target vals,   statistics
+  //                             pressure vals, lab vals, target vals, statistics
   using T =
     tuple<const Correlation*, DynList<double>, DynList<double>, CorrStat::Desc>;
 
   T stats(const Correlation * corr_ptr) const
   {
-    auto samples = get_target_samples(corr_ptr->target_name());
-    auto & y = get<2>(samples);
-    auto yunit = get<3>(samples);
-       
     auto vals = apply(corr_ptr);
-    auto yc_unit = get<3>(vals);
-    auto yc = unit_convert(*yc_unit, get<2>(vals), *yunit);
-    
+    cout << "P ="; get<0>(vals).for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    cout << "y ="; get<2>(vals).for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    cout << "yc ="; get<3>(vals).for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    auto & y = get<2>(vals);
+    auto & yc = get<3>(vals);    
     auto stats = CorrStat(y).stats(yc);
 
-    return make_tuple(corr_ptr, move(get<0>(vals)), move(yc), move(stats));
+    return make_tuple(corr_ptr, move(get<0>(vals)), move(y), move(stats));
   }
 };
 
