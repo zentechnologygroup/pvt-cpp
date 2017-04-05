@@ -142,16 +142,21 @@ DynSetTree<string> const_name_tbl =
 struct ArgUnit
 {
   string name;
-  string unit_name;
+  const Unit * unit_ptr = nullptr;
 
   ArgUnit & operator = (const string & str)
   {
+    string unit_name;
     istringstream iss(str);
     if (not (iss >> name >> unit_name))
       ZENTHROW(CommandLineError, str + " is not a pair par-name unit");
 
     if (not const_name_tbl.contains(name))
       ZENTHROW(CommandLineError, name + " is an invalid parameter name");
+
+    unit_ptr = Unit::search(unit_name);
+    if (unit_ptr == nullptr)
+      ZENTHROW(CommandLineError, "cannot find unit " + unit_name);
 
     return *this;
   }
@@ -160,7 +165,7 @@ struct ArgUnit
 
   friend ostream& operator << (ostream &os, const ArgUnit & a) 
   {
-    return os << a.name << " " << a.unit_name;
+    return os << a.name << " " << a.unit_ptr->name;
   }
 };
 
@@ -241,7 +246,7 @@ namespace TCLAP
 
 const DynSetTree<string> ActionType::valid_actions = 
   { "print", "list", "match", "apply", "global_apply", "local_calibration",
-    "global_calibration" };
+    "tmp_calibration", "global_calibration" };
 
 const string actions =
  ActionType::valid_actions.take(ActionType::valid_actions.size() - 1).
@@ -259,6 +264,7 @@ ActionType::dispatcher
  "apply", ActionType::read_property_name,
  "global_apply", ActionType::dummy,
  "local_calibration", ActionType::read_local_calibration,
+ "tmp_calibration", ActionType::read_local_calibration,
  "global_calibration", ActionType::dummy
 );
 
@@ -312,16 +318,15 @@ const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 
   const Unit * ret = &dft_unit;
   for (auto & par : unit.getValue())
-    {
-      const Unit * ret = Unit::search_by_name(par.unit_name);
-      if (ret == nullptr)
-	ZENTHROW(CommandLineError, par.unit_name + " unit requested for " +
-		 par_name + " does not exist");
-      if (&dft_unit.physical_quantity != &ret->physical_quantity)
-	ZENTHROW(CommandLineError, par_name + " unit: physical quantity " +
-		 ret->physical_quantity.name + " is invalid");
-      return ret;
-    }
+    if (par.name == par_name)
+      {
+	cout << "Change for " << par.name << " from " << dft_unit.name << " to "
+	     << par.unit_ptr->name << endl;
+	if (&dft_unit.physical_quantity != &par.unit_ptr->physical_quantity)
+	  ZENTHROW(CommandLineError, par_name + " unit: physical quantity " +
+		   ret->physical_quantity.name + " is invalid");
+	return ret;
+      }
   return ret;
 }
 
@@ -483,7 +488,7 @@ void put_sample(const Correlation * corr_ptr,
     }
 }
 
-void proccess_local_calibration()
+void proccess_local_calibration() 
 {
   static auto print_R = [] (const DynList<DynList<string>> & l) -> string
   {
@@ -610,6 +615,114 @@ void proccess_local_calibration()
   cout << print_dispatcher.run(output.getValue(), result) << endl;
 }
 
+  // TODO: rutina que reciba corr_ptr, data, rows, header y añada los cálculos;
+void add_results(DynList<DynList<double>> & rows, DynList<string> & header,
+		 const Correlation * corr_ptr, const PvtData & data)
+{
+
+}
+
+void proccess_tmp_calibration() 
+{
+  static auto print_R = [] (const DynList<DynList<string>> & l) -> string
+  {
+    auto names = l.get_first();
+    auto vals = transpose(l.drop(1));
+
+    auto p = vals.remove_first(); names.remove_first();
+    auto y = vals.remove_first();
+    auto yname = split_to_list(names.remove_first(), " ").get_first();
+
+    ostringstream s;
+    s << Rvector("p", p) << endl
+      << Rvector(yname, y) << endl;
+    double ymin = numeric_limits<double>::max(), ymax = 0;
+    DynList<string> ynames;
+    for (auto it = get_zip_it(names, vals); it.has_curr(); it.next())
+    {
+      auto t = it.get_curr();
+      auto & yc = get<1>(t);
+      auto & yname = get<0>(t);
+      s << Rvector(yname, yc) << endl;
+      ynames.append(yname);
+      ymin = yc.foldl(ymin, [] (auto a, auto y) { return min(a, atof(y)); });
+      ymax = yc.foldl(ymax, [] (auto a, auto y) { return max(a, atof(y)); });
+    }
+
+    s << "plot(p, " << yname << ",ylim=c(" << ymin << "," << ymax << "))"
+      << endl;
+    size_t col = 1;
+    DynList<string> colnames;
+    DynList<string> cols;
+    for (auto it = ynames.get_it(); it.has_curr(); it.next(), ++col)
+      {
+	auto & yname = it.get_curr();
+	colnames.append("\"" + yname + "\"");
+	cols.append(to_string(col));
+	s << "lines(p, " << yname << ", col=" << col << ")" << endl;
+      }
+
+    s << Rvector("cnames", colnames) << endl
+      << Rvector("cols", cols) << endl
+      <<  "legend(\"topleft\", legend=cnames, lty=1, col=cols)" << endl;
+
+    return s.str();
+  };
+
+  static auto print_csv = [] (const DynList<DynList<string>> & l)
+  {
+    return to_string(format_string_csv(l));
+  };
+
+  static auto print_mat = [] (const DynList<DynList<string>> & l)
+  {
+    return to_string(format_string(l));
+  };
+
+  static AHDispatcher<string, string (*)(const DynList<DynList<string>>&)>
+    print_dispatcher = { "R", print_R, "csv", print_csv, "mat", print_mat };
+
+  const auto & mode = mode_type.getValue();
+  
+  const auto & corr_list = action.getValue().corr_list;
+  DynList<pair<double, double>> coef; // coefficients c and m
+
+      // verify that each read correlation applies to the data set
+  for (auto it = corr_list.get_it(); it.has_curr(); it.next())
+    {
+      auto corr_ptr = it.get_curr();
+      if (not data.can_be_applied(corr_ptr))
+	ZENTHROW(CommandLineError,
+		 corr_ptr->name + " does not apply to data set");
+      
+      if (mode != "single")
+	{
+	  auto stats = data.tstats(corr_ptr);
+	  coef.append(make_pair(CorrStat::c(get<3>(stats)),
+				CorrStat::m(get<3>(stats))));
+	}
+      else
+	coef.append(make_pair(0, 1));
+    }
+
+  DynList<DynList<double>> rows;
+  DynList<string> header;
+
+  // TODO: rutina que reciba corr_ptr, data, rows, header y añada los cálculos;
+
+
+  DynList<DynList<string>> result =
+    transpose(rows.maps<DynList<string>>([] (auto & l)
+    {
+      return l.template maps<string>([] (auto v) { return to_string(v); });
+    }));
+  result.insert(header);
+
+  assert(equal_length(rows, header));
+
+  cout << print_dispatcher.run(output.getValue(), result) << endl;
+}
+
 const AHDispatcher<string, void (*)()> dispatcher =
   {
     "print", print_data,
@@ -618,6 +731,7 @@ const AHDispatcher<string, void (*)()> dispatcher =
     "apply", process_apply,
     "global_apply", dummy,
     "local_calibration", proccess_local_calibration,
+    "tmp_calibration", proccess_tmp_calibration,
     "global_calibration", dummy
   };
 

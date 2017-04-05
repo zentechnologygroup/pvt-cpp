@@ -251,14 +251,13 @@ struct PvtData
 		       const Unit*, DynList<double>, // pressure unit &values
 		       string, // property name
 		       const Unit*, DynList<double>>; // target unit & values
-  static const double & s_t(const Sample & s) { return get<0>(s); }
-  static const double & s_pb(const Sample & s) { return get<1>(s); }
-  static const Unit* s_punit(const Sample & s) { return get<2>(s); }
-  static const DynList<double> & s_pvals(const Sample & s) { return get<3>(s); }
-  static const string & s_yname(const Sample & s) { return get<4>(s); }
-  static const Unit* s_yunit(const Sample & s) { return get<5>(s); }
-  static const DynList<double> & s_yvals(const Sample & s)
-  { return get<6>(s); }
+  static const double & s_t(Sample & s) { return get<0>(s); }
+  static const double & s_pb(Sample & s) { return get<1>(s); }
+  static const Unit* s_punit(Sample & s) { return get<2>(s); }
+  static DynList<double> & s_pvals(Sample & s) { return get<3>(s); }
+  static string & s_yname(Sample & s) { return get<4>(s); }
+  static const Unit* s_yunit(Sample & s) { return get<5>(s); }
+  static DynList<double> & s_yvals(Sample & s) { return get<6>(s); }
   DynList<Sample> get_pars(const string & target_name) const
   {
     DynList<Sample> ret;
@@ -528,8 +527,8 @@ struct PvtData
     for (auto it = zip_it(samples, target_samples); it.has_curr(); it.next())
       {
 	auto tt = it.get_curr();
-	const Sample & desc = get<0>(tt);
-	const Sample & ref = get<1>(tt);
+	Sample & desc = get<0>(tt);
+	Sample & ref = get<1>(tt);
 
 	if (s_punit(desc) != s_punit(ref))
 	  ZENTHROW(InvalidPressureUnit, "mismatch between pressure units " +
@@ -569,6 +568,94 @@ struct PvtData
     return ret;
   }
 
+  using Rtype = tuple<double, double, const Unit*, DynList<double>,
+		      const Unit*, DynList<double>, DynList<double>>;
+  DynList<Rtype> rapply(const Correlation * corr_ptr) const
+  {
+    const string target_name = corr_ptr->target_name();
+
+    ParList pars; // parameter to be passed to correlation corr_ptr
+    DynList<Sample> samples;
+    for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
+	 it.next())
+      {
+	auto & par = it.get_curr();
+	auto * ptr =
+	  par.names().find_ptr([this] (auto & p) { return names.has(p.first); });
+	if (ptr == nullptr)
+	  ZENTHROW(VarNameNotFound, "correlation parameter " + par.name +
+		   " not found in data set");
+
+	const string & name_in_data = ptr->first;
+	if (name_in_data == "t" or name_in_data == "p" or name_in_data == "pb")
+	  continue;
+
+	const ConstDesc * const_ptr = search_const(name_in_data);
+	if (const_ptr)
+	  {
+	    pars.insert(par.name, const_ptr->value, const_ptr->unit_ptr);
+	    continue;
+	  }
+
+	auto s = get_pars(name_in_data);
+	samples.append(s);
+      }
+
+    auto target_samples = get_pars(target_name);
+    auto & first_sample = target_samples.get_first();
+    const Unit * yunit = s_yunit(first_sample);
+    if (samples.is_empty())
+      samples.append(target_samples);
+
+  // using Rtype = tuple<double, double, const Unit*, DynList<double>,
+  // 		      const Unit*, DynList<double>, DynList<double>>;
+    DynList<Rtype> ret;
+    for (auto it = zip_it(samples, target_samples); it.has_curr(); it.next())
+      {
+	auto tt = it.get_curr();
+	Sample & desc = get<0>(tt);
+	Sample & ref = get<1>(tt);
+
+	if (s_punit(desc) != s_punit(ref))
+	  ZENTHROW(InvalidPressureUnit, "mismatch between pressure units " +
+		   s_punit(desc)->name + " != " + s_punit(ref)->name);
+ 
+	const Unit * punit = s_punit(desc);
+	const double & temp = s_t(desc);
+	const double & pb = s_pb(desc);
+	const Unit * par_unit = s_yunit(desc);
+	const string & par_name = s_yname(desc);
+	pars.insert("t", temp, &Fahrenheit::get_instance());
+	pars.insert("pb", pb, &psia::get_instance());
+	DynList<double> & pvals = s_pvals(desc); // pressures
+	DynList<double> & yvals = s_yvals(desc) ; // lab data
+	DynList<double> ycvals; // correlation output
+	for (auto it = zip_it(pvals, s_pvals(ref), yvals); it.has_curr(); it.next())
+	  {
+	    auto t = it.get_curr();
+	    const double & p = get<0>(t); // pressure from desc
+	    if (p != get<1>(t))
+	      ZENTHROW(PressureMismatch, "pressure mismatch between samples " +
+		       ::to_string(p) + " != " + ::to_string(get<1>(t)));
+
+	    const double & parval = get<2>(t);
+	    pars.insert("p", p, punit);
+	    pars.insert(par_name, parval, par_unit);
+
+	    double result =
+	      VtlQuantity(*yunit, corr_ptr->compute_by_names(pars, false)).raw();
+	    ycvals.append(result);
+	    pars.remove("p");
+	    pars.remove(par_name);
+	  }
+	ret.append(Rtype(temp, pb, punit, pvals, yunit, yvals, ycvals));
+	pars.remove("t");
+	pars.remove("pb");
+      }
+
+    return ret;
+  }
+
   //                             pressure vals, lab vals, target vals, statistics
   using T =
     tuple<const Correlation*, DynList<double>, DynList<double>, CorrStat::Desc>;
@@ -593,6 +680,7 @@ struct PvtData
 		    y.append(get<5>(v));
 		    yc.append(get<6>(v));
 		  });
+    // TODO: 
     auto stats = CorrStat(y).stats(yc);
 
     return make_tuple(corr_ptr, move(p), move(y), move(stats));

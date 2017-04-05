@@ -70,3 +70,15 @@
 ## 22. apply y stats deben retornar pares que contengan la temperatura
 - Created at   2017-04-04 19:36:07 -0400
 
+## 23. añadir opcion plot a test-pvt-data que grafique a paso pero qu emuestre pts experimentales
+- Created at   2017-04-05 15:12:03 -0400
+
+## 24. validar que ultimo valor del vector siempre debe ser el correspondiente al rsb
+- Created at   2017-04-05 15:59:33 -0400
+
+## 25. dry de familia apply
+- Created at   2017-04-05 16:51:30 -0400
+
+## 26. borrar tmp_calibration
+- Created at   2017-04-05 17:31:17 -0400
+
