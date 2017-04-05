@@ -5,7 +5,6 @@ json de calibrate debe recibir unidades en nombre no en símbolos,2017-03-13 10:
 verificar que Invalid_Value y VtlQuantity() se estén procesando en cplot,2017-03-14 20:51:35 -0400,,
 calibrar co,2017-03-20 15:17:41 -0400,,
 calibrar zfactor,2017-03-20 16:15:08 -0400,,
-terminar gen-json,2017-03-20 16:18:12 -0400,,
 correlaciones pueden agruparsepor subtipo,2017-03-23 12:25:40 -0400,,
 Separar la maquinaria de correlaciones de pvt; ponerla en libzen,2017-03-24 14:26:02 -0400,,
 Separar las referencias de pvt; ponerl en zen,2017-03-24 14:27:25 -0400,,
@@ -13,8 +12,6 @@ en cplot: cálculo de BoaMcCain debería de recibir coa, no co,2017-03-24 16:52:
 correlaciones puede agruparse por target_name,2017-03-27 08:55:43 -0400,,
 como calibrar con varias tmperaturas?,2017-03-28 14:58:47 -0400,,
 pasar excepciones de tclap a zen,2017-03-28 15:26:32 -0400,,Para eso hacer una excepcion TCLAP
-test-pvt-data debe tener opciones de salida mat, csv, R,2017-03-28 17:12:14 -0400
-evitar transpose,2017-03-29 09:52:48 -0400,,
 firma única de familia de correlación: que reciba union de todos los parámtros,2017-03-29 16:31:35 -0400,,qu se apoye en gen-corr
 cuantificar errores para un rango de temperturas para bo y uo caibrados,2017-03-29 16:55:18 -0400,,
 desc para vector en test-pvt-data,2017-03-30 10:35:34 -0400,,
@@ -22,3 +19,4 @@ validar que tuplas de t y pb coincidan,2017-03-31 12:52:30 -0400,,
 falta eliminar repetidos de presión en apply,2017-03-31 21:02:01 -0400,,
 test-pvt-data opcion para cambiarunidades de salida,2017-04-03 16:50:06 -0400,,
 Zen exception en par-liats,2017-04-04 08:49:24 -0400,,
+apply y stats deben retornar pares que contengan la temperatura,2017-04-04 19:36:07 -0400,,

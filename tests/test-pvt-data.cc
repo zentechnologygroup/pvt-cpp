@@ -558,7 +558,7 @@ void proccess_local_calibration()
       
       if (mode != "single")
 	{
-	  auto stats = data.stats(corr_ptr);
+	  auto stats = data.tstats(corr_ptr);
 	  comb.append(make_pair(CorrStat::c(get<3>(stats)),
 				CorrStat::m(get<3>(stats))));
 	}
