@@ -617,8 +617,34 @@ void proccess_local_calibration()
 
   // TODO: rutina que reciba corr_ptr, data, rows, header y añada los cálculos;
 void add_results(DynList<DynList<double>> & rows, DynList<string> & header,
-		 const Correlation * corr_ptr, const PvtData & data)
+		 const Correlation * corr_ptr, double c, double m,
+		 const Unit * yunit, const PvtData & data)
 {
+    auto vals = data.rapply(corr_ptr);
+    DynList<double> pressures = get<0>(vals);
+    DynList<double> y = get<2>(vals);
+    DynList<double> yc = get<3>(vals);
+
+    rows.append(build_dynlist<DynList<double>>(pressures, y);
+  DynList<string> header =
+    build_dynlist<string>("p " + punit->name,
+			  corr_ptr->target_name() + " " + yunit->name);
+
+  put_sample(corr_ptr, rows, header, yc, c, m);
+
+  for (auto it = zip_it_pos(1, corr_list, comb); it.has_curr(); it.next())
+    {
+      auto curr = it.get_curr();
+      corr_ptr = get<0>(curr);
+      vals = data.apply(corr_ptr);
+      auto & pvals = get<0>(vals);
+      if (not zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
+		      pressures, pvals))
+	ZENTHROW(InvariantError, "pressures for correlation " + corr_ptr->name);
+
+      yc = get<2>(vals);
+      put_sample(corr_ptr, rows, header, yc, c, m);
+    }
 
 }
 
