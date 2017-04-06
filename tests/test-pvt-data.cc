@@ -465,26 +465,28 @@ void process_apply()
 
 void put_sample(const Correlation * corr_ptr,
 		DynList<DynList<double>> & rows, DynList<string> & header,
+		const double temp,
 		const DynList<double> & yc, double c, double m)
 {
+  const string name = corr_ptr->target_name() + "_" + ::to_string(temp);
   const auto & mode = mode_type.getValue();
 
   if (mode == "single")
     {
       rows.append(yc);
-      header.append(corr_ptr->name);
+      header.append(name);
     }
   else if (mode == "calibrated")
     {
       rows.append(yc.maps([c, m] (auto y) { return c + m*y; }));
-      header.append(corr_ptr->name + "_adjusted");
+      header.append(name + "_adjusted");
     }
   else
     {
       rows.append(yc);
       rows.append(yc.maps([c, m] (auto y) { return c + m*y; }));
-      header.append(corr_ptr->name);
-      header.append(corr_ptr->name + "_adjusted");
+      header.append(name);
+      header.append(name + "_adjusted");
     }
 }
 
@@ -587,7 +589,7 @@ void proccess_local_calibration()
     build_dynlist<string>("p " + punit->name,
 			  corr_ptr->target_name() + " " + yunit->name);
 
-  put_sample(corr_ptr, rows, header, yc, c, m);
+  put_sample(corr_ptr, rows, header, 0, yc, c, m);
 
   for (auto it = zip_it_pos(1, corr_list, comb); it.has_curr(); it.next())
     {
@@ -600,7 +602,7 @@ void proccess_local_calibration()
 	ZENTHROW(InvariantError, "pressures for correlation " + corr_ptr->name);
 
       yc = get<2>(vals);
-      put_sample(corr_ptr, rows, header, yc, c, m);
+      put_sample(corr_ptr, rows, header, 0, yc, c, m);
     }
 
   DynList<DynList<string>> result =
@@ -616,36 +618,20 @@ void proccess_local_calibration()
 }
 
   // TODO: rutina que reciba corr_ptr, data, rows, header y añada los cálculos;
-void add_results(DynList<DynList<double>> & rows, DynList<string> & header,
-		 const Correlation * corr_ptr, double c, double m,
-		 const Unit * yunit, const PvtData & data)
+void
+compute_results(DynList<DynList<double>> & rows, DynList<string> & header,
+		const Correlation * corr_ptr, double c, double m,
+		const PvtData & data)
 {
-    auto vals = data.rapply(corr_ptr);
-    DynList<double> pressures = get<0>(vals);
-    DynList<double> y = get<2>(vals);
-    DynList<double> yc = get<3>(vals);
-
-    rows.append(build_dynlist<DynList<double>>(pressures, y);
-  DynList<string> header =
-    build_dynlist<string>("p " + punit->name,
-			  corr_ptr->target_name() + " " + yunit->name);
-
-  put_sample(corr_ptr, rows, header, yc, c, m);
-
-  for (auto it = zip_it_pos(1, corr_list, comb); it.has_curr(); it.next())
+  const string target_name = corr_ptr->target_name();
+  auto vals = data.rapply(corr_ptr);
+  for (auto it = vals.get_it(); it.has_curr(); it.next())
     {
-      auto curr = it.get_curr();
-      corr_ptr = get<0>(curr);
-      vals = data.apply(corr_ptr);
-      auto & pvals = get<0>(vals);
-      if (not zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
-		      pressures, pvals))
-	ZENTHROW(InvariantError, "pressures for correlation " + corr_ptr->name);
-
-      yc = get<2>(vals);
-      put_sample(corr_ptr, rows, header, yc, c, m);
+      auto & curr = it.get_curr();
+      auto t = get<0>(curr);
+      DynList<double> yc = get<6>(curr);
+      put_sample(corr_ptr, rows, header, t, yc, c, m);
     }
-
 }
 
 void proccess_tmp_calibration() 
@@ -731,12 +717,34 @@ void proccess_tmp_calibration()
 	coef.append(make_pair(0, 1));
     }
 
+  const Correlation * corr_ptr = corr_list.get_first();
+  auto vals = data.rapply(corr_ptr);
   DynList<DynList<double>> rows;
   DynList<string> header;
+  for (auto it = vals.get_it(); it.has_curr(); it.next())
+    {
+      auto & curr = it.get_curr();
+      const double & t = get<0>(curr);
+      const string suffix = ::to_string(t);
+      DynList<double> & p = get<3>(curr);
+      DynList<double> & y = get<5>(curr);
+      const Unit * punit = get<2>(curr);
+      const Unit * yunit = get<4>(curr);
+      append_in_container(rows, move(p), move(y));
+      append_in_container(header, "p_" + suffix + " " + punit->name,
+			  corr_ptr->target_name() + " " + yunit->name);
+    }
 
-  // TODO: rutina que reciba corr_ptr, data, rows, header y añada los cálculos;
-
-
+  for (auto it = zip_it(corr_list, coef); it.has_curr(); it.next())
+    {
+      auto t = it.get_curr();
+      const Correlation * corr_ptr = get<0>(t);
+      const auto p = get<1>(t);
+      const double c = p.first;
+      const double m = p.second;
+      compute_results(rows, header, corr_ptr, c, m, data);
+    }
+  
   DynList<DynList<string>> result =
     transpose(rows.maps<DynList<string>>([] (auto & l)
     {
