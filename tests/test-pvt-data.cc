@@ -637,74 +637,58 @@ void proccess_tmp_calibration()
 {
   static auto print_R = [] (const DynList<DynList<string>> & l) -> string
   {
+    struct Tmp
+    {
+      DynList<string> p;
+      DynList<DynList<string>> others;
+    };
     auto cols = transpose(l); // first contains column name
 
-    DynList<DynList<string>> p = cols.filter([] (auto & col)
-    {
-      return split(col.get_first(), '_')[0] == "p";
-    });
-    
-    double pmin = p.foldl<double>(0, [] (double acu, const DynList<string> & p)
-    {
-      return min(acu, p.drop(1).
-		 foldl(acu, [] (auto acu, auto & p) { return min(acu, atof(p)); }));
-    });
-
-    double pmax = p.foldl<double>(0, [] (double acu, const DynList<string> & p)
-    {
-      return max(acu, p.drop(1).
-		 foldl(acu, [] (auto acu, auto & p) { return max(acu, atof(p)); }));
-    });
-
-    DynList<string> y;
-    DynList<DynList<string>> yc;
-    //         temp    
-    DynMapTree<string, DynList<DynList<string>>> temps;
+    //         temp    all other stuff related to temp value
+    DynMapTree<string, Tmp> temps;
     for (auto it = cols.get_it(); it.has_curr(); it.next())
       {
 	DynList<string> & col = it.get_curr();
 	const string & header = col.get_first();
 	auto header_parts = split(header, '_');
-	const string suffix = header_parts[1];
-	temps[suffix].append(move(col));
+	const string prefix = header_parts[0];
+	const string type = header_parts[1];
+	if (prefix == "p")
+	  temps[type].p = move(col);
+	else
+	  temps[type].others.append(move(col));
       }
 
-    auto p = vals.remove_first(); names.remove_first();
-    auto y = vals.remove_first();
-    auto yname = split_to_list(names.remove_first(), " ").get_first();
-
+    double xmin = numeric_limits<double>::max(), ymin = xmin;
+    double xmax = 0, ymax = 0;
     ostringstream s;
-    s << Rvector("p", p) << endl
-      << Rvector(yname, y) << endl;
-    double ymin = numeric_limits<double>::max(), ymax = 0;
-    DynList<string> ynames;
-    for (auto it = get_zip_it(names, vals); it.has_curr(); it.next())
-    {
-      auto t = it.get_curr();
-      auto & yc = get<1>(t);
-      auto & yname = get<0>(t);
-      s << Rvector(yname, yc) << endl;
-      ynames.append(yname);
-      ymin = yc.foldl(ymin, [] (auto a, auto y) { return min(a, atof(y)); });
-      ymax = yc.foldl(ymax, [] (auto a, auto y) { return max(a, atof(y)); });
-    }
-
-    s << "plot(p, " << yname << ",ylim=c(" << ymin << "," << ymax << "))"
-      << endl;
-    size_t col = 1;
-    DynList<string> colnames;
-    DynList<string> cols;
-    for (auto it = ynames.get_it(); it.has_curr(); it.next(), ++col)
+    for (auto it = temps.get_it(); it.has_curr(); it.next())
       {
-	auto & yname = it.get_curr();
-	colnames.append("\"" + yname + "\"");
-	cols.append(to_string(col));
-	s << "lines(p, " << yname << ", col=" << col << ")" << endl;
+	auto & p = it.get_curr();
+	const Tmp & tmp = p.second;
+	tmp.p.each(1, 1, [&xmin, &xmax] (auto v)
+		   { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
+	s << Rvector(tmp.p.get_first(), tmp.p.drop(1)) << endl;
+	for (auto it = tmp.others.get_it(); it.has_curr(); it.next())
+	  {
+	    const DynList<string> & col = it.get_curr();
+	    col.each(1, 1, [&ymin, &ymax] (auto v)
+		     { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
+	    s << Rvector(col.get_first(), col.drop(1)) << endl;
+	  }
       }
 
-    s << Rvector("cnames", colnames) << endl
-      << Rvector("cols", cols) << endl
-      <<  "legend(\"topleft\", legend=cnames, lty=1, col=cols)" << endl;
+    s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
+      << ymin << "," << ymax << "))" << endl;
+
+     // for (auto it = temps.get_it(); it.has_curr(); it.next())
+     //  {
+     // 	auto & p = it.get_curr();
+     // 	const DynList<DynList<string>> & l = p.second;
+     // 	const DynList<string> * p_ptr =
+     // 	  l.find_ptr([] (auto & l)
+     // 		     { return split(l.get_first(), '_')[0] == "p"; });
+     //  }
 
     return s.str();
   };
@@ -737,7 +721,7 @@ void proccess_tmp_calibration()
       
       if (mode != "single")
 	{
-	  auto stats = data.tstats(corr_ptr);
+	  auto stats = data.rstats(corr_ptr);
 	  coef.append(make_pair(CorrStat::c(get<3>(stats)),
 				CorrStat::m(get<3>(stats))));
 	}

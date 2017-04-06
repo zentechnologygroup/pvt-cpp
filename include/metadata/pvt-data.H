@@ -573,6 +573,13 @@ struct PvtData
   DynList<Rtype> rapply(const Correlation * corr_ptr) const
   {
     const string target_name = corr_ptr->target_name();
+    auto target_samples = get_pars(target_name);
+    if (target_samples.is_empty())
+      ZENTHROW(VarNameNotFound, "Correlation target " + target_name +
+	       " not found in data set");
+
+    auto & first_sample = target_samples.get_first();
+    const Unit * yunit = s_yunit(first_sample);
 
     ParList pars; // parameter to be passed to correlation corr_ptr
     DynList<Sample> samples;
@@ -601,9 +608,6 @@ struct PvtData
 	samples.append(s);
       }
 
-    auto target_samples = get_pars(target_name);
-    auto & first_sample = target_samples.get_first();
-    const Unit * yunit = s_yunit(first_sample);
     if (samples.is_empty())
       samples.append(target_samples);
 
@@ -630,7 +634,8 @@ struct PvtData
 	DynList<double> & pvals = s_pvals(desc); // pressures
 	DynList<double> & yvals = s_yvals(desc) ; // lab data
 	DynList<double> ycvals; // correlation output
-	for (auto it = zip_it(pvals, s_pvals(ref), yvals); it.has_curr(); it.next())
+	for (auto it = zip_it(pvals, s_pvals(ref), yvals);
+	     it.has_curr(); it.next())
 	  {
 	    auto t = it.get_curr();
 	    const double & p = get<0>(t); // pressure from desc
@@ -673,6 +678,24 @@ struct PvtData
   T tstats(const Correlation * corr_ptr) const
   {
     auto vals = tapply(corr_ptr);
+    DynList<double> p, y, yc;
+    vals.for_each([&p, &y, &yc] (auto & v)
+		  {
+		    p.append(get<3>(v));
+		    y.append(get<5>(v));
+		    yc.append(get<6>(v));
+		  });
+    // TODO: 
+    auto stats = CorrStat(y).stats(yc);
+
+    return make_tuple(corr_ptr, move(p), move(y), move(stats));
+  }
+
+  T rstats(const Correlation * corr_ptr) const
+  {
+    // using Rtype = tuple<double, double, const Unit*, DynList<double>,
+  // 		      const Unit*, DynList<double>, DynList<double>>;
+    auto vals = rapply(corr_ptr);
     DynList<double> p, y, yc;
     vals.for_each([&p, &y, &yc] (auto & v)
 		  {

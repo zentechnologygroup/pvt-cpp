@@ -131,7 +131,7 @@ struct PropertyUnit
     if (not (iss >> name >> unit_name))
       throw TCLAP::ArgParseException(str + " is not a pair par-name unit");
 
-v    return *this;
+    return *this;
   }
 
   PropertyUnit() {}
