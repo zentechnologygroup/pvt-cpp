@@ -320,8 +320,6 @@ const Unit * test_unit(const string & par_name, const Unit & dft_unit)
   for (auto & par : unit.getValue())
     if (par.name == par_name)
       {
-	cout << "Change for " << par.name << " from " << dft_unit.name << " to "
-	     << par.unit_ptr->name << endl;
 	if (&dft_unit.physical_quantity != &par.unit_ptr->physical_quantity)
 	  ZENTHROW(CommandLineError, par_name + " unit: physical quantity " +
 		   ret->physical_quantity.name + " is invalid");
@@ -468,7 +466,8 @@ void put_sample(const Correlation * corr_ptr,
 		const double temp,
 		const DynList<double> & yc, double c, double m)
 {
-  const string name = corr_ptr->target_name() + "_" + ::to_string(temp);
+  int t = temp;
+  const string name = corr_ptr->name + "_" + ::to_string(t);
   const auto & mode = mode_type.getValue();
 
   if (mode == "single")
@@ -638,8 +637,37 @@ void proccess_tmp_calibration()
 {
   static auto print_R = [] (const DynList<DynList<string>> & l) -> string
   {
-    auto names = l.get_first();
-    auto vals = transpose(l.drop(1));
+    auto cols = transpose(l); // first contains column name
+
+    DynList<DynList<string>> p = cols.filter([] (auto & col)
+    {
+      return split(col.get_first(), '_')[0] == "p";
+    });
+    
+    double pmin = p.foldl<double>(0, [] (double acu, const DynList<string> & p)
+    {
+      return min(acu, p.drop(1).
+		 foldl(acu, [] (auto acu, auto & p) { return min(acu, atof(p)); }));
+    });
+
+    double pmax = p.foldl<double>(0, [] (double acu, const DynList<string> & p)
+    {
+      return max(acu, p.drop(1).
+		 foldl(acu, [] (auto acu, auto & p) { return max(acu, atof(p)); }));
+    });
+
+    DynList<string> y;
+    DynList<DynList<string>> yc;
+    //         temp    
+    DynMapTree<string, DynList<DynList<string>>> temps;
+    for (auto it = cols.get_it(); it.has_curr(); it.next())
+      {
+	DynList<string> & col = it.get_curr();
+	const string & header = col.get_first();
+	auto header_parts = split(header, '_');
+	const string suffix = header_parts[1];
+	temps[suffix].append(move(col));
+      }
 
     auto p = vals.remove_first(); names.remove_first();
     auto y = vals.remove_first();
@@ -724,15 +752,13 @@ void proccess_tmp_calibration()
   for (auto it = vals.get_it(); it.has_curr(); it.next())
     {
       auto & curr = it.get_curr();
-      const double & t = get<0>(curr);
+      const int t = get<0>(curr);
       const string suffix = ::to_string(t);
       DynList<double> & p = get<3>(curr);
       DynList<double> & y = get<5>(curr);
-      const Unit * punit = get<2>(curr);
-      const Unit * yunit = get<4>(curr);
       append_in_container(rows, move(p), move(y));
-      append_in_container(header, "p_" + suffix + " " + punit->name,
-			  corr_ptr->target_name() + " " + yunit->name);
+      append_in_container(header, "p_" + suffix,
+			  corr_ptr->target_name() + "_" + suffix);
     }
 
   for (auto it = zip_it(corr_list, coef); it.has_curr(); it.next())
