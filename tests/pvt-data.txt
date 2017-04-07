@@ -3,4 +3,5 @@
 ./test-pvt-data --api 26 --yg .71 --rsb 1110 --property "rs SCF_STB 189 degF 3891.89 psia 1000 2000 3000 3500 3602.9 3891.89 287.701 521.132 801.125 967.446 982.957 1075.46" --property "bob RB_STB 189 degF 3891.89 psia 1000 2000 3000 3500 3602.9 3891.89 1.32591 1.45799 1.61047 1.70097 1.70942 1.77922" --action "local_calibration BobHanafy BobLasater"
 
 
-./test-pvt-data --api 9.7 --rsb 35 --tsep 90 --psep 75 --unit "psep psig" --yg .597 --property "rs SCF_STB 138 degF 468 psig 195 468 20 43" --property "rs SCF_STB 220 degF 500 psig 230 500 24 43" --property "rs SCF_STB 320 degF 570 psig 245 570 21 43"
+./test-pvt-data --api 9.7 --rsb 35 --tsep 90 --psep 75 --unit "psep psig" --yg .597 --property "rs SCF_STB 138 degF 468 psig 195 468 20 43" --property "rs SCF_STB 220 degF 500 psig 230 500 21 43" --property "rs SCF_STB 320 degF 570 psig 245 570 24 43" --action "tmp_calibration RsMillanArcia" --output R
+

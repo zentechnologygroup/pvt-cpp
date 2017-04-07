@@ -640,7 +640,8 @@ void proccess_tmp_calibration()
     struct Tmp
     {
       DynList<string> p;
-      DynList<DynList<string>> others;
+      DynList<string> y;
+      DynList<DynList<string>> yc;
     };
     auto cols = transpose(l); // first contains column name
 
@@ -655,8 +656,10 @@ void proccess_tmp_calibration()
 	const string type = header_parts[1];
 	if (prefix == "p")
 	  temps[type].p = move(col);
+	else if (islower(prefix[0])) // is a Correlation name
+	  temps[type].y = move(col);
 	else
-	  temps[type].others.append(move(col));
+	  temps[type].yc.append(move(col));
       }
 
     double xmin = numeric_limits<double>::max(), ymin = xmin;
@@ -668,8 +671,9 @@ void proccess_tmp_calibration()
 	const Tmp & tmp = p.second;
 	tmp.p.each(1, 1, [&xmin, &xmax] (auto v)
 		   { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
-	s << Rvector(tmp.p.get_first(), tmp.p.drop(1)) << endl;
-	for (auto it = tmp.others.get_it(); it.has_curr(); it.next())
+	s << Rvector(tmp.p.get_first(), tmp.p.drop(1)) << endl
+	  << Rvector(tmp.y.get_first(), tmp.y.drop(1)) << endl;
+	for (auto it = tmp.yc.get_it(); it.has_curr(); it.next())
 	  {
 	    const DynList<string> & col = it.get_curr();
 	    col.each(1, 1, [&ymin, &ymax] (auto v)
@@ -681,14 +685,14 @@ void proccess_tmp_calibration()
     s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
       << ymin << "," << ymax << "))" << endl;
 
-     // for (auto it = temps.get_it(); it.has_curr(); it.next())
-     //  {
-     // 	auto & p = it.get_curr();
-     // 	const DynList<DynList<string>> & l = p.second;
-     // 	const DynList<string> * p_ptr =
-     // 	  l.find_ptr([] (auto & l)
-     // 		     { return split(l.get_first(), '_')[0] == "p"; });
-     //  }
+    for (auto it = temps.get_it(); it.has_curr(); it.next())
+      {
+     	auto & pp = it.get_curr();
+	const Tmp & tmp = pp.second;
+	const auto & pname = tmp.p.get_first();
+	// TODO: opción pch
+	s << "points(" << pname << "," << tmp.y.get_first() << ")" << endl;
+      }
 
     return s.str();
   };
