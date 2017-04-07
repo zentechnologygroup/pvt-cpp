@@ -13,6 +13,7 @@ DEFINE_ZEN_EXCEPTION(InvalidConst, "invalid const");
 DEFINE_ZEN_EXCEPTION(EmptyVarSet, "variable set is empty")
 DEFINE_ZEN_EXCEPTION(ColumnIndexNameMismatch,
 		     "mismatch between column name and index")
+DEFINE_ZEN_EXCEPTION(InvalidProperty, "Invalid property name")
 DEFINE_ZEN_EXCEPTION(InvalidPressureUnit, "Invalid unit for pressure")
 DEFINE_ZEN_EXCEPTION(InvalidTargetUnit, "Invalid target unit");
 DEFINE_ZEN_EXCEPTION(SamplesUnsorted, "samples are not sorted")
