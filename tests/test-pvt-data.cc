@@ -290,6 +290,8 @@ ValueArg<double> co2 = { "", "co2", "co2", false, 0, "co2 in MolePercent", cmd }
 ValueArg<double> n2 = { "", "n2", "n2", false, 0, "n2 in MolePercent", cmd };
 ValueArg<double> nacl = { "", "nacl", "nacl", false, 0, "nacl in Molality_NaCl",
 			  cmd };
+ValueArg<double> uod = { "", "uod", "uod", false, 0, "uod in cP", cmd };
+
 
 MultiArg<ValuesArg> target =
   { "", "property", "property array", false, 
@@ -685,14 +687,41 @@ void proccess_tmp_calibration()
     s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
       << ymin << "," << ymax << "))" << endl;
 
+    size_t pch = 1;
+    size_t col = 1;
+    DynList<string> colnames;
+    DynList<int> colors;
+    DynList<string> ltys;
+    DynList<string> pchs;
     for (auto it = temps.get_it(); it.has_curr(); it.next())
       {
      	auto & pp = it.get_curr();
 	const Tmp & tmp = pp.second;
 	const auto & pname = tmp.p.get_first();
-	// TODO: opción pch
-	s << "points(" << pname << "," << tmp.y.get_first() << ")" << endl;
+	const string & name = tmp.y.get_first();
+	colnames.append("\"" + name + "\"");
+	colors.append(1);
+	ltys.append("NA");
+	pchs.append(to_string(pch));
+	s << "points(" << pname << "," << name << ",pch=" << pch++ << ")"
+	  << endl;
+	for (auto it = tmp.yc.get_it(); it.has_curr(); it.next(), ++col)
+	  {
+	    const string & name = it.get_curr().get_first();
+	    s << "lines(" << pname << "," << name << ",col=" << col << ")"
+	      << endl;
+	    colnames.append("\"" + name + "\"");
+	    colors.append(col);
+	    pchs.append("NA");
+	    ltys.append("1");
+	  }
       }
+    s << Rvector("cnames", colnames) << endl
+      << Rvector("cols", colors) << endl
+      << Rvector("pchs", pchs) << endl
+      << Rvector("ltys", ltys) << endl
+      <<  "legend(\"topleft\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
+      << endl;
 
     return s.str();
   };

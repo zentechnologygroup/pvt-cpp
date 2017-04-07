@@ -14,6 +14,7 @@ struct VectorDesc
 {
   const double t = 0; //  unit will always be in Fahrenheit
   const double pb = 0; // in the same unit that p
+  const double uod = 0;
   const Array<double> p;
   const Unit * punit = nullptr;
 
@@ -21,12 +22,28 @@ struct VectorDesc
   const Unit * yunit = nullptr;
   const Array<double> y;
 
+  void validate_p_sorted()
+  {
+    if (not is_sorted(p))
+      ZENTHROW(SamplesUnsorted, "pressures are not sorted");
+  }
+
   VectorDesc(double t, double pb, const Array<double> & p, const Unit * punit,
 	     const string & yname, const Unit * yunit, const Array<double> & y)
     noexcept
     : t(t), pb(pb), p(p), punit(punit), yname(yname), yunit(yunit), y(y)
   {
-    assert(is_sorted(p));
+    validate_p_sorted();
+  }
+
+  VectorDesc(double t, double pb, double uod,
+	     const Array<double> & p, const Unit * punit,
+	     const string & yname, const Unit * yunit, const Array<double> & y)
+    noexcept
+    : t(t), pb(pb), uod(uod), p(p), punit(punit), yname(yname), yunit(yunit),
+      y(y)
+  {
+    validate_p_sorted();
   }
 
   VectorDesc() {}
@@ -695,15 +712,37 @@ struct PvtData
   {
     // using Rtype = tuple<double, double, const Unit*, DynList<double>,
   // 		      const Unit*, DynList<double>, DynList<double>>;
-    auto vals = rapply(corr_ptr);
+    DynList<Rtype> vals = rapply(corr_ptr);
+    DynMapTree<double, pair<double, double>> ptbl;
+    for (auto it = vals.get_it(); it.has_curr(); it.next())
+      {
+	const auto & t = it.get_curr();
+	const DynList<double> & p = get<3>(t);
+	const DynList<double> & y = get<5>(t);
+	const DynList<double> & yc = get<6>(t);
+	for (auto it = zip_it(p, y, yc); it.has_curr(); it.next())
+	  {
+	    auto t = it.get_curr();
+	    const double & p = get<0>(t);
+	    const double & y = get<1>(t);
+	    const double & yc = get<2>(t);
+	    auto ptr = ptbl.search(p);
+	    if (ptr == nullptr)
+	      ptbl.append(p, make_pair(y, yc));
+	    else if (y > ptr->second.first)
+	      ptr->second = make_pair(y, yc);
+	  }
+      }
+
     DynList<double> p, y, yc;
-    vals.for_each([&p, &y, &yc] (auto & v)
-		  {
-		    p.append(get<3>(v));
-		    y.append(get<5>(v));
-		    yc.append(get<6>(v));
-		  });
-    // TODO: 
+    for (auto it = ptbl.get_it(); it.has_curr(); it.next())
+      {
+	auto pp = it.get_curr();
+	p.append(pp.first);
+	y.append(pp.second.first);
+	yc.append(pp.second.second);
+      }
+
     auto stats = CorrStat(y).stats(yc);
 
     return make_tuple(corr_ptr, move(p), move(y), move(stats));

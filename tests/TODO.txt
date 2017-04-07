@@ -16,7 +16,7 @@ firma única de familia de correlación: que reciba union de todos los parámtro
 cuantificar errores para un rango de temperturas para bo y uo caibrados,2017-03-29 16:55:18 -0400,,
 desc para vector en test-pvt-data,2017-03-30 10:35:34 -0400,,
 validar que tuplas de t y pb coincidan,2017-03-31 12:52:30 -0400,,
-falta eliminar repetidos de presión en apply,2017-03-31 21:02:01 -0400,,
+falta eliminar repetidos de presión en apply,2017-03-31 21:02:01 -0400,2017-04-07 11:04:28 -0400,
 test-pvt-data opcion para cambiarunidades de salida,2017-04-03 16:50:06 -0400,,
 Zen exception en par-liats,2017-04-04 08:49:24 -0400,,
 apply y stats deben retornar pares que contengan la temperatura,2017-04-04 19:36:07 -0400,,
