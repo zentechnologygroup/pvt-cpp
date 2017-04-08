@@ -86,3 +86,6 @@
 ## 27. dispatcher en ValuesArg para validar orden de y
 - Created at   2017-04-08 10:38:27 -0400
 
+## 28. Sample debe contener uod; así no sea utilizado
+- Created at   2017-04-08 17:12:44 -0400
+

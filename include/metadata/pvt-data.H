@@ -71,10 +71,25 @@ struct VectorDesc
 
   double gety(double pval) const
   {
-    size_t i = p.find_index([pval] (auto p) { return p == pval; });
-    if (i >= p.size())
-      ZENTHROW(ValueNotFound, ::to_string(pval) + " not found in vector");
-    return y(i);
+    const size_t & n = p.size();
+    long i = binary_search(p, pval);
+    if (i < 0 or i >= n)
+      ZENTHROW(ValueNotFound, ::to_string(pval) + " not found in data set");
+
+    const double pentry = p(i);
+    if (pentry == pval)
+      return y(i);
+
+    if (pval < pentry)
+      --i;
+
+    return interpolate(p(i), p(i+1), y(i), y(i+1), pval);
+  }
+
+  template <template <typename> class C>
+  DynList<double> gety(const C<double> & pvals) const
+  {
+    return pvals.maps([this] (auto & v) { return this->gety(v); });
   }
 
   DynList<DynList<string>> to_dynlist() const
@@ -259,25 +274,28 @@ struct PvtData
     for (auto it = samples.get_it(); it.has_curr(); it.next())
       {
 	ptr = it.get_curr();
-	DynList<double> p = to_dynlist(unit_convert(*ptr->punit, ptr->p, *punit));
-	DynList<double> y = to_dynlist(unit_convert(*ptr->yunit, ptr->y, *yunit));
-	ret.append(SampleDesc(ptr->t, punit, p, yunit, y));
+	DynList<double> p =
+	  to_dynlist(unit_convert(*ptr->punit, ptr->p, *punit));
+	DynList<double> y =
+	  to_dynlist(unit_convert(*ptr->yunit, ptr->y, *yunit));
+	ret.append(SampleDesc(ptr->t, punit, move(p), yunit, move(y)));
       }
 				
     return ret;
   }
 
-  using Sample = tuple<double, double, // t in degF, pb value
+  using Sample = tuple<double, double, double, // t in degF, pb value, uod value
 		       const Unit*, DynList<double>, // pressure unit &values
 		       string, // property name
 		       const Unit*, DynList<double>>; // target unit & values
   static const double & s_t(Sample & s) { return get<0>(s); }
   static const double & s_pb(Sample & s) { return get<1>(s); }
-  static const Unit* s_punit(Sample & s) { return get<2>(s); }
-  static DynList<double> & s_pvals(Sample & s) { return get<3>(s); }
-  static string & s_yname(Sample & s) { return get<4>(s); }
-  static const Unit* s_yunit(Sample & s) { return get<5>(s); }
-  static DynList<double> & s_yvals(Sample & s) { return get<6>(s); }
+  static const double & s_uod(Sample & s) { return get<2>(s); }
+  static const Unit* s_punit(Sample & s) { return get<3>(s); }
+  static DynList<double> & s_pvals(Sample & s) { return get<4>(s); }
+  static string & s_yname(Sample & s) { return get<5>(s); }
+  static const Unit* s_yunit(Sample & s) { return get<6>(s); }
+  static DynList<double> & s_yvals(Sample & s) { return get<7>(s); }
   DynList<Sample> get_pars(const string & target_name) const
   {
     DynList<Sample> ret;
@@ -289,15 +307,49 @@ struct PvtData
     const Unit * punit = ptr->punit;
     const Unit * yunit = ptr->yunit;
 
-    ret.append(Sample(ptr->t, ptr->pb, punit, to_dynlist(ptr->p),
+    ret.append(Sample(ptr->t, ptr->pb, ptr->uod, punit, to_dynlist(ptr->p),
 		      target_name, yunit, to_dynlist(ptr->y)));
 
     for (auto it = samples.get_it(); it.has_curr(); it.next())
       {
 	ptr = it.get_curr();
-	DynList<double> p = to_dynlist(unit_convert(*ptr->punit, ptr->p, *punit));
-	DynList<double> y = to_dynlist(unit_convert(*ptr->yunit, ptr->y, *yunit));
-	ret.append(Sample(ptr->t, ptr->pb, punit, p, target_name, yunit, y));
+	DynList<double> p =
+	  to_dynlist(unit_convert(*ptr->punit, ptr->p, *punit));
+	DynList<double> y =
+	  to_dynlist(unit_convert(*ptr->yunit, ptr->y, *yunit));
+	ret.append(Sample(ptr->t, ptr->pb, ptr->uod, punit, move(p),
+			  target_name, yunit, move(y)));
+      }
+				
+    return ret;
+  }
+
+  DynList<Sample> get_pars(const DynList<const VectorDesc*> & ref_vectors,
+			   const string & target_name) const
+  {
+    DynList<Sample> ret;
+    auto samples = search_vector(target_name);
+    if (samples.is_empty())
+      return ret;
+
+    const VectorDesc * fst_vector = ref_vectors.get_first();
+
+    auto ptr = samples.get_first();
+    const Unit * punit = ptr->punit;
+    const Unit * yunit = ptr->yunit;
+
+    ret.append(Sample(ptr->t, ptr->pb, ptr->uod, punit, to_dynlist(ptr->p),
+		      target_name, yunit, fst_vector->gety(ptr->y)));
+
+    for (auto it = samples.get_it(1); it.has_curr(); it.next())
+      {
+	ptr = it.get_curr();
+	DynList<double> p =
+	  to_dynlist(unit_convert(*ptr->punit, ptr->p, *punit));
+	DynList<double> y =
+	  to_dynlist(unit_convert(*ptr->yunit, ptr->y, *yunit));
+	ret.append(Sample(ptr->t, ptr->pb, ptr->uod, punit, move(p),
+			  target_name, yunit, move(y)));
       }
 				
     return ret;
@@ -655,6 +707,101 @@ struct PvtData
 	DynList<double> & yvals = s_yvals(desc) ; // lab data
 	DynList<double> ycvals; // correlation output
 	for (auto it = zip_it(pvals, s_pvals(ref), yvals);
+	     it.has_curr(); it.next())
+	  {
+	    auto t = it.get_curr();
+	    const double & p = get<0>(t); // pressure from desc
+	    if (p != get<1>(t))
+	      ZENTHROW(PressureMismatch, "pressure mismatch between samples " +
+		       ::to_string(p) + " != " + ::to_string(get<1>(t)));
+
+	    const double & parval = get<2>(t);
+	    pars.insert("p", p, punit);
+	    pars.insert(par_name, parval, par_unit);
+
+	    double result =
+	      VtlQuantity(*yunit, corr_ptr->compute_by_names(pars, false)).raw();
+	    ycvals.append(result);
+	    pars.remove("p");
+	    pars.remove(par_name);
+	  }
+	ret.append(Rtype(temp, pb, punit, pvals, yunit, yvals, ycvals));
+	pars.remove("t");
+	pars.remove("pb");
+      }
+
+    return ret;
+  }
+
+  using TYPE = tuple<double, double, const Unit*, DynList<double>,
+		     const Unit*, DynList<double>, DynList<double>>;
+  DynList<TYPE> iapply(const Correlation * corr_ptr) const
+  {
+    const string target_name = corr_ptr->target_name();
+    const DynList<const VectorDesc*> target_vectors = search_vector(target_name);
+    if (target_vectors.is_empty())
+      ZENTHROW(VarNameNotFound, "Correlation target " + target_name +
+	       " not found in data set");
+
+    auto first_sample_ptr = target_vectors.get_first();
+    const Unit * yunit = first_sample_ptr->yunit;
+
+    ParList pars; // parameter to be passed to correlation corr_ptr
+    DynList<Sample> samples;
+    for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
+	 it.next())
+      {
+	auto & par = it.get_curr();
+	auto * ptr =
+	  par.names().find_ptr([this] (auto & p) { return names.has(p.first); });
+	if (ptr == nullptr)
+	  ZENTHROW(VarNameNotFound, "correlation parameter " + par.name +
+		   " not found in data set");
+
+	const string & name_in_data = ptr->first;
+	if (name_in_data == "t" or name_in_data == "p" or name_in_data == "pb")
+	  continue;
+
+	const ConstDesc * const_ptr = search_const(name_in_data);
+	if (const_ptr)
+	  {
+	    pars.insert(par.name, const_ptr->value, const_ptr->unit_ptr);
+	    continue;
+	  }
+
+	auto s = get_pars(target_vectors, name_in_data);
+	samples.append(s);
+      }
+
+    if (samples.is_empty())
+      samples.append(get_pars(target_name));
+
+    // TODO : falta uod en TYPE
+  // using TYPE = tuple<double, double, const Unit*, DynList<double>,
+  // 		      const Unit*, DynList<double>, DynList<double>>;
+    DynList<TYPE> ret;
+    for (auto it = zip_it(samples, target_vectors); it.has_curr(); it.next())
+      {
+	auto tt = it.get_curr();
+	Sample & desc = get<0>(tt);
+	const VectorDesc * ref_ptr = get<1>(tt);
+
+	if (s_punit(desc) != ref_ptr->punit)
+	  ZENTHROW(InvalidPressureUnit, "mismatch between pressure units " +
+		   s_punit(desc)->name + " != " + ref_ptr->punit->name);
+ 
+	const Unit * punit = s_punit(desc);
+	const double & temp = s_t(desc);
+	const double & pb = s_pb(desc);
+	const Unit * par_unit = s_yunit(desc);
+	const string & par_name = s_yname(desc);
+	pars.insert("t", temp, &Fahrenheit::get_instance());
+	pars.insert("pb", pb, &psia::get_instance());
+	// TODO uod
+	DynList<double> & pvals = s_pvals(desc); // pressures
+	DynList<double> & yvals = s_yvals(desc);
+	DynList<double> ycvals; // correlation output
+	for (auto it = zip_it(pvals, ref_ptr->p, yvals);
 	     it.has_curr(); it.next())
 	  {
 	    auto t = it.get_curr();
