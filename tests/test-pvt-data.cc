@@ -134,7 +134,7 @@ namespace TCLAP
 // not correlations). This table is used for validating change of
 // units
 DynSetTree<string> const_name_tbl =
-  { "api", "rsb", "yg", "tsep", "psep", "h2s", "co2", "n2", "nacl" };
+  { "api", "rsb", "yg", "tsep", "psep", "h2s", "co2", "n2", "nacl", "uod" };
 
 // input parameter unit change specification
 //

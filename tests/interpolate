@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+def usage
+  puts './interpolate x1 x2 y1 y2 x'
+  exit
+end
+
+def test_num_args n
+  return if ARGV.size == n
+
+  puts "Expected #{n} parameters"
+  usage
+end
+
+def is_number? string
+  true if Float(string) rescue false
+end
+
+def read_number_from_argv
+  v = ARGV.shift
+  fail "parameter #{v} is not numeric" unless is_number? v
+  Float(v)
+end
+
+test_num_args 5
+
+x1 = read_number_from_argv
+x2 = read_number_from_argv
+y1 = read_number_from_argv
+y2 = read_number_from_argv
+x = read_number_from_argv 
+
+fail "#{x1} must be greater than #{x2}" unless x1
+fail "#{x} must be inside [#{x1}, #{x2}]" unless x > x1 && x < x2
+
+y = ((y2-y1)/(x2-x1))*x
+
+puts y

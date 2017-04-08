@@ -26,6 +26,8 @@ struct ValuesArg
   double t; // temperature
   const Unit * tunit_ptr = nullptr; // temperature unit
 
+  double uod; // uod
+
   double pb; // bubble point
   const Unit * punit_ptr = nullptr; // pressure unit (for pb and p)
   Array<double> p;
@@ -47,37 +49,40 @@ struct ValuesArg
   static void check_rs(const ValuesArg & arg)
   {
     if (&arg.unit_ptr->physical_quantity != &GORGLRvolumeRatio::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->physical_quantity.name +
+      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
 	       " is not an unit for " + GORGLRvolumeRatio::get_instance().name);
   }
 
   static void check_bo(const ValuesArg & arg)
   {
     if (&arg.unit_ptr->physical_quantity != &FVFvolumeRatio::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->physical_quantity.name +
+      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
 	       " is not an unit for " + FVFvolumeRatio::get_instance().name);
   }
 
   static void check_uo(const ValuesArg & arg)
   {
     if (&arg.unit_ptr->physical_quantity != &DynamicViscosity::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->physical_quantity.name +
+      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
 	       " is not an unit for " + DynamicViscosity::get_instance().name);
   }
 
   static void check_co(const ValuesArg & arg)
   {
-    if (&arg.unit_ptr->physical_quantity != &IsothermalCompressibility::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->physical_quantity.name +
+    if (&arg.unit_ptr->physical_quantity !=
+	&IsothermalCompressibility::get_instance())
+      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
 	       " is not an unit for " +
 	       IsothermalCompressibility::get_instance().name);
   }
 
   static void check_zfactor(const ValuesArg & arg)
   {
-    if (&arg.unit_ptr->physical_quantity != &CompressibilityFactor::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->physical_quantity.name +
-	       " is not an unit for " + CompressibilityFactor::get_instance().name);
+    if (&arg.unit_ptr->physical_quantity !=
+	&CompressibilityFactor::get_instance())
+      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
+	       " is not an unit for " +
+	       CompressibilityFactor::get_instance().name);
   }
 
   void validate_property()
@@ -85,7 +90,8 @@ struct ValuesArg
     static const DynSetTree<string> valid_targets =
       { "rs", "bob", "boa", "uob", "uob", "cob", "coa", "zfactor" };
     if (not valid_targets.contains(target_name))
-      ZENTHROW(InvalidProperty, "target name " + target_name +  " is not valid");
+      ZENTHROW(InvalidProperty, "target name " + target_name +
+	       " is not valid");
   }
 
   ValuesArg & operator = (const string & str)
@@ -131,19 +137,22 @@ struct ValuesArg
     if (&tunit_ptr->physical_quantity != &Temperature::get_instance())
       ZENTHROW(CommandLineError, unit_name + " is not a temperature unit");
 
+    if (target_name == "uob" or target_name == "uoa")
+      {
+	cout << "Reading uod" << endl;
+	if (not (iss >> data))
+	  ZENTHROW(CommandLineError, "uod value not found");
+	if (not is_double(data))
+	  ZENTHROW(CommandLineError, "uod value " + data + " is not a double");
+	uod = atof(data);
+      }
+
     // read pb value
     if (not (iss >> data))
       ZENTHROW(CommandLineError, "pb value not found");
     if (not is_double(data))
       ZENTHROW(CommandLineError, "pb value " + data + " is not a double");
     pb = atof(data);
-
-    if (target_name == "uob" or target_name == "uoa")
-      {
-	
-      }
-
-    // Aqui se verifica si hay que leer uod
 
     // read pressure unit
     if (not (iss >> unit_name))

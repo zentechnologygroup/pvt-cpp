@@ -13,8 +13,8 @@
 struct VectorDesc
 {
   const double t = 0; //  unit will always be in Fahrenheit
-  const double pb = 0; // in the same unit that p
-  const double uod = 0;
+  const double uod = -1; // dead oil viscosity; unit is the same than yunit
+  const double pb = 0; // bubble point pressure in the same unit that p
   const Array<double> p;
   const Unit * punit = nullptr;
 
@@ -36,12 +36,12 @@ struct VectorDesc
     validate_p_sorted();
   }
 
-  VectorDesc(double t, double pb, double uod,
+  VectorDesc(double t, double uod, const Unit * vunit, double pb, 
 	     const Array<double> & p, const Unit * punit,
 	     const string & yname, const Unit * yunit, const Array<double> & y)
     noexcept
-    : t(t), pb(pb), uod(uod), p(p), punit(punit), yname(yname), yunit(yunit),
-      y(y)
+    : t(t), uod(uod), pb(pb), p(p), punit(punit),
+      yname(yname), yunit(yunit), y(y)
   {
     validate_p_sorted();
   }
@@ -94,7 +94,10 @@ struct VectorDesc
   {
     ostringstream s;
     s << "For t = " << t << " " << Fahrenheit::get_instance().name << " pb = "
-      << pb << " " << punit->name << " :" << endl
+      << pb << " " << punit->name;
+    if (uod > 0)
+      s << " uod = " << uod << " " << yunit->name;
+    s << " :" << endl
       << shift_lines_to_left(Aleph::to_string(format_string(to_dynlist())), 2);
     return s.str();
   }

@@ -83,3 +83,6 @@
 ## 26. borrar tmp_calibration
 - Created at   2017-04-05 17:31:17 -0400
 
+## 27. dispatcher en ValuesArg para validar orden de y
+- Created at   2017-04-08 10:38:27 -0400
+
