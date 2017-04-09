@@ -5,6 +5,8 @@
 
 ./test-adjust --api 9.7 --rsb 35 --tsep 90 --psep 75 --unit "psep psig" --yg .597 --property "rs SCF_STB 138 degF 468 psig 195 468 20 43" --property "rs SCF_STB 220 degF 500 psig 230 500 21 43" --property "rs SCF_STB 320 degF 570 psig 245 570 24 43" --action "tmp_calibration RsMillanArcia" --output R
 
+./test-adjust --api 9.7 --rsb 35 --tsep 90 --psep 75 --unit "psep psig" --yg .597 --property "rs SCF_STB 138 degF 468 psig 195 468 20 43" --property "rs SCF_STB 220 degF 500 psig 230 500 21 43" --property "rs SCF_STB 320 degF 570 psig 245 570 24 43" --property "bob RB_STB 138 degF 468 psig 0 195 468 1.0286 1.0338 1.039" --property "bob RB_STB 220 degF 500 psig 0 230 500 1.0584 1.0659 1.0715" --property "bob RB_STB 320 degF 570 psig 0 245 570 1.0947 1.1067 1.1203" 
+
 ./test-adjust --api 9.7 --rsb 35 --tsep 90 --psep 75 --unit "psep psig" --yg .597 --property "uob cP 138 degF 3439 468 psig 300 468 1643 1384" --property "uob cP 220 degF 220 500 psig 300 500 1643 105" --property "uob cP 320 degF 30.8 570 psig 300 570 20.8 15.6"
 
 --property "rs SCF_STB 138 degF 468 psig 195 468 20 40" --property "rs SCF_STB 220 degF 220 psig 230 500 1643 105" --property "uob cP 320 degF 30.8 570 psig 300 570 20.8 15.6" 

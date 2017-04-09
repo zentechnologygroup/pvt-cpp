@@ -89,3 +89,6 @@
 ## 28. Sample debe contener uod; así no sea utilizado
 - Created at   2017-04-08 17:12:44 -0400
 
+## 29. el ordenamiento es por y no por p
+- Created at   2017-04-08 20:04:38 -0400
+

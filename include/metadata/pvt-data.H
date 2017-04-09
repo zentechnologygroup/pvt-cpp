@@ -460,7 +460,8 @@ struct PvtData
 	  return false; // this parameter is not in the data set
 
 	const string & name_in_data = ptr->first;
-	if (name_in_data == "t" or name_in_data == "p" or name_in_data == "pb")
+	if (name_in_data == "t" or name_in_data == "p" or
+	    name_in_data == "pb" or name_in_data == "uod")
 	  continue;
 
 	const ConstDesc * const_ptr = search_const(name_in_data);
@@ -796,27 +797,29 @@ struct PvtData
 	const Unit * par_unit = s_yunit(desc);
 	const string & par_name = s_yname(desc);
 	pars.insert("t", temp, &Fahrenheit::get_instance());
-	pars.insert("pb", pb, &psia::get_instance());
+	pars.insert("pb", pb, punit);
 	// TODO uod
 	DynList<double> & pvals = s_pvals(desc); // pressures
 	DynList<double> & yvals = s_yvals(desc);
 	DynList<double> ycvals; // correlation output
-	for (auto it = zip_it(pvals, ref_ptr->p, yvals);
-	     it.has_curr(); it.next())
+	for (auto it = zip_it(pvals, yvals); it.has_curr(); it.next())
 	  {
 	    auto t = it.get_curr();
 	    const double & p = get<0>(t); // pressure from desc
-	    if (p != get<1>(t))
-	      ZENTHROW(PressureMismatch, "pressure mismatch between samples " +
-		       ::to_string(p) + " != " + ::to_string(get<1>(t)));
-
-	    const double & parval = get<2>(t);
+	    const double & parval = get<1>(t);
 	    pars.insert("p", p, punit);
 	    pars.insert(par_name, parval, par_unit);
 
-	    double result =
-	      VtlQuantity(*yunit, corr_ptr->compute_by_names(pars, false)).raw();
-	    ycvals.append(result);
+	    pars.tbl.for_each([] (auto p)
+			      {
+				cout << p.first << " = " << p.second.first << " ";
+			      });
+	    cout << endl;
+
+	    VtlQuantity result =
+	      VtlQuantity(*yunit, corr_ptr->compute_by_names(pars, false));
+	    ycvals.append(result.raw());
+	    cout << target_name << " = " << result << endl;
 	    pars.remove("p");
 	    pars.remove(par_name);
 	  }
@@ -860,9 +863,10 @@ struct PvtData
 
   T rstats(const Correlation * corr_ptr) const
   {
+    cout << "rstats " << corr_ptr->target_name() << endl;
     // using Rtype = tuple<double, double, const Unit*, DynList<double>,
   // 		      const Unit*, DynList<double>, DynList<double>>;
-    DynList<Rtype> vals = rapply(corr_ptr);
+    DynList<Rtype> vals = iapply(corr_ptr);
     DynMapTree<double, pair<double, double>> ptbl;
     for (auto it = vals.get_it(); it.has_curr(); it.next())
       {
@@ -870,7 +874,9 @@ struct PvtData
 	const DynList<double> & p = get<3>(t);
 	const DynList<double> & y = get<5>(t);
 	const DynList<double> & yc = get<6>(t);
-	for (auto it = zip_it(p, y, yc); it.has_curr(); it.next())
+    cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    cout << "yc ="; yc.for_each([] (auto v) { cout << " " << v; }); cout << endl;	for (auto it = zip_it(p, y, yc); it.has_curr(); it.next())
 	  {
 	    auto t = it.get_curr();
 	    const double & p = get<0>(t);
@@ -892,6 +898,10 @@ struct PvtData
 	y.append(pp.second.first);
 	yc.append(pp.second.second);
       }
+    cout << "**" << endl;
+    cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    cout << "yc ="; yc.for_each([] (auto v) { cout << " " << v; }); cout << endl;
 
     auto stats = CorrStat(y).stats(yc);
 

@@ -314,11 +314,7 @@ BobMillanArcia::impl(const double & api,
   const double bob = 1.3537 * pow(rsb, 0.1505) * pow(pb, -0.1239) *
     exp(-0.00405*api);
 
-  double bo = 0;  
-  if (p < pb) // Saturated oil
-    bo = bob * (0.9419 + 0.0608 * p/pb);
-
-  return bo;
+  return bob * (0.9419 + 0.0608 * p/pb);
 }
 
 
