@@ -866,6 +866,7 @@ struct PvtData
     cout << "rstats " << corr_ptr->target_name() << endl;
     // using Rtype = tuple<double, double, const Unit*, DynList<double>,
   // 		      const Unit*, DynList<double>, DynList<double>>;
+    // TODO: unicidad y prdenamiento por y. A ponerlo en tree ya queda ordenado 
     DynList<Rtype> vals = iapply(corr_ptr);
     DynMapTree<double, pair<double, double>> ptbl;
     for (auto it = vals.get_it(); it.has_curr(); it.next())
