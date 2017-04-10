@@ -327,6 +327,7 @@ struct PvtData
   DynList<Sample> get_pars(const DynList<const VectorDesc*> & ref_vectors,
 			   const string & target_name) const
   {
+    cout << "get_pars(" << target_name << ")" << endl;
     DynList<Sample> ret;
     auto samples = search_vector(target_name);
     if (samples.is_empty())
@@ -338,20 +339,27 @@ struct PvtData
     const Unit * punit = ptr->punit;
     const Unit * yunit = ptr->yunit;
 
-    ret.append(Sample(ptr->t, ptr->pb, ptr->uod, punit, to_dynlist(ptr->p),
-		      target_name, yunit, fst_vector->gety(ptr->y)));
+    ret.append(Sample(ptr->t, ptr->pb, ptr->uod, punit,
+		      to_dynlist(fst_vector->p),
+		      target_name, yunit, ptr->gety(fst_vector->p)));
 
-    for (auto it = samples.get_it(1); it.has_curr(); it.next())
+    cout << "p ="; fst_vector->p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    cout << target_name << " ="; ptr->gety(fst_vector->p).for_each([] (auto v) { cout << " " << v; }); cout << endl;
+
+    for (auto it = zip_it_pos(1, samples, ref_vectors); it.has_curr(); it.next())
       {
-	ptr = it.get_curr();
+	auto t = it.get_curr();
+	auto sample_ptr = get<0>(t);
+	auto vector_ptr = get<1>(t);
 	DynList<double> p =
-	  to_dynlist(unit_convert(*ptr->punit, ptr->p, *punit));
+	  to_dynlist(unit_convert(*vector_ptr->punit, vector_ptr->p, *punit));
 	DynList<double> y =
-	  to_dynlist(unit_convert(*ptr->yunit, ptr->y, *yunit));
+	  to_dynlist(unit_convert(*vector_ptr->yunit,
+				  sample_ptr->gety(p), *yunit));
 	ret.append(Sample(ptr->t, ptr->pb, ptr->uod, punit, move(p),
 			  target_name, yunit, move(y)));
       }
-				
+
     return ret;
   }
 
@@ -787,9 +795,9 @@ struct PvtData
 	Sample & desc = get<0>(tt);
 	const VectorDesc * ref_ptr = get<1>(tt);
 
-	if (s_punit(desc) != ref_ptr->punit)
-	  ZENTHROW(InvalidPressureUnit, "mismatch between pressure units " +
-		   s_punit(desc)->name + " != " + ref_ptr->punit->name);
+	// if (s_punit(desc) != ref_ptr->punit)
+	//   ZENTHROW(InvalidPressureUnit, "mismatch between pressure units " +
+	// 	   s_punit(desc)->name + " != " + ref_ptr->punit->name);
  
 	const Unit * punit = s_punit(desc);
 	const double & temp = s_t(desc);
@@ -799,8 +807,8 @@ struct PvtData
 	pars.insert("t", temp, &Fahrenheit::get_instance());
 	pars.insert("pb", pb, punit);
 	// TODO uod
-	DynList<double> & pvals = s_pvals(desc); // pressures
-	DynList<double> & yvals = s_yvals(desc);
+	DynList<double> pvals = s_pvals(desc); // pressures
+	DynList<double> yvals = ref_ptr->gety(pvals);
 	DynList<double> ycvals; // correlation output
 	for (auto it = zip_it(pvals, yvals); it.has_curr(); it.next())
 	  {
@@ -811,8 +819,8 @@ struct PvtData
 	    pars.insert(par_name, parval, par_unit);
 
 	    pars.tbl.for_each([] (auto p)
-			      {
-				cout << p.first << " = " << p.second.first << " ";
+	     		      {
+				cout << p.first << " = " << p.second.first << " " << p.second.second->name << " ";
 			      });
 	    cout << endl;
 
@@ -866,45 +874,49 @@ struct PvtData
     cout << "rstats " << corr_ptr->target_name() << endl;
     // using Rtype = tuple<double, double, const Unit*, DynList<double>,
   // 		      const Unit*, DynList<double>, DynList<double>>;
+    
     // TODO: unicidad y prdenamiento por y. A ponerlo en tree ya queda ordenado 
     DynList<Rtype> vals = iapply(corr_ptr);
+    //          yc,          p,       y
     DynMapTree<double, pair<double, double>> ptbl;
     for (auto it = vals.get_it(); it.has_curr(); it.next())
       {
-	const auto & t = it.get_curr();
-	const DynList<double> & p = get<3>(t);
-	const DynList<double> & y = get<5>(t);
-	const DynList<double> & yc = get<6>(t);
+    	const auto & t = it.get_curr();
+    	const DynList<double> & p = get<3>(t);
+    	const DynList<double> & y = get<5>(t);
+    	const DynList<double> & yc = get<6>(t);
     cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
     cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
     cout << "yc ="; yc.for_each([] (auto v) { cout << " " << v; }); cout << endl;	for (auto it = zip_it(p, y, yc); it.has_curr(); it.next())
-	  {
-	    auto t = it.get_curr();
-	    const double & p = get<0>(t);
-	    const double & y = get<1>(t);
-	    const double & yc = get<2>(t);
-	    auto ptr = ptbl.search(p);
-	    if (ptr == nullptr)
-	      ptbl.append(p, make_pair(y, yc));
-	    else if (y > ptr->second.first)
-	      ptr->second = make_pair(y, yc);
-	  }
+    	  {
+    	    auto t = it.get_curr();
+    	    const double & p = get<0>(t);
+    	    const double & y = get<1>(t);
+    	    const double & yc = get<2>(t);
+    	    auto ptr = ptbl.search(yc);
+    	    if (ptr == nullptr)
+    	      ptbl.append(yc, make_pair(p, y));
+    	    else if (yc > ptr->second.second)
+    	      ptr->second = make_pair(p, y);
+    	  }
       }
 
     DynList<double> p, y, yc;
     for (auto it = ptbl.get_it(); it.has_curr(); it.next())
       {
-	auto pp = it.get_curr();
-	p.append(pp.first);
-	y.append(pp.second.first);
-	yc.append(pp.second.second);
+    	auto pp = it.get_curr();
+    	auto & second = pp.second;
+    	p.append(second.first);
+    	y.append(second.second);
+    	yc.append(pp.first);
       }
+
     cout << "**" << endl;
     cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
     cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
     cout << "yc ="; yc.for_each([] (auto v) { cout << " " << v; }); cout << endl;
 
-    auto stats = CorrStat(y).stats(yc);
+    auto stats = CorrStat(yc).stats(y);
 
     return make_tuple(corr_ptr, move(p), move(y), move(stats));
   }

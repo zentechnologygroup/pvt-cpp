@@ -124,8 +124,11 @@ public:
 
     LFit(const Array<double> & y, const Array<double> & yc)
     {
+      cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+      cout << "yc ="; yc.for_each([] (auto v) { cout << " " << v; }); cout << endl;
       gsl_fit_linear(&yc.base(), 1, &y.base(), 1, yc.size(), &c, &m,
 		     &cov00, &cov01, &cov11, &sumsq);
+      cout << to_string() << endl;
       if (std::isnan(c))
 	c = 0;
       if (std::isnan(m))
