@@ -21,10 +21,11 @@ add_parameter("ppr", "PseudoReducedPressure", "Gas pseudoreduced pressure", 0.1,
 add_ref("hall:1973")
 add_ref("yarborough:1974")
 add_ref("standing:1942")
+add_ref("whitson:2000")
 # add_ref("banzer:1996") Secondary reference
 add_db("Based on the equation of state of Starling-Carnahan for the calculation of Z-factor. The coefficients of the equation were obtained by fitting the Standing-Katz curves.")
 add_db("The equation is solved by using the Newton-Raphson iteration method.")
-add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 23 2016.")
+add_internal_note("The original reference is not available. The correlation was verified by using secondary references: Bánzer (1996) and Whitson & Brulé (2000). Date: September 23 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
 add_author("Hall & Yarborough")
 end_correlation()
@@ -62,7 +63,7 @@ add_note("The ranges of application are: 1 <= Tpr <= 3 for 0.2 <= Ppr <= 30 and 
 add_internal_note("The original reference is not available. The correlation was verified by using a secondary reference: Bánzer (1996). Date: September 23 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
 add_internal_note("The lower limit for Ppr (when Tpr's range is from 0.7 to 1.0) was taken from the development ranges of the correlation presented by Standing & Katz (1942).")
-add_precondition("tpr", "ppr")
+# add_precondition("tpr", "ppr")
 add_author("Dranchuk & Abou-Kassem")
 end_correlation()
 
