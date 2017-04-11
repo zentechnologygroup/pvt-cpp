@@ -415,7 +415,7 @@ void test(int argc, char *argv[])
 
   SwitchArg verbose = { "v", "verbose", "verbose mode", cmd };
 
-  SwitchArg ignore = { "i", "ignore-exception", "ignore exception", cmd };
+  SwitchArg ignore = { "i", "ignore-exception", "ignore exception", cmd, false };
 
   SwitchArg python = { "y", "print-python-call", "print python call", cmd };
 
@@ -426,7 +426,8 @@ void test(int argc, char *argv[])
   SwitchArg symbols = { "s", "latex-symbols", "latex symbols", cmd };
 
   SwitchArg check_arg = { "", "enable-ranges-check",
-			  "enable checking of correlation input ranges", cmd };
+			  "enable checking of correlation input ranges", cmd,
+			  false };
 
   SwitchArg ruby = { "R", "ruby-hash", "generate ruby hash", cmd };
 
