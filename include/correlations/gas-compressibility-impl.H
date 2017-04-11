@@ -128,12 +128,13 @@ ZfactorHallYarborough::impl(const double & tpr,
   const double d = 2.18 + 2.82*tpr_1;
 
   // pr: Densidad reducida definida por el autor del metodo
-  constexpr double epsilon = 1.0e-8; //1.0e-10
+  constexpr double epsilon = 1.0e-8;
   double pr = 0, prf = 0;
-  double prprev = 0.001; //0.00001
+  double zprev = guess_initial_value(tpr, ppr);
+  double prprev = a * ppr / zprev;
             
   // iteracion por metodo Newton-Raphson
-  while (fabs(prprev - pr) > epsilon)
+  for (size_t i = 0; i < 60 and (fabs(prprev - pr) > epsilon); ++i)
     {
       pr = prprev;
       const double pr2 = pr*pr;
@@ -150,7 +151,8 @@ ZfactorHallYarborough::impl(const double & tpr,
 
   pr = prf;
             
-  const double z = (0.06125*ppr*tpr_1*exp(-1.2 * tpr_1_1*tpr_1_1)) / pr;
+//  const double z = (0.06125*ppr*tpr_1*exp(-1.2 * tpr_1_1*tpr_1_1)) / pr;
+  const double z = a * ppr / pr;
 
   return z;
 }
@@ -180,7 +182,7 @@ ZfactorDranchukPR::impl(const double & tpr,
   double zprev = guess_initial_value(tpr, ppr);
             
       // iteracion por metodo Newton-Raphson
-  for (size_t i = 0; i < 1000 and (fabs(zprev - z) > epsilon); ++i)
+  for (size_t i = 0; i < 100 and (fabs(zprev - z) > epsilon); ++i)
     {
       cout << "i = " << i << "  zprev = " << zprev << " z = " << z << endl;
       z = zprev;
@@ -228,7 +230,7 @@ inline double
 ZfactorDranchukAK::impl(const double & tpr,
 			const double & ppr) noexcept
 {
-  //todo son dos conjuntos d erangos
+  //todo son dos conjuntos de rangos
   constexpr double a1 = 0.3265;
   constexpr double a2 = -1.07;
   constexpr double a3 = -0.5339;
@@ -243,8 +245,8 @@ ZfactorDranchukAK::impl(const double & tpr,
             
   // pr: Densidad reducida definida por el autor del metodo
   constexpr double epsilon = 1.0e-8;
-  double z = 0.5;
-  double zprev = 0.6;
+  double z = 0;
+  double zprev = guess_initial_value(tpr, ppr);
   double zf;
 
   const double tpr2 = tpr*tpr;
@@ -252,7 +254,7 @@ ZfactorDranchukAK::impl(const double & tpr,
   const double tpr4 = tpr3*tpr;
   const double tpr5 = tpr4*tpr;
 
-  while (fabs(zprev - z) > epsilon)
+  for (size_t i = 0; i < 100 and (fabs(zprev - z) > epsilon); ++i)
     {
       z = zprev;
       const double pr = 0.27*ppr/(z * tpr);
