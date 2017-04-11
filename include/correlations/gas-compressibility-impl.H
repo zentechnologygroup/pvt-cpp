@@ -5,6 +5,63 @@
 
 # include <correlations/gas-compressibility.H>
 
+static const double min_z = 0.1;
+
+static double guess_initial_value(const double & tpr, const double & ppr)
+{
+  constexpr double a1  = 0.317842;
+  constexpr double a2  = 0.382216;
+  constexpr double a3  = -7.768354;
+  constexpr double a4  = 14.290531;
+  constexpr double a5  = 0.000002;
+  constexpr double a6  = -0.004693;
+  constexpr double a7  = 0.096254;
+  constexpr double a8  = 0.166720;
+  constexpr double a9  = 0.966910;
+  constexpr double a10 = 0.063069;
+  constexpr double a11 = -1.966847;
+  constexpr double a12 = 21.0581;
+  constexpr double a13 = -27.0246;
+  constexpr double a14 = 16.23;
+  constexpr double a15 = 207.783;
+  constexpr double a16 = -488.161;
+  constexpr double a17 = 176.29;
+  constexpr double a18 = 1.88453;
+  constexpr double a19 = 3.05921;
+
+
+  const double t = 1/tpr;
+  const double t2 = t*t;
+  const double t3 = t2*t;
+  const double t6 = t3*t3; // t3*t3 = t3^2 = t^6
+  const double ppr2 = ppr*ppr;
+  const double ppr3 = ppr2*ppr;
+  const double ppr6 = ppr3*ppr3; // ppr3*ppr3 = ppr3^2 = ppr^6
+
+  const double t12 = (1 - t)*(1 - t);
+  
+  constexpr double m1 = 0.1009332;
+  constexpr double m2 = 0.7773702;
+
+  const double M = m1*t2*exp(m2*t12);
+
+  const double A = a1*t*exp(a2*t12)*ppr;
+  const double B = a3*t + a4*t2 + a5*t6*ppr6;
+  const double C = a9 + a8*t*ppr2 + a7*t2*ppr2 + a6*t3*ppr3;
+  const double D = a10*t*exp(a11*t12);
+  const double E = a12*t + a13*t2 + a14*t3;
+  const double F = a15*t + a16*t2 + a17*t3;
+  const double G = a18 + a19*t;
+
+  const double A2 = A*A;
+  const double C2 = C*C;
+  const double C3 = C2*C;
+
+  const double z = 1/C + M*ppr2*(1 - B/C2)/C;
+
+  return z;
+}
+
 inline double
 ZfactorSarem::impl(const double & tpr,
 		   const double & ppr) noexcept
@@ -116,13 +173,16 @@ ZfactorDranchukPR::impl(const double & tpr,
 
       // pr: Densidad reducida definida por el autor del metodo
   constexpr double epsilon = 1.0e-8;
-  double z = 0.5;
-  double zprev = 0.6;
+  //double z = 0.5;
+  //double zprev = 0.6;
+  double z = 0;
   double zf = 0;
+  double zprev = guess_initial_value(tpr, ppr);
             
       // iteracion por metodo Newton-Raphson
-  while (fabs(zprev - z) > epsilon)
+  for (size_t i = 0; i < 1000 and (fabs(zprev - z) > epsilon); ++i)
     {
+      cout << "i = " << i << "  zprev = " << zprev << " z = " << z << endl;
       z = zprev;
       const double pr = 0.27*ppr/(z * tpr);
 
@@ -144,6 +204,9 @@ ZfactorDranchukPR::impl(const double & tpr,
       zf = z - f/dfdz;
       zprev = zf;
     }
+
+  if (zf < min_z)
+    return min_z;
 
   return zf;
 }
