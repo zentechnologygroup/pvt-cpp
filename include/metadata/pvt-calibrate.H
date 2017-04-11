@@ -264,7 +264,6 @@ struct PvtData
   DynList<Sample> get_pars(const DynList<const VectorDesc*> & ref_vectors,
 			   const string & target_name) const
   {
-    cout << "get_pars(" << target_name << ")" << endl;
     DynList<Sample> ret;
     auto samples = search_vectors(target_name);
     if (samples.is_empty())
@@ -280,9 +279,6 @@ struct PvtData
 		      to_dynlist(fst_vector->p),
 		      target_name, yunit, ptr->gety(fst_vector->p)));
 
-    cout << "p ="; fst_vector->p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-    cout << target_name << " ="; ptr->gety(fst_vector->p).for_each([] (auto v) { cout << " " << v; }); cout << endl;
-
     for (auto it = zip_it_pos(1, samples, ref_vectors); it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
@@ -293,7 +289,7 @@ struct PvtData
 	DynList<double> y =
 	  to_dynlist(unit_convert(*vector_ptr->yunit,
 				  sample_ptr->gety(p), *yunit));
-	ret.append(Sample(ptr->t, ptr->pb, ptr->uod, punit, move(p),
+	ret.append(Sample(sample_ptr->t, ptr->pb, ptr->uod, punit, move(p),
 			  target_name, yunit, move(y)));
       }
 
@@ -465,16 +461,16 @@ struct PvtData
 	    pars.insert("p", p, punit);
 	    pars.insert(par_name, parval, par_unit);
 
-	    pars.tbl.for_each([] (auto p)
-	     		      {
-				cout << p.first << " = " << p.second.first << " " << p.second.second->name << " ";
-			      });
-	    cout << endl;
+	    // pars.tbl.for_each([] (auto p)
+	    //  		      {
+	    // 			cout << p.first << " = " << p.second.first << " " << p.second.second->name << " ";
+	    // 		      });
+	    // cout << endl;
 
 	    VtlQuantity result =
 	      VtlQuantity(*yunit, corr_ptr->compute_by_names(pars, false));
 	    ycvals.append(result.raw());
-	    cout << target_name << " = " << result << endl;
+	    //cout << target_name << " = " << result << endl;
 	    pars.remove("p");
 	    pars.remove(par_name);
 	  }//                                 malo
@@ -487,89 +483,38 @@ struct PvtData
     return make_tuple(punit, yunit, ret);
   }
 
-  // using TYPE = tuple<double, double, double, DynList<double>,
-  // 		     DynList<double>, DynList<double>>;
-
-  static DynList<double> TYPE_to_dynlist(const TYPE & e)
-  {
-    return zip_maps<double>([&e] (auto t)
-		    { //                            t,         p
-		      return build_dynlist<double>(get<0>(e), get<0>(t),
-						   get<1>(t), get<2>(t));
-		    }, get<3>(e), get<4>(e), get<5>(e));
-  }
-
-  static DynList<DynList<double>> TYPE_to_dynlist(const DynList<TYPE> & l)
-  {
-    DynList<DynList<double>> ret;
-    for (auto it = l.get_it(); it.has_curr(); it.next())
-      ret.append(TYPE_to_dynlist(it.get_curr()));
-    return ret;
-  }
-
-  static DynList<double> TYPE_to_yc(const TYPE & e) { return get<5>(e); }
-
- DynList<double> TYPE_to_yc(const DynList<TYPE> & l)
-  {
-    DynList<double> ret;
-    for (auto it = l.get_it(); it.has_curr(); it.next())
-      ret.append(TYPE_to_yc(it.get_curr()));
-    return ret;
-  }
-
   using T =
     tuple<const Correlation*, DynList<double>, DynList<double>, CorrStat::Desc>;
 
   T istats(const Correlation * corr_ptr) const
   {
     cout << "ystats " << corr_ptr->target_name() << endl;
-  // Using TYPE = tuple<double, double, double, DynList<double>,
-  // 		      DynList<double>, DynList<double>>;    
-    // TODO: unicidad y prdenamiento por y. A ponerlo en tree ya queda ordenado
-    auto t = iapply(corr_ptr);
-    DynList<TYPE> & vals = get<2>(t);
-    //          yc,          p,       y
-    DynMapTree<double, pair<double, double>> ptbl;
-    for (auto it = vals.get_it(); it.has_curr(); it.next())
+    using P = tuple<double, double, double>; // p, y, yc
+    DynList<P> xy;
+    auto vals = iapply(corr_ptr);
+    for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
       {
-    	const auto & t = it.get_curr();
-    	const DynList<double> & p = get<3>(t);
-    	const DynList<double> & y = get<4>(t);
-    	const DynList<double> & yc = get<5>(t);
-    cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-    cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-    cout << "yc ="; yc.for_each([] (auto v) { cout << " " << v; }); cout << endl;	for (auto it = zip_it(p, y, yc); it.has_curr(); it.next())
-    	  {
-    	    auto t = it.get_curr();
-    	    const double & p = get<0>(t);
-    	    const double & y = get<1>(t);
-    	    const double & yc = get<2>(t);
-    	    auto ptr = ptbl.search(yc);
-    	    if (ptr == nullptr)
-    	      ptbl.append(yc, make_pair(p, y));
-    	    else if (yc > ptr->second.second)
-    	      ptr->second = make_pair(p, y);
-    	  }
+	auto & curr = it.get_curr();
+	DynList<double> & p = get<3>(curr);
+	DynList<double> & y = get<4>(curr);
+	DynList<double> & yc = get<5>(curr);
+	xy.append(zip_maps<P>([] (auto t)
+			      {
+				return P(move(get<0>(t)),
+					 move(get<1>(t)),
+					 move(get<2>(t)));
+			      }, p, y, yc));
       }
 
-    DynList<double> p, y, yc;
-    for (auto it = ptbl.get_it(); it.has_curr(); it.next())
-      {
-    	auto pp = it.get_curr();
-    	auto & second = pp.second;
-    	p.append(second.first);
-    	y.append(second.second);
-    	yc.append(pp.first);
-      }
+    auto t = t_unzip(xy);
+    // cout << "** " << corr_ptr->name << endl;
+    // cout << "p ="; get<0>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    // cout << "y ="; get<1>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    // cout << "yc ="; get<2>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
 
-    cout << "** " << corr_ptr->name << endl;
-    cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-    cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-    cout << "yc ="; yc.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+    auto stats = CorrStat(get<1>(t)).stats(get<2>(t));
 
-    auto stats = CorrStat(yc).stats(y);
-
-    return make_tuple(corr_ptr, move(p), move(y), move(stats));
+    return make_tuple(corr_ptr, move(get<0>(t)), move(get<1>(t)), move(stats));
   }
 };
 

@@ -80,18 +80,12 @@
 ## 25. dry de familia apply
 - Created at   2017-04-05 16:51:30 -0400
 
-## 26. borrar tmp_calibration
-- Created at   2017-04-05 17:31:17 -0400
-
-## 27. dispatcher en ValuesArg para validar orden de y
+## 26. dispatcher en ValuesArg para validar orden de y
 - Created at   2017-04-08 10:38:27 -0400
 
-## 28. Sample debe contener uod; así no sea utilizado
-- Created at   2017-04-08 17:12:44 -0400
-
-## 29. el ordenamiento es por y no por p
+## 27. el ordenamiento es por y no por p
 - Created at   2017-04-08 20:04:38 -0400
 
-## 30. test-cali no está mostrando BobKartoatmodjo y VasquesBegs
-- Created at   2017-04-10 19:53:18 -0400
+## 28. El problema de eliminar ptos experimentales es que se puede perder el mínimo para hacer la regressión
+- Created at   2017-04-11 10:10:06 -0400
 

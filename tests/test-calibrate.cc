@@ -696,6 +696,7 @@ r_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
     << Rvector("cols", cols) << endl
     <<  "legend(\"topleft\", legend=cnames, lty=1, col=cols)" << endl;
 
+  cout << s.str() << endl;
   return s.str();
 }
 
@@ -866,7 +867,7 @@ void process_rs(PvtAnalyzer & pvt)
 				"Below Pb", "rs", pvt,
 				get_eval_type(compute_type.getValue()));
 
-  format_dispatcher.run(output_type.getValue(), dmat);
+  cout << format_dispatcher.run(output_type.getValue(), dmat) << endl;
 }
 
 void process_rsa(PvtAnalyzer & pvt)
@@ -930,7 +931,7 @@ void process_bob(PvtAnalyzer & pvt)
 				"Below Pb", "bob", pvt,
 				get_eval_type(compute_type.getValue()));
 
-  format_dispatcher.run(output_type.getValue(), dmat);
+  cout << format_dispatcher.run(output_type.getValue(), dmat) << endl;
 }
 
 void process_boa(PvtAnalyzer & pvt)
@@ -958,7 +959,7 @@ void process_boa(PvtAnalyzer & pvt)
 				"Above Pb", "boa", pvt,
 				get_eval_type(compute_type.getValue()));
 
-  format_dispatcher.run(output_type.getValue(), dmat);
+  cout << format_dispatcher.run(output_type.getValue(), dmat) << endl;
 }
 
 void process_bo(PvtAnalyzer & pvt)
@@ -1083,7 +1084,7 @@ void process_uob(PvtAnalyzer & pvt)
   if (uod_corr) // if uod was computed ==> delete from data set
     pvtdata.remove_last_const("uod");
 
-  format_dispatcher.run(output_type.getValue(), dmat);
+  cout << format_dispatcher.run(output_type.getValue(), dmat) << endl;
 }
 
 void process_uoa(PvtAnalyzer & pvt)
@@ -1111,7 +1112,7 @@ void process_uoa(PvtAnalyzer & pvt)
 				"Above Pb", "uoa", pvt,
 				get_eval_type(compute_type.getValue()));
 
-  format_dispatcher.run(output_type.getValue(), dmat);
+  cout << format_dispatcher.run(output_type.getValue(), dmat) << endl;
 }
 
 void process_uo(PvtAnalyzer & pvt)

@@ -425,8 +425,8 @@ void test(int argc, char *argv[])
 
   SwitchArg symbols = { "s", "latex-symbols", "latex symbols", cmd };
 
-  SwitchArg check_arg = { "", "disable-ranges-check",
-			  "disable checking of correlation input ranges", cmd };
+  SwitchArg check_arg = { "", "enable-ranges-check",
+			  "enable checking of correlation input ranges", cmd };
 
   SwitchArg ruby = { "R", "ruby-hash", "generate ruby hash", cmd };
 

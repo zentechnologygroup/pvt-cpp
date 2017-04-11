@@ -1348,3 +1348,21 @@
 - Comment      2017-03-28 17:12:14 -0400
 - Finished     2017-03-28 17:12:14 -0400
 
+## 226. Sample debe contener uod; así no sea utilizado
+- Created at   2017-04-08 17:12:44 -0400
+- Completed at 2017-04-11 10:10:44 -0400
+- Comment      
+- Finished     
+
+## 227. test-cali no está mostrando BobKartoatmodjo y VasquesBegs
+- Created at   2017-04-10 19:53:18 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 228. borrar tmp_calibration
+- Created at   2017-04-05 17:31:17 -0400
+- Completed at 2017-04-11 10:10:29 -0400
+- Comment      
+- Finished     
+

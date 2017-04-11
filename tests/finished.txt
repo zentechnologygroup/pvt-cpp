@@ -223,3 +223,6 @@ en cplot los pars _concentration dejarlos sin este sufijo,2017-03-29 20:50:51 -0
 terminar gen-json,2017-03-20 16:18:12 -0400,2017-04-04 19:40:49 -0400,,2017-04-04 19:40:52 -0400
 evitar transpose,2017-03-29 09:52:48 -0400,2017-04-04 19:41:12 -0400,,2017-04-04 19:41:14 -0400
 test-pvt-data debe tener opciones de salida mat, csv,2017-04-04 19:41:26 -0400,2017-03-28 17:12:14 -0400,2017-04-04 19:41:29 -0400
+Sample debe contener uod; así no sea utilizado,2017-04-08 17:12:44 -0400,2017-04-11 10:10:44 -0400,,2017-04-11 10:16:18 -0400
+test-cali no está mostrando BobKartoatmodjo y VasquesBegs,2017-04-10 19:53:18 -0400,,,2017-04-11 10:16:32 -0400
+borrar tmp_calibration,2017-04-05 17:31:17 -0400,2017-04-11 10:10:29 -0400,,2017-04-11 10:16:40 -0400

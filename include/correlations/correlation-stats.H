@@ -18,7 +18,7 @@ class CorrStat
   double var;
   size_t n = 0;
 
-  const Array<double> y;
+  const Array<double> y; // experimental data
 
   long double ss_tot = 0;
 

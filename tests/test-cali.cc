@@ -139,7 +139,6 @@ struct ValuesArg
 
     if (target_name == "uob" or target_name == "uoa")
       {
-	cout << "Reading uod" << endl;
 	if (not (iss >> data))
 	  ZENTHROW(CommandLineError, "uod value not found");
 	if (not is_double(data))
@@ -567,49 +566,93 @@ void put_sample(const Correlation * corr_ptr,
 void proccess_local_calibration() 
 {
   static auto print_R = [] (const DynList<DynList<string>> & l) -> string
-  {
-    auto names = l.get_first();
-    auto vals = transpose(l.drop(1));
-
-    auto p = vals.remove_first(); names.remove_first();
-    auto y = vals.remove_first();
-    auto yname = split_to_list(names.remove_first(), " ").get_first();
-
-    ostringstream s;
-    s << Rvector("p", p) << endl
-      << Rvector(yname, y) << endl;
-    double ymin = numeric_limits<double>::max(), ymax = 0;
-    DynList<string> ynames;
-    for (auto it = get_zip_it(names, vals); it.has_curr(); it.next())
     {
-      auto t = it.get_curr();
-      auto & yc = get<1>(t);
-      auto & yname = get<0>(t);
-      s << Rvector(yname, yc) << endl;
-      ynames.append(yname);
-      ymin = yc.foldl(ymin, [] (auto a, auto y) { return min(a, atof(y)); });
-      ymax = yc.foldl(ymax, [] (auto a, auto y) { return max(a, atof(y)); });
-    }
-
-    s << "plot(p, " << yname << ",ylim=c(" << ymin << "," << ymax << "))"
-      << endl;
-    size_t col = 1;
-    DynList<string> colnames;
-    DynList<string> cols;
-    for (auto it = ynames.get_it(); it.has_curr(); it.next(), ++col)
+      struct Tmp
       {
-	auto & yname = it.get_curr();
-	colnames.append("\"" + yname + "\"");
-	cols.append(to_string(col));
-	s << "lines(p, " << yname << ", col=" << col << ")" << endl;
-      }
+	DynList<string> p;
+	DynList<string> y;
+	DynList<DynList<string>> yc;
+      };
+      auto cols = transpose(l); // first contains column name
 
-    s << Rvector("cnames", colnames) << endl
-      << Rvector("cols", cols) << endl
-      <<  "legend(\"topleft\", legend=cnames, lty=1, col=cols)" << endl;
+      //         temp    all other stuff related to temp value
+      DynMapTree<string, Tmp> temps;
+      for (auto it = cols.get_it(); it.has_curr(); it.next())
+	{
+	  DynList<string> & col = it.get_curr();
+	  const string & header = col.get_first();
+	  auto header_parts = split(header, '_');
+	  const string prefix = header_parts[0];
+	  const string type = header_parts[1];
+	  if (prefix == "p")
+	    temps[type].p = move(col);
+	  else if (islower(prefix[0])) // is a Correlation name
+	    temps[type].y = move(col);
+	  else
+	    temps[type].yc.append(move(col));
+	}
 
-    return s.str();
-  };
+      double xmin = numeric_limits<double>::max(), ymin = xmin;
+      double xmax = 0, ymax = 0;
+      ostringstream s;
+      for (auto it = temps.get_it(); it.has_curr(); it.next())
+	{
+	  auto & p = it.get_curr();
+	  const Tmp & tmp = p.second;
+	  tmp.p.each(1, 1, [&xmin, &xmax] (auto v)
+		     { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
+	  s << Rvector(tmp.p.get_first(), tmp.p.drop(1)) << endl
+	    << Rvector(tmp.y.get_first(), tmp.y.drop(1)) << endl;
+	  for (auto it = tmp.yc.get_it(); it.has_curr(); it.next())
+	    {
+	      const DynList<string> & col = it.get_curr();
+	      col.each(1, 1, [&ymin, &ymax] (auto v)
+		       { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
+	      s << Rvector(col.get_first(), col.drop(1)) << endl;
+	    }
+	}
+
+      s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
+      << ymin << "," << ymax << "))" << endl;
+
+      size_t pch = 1;
+      size_t col = 1;
+      DynList<string> colnames;
+      DynList<int> colors;
+      DynList<string> ltys;
+      DynList<string> pchs;
+      for (auto it = temps.get_it(); it.has_curr(); it.next())
+	{
+	  auto & pp = it.get_curr();
+	  const Tmp & tmp = pp.second;
+	  const auto & pname = tmp.p.get_first();
+	  const string & name = tmp.y.get_first();
+	  colnames.append("\"" + name + "\"");
+	  colors.append(1);
+	  ltys.append("NA");
+	  pchs.append(to_string(pch));
+	  s << "points(" << pname << "," << name << ",pch=" << pch++ << ")"
+	    << endl;
+	  for (auto it = tmp.yc.get_it(); it.has_curr(); it.next(), ++col)
+	    {
+	      const string & name = it.get_curr().get_first();
+	      s << "lines(" << pname << "," << name << ",col=" << col << ")"
+		<< endl;
+	      colnames.append("\"" + name + "\"");
+	      colors.append(col);
+	      pchs.append("NA");
+	      ltys.append("1");
+	    }
+	}
+      s << Rvector("cnames", colnames) << endl
+      << Rvector("cols", colors) << endl
+      << Rvector("pchs", pchs) << endl
+      << Rvector("ltys", ltys) << endl
+      <<  "legend(\"topleft\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
+      << endl;
+
+      return s.str();
+    };
 
   static auto print_csv = [] (const DynList<DynList<string>> & l)
   {
@@ -662,8 +705,8 @@ void proccess_local_calibration()
     {
       PvtData::TYPE & vals = it.get_curr();
       const string t_tag = ::to_string((int) get<0>(vals));
-      header.append(build_dynlist<string>("p_" + t_tag + " " + punit->name, 
-					  target_name + "_" + t_tag + " " + yunit->name));
+      header.append(build_dynlist<string>("p_" + t_tag,
+					  target_name + "_" + t_tag));
       rows.append(build_dynlist<DynList<double>>(get<3>(vals), get<4>(vals)));
     }
 
@@ -690,19 +733,6 @@ void proccess_local_calibration()
       return l.template maps<string>([] (auto v) { return to_string(v); });
     }));
   result.insert(header);
-
-  result.for_each([] (auto & l)
-		  {
-		    l.for_each([] (auto & s)
-			       {
-				 cout << s << " ";
-			       });
-		    cout << endl;
-		  });      
-
-  header.for_each([] (auto &s) { cout << s << " "; }); cout << endl;
-  cout << "header size = " << header.size() << endl
-       << "rows size   = " << rows.size() << endl;
 
   assert(equal_length(rows, header));
 
