@@ -89,3 +89,9 @@
 ## 28. El problema de eliminar ptos experimentales es que se puede perder el mínimo para hacer la regressión
 - Created at   2017-04-11 10:10:06 -0400
 
+## 29. diseñar esquema para que z_min sea comartible entre correlaiones y unidades
+- Created at   2017-04-11 16:53:16 -0400
+
+## 30. opción para generar el grid traspuesto
+- Created at   2017-04-11 16:53:37 -0400
+
