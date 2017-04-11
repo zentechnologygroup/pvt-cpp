@@ -385,6 +385,7 @@ struct PvtData
 
   //                  t,      pb,     uod
   using TYPE = tuple<double, double, double,
+		     //  p,            y,                 yc		     
 		     DynList<double>, DynList<double>, DynList<double>>;
 
   tuple<const Unit*, const Unit*, DynList<TYPE>>
@@ -454,7 +455,7 @@ struct PvtData
 	pars.insert("pb", pb, src_punit);
 	pars.insert("uod", uod, &CP::get_instance());
 	DynList<double> pvals = unit_convert(*src_punit, s_pvals(desc), *punit);
-	DynList<double> yvals = ref_ptr->gety(pvals);
+	DynList<double> yvals = s_yvals(desc);
 	DynList<double> ycvals; // correlation output
 	for (auto it = zip_it(pvals, yvals); it.has_curr(); it.next())
 	  {
@@ -476,8 +477,8 @@ struct PvtData
 	    cout << target_name << " = " << result << endl;
 	    pars.remove("p");
 	    pars.remove(par_name);
-	  }
-	ret.append(TYPE(temp, pb, uod, pvals, yvals, ycvals));
+	  }//                                 malo
+	ret.append(TYPE(temp, pb, uod, pvals, to_dynlist(ref_ptr->y), ycvals));
 	pars.remove("t");
 	pars.remove("pb");
 	pars.remove("uod");
@@ -524,16 +525,17 @@ struct PvtData
     cout << "ystats " << corr_ptr->target_name() << endl;
   // Using TYPE = tuple<double, double, double, DynList<double>,
   // 		      DynList<double>, DynList<double>>;    
-    // TODO: unicidad y prdenamiento por y. A ponerlo en tree ya queda ordenado 
-    DynList<TYPE> vals = iapply(corr_ptr);
+    // TODO: unicidad y prdenamiento por y. A ponerlo en tree ya queda ordenado
+    auto t = iapply(corr_ptr);
+    DynList<TYPE> & vals = get<2>(t);
     //          yc,          p,       y
     DynMapTree<double, pair<double, double>> ptbl;
     for (auto it = vals.get_it(); it.has_curr(); it.next())
       {
     	const auto & t = it.get_curr();
-    	const DynList<double> & p = get<4>(t);
-    	const DynList<double> & y = get<6>(t);
-    	const DynList<double> & yc = get<7>(t);
+    	const DynList<double> & p = get<3>(t);
+    	const DynList<double> & y = get<4>(t);
+    	const DynList<double> & yc = get<5>(t);
     cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
     cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
     cout << "yc ="; yc.for_each([] (auto v) { cout << " " << v; }); cout << endl;	for (auto it = zip_it(p, y, yc); it.has_curr(); it.next())
@@ -560,7 +562,7 @@ struct PvtData
     	yc.append(pp.first);
       }
 
-    cout << "**" << endl;
+    cout << "** " << corr_ptr->name << endl;
     cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
     cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
     cout << "yc ="; yc.for_each([] (auto v) { cout << " " << v; }); cout << endl;

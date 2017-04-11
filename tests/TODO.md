@@ -92,3 +92,6 @@
 ## 29. el ordenamiento es por y no por p
 - Created at   2017-04-08 20:04:38 -0400
 
+## 30. test-cali no está mostrando BobKartoatmodjo y VasquesBegs
+- Created at   2017-04-10 19:53:18 -0400
+
