@@ -71,9 +71,9 @@ ZfactorHallYarborough::impl(const double & tpr,
   const double d = 2.18 + 2.82*tpr_1;
 
   // pr: Densidad reducida definida por el autor del metodo
-  constexpr double epsilon = 1.0e-10;
+  constexpr double epsilon = 1.0e-8; //1.0e-10
   double pr = 0, prf = 0;
-  double prprev = 0.00001;
+  double prprev = 0.001; //0.00001
             
   // iteracion por metodo Newton-Raphson
   while (fabs(prprev - pr) > epsilon)
@@ -147,7 +147,7 @@ ZfactorDranchukPR::impl(const double & tpr,
 
   return zf;
 }
-
+/*
 void ZfactorDranchukAK::precondition(const Quantity<PseudoReducedTemperature> & tpr,
 			      const Quantity<PseudoReducedPressure> & ppr) const
 {
@@ -160,7 +160,7 @@ void ZfactorDranchukAK::precondition(const Quantity<PseudoReducedTemperature> & 
       ZENTHROW(WrongCombinationInputValues, s.str());
     }
 }
-
+*/
 inline double
 ZfactorDranchukAK::impl(const double & tpr,
 			const double & ppr) noexcept
@@ -284,7 +284,7 @@ ZfactorBrillBeggs::impl(const double & tpr,
   double z = 0;
   if (b > 700)
     z = a + c*pow(ppr, d); //The fraction (1 - A)/exp(B) becomes
-				 //zero with very high numbers in the
+				 //zero with very high numbez in the
 				 //denominator (i.e. exp(B) > 1e+304) 
   else
     z = a + ((1 - a)/exp(b)) + c*pow(ppr, d);
