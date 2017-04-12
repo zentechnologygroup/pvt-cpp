@@ -95,3 +95,6 @@
 ## 30. opción para generar el grid traspuesto
 - Created at   2017-04-11 16:53:37 -0400
 
+## 31. se requiere uobp como dato;
+- Created at   2017-04-12 14:51:41 -0400
+

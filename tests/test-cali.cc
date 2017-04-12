@@ -26,7 +26,8 @@ struct ValuesArg
   double t; // temperature
   const Unit * tunit_ptr = nullptr; // temperature unit
 
-  double uod; // uod
+  double uod = 0; // uod
+  double uobp = 0;
 
   double pb; // bubble point
   const Unit * punit_ptr = nullptr; // pressure unit (for pb and p)
@@ -144,7 +145,14 @@ struct ValuesArg
 	if (not is_double(data))
 	  ZENTHROW(CommandLineError, "uod value " + data + " is not a double");
 	uod = atof(data);
-      }
+
+	if (target_name == "uoa")
+	  if (not (iss >> data))
+	    ZENTHROW(CommandLineError, "uobp value not found");
+	if (not is_double(data))
+	  ZENTHROW(CommandLineError, "uobp value " + data + " is not a double");
+	uobp = atof(data);
+      } 
 
     // read pb value
     if (not (iss >> data))
