@@ -16,9 +16,10 @@ RsAlMarhoun::impl(const double & yg,
   constexpr double c4 = 1.32657;
   constexpr double c5 = 1.0 / 0.715082;
 
-  const double rs = pow(p / (c1 * pow(yg, c2) * pow(yo, c3) * pow(t, c4)), c5);
+  double rs = pow(p / (c1 * pow(yg, c2) * pow(yo, c3) * pow(t, c4)), c5);
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 
@@ -32,9 +33,10 @@ RsAlShammasi::impl(const double & yg,
   constexpr double c2 = -1.841408;
   constexpr double c3_inv = 1/0.783716;
 
-  const double rs = pow(p/(pow(yo, c1)*exp(c2*yo*yg)), c3_inv) / ((t + 460) * yg); 
+  double rs = pow(p/(pow(yo, c1)*exp(c2*yo*yg)), c3_inv) / ((t + 460) * yg); 
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double
@@ -54,7 +56,8 @@ RsDeGhetto::impl(const double & yg,
       rs = ((ygcorr * pow(p, 1.2057))/56.434) * pow(10, 10.9267*api/(t + 460));
     }
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double
@@ -80,9 +83,10 @@ RsDindorukChristman::impl(const double & yg,
 
   const double a = (a1*pow(api, a2) + a3*pow(t, a4)) / d2;
 
-  const double rs = pow((p/a8 + a9) * pow(yg, a10) * pow(10, a), a11);
+  double rs = pow((p/a8 + a9) * pow(yg, a10) * pow(10, a), a11);
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double
@@ -94,9 +98,10 @@ RsDoklaOsman::impl(const double & yg,
   constexpr double k = 0.11956202e-3; // 1/(0.836386 * 10 **4)
   constexpr double d = 1/0.724047;
 
-  const double rs = pow(k * p * pow(yg, 1.01049) * pow(yo, -0.107991) * pow(t, 0.952584), d);
+  double rs = pow(k * p * pow(yg, 1.01049) * pow(yo, -0.107991) * pow(t, 0.952584), d);
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double
@@ -119,17 +124,19 @@ RsGlaso::impl(const double & yg,
     r = (-b + sqrt(b2 - 4*a*c)) / (2*a);
 
   const double f = pow(10, r);
-  const double rs = yg * pow((f * pow(api, 0.989) ) / ( pow(t, 0.172) ), 1/0.816);
+  double rs = yg * pow((f * pow(api, 0.989) ) / ( pow(t, 0.172) ), 1/0.816);
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double
 RsHanafy::impl(const double & p) noexcept
 {
-  const double rs = -49.069 + 0.312*p;
+  double rs = -49.069 + 0.312*p;
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double
@@ -162,7 +169,8 @@ RsKartoatmodjoSchmidt::impl(const double & yg,
       rs = c1 * pow(ygcorr, c2) * pow(p, c3) * pow(10, c4*api/(t + 460));
     }
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double
@@ -197,9 +205,10 @@ RsLasater::impl(const double & yg,
   if (sy >= 1)
     sy = 0.99999999;
         
-  const double rs = (132755*yo*sy) / (mo*(1 - sy));
+  double rs = (132755*yo*sy) / (mo*(1 - sy));
     
-  return rs >= 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double
@@ -210,9 +219,10 @@ RsPetroskyFarshad::impl(const double & yg,
 {
   const double x = 0.0007916 * pow(api, 1.541) - 0.00004561 * pow(t, 1.3911);
         
-  const double rs = pow((p/112.727 + 12.34) * pow(yg, 0.8439) * pow(10, x), 1.73184);
+  double rs = pow((p/112.727 + 12.34) * pow(yg, 0.8439) * pow(10, x), 1.73184);
 
-  return rs >= 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double RsStanding::impl(const double & yg,
@@ -220,15 +230,16 @@ inline double RsStanding::impl(const double & yg,
 			       const double & api,
 			       const double & t) noexcept
 {
-  const double rs = yg*pow((p/18.2 + 1.4)*pow(10, 0.0125*api - 0.00091*t), 1.2048);
+  double rs = yg*pow((p/18.2 + 1.4)*pow(10, 0.0125*api - 0.00091*t), 1.2048);
 
-  return rs >= 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double RsTotalCFPDetachedFromPb::impl(const double & yg,
-			       const double & p,
-			       const double & api,
-			       const double & t) noexcept
+					     const double & p,
+					     const double & api,
+					     const double & t) noexcept
 {
   double c1 = 0, c2 = 0, c3 = 0, c4 = 0;
   if (api <= 10)
@@ -252,9 +263,10 @@ inline double RsTotalCFPDetachedFromPb::impl(const double & yg,
       c4 = 1.129;
     }
         
-  const double rs = yg * pow((p/c1) * pow(10, c2*api - c3*t), c4);
+  double rs = yg * pow((p/c1) * pow(10, c2*api - c3*t), c4);
 
-  return rs >= 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double RsTotalCFP::impl(const double & yg,
@@ -286,9 +298,10 @@ inline double RsTotalCFP::impl(const double & yg,
       c4 = 0.02314;
     }
         
-  const double rs = yg * pow((p/c1) * pow(10, c4*api - c3*t), 1/c2);
+  double rs = yg * pow((p/c1) * pow(10, c4*api - c3*t), 1/c2);
 
-  return rs >= 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double
@@ -315,17 +328,18 @@ RsVasquezBeggs::impl(const double & yg,
 
   const double ygs = yg * (1 + 0.00005912*api*tsep*log10(psep/114.7));
 
-  const double rs = c1 * ygs * pow(p, c2) * exp((c3*api) / (t + 460));
+  double rs = c1 * ygs * pow(p, c2) * exp((c3*api) / (t + 460));
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double RsVelarde::impl(const double & yg,
-					 const double & pb,
-					 const double & p,
-					 const double & api,
-					 const double & t,
-					 const double & rsb) noexcept
+			      const double & pb,
+			      const double & p,
+			      const double & api,
+			      const double & t,
+			      const double & rsb) noexcept
 {
   constexpr double a0 = 9.73e-07;
   constexpr double a1 = 1.672608;
@@ -355,15 +369,15 @@ inline double RsVelarde::impl(const double & yg,
         
   const double rsr = s1*pow(pr, s2) + (1 - s1)*pow(pr, s3);
         
-  const double rs = rsr*rsb;
-
-  return rs > 0 ? rs : 0;
+  double rs = rsr*rsb;
+  rs = max(0.0, rs);
+  return min(rs, rsb);
 }
 
 inline double RsCegarra::impl(const double & yg,
-					 const double & p,
-					 const double & api,
-					 const double & t) noexcept
+			      const double & p,
+			      const double & api,
+			      const double & t) noexcept
 {
   double l1 = 0, l2 = 0, l3 = 0, l4 = 0, l5 = 0;
   if (api < 29.9)
@@ -383,18 +397,20 @@ inline double RsCegarra::impl(const double & yg,
       l5 = 1.1142;
     }
 
-  const double rs = yg * pow((p/l1 + l5) * pow(10, l4*api< - l3*t), 1/l2);
+  double rs = yg * pow((p/l1 + l5) * pow(10, l4*api - l3*t), 1/l2);
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 inline double RsPerezML::impl(const double & pb,
 			      const double & p,
 			      const double & rsb) noexcept
 {
-  const double rs = rsb * pow((p/pb), 0.881);
+   double rs = rsb * pow((p/pb), 0.881);
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return min(rs, rsb);  
 }
 
 inline double
@@ -402,9 +418,10 @@ RsMillanArcia::impl(const double & pb,
 		    const double & p,
 		    const double & rsb) noexcept
 {
-  const double rs = (rsb/1.031) * pow(p/pb, 0.83);
+  double rs = (rsb/1.031) * pow(p/pb, 0.83);
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return min(rs, rsb);  
 }
 
 inline double
@@ -415,9 +432,10 @@ RsManucciRosales::impl(const double & yg,
 {
   const double x = 0.000922*t - 0.0072*api;
             
-  const double rs =  yg * pow(p/(84.88 * pow(10, x) ), 1/0.53);
+  double rs =  yg * pow(p/(84.88 * pow(10, x) ), 1/0.53);
 
-  return rs > 0 ? rs : 0;
+  rs = max(0.0, rs);
+  return rs;
 }
 
 void RsAbovePb::precondition(const Quantity<psia> & p,

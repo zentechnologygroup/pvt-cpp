@@ -488,34 +488,54 @@ struct PvtData
 
   T istats(const Correlation * corr_ptr) const
   {
-    cout << "ystats " << corr_ptr->target_name() << endl;
+    //cout << "ystats " << corr_ptr->target_name() << endl;
     // using TYPE = tuple<double, double, double,
     // 		     //  p,            y,                 yc		     
     // 		     DynList<double>, DynList<double>, DynList<double>>;
-     auto vals = iapply(corr_ptr);
-    //          y,          p,       yc
-    DynMapTree<double, pair<double, double>> ptbl;
+    auto vals = iapply(corr_ptr);
+
+    using Trio = tuple<double, double, double>;
+    DynList<Trio> l;
     for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
       {
+	auto & t = it.get_curr();
+	DynList<double> & p = get<3>(t);
+	DynList<double> & y = get<4>(t);
+	DynList<double> & yc = get<5>(t);
+	 
+	l.append(t_zip(move(p), move(y), move(yc)));
+      }
+    in_place_sort(l, [] (const Trio & t1, const Trio & t2)
+		  { // sorting by pressure
+		    return get<0>(t1) < get<0>(t2);
+		  });
+
+    l.for_each([] (auto & t)
+    {
+      cout << "p = " << get<0>(t) << " y = " << get<1>(t) << " yc = "
+    	   << get<2>(t) << endl;
+    });
+
+    auto ll = t_unzip(l);
+    DynList<double> & p = get<0>(ll);
+    DynList<double> & y = get<1>(ll);
+    DynList<double> & yc = get<2>(ll);
+
+    //           yc,          p,       y
+    DynMapTree<double, pair<double, double>> ptbl;
+    for (auto it = l.get_it(); it.has_curr(); it.next())
+      {
     	const auto & t = it.get_curr();
-    	const DynList<double> & p = get<3>(t);
-    	const DynList<double> & y = get<4>(t);
-    	const DynList<double> & yc = get<5>(t);
-	for (auto it = zip_it(p, y, yc); it.has_curr(); it.next())
-    	  {
-    	    auto t = it.get_curr();
-    	    const double & p = get<0>(t);
-    	    const double & y = get<1>(t);
-    	    const double & yc = get<2>(t);
-    	    auto ptr = ptbl.search(y);
-    	    if (ptr == nullptr)
-    	      ptbl.append(y, make_pair(p, yc));
-    	    else if (yc > ptr->second.second)
-    	      ptr->second = make_pair(p, yc);
-    	  }
+    	const double & p = get<0>(t);
+    	const double & y = get<1>(t);
+    	const double & yc = get<2>(t);
+    	auto ptr = ptbl.search(y);
+    	if (ptr == nullptr)
+    	  ptbl.append(y, make_pair(p, yc));
+    	else if (yc > ptr->second.second)
+    	  ptr->second = make_pair(p, yc);
       }
 
-    DynList<double> p, y, yc;
     for (auto it = ptbl.get_it(); it.has_curr(); it.next())
       {
     	auto pp = it.get_curr();
