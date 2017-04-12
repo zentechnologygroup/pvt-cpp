@@ -95,6 +95,18 @@
 ## 30. opción para generar el grid traspuesto
 - Created at   2017-04-11 16:53:37 -0400
 
+<<<<<<< HEAD
 ## 31. se requiere uobp como dato;
 - Created at   2017-04-12 14:51:41 -0400
+=======
+## 31. istats puede probar con varios esquemas y sleccionas el que dé mejor c y m
+- Created at   2017-04-11 21:13:08 -0400
+
+## 32. RsCegarra pow(10
+- Created at    l4*api< - l3*t) en linea 386
+- Completed at 2017-04-11 21:47:17 -0400
+
+## 33. revisar si es necesario guardia de retorno negativo para correlaciones de rx
+- Created at   2017-04-11 21:51:40 -0400
+>>>>>>> 04cea6bb6836377820f82853bdfd84a937042ab6
 

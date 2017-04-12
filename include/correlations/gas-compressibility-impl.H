@@ -151,7 +151,6 @@ ZfactorHallYarborough::impl(const double & tpr,
 
   pr = prf;
             
-//  const double z = (0.06125*ppr*tpr_1*exp(-1.2 * tpr_1_1*tpr_1_1)) / pr;
   const double z = a * ppr / pr;
 
   return z;
@@ -182,9 +181,8 @@ ZfactorDranchukPR::impl(const double & tpr,
   double zprev = guess_initial_value(tpr, ppr);
             
       // iteracion por metodo Newton-Raphson
-  for (size_t i = 0; i < 100 and (fabs(zprev - z) > epsilon); ++i)
+  for (size_t i = 0; i < 60 and (fabs(zprev - z) > epsilon); ++i)
     {
-      cout << "i = " << i << "  zprev = " << zprev << " z = " << z << endl;
       z = zprev;
       const double pr = 0.27*ppr/(z * tpr);
 
@@ -254,7 +252,7 @@ ZfactorDranchukAK::impl(const double & tpr,
   const double tpr4 = tpr3*tpr;
   const double tpr5 = tpr4*tpr;
 
-  for (size_t i = 0; i < 100 and (fabs(zprev - z) > epsilon); ++i)
+  for (size_t i = 0; i < 60 and (fabs(zprev - z) > epsilon); ++i)
     {
       z = zprev;
       const double pr = 0.27*ppr/(z * tpr);
@@ -289,40 +287,40 @@ ZfactorGopal::impl(const double & tpr,
 		   const double & ppr) noexcept
 {
   double z = 0;
-  if (0.2 <= ppr and ppr <= 1.2)
+  if (ppr <= 1.2) // 0.2 <= ppr <= 1.2
     {
-      if (1.05 <= tpr and tpr <= 1.2)
+      if (tpr <= 1.2) // 1.05 <= tpr <= 1.2
 	z = ppr*(1.6643*tpr - 2.2114) - 0.3647*tpr + 1.4385;
       else if (tpr > 1.2 and tpr <= 1.4)
 	z = ppr*(0.0522*tpr - 0.8511) - 0.0364*tpr + 1.0490;
       else if (tpr > 1.4 and tpr <= 2.0)
 	z = ppr*(0.1391*tpr - 0.2988) + 0.0007*tpr + 0.9969;
-      else // 2.0 < Tpr <= 3.0
+      else if (tpr > 2.0) // 2.0 < tpr <= 3.0
 	z = ppr*(0.0295*tpr - 0.0825) + 0.0009*tpr + 0.9967;
     }
   else if (1.2 < ppr and ppr <= 2.8)
     {
-      if (1.05 <= tpr and tpr <= 1.2)
+      if (tpr <= 1.2) // 1.05 <= tpr <= 1.2
 	z = ppr*(-1.3570*tpr + 1.4942) + 4.6315*tpr - 4.7009;
       else if (tpr > 1.2 and tpr <= 1.4)
 	z = ppr*(0.1717*tpr - 0.3232) + 0.5869*tpr + 0.1229;
       else if (tpr > 1.4 and tpr <= 2.0)
 	z = ppr*(0.0984*tpr - 0.2053) + 0.0621*tpr + 0.8580;
-      else // 2.0 < Tpr <= 3.0
+      else if (tpr > 2.0) // 2.0 < tpr <= 3.0
 	z = ppr*(0.0211*tpr - 0.0527) + 0.0127*tpr + 0.9549;
     }
   else if (ppr > 2.8 and ppr <= 5.4)
     {
-      if (1.05 <= tpr and tpr <= 1.2)
+      if (tpr <= 1.2) // 1.05 <= tpr <= 1.2
 	z = ppr*(-0.3278*tpr + 0.4752) + 1.8223*tpr - 1.9036;
       else if (tpr > 1.2 and tpr <= 1.4)
 	z = ppr*(-0.2521*tpr + 0.3871) + 1.6087*tpr - 1.6635;
       else if (tpr > 1.4 and tpr <= 2.0)
 	z = ppr*(-0.0284*tpr + 0.0625) + 0.4714*tpr - 0.0011;
-      else // 2.0 < Tpr <= 3.0:
+      else if (tpr > 2.0) // 2.0 < tpr <= 3.0
 	z = ppr*(0.0041*tpr + 0.0039) + 0.0607*tpr + 0.7927;
     }
-  else // 5.4 < ppr <= 15
+  else if (ppr > 5.4) // 5.4 < ppr <= 15
     z = ppr*pow(0.711 + 3.66*tpr + 0.0039, -1.4667) -
       1.637/(0.319*tpr + 0.522) + 2.071;
                             

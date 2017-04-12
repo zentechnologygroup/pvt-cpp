@@ -602,6 +602,7 @@ void proccess_local_calibration()
 
       double xmin = numeric_limits<double>::max(), ymin = xmin;
       double xmax = 0, ymax = 0;
+
       ostringstream s;
       for (auto it = temps.get_it(); it.has_curr(); it.next())
 	{
@@ -609,6 +610,8 @@ void proccess_local_calibration()
 	  const Tmp & tmp = p.second;
 	  tmp.p.each(1, 1, [&xmin, &xmax] (auto v)
 		     { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
+	  tmp.y.each(1, 1, [&ymin, &ymax] (auto v)
+		     { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
 	  s << Rvector(tmp.p.get_first(), tmp.p.drop(1)) << endl
 	    << Rvector(tmp.y.get_first(), tmp.y.drop(1)) << endl;
 	  for (auto it = tmp.yc.get_it(); it.has_curr(); it.next())
@@ -701,8 +704,6 @@ void proccess_local_calibration()
   const Correlation * fst_corr = corr_list.get_first();
   const string target_name = fst_corr->target_name();
   auto fst = data.iapply(fst_corr);
-  const Unit * punit = get<0>(fst);
-  const Unit * yunit = get<1>(fst);
 
   // First correlation here because the pressure and lab values are
   // the same through all correlations
@@ -726,6 +727,7 @@ void proccess_local_calibration()
       const auto & cm = get<1>(curr);
       const double & c = cm.first;
       const double & m = cm.second;
+      cout << "c = " << c << " m = " << m << endl;
       for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
 	{
 	  auto & curr = it.get_curr();
