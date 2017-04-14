@@ -1366,3 +1366,57 @@
 - Comment      
 - Finished     
 
+## 229. 
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 230. el ordenamiento es por y no por p
+- Created at   2017-04-08 20:04:38 -0400
+- Completed at 2017-04-12 19:01:32 -0400
+- Comment      
+- Finished     
+
+## 231. El problema de eliminar ptos experimentales es que se puede perder el mínimo para hacer la regressión
+- Created at   2017-04-11 10:10:06 -0400
+- Completed at 2017-04-12 19:01:49 -0400
+- Comment      
+- Finished     
+
+## 232. añadir opcion plot a test-pvt-data que grafique a paso pero qu emuestre pts experimentales
+- Created at   2017-04-05 15:12:03 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 233. validar que tuplas de t y pb coincidan
+- Created at   2017-03-31 12:52:30 -0400
+- Completed at 2017-04-12 19:10:47 -0400
+- Comment      
+- Finished     
+
+## 234. se requiere uobp como dato;
+- Created at   2017-04-12 14:51:41 -0400
+- Completed at 2017-04-12 19:29:04 -0400
+- Comment      
+- Finished     
+
+## 235. dry de familia apply
+- Created at   2017-04-05 16:51:30 -0400
+- Completed at 2017-04-14 10:25:07 -0400
+- Comment      
+- Finished     
+
+## 236. dispatcher en ValuesArg para validar orden de y
+- Created at   2017-04-08 10:38:27 -0400
+- Completed at 2017-04-14 10:26:13 -0400
+- Comment      
+- Finished     
+
+## 237. apply y stats deben retornar pares que contengan la temperatura
+- Created at   2017-04-04 19:36:07 -0400
+- Completed at 2017-04-14 10:30:38 -0400
+- Comment      
+- Finished     
+

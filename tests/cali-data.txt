@@ -1,3 +1,13 @@
+Para el pto de burbuja
+=====================
+
+./test-cali --api 9.7 --rsb 43 --tsep 90 --psep 75 --unit "psep psig" --yg .597 --property "pb psig 138 degF 468" --property "pb psig 220 degF 500" --property "pb psig 20 degF 570" 
+
+
+
+Para Rs
+=======
+
 ./test-cali --api 9.7 --rsb 43 --tsep 90 --psep 75 --unit "psep psig" --yg .597 --property "rs SCF_STB 138 degF 468 psig 195 468 20 43" --property "rs SCF_STB 220 degF 500 psig 230 500 21 43" --property "rs SCF_STB 320 degF 570 psig 245 570 24 43" --action "local_calibration RsPerezML" --output R --mode calibrated
 
 

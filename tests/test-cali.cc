@@ -47,6 +47,13 @@ struct ValuesArg
 
   ValuesArg() {}
 
+  static void check_pb(const ValuesArg & arg)
+  {
+    if (&arg.unit_ptr->physical_quantity != &Pressure::get_instance())
+      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
+	       " is not an unit for " + Pressure::get_instance().name);
+  }
+
   static void check_rs(const ValuesArg & arg)
   {
     if (&arg.unit_ptr->physical_quantity != &GORGLRvolumeRatio::get_instance())
@@ -89,7 +96,7 @@ struct ValuesArg
   void validate_property()
   {
     static const DynSetTree<string> valid_targets =
-      { "rs", "bob", "boa", "uob", "uob", "cob", "coa", "zfactor" };
+      { "pb", "rs", "bob", "boa", "uob", "uob", "cob", "coa", "zfactor" };
     if (not valid_targets.contains(target_name))
       ZENTHROW(InvalidProperty, "target name " + target_name +
 	       " is not valid");
@@ -138,6 +145,27 @@ struct ValuesArg
     if (&tunit_ptr->physical_quantity != &Temperature::get_instance())
       ZENTHROW(CommandLineError, unit_name + " is not a temperature unit");
 
+    // read pb value
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "pb value not found");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "pb value " + data + " is not a double");
+    pb = atof(data);
+    if (target_name == "pb")
+      {
+	punit_ptr = unit_ptr;
+	return *this; // when it deals with pb there are no other parameters
+      }
+
+    // read pressure unit
+    if (not (iss >> unit_name))
+      ZENTHROW(CommandLineError, str + " does not contain unit name");
+    punit_ptr = Unit::search(unit_name);
+    if (punit_ptr == nullptr)
+      ZENTHROW(CommandLineError, unit_name + " for pressure not found");
+    if (&punit_ptr->physical_quantity != &Pressure::get_instance())
+      ZENTHROW(CommandLineError, unit_name + " is not for pressure");
+
     if (target_name == "uob" or target_name == "uoa")
       {
 	if (not (iss >> data))
@@ -153,22 +181,6 @@ struct ValuesArg
 	  ZENTHROW(CommandLineError, "uobp value " + data + " is not a double");
 	uobp = atof(data);
       } 
-
-    // read pb value
-    if (not (iss >> data))
-      ZENTHROW(CommandLineError, "pb value not found");
-    if (not is_double(data))
-      ZENTHROW(CommandLineError, "pb value " + data + " is not a double");
-    pb = atof(data);
-
-    // read pressure unit
-    if (not (iss >> unit_name))
-      ZENTHROW(CommandLineError, str + " does not contain unit name");
-    punit_ptr = Unit::search(unit_name);
-    if (punit_ptr == nullptr)
-      ZENTHROW(CommandLineError, unit_name + " for pressure not found");
-    if (&punit_ptr->physical_quantity != &Pressure::get_instance())
-      ZENTHROW(CommandLineError, unit_name + " is not for pressure");
 
     DynList<double> vals;
     size_t n = 0;
@@ -198,7 +210,8 @@ struct ValuesArg
 };
 
 AHDispatcher<string, void (*)(const ValuesArg&)>
-ValuesArg::check_dispatcher("rs", ValuesArg::check_rs,
+ValuesArg::check_dispatcher("pb", ValuesArg::check_pb,
+			    "rs", ValuesArg::check_rs,
 			    "bob", ValuesArg::check_bo,
 			    "boa", ValuesArg::check_bo,
 			    "uob", ValuesArg::check_uo,
@@ -716,7 +729,7 @@ void proccess_local_calibration()
       const string t_tag = ::to_string((int) get<0>(vals));
       header.append(build_dynlist<string>("p_" + t_tag,
 					  target_name + "_" + t_tag));
-      rows.append(build_dynlist<DynList<double>>(get<3>(vals), get<4>(vals)));
+      rows.append(build_dynlist<DynList<double>>(get<4>(vals), get<5>(vals)));
     }
 
   for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
