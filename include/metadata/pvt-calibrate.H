@@ -384,24 +384,10 @@ struct PvtData
       });
   }
 
-  //                  t,      pb,     uod,   uobp
-  using TYPE = tuple<double, double, double, double,
-		     //  p,            y,                 yc		     
-		     DynList<double>, DynList<double>, DynList<double>>;
-
-  tuple<const Unit*, const Unit*, DynList<TYPE>>
-  iapply(const Correlation * corr_ptr) const
+  DynList<Sample> get_vectors(const Correlation * corr_ptr,
+			      const DynList<const VectorDesc*> target_vectors,
+			      ParList & pars) const
   {
-    const string target_name = corr_ptr->target_name();
-    const DynList<const VectorDesc*> target_vectors =
-      search_vectors(target_name);
-    if (target_vectors.is_empty())
-      ZENTHROW(VarNameNotFound, "Correlation target " + target_name +
-	       " not found in data set");
-
-    auto first_sample_ptr = target_vectors.get_first();
-
-    ParList pars; // parameter to be passed to correlation corr_ptr
     DynList<Sample> samples;
     for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
 	 it.next())
@@ -430,6 +416,48 @@ struct PvtData
 	samples.append(s);
       }
 
+    return samples;
+  }
+
+  void load_consts(const Correlation * corr_ptr, ParList & pars) const
+  {
+    DynList<Sample> samples;
+    for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
+	 it.next())
+      {
+	auto & par = it.get_curr();
+	auto * ptr = par.names().find_ptr([this] (auto & p)
+					  { return names.has(p.first); });
+	if (ptr == nullptr)
+	  ZENTHROW(VarNameNotFound, "correlation parameter " + par.name +
+		   " not found in data set");
+
+	const string & name_in_data = ptr->first;
+	const ConstDesc * const_ptr = search_const(name_in_data);
+	if (const_ptr)
+	  pars.insert(par.name, const_ptr->value, const_ptr->unit_ptr);
+      }
+  }
+  
+  //                  t,      pb,     uod,   uobp
+  using TYPE = tuple<double, double, double, double,
+		     //  p,            y,                 yc		     
+		     DynList<double>, DynList<double>, DynList<double>>;
+
+  tuple<const Unit*, const Unit*, DynList<TYPE>>
+  iapply(const Correlation * corr_ptr) const
+  {
+    const string target_name = corr_ptr->target_name();
+    const DynList<const VectorDesc*> target_vectors =
+      search_vectors(target_name);
+    if (target_vectors.is_empty())
+      ZENTHROW(VarNameNotFound, "Correlation target " + target_name +
+	       " not found in data set");
+
+    auto first_sample_ptr = target_vectors.get_first();
+
+    ParList pars; // parameter to be passed to correlation corr_ptr
+    DynList<Sample> samples = get_vectors(corr_ptr, target_vectors, pars);
     if (samples.is_empty())
       samples.append(get_pars(target_vectors, target_name));
 
@@ -465,19 +493,20 @@ struct PvtData
 	    pars.insert("p", p, punit);
 	    pars.insert(par_name, parval, par_unit);
 
-	    // pars.tbl.for_each([] (auto p)
-	    //  		      {
-	    // 			cout << p.first << " = " << p.second.first << " " << p.second.second->name << " ";
-	    // 		      });
-	    // cout << endl;
+	    pars.tbl.for_each([] (auto p)
+              {
+		cout << p.first << " = " << p.second.first
+		     << " " << p.second.second->name << " ";
+	      });
+	    cout << endl;
 
 	    VtlQuantity result =
 	      VtlQuantity(*yunit, corr_ptr->compute_by_names(pars, false));
 	    ycvals.append(result.raw());
-	    //cout << target_name << " = " << result << endl;
+	    cout << target_name << " = " << result << endl;
 	    pars.remove("p");
 	    pars.remove(par_name);
-	  }//                                 malo
+	  }
 	ret.append(TYPE(temp, pb, uod, uobp,
 			pvals, to_dynlist(ref_ptr->y), ycvals));
 	pars.remove("t");
@@ -487,6 +516,50 @@ struct PvtData
       }
 
     return make_tuple(punit, yunit, ret);
+  }
+
+  CorrStat::Desc pbstats(const Correlation * corr_ptr) const
+  {
+    if (corr_ptr->target_name() != "pb")
+      ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
+	       " is not for pb");
+
+    if (not can_be_applied(corr_ptr))
+      ZENTHROW(CorrelationNotApplicable, "correlation " + corr_ptr->name +
+	       " is not applicable to this data set");
+
+    DynMapTree<double, double> pairs;
+    for (auto it = vectors.get_it(); it.has_curr(); it.next())
+      {
+	const VectorDesc & vdesc = it.get_curr();
+	auto ptr = pairs.search(vdesc.t);
+	if (ptr == nullptr)
+	  pairs.insert(vdesc.t, unit_convert(*vdesc.punit, vdesc.pb,
+					     psia::get_instance()));
+	else
+	  {
+	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
+					  psia::get_instance());
+	    if (ptr->second == p)
+	      {
+		ostringstream s;
+		s << "Found two contradictory pairs t,pb: " << ptr->first << ","
+		  << ptr->second << " != " << vdesc.t << "," << vdesc.pb;
+		ZENTHROW(PressureMismatch, s.str());
+	      }		       
+	  }
+      }
+
+    if (not is_sorted(pairs.values()))
+	ZENTHROW(PressureMismatch,
+		 "pb values are not sorted through temperatures");
+
+    ParList pars; // parameter to be passed to correlation corr_ptr
+    load_consts(corr_ptr, pars);
+    DynList<double> y, yc;
+    for (auto it = pairs.get_it(); it.has_curr(); it.next())
+      {
+	pars.insert("t", it.get_curr().first, &Fahrenheit::get_instance());
   }
 
   using T =
@@ -555,37 +628,6 @@ struct PvtData
 
     return make_tuple(corr_ptr, move(p), move(y), move(stats));
   }
-  // T istats(const Correlation * corr_ptr) const
-  // {
-  //   cout << "ystats " << corr_ptr->target_name() << endl;
-  //   using P = tuple<double, double, double>; // p, y, yc
-  //   DynList<P> xy;
-  //   auto vals = iapply(corr_ptr);
-  //   for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
-  //     {
-  // 	auto & curr = it.get_curr();
-  // 	DynList<double> & p = get<3>(curr);
-  // 	DynList<double> & y = get<4>(curr);
-  // 	DynList<double> & yc = get<5>(curr);
-  // 	xy.append(zip_maps<P>([] (auto t)
-  // 			      {
-  // 				return P(move(get<0>(t)),
-  // 					 move(get<1>(t)),
-  // 					 move(get<2>(t)));
-  // 			      }, p, y, yc));
-  //     }
-
-  //   auto t = t_unzip(xy);
-  //   // cout << "** " << corr_ptr->name << endl;
-  //   // cout << "p ="; get<0>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
-  //   // cout << "y ="; get<1>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
-  //   // cout << "yc ="; get<2>(t).for_each([] (auto v) { cout << " " << v; }); cout << endl;
-
-  //   auto stats = CorrStat(get<1>(t)).stats(get<2>(t));
-
-  //   return make_tuple(corr_ptr, move(get<0>(t)), move(get<1>(t)), move(stats));
-  // }
-
 };
 
 # endif

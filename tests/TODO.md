@@ -86,4 +86,6 @@
 
 ## 27. parte separada para calibrar pb
 - Created at   2017-04-14 10:54:49 -0400
+- Completed at 
+- Comment      hacer la simple suma de los pb versus salida de correlaciones
 
