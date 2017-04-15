@@ -14,6 +14,14 @@ using namespace Aleph;
 
 PvtData data;
 
+# define Define_Check_Property(pname, pq_name)				\
+  static void check_##pname(const ValuesArg & arg)			\
+  {									\
+    if (&arg.unit_ptr->physical_quantity != &pq_name::get_instance())	\
+      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +			\
+	       " is not an unit for " + pq_name::get_instance().name); \
+  }
+
 // Defines a input of form
 // "property-name property-unit t tunit pb punit p-list property-list"
 struct ValuesArg
@@ -47,56 +55,16 @@ struct ValuesArg
 
   ValuesArg() {}
 
-  static void check_pb(const ValuesArg & arg)
-  {
-    if (&arg.unit_ptr->physical_quantity != &Pressure::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
-	       " is not an unit for " + Pressure::get_instance().name);
-  }
-
-  static void check_rs(const ValuesArg & arg)
-  {
-    if (&arg.unit_ptr->physical_quantity != &GORGLRvolumeRatio::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
-	       " is not an unit for " + GORGLRvolumeRatio::get_instance().name);
-  }
-
-  static void check_bo(const ValuesArg & arg)
-  {
-    if (&arg.unit_ptr->physical_quantity != &FVFvolumeRatio::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
-	       " is not an unit for " + FVFvolumeRatio::get_instance().name);
-  }
-
-  static void check_uo(const ValuesArg & arg)
-  {
-    if (&arg.unit_ptr->physical_quantity != &DynamicViscosity::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
-	       " is not an unit for " + DynamicViscosity::get_instance().name);
-  }
-
-  static void check_co(const ValuesArg & arg)
-  {
-    if (&arg.unit_ptr->physical_quantity !=
-	&IsothermalCompressibility::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
-	       " is not an unit for " +
-	       IsothermalCompressibility::get_instance().name);
-  }
-
-  static void check_zfactor(const ValuesArg & arg)
-  {
-    if (&arg.unit_ptr->physical_quantity !=
-	&CompressibilityFactor::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
-	       " is not an unit for " +
-	       CompressibilityFactor::get_instance().name);
-  }
+  Define_Check_Property(rs, GORGLRvolumeRatio);
+  Define_Check_Property(bo, FVFvolumeRatio);
+  Define_Check_Property(uo, DynamicViscosity);
+  Define_Check_Property(co, IsothermalCompressibility);
+  Define_Check_Property(zfactor, CompressibilityFactor);
 
   void validate_property()
   {
     static const DynSetTree<string> valid_targets =
-      { "pb", "rs", "bob", "boa", "uob", "uob", "cob", "coa", "zfactor" };
+      { "rs", "bob", "boa", "uob", "uoa", "cob", "coa", "zfactor" };
     if (not valid_targets.contains(target_name))
       ZENTHROW(InvalidProperty, "target name " + target_name +
 	       " is not valid");
@@ -151,18 +119,13 @@ struct ValuesArg
     if (not is_double(data))
       ZENTHROW(CommandLineError, "pb value " + data + " is not a double");
     pb = atof(data);
-    if (target_name == "pb")
-      {
-	punit_ptr = unit_ptr;
-	return *this; // when it deals with pb there are no other parameters
-      }
 
     // read pressure unit
     if (not (iss >> unit_name))
       ZENTHROW(CommandLineError, str + " does not contain unit name");
     punit_ptr = Unit::search(unit_name);
     if (punit_ptr == nullptr)
-      ZENTHROW(CommandLineError, unit_name + " for pressure not found");
+      ZENTHROW(CommandLineError, "unit " + unit_name + " for pressure not found");
     if (&punit_ptr->physical_quantity != &Pressure::get_instance())
       ZENTHROW(CommandLineError, unit_name + " is not for pressure");
 
@@ -210,8 +173,7 @@ struct ValuesArg
 };
 
 AHDispatcher<string, void (*)(const ValuesArg&)>
-ValuesArg::check_dispatcher("pb", ValuesArg::check_pb,
-			    "rs", ValuesArg::check_rs,
+ValuesArg::check_dispatcher("rs", ValuesArg::check_rs,
 			    "bob", ValuesArg::check_bo,
 			    "boa", ValuesArg::check_bo,
 			    "uob", ValuesArg::check_uo,

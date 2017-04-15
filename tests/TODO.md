@@ -89,3 +89,12 @@
 - Completed at 
 - Comment      hacer la simple suma de los pb versus salida de correlaciones
 
+## 28. sacar pb de entre conjunto de propiedades para opcion --property
+- Created at   2017-04-15 11:33:50 -0400
+
+## 29. falta cob y cob en test-cali
+- Created at   2017-04-15 11:35:19 -0400
+
+## 30. option print debe tener salida csv y/o mat
+- Created at   2017-04-15 15:06:29 -0400
+

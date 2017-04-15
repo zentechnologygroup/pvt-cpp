@@ -559,7 +559,18 @@ struct PvtData
     DynList<double> y, yc;
     for (auto it = pairs.get_it(); it.has_curr(); it.next())
       {
-	pars.insert("t", it.get_curr().first, &Fahrenheit::get_instance());
+	auto pp = it.get_curr();
+	const double & t = pp.first;
+	const double & pb_lab = pp.second;
+	pars.insert("t", t, &Fahrenheit::get_instance());
+	auto result = corr_ptr->compute_by_names(pars, false);
+	auto pb_ret = VtlQuantity(psia::get_instance(), result).raw();
+	y.append(pb_lab);
+	yc.append(pb_ret);
+	pars.remove("t");
+      }
+
+    return CorrStat(y).stats(yc);
   }
 
   using T =

@@ -25,3 +25,6 @@ istats puede probar con varios esquemas y sleccionas el que dé mejor c y m,2017
 RsCegarra pow(10, l4*api< - l3*t) en linea 386,2017-04-11 21:47:17 -0400,
 revisar si es necesario guardia de retorno negativo para correlaciones de rx,2017-04-11 21:51:40 -0400,,
 parte separada para calibrar pb,2017-04-14 10:54:49 -0400,,hacer la simple suma de los pb versus salida de correlaciones
+sacar pb de entre conjunto de propiedades para opcion --property,2017-04-15 11:33:50 -0400,,
+falta cob y cob en test-cali,2017-04-15 11:35:19 -0400,,
+option print debe tener salida csv y/o mat,2017-04-15 15:06:29 -0400,,
