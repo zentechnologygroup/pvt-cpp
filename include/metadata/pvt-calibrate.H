@@ -439,6 +439,61 @@ struct PvtData
       }
   }
   
+  //       t     pb_lab, pb_corr
+  DynList<tuple<double, double, double>>
+  pbapply(const Correlation * corr_ptr) const
+  {
+    if (corr_ptr->target_name() != "pb")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for pb");
+
+    //          t,     pb
+    DynMapTree<double, double> pairs;
+    for (auto it = vectors.get_it(); it.has_curr(); it.next())
+      {
+	const VectorDesc & vdesc = it.get_curr();
+	auto ptr = pairs.search(vdesc.t);
+	if (ptr == nullptr)
+	  pairs.insert(vdesc.t, unit_convert(*vdesc.punit, vdesc.pb,
+					     psia::get_instance()));
+	else
+	  {
+	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
+					  psia::get_instance());
+	    if (ptr->second != p)
+	      {
+		ostringstream s;
+		s << "Found two contradictory pairs t,pb: " << ptr->first << ","
+		  << ptr->second << " != " << vdesc.t << "," << vdesc.pb;
+		ZENTHROW(PressureMismatch, s.str());
+	      }		       
+	  }
+      }
+
+    if (not is_sorted(pairs.values()))
+      ZENTHROW(PressureMismatch,
+	       "pb values are not sorted through temperatures");
+
+    ParList pars; // parameter to be passed to correlation corr_ptr
+    load_consts(corr_ptr, pars);
+    DynList<tuple<double, double, double>> ret;
+    cout << corr_ptr->name << " :" << endl;
+    for (auto it = pairs.get_it(); it.has_curr(); it.next())
+      {
+	auto pp = it.get_curr();
+	const double & t = pp.first;
+	const double & pb_lab = pp.second;
+	pars.insert("t", t, &Fahrenheit::get_instance());
+	auto result = corr_ptr->compute_by_names(pars, false);
+	auto pb_ret = VtlQuantity(psia::get_instance(), result).raw();
+	cout << "t = " << t << " pb = " << pb_ret << endl;
+	ret.append(make_tuple(t, pb_lab, pb_ret));
+	pars.remove("t");
+      }
+
+    return ret;
+  }
+
   //                  t,      pb,     uod,   uobp
   using TYPE = tuple<double, double, double, double,
 		     //  p,            y,                 yc		     
@@ -518,7 +573,10 @@ struct PvtData
     return make_tuple(punit, yunit, ret);
   }
 
-  CorrStat::Desc pbstats(const Correlation * corr_ptr) const
+  using T =
+    tuple<const Correlation*, DynList<double>, DynList<double>, CorrStat::Desc>;
+
+  T pbstats(const Correlation * corr_ptr) const
   {
     if (corr_ptr->target_name() != "pb")
       ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
@@ -528,53 +586,13 @@ struct PvtData
       ZENTHROW(CorrelationNotApplicable, "correlation " + corr_ptr->name +
 	       " is not applicable to this data set");
 
-    DynMapTree<double, double> pairs;
-    for (auto it = vectors.get_it(); it.has_curr(); it.next())
-      {
-	const VectorDesc & vdesc = it.get_curr();
-	auto ptr = pairs.search(vdesc.t);
-	if (ptr == nullptr)
-	  pairs.insert(vdesc.t, unit_convert(*vdesc.punit, vdesc.pb,
-					     psia::get_instance()));
-	else
-	  {
-	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
-					  psia::get_instance());
-	    if (ptr->second == p)
-	      {
-		ostringstream s;
-		s << "Found two contradictory pairs t,pb: " << ptr->first << ","
-		  << ptr->second << " != " << vdesc.t << "," << vdesc.pb;
-		ZENTHROW(PressureMismatch, s.str());
-	      }		       
-	  }
-      }
+    auto vals = pbapply(corr_ptr);
+    auto t = t_unzip(vals);
+    DynList<double> & y = get<1>(t);
+    DynList<double> & yc = get<2>(t);
 
-    if (not is_sorted(pairs.values()))
-	ZENTHROW(PressureMismatch,
-		 "pb values are not sorted through temperatures");
-
-    ParList pars; // parameter to be passed to correlation corr_ptr
-    load_consts(corr_ptr, pars);
-    DynList<double> y, yc;
-    for (auto it = pairs.get_it(); it.has_curr(); it.next())
-      {
-	auto pp = it.get_curr();
-	const double & t = pp.first;
-	const double & pb_lab = pp.second;
-	pars.insert("t", t, &Fahrenheit::get_instance());
-	auto result = corr_ptr->compute_by_names(pars, false);
-	auto pb_ret = VtlQuantity(psia::get_instance(), result).raw();
-	y.append(pb_lab);
-	yc.append(pb_ret);
-	pars.remove("t");
-      }
-
-    return CorrStat(y).stats(yc);
+    return T(corr_ptr, get<0>(t), y, CorrStat(move(y)).stats(move(yc)));
   }
-
-  using T =
-    tuple<const Correlation*, DynList<double>, DynList<double>, CorrStat::Desc>;
 
   T istats(const Correlation * corr_ptr) const
   {

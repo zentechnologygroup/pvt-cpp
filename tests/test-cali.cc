@@ -491,12 +491,20 @@ DynMapTree<string, bool (*)(const T&, const T&)> cmp =
 
 void process_apply()
 {
-  auto corr_list = data.can_be_applied(action.getValue().property_name);
+  auto property_name = action.getValue().property_name;
+  auto corr_list = data.can_be_applied(property_name);
 
-  DynList<T> stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
+  DynList<T> stats;
+  if (property_name == "pb")
+    stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
     {
-      return data.istats(corr_ptr);
+      return data.pbstats(corr_ptr);
     }), cmp[::sort.getValue()]);
+  else
+    stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
+      {
+	return data.istats(corr_ptr);
+      }), cmp[::sort.getValue()]);
 
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {

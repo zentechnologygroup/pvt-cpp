@@ -3,7 +3,6 @@
 
 # include <zen-exceptions.H>
 
-
 DEFINE_ZEN_EXCEPTION(CorrelationNotApplicable, "Correlation is not applicable");
 DEFINE_ZEN_EXCEPTION(VarNameNotFound, "variable not found in empirical set");
 DEFINE_ZEN_EXCEPTION(PressureMismatch, "Pressure values mismatch");
@@ -32,6 +31,7 @@ DEFINE_ZEN_EXCEPTION(SampleDoesNotFit,
 DEFINE_ZEN_EXCEPTION(SampleOutOfRange, "sample is out of any correlation range");
 DEFINE_ZEN_EXCEPTION(SampleContainsTargetName, "sample contains target name");
 DEFINE_ZEN_EXCEPTION(SampleInvalid, "invalid sample value");
+DEFINE_ZEN_EXCEPTION(InvalidTargetName, "invalid correlation target")
 
 DEFINE_ZEN_EXCEPTION(MetadataException, "metadata data exception");
 

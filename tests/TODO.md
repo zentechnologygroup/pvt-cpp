@@ -98,3 +98,6 @@
 ## 30. option print debe tener salida csv y/o mat
 - Created at   2017-04-15 15:06:29 -0400
 
+## 31. opcion pb_calibration
+- Created at   2017-04-16 11:16:24 -0400
+
