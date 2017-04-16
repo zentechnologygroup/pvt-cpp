@@ -438,16 +438,10 @@ struct PvtData
 	  pars.insert(par.name, const_ptr->value, const_ptr->unit_ptr);
       }
   }
-  
-  //       t     pb_lab, pb_corr
-  DynList<tuple<double, double, double>>
-  pbapply(const Correlation * corr_ptr) const
-  {
-    if (corr_ptr->target_name() != "pb")
-      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
-	       " is not for pb");
 
-    //          t,     pb
+  //     
+  DynList<pair<double, double>> tp_pairs() const
+  {
     DynMapTree<double, double> pairs;
     for (auto it = vectors.get_it(); it.has_curr(); it.next())
       {
@@ -473,6 +467,20 @@ struct PvtData
     if (not is_sorted(pairs.values()))
       ZENTHROW(PressureMismatch,
 	       "pb values are not sorted through temperatures");
+
+    return pairs.maps([] (auto p) { return p; });
+  }
+  
+  //       t     pb_lab, pb_corr
+  DynList<tuple<double, double, double>>
+  pbapply(const Correlation * corr_ptr) const
+  {
+    if (corr_ptr->target_name() != "pb")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for pb");
+
+    //          t,     pb
+    DynList<pair<double, double>> pairs = tp_pairs();
 
     ParList pars; // parameter to be passed to correlation corr_ptr
     load_consts(corr_ptr, pars);

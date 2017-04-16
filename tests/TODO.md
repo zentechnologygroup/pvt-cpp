@@ -101,3 +101,6 @@
 ## 31. opcion pb_calibration
 - Created at   2017-04-16 11:16:24 -0400
 
+## 32. añadir caso pb cuandio sólo hay un pto
+- Created at   2017-04-16 13:30:36 -0400
+

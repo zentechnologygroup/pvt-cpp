@@ -303,7 +303,7 @@ namespace TCLAP
 
 const DynSetTree<string> ActionType::valid_actions = 
   { "print", "list", "match", "apply", "global_apply", "local_calibration",
-    "global_calibration" };
+    "pb_calibration", "global_calibration" };
 
 const string actions =
  ActionType::valid_actions.take(ActionType::valid_actions.size() - 1).
@@ -320,6 +320,7 @@ ActionType::dispatcher
  "match", ActionType::read_property_name,
  "apply", ActionType::read_property_name,
  "global_apply", ActionType::dummy,
+ "pb_calibration", ActionType::read_local_calibration,
  "local_calibration", ActionType::read_local_calibration,
  "global_calibration", ActionType::dummy
 );
@@ -554,6 +555,32 @@ void put_sample(const Correlation * corr_ptr,
     }
 }
 
+void put_pb_sample(const Correlation * corr_ptr,
+		   DynList<DynList<double>> & rows, DynList<string> & header,
+		   DynList<double> & pb, double c, double m)
+{
+  const string & name = corr_ptr->name;
+  const auto & mode = mode_type.getValue();
+
+  if (mode == "single")
+    {
+      rows.append(move(pb));
+      header.append(name);
+    }
+  else if (mode == "calibrated")
+    {
+      rows.append(pb.maps([c, m] (auto y) { return c + m*y; }));
+      header.append(name + "_adjusted");
+    }
+  else
+    {
+      rows.append(pb.maps([c, m] (auto y) { return c + m*y; }));
+      rows.append(move(pb));
+      header.append(name);
+      header.append(name + "_adjusted");
+    }
+}
+
 void proccess_local_calibration() 
 {
   static auto print_R = [] (const DynList<DynList<string>> & l) -> string
@@ -732,6 +759,170 @@ void proccess_local_calibration()
   cout << print_dispatcher.run(output.getValue(), result) << endl;
 }
 
+void proccess_pb_calibration() 
+{
+  static auto print_R = [] (const DynList<DynList<string>> & l) -> string
+    {
+      struct Tmp
+      {
+	DynList<string> p;
+	DynList<string> y;
+	DynList<DynList<string>> yc;
+      };
+      auto cols = transpose(l); // first contains column name
+
+      //         temp    all other stuff related to temp value
+      DynMapTree<string, Tmp> temps;
+      for (auto it = cols.get_it(); it.has_curr(); it.next())
+	{
+	  DynList<string> & col = it.get_curr();
+	  const string & header = col.get_first();
+	  auto header_parts = split(header, '_');
+	  const string prefix = header_parts[0];
+	  const string type = header_parts[1];
+	  if (prefix == "p")
+	    temps[type].p = move(col);
+	  else if (islower(prefix[0])) // is a Correlation name
+	    temps[type].y = move(col);
+	  else
+	    temps[type].yc.append(move(col));
+	}
+
+      double xmin = numeric_limits<double>::max(), ymin = xmin;
+      double xmax = 0, ymax = 0;
+
+      ostringstream s;
+      for (auto it = temps.get_it(); it.has_curr(); it.next())
+	{
+	  auto & p = it.get_curr();
+	  const Tmp & tmp = p.second;
+	  tmp.p.each(1, 1, [&xmin, &xmax] (auto v)
+		     { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
+	  tmp.y.each(1, 1, [&ymin, &ymax] (auto v)
+		     { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
+	  s << Rvector(tmp.p.get_first(), tmp.p.drop(1)) << endl
+	    << Rvector(tmp.y.get_first(), tmp.y.drop(1)) << endl;
+	  for (auto it = tmp.yc.get_it(); it.has_curr(); it.next())
+	    {
+	      const DynList<string> & col = it.get_curr();
+	      col.each(1, 1, [&ymin, &ymax] (auto v)
+		       { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
+	      s << Rvector(col.get_first(), col.drop(1)) << endl;
+	    }
+	}
+
+      s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
+      << ymin << "," << ymax << "))" << endl;
+
+      size_t pch = 1;
+      size_t col = 1;
+      DynList<string> colnames;
+      DynList<int> colors;
+      DynList<string> ltys;
+      DynList<string> pchs;
+      for (auto it = temps.get_it(); it.has_curr(); it.next())
+	{
+	  auto & pp = it.get_curr();
+	  const Tmp & tmp = pp.second;
+	  const auto & pname = tmp.p.get_first();
+	  const string & name = tmp.y.get_first();
+	  colnames.append("\"" + name + "\"");
+	  colors.append(1);
+	  ltys.append("NA");
+	  pchs.append(to_string(pch));
+	  s << "points(" << pname << "," << name << ",pch=" << pch++ << ")"
+	    << endl;
+	  for (auto it = tmp.yc.get_it(); it.has_curr(); it.next(), ++col)
+	    {
+	      const string & name = it.get_curr().get_first();
+	      s << "lines(" << pname << "," << name << ",col=" << col << ")"
+		<< endl;
+	      colnames.append("\"" + name + "\"");
+	      colors.append(col);
+	      pchs.append("NA");
+	      ltys.append("1");
+	    }
+	}
+      s << Rvector("cnames", colnames) << endl
+      << Rvector("cols", colors) << endl
+      << Rvector("pchs", pchs) << endl
+      << Rvector("ltys", ltys) << endl
+      <<  "legend(\"topleft\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
+      << endl;
+
+      return s.str();
+    };
+
+  static auto print_csv = [] (const DynList<DynList<string>> & l)
+  {
+    return to_string(format_string_csv(l));
+  };
+
+  static auto print_mat = [] (const DynList<DynList<string>> & l)
+  {
+    return to_string(format_string(l));
+  };
+
+  static AHDispatcher<string, string (*)(const DynList<DynList<string>>&)>
+    print_dispatcher = { "R", print_R, "csv", print_csv, "mat", print_mat };
+
+  const auto & mode = mode_type.getValue();
+  
+  const auto & corr_list = action.getValue().corr_list;
+  DynList<pair<double, double>> comb; // coefficients c and m
+
+  // First we must verify that each read correlation applies to the data set
+  for (auto it = corr_list.get_it(); it.has_curr(); it.next())
+    {
+      auto corr_ptr = it.get_curr();
+      if (not data.can_be_applied(corr_ptr))
+	ZENTHROW(CommandLineError,
+		 corr_ptr->name + " does not apply to data set");
+      
+      if (mode != "single")
+	{
+	  auto stats = data.istats(corr_ptr);
+	  comb.append(make_pair(CorrStat::c(get<3>(stats)),
+				CorrStat::m(get<3>(stats))));
+	}
+      else
+	comb.append(make_pair(0, 1));
+    }
+
+  auto tp_pairs = data.tp_pairs();
+  auto vals = unzip(tp_pairs);
+  DynList<DynList<double>> rows =
+    build_dynlist<DynList<double>>(vals.first, vals.second);
+  DynList<string> header = build_dynlist<string>("t", "pb");
+
+  cout << "****************" << endl;
+
+  for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
+    {
+      auto curr = it.get_curr();
+      const Correlation * corr_ptr = get<0>(curr);
+      auto vals = data.pbapply(corr_ptr);
+      const auto & cm = get<1>(curr);
+      const double & c = cm.first;
+      const double & m = cm.second;
+      DynList<double> pbvals =
+	vals.maps<double>([] (auto t) { return get<2>(t); });
+      cout << "c = " << c << " m = " << m << endl;
+      put_pb_sample(corr_ptr, rows, header, pbvals, c,  m);
+    }
+
+  DynList<DynList<string>> result =
+    transpose(rows.maps<DynList<string>>([] (auto & l)
+    {
+      return l.template maps<string>([] (auto v) { return to_string(v); });
+    }));
+  result.insert(header);
+
+  assert(equal_length(rows, header));
+
+  cout << print_dispatcher.run(output.getValue(), result) << endl;
+}
+
 const AHDispatcher<string, void (*)()> dispatcher =
   {
     "print", print_data,
@@ -740,6 +931,7 @@ const AHDispatcher<string, void (*)()> dispatcher =
     "apply", process_apply,
     "global_apply", dummy,
     "local_calibration", proccess_local_calibration,
+    "pb_calibration", proccess_pb_calibration,
     "global_calibration", dummy
   };
 
