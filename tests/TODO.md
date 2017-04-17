@@ -55,43 +55,52 @@
 ## 17. desc para vector en test-pvt-data
 - Created at   2017-03-30 10:35:34 -0400
 
-## 18. validar que tuplas de t y pb coincidan
-- Created at   2017-03-31 12:52:30 -0400
-
-## 19. falta eliminar repetidos de presión en apply
+## 18. falta eliminar repetidos de presión en apply
 - Created at   2017-03-31 21:02:01 -0400
 - Completed at 2017-04-07 11:04:28 -0400
 
-## 20. test-pvt-data opcion para cambiarunidades de salida
+## 19. test-pvt-data opcion para cambiarunidades de salida
 - Created at   2017-04-03 16:50:06 -0400
 
-## 21. Zen exception en par-liats
+## 20. Zen exception en par-liats
 - Created at   2017-04-04 08:49:24 -0400
 
-## 22. apply y stats deben retornar pares que contengan la temperatura
-- Created at   2017-04-04 19:36:07 -0400
-
-## 23. añadir opcion plot a test-pvt-data que grafique a paso pero qu emuestre pts experimentales
-- Created at   2017-04-05 15:12:03 -0400
-
-## 24. validar que ultimo valor del vector siempre debe ser el correspondiente al rsb
+## 21. validar que ultimo valor del vector siempre debe ser el correspondiente al rsb
 - Created at   2017-04-05 15:59:33 -0400
 
-## 25. dry de familia apply
-- Created at   2017-04-05 16:51:30 -0400
-
-## 26. dispatcher en ValuesArg para validar orden de y
-- Created at   2017-04-08 10:38:27 -0400
-
-## 27. el ordenamiento es por y no por p
-- Created at   2017-04-08 20:04:38 -0400
-
-## 28. El problema de eliminar ptos experimentales es que se puede perder el mínimo para hacer la regressión
-- Created at   2017-04-11 10:10:06 -0400
-
-## 29. diseñar esquema para que z_min sea comartible entre correlaiones y unidades
+## 22. diseñar esquema para que z_min sea comartible entre correlaiones y unidades
 - Created at   2017-04-11 16:53:16 -0400
 
-## 30. opción para generar el grid traspuesto
+## 23. opción para generar el grid traspuesto
 - Created at   2017-04-11 16:53:37 -0400
+
+## 24. istats puede probar con varios esquemas y sleccionas el que dé mejor c y m
+- Created at   2017-04-11 21:13:08 -0400
+
+## 25. RsCegarra pow(10
+- Created at    l4*api< - l3*t) en linea 386
+- Completed at 2017-04-11 21:47:17 -0400
+
+## 26. revisar si es necesario guardia de retorno negativo para correlaciones de rx
+- Created at   2017-04-11 21:51:40 -0400
+
+## 27. parte separada para calibrar pb
+- Created at   2017-04-14 10:54:49 -0400
+- Completed at 
+- Comment      hacer la simple suma de los pb versus salida de correlaciones
+
+## 28. sacar pb de entre conjunto de propiedades para opcion --property
+- Created at   2017-04-15 11:33:50 -0400
+
+## 29. falta cob y cob en test-cali
+- Created at   2017-04-15 11:35:19 -0400
+
+## 30. option print debe tener salida csv y/o mat
+- Created at   2017-04-15 15:06:29 -0400
+
+## 31. opcion pb_calibration
+- Created at   2017-04-16 11:16:24 -0400
+
+## 32. añadir caso pb cuandio sólo hay un pto
+- Created at   2017-04-16 13:30:36 -0400
 

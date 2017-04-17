@@ -14,6 +14,14 @@ using namespace Aleph;
 
 PvtData data;
 
+# define Define_Check_Property(pname, pq_name)				\
+  static void check_##pname(const ValuesArg & arg)			\
+  {									\
+    if (&arg.unit_ptr->physical_quantity != &pq_name::get_instance())	\
+      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +			\
+	       " is not an unit for " + pq_name::get_instance().name); \
+  }
+
 // Defines a input of form
 // "property-name property-unit t tunit pb punit p-list property-list"
 struct ValuesArg
@@ -26,7 +34,8 @@ struct ValuesArg
   double t; // temperature
   const Unit * tunit_ptr = nullptr; // temperature unit
 
-  double uod; // uod
+  double uod = 0; // uod
+  double uobp = 0;
 
   double pb; // bubble point
   const Unit * punit_ptr = nullptr; // pressure unit (for pb and p)
@@ -46,49 +55,16 @@ struct ValuesArg
 
   ValuesArg() {}
 
-  static void check_rs(const ValuesArg & arg)
-  {
-    if (&arg.unit_ptr->physical_quantity != &GORGLRvolumeRatio::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
-	       " is not an unit for " + GORGLRvolumeRatio::get_instance().name);
-  }
-
-  static void check_bo(const ValuesArg & arg)
-  {
-    if (&arg.unit_ptr->physical_quantity != &FVFvolumeRatio::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
-	       " is not an unit for " + FVFvolumeRatio::get_instance().name);
-  }
-
-  static void check_uo(const ValuesArg & arg)
-  {
-    if (&arg.unit_ptr->physical_quantity != &DynamicViscosity::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
-	       " is not an unit for " + DynamicViscosity::get_instance().name);
-  }
-
-  static void check_co(const ValuesArg & arg)
-  {
-    if (&arg.unit_ptr->physical_quantity !=
-	&IsothermalCompressibility::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
-	       " is not an unit for " +
-	       IsothermalCompressibility::get_instance().name);
-  }
-
-  static void check_zfactor(const ValuesArg & arg)
-  {
-    if (&arg.unit_ptr->physical_quantity !=
-	&CompressibilityFactor::get_instance())
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +
-	       " is not an unit for " +
-	       CompressibilityFactor::get_instance().name);
-  }
+  Define_Check_Property(rs, GORGLRvolumeRatio);
+  Define_Check_Property(bo, FVFvolumeRatio);
+  Define_Check_Property(uo, DynamicViscosity);
+  Define_Check_Property(co, IsothermalCompressibility);
+  Define_Check_Property(zfactor, CompressibilityFactor);
 
   void validate_property()
   {
     static const DynSetTree<string> valid_targets =
-      { "rs", "bob", "boa", "uob", "uob", "cob", "coa", "zfactor" };
+      { "rs", "bob", "boa", "uob", "uoa", "cob", "coa", "zfactor" };
     if (not valid_targets.contains(target_name))
       ZENTHROW(InvalidProperty, "target name " + target_name +
 	       " is not valid");
@@ -137,15 +113,6 @@ struct ValuesArg
     if (&tunit_ptr->physical_quantity != &Temperature::get_instance())
       ZENTHROW(CommandLineError, unit_name + " is not a temperature unit");
 
-    if (target_name == "uob" or target_name == "uoa")
-      {
-	if (not (iss >> data))
-	  ZENTHROW(CommandLineError, "uod value not found");
-	if (not is_double(data))
-	  ZENTHROW(CommandLineError, "uod value " + data + " is not a double");
-	uod = atof(data);
-      }
-
     // read pb value
     if (not (iss >> data))
       ZENTHROW(CommandLineError, "pb value not found");
@@ -158,9 +125,25 @@ struct ValuesArg
       ZENTHROW(CommandLineError, str + " does not contain unit name");
     punit_ptr = Unit::search(unit_name);
     if (punit_ptr == nullptr)
-      ZENTHROW(CommandLineError, unit_name + " for pressure not found");
+      ZENTHROW(CommandLineError, "unit " + unit_name + " for pressure not found");
     if (&punit_ptr->physical_quantity != &Pressure::get_instance())
       ZENTHROW(CommandLineError, unit_name + " is not for pressure");
+
+    if (target_name == "uob" or target_name == "uoa")
+      {
+	if (not (iss >> data))
+	  ZENTHROW(CommandLineError, "uod value not found");
+	if (not is_double(data))
+	  ZENTHROW(CommandLineError, "uod value " + data + " is not a double");
+	uod = atof(data);
+
+	if (target_name == "uoa")
+	  if (not (iss >> data))
+	    ZENTHROW(CommandLineError, "uobp value not found");
+	if (not is_double(data))
+	  ZENTHROW(CommandLineError, "uobp value " + data + " is not a double");
+	uobp = atof(data);
+      } 
 
     DynList<double> vals;
     size_t n = 0;
@@ -320,7 +303,7 @@ namespace TCLAP
 
 const DynSetTree<string> ActionType::valid_actions = 
   { "print", "list", "match", "apply", "global_apply", "local_calibration",
-    "global_calibration" };
+    "pb_calibration", "global_calibration" };
 
 const string actions =
  ActionType::valid_actions.take(ActionType::valid_actions.size() - 1).
@@ -337,6 +320,7 @@ ActionType::dispatcher
  "match", ActionType::read_property_name,
  "apply", ActionType::read_property_name,
  "global_apply", ActionType::dummy,
+ "pb_calibration", ActionType::read_local_calibration,
  "local_calibration", ActionType::read_local_calibration,
  "global_calibration", ActionType::dummy
 );
@@ -508,12 +492,20 @@ DynMapTree<string, bool (*)(const T&, const T&)> cmp =
 
 void process_apply()
 {
-  auto corr_list = data.can_be_applied(action.getValue().property_name);
+  auto property_name = action.getValue().property_name;
+  auto corr_list = data.can_be_applied(property_name);
 
-  DynList<T> stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
+  DynList<T> stats;
+  if (property_name == "pb")
+    stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
     {
-      return data.istats(corr_ptr);
+      return data.pbstats(corr_ptr);
     }), cmp[::sort.getValue()]);
+  else
+    stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
+      {
+	return data.istats(corr_ptr);
+      }), cmp[::sort.getValue()]);
 
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {
@@ -563,6 +555,32 @@ void put_sample(const Correlation * corr_ptr,
     }
 }
 
+void put_pb_sample(const Correlation * corr_ptr,
+		   DynList<DynList<double>> & rows, DynList<string> & header,
+		   DynList<double> & pb, double c, double m)
+{
+  const string & name = corr_ptr->name;
+  const auto & mode = mode_type.getValue();
+
+  if (mode == "single")
+    {
+      rows.append(move(pb));
+      header.append(name);
+    }
+  else if (mode == "calibrated")
+    {
+      rows.append(pb.maps([c, m] (auto y) { return c + m*y; }));
+      header.append(name + "_adjusted");
+    }
+  else
+    {
+      rows.append(pb.maps([c, m] (auto y) { return c + m*y; }));
+      rows.append(move(pb));
+      header.append(name);
+      header.append(name + "_adjusted");
+    }
+}
+
 void proccess_local_calibration() 
 {
   static auto print_R = [] (const DynList<DynList<string>> & l) -> string
@@ -594,6 +612,7 @@ void proccess_local_calibration()
 
       double xmin = numeric_limits<double>::max(), ymin = xmin;
       double xmax = 0, ymax = 0;
+
       ostringstream s;
       for (auto it = temps.get_it(); it.has_curr(); it.next())
 	{
@@ -601,6 +620,8 @@ void proccess_local_calibration()
 	  const Tmp & tmp = p.second;
 	  tmp.p.each(1, 1, [&xmin, &xmax] (auto v)
 		     { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
+	  tmp.y.each(1, 1, [&ymin, &ymax] (auto v)
+		     { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
 	  s << Rvector(tmp.p.get_first(), tmp.p.drop(1)) << endl
 	    << Rvector(tmp.y.get_first(), tmp.y.drop(1)) << endl;
 	  for (auto it = tmp.yc.get_it(); it.has_curr(); it.next())
@@ -693,8 +714,6 @@ void proccess_local_calibration()
   const Correlation * fst_corr = corr_list.get_first();
   const string target_name = fst_corr->target_name();
   auto fst = data.iapply(fst_corr);
-  const Unit * punit = get<0>(fst);
-  const Unit * yunit = get<1>(fst);
 
   // First correlation here because the pressure and lab values are
   // the same through all correlations
@@ -707,7 +726,7 @@ void proccess_local_calibration()
       const string t_tag = ::to_string((int) get<0>(vals));
       header.append(build_dynlist<string>("p_" + t_tag,
 					  target_name + "_" + t_tag));
-      rows.append(build_dynlist<DynList<double>>(get<3>(vals), get<4>(vals)));
+      rows.append(build_dynlist<DynList<double>>(get<4>(vals), get<5>(vals)));
     }
 
   for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
@@ -718,6 +737,7 @@ void proccess_local_calibration()
       const auto & cm = get<1>(curr);
       const double & c = cm.first;
       const double & m = cm.second;
+      cout << "c = " << c << " m = " << m << endl;
       for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
 	{
 	  auto & curr = it.get_curr();
@@ -725,6 +745,129 @@ void proccess_local_calibration()
 	  DynList<double> & yc = get<5>(curr);
 	  put_sample(corr_ptr, rows, header, temp, yc, c, m);
 	}
+    }
+
+  DynList<DynList<string>> result =
+    transpose(rows.maps<DynList<string>>([] (auto & l)
+    {
+      return l.template maps<string>([] (auto v) { return to_string(v); });
+    }));
+  result.insert(header);
+
+  assert(equal_length(rows, header));
+
+  cout << print_dispatcher.run(output.getValue(), result) << endl;
+}
+
+void proccess_pb_calibration() 
+{
+  static auto print_R = [] (const DynList<DynList<string>> & l) -> string
+    {
+      struct Tmp
+      {
+	string y;
+	DynList<string> yc;
+      };
+      auto cols = transpose(l); // first contains column name
+
+      double xmin = numeric_limits<double>::max(), ymin = xmin;
+      double xmax = 0, ymax = 0;
+
+      ostringstream s;
+      for (auto it = cols.get_it(); it.has_curr(); it.next())
+	{
+	  auto & p = it.get_curr();
+	  const string & header = p.get_first();
+	  if (header[0] == 'p')
+	    p.each(1, 1, [&xmin, &xmax] (auto v)
+		   { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
+	  else
+	    p.each(1, 1, [&ymin, &ymax] (auto v)
+		   { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
+	  s << Rvector(p.get_first(), p.drop(1)) << endl;
+	}
+
+      s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
+        << ymin << "," << ymax << "))" << endl
+        << "points(t, p)" << endl;
+
+      size_t col = 1;
+      DynList<string> colnames;
+      DynList<int> colors;
+      for (auto it = cols.get_it(); it.has_curr(); it.next())
+	{
+	  auto & p = it.get_curr();
+	  const auto & pname = p.get_first();
+	  colnames.append("\"" + pname + "\"");
+	  colors.append(1);
+	  s << "lines(t," << pname << ",col=" << col << ")" << endl;
+	  colnames.append("\"" + pname + "\"");
+	  colors.append(col);
+	}
+      s << Rvector("cnames", colnames) << endl
+      << Rvector("cols", colors) << endl
+      <<  "legend(\"topleft\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
+      << endl;
+
+      return s.str();
+    };
+
+  static auto print_csv = [] (const DynList<DynList<string>> & l)
+  {
+    return to_string(format_string_csv(l));
+  };
+
+  static auto print_mat = [] (const DynList<DynList<string>> & l)
+  {
+    return to_string(format_string(l));
+  };
+
+  static AHDispatcher<string, string (*)(const DynList<DynList<string>>&)>
+    print_dispatcher = { "R", print_R, "csv", print_csv, "mat", print_mat };
+
+  const auto & mode = mode_type.getValue();
+  
+  const auto & corr_list = action.getValue().corr_list;
+  DynList<pair<double, double>> comb; // coefficients c and m
+
+  // First we must verify that each read correlation applies to the data set
+  for (auto it = corr_list.get_it(); it.has_curr(); it.next())
+    {
+      auto corr_ptr = it.get_curr();
+      if (not data.can_be_applied(corr_ptr))
+	ZENTHROW(CommandLineError,
+		 corr_ptr->name + " does not apply to data set");
+      
+      if (mode != "single")
+	{
+	  auto stats = data.pbstats(corr_ptr);
+	  comb.append(make_pair(CorrStat::c(get<3>(stats)),
+				CorrStat::m(get<3>(stats))));
+	}
+      else
+	comb.append(make_pair(0, 1));
+    }
+
+  auto tp_pairs = data.tp_pairs();
+  auto vals = unzip(tp_pairs);
+  DynList<DynList<double>> rows =
+    build_dynlist<DynList<double>>(vals.first, vals.second);
+  DynList<string> header = build_dynlist<string>("t", "pb");
+
+  cout << "****************" << endl;
+
+  for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
+    {
+      auto curr = it.get_curr();
+      const Correlation * corr_ptr = get<0>(curr);
+      auto vals = data.pbapply(corr_ptr);
+      const auto & cm = get<1>(curr);
+      const double & c = cm.first;
+      const double & m = cm.second;
+      DynList<double> pbvals =
+	vals.maps<double>([] (auto t) { return get<2>(t); });
+      cout << "c = " << c << " m = " << m << endl;
+      put_pb_sample(corr_ptr, rows, header, pbvals, c,  m);
     }
 
   DynList<DynList<string>> result =
@@ -747,6 +890,7 @@ const AHDispatcher<string, void (*)()> dispatcher =
     "apply", process_apply,
     "global_apply", dummy,
     "local_calibration", proccess_local_calibration,
+    "pb_calibration", proccess_pb_calibration,
     "global_calibration", dummy
   };
 
