@@ -763,33 +763,53 @@ void proccess_pb_calibration()
 {
   static auto print_R = [] (const DynList<DynList<string>> & l) -> string
     {
+       cout << "l:" << endl;
+       l.for_each([] (auto &l)
+		  {
+		    l.for_each([] (auto & s) { cout << s << " "; });
+		    cout << endl;
+		  });
       struct Tmp
       {
 	string y;
 	DynList<string> yc;
       };
       auto cols = transpose(l); // first contains column name
+       cout << "Traspuesta" << endl;
+      cols.for_each([] (auto & l)
+    { l.for_each([] (auto & s) { cout << s << " "; }); cout << endl; });
 
       double xmin = numeric_limits<double>::max(), ymin = xmin;
       double xmax = 0, ymax = 0;
-
       ostringstream s;
       for (auto it = cols.get_it(); it.has_curr(); it.next())
 	{
-	  auto & p = it.get_curr();
+	  const auto & p = it.get_curr();
+	  p.for_each([] (auto &s) { cout << s << "-"; }); cout << endl;
 	  const string & header = p.get_first();
-	  if (header[0] == 'p')
+	  cout << "header = " << header << endl;
+	  if (header[0] == 't')
 	    p.each(1, 1, [&xmin, &xmax] (auto v)
-		   { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
+		   {
+		     cout << "1" << v << endl;
+		     xmin = min(xmin, atof(v));
+		     xmax = max(xmax, atof(v));
+		   });
 	  else
 	    p.each(1, 1, [&ymin, &ymax] (auto v)
-		   { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
+		   {
+		     cout << "2" << v << endl;
+		     ymin = min(ymin, atof(v));
+		     ymax = max(ymax, atof(v));
+		   });
 	  s << Rvector(p.get_first(), p.drop(1)) << endl;
+	  cout << "****" << s.str() << endl;
 	}
 
       s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
         << ymin << "," << ymax << "))" << endl
         << "points(t, p)" << endl;
+       cout << s.str() << endl;
 
       size_t col = 1;
       DynList<string> colnames;
@@ -878,6 +898,13 @@ void proccess_pb_calibration()
   result.insert(header);
 
   assert(equal_length(rows, header));
+
+  cout << "Result:" << endl;
+  result.for_each([] (auto &l)
+		  {
+		    l.for_each([] (auto & s) { cout << s << " "; });
+		    cout << endl;
+		  });
 
   cout << print_dispatcher.run(output.getValue(), result) << endl;
 }
