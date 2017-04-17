@@ -765,88 +765,47 @@ void proccess_pb_calibration()
     {
       struct Tmp
       {
-	DynList<string> p;
-	DynList<string> y;
-	DynList<DynList<string>> yc;
+	string y;
+	DynList<string> yc;
       };
       auto cols = transpose(l); // first contains column name
-
-      //         temp    all other stuff related to temp value
-      DynMapTree<string, Tmp> temps;
-      for (auto it = cols.get_it(); it.has_curr(); it.next())
-	{
-	  DynList<string> & col = it.get_curr();
-	  const string & header = col.get_first();
-	  auto header_parts = split(header, '_');
-	  const string prefix = header_parts[0];
-	  const string type = header_parts[1];
-	  if (prefix == "p")
-	    temps[type].p = move(col);
-	  else if (islower(prefix[0])) // is a Correlation name
-	    temps[type].y = move(col);
-	  else
-	    temps[type].yc.append(move(col));
-	}
 
       double xmin = numeric_limits<double>::max(), ymin = xmin;
       double xmax = 0, ymax = 0;
 
       ostringstream s;
-      for (auto it = temps.get_it(); it.has_curr(); it.next())
+      for (auto it = cols.get_it(); it.has_curr(); it.next())
 	{
 	  auto & p = it.get_curr();
-	  const Tmp & tmp = p.second;
-	  tmp.p.each(1, 1, [&xmin, &xmax] (auto v)
-		     { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
-	  tmp.y.each(1, 1, [&ymin, &ymax] (auto v)
-		     { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
-	  s << Rvector(tmp.p.get_first(), tmp.p.drop(1)) << endl
-	    << Rvector(tmp.y.get_first(), tmp.y.drop(1)) << endl;
-	  for (auto it = tmp.yc.get_it(); it.has_curr(); it.next())
-	    {
-	      const DynList<string> & col = it.get_curr();
-	      col.each(1, 1, [&ymin, &ymax] (auto v)
-		       { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
-	      s << Rvector(col.get_first(), col.drop(1)) << endl;
-	    }
+	  const string & header = p.get_first();
+	  if (header[0] == 'p')
+	    p.each(1, 1, [&xmin, &xmax] (auto v)
+		   { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
+	  else
+	    p.each(1, 1, [&ymin, &ymax] (auto v)
+		   { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
+	  s << Rvector(p.get_first(), p.drop(1)) << endl;
 	}
 
       s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
-      << ymin << "," << ymax << "))" << endl;
+        << ymin << "," << ymax << "))" << endl
+        << "points(t, p)" << endl;
 
-      size_t pch = 1;
       size_t col = 1;
       DynList<string> colnames;
       DynList<int> colors;
-      DynList<string> ltys;
-      DynList<string> pchs;
-      for (auto it = temps.get_it(); it.has_curr(); it.next())
+      for (auto it = cols.get_it(); it.has_curr(); it.next())
 	{
-	  auto & pp = it.get_curr();
-	  const Tmp & tmp = pp.second;
-	  const auto & pname = tmp.p.get_first();
-	  const string & name = tmp.y.get_first();
-	  colnames.append("\"" + name + "\"");
+	  auto & p = it.get_curr();
+	  const auto & pname = p.get_first();
+	  colnames.append("\"" + pname + "\"");
 	  colors.append(1);
-	  ltys.append("NA");
-	  pchs.append(to_string(pch));
-	  s << "points(" << pname << "," << name << ",pch=" << pch++ << ")"
-	    << endl;
-	  for (auto it = tmp.yc.get_it(); it.has_curr(); it.next(), ++col)
-	    {
-	      const string & name = it.get_curr().get_first();
-	      s << "lines(" << pname << "," << name << ",col=" << col << ")"
-		<< endl;
-	      colnames.append("\"" + name + "\"");
-	      colors.append(col);
-	      pchs.append("NA");
-	      ltys.append("1");
-	    }
+	  s << "lines(t," << pname << ",col=" << col << ")" << endl;
+	  colnames.append("\"" + pname + "\"");
+	  colors.append(col);
 	}
       s << Rvector("cnames", colnames) << endl
       << Rvector("cols", colors) << endl
-      << Rvector("pchs", pchs) << endl
-      << Rvector("ltys", ltys) << endl
       <<  "legend(\"topleft\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
       << endl;
 
@@ -881,7 +840,7 @@ void proccess_pb_calibration()
       
       if (mode != "single")
 	{
-	  auto stats = data.istats(corr_ptr);
+	  auto stats = data.pbstats(corr_ptr);
 	  comb.append(make_pair(CorrStat::c(get<3>(stats)),
 				CorrStat::m(get<3>(stats))));
 	}
