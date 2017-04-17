@@ -47,7 +47,7 @@ static double guess_initial_value(const double & tpr, const double & ppr)
 
   const double A = a1*t*exp(a2*t12)*ppr;
   const double B = a3*t + a4*t2 + a5*t6*ppr6;
-  const double C = a9 + a8*t*ppr2 + a7*t2*ppr2 + a6*t3*ppr3;
+  const double C = a9 + a8*t*ppr + a7*t2*ppr2 + a6*t3*ppr3;
   const double D = a10*t*exp(a11*t12);
   const double E = a12*t + a13*t2 + a14*t3;
   const double F = a15*t + a16*t2 + a17*t3;
