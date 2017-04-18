@@ -256,6 +256,8 @@ struct PvtData
     names.append("p");
     names.append("pb");
     names.append("t");
+    names.append("uod");
+    names.append("uobp");
     names.append(yname);
     vectors.emplace(t, pb, uod, uobp, p, &punit, yname, &yunit, y);
   }
@@ -370,7 +372,10 @@ struct PvtData
 	  {
 	    if ( (not par.check(VtlQuantity(*const_ptr->unit_ptr,
 					    const_ptr->value))))
+	      {
+		cout << corr_ptr->name << " fails for " << name_in_data << endl;
 	      return false;
+	      }
 	    continue;
 	  }
 
@@ -384,7 +389,10 @@ struct PvtData
 				  return par.check(VtlQuantity(*yunit, v));
 				});
 	     }))
+	  {
+	    cout << corr_ptr->name << " fails for " << name_in_data << endl;
 	  return false;
+	  }
        }
 
     return true;

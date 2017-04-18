@@ -83,7 +83,7 @@ end
 
 options_parser.parse!
 
-file_name = options[:file_name] || $stdin.gets.chomp
+file_name = options[:file_name] # || $stdin.gets.chomp
 fail 'csv file not given' unless file_name
 
 data = Table.new file_name

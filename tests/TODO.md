@@ -104,3 +104,9 @@
 ## 32. añadir caso pb cuandio sólo hay un pto
 - Created at   2017-04-16 13:30:36 -0400
 
+## 33. Cuando la regresión dé error debe reportarse
+- Created at   2017-04-18 15:45:52 -0400
+
+## 34. atrapat Undefined en cplot
+- Created at   2017-04-18 17:44:28 -0400
+

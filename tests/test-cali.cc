@@ -462,13 +462,13 @@ void process_match()
 
 using T = PvtData::T;
 
-# define Define_Cmp(name)			\
+# define Define_Cmp(name)						\
   auto cmp_##name = [] (const T & d1, const T & d2)			\
   {									\
     return CorrStat::name(get<3>(d1)) < CorrStat::name(get<3>(d2));	\
   }
 
-# define Define_1_Cmp(name)			\
+# define Define_1_Cmp(name)						\
   auto cmp_##name = [] (const T & d1, const T & d2)			\
   {									\
     return abs(1 - CorrStat::name(get<3>(d1))) <			\
@@ -591,7 +591,10 @@ void proccess_local_calibration()
 	DynList<string> y;
 	DynList<DynList<string>> yc;
       };
-      auto cols = transpose(l); // first contains column name
+      auto cols = transpose(l).maps<DynList<string>>([] (auto & l)
+        {
+	  return l.filter([] (auto & s) { return s.size(); });
+	}); // first contains column name
 
       //         temp    all other stuff related to temp value
       DynMapTree<string, Tmp> temps;
@@ -630,11 +633,12 @@ void proccess_local_calibration()
 	      col.each(1, 1, [&ymin, &ymax] (auto v)
 		       { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
 	      s << Rvector(col.get_first(), col.drop(1)) << endl;
+	      cout << "**" << Rvector(col.get_first(), col.drop(1)) << endl;
 	    }
 	}
 
       s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
-      << ymin << "," << ymax << "))" << endl;
+        << ymin << "," << ymax << "))" << endl;
 
       size_t pch = 1;
       size_t col = 1;
@@ -666,11 +670,11 @@ void proccess_local_calibration()
 	    }
 	}
       s << Rvector("cnames", colnames) << endl
-      << Rvector("cols", colors) << endl
-      << Rvector("pchs", pchs) << endl
-      << Rvector("ltys", ltys) << endl
-      <<  "legend(\"topleft\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
-      << endl;
+        << Rvector("cols", colors) << endl
+        << Rvector("pchs", pchs) << endl
+        << Rvector("ltys", ltys) << endl
+        <<  "legend(\"topleft\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
+        << endl;
 
       return s.str();
     };
@@ -745,7 +749,6 @@ void proccess_local_calibration()
 	  put_sample(corr_ptr, rows, header, temp, y, c, m);
 	}
     }
-
   DynList<DynList<string>> result =
     transpose(rows.maps<DynList<string>>([] (auto & l)
     {
@@ -774,10 +777,6 @@ void proccess_pb_calibration()
 	DynList<string> yc;
       };
       auto cols = transpose(l); // first contains column name
-       cout << "Traspuesta" << endl;
-      cols.for_each([] (auto & l)
-    { l.for_each([] (auto & s) { cout << s << " "; }); cout << endl; });
-
       double xmin = numeric_limits<double>::max(), ymin = xmin;
       double xmax = 0, ymax = 0;
       ostringstream s;
@@ -887,13 +886,6 @@ void proccess_pb_calibration()
   result.insert(header);
 
   assert(equal_length(rows, header));
-
-  cout << "Result:" << endl;
-  result.for_each([] (auto &l)
-		  {
-		    l.for_each([] (auto & s) { cout << s << " "; });
-		    cout << endl;
-		  });
 
   cout << print_dispatcher.run(output.getValue(), result) << endl;
 }
