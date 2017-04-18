@@ -413,7 +413,7 @@ void build_pvt_data()
 		   *test_unit("nacl", Molality_NaCl::get_instance()));
 
   for (auto & a : target.getValue())
-    data.add_vector(a.t, a.pb, a.p, *a.punit_ptr,
+    data.add_vector(a.t, a.pb, a.uod, a.uobp, a.p, *a.punit_ptr,
 		    a.target_name, a.values, *a.unit_ptr);
 }
 
@@ -737,13 +737,12 @@ void proccess_local_calibration()
       const auto & cm = get<1>(curr);
       const double & c = cm.first;
       const double & m = cm.second;
-      cout << "c = " << c << " m = " << m << endl;
       for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
 	{
 	  auto & curr = it.get_curr();
 	  const double & temp = get<0>(curr);
-	  DynList<double> & yc = get<5>(curr);
-	  put_sample(corr_ptr, rows, header, temp, yc, c, m);
+	  DynList<double> & y = get<5>(curr);
+	  put_sample(corr_ptr, rows, header, temp, y, c, m);
 	}
     }
 
@@ -778,7 +777,7 @@ void proccess_pb_calibration()
 	{
 	  auto & p = it.get_curr();
 	  const string & header = p.get_first();
-	  if (header[0] == 'p')
+	  if (header[0] == 't')
 	    p.each(1, 1, [&xmin, &xmax] (auto v)
 		   { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
 	  else
@@ -789,25 +788,23 @@ void proccess_pb_calibration()
 
       s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
         << ymin << "," << ymax << "))" << endl
-        << "points(t, p)" << endl;
+        << "points(t, pb)" << endl;
 
       size_t col = 1;
       DynList<string> colnames;
       DynList<int> colors;
-      for (auto it = cols.get_it(); it.has_curr(); it.next())
+      for (auto it = cols.get_it(2); it.has_curr(); it.next(), ++col)
 	{
 	  auto & p = it.get_curr();
 	  const auto & pname = p.get_first();
-	  colnames.append("\"" + pname + "\"");
-	  colors.append(1);
 	  s << "lines(t," << pname << ",col=" << col << ")" << endl;
 	  colnames.append("\"" + pname + "\"");
 	  colors.append(col);
 	}
       s << Rvector("cnames", colnames) << endl
-      << Rvector("cols", colors) << endl
-      <<  "legend(\"topleft\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
-      << endl;
+        << Rvector("cols", colors) << endl
+        <<  "legend(\"topleft\", legend=cnames, col=cols, lty=1)"
+        << endl;
 
       return s.str();
     };
@@ -854,8 +851,6 @@ void proccess_pb_calibration()
     build_dynlist<DynList<double>>(vals.first, vals.second);
   DynList<string> header = build_dynlist<string>("t", "pb");
 
-  cout << "****************" << endl;
-
   for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
     {
       auto curr = it.get_curr();
@@ -865,8 +860,7 @@ void proccess_pb_calibration()
       const double & c = cm.first;
       const double & m = cm.second;
       DynList<double> pbvals =
-	vals.maps<double>([] (auto t) { return get<2>(t); });
-      cout << "c = " << c << " m = " << m << endl;
+	vals.maps<double>([] (auto t) { return get<1>(t); });
       put_pb_sample(corr_ptr, rows, header, pbvals, c,  m);
     }
 

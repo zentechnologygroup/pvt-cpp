@@ -28,6 +28,7 @@ DEFINE_ZEN_EXCEPTION(SampleValueIsNotNumber, "sample value is not a number");
 DEFINE_ZEN_EXCEPTION(SampleVarNotFound, "value not found");
 DEFINE_ZEN_EXCEPTION(SampleDoesNotFit,
 		     "sample data does not fit with correlation range");
+DEFINE_ZEN_EXCEPTION(LengthMismatch, "invalid sequence length");
 DEFINE_ZEN_EXCEPTION(SampleOutOfRange, "sample is out of any correlation range");
 DEFINE_ZEN_EXCEPTION(SampleContainsTargetName, "sample contains target name");
 DEFINE_ZEN_EXCEPTION(SampleInvalid, "invalid sample value");
