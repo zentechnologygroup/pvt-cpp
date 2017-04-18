@@ -786,36 +786,24 @@ void proccess_pb_calibration()
 	  const auto & p = it.get_curr();
 	  p.for_each([] (auto &s) { cout << s << "-"; }); cout << endl;
 	  const string & header = p.get_first();
-<<<<<<< HEAD
-=======
-	  cout << "header = " << header << endl;
->>>>>>> 1579252b968696299e4abb5bf06f1f392cf5150d
 	  if (header[0] == 't')
 	    p.each(1, 1, [&xmin, &xmax] (auto v)
 		   {
-		     cout << "1" << v << endl;
 		     xmin = min(xmin, atof(v));
 		     xmax = max(xmax, atof(v));
 		   });
 	  else
 	    p.each(1, 1, [&ymin, &ymax] (auto v)
 		   {
-		     cout << "2" << v << endl;
 		     ymin = min(ymin, atof(v));
 		     ymax = max(ymax, atof(v));
 		   });
 	  s << Rvector(p.get_first(), p.drop(1)) << endl;
-	  cout << "****" << s.str() << endl;
 	}
 
       s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
         << ymin << "," << ymax << "))" << endl
-<<<<<<< HEAD
         << "points(t, pb)" << endl;
-=======
-        << "points(t, p)" << endl;
-       cout << s.str() << endl;
->>>>>>> 1579252b968696299e4abb5bf06f1f392cf5150d
 
       size_t col = 1;
       DynList<string> colnames;
