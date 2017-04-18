@@ -47,7 +47,7 @@ static double guess_initial_value(const double & tpr, const double & ppr)
 
   const double A = a1*t*exp(a2*t12)*ppr;
   const double B = a3*t + a4*t2 + a5*t6*ppr6;
-  const double C = a9 + a8*t*ppr2 + a7*t2*ppr2 + a6*t3*ppr3;
+  const double C = a9 + a8*t*ppr + a7*t2*ppr2 + a6*t3*ppr3;
   const double D = a10*t*exp(a11*t12);
   const double E = a12*t + a13*t2 + a14*t3;
   const double F = a15*t + a16*t2 + a17*t3;
@@ -132,11 +132,17 @@ ZfactorHallYarborough::impl(const double & tpr,
   double pr = 0, prf = 0;
   double zprev = guess_initial_value(tpr, ppr);
   double prprev = a * ppr / zprev;
-            
+  double z = 0;
+
   // iteracion por metodo Newton-Raphson
   for (size_t i = 0; i < 60 and (fabs(prprev - pr) > epsilon); ++i)
     {
       pr = prprev;
+
+      if (pr < 0) { // c*pow(pr, d): negative number cannot be raised to a fractional power
+	return z = zprev;
+      }
+
       const double pr2 = pr*pr;
       const double pr3 = pr2*pr;
       const double pr4 = pr3*pr;
@@ -151,7 +157,7 @@ ZfactorHallYarborough::impl(const double & tpr,
 
   pr = prf;
             
-  const double z = a * ppr / pr;
+  z = a * ppr / pr;
 
   return z;
 }

@@ -842,6 +842,16 @@ VtlQuantity compute(const Correlation * corr_ptr, bool check,
   return VtlQuantity();
 }
 
+// return true if all args... are valid
+inline bool valid_args() { return true; }
+  template <typename ... Args> inline
+bool valid_args(const VtlQuantity & par, Args ... args)
+{
+  if (par.is_null())
+    return false;
+  return valid_args(args...);
+}  
+
 template <typename ... Args> inline
 string correlation_call(const Correlation * corr_ptr, Args ... args)
 {
@@ -883,16 +893,6 @@ VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
     }
   return VtlQuantity();
 }
-
-// return true if all args... are valid
-inline bool valid_args() { return true; }
-  template <typename ... Args> inline
-bool valid_args(const VtlQuantity & par, Args ... args)
-{
-  if (par.is_null())
-    return false;
-  return valid_args(args...);
-}  
 
 // Macro for creating `var` variable with value returned by correlation corr_name
 # define CALL(corr_name, var, args...)					\
@@ -942,10 +942,11 @@ VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
 		     const VtlQuantity & p_q,
 		     ParList & pars_list, Args ... args)
 {
+  if (not insert_in_pars_list(corr, p_q, pars_list, args...))
+    return VtlQuantity();
+  
   try
     {
-      if (not insert_in_pars_list(corr, p_q, pars_list, args...))
-	return VtlQuantity();
       auto ret = corr.compute_by_names(pars_list, check);
       remove_from_container(pars_list, args ...);
       return ret;
