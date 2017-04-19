@@ -177,6 +177,8 @@ inline double
 ZfactorHallYarborough::impl(const double & tpr,
 			    const double & ppr) noexcept
 {
+  // arreglo de funciones de valor inicial
+  // i = 0
   const double tpr_1 = 1/tpr;
   const double tpr_1_2 = tpr_1*tpr_1;
   const double tpr_1_3 = tpr_1_2*tpr_1;
@@ -190,7 +192,7 @@ ZfactorHallYarborough::impl(const double & tpr,
   // pr: Densidad reducida definida por el autor del metodo
   constexpr double epsilon = 1.0e-8;
   double pr = 0, prf = 0;
-  double zprev = guess_initial_value(tpr, ppr);
+  const double zprev = guess_initial_value(tpr, ppr);
   double prprev = a * ppr / zprev;
   double z = 0;
 

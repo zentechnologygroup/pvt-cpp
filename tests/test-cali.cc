@@ -413,7 +413,7 @@ void build_pvt_data()
 		   *test_unit("nacl", Molality_NaCl::get_instance()));
 
   for (auto & a : target.getValue())
-    data.add_vector(a.t, a.pb, a.p, *a.punit_ptr,
+    data.add_vector(a.t, a.pb, a.uod, a.uobp, a.p, *a.punit_ptr,
 		    a.target_name, a.values, *a.unit_ptr);
 }
 
@@ -462,13 +462,13 @@ void process_match()
 
 using T = PvtData::T;
 
-# define Define_Cmp(name)			\
+# define Define_Cmp(name)						\
   auto cmp_##name = [] (const T & d1, const T & d2)			\
   {									\
     return CorrStat::name(get<3>(d1)) < CorrStat::name(get<3>(d2));	\
   }
 
-# define Define_1_Cmp(name)			\
+# define Define_1_Cmp(name)						\
   auto cmp_##name = [] (const T & d1, const T & d2)			\
   {									\
     return abs(1 - CorrStat::name(get<3>(d1))) <			\
@@ -591,7 +591,10 @@ void proccess_local_calibration()
 	DynList<string> y;
 	DynList<DynList<string>> yc;
       };
-      auto cols = transpose(l); // first contains column name
+      auto cols = transpose(l).maps<DynList<string>>([] (auto & l)
+        {
+	  return l.filter([] (auto & s) { return s.size(); });
+	}); // first contains column name
 
       //         temp    all other stuff related to temp value
       DynMapTree<string, Tmp> temps;
@@ -630,11 +633,12 @@ void proccess_local_calibration()
 	      col.each(1, 1, [&ymin, &ymax] (auto v)
 		       { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
 	      s << Rvector(col.get_first(), col.drop(1)) << endl;
+	      cout << "**" << Rvector(col.get_first(), col.drop(1)) << endl;
 	    }
 	}
 
       s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
-      << ymin << "," << ymax << "))" << endl;
+        << ymin << "," << ymax << "))" << endl;
 
       size_t pch = 1;
       size_t col = 1;
@@ -666,11 +670,11 @@ void proccess_local_calibration()
 	    }
 	}
       s << Rvector("cnames", colnames) << endl
-      << Rvector("cols", colors) << endl
-      << Rvector("pchs", pchs) << endl
-      << Rvector("ltys", ltys) << endl
-      <<  "legend(\"topleft\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
-      << endl;
+        << Rvector("cols", colors) << endl
+        << Rvector("pchs", pchs) << endl
+        << Rvector("ltys", ltys) << endl
+        <<  "legend(\"topleft\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
+        << endl;
 
       return s.str();
     };
@@ -737,16 +741,14 @@ void proccess_local_calibration()
       const auto & cm = get<1>(curr);
       const double & c = cm.first;
       const double & m = cm.second;
-      cout << "c = " << c << " m = " << m << endl;
       for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
 	{
 	  auto & curr = it.get_curr();
 	  const double & temp = get<0>(curr);
-	  DynList<double> & yc = get<5>(curr);
-	  put_sample(corr_ptr, rows, header, temp, yc, c, m);
+	  DynList<double> & y = get<5>(curr);
+	  put_sample(corr_ptr, rows, header, temp, y, c, m);
 	}
     }
-
   DynList<DynList<string>> result =
     transpose(rows.maps<DynList<string>>([] (auto & l)
     {
@@ -775,10 +777,6 @@ void proccess_pb_calibration()
 	DynList<string> yc;
       };
       auto cols = transpose(l); // first contains column name
-       cout << "Traspuesta" << endl;
-      cols.for_each([] (auto & l)
-    { l.for_each([] (auto & s) { cout << s << " "; }); cout << endl; });
-
       double xmin = numeric_limits<double>::max(), ymin = xmin;
       double xmax = 0, ymax = 0;
       ostringstream s;
@@ -787,47 +785,40 @@ void proccess_pb_calibration()
 	  const auto & p = it.get_curr();
 	  p.for_each([] (auto &s) { cout << s << "-"; }); cout << endl;
 	  const string & header = p.get_first();
-	  cout << "header = " << header << endl;
 	  if (header[0] == 't')
 	    p.each(1, 1, [&xmin, &xmax] (auto v)
 		   {
-		     cout << "1" << v << endl;
 		     xmin = min(xmin, atof(v));
 		     xmax = max(xmax, atof(v));
 		   });
 	  else
 	    p.each(1, 1, [&ymin, &ymax] (auto v)
 		   {
-		     cout << "2" << v << endl;
 		     ymin = min(ymin, atof(v));
 		     ymax = max(ymax, atof(v));
 		   });
 	  s << Rvector(p.get_first(), p.drop(1)) << endl;
-	  cout << "****" << s.str() << endl;
 	}
 
       s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
         << ymin << "," << ymax << "))" << endl
-        << "points(t, p)" << endl;
-       cout << s.str() << endl;
+        << "points(t, pb)" << endl;
 
       size_t col = 1;
       DynList<string> colnames;
       DynList<int> colors;
-      for (auto it = cols.get_it(); it.has_curr(); it.next())
+      for (auto it = cols.get_it(2); it.has_curr(); it.next(), ++col)
 	{
 	  auto & p = it.get_curr();
 	  const auto & pname = p.get_first();
-	  colnames.append("\"" + pname + "\"");
-	  colors.append(1);
 	  s << "lines(t," << pname << ",col=" << col << ")" << endl;
 	  colnames.append("\"" + pname + "\"");
 	  colors.append(col);
 	}
       s << Rvector("cnames", colnames) << endl
-      << Rvector("cols", colors) << endl
-      <<  "legend(\"topleft\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
-      << endl;
+        << Rvector("cols", colors) << endl
+        <<  "legend(\"topleft\", legend=cnames, col=cols, lty=1)"
+        << endl;
 
       return s.str();
     };
@@ -874,8 +865,6 @@ void proccess_pb_calibration()
     build_dynlist<DynList<double>>(vals.first, vals.second);
   DynList<string> header = build_dynlist<string>("t", "pb");
 
-  cout << "****************" << endl;
-
   for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
     {
       auto curr = it.get_curr();
@@ -885,8 +874,7 @@ void proccess_pb_calibration()
       const double & c = cm.first;
       const double & m = cm.second;
       DynList<double> pbvals =
-	vals.maps<double>([] (auto t) { return get<2>(t); });
-      cout << "c = " << c << " m = " << m << endl;
+	vals.maps<double>([] (auto t) { return get<1>(t); });
       put_pb_sample(corr_ptr, rows, header, pbvals, c,  m);
     }
 
@@ -898,13 +886,6 @@ void proccess_pb_calibration()
   result.insert(header);
 
   assert(equal_length(rows, header));
-
-  cout << "Result:" << endl;
-  result.for_each([] (auto &l)
-		  {
-		    l.for_each([] (auto & s) { cout << s << " "; });
-		    cout << endl;
-		  });
 
   cout << print_dispatcher.run(output.getValue(), result) << endl;
 }

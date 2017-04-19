@@ -7,8 +7,8 @@
 struct VectorDesc
 {
   const double t = 0; //  unit will always be in Fahrenheit
-  const double uod = -1; // dead oil viscosity in cP
-  const double uobp = -1; // oil viscosity at pb in cP
+  mutable double uod = -1; // dead oil viscosity in cP
+  mutable double uobp = -1; // oil viscosity at pb in cP
   const double pb = 0; // bubble point pressure in the same unit that p
   const Array<double> p;
   const Unit * punit = nullptr;
@@ -17,28 +17,38 @@ struct VectorDesc
   const Unit * yunit = nullptr;
   const Array<double> y;
 
-  void validate_p_sorted()
+  void validate()
   {
+    if (p.size() <= 1)
+      ZENTHROW(LengthMismatch, "Pressure array size is less or equal tan 1");
+    if (p.size() != y.size())
+      ZENTHROW(LengthMismatch, "pressure array and " + yname +
+	       " array have different sizes");
     if (not is_sorted(p))
       ZENTHROW(SamplesUnsorted, "pressures are not sorted");
   }
 
   VectorDesc(double t, double pb, const Array<double> & p, const Unit * punit,
 	     const string & yname, const Unit * yunit, const Array<double> & y)
-    noexcept
     : t(t), pb(pb), p(p), punit(punit), yname(yname), yunit(yunit), y(y)
   {
-    validate_p_sorted();
+    validate();
   }
 
-  VectorDesc(double t, double uod, double pb, 
+  VectorDesc(double t, double pb, double uod, 
 	     const Array<double> & p, const Unit * punit,
 	     const string & yname, const Unit * yunit, const Array<double> & y)
-    noexcept
-    : t(t), uod(uod), pb(pb), p(p), punit(punit),
-      yname(yname), yunit(yunit), y(y)
+    : VectorDesc(t, pb, p, punit, yname, yunit, y)
   {
-    validate_p_sorted();
+    this->uod = uod;
+  }
+
+  VectorDesc(double t, double pb, double uod, double uobp,
+	     const Array<double> & p, const Unit * punit,
+	     const string & yname, const Unit * yunit, const Array<double> & y)
+    : VectorDesc(t, pb, uod, p, punit, yname, yunit, y)
+  {
+    this->uobp = uobp;
   }
 
   VectorDesc() {}
@@ -78,9 +88,12 @@ struct VectorDesc
     if (pval < pentry)
       --i;
 
-    assert(i >= 0);
-
-    return interpolate(p(i), p(i+1), y(i), y(i+1), pval);
+    if (i < 0)
+      return extrapolate_left(p(0), p(1), y(0), y(1), pval);
+    else if (i > (long) n)
+      return extrapolate_right(p(n - 2), p(n - 1), y(n - 2), y(n - 1), pval);
+    else
+      return interpolate(p(i), p(i + 1), y(i), y(i + 1), pval);
   }
 
   template <template <typename> class C>
@@ -110,7 +123,7 @@ struct VectorDesc
     if (uod > 0)
       s << " uod = " << uod << " " << yunit->name;
     if (uobp > 0)
-      s << "uobp = " << uobp << " " << yunit->name;
+      s << " uobp = " << uobp << " " << yunit->name;
     s << " :" << endl
       << shift_lines_to_left(Aleph::to_string(format_string(to_dynlist())), 2);
     return s.str();
@@ -224,7 +237,8 @@ struct PvtData
   }
 
   void
-  add_vector(double t, double pb, const Array<double> & p, const Unit & punit,
+  add_vector(double t, double pb, double uod, double uobp,
+	     const Array<double> & p, const Unit & punit,
 	     const string yname, const Array<double> & y, const Unit & yunit)
   {
     if (&punit.physical_quantity != &Pressure::get_instance())
@@ -239,11 +253,13 @@ struct PvtData
       ZENTHROW(InvalidTargetUnit, yunit.name + " is not sibling");
 
     temperatures.insert(t);
-    vectors.emplace(t, pb, p, &punit, yname, &yunit, y);
     names.append("p");
     names.append("pb");
     names.append("t");
+    names.append("uod");
+    names.append("uobp");
     names.append(yname);
+    vectors.emplace(t, pb, uod, uobp, p, &punit, yname, &yunit, y);
   }
 
   const ConstDesc * search_const(const string & name) const noexcept
@@ -253,9 +269,9 @@ struct PvtData
 
   using Sample =
 	       tuple<double, double, double, double, // t degF, pb, uod, uobp
-		       const Unit*, DynList<double>, // pressure unit &values
-		       string, // property name
-		       const Unit*, DynList<double>>; // target unit & values
+		     const Unit*, DynList<double>, // pressure unit &values
+		     string, // property name
+		     const Unit*, DynList<double>>; // target unit & values
   static const double & s_t(Sample & s) { return get<0>(s); }
   static const double & s_pb(Sample & s) { return get<1>(s); }
   static const double & s_uod(Sample & s) { return get<2>(s); }
@@ -270,7 +286,7 @@ struct PvtData
 			   const string & target_name) const
   {
     DynList<Sample> ret;
-    auto samples = search_vectors(target_name);
+    DynList<const VectorDesc*> samples = search_vectors(target_name);
     if (samples.is_empty())
       return ret;
 
@@ -287,12 +303,12 @@ struct PvtData
     for (auto it = zip_it_pos(1, samples, ref_vectors); it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
-	auto sample_ptr = get<0>(t);
-	auto vector_ptr = get<1>(t);
+	const VectorDesc * sample_ptr = get<0>(t);
+	const VectorDesc * vector_ptr = get<1>(t);
 	DynList<double> p =
 	  to_dynlist(unit_convert(*vector_ptr->punit, vector_ptr->p, *punit));
 	DynList<double> y =
-	  to_dynlist(unit_convert(*vector_ptr->yunit,
+	  to_dynlist(unit_convert(*sample_ptr->yunit,
 				  sample_ptr->gety(p), *yunit));
 	ret.append(Sample(sample_ptr->t, ptr->pb, ptr->uod, ptr->uobp,
 			  punit, move(p), target_name, yunit, move(y)));
@@ -356,7 +372,10 @@ struct PvtData
 	  {
 	    if ( (not par.check(VtlQuantity(*const_ptr->unit_ptr,
 					    const_ptr->value))))
+	      {
+		cout << corr_ptr->name << " fails for " << name_in_data << endl;
 	      return false;
+	      }
 	    continue;
 	  }
 
@@ -370,7 +389,10 @@ struct PvtData
 				  return par.check(VtlQuantity(*yunit, v));
 				});
 	     }))
+	  {
+	    cout << corr_ptr->name << " fails for " << name_in_data << endl;
 	  return false;
+	  }
        }
 
     return true;
@@ -479,13 +501,12 @@ struct PvtData
       ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for pb");
 
-    //          t,     pb
+    //              t,     pb
     DynList<pair<double, double>> pairs = tp_pairs();
 
     ParList pars; // parameter to be passed to correlation corr_ptr
     load_consts(corr_ptr, pars);
     DynList<tuple<double, double, double>> ret;
-    cout << corr_ptr->name << " :" << endl;
     for (auto it = pairs.get_it(); it.has_curr(); it.next())
       {
 	auto pp = it.get_curr();
@@ -494,7 +515,6 @@ struct PvtData
 	pars.insert("t", t, &Fahrenheit::get_instance());
 	auto result = corr_ptr->compute_by_names(pars, false);
 	auto pb_ret = VtlQuantity(psia::get_instance(), result).raw();
-	cout << "t = " << t << " pb = " << pb_ret << endl;
 	ret.append(make_tuple(t, pb_lab, pb_ret));
 	pars.remove("t");
       }
@@ -556,17 +576,22 @@ struct PvtData
 	    pars.insert("p", p, punit);
 	    pars.insert(par_name, parval, par_unit);
 
-	    pars.tbl.for_each([] (auto p)
+	    pars.tbl.for_each([par_unit] (auto p)
               {
-		cout << p.first << " = " << p.second.first
-		     << " " << p.second.second->name << " ";
+	    	cout << p.first << " = " << p.second.first
+	    	     << " " << p.second.second->name << " " << par_unit->name
+		     << " ";
 	      });
 	    cout << endl;
 
-	    VtlQuantity result =
-	      VtlQuantity(*yunit, corr_ptr->compute_by_names(pars, false));
-	    ycvals.append(result.raw());
-	    cout << target_name << " = " << result << endl;
+	    try
+	      {
+		VtlQuantity result =
+		  VtlQuantity(*yunit, corr_ptr->compute_by_names(pars, false));
+		ycvals.append(result.raw());
+		cout << target_name << " = " << result << endl;
+	      }
+	    catch (...) {}	      
 	    pars.remove("p");
 	    pars.remove(par_name);
 	  }
