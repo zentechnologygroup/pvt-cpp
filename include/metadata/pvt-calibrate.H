@@ -7,9 +7,10 @@
 struct VectorDesc
 {
   const double t = 0; //  unit will always be in Fahrenheit
-  mutable double uod = -1; // dead oil viscosity in cP
-  mutable double uobp = -1; // oil viscosity at pb in cP
   const double pb = 0; // bubble point pressure in the same unit that p
+  const double bobp = -1; // in RB_STB
+  const double uod = -1; // dead oil viscosity in cP
+  const double uobp = -1; // oil viscosity at pb in cP
   const Array<double> p;
   const Unit * punit = nullptr;
 
@@ -28,27 +29,13 @@ struct VectorDesc
       ZENTHROW(SamplesUnsorted, "pressures are not sorted");
   }
 
-  VectorDesc(double t, double pb, const Array<double> & p, const Unit * punit,
+  VectorDesc(double t, double pb, double bobp, double uod, double uobp,
+	     const Array<double> & p, const Unit * punit,
 	     const string & yname, const Unit * yunit, const Array<double> & y)
-    : t(t), pb(pb), p(p), punit(punit), yname(yname), yunit(yunit), y(y)
+    : t(t), pb(pb), bobp(bobp), uod(uod), uobp(uobp), p(p), punit(punit),
+      yname(yname), yunit(yunit), y(y)
   {
     validate();
-  }
-
-  VectorDesc(double t, double pb, double uod, 
-	     const Array<double> & p, const Unit * punit,
-	     const string & yname, const Unit * yunit, const Array<double> & y)
-    : VectorDesc(t, pb, p, punit, yname, yunit, y)
-  {
-    this->uod = uod;
-  }
-
-  VectorDesc(double t, double pb, double uod, double uobp,
-	     const Array<double> & p, const Unit * punit,
-	     const string & yname, const Unit * yunit, const Array<double> & y)
-    : VectorDesc(t, pb, uod, p, punit, yname, yunit, y)
-  {
-    this->uobp = uobp;
   }
 
   VectorDesc() {}
@@ -237,7 +224,7 @@ struct PvtData
   }
 
   void
-  add_vector(double t, double pb, double uod, double uobp,
+  add_vector(double t, double pb, double uod, double bobp, double uobp,
 	     const Array<double> & p, const Unit & punit,
 	     const string yname, const Array<double> & y, const Unit & yunit)
   {
@@ -258,8 +245,9 @@ struct PvtData
     names.append("t");
     names.append("uod");
     names.append("uobp");
+    names.append("bobp");
     names.append(yname);
-    vectors.emplace(t, pb, uod, uobp, p, &punit, yname, &yunit, y);
+    vectors.emplace(t, pb, bobp, uod, uobp, p, &punit, yname, &yunit, y);
   }
 
   const ConstDesc * search_const(const string & name) const noexcept
@@ -268,19 +256,20 @@ struct PvtData
   }
 
   using Sample =
-	       tuple<double, double, double, double, // t degF, pb, uod, uobp
-		     const Unit*, DynList<double>, // pressure unit &values
-		     string, // property name
-		     const Unit*, DynList<double>>; // target unit & values
+  tuple<double, double, double, double, double, // t, pb, bobp, uod, uobp
+	const Unit*, DynList<double>, // pressure unit &values
+	string, // property name
+	const Unit*, DynList<double>>; // target unit & values
   static const double & s_t(Sample & s) { return get<0>(s); }
   static const double & s_pb(Sample & s) { return get<1>(s); }
-  static const double & s_uod(Sample & s) { return get<2>(s); }
-  static const double & s_uobp(Sample & s) { return get<3>(s); }
-  static const Unit* s_punit(Sample & s) { return get<4>(s); }
-  static DynList<double> & s_pvals(Sample & s) { return get<5>(s); }
-  static string & s_yname(Sample & s) { return get<6>(s); }
-  static const Unit* s_yunit(Sample & s) { return get<7>(s); }
-  static DynList<double> & s_yvals(Sample & s) { return get<8>(s); }
+  static const double & s_bobp(Sample & s) { return get<3>(s); }
+  static const double & s_uod(Sample & s) { return get<3>(s); }
+  static const double & s_uobp(Sample & s) { return get<4>(s); }
+  static const Unit* s_punit(Sample & s) { return get<5>(s); }
+  static DynList<double> & s_pvals(Sample & s) { return get<6>(s); }
+  static string & s_yname(Sample & s) { return get<7>(s); }
+  static const Unit* s_yunit(Sample & s) { return get<8>(s); }
+  static DynList<double> & s_yvals(Sample & s) { return get<9>(s); }
 
   DynList<Sample> get_pars(const DynList<const VectorDesc*> & ref_vectors,
 			   const string & target_name) const
@@ -296,7 +285,7 @@ struct PvtData
     const Unit * punit = ptr->punit;
     const Unit * yunit = ptr->yunit;
 
-    ret.append(Sample(ptr->t, ptr->pb, ptr->uod, ptr->uobp, punit,
+    ret.append(Sample(ptr->t, ptr->pb, ptr->bobp, ptr->uod, ptr->uobp, punit,
 		      to_dynlist(fst_vector->p),
 		      target_name, yunit, ptr->gety(fst_vector->p)));
 
@@ -310,7 +299,7 @@ struct PvtData
 	DynList<double> y =
 	  to_dynlist(unit_convert(*sample_ptr->yunit,
 				  sample_ptr->gety(p), *yunit));
-	ret.append(Sample(sample_ptr->t, ptr->pb, ptr->uod, ptr->uobp,
+	ret.append(Sample(sample_ptr->t, ptr->pb, ptr->bobp, ptr->uod, ptr->uobp,
 			  punit, move(p), target_name, yunit, move(y)));
       }
 
@@ -372,7 +361,10 @@ struct PvtData
 	  {
 	    if ( (not par.check(VtlQuantity(*const_ptr->unit_ptr,
 					    const_ptr->value))))
+	      {
+		cout << "fails for " << name_in_data << endl;
 	      return false;
+	      }
 	    continue;
 	  }
 
@@ -386,7 +378,10 @@ struct PvtData
 				  return par.check(VtlQuantity(*yunit, v));
 				});
 	     }))
+	  {
+	    		cout << "fails for " << name_in_data << endl;
 	  return false;
+	  }
       }
 
     return true;
@@ -516,8 +511,8 @@ struct PvtData
     return ret;
   }
 
-  //                  t,      pb,     uod,   uobp
-  using TYPE = tuple<double, double, double, double,
+  //                  t,      pb,     bobp,   uod,   uobp
+  using TYPE = tuple<double, double, double, double, double,
 		     //  p,            y,                 yc		     
 		     DynList<double>, DynList<double>, DynList<double>>;
 
@@ -551,6 +546,7 @@ struct PvtData
 	const Unit * src_punit = s_punit(desc);
 	const double & temp = s_t(desc);
 	const double & pb = s_pb(desc);
+	const double & bobp = s_bobp(desc);
 	const double & uod = s_uod(desc);
 	const double & uobp = s_uobp(desc);
 	const Unit * par_unit = s_yunit(desc);
@@ -558,10 +554,11 @@ struct PvtData
 	pars.insert("t", temp, &Fahrenheit::get_instance());
 	pars.insert("pb", pb, src_punit);
 	pars.insert("uod", uod, &CP::get_instance());
+	pars.insert("bobp", bobp, &RB_STB::get_instance());
 	pars.insert("uobp", uobp, &CP::get_instance());
 	DynList<double> pvals = unit_convert(*src_punit, s_pvals(desc), *punit);
 	DynList<double> yvals = s_yvals(desc);
-	DynList<double> ycvals; // correlation output
+	DynList<double> plist, ylist, yclist;
 	for (auto it = zip_it(pvals, yvals); it.has_curr(); it.next())
 	  {
 	    auto t = it.get_curr();
@@ -570,31 +567,34 @@ struct PvtData
 	    pars.insert("p", p, punit);
 	    pars.insert(par_name, parval, par_unit);
 
-	    pars.tbl.for_each([par_unit] (auto p)
-              {
-	    	cout << p.first << " = " << p.second.first
-	    	     << " " << p.second.second->name << " " << par_unit->name
-		     << " ";
-	      });
-	    cout << endl;
+	    // pars.tbl.for_each([par_unit] (auto p)
+            //   {
+	    // 	cout << p.first << " = " << p.second.first
+	    // 	     << " " << p.second.second->name << " " << par_unit->name
+	    // 	     << " ";
+	    //   });
+	    // cout << endl;
 
 	    try
 	      {
 		VtlQuantity result =
 		  VtlQuantity(*yunit, corr_ptr->compute_by_names(pars, false));
-		ycvals.append(result.raw());
-		cout << target_name << " = " << result << endl;
+
+		plist.append(p);
+		ylist.append(parval);
+		yclist.append(result.raw());
+		//cout << target_name << " = " << result << endl;
 	      }
-	    catch (...) {}	      
+	    catch (...) {} // TODO: ay que eliminar los valores de p y y
 	    pars.remove("p");
 	    pars.remove(par_name);
 	  }
-	ret.append(TYPE(temp, pb, uod, uobp,
-			pvals, to_dynlist(ref_ptr->y), ycvals));
+	ret.append(TYPE(temp, bobp, pb, uod, uobp, plist, ylist, yclist));
 	pars.remove("t");
 	pars.remove("pb");
 	pars.remove("uod");
 	pars.remove("uobp");
+	pars.remove("bobp");
       }
 
     return make_tuple(punit, yunit, ret);
@@ -634,9 +634,9 @@ struct PvtData
     for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
       {
 	auto & t = it.get_curr();
-	DynList<double> & p = get<4>(t);
-	DynList<double> & y = get<5>(t);
-	DynList<double> & yc = get<6>(t);	 
+	DynList<double> & p = get<5>(t);
+	DynList<double> & y = get<6>(t);
+	DynList<double> & yc = get<7>(t);	 
 	l.append(t_zip(move(p), move(y), move(yc)));
       }
     in_place_sort(l, [] (const Trio & t1, const Trio & t2)

@@ -106,3 +106,24 @@
 ## 33. mostrar solo regresione válidas
 - Created at   2017-04-19 11:18:31 -0400
 
+## 34. corregir entrada csv via stdin plot-r
+- Created at   2017-04-19 11:33:53 -0400
+
+## 35. piner un filtro por propiedad a opcion print
+- Created at   2017-04-19 14:25:40 -0400
+
+## 36. opcion que diga dónde una correklación falló
+- Created at   2017-04-19 14:33:41 -0400
+
+## 37. cambio unidad para uod bobp y uobp
+- Created at   2017-04-19 15:12:35 -0400
+
+## 38. hacer funciones de acceso a TYPE
+- Created at   2017-04-19 15:49:34 -0400
+
+## 39. si hay excepcion en iapply ==> hay que eliminar la presión y y para los cuales ocurrió
+- Created at   2017-04-19 16:29:14 -0400
+
+## 40. el orden del eje x para la regersion debe ser como se ascendente por presión
+- Created at   2017-04-19 17:05:23 -0400
+
