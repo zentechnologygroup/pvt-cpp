@@ -27,7 +27,6 @@ add_db("Based on the equation of state of Starling-Carnahan for the calculation 
 add_db("The equation is solved by using the Newton-Raphson iteration method.")
 add_internal_note("The original reference is not available. The correlation was verified by using secondary references: Bánzer (1996) and Whitson & Brulé (2000). Date: September 23 2016.")
 add_internal_note("The application ranges and data bank information was obtained from Takacs (1989).")
-add_internal_note("An explicit correlation developed by Kareem, Iwalewa & Al-Marhoun (2016), on the basis of Hall & Yarborough's implicit correlation, is used when the iterative method is detained because of a mathematical error.")
 add_author("Hall & Yarborough")
 end_correlation()
 
