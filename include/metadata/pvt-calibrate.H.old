@@ -559,12 +559,11 @@ struct PvtData
 	DynList<double> pvals = unit_convert(*src_punit, s_pvals(desc), *punit);
 	DynList<double> yvals = s_yvals(desc);
 	DynList<double> plist, ylist, yclist;
-	for (auto it = zip_it(pvals, yvals, ref_ptr->y); it.has_curr(); it.next())
+	for (auto it = zip_it(pvals, yvals); it.has_curr(); it.next())
 	  {
 	    auto t = it.get_curr();
 	    const double & p = get<0>(t); // pressure from desc
 	    const double & parval = get<1>(t);
-	    const double & y = get<2>(t);
 	    pars.insert("p", p, punit);
 	    pars.insert(par_name, parval, par_unit);
 
@@ -582,7 +581,7 @@ struct PvtData
 		  VtlQuantity(*yunit, corr_ptr->compute_by_names(pars, false));
 
 		plist.append(p);
-		ylist.append(y);
+		ylist.append(parval);
 		yclist.append(result.raw());
 		//cout << target_name << " = " << result << endl;
 	      }
@@ -640,7 +639,6 @@ struct PvtData
 	DynList<double> & yc = get<7>(t);	 
 	l.append(t_zip(move(p), move(y), move(yc)));
       }
-
     in_place_sort(l, [] (const Trio & t1, const Trio & t2)
 		  { // sorting by pressure
 		    return get<0>(t1) < get<0>(t2);

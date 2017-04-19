@@ -169,7 +169,7 @@ struct ValuesArg
     for (size_t i = 0; i < n/2; ++i, it.next())
       values.append(it.get_curr());
 
-    if (not p_reversed)
+    if (p_reversed)
       values = values.rev();
 
     if (target_name == "boa")
@@ -311,7 +311,7 @@ namespace TCLAP
 }
 
 const DynSetTree<string> ActionType::valid_actions = 
-  { "print", "list", "match", "apply", "global_apply", "local_calibration",
+  { "print", "list", "match", "apply", "global_apply", "lcal",
     "pb_calibration", "global_calibration" };
 
 const string actions =
@@ -330,7 +330,7 @@ ActionType::dispatcher
  "apply", ActionType::read_property_name,
  "global_apply", ActionType::dummy,
  "pb_calibration", ActionType::read_local_calibration,
- "local_calibration", ActionType::read_local_calibration,
+ "lcal", ActionType::read_local_calibration,
  "global_calibration", ActionType::dummy
 );
 
@@ -561,8 +561,8 @@ void put_sample(const Correlation * corr_ptr,
     {
       rows.append(yc.maps([c, m] (auto y) { return c + m*y; }));
       rows.append(move(yc));
-      header.append(name);
       header.append(name + "_adjusted");
+      header.append(name);
     }
 }
 
@@ -907,7 +907,7 @@ const AHDispatcher<string, void (*)()> dispatcher =
     "match", process_match,
     "apply", process_apply,
     "global_apply", dummy,
-    "local_calibration", proccess_local_calibration,
+    "lcal", proccess_local_calibration,
     "pb_calibration", proccess_pb_calibration,
     "global_calibration", dummy
   };
