@@ -138,12 +138,15 @@ struct ValuesArg
 	uod = atof(data);
 
 	if (target_name == "uoa")
-	  if (not (iss >> data))
-	    ZENTHROW(CommandLineError, "uobp value not found");
-	if (not is_double(data))
-	  ZENTHROW(CommandLineError, "uobp value " + data + " is not a double");
-	uobp = atof(data);
-      } 
+	  {
+	    if (not (iss >> data))
+	      ZENTHROW(CommandLineError, "uobp value not found");
+	    if (not is_double(data))
+	      ZENTHROW(CommandLineError, "uobp value " + data +
+		       " is not a double");
+	    uobp = atof(data);
+	  }
+      }
 
     DynList<double> vals;
     size_t n = 0;
@@ -161,12 +164,22 @@ struct ValuesArg
     for (size_t i = 0; i < n/2; ++i, it.next())
       p.append(it.get_curr());
 
+    bool p_ascending = true;
+    if (not is_sorted(p))
+      {
+	p = p.rev();
+	p_ascending = true;
+      }
+
     if (not p.exists([this] (auto v) { return v == pb; }))
       ZENTHROW(CommandLineError, "pb value " + to_string(pb) +
 	       " not found in pressures array");
 
     for (size_t i = 0; i < n/2; ++i, it.next())
       values.append(it.get_curr());
+
+    if (not p_ascending)
+      values = values.rev();
 
     return *this;
   }
@@ -506,6 +519,8 @@ void process_apply()
       {
 	return data.istats(corr_ptr);
       }), cmp[::sort.getValue()]);
+
+  stats = stats.filter([] (auto & s) { return CorrStat::is_valid(get<3>(s)); });
 
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {

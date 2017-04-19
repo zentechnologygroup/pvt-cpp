@@ -372,10 +372,7 @@ struct PvtData
 	  {
 	    if ( (not par.check(VtlQuantity(*const_ptr->unit_ptr,
 					    const_ptr->value))))
-	      {
-		cout << corr_ptr->name << " fails for " << name_in_data << endl;
 	      return false;
-	      }
 	    continue;
 	  }
 
@@ -389,11 +386,8 @@ struct PvtData
 				  return par.check(VtlQuantity(*yunit, v));
 				});
 	     }))
-	  {
-	    cout << corr_ptr->name << " fails for " << name_in_data << endl;
 	  return false;
-	  }
-       }
+      }
 
     return true;
   }

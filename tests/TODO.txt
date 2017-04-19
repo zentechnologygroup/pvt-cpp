@@ -15,7 +15,6 @@ pasar excepciones de tclap a zen,2017-03-28 15:26:32 -0400,,Para eso hacer una e
 firma única de familia de correlación: que reciba union de todos los parámtros,2017-03-29 16:31:35 -0400,,qu se apoye en gen-corr
 cuantificar errores para un rango de temperturas para bo y uo caibrados,2017-03-29 16:55:18 -0400,,
 desc para vector en test-pvt-data,2017-03-30 10:35:34 -0400,,
-falta eliminar repetidos de presión en apply,2017-03-31 21:02:01 -0400,2017-04-07 11:04:28 -0400,
 test-pvt-data opcion para cambiarunidades de salida,2017-04-03 16:50:06 -0400,,
 Zen exception en par-liats,2017-04-04 08:49:24 -0400,,
 validar que ultimo valor del vector siempre debe ser el correspondiente al rsb,2017-04-05 15:59:33 -0400,,
@@ -31,4 +30,4 @@ option print debe tener salida csv y/o mat,2017-04-15 15:06:29 -0400,,
 opcion pb_calibration,2017-04-16 11:16:24 -0400,,
 añadir caso pb cuandio sólo hay un pto,2017-04-16 13:30:36 -0400,,
 Cuando la regresión dé error debe reportarse,2017-04-18 15:45:52 -0400,,
-atrapat Undefined en cplot,2017-04-18 17:44:28 -0400,,
+mostrar solo regresione válidas,2017-04-19 11:18:31 -0400,,

@@ -438,9 +438,7 @@ void set_correlation(ValueArg<string> & corr_name_arg,
   Declare_c_par(target_name);				\
   Declare_m_par(target_name);
 
-Command_Arg_Mandatory_Correlation(pb);
-Declare_c_par(pb); // pb does not have m parameter
-
+Command_Arg_Tuned_Correlation(pb);
 Command_Arg_Tuned_Correlation(rs);
 Command_Arg_Tuned_Correlation(bob);
 Command_Arg_Tuned_Correlation(boa);
@@ -809,6 +807,7 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
       remove_from_container(pars_list, args...);
       return ret;
     }
+  catch (UnitConversionNotFound) {}
   catch (exception & e)
     {
       if (report_exceptions)
@@ -832,6 +831,7 @@ VtlQuantity compute(const Correlation * corr_ptr, bool check,
       remove_from_container(pars_list, args...);
       return ret;
     }
+  catch (UnitConversionNotFound) {}    
   catch (exception & e)
     {
       if (report_exceptions)
@@ -884,6 +884,7 @@ VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
       remove_from_container(pars_list, args...);
       return ret;
     }
+  catch (UnitConversionNotFound) {}
   catch (exception & e)
     {
       remove_from_container(pars_list, args ...);
@@ -902,6 +903,7 @@ VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
       if (valid_args(args))						\
 	var = corr_name::get_instance().call(args);			\
     }									\
+  catch (UnitConversionNotFound) {}					\
   catch (exception & e)							\
     {									\
       store_exception(corr_name::get_instance().name, e);		\
@@ -951,6 +953,7 @@ VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
       remove_from_container(pars_list, args ...);
       return ret;
     }
+  catch (UnitConversionNotFound) {}
   catch (exception & e)
     {
       if (report_exceptions)
