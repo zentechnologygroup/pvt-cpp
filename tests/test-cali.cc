@@ -36,6 +36,7 @@ struct ValuesArg
 
   double uod = 0; // uod
   double uobp = 0;
+  double bobp = 0;
 
   double pb; // bubble point
   const Unit * punit_ptr = nullptr; // pressure unit (for pb and p)
@@ -135,16 +136,8 @@ struct ValuesArg
 	  ZENTHROW(CommandLineError, "uod value not found");
 	if (not is_double(data))
 	  ZENTHROW(CommandLineError, "uod value " + data + " is not a double");
-	uod = atof(data);
-
-	if (target_name == "uoa")
-	  if (not (iss >> data))
-	    ZENTHROW(CommandLineError, "uobp value not found");
-	if (not is_double(data))
-	  ZENTHROW(CommandLineError, "uobp value " + data + " is not a double");
-	uobp = atof(data);
-      } 
-
+	uod = unit_convert(*unit_ptr, atof(data), CP::get_instance());
+      }
     DynList<double> vals;
     size_t n = 0;
     for (; iss >> data; ++n)
@@ -161,12 +154,28 @@ struct ValuesArg
     for (size_t i = 0; i < n/2; ++i, it.next())
       p.append(it.get_curr());
 
+    bool p_reversed = false;
+    if (not is_sorted(p))
+      {
+	p = p.rev();
+	assert(is_sorted(p));
+	p_reversed = true;
+      }
+
     if (not p.exists([this] (auto v) { return v == pb; }))
       ZENTHROW(CommandLineError, "pb value " + to_string(pb) +
 	       " not found in pressures array");
 
     for (size_t i = 0; i < n/2; ++i, it.next())
       values.append(it.get_curr());
+
+    if (p_reversed)
+      values = values.rev();
+
+    if (target_name == "boa")
+      bobp = unit_convert(*unit_ptr, values.get_first(), RB_STB::get_instance());
+    if (target_name == "uoa")
+      uobp = unit_convert(*unit_ptr, values.get_first(), CP::get_instance());
 
     return *this;
   }
@@ -302,7 +311,7 @@ namespace TCLAP
 }
 
 const DynSetTree<string> ActionType::valid_actions = 
-  { "print", "list", "match", "apply", "global_apply", "local_calibration",
+  { "print", "list", "match", "apply", "global_apply", "lcal",
     "pb_calibration", "global_calibration" };
 
 const string actions =
@@ -321,7 +330,7 @@ ActionType::dispatcher
  "apply", ActionType::read_property_name,
  "global_apply", ActionType::dummy,
  "pb_calibration", ActionType::read_local_calibration,
- "local_calibration", ActionType::read_local_calibration,
+ "lcal", ActionType::read_local_calibration,
  "global_calibration", ActionType::dummy
 );
 
@@ -413,7 +422,7 @@ void build_pvt_data()
 		   *test_unit("nacl", Molality_NaCl::get_instance()));
 
   for (auto & a : target.getValue())
-    data.add_vector(a.t, a.pb, a.uod, a.uobp, a.p, *a.punit_ptr,
+    data.add_vector(a.t, a.pb, a.bobp, a.uod, a.uobp, a.p, *a.punit_ptr,
 		    a.target_name, a.values, *a.unit_ptr);
 }
 
@@ -507,6 +516,8 @@ void process_apply()
 	return data.istats(corr_ptr);
       }), cmp[::sort.getValue()]);
 
+  stats = stats.filter([] (auto & s) { return CorrStat::is_valid(get<3>(s)); });
+
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {
       DynList<string> ret = build_dynlist<string>(get<0>(t)->name);
@@ -550,8 +561,8 @@ void put_sample(const Correlation * corr_ptr,
     {
       rows.append(yc.maps([c, m] (auto y) { return c + m*y; }));
       rows.append(move(yc));
-      header.append(name);
       header.append(name + "_adjusted");
+      header.append(name);
     }
 }
 
@@ -633,7 +644,6 @@ void proccess_local_calibration()
 	      col.each(1, 1, [&ymin, &ymax] (auto v)
 		       { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
 	      s << Rvector(col.get_first(), col.drop(1)) << endl;
-	      cout << "**" << Rvector(col.get_first(), col.drop(1)) << endl;
 	    }
 	}
 
@@ -730,7 +740,7 @@ void proccess_local_calibration()
       const string t_tag = ::to_string((int) get<0>(vals));
       header.append(build_dynlist<string>("p_" + t_tag,
 					  target_name + "_" + t_tag));
-      rows.append(build_dynlist<DynList<double>>(get<4>(vals), get<5>(vals)));
+      rows.append(build_dynlist<DynList<double>>(get<5>(vals), get<6>(vals)));
     }
 
   for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
@@ -745,8 +755,8 @@ void proccess_local_calibration()
 	{
 	  auto & curr = it.get_curr();
 	  const double & temp = get<0>(curr);
-	  DynList<double> & y = get<5>(curr);
-	  put_sample(corr_ptr, rows, header, temp, y, c, m);
+	  DynList<double> & yc = get<7>(curr);
+	  put_sample(corr_ptr, rows, header, temp, yc, c, m);
 	}
     }
   DynList<DynList<string>> result =
@@ -897,7 +907,7 @@ const AHDispatcher<string, void (*)()> dispatcher =
     "match", process_match,
     "apply", process_apply,
     "global_apply", dummy,
-    "local_calibration", proccess_local_calibration,
+    "lcal", proccess_local_calibration,
     "pb_calibration", proccess_pb_calibration,
     "global_calibration", dummy
   };

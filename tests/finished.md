@@ -1420,3 +1420,15 @@
 - Comment      
 - Finished     
 
+## 238. atrapat Undefined en cplot
+- Created at   2017-04-18 17:44:28 -0400
+- Completed at 2017-04-19 09:06:09 -0400
+- Comment      
+- Finished     
+
+## 239. falta eliminar repetidos de presión en apply
+- Created at   2017-03-31 21:02:01 -0400
+- Completed at 2017-04-19 09:12:50 -0400
+- Comment      
+- Finished     
+

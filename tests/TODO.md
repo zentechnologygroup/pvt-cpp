@@ -55,58 +55,75 @@
 ## 17. desc para vector en test-pvt-data
 - Created at   2017-03-30 10:35:34 -0400
 
-## 18. falta eliminar repetidos de presión en apply
-- Created at   2017-03-31 21:02:01 -0400
-- Completed at 2017-04-07 11:04:28 -0400
-
-## 19. test-pvt-data opcion para cambiarunidades de salida
+## 18. test-pvt-data opcion para cambiarunidades de salida
 - Created at   2017-04-03 16:50:06 -0400
 
-## 20. Zen exception en par-liats
+## 19. Zen exception en par-liats
 - Created at   2017-04-04 08:49:24 -0400
 
-## 21. validar que ultimo valor del vector siempre debe ser el correspondiente al rsb
+## 20. validar que ultimo valor del vector siempre debe ser el correspondiente al rsb
 - Created at   2017-04-05 15:59:33 -0400
 
-## 22. diseñar esquema para que z_min sea comartible entre correlaiones y unidades
+## 21. diseñar esquema para que z_min sea comartible entre correlaiones y unidades
 - Created at   2017-04-11 16:53:16 -0400
 
-## 23. opción para generar el grid traspuesto
+## 22. opción para generar el grid traspuesto
 - Created at   2017-04-11 16:53:37 -0400
 
-## 24. istats puede probar con varios esquemas y sleccionas el que dé mejor c y m
+## 23. istats puede probar con varios esquemas y sleccionas el que dé mejor c y m
 - Created at   2017-04-11 21:13:08 -0400
 
-## 25. RsCegarra pow(10
+## 24. RsCegarra pow(10
 - Created at    l4*api< - l3*t) en linea 386
 - Completed at 2017-04-11 21:47:17 -0400
 
-## 26. revisar si es necesario guardia de retorno negativo para correlaciones de rx
+## 25. revisar si es necesario guardia de retorno negativo para correlaciones de rx
 - Created at   2017-04-11 21:51:40 -0400
 
-## 27. parte separada para calibrar pb
+## 26. parte separada para calibrar pb
 - Created at   2017-04-14 10:54:49 -0400
 - Completed at 
 - Comment      hacer la simple suma de los pb versus salida de correlaciones
 
-## 28. sacar pb de entre conjunto de propiedades para opcion --property
+## 27. sacar pb de entre conjunto de propiedades para opcion --property
 - Created at   2017-04-15 11:33:50 -0400
 
-## 29. falta cob y cob en test-cali
+## 28. falta cob y cob en test-cali
 - Created at   2017-04-15 11:35:19 -0400
 
-## 30. option print debe tener salida csv y/o mat
+## 29. option print debe tener salida csv y/o mat
 - Created at   2017-04-15 15:06:29 -0400
 
-## 31. opcion pb_calibration
+## 30. opcion pb_calibration
 - Created at   2017-04-16 11:16:24 -0400
 
-## 32. añadir caso pb cuandio sólo hay un pto
+## 31. añadir caso pb cuandio sólo hay un pto
 - Created at   2017-04-16 13:30:36 -0400
 
-## 33. Cuando la regresión dé error debe reportarse
+## 32. Cuando la regresión dé error debe reportarse
 - Created at   2017-04-18 15:45:52 -0400
 
-## 34. atrapat Undefined en cplot
-- Created at   2017-04-18 17:44:28 -0400
+## 33. mostrar solo regresione válidas
+- Created at   2017-04-19 11:18:31 -0400
+
+## 34. corregir entrada csv via stdin plot-r
+- Created at   2017-04-19 11:33:53 -0400
+
+## 35. piner un filtro por propiedad a opcion print
+- Created at   2017-04-19 14:25:40 -0400
+
+## 36. opcion que diga dónde una correklación falló
+- Created at   2017-04-19 14:33:41 -0400
+
+## 37. cambio unidad para uod bobp y uobp
+- Created at   2017-04-19 15:12:35 -0400
+
+## 38. hacer funciones de acceso a TYPE
+- Created at   2017-04-19 15:49:34 -0400
+
+## 39. si hay excepcion en iapply ==> hay que eliminar la presión y y para los cuales ocurrió
+- Created at   2017-04-19 16:29:14 -0400
+
+## 40. el orden del eje x para la regersion debe ser como se ascendente por presión
+- Created at   2017-04-19 17:05:23 -0400
 

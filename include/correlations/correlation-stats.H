@@ -12,6 +12,8 @@
 
 # include "correlation.H"
 
+using namespace std;
+
 class CorrStat
 {
   double mean;
@@ -91,6 +93,9 @@ public:
 
   void compute_base()
   {
+    if (y.is_empty())
+      ZENTHROW(SizeMismatch, "experimental data is empty");
+    
     set_statistical("r2", &CorrStat::r2);
     set_statistical("mse", &CorrStat::mse);
     set_statistical("sigma_distance", &CorrStat::sigma_distance);
@@ -114,7 +119,7 @@ public:
   struct LFit
   {
     double c = 0;
-    double m = 0;
+    double m = 1;
     double cov00 = 0;
     double cov01 = 0;
     double cov11 = 0;
@@ -124,17 +129,26 @@ public:
 
     LFit(const Array<double> & y, const Array<double> & yc)
     {
+      if (y.size() != yc.size())
+	ZENTHROW(SizeMismatch, "y and yc have different sizes");
+
+      if (y.size() == 1)
+	{
+	  c = yc(0) - y(0);
+	  return;
+	}
+
       cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
       cout << "yc ="; yc.for_each([] (auto v) { cout << " " << v; }); cout << endl;
       gsl_fit_linear(&yc.base(), 1, &y.base(), 1, yc.size(), &c, &m,
 		     &cov00, &cov01, &cov11, &sumsq);
       cout << to_string() << endl;
-      if (std::isnan(c))
-	c = 0;
-      if (std::isnan(m))
-	m = 1;
-      if (std::isnan(sumsq))
-	sumsq = 0;
+      // if (std::isnan(c))
+      // 	c = 0;
+      // if (std::isnan(m))
+      // 	m = 1;
+      // if (std::isnan(sumsq))
+      // 	sumsq = 0;
     }
 
     string to_string() const
@@ -168,9 +182,18 @@ public:
   static double sumsq(const Desc & d) { return get<3>(d).sumsq; }
   static double c(const Desc & d) { return get<3>(d).c; }
   static double m(const Desc & d) { return get<3>(d).m; }
+  static bool is_valid(const Desc & d)
+  {
+    bool invalid = isnan(r2(d)) or isnan(mse(d)) or isnan(sigma(d)) or
+      isnan(sumsq(d)) or isnan(c(d)) or isnan(m(d));
+    return not invalid;
+  }
 
   Desc stats(const Array<double> & yc) const
   {
+    if (yc.size() != y.size())
+      ZENTHROW(SizeMismatch,
+	       "experimental and correlation data do not have the same size");
     double r2 = this->r2(yc);
     double mse = this->mse(yc);
     double sigma = sigma_distance(yc);
