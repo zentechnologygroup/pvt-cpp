@@ -59,7 +59,67 @@ static double guess_initial_value(const double & tpr, const double & ppr)
 
   const double z = 1/C + M*ppr2*(1 - B/C2)/C;
 
-  return z;
+  return z > 0 ? z : 0.001;
+}
+
+static double guess_initial_value_nonlinear(const double & tpr, const double & ppr)
+{
+  constexpr double a1  = 0.317842;
+  constexpr double a2  = 0.382216;
+  constexpr double a3  = -7.768354;
+  constexpr double a4  = 14.290531;
+  constexpr double a5  = 0.000002;
+  constexpr double a6  = -0.004693;
+  constexpr double a7  = 0.096254;
+  constexpr double a8  = 0.166720;
+  constexpr double a9  = 0.966910;
+  constexpr double a10 = 0.063069;
+  constexpr double a11 = -1.966847;
+  constexpr double a12 = 21.0581;
+  constexpr double a13 = -27.0246;
+  constexpr double a14 = 16.23;
+  constexpr double a15 = 207.783;
+  constexpr double a16 = -488.161;
+  constexpr double a17 = 176.29;
+  constexpr double a18 = 1.88453;
+  constexpr double a19 = 3.05921;
+
+
+  const double t = 1/tpr;
+  const double t2 = t*t;
+  const double t3 = t2*t;
+  const double t6 = t3*t3; // t3*t3 = t3^2 = t^6
+  const double ppr2 = ppr*ppr;
+  const double ppr3 = ppr2*ppr;
+  const double ppr6 = ppr3*ppr3; // ppr3*ppr3 = ppr3^2 = ppr^6
+
+  const double t12 = (1 - t)*(1 - t);
+  
+  constexpr double m1 = 0.1009332;
+  constexpr double m2 = 0.7773702;
+
+  const double M = m1*t2*exp(m2*t12);
+
+  const double A = a1*t*exp(a2*t12)*ppr;
+  const double B = a3*t + a4*t2 + a5*t6*ppr6;
+  const double C = a9 + a8*t*ppr + a7*t2*ppr2 + a6*t3*ppr3;
+  const double D = a10*t*exp(a11*t12);
+  const double E = a12*t + a13*t2 + a14*t3;
+  const double F = a15*t + a16*t2 + a17*t3;
+  const double G = a18 + a19*t;
+
+  const double A2 = A*A;
+  const double C2 = C*C;
+  const double C3 = C2*C;
+
+  const double y = D * ppr / ((1 + A2)/C - (A2 * B)/C3);
+  const double y2 = y * y;
+  const double y3 = y2 * y;
+  const double yG = pow(y, G);
+  const double z = (D * ppr * (1 + y + y2 - y3)) / ((D * ppr + E * y2 - F * yG) * pow(1 - y, 3));
+
+
+  return z > 0 ? z : 0.001;
 }
 
 inline double
@@ -141,9 +201,9 @@ ZfactorHallYarborough::impl(const double & tpr,
     {
       pr = prprev;
 
-      if (pr < 0) { // c*pow(pr, d): negative number cannot be raised to a fractional power
+/*      if (pr < 0) { // c*pow(pr, d): negative number cannot be raised to a fractional power
 	return z = zprev;
-      }
+      }*/
 
       const double pr2 = pr*pr;
       const double pr3 = pr2*pr;
@@ -154,6 +214,7 @@ ZfactorHallYarborough::impl(const double & tpr,
       const double dfdpr= (1 + 4*pr + 4*pr2 - 4*pr3 + pr4) / pow(1 - pr, 4) -
 	2*b*pr + c*d*pow(pr, d - 1);
       prf = pr - f/dfdpr;
+
       prprev = prf;
     }       
 
