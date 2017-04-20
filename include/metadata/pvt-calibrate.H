@@ -276,6 +276,10 @@ struct PvtData
   static const Unit* s_yunit(Sample & s) { return get<8>(s); }
   static DynList<double> & s_yvals(Sample & s) { return get<9>(s); }
 
+  // given ref_vector which contains a property for different
+  // temperatures, this routine searches for target_name and returns
+  // the samples, probably interpolated, of the target_name property
+  // according to pressure values ​​stored in ref_vectors 
   DynList<Sample> get_pars(const DynList<const VectorDesc*> & ref_vectors,
 			   const string & target_name) const
   {

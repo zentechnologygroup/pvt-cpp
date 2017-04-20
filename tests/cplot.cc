@@ -319,8 +319,8 @@ inline Correlation::NamedPar npar(const string & name,
 Command_Arg_Value(api, Api, "api");
 Command_Arg_Value(rsb, SCF_STB, "rsb");
 Command_Arg_Value(yg, Sgg, "yg");
-Command_Arg_Value(tsep, Fahrenheit , "separator temperature");
-Command_Arg_Optional_Value(tsep2, Fahrenheit , "temperature of 2nd separator");
+Command_Arg_Optional_Value(tsep, Fahrenheit, "separator temperature");
+Command_Arg_Optional_Value(tsep2, Fahrenheit, "temperature of 2nd separator");
 
 // return true if two separator temperatures were specified
 inline bool two_separators()
@@ -333,11 +333,11 @@ inline bool two_separators()
 }
 
 Command_Arg_Value(ogr, STB_MMscf, "Condensate gas ratio")
-Command_Arg_Value(psep, psia, "separator pressure");
-Command_Arg_Value(n2, MolePercent, "n2");
-Command_Arg_Value(co2, MolePercent, "co2");
-Command_Arg_Value(h2s, MolePercent, "h2s");
-Command_Arg_Value(nacl, Molality_NaCl, "nacl");
+Command_Arg_Optional_Value(psep, psia, "separator pressure");
+Command_Arg_Optional_Value(n2, MolePercent, "n2");
+Command_Arg_Optional_Value(co2, MolePercent, "co2");
+Command_Arg_Optional_Value(h2s, MolePercent, "h2s");
+Command_Arg_Optional_Value(nacl, Molality_NaCl, "nacl");
 
 // Initialize a correlation specified from the command line via
 // corr_name_arg. Verify that the correlation is for the target_name

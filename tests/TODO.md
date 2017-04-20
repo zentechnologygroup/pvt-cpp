@@ -76,3 +76,15 @@
 - Completed at  bobp y uobp
 - Comment      2017-04-20 11:47:25 -0400
 
+## 24. --cob en cplot debe ser por omisión CobMcCainEtAl
+- Created at   2017-04-20 16:31:47 -0400
+
+## 25. añadir opción a test-corr que reciba un arreglo de t y p como en cplot y genere la matriz
+- Created at   2017-04-20 16:50:00 -0400
+
+## 26. en calibración verificar que no hayan nan
+- Created at   2017-04-20 17:04:19 -0400
+
+## 27. considerar acotar rs a rsb en cplot
+- Created at   2017-04-20 17:25:36 -0400
+

@@ -445,8 +445,8 @@ void process_apply()
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {
       DynList<string> ret = build_dynlist<string>(get<0>(t)->name);
-      auto stats = CorrStat::desc_to_dynlist(get<3>(t)).
-      template maps<string>([] (auto v) { return ::to_string(v); });
+      auto stats = CorrStat::desc_to_dynlist(get<3>(t));
+      //template maps<string>([] (auto v) { return ::to_string(v); });
       ret.append(stats);
       return ret;
     });
