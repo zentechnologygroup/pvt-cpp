@@ -1432,3 +1432,123 @@
 - Comment      
 - Finished     
 
+## 240. el orden del eje x para la regersion debe ser como se ascendente por presión
+- Created at   2017-04-19 17:05:23 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 241. si hay excepcion en iapply ==> hay que eliminar la presión y y para los cuales ocurrió
+- Created at   2017-04-19 16:29:14 -0400
+- Completed at 2017-04-20 09:42:29 -0400
+- Comment      
+- Finished     
+
+## 242. cambio unidad para uod bobp y uobp
+- Created at   2017-04-19 15:12:35 -0400
+- Completed at 2017-04-20 09:42:44 -0400
+- Comment      
+- Finished     
+
+## 243. parte separada para calibrar pb
+- Created at   2017-04-14 10:54:49 -0400
+- Completed at 2017-04-20 09:44:16 -0400
+- Comment      hacer la simple suma de los pb versus salida de correlaciones
+- Finished     hacer la simple suma de los pb versus salida de correlaciones
+
+## 244. opcion pb_calibration
+- Created at   2017-04-16 11:16:24 -0400
+- Completed at 2017-04-20 09:54:02 -0400
+- Comment      
+- Finished     
+
+## 245. sacar pb de entre conjunto de propiedades para opcion --property
+- Created at   2017-04-15 11:33:50 -0400
+- Completed at 2017-04-20 09:54:25 -0400
+- Comment      
+- Finished     
+
+## 246. istats puede probar con varios esquemas y sleccionas el que dé mejor c y m
+- Created at   2017-04-11 21:13:08 -0400
+- Completed at 2017-04-20 09:55:02 -0400
+- Comment      
+- Finished     
+
+## 247. cuantificar errores para un rango de temperturas para bo y uo caibrados
+- Created at   2017-03-29 16:55:18 -0400
+- Completed at 2017-04-20 09:55:18 -0400
+- Comment      
+- Finished     
+
+## 248. mostrar solo regresione válidas
+- Created at   2017-04-19 11:18:31 -0400
+- Completed at 2017-04-20 09:55:36 -0400
+- Comment      
+- Finished     
+
+## 249. falta cob y cob en test-cali
+- Created at   2017-04-15 11:35:19 -0400
+- Completed at 2017-04-20 09:56:19 -0400
+- Comment      
+- Finished     
+
+## 250. option print debe tener salida csv y/o mat
+- Created at   2017-04-15 15:06:29 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 251. validar que ultimo valor del vector siempre debe ser el correspondiente al rsb
+- Created at   2017-04-05 15:59:33 -0400
+- Completed at 2017-04-20 09:57:44 -0400
+- Comment      
+- Finished     
+
+## 252. json de calibrate debe recibir unidades en nombre no en símbolos
+- Created at   2017-03-13 10:16:03 -0400
+- Completed at 2017-04-20 09:58:49 -0400
+- Comment      
+- Finished     
+
+## 253. Indagar penultimos saltos en bob para test-calibrate
+- Created at   2017-03-01 16:10:40 -0400
+- Completed at 2017-04-20 09:59:07 -0400
+- Comment      
+- Finished     
+
+## 254. calibrar co
+- Created at   2017-03-20 15:17:41 -0400
+- Completed at 2017-04-20 09:59:17 -0400
+- Comment      
+- Finished     
+
+## 255. como calibrar con varias tmperaturas?
+- Created at   2017-03-28 14:58:47 -0400
+- Completed at 2017-04-20 09:59:38 -0400
+- Comment      
+- Finished     
+
+## 256. desc para vector en test-pvt-data
+- Created at   2017-03-30 10:35:34 -0400
+- Completed at 2017-04-20 10:00:13 -0400
+- Comment      
+- Finished     
+
+## 257. añadir caso pb cuandio sólo hay un pto
+- Created at   2017-04-16 13:30:36 -0400
+- Completed at 2017-04-20 10:00:46 -0400
+- Comment      
+- Finished     
+
+## 258. Cuando la regresión dé error debe reportarse
+- Created at   2017-04-18 15:45:52 -0400
+- Completed at 2017-04-20 10:01:08 -0400
+- Comment      
+- Finished     
+
+## 259. marca que diga si la regresion es válida
+- Created at   2017-04-20 11:20:29 -0400
+- Completed at 2017-04-20 11:46:51 -0400
+- Comment      
+- Finished     
+

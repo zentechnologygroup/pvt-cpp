@@ -77,7 +77,7 @@ struct VectorDesc
 
     if (i < 0)
       return extrapolate_left(p(0), p(1), y(0), y(1), pval);
-    else if (i > (long) n)
+    else if (i >= (long) n)
       return extrapolate_right(p(n - 2), p(n - 1), y(n - 2), y(n - 1), pval);
     else
       return interpolate(p(i), p(i + 1), y(i), y(i + 1), pval);
@@ -108,9 +108,11 @@ struct VectorDesc
     s << "For t = " << t << " " << Fahrenheit::get_instance().name << " pb = "
       << pb << " " << punit->name;
     if (uod > 0)
-      s << " uod = " << uod << " " << yunit->name;
+      s << " uod = " << uod << " " << CP::get_instance().name;
+    if (bobp > 0)
+      s << " bobp = " << bobp << " " << RB_STB::get_instance().name;
     if (uobp > 0)
-      s << " uobp = " << uobp << " " << yunit->name;
+      s << " uobp = " << uobp << " " << CP::get_instance().name;
     s << " :" << endl
       << shift_lines_to_left(Aleph::to_string(format_string(to_dynlist())), 2);
     return s.str();
@@ -247,6 +249,9 @@ struct PvtData
     names.append("uobp");
     names.append("bobp");
     names.append(yname);
+     // VectorDesc(double t, double pb, double bobp, double uod, double uobp,
+     // 	     const Array<double> & p, const Unit * punit,
+     // 	     const string & yname, const Unit * yunit, const Array<double> & y)
     vectors.emplace(t, pb, bobp, uod, uobp, p, &punit, yname, &yunit, y);
   }
 
@@ -262,7 +267,7 @@ struct PvtData
 	const Unit*, DynList<double>>; // target unit & values
   static const double & s_t(Sample & s) { return get<0>(s); }
   static const double & s_pb(Sample & s) { return get<1>(s); }
-  static const double & s_bobp(Sample & s) { return get<3>(s); }
+  static const double & s_bobp(Sample & s) { return get<2>(s); }
   static const double & s_uod(Sample & s) { return get<3>(s); }
   static const double & s_uobp(Sample & s) { return get<4>(s); }
   static const Unit* s_punit(Sample & s) { return get<5>(s); }
@@ -294,11 +299,10 @@ struct PvtData
 	auto t = it.get_curr();
 	const VectorDesc * sample_ptr = get<0>(t);
 	const VectorDesc * vector_ptr = get<1>(t);
-	DynList<double> p =
-	  to_dynlist(unit_convert(*vector_ptr->punit, vector_ptr->p, *punit));
-	DynList<double> y =
-	  to_dynlist(unit_convert(*sample_ptr->yunit,
-				  sample_ptr->gety(p), *yunit));
+	DynList<double> p = to_dynlist(unit_convert(*vector_ptr->punit,
+						    vector_ptr->p, *punit));
+	DynList<double> y = unit_convert(*sample_ptr->yunit,
+					 sample_ptr->gety(p), *yunit);
 	ret.append(Sample(sample_ptr->t, ptr->pb, ptr->bobp, ptr->uod, ptr->uobp,
 			  punit, move(p), target_name, yunit, move(y)));
       }
@@ -362,7 +366,7 @@ struct PvtData
 	    if ( (not par.check(VtlQuantity(*const_ptr->unit_ptr,
 					    const_ptr->value))))
 	      {
-		cout << "fails for " << name_in_data << endl;
+		cout << corr_ptr->name << " fails for " << name_in_data << endl;
 	      return false;
 	      }
 	    continue;
@@ -379,7 +383,7 @@ struct PvtData
 				});
 	     }))
 	  {
-	    		cout << "fails for " << name_in_data << endl;
+	    cout << corr_ptr->name << " fails for " << name_in_data << endl;
 	  return false;
 	  }
       }
@@ -413,7 +417,7 @@ struct PvtData
 	const string & name_in_data = ptr->first;
 	if (name_in_data == "t" or name_in_data == "p" or
 	    name_in_data == "pb" or name_in_data == "uod" or
-	    name_in_data == "uobp")
+	    name_in_data == "uobp" or name_in_data == "bobp")
 	  continue;
 
 	const ConstDesc * const_ptr = search_const(name_in_data);
@@ -545,12 +549,13 @@ struct PvtData
 	const VectorDesc * ref_ptr = get<1>(tt);
 	const Unit * src_punit = s_punit(desc);
 	const double & temp = s_t(desc);
-	const double & pb = s_pb(desc);
-	const double & bobp = s_bobp(desc);
-	const double & uod = s_uod(desc);
-	const double & uobp = s_uobp(desc);
+	const double & pb = ref_ptr->pb;
+	const double & bobp = ref_ptr->bobp;
+	const double & uod = ref_ptr->uod;
+	const double & uobp = ref_ptr->uobp;
 	const Unit * par_unit = s_yunit(desc);
 	const string & par_name = s_yname(desc);
+	assert(temp == ref_ptr->t);
 	pars.insert("t", temp, &Fahrenheit::get_instance());
 	pars.insert("pb", pb, src_punit);
 	pars.insert("uod", uod, &CP::get_instance());
@@ -568,13 +573,12 @@ struct PvtData
 	    pars.insert("p", p, punit);
 	    pars.insert(par_name, parval, par_unit);
 
-	    // pars.tbl.for_each([par_unit] (auto p)
-            //   {
-	    // 	cout << p.first << " = " << p.second.first
-	    // 	     << " " << p.second.second->name << " " << par_unit->name
-	    // 	     << " ";
-	    //   });
-	    // cout << endl;
+	    pars.tbl.for_each([par_unit] (auto p)
+              {
+	    	cout << p.first << " = " << p.second.first
+	    	     << " " << p.second.second->name << " ";
+	      });
+	    cout << endl;
 
 	    try
 	      {
@@ -584,9 +588,12 @@ struct PvtData
 		plist.append(p);
 		ylist.append(y);
 		yclist.append(result.raw());
-		//cout << target_name << " = " << result << endl;
+		cout << target_name << " = " << result << endl;
 	      }
-	    catch (...) {} // TODO: ay que eliminar los valores de p y y
+	    catch (exception & e)
+	      {
+		cout << e.what() << endl;
+	      }
 	    pars.remove("p");
 	    pars.remove(par_name);
 	  }
@@ -646,6 +653,7 @@ struct PvtData
 		    return get<0>(t1) < get<0>(t2);
 		  }); 
 
+    cout << "istats(" << corr_ptr->name << ")" << endl;
     l.for_each([] (auto & t)
     {
       cout << "p = " << get<0>(t) << " y = " << get<1>(t) << " yc = "

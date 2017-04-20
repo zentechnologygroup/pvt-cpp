@@ -202,14 +202,18 @@ public:
     return make_tuple(r2, mse, sigma, fit);
   }
 
-  static DynList<double> desc_to_dynlist(const Desc & d)
+  static DynList<string> desc_to_dynlist(const Desc & d)
   {
-    return build_dynlist<double>(r2(d), mse(d), sigma(d), sumsq(d), c(d), m(d));
+    return build_dynlist<string>(::to_string(r2(d)), ::to_string(mse(d)),
+				 ::to_string(sigma(d)), ::to_string(sumsq(d)),
+				 ::to_string(c(d)), ::to_string(m(d)),
+				 is_valid(d) ? "valid" : "invalid");
   }
 
   static DynList<string> stats_header()
   {
-    return build_dynlist<string>("r2", "mse", "sigma", "sumsq", "c", "m");
+    return
+      build_dynlist<string>("r2", "mse", "sigma", "sumsq", "c", "m", "status");
   }
 
   // each sample contains a row of parameters plus the value

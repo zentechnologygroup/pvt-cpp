@@ -136,7 +136,7 @@ struct ValuesArg
 	  ZENTHROW(CommandLineError, "uod value not found");
 	if (not is_double(data))
 	  ZENTHROW(CommandLineError, "uod value " + data + " is not a double");
-	uod = unit_convert(*unit_ptr, atof(data), CP::get_instance());
+	uod = atof(data);
       }
     DynList<double> vals;
     size_t n = 0;
@@ -176,6 +176,9 @@ struct ValuesArg
       bobp = unit_convert(*unit_ptr, values.get_first(), RB_STB::get_instance());
     if (target_name == "uoa")
       uobp = unit_convert(*unit_ptr, values.get_first(), CP::get_instance());
+
+    if (target_name.size() == 3 and target_name[2] == 'a')
+      p.get_first() = nextafter(p.get_first(), p.get_last());
 
     return *this;
   }
@@ -422,7 +425,7 @@ void build_pvt_data()
 		   *test_unit("nacl", Molality_NaCl::get_instance()));
 
   for (auto & a : target.getValue())
-    data.add_vector(a.t, a.pb, a.bobp, a.uod, a.uobp, a.p, *a.punit_ptr,
+    data.add_vector(a.t, a.pb, a.uod, a.bobp, a.uobp, a.p, *a.punit_ptr,
 		    a.target_name, a.values, *a.unit_ptr);
 }
 
@@ -516,13 +519,10 @@ void process_apply()
 	return data.istats(corr_ptr);
       }), cmp[::sort.getValue()]);
 
-  stats = stats.filter([] (auto & s) { return CorrStat::is_valid(get<3>(s)); });
-
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {
       DynList<string> ret = build_dynlist<string>(get<0>(t)->name);
-      auto stats = CorrStat::desc_to_dynlist(get<3>(t)).
-      template maps<string>([] (auto v) { return ::to_string(v); });
+      auto stats = CorrStat::desc_to_dynlist(get<3>(t));
       ret.append(stats);
       return ret;
     });
