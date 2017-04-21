@@ -76,8 +76,8 @@ CgHallYarborough::impl(const double & tpr,
   constexpr double epsilon = 1.0e-8;
   double pr = 0, prf = 0;
   double prprev = 0.01;
-                
-  while (fabs(prprev - pr) > epsilon)
+
+  for (size_t i = 0; i < 60 and (fabs(prprev - pr) > epsilon); ++i)                
     {
       pr = prprev;
 
@@ -92,6 +92,7 @@ CgHallYarborough::impl(const double & tpr,
 	pow(1 - pr, 4) - 2*b*pr + c*d*pow(pr, d-1);
 
       prf = pr - f/dfdpr;
+
       prprev = prf;
   }
                 
@@ -164,40 +165,40 @@ CgGopal::impl(const double & tpr,
 	      const double & z) noexcept
 {
   double dzdppr = 0;
-  if (0.2 <= ppr and ppr <= 1.2)
+  if (ppr <= 1.2) // 0.2 <= ppr <= 1.2
     {
-      if (1.05 <= tpr and tpr <= 1.2)
+      if (tpr <= 1.2) // 1.05 <= tpr <= 1.2
 	dzdppr = 1.6643 * tpr - 2.2114;
       else if (1.2 < tpr and tpr <= 1.4)
 	dzdppr = 0.0522 * tpr - 0.8511;
       else if (1.4 < tpr and tpr <= 2.0)
 	dzdppr = 0.1391 * tpr - 0.2988;
-      else // 2.0 < Tpr <= 3.0
+      else if (tpr > 2.0) // 2.0 < tpr <= 3.0
 	dzdppr = 0.0295 * tpr - 0.0825;
     }                   
   else if (1.2 < ppr and ppr <= 2.8)
     {
-      if (1.05 <= tpr and tpr <= 1.2)
+      if (tpr <= 1.2) // 1.05 <= tpr <= 1.2
 	dzdppr = -1.3570 * tpr + 1.4942;
       else if (1.2 < tpr and tpr <= 1.4)
 	dzdppr = 0.1717 * tpr - 0.3232;
       else if (1.4 < tpr and tpr <= 2.0)
 	dzdppr = 0.0984 * tpr - 0.2053;            
-      else // 2.0 < Tpr <= 3.0
+      else if (tpr > 2.0) // 2.0 < tpr <= 3.0
 	dzdppr = 0.0211 * tpr - 0.0527;
     }
   else if (2.8 < ppr and ppr <= 5.4)
     {
-      if (1.05 <= tpr and tpr <= 1.2)
+      if (tpr <= 1.2) // 1.05 <= tpr <= 1.2
 	dzdppr = -0.3278 * tpr + 0.4752;
       else if (1.2 < tpr and tpr <= 1.4)
 	dzdppr = -0.2521 * tpr + 0.3871;
       else if (1.4 < tpr and tpr <= 2.0)
 	dzdppr = -0.0284 * tpr + 0.0625;
-      else // 2.0 < Tpr <= 3.0
+      else if (tpr > 2.0) // 2.0 < tpr <= 3.0
 	dzdppr = 0.0041 * tpr + 0.0039;
     }
-  else // 5.4 < Ppr <= 15
+  else if (ppr > 5.4) // 5.4 < ppr <= 15
     dzdppr = pow(0.711 + 3.66 * tpr, -1.4667);
                 
   const double cgr = (1/ppr) - (1/z) * dzdppr;
