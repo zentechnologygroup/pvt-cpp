@@ -1310,6 +1310,7 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
   CALL(Ppr, ppr, p_q, adjustedppcm);					\
   auto ppr_par = NPAR(ppr);						\
   auto rs = dcompute(rs_corr, check, p_q, rs_pars, p_par);		\
+  rs = min(rs, rsb);							\
   auto rs_par = NPAR(rs);						\
   auto co = dcompute(co_corr, check, p_q, co_pars, p_par);		\
   auto co_par = NPAR(co);						\

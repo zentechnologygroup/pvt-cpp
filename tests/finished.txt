@@ -257,3 +257,4 @@ desc para vector en test-pvt-data,2017-03-30 10:35:34 -0400,2017-04-20 10:00:13 
 añadir caso pb cuandio sólo hay un pto,2017-04-16 13:30:36 -0400,2017-04-20 10:00:46 -0400,,2017-04-20 10:00:50 -0400
 Cuando la regresión dé error debe reportarse,2017-04-18 15:45:52 -0400,2017-04-20 10:01:08 -0400,,2017-04-20 10:01:10 -0400
 marca que diga si la regresion es válida,2017-04-20 11:20:29 -0400,2017-04-20 11:46:51 -0400,,2017-04-20 11:46:53 -0400
+verificar con rigor iapply pase de pb, uod,2017-04-21 10:47:28 -0400,2017-04-20 11:47:25 -0400,2017-04-21 10:47:31 -0400

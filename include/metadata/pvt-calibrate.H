@@ -345,7 +345,8 @@ struct PvtData
   // Return true if corr_ptr can be applied; that is, if all values
   // required by the correlation re available and these match with
   // correlation development ranges
-  bool can_be_applied(const Correlation * corr_ptr) const
+  bool can_be_applied(const Correlation * corr_ptr,
+		      const DynSetTree<string> & relax_tbl) const
   {
     auto ref_vectors = search_vectors(corr_ptr->target_name());
     for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
@@ -362,6 +363,9 @@ struct PvtData
 	const string & name_in_data = ptr->first;
 	if (name_in_data == "t" or name_in_data == "p" or
 	    name_in_data == "pb" or name_in_data == "uod")
+	  continue;
+
+	if (relax_tbl.contains(name_in_data))
 	  continue;
 
 	const ConstDesc * const_ptr = search_const(name_in_data);
@@ -395,12 +399,72 @@ struct PvtData
     return true;
   }
 
+  bool can_be_applied(const Correlation * corr_ptr) const
+  {    
+    return can_be_applied(corr_ptr, DynSetTree<string>());
+  }
+
+  // Return a list of parameters avoiding application
+  DynList<pair<string, bool>>
+  list_restrictions(const Correlation * corr_ptr) const
+  {
+    DynList<pair<string, bool>> ret;
+    auto ref_vectors = search_vectors(corr_ptr->target_name());
+    for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
+	 it.next())
+      {
+	auto & par = it.get_curr();
+	auto * ptr = par.names().find_ptr([this] (auto & p)
+					  {
+					    return names.has(p.first);
+					  });
+	if (ptr == nullptr)
+	  ret.append(make_pair(par.name, false));
+
+	const string & name_in_data = ptr->first;
+	if (name_in_data == "t" or name_in_data == "p" or
+	    name_in_data == "pb" or name_in_data == "uod")
+	  continue;
+
+	const ConstDesc * const_ptr = search_const(name_in_data);
+	if (const_ptr) // is name_in_data as constant?
+	  {
+	    if ( (not par.check(VtlQuantity(*const_ptr->unit_ptr,
+					    const_ptr->value))))
+	      ret.append(make_pair(name_in_data, true));
+	    continue;
+	  }
+
+	auto pars_list = get_pars(ref_vectors, name_in_data);
+	if (not pars_list.all([&par] (auto & s)
+              {
+		const DynList<double> & yvals = s_yvals(s);
+		const Unit * yunit = s_yunit(s);
+		return yvals.all([&par, yunit] (auto v)
+				 {
+				   return par.check(VtlQuantity(*yunit, v));
+				 });
+	      }))
+	  ret.append(make_pair(name_in_data, true));
+      }
+
+    return ret;
+  }
+
+  DynList<const Correlation*>
+  can_be_applied(const string & target_name,
+		 const DynSetTree<string> & relax_tbl) const
+  {
+    return Correlation::array().filter([&target_name, &relax_tbl, this] (auto ptr)
+      {
+	return ptr->target_name() == target_name and
+	  this->can_be_applied(ptr, relax_tbl);
+      });
+  }
+
   DynList<const Correlation*> can_be_applied(const string & target_name) const
   {
-    return Correlation::array().filter([&target_name, this] (auto ptr)
-      {
-	return ptr->target_name() == target_name and this->can_be_applied(ptr);
-      });
+    return can_be_applied(target_name, DynSetTree<string>());
   }
 
   DynList<Sample> get_vectors(const Correlation * corr_ptr,
