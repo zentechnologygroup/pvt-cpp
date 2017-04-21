@@ -12,9 +12,9 @@ Los valores de uod fueron calculados con UodDeGhettoEtAl
 
 PbTotalCFP 112.701898 0.989613
 
-RsTotalCFP 1.818297 1.051927 (se escoje esta por pb)
+RsTotalCFP 1.818297 1.051927 (se escoge esta por pb)
 
-BobTotalCFP 1.987266 -0.899143 (se escoje esta por pb)
+BobTotalCFP 1.987266 -0.899143 (se escoge esta por pb)
 
 BoaHanafy 0.471621 0.556011
 
