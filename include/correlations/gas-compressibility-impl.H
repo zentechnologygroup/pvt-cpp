@@ -176,6 +176,9 @@ ZfactorSarem::impl(const double & tpr,
     0.0053096*p5x*p0y + 0.0089178*p5x*p1y + -0.0108948*p5x*p2y +
     0.0095594*p5x*p3y + -0.0060114*p5x*p4y + 0.0031175*p5x*p5y;
 
+  if (z < min_z)
+    return min_z;
+
   return z;
 }
 
@@ -407,6 +410,9 @@ ZfactorGopal::impl(const double & tpr,
   else if (ppr > 5.4) // 5.4 < ppr <= 15
     z = ppr*pow(0.711 + 3.66*tpr + 0.0039, -1.4667) -
       1.637/(0.319*tpr + 0.522) + 2.071;
+
+  if (z < min_z)
+    return min_z;
                             
   return z;
 }
@@ -436,6 +442,9 @@ ZfactorBrillBeggs::impl(const double & tpr,
   else
     z = a + ((1 - a)/exp(b)) + c*pow(ppr, d);
 
+  if (z < min_z)
+    return min_z;
+
   return z;
 }
 
@@ -446,6 +455,9 @@ ZfactorPapay::impl(const double & tpr,
   const double ppr2 = ppr*ppr;
   const double z = 1 - 3.52*ppr/pow(10, 0.9813*tpr) +
     0.274*ppr2/pow(10, 0.8157*tpr);
+
+  if (z < min_z)
+    return min_z;
 
   return z;
 }
