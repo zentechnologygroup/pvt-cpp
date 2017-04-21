@@ -12,9 +12,9 @@ Los valores de uod fueron calculados con UodDeGhettoEtAl
 
 PbTotalCFP 112.701898 0.989613
 
-RsTotalCFP 1.818297 1.051927 (se escoje esta por pb)
+RsTotalCFP 1.818297 1.051927 (se escoge esta por pb)
 
-BobTotalCFP 1.987266 -0.899143 (se escoje esta por pb)
+BobTotalCFP -0.015696 1.020165 (se escoge esta por pb)
 
 BoaHanafy 0.471621 0.556011
 
@@ -23,3 +23,5 @@ UobBeggsRobinson 336.899735 6.354408
 UoaVasquezBeggs -5.674295 1.003265
 
 CoaHanafy sin valores de calibración
+
+./cplot --grid blackoil --t "110 300 3" --p "100 3000 40" --api 8.8 --yg 0.6927 --rsb 74.9 --co2 2.84 --n2 0.52 --pb PbTotalCFP --c-pb 112.701898 --m-pb 0.989613 --rs RsTotalCFP --c-rs 1.818297 --m-rs 1.051927 --bob BobTotalCFP --c-bob 1.987266 --m-bob 1.020165 --boa BoaHanafy --c-boa 0.471621 --m-boa 0.556011 --uod UodDeGhettoEtAl --cob CobMcCainEtAl
