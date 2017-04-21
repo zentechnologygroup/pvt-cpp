@@ -1552,3 +1552,9 @@
 - Comment      
 - Finished     
 
+## 260. verificar con rigor iapply pase de pb
+- Created at    uod
+- Completed at 2017-04-21 10:47:28 -0400
+- Comment      2017-04-20 11:47:25 -0400
+- Finished     2017-04-20 11:47:25 -0400
+

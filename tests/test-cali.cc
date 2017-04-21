@@ -314,8 +314,8 @@ namespace TCLAP
 }
 
 const DynSetTree<string> ActionType::valid_actions = 
-  { "print", "list", "match", "apply", "global_apply", "lcal",
-    "pb_calibration", "global_calibration" };
+  { "print", "list", "match", "apply", "napply", "global_apply", "lcal",
+    "pbcal", "global_calibration" };
 
 const string actions =
  ActionType::valid_actions.take(ActionType::valid_actions.size() - 1).
@@ -331,8 +331,9 @@ ActionType::dispatcher
  "list", ActionType::read_property_name,
  "match", ActionType::read_property_name,
  "apply", ActionType::read_property_name,
+ "napply", ActionType::read_property_name,
  "global_apply", ActionType::dummy,
- "pb_calibration", ActionType::read_local_calibration,
+ "pbcal", ActionType::read_local_calibration,
  "lcal", ActionType::read_local_calibration,
  "global_calibration", ActionType::dummy
 );
@@ -503,6 +504,43 @@ DynMapTree<string, bool (*)(const T&, const T&)> cmp =
     {"sumsq", cmp_sumsq}, {"c", cmp_c}, {"m", cmp_m} }; 
 
 void process_apply()
+{
+  auto property_name = action.getValue().property_name;
+  auto corr_list = data.can_be_applied(property_name);
+
+  DynList<T> stats;
+  if (property_name == "pb")
+    stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
+    {
+      return data.pbstats(corr_ptr);
+    }), cmp[::sort.getValue()]);
+  else
+    stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
+      {
+	return data.istats(corr_ptr);
+      }), cmp[::sort.getValue()]);
+
+  DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
+    {
+      DynList<string> ret = build_dynlist<string>(get<0>(t)->name);
+      auto stats = CorrStat::desc_to_dynlist(get<3>(t));
+      ret.append(stats);
+      return ret;
+    });
+  
+  DynList<string> header = build_dynlist<string>("Correlation");
+  header.append(CorrStat::stats_header());
+
+  rows.insert(header);
+
+  const auto & out_type = output.getValue();
+  if (out_type == "csv")
+    cout << Aleph::to_string(format_string_csv(rows)) << endl;
+  else
+    cout << Aleph::to_string(format_string(rows)) << endl;
+}
+
+void process_napply()
 {
   auto property_name = action.getValue().property_name;
   auto corr_list = data.can_be_applied(property_name);
@@ -906,9 +944,10 @@ const AHDispatcher<string, void (*)()> dispatcher =
     "list", process_list,
     "match", process_match,
     "apply", process_apply,
+    "napply", process_napply,
     "global_apply", dummy,
     "lcal", proccess_local_calibration,
-    "pb_calibration", proccess_pb_calibration,
+    "pbcal", proccess_pb_calibration,
     "global_calibration", dummy
   };
 
