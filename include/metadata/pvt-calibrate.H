@@ -408,18 +408,23 @@ struct PvtData
   DynList<pair<string, bool>>
   list_restrictions(const Correlation * corr_ptr) const
   {
+    cout << "Testing " << corr_ptr->name << endl;
     DynList<pair<string, bool>> ret;
     auto ref_vectors = search_vectors(corr_ptr->target_name());
     for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
 	 it.next())
       {
 	auto & par = it.get_curr();
+	cout << "    Par " << par.name << endl;
 	auto * ptr = par.names().find_ptr([this] (auto & p)
 					  {
 					    return names.has(p.first);
 					  });
 	if (ptr == nullptr)
-	  ret.append(make_pair(par.name, false));
+	  {
+	    ret.append(make_pair(par.name, false));
+	    continue;
+	  }
 
 	const string & name_in_data = ptr->first;
 	if (name_in_data == "t" or name_in_data == "p" or
@@ -446,6 +451,27 @@ struct PvtData
 				 });
 	      }))
 	  ret.append(make_pair(name_in_data, true));
+      }
+    cout << "    done" << endl;
+
+    return ret;
+  }
+
+  DynList<pair<const Correlation*, DynList<pair<string, bool>>>>
+  list_restrictions(const string & target_name) const
+  {
+    auto corr_list = Correlation::array().filter([&target_name] (auto ptr)
+      {
+	return ptr->target_name() == target_name;
+      });
+    
+    DynList<pair<const Correlation*, DynList<pair<string, bool>>>> ret;
+    for (auto it = corr_list.get_it(); it.has_curr(); it.next())
+      {
+	auto corr_ptr = it.get_curr();
+	auto restrictions = list_restrictions(corr_ptr);
+	if (not restrictions.is_empty())
+	  ret.append(make_pair(corr_ptr, move(restrictions)));
       }
 
     return ret;

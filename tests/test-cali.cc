@@ -543,38 +543,22 @@ void process_apply()
 void process_napply()
 {
   auto property_name = action.getValue().property_name;
-  auto corr_list = data.can_be_applied(property_name);
+  auto missing_list = data.list_restrictions(property_name);
 
-  DynList<T> stats;
-  if (property_name == "pb")
-    stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
+  DynList<DynList<string>> rows =
+    missing_list.maps<DynList<string>>([] (auto p)
     {
-      return data.pbstats(corr_ptr);
-    }), cmp[::sort.getValue()]);
-  else
-    stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
-      {
-	return data.istats(corr_ptr);
-      }), cmp[::sort.getValue()]);
-
-  DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
-    {
-      DynList<string> ret = build_dynlist<string>(get<0>(t)->name);
-      auto stats = CorrStat::desc_to_dynlist(get<3>(t));
-      ret.append(stats);
-      return ret;
+      DynList<string> row = build_dynlist<string>(p.first->name);
+      row.append(p.second.template maps<string>([] (pair<string, bool> p)
+        {
+      	  DynList<string> r;
+      	  r.append(p.first);
+      	  r.append(p.second ? "range" : "missing");
+      	  return r;
+      	}));
+      return row;
     });
-  
-  DynList<string> header = build_dynlist<string>("Correlation");
-  header.append(CorrStat::stats_header());
-
-  rows.insert(header);
-
-  const auto & out_type = output.getValue();
-  if (out_type == "csv")
-    cout << Aleph::to_string(format_string_csv(rows)) << endl;
-  else
-    cout << Aleph::to_string(format_string(rows)) << endl;
+  cout << to_string(format_string(rows)) << endl;
 }
 
 void put_sample(const Correlation * corr_ptr,
