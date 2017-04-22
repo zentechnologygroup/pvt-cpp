@@ -352,7 +352,7 @@ struct PvtData
     for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
 	 it.next())
       {
-	auto & par = it.get_curr();
+	const CorrelationPar & par = it.get_curr();
 	auto * ptr = par.names().find_ptr([this] (auto & p)
 					  {
 					    return names.has(p.first);
@@ -365,18 +365,19 @@ struct PvtData
 	    name_in_data == "pb" or name_in_data == "uod")
 	  continue;
 
-	if (relax_tbl.contains(name_in_data))
+	cout << "testing " << name_in_data << endl;
+
+	if (relax_tbl.contains(name_in_data) or
+	    par.get_synonyms().exists([&relax_tbl] (auto & p)
+				      { return relax_tbl.has(p.first); }))
 	  continue;
 
 	const ConstDesc * const_ptr = search_const(name_in_data);
 	if (const_ptr) // is name_in_data as constant?
 	  {
-	    if ( (not par.check(VtlQuantity(*const_ptr->unit_ptr,
-					    const_ptr->value))))
-	      {
-		cout << corr_ptr->name << " fails for " << name_in_data << endl;
+	    if ((not par.check(VtlQuantity(*const_ptr->unit_ptr,
+					   const_ptr->value))))
 	      return false;
-	      }
 	    continue;
 	  }
 
@@ -408,14 +409,12 @@ struct PvtData
   DynList<pair<string, bool>>
   list_restrictions(const Correlation * corr_ptr) const
   {
-    cout << "Testing " << corr_ptr->name << endl;
     DynList<pair<string, bool>> ret;
     auto ref_vectors = search_vectors(corr_ptr->target_name());
     for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
 	 it.next())
       {
 	auto & par = it.get_curr();
-	cout << "    Par " << par.name << endl;
 	auto * ptr = par.names().find_ptr([this] (auto & p)
 					  {
 					    return names.has(p.first);
@@ -452,7 +451,9 @@ struct PvtData
 	      }))
 	  ret.append(make_pair(name_in_data, true));
       }
-    cout << "    done" << endl;
+
+    cout << "For " << corr_ptr->name << ":";
+    ret.for_each([] (auto & s) { cout << " " << s.first; }); cout << endl;
 
     return ret;
   }

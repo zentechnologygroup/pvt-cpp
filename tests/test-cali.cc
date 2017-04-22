@@ -362,6 +362,15 @@ ValueArg<double> nacl = { "", "nacl", "nacl", false, 0, "nacl in Molality_NaCl",
 			  cmd };
 ValueArg<double> uod = { "", "uod", "uod", false, 0, "uod in cP", cmd };
 
+vector<string> relax_names =
+  {
+    "api", "yo", "rsb", "yg", "tsep", "psep", "h2s", "co2", "n2", "nacl", "pb",
+    "uod", "rs", "bobp", "uobp"
+  };
+ValuesConstraint<string> allowed_relax_names = relax_names;
+MultiArg<string> relax_pars =
+  { "", "relax", "relax parameter range application check", false,
+    &allowed_relax_names, cmd };
 
 MultiArg<ValuesArg> target =
   { "", "property", "property array", false, 
@@ -398,6 +407,13 @@ const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 	return ret;
       }
   return ret;
+}
+
+DynSetTree<string> relax_names_tbl;
+void set_relax_names()
+{
+  for (auto & p : relax_pars.getValue())
+    relax_names_tbl.append(p);
 }
 
 void build_pvt_data()
@@ -506,7 +522,7 @@ DynMapTree<string, bool (*)(const T&, const T&)> cmp =
 void process_apply()
 {
   auto property_name = action.getValue().property_name;
-  auto corr_list = data.can_be_applied(property_name);
+  auto corr_list = data.can_be_applied(property_name, relax_names_tbl);
 
   DynList<T> stats;
   if (property_name == "pb")
@@ -558,7 +574,12 @@ void process_napply()
       	}));
       return row;
     });
-  cout << to_string(format_string(rows)) << endl;
+
+  const auto & out_type = output.getValue();
+  if (out_type == "csv")
+    cout << to_string(format_string_csv(autofill(rows))) << endl;
+  else
+    cout << to_string(format_string(autofill(rows))) << endl;
 }
 
 void put_sample(const Correlation * corr_ptr,
@@ -940,6 +961,7 @@ int main(int argc, char *argv[])
   UnitsInstancer::init();
   cmd.parse(argc, argv);
   build_pvt_data();
+  set_relax_names();
   dispatcher.run(action.getValue().type);
 
   // TODO: falta sort
