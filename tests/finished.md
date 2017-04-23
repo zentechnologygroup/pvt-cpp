@@ -1558,3 +1558,27 @@
 - Comment      2017-04-20 11:47:25 -0400
 - Finished     2017-04-20 11:47:25 -0400
 
+## 261. considerar acotar rs a rsb en cplot
+- Created at   2017-04-20 17:25:36 -0400
+- Completed at 2017-04-23 14:13:42 -0400
+- Comment      hecho
+- Finished     hecho
+
+## 262. en cplot: cálculo de BoaMcCain debería de recibir coa
+- Created at    no co
+- Completed at 2017-04-23 14:14:13 -0400
+- Comment      
+- Finished     
+
+## 263. opcion en calibrate que relaje una condición
+- Created at   2017-04-21 10:05:00 -0400
+- Completed at 2017-04-23 14:14:57 -0400
+- Comment      
+- Finished     
+
+## 264. opcion que diga dónde una correklación falló
+- Created at   2017-04-19 14:33:41 -0400
+- Completed at 2017-04-23 14:15:18 -0400
+- Comment      
+- Finished     
+

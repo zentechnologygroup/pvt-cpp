@@ -19,9 +19,9 @@ inline double
 BoaMcCain::impl(const double & bobp,
 		const double & p,
 		const double & pb,
-		const double & co) noexcept
+		const double & coa) noexcept
 {
-  return bobp * exp(co * (pb - p));
+  return bobp * exp(coa * (pb - p));
 }
 
 void BoaDeGhetto::precondition(const Quantity<psia> & p,

@@ -365,7 +365,7 @@ ValueArg<double> uod = { "", "uod", "uod", false, 0, "uod in cP", cmd };
 vector<string> relax_names =
   {
     "api", "yo", "rsb", "yg", "tsep", "psep", "h2s", "co2", "n2", "nacl", "pb",
-    "uod", "rs", "bobp", "uobp"
+    "uod", "rs", "bobp", "uobp", "coa"
   };
 ValuesConstraint<string> allowed_relax_names = relax_names;
 MultiArg<string> relax_pars =
@@ -567,19 +567,17 @@ void process_napply()
       DynList<string> row = build_dynlist<string>(p.first->name);
       row.append(p.second.template maps<string>([] (pair<string, bool> p)
         {
-      	  DynList<string> r;
-      	  r.append(p.first);
-      	  r.append(p.second ? "range" : "missing");
-      	  return r;
+	  return build_dynlist<string>(p.first + " (" +
+				       (p.second ? "range)" : "missing)"));
       	}));
       return row;
     });
 
   const auto & out_type = output.getValue();
   if (out_type == "csv")
-    cout << to_string(format_string_csv(autofill(rows))) << endl;
+    cout << to_string(format_string_csv(complete_rows(rows))) << endl;
   else
-    cout << to_string(format_string(autofill(rows))) << endl;
+    cout << to_string(format_string(complete_rows(rows))) << endl;
 }
 
 void put_sample(const Correlation * corr_ptr,
@@ -754,10 +752,6 @@ void proccess_local_calibration()
   for (auto it = corr_list.get_it(); it.has_curr(); it.next())
     {
       auto corr_ptr = it.get_curr();
-      if (not data.can_be_applied(corr_ptr))
-	ZENTHROW(CommandLineError,
-		 corr_ptr->name + " does not apply to data set");
-      
       if (mode != "single")
 	{
 	  auto stats = data.istats(corr_ptr);

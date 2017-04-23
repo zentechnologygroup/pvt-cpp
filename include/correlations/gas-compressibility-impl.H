@@ -182,7 +182,8 @@ ZfactorSarem::impl(const double & tpr,
   return z;
 }
 
-using GuessFct = double (*FunctionPointer)(const double &, const double &);
+using GuessFct = double (*)(const double &, const double &);
+
 static GuessFct guess_fct[] =
   {
     guess_initial_value_linear,
@@ -195,7 +196,7 @@ inline double
 ZfactorHallYarborough::impl(const double & tpr,
 			    const double & ppr) noexcept
 {
-  GuessFct guess = guess_fct[0];
+  GuessFct * guess = &guess_fct[0];
 
   const double tpr_1 = 1/tpr;
   const double tpr_1_2 = tpr_1*tpr_1;

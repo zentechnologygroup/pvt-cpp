@@ -258,3 +258,7 @@ añadir caso pb cuandio sólo hay un pto,2017-04-16 13:30:36 -0400,2017-04-20 10
 Cuando la regresión dé error debe reportarse,2017-04-18 15:45:52 -0400,2017-04-20 10:01:08 -0400,,2017-04-20 10:01:10 -0400
 marca que diga si la regresion es válida,2017-04-20 11:20:29 -0400,2017-04-20 11:46:51 -0400,,2017-04-20 11:46:53 -0400
 verificar con rigor iapply pase de pb, uod,2017-04-21 10:47:28 -0400,2017-04-20 11:47:25 -0400,2017-04-21 10:47:31 -0400
+considerar acotar rs a rsb en cplot,2017-04-20 17:25:36 -0400,2017-04-23 14:13:42 -0400,hecho,2017-04-23 14:13:44 -0400
+en cplot: cálculo de BoaMcCain debería de recibir coa, no co,2017-04-23 14:14:13 -0400,,2017-04-23 14:14:16 -0400
+opcion en calibrate que relaje una condición,2017-04-21 10:05:00 -0400,2017-04-23 14:14:57 -0400,,2017-04-23 14:15:00 -0400
+opcion que diga dónde una correklación falló,2017-04-19 14:33:41 -0400,2017-04-23 14:15:18 -0400,,2017-04-23 14:15:26 -0400

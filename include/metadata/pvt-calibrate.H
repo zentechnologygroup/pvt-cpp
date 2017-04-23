@@ -63,7 +63,7 @@ struct VectorDesc
 
   double gety(double pval) const
   {
-    const size_t & n = p.size();
+    const long n = p.size();
     long i = binary_search(p, pval);
     if (i < 0 or i >= n)
       ZENTHROW(ValueNotFound, ::to_string(pval) + " not found in data set");
@@ -77,7 +77,7 @@ struct VectorDesc
 
     if (i < 0)
       return extrapolate_left(p(0), p(1), y(0), y(1), pval);
-    else if (i >= (long) n)
+    else if (i >= n - 1)
       return extrapolate_right(p(n - 2), p(n - 1), y(n - 2), y(n - 1), pval);
     else
       return interpolate(p(i), p(i + 1), y(i), y(i + 1), pval);
@@ -365,8 +365,6 @@ struct PvtData
 	    name_in_data == "pb" or name_in_data == "uod")
 	  continue;
 
-	cout << "testing " << name_in_data << endl;
-
 	if (relax_tbl.contains(name_in_data) or
 	    par.get_synonyms().exists([&relax_tbl] (auto & p)
 				      { return relax_tbl.has(p.first); }))
@@ -391,10 +389,7 @@ struct PvtData
 				  return par.check(VtlQuantity(*yunit, v));
 				});
 	     }))
-	  {
-	    cout << corr_ptr->name << " fails for " << name_in_data << endl;
 	  return false;
-	  }
       }
 
     return true;
@@ -451,9 +446,6 @@ struct PvtData
 	      }))
 	  ret.append(make_pair(name_in_data, true));
       }
-
-    cout << "For " << corr_ptr->name << ":";
-    ret.for_each([] (auto & s) { cout << " " << s.first; }); cout << endl;
 
     return ret;
   }
@@ -667,13 +659,13 @@ struct PvtData
 	    const double & y = get<2>(t);
 	    pars.insert("p", p, punit);
 	    pars.insert(par_name, parval, par_unit);
-
-	    pars.tbl.for_each([par_unit] (auto p)
-              {
-	    	cout << p.first << " = " << p.second.first
-	    	     << " " << p.second.second->name << " ";
-	      });
-	    cout << endl;
+	    
+	    // pars.tbl.for_each([par_unit] (auto p)
+            //   {
+	    // 	cout << p.first << " = " << p.second.first
+	    // 	     << " " << p.second.second->name << " ";
+	    //   });
+	    // cout << endl;
 
 	    try
 	      {
@@ -683,11 +675,11 @@ struct PvtData
 		plist.append(p);
 		ylist.append(y);
 		yclist.append(result.raw());
-		cout << target_name << " = " << result << endl;
+		//cout << target_name << " = " << result << endl;
 	      }
 	    catch (exception & e)
 	      {
-		cout << e.what() << endl;
+		// cout << e.what() << endl;
 	      }
 	    pars.remove("p");
 	    pars.remove(par_name);
@@ -748,13 +740,6 @@ struct PvtData
 		    return get<0>(t1) < get<0>(t2);
 		  }); 
 
-    cout << "istats(" << corr_ptr->name << ")" << endl;
-    l.for_each([] (auto & t)
-    {
-      cout << "p = " << get<0>(t) << " y = " << get<1>(t) << " yc = "
-    	   << get<2>(t) << endl;
-    });
-
     //           yc,          p,       y
     DynMapTree<double, pair<double, double>> ptbl;
     for (auto it = l.get_it(); it.has_curr(); it.next())
@@ -779,11 +764,6 @@ struct PvtData
     	y.append(second.second);
     	yc.append(pp.first);
       }
-
-    cout << "**" << endl;
-    cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-    cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-    cout << "yc ="; yc.for_each([] (auto v) { cout << " " << v; }); cout << endl;
 
     auto stats = CorrStat(yc).stats(y);
 
