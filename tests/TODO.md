@@ -79,3 +79,6 @@
 ## 25. opcion --relax debe considerar variable que ya estén relajadas
 - Created at   2017-04-23 17:39:21 -0400
 
+## 26. encontrar una forma de acotar rs a rsb desde a calibracón
+- Created at   2017-04-24 19:28:02 -0400
+

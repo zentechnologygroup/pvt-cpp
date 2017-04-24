@@ -23,3 +23,4 @@ añadir opción a test-corr que reciba un arreglo de t y p como en cplot y gener
 en calibración verificar que no hayan nan,2017-04-20 17:04:19 -0400,,
 opcion en cplot que especifique un vector específico de temp y pression,2017-04-23 13:26:53 -0400,,
 opcion --relax debe considerar variable que ya estén relajadas,2017-04-23 17:39:21 -0400,,
+encontrar una forma de acotar rs a rsb desde a calibracón,2017-04-24 19:28:02 -0400,,
