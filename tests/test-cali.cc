@@ -318,6 +318,7 @@ struct GenerateInput
   string target_name = "No-defined";
   const Correlation * corr_ptr = nullptr;
   string src_name = "No-defined";
+  double c = 0, m = 1;
 
   friend ostream & operator << (ostream & out, const GenerateInput & i)
   {
@@ -343,7 +344,22 @@ struct GenerateInput
 
     if (target_name != corr_ptr->target_name())
       ZENTHROW(CommandLineError, "Correlation target " + corr_ptr->name +
-	       " does not match " + target_name); 
+	       " does not match " + target_name);
+
+    string data;
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read c value");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "c value " + data + " for " + corr_name +
+	       " is not a double");
+    c = atof(data);
+
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read m value");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "m value for " + data + " for " + corr_name +
+	       " is not a double");
+    m = atof(data);
 
     if (not (iss >> src_name))
       ZENTHROW(CommandLineError, "cannot read source name property");
@@ -426,7 +442,7 @@ DynSetTree<string> input_types =
   { "rs", "bob", "boa", "uob", "uob", "cob", "coa" };
 
 MultiArg<GenerateInput> input = { "", "input", "input from correlation", false,
-				  "input tgt corr src", cmd };
+				  "input tgt corr c m src", cmd };
 				  
 vector<string> output_types = { "R", "csv", "mat" };
 ValuesConstraint<string> allowed_output_types = output_types;
@@ -516,7 +532,9 @@ void input_data(const GenerateInput & in)
       auto src_ptr = it.get_curr();
       if (temps.has(src_ptr->t))
 	continue;
-      VectorDesc d = data.build_samples(src_ptr, corr_ptr);
+      VectorDesc d = data.build_samples(src_ptr, corr_ptr, in.c, in.m);
+      temps.insert(d.t);
+      data.add_vector(move(d));
     }
 	 
 }
@@ -524,15 +542,7 @@ void input_data(const GenerateInput & in)
 void input_data()
 {
   for (auto & d : input.getValue())
-    {
-      DynList<const VectorDesc*> tgt_vectors =
-	data.search_vectors(d.target_name);
-      DynList<const VectorDesc*> src_vectors = 	data.search_vectors(d.src_name);
-      if (src_vectors.is_empty())
-	ZENTHROW(CommandLineError, "target name " + d.target_name +
-		 " not found in data set");
-      cout << d << endl;
-    }
+    input_data(d);
 }
 
 void dummy()

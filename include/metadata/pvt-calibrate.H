@@ -605,7 +605,8 @@ struct PvtData
   }
 
   VectorDesc build_samples(const VectorDesc * vector_ptr,
-			   const Correlation * corr_ptr) const
+			   const Correlation * corr_ptr,
+			   double c, double m) const
   {
     DynList<double> pvals;
     DynList<double> vals;
@@ -625,7 +626,12 @@ struct PvtData
 	  {
 	    VtlQuantity r = corr_ptr->compute_by_names(pars, false);
 	    pvals.append(p);
-	    vals.append(r.raw());
+	    vals.append(c + m*r.raw());
+	    pars.tbl.for_each([] (auto p)
+              {
+		cout << " " << p.first << " = " << p.second.first;
+	      });
+	    cout << " = " << c + m*r.raw() << endl;
 	  }
 	catch (...) {}
 	pars.remove("p");
