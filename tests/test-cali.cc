@@ -313,6 +313,51 @@ namespace TCLAP
   template<> struct ArgTraits<ActionType> { typedef StringLike ValueCategory; };
 }
 
+struct GenerateInput
+{
+  string target_name = "No-defined";
+  const Correlation * corr_ptr = nullptr;
+  string src_name = "No-defined";
+
+  friend ostream & operator << (ostream & out, const GenerateInput & i)
+  {
+    return out << "Target name = " << i.target_name << endl
+	       << "Correlation = " << i.corr_ptr->name << endl
+	       << "Source name = " << i.src_name;
+  }
+
+  GenerateInput() {}
+
+  GenerateInput & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> target_name))
+      ZENTHROW(CommandLineError, "Cannot read target name property");
+
+    string corr_name;
+    if (not (iss >> corr_name))
+      ZENTHROW(CommandLineError, "Cannot read correlation name");
+    corr_ptr = Correlation::search_by_name(corr_name);
+    if (corr_ptr == nullptr)
+      ZENTHROW(CommandLineError, "correlation " + corr_name + " not found");
+
+    if (target_name != corr_ptr->target_name())
+      ZENTHROW(CommandLineError, "Correlation target " + corr_ptr->name +
+	       " does not match " + target_name); 
+
+    if (not (iss >> src_name))
+      ZENTHROW(CommandLineError, "cannot read source name property");
+
+    return *this;
+  }
+};
+
+namespace TCLAP
+{
+  template<> struct ArgTraits<GenerateInput>
+  { typedef StringLike ValueCategory; };
+}
+
 const DynSetTree<string> ActionType::valid_actions = 
   { "print", "list", "match", "apply", "napply", "global_apply", "lcal",
     "pbcal", "global_calibration" };
@@ -377,6 +422,12 @@ MultiArg<ValuesArg> target =
     "property array in format \"property property-unit t tunit pb punit p-list "
     "property-list\"", cmd };
 
+DynSetTree<string> input_types =
+  { "rs", "bob", "boa", "uob", "uob", "cob", "coa" };
+
+MultiArg<GenerateInput> input = { "", "input", "input from correlation", false,
+				  "input tgt corr src", cmd };
+				  
 vector<string> output_types = { "R", "csv", "mat" };
 ValuesConstraint<string> allowed_output_types = output_types;
 ValueArg<string> output = { "", "output", "output type", false,
@@ -444,6 +495,44 @@ void build_pvt_data()
   for (auto & a : target.getValue())
     data.add_vector(a.t, a.pb, a.uod, a.bobp, a.uobp, a.p, *a.punit_ptr,
 		    a.target_name, a.values, *a.unit_ptr);
+}
+
+void input_data(const GenerateInput & in)
+{
+  DynList<const VectorDesc*> src_vectors = data.search_vectors(in.src_name);
+  if (src_vectors.is_empty())
+    ZENTHROW(CommandLineError, "target name " + in.target_name +
+	     " not found in data set");
+
+  DynList<const VectorDesc*> tgt_vectors = data.search_vectors(in.target_name);
+  DynSetTree<double> temps = tgt_vectors.maps<double>([] (auto ptr)
+    {
+      return ptr->t;
+    });
+
+  const Correlation * corr_ptr = in.corr_ptr;
+  for (auto it = src_vectors.get_it(); it.has_curr(); it.next())
+    {
+      auto src_ptr = it.get_curr();
+      if (temps.has(src_ptr->t))
+	continue;
+      VectorDesc d = data.build_samples(src_ptr, corr_ptr);
+    }
+	 
+}
+
+void input_data()
+{
+  for (auto & d : input.getValue())
+    {
+      DynList<const VectorDesc*> tgt_vectors =
+	data.search_vectors(d.target_name);
+      DynList<const VectorDesc*> src_vectors = 	data.search_vectors(d.src_name);
+      if (src_vectors.is_empty())
+	ZENTHROW(CommandLineError, "target name " + d.target_name +
+		 " not found in data set");
+      cout << d << endl;
+    }
 }
 
 void dummy()
@@ -956,6 +1045,7 @@ int main(int argc, char *argv[])
   cmd.parse(argc, argv);
   build_pvt_data();
   set_relax_names();
+  input_data();
   dispatcher.run(action.getValue().type);
 
   // TODO: falta sort

@@ -262,3 +262,4 @@ considerar acotar rs a rsb en cplot,2017-04-20 17:25:36 -0400,2017-04-23 14:13:4
 en cplot: cálculo de BoaMcCain debería de recibir coa, no co,2017-04-23 14:14:13 -0400,,2017-04-23 14:14:16 -0400
 opcion en calibrate que relaje una condición,2017-04-21 10:05:00 -0400,2017-04-23 14:14:57 -0400,,2017-04-23 14:15:00 -0400
 opcion que diga dónde una correklación falló,2017-04-19 14:33:41 -0400,2017-04-23 14:15:18 -0400,,2017-04-23 14:15:26 -0400
+cali no procesa varias temps para el fluid1,2017-04-23 14:13:03 -0400,2017-04-24 10:54:59 -0400,,2017-04-24 10:55:02 -0400

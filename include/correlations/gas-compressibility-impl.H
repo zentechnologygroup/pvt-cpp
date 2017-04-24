@@ -243,13 +243,11 @@ ZfactorHallYarborough::impl(const double & tpr,
            
   z = a * ppr / pr;
   
-  if ((std::isnan(z) or z <= min_z))
-    {
-      if (++guess)
-	goto calculate;
-      else
-	return min_z;
-  }
+  if ((std::isnan(z) or z < min_z))
+    if (++guess)
+      goto calculate;
+    else
+      z = min_z;
   
   return z;
 }

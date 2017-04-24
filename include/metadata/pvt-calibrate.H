@@ -225,34 +225,36 @@ struct PvtData
     return make_pair(desc_ptr->punit, desc_ptr->yunit);
   }
 
-  void
-  add_vector(double t, double pb, double uod, double bobp, double uobp,
-	     const Array<double> & p, const Unit & punit,
-	     const string yname, const Array<double> & y, const Unit & yunit)
+  void add_vector(VectorDesc && v)
   {
-    if (&punit.physical_quantity != &Pressure::get_instance())
-      ZENTHROW(InvalidPressureUnit, punit.name + " is not for pressure");
+    if (&v.punit->physical_quantity != &Pressure::get_instance())
+      ZENTHROW(InvalidPressureUnit, v.punit->name + " is not for pressure");
 
-    if (not is_sorted(p))
+    if (not is_sorted(v.p))
       ZENTHROW(SamplesUnsorted, "pressure values are not sorted");
 
-    auto sibling = search_vectors(yname);
-    if (not sibling.is_empty() and not sibling.all([&yunit] (auto & p)
-        { return p->yunit->is_sibling(yunit); }))
-      ZENTHROW(InvalidTargetUnit, yunit.name + " is not sibling");
+    auto sibling = search_vectors(v.yname);
+    if (not sibling.is_empty() and not sibling.all([&v] (auto & p)
+        { return p->yunit->is_sibling(*v.yunit); }))
+      ZENTHROW(InvalidTargetUnit, v.yunit->name + " is not sibling");
 
-    temperatures.insert(t);
+    temperatures.insert(v.t);
     names.append("p");
     names.append("pb");
     names.append("t");
     names.append("uod");
     names.append("uobp");
     names.append("bobp");
-    names.append(yname);
-     // VectorDesc(double t, double pb, double bobp, double uod, double uobp,
-     // 	     const Array<double> & p, const Unit * punit,
-     // 	     const string & yname, const Unit * yunit, const Array<double> & y)
-    vectors.emplace(t, pb, bobp, uod, uobp, p, &punit, yname, &yunit, y);
+    names.append(v.yname);
+    vectors.insert(move(v));
+  }
+
+  void
+  add_vector(double t, double pb, double uod, double bobp, double uobp,
+	     const Array<double> & p, const Unit & punit,
+	     const string yname, const Array<double> & y, const Unit & yunit)
+  {
+    add_vector(VectorDesc(t, pb, bobp, uod, uobp, p, &punit, yname, &yunit, y));
   }
 
   const ConstDesc * search_const(const string & name) const noexcept
@@ -600,6 +602,37 @@ struct PvtData
       }
 
     return ret;
+  }
+
+  VectorDesc build_samples(const VectorDesc * vector_ptr,
+			   const Correlation * corr_ptr) const
+  {
+    DynList<double> pvals;
+    DynList<double> vals;
+    ParList pars;
+    const Unit * punit = vector_ptr->punit;
+    pars.insert("t", vector_ptr->t, &Fahrenheit::get_instance());
+    pars.insert("pb", vector_ptr->pb, punit);
+    pars.insert("uod", vector_ptr->uod, &CP::get_instance());
+    pars.insert("bobp", vector_ptr->bobp, &RB_STB::get_instance());
+    pars.insert("uobp", vector_ptr->uobp, &CP::get_instance());
+    load_consts(corr_ptr, pars);
+    for (auto it = vector_ptr->p.get_it(); it.has_curr(); it.next())
+      {
+	auto & p = it.get_curr();
+	pars.insert("p", p, punit);
+	try
+	  {
+	    VtlQuantity r = corr_ptr->compute_by_names(pars, false);
+	    pvals.append(p);
+	    vals.append(r.raw());
+	  }
+	catch (...) {}
+	pars.remove("p");
+      }
+    return VectorDesc(vector_ptr->t, vector_ptr->pb, vector_ptr->bobp,
+		      vector_ptr->uod, vector_ptr->uobp, pvals, punit,
+		      corr_ptr->target_name(), &corr_ptr->unit, vals);
   }
 
   //                  t,      pb,     bobp,   uod,   uobp

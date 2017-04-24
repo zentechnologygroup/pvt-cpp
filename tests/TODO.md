@@ -76,6 +76,6 @@
 ## 24. opcion en cplot que especifique un vector específico de temp y pression
 - Created at   2017-04-23 13:26:53 -0400
 
-## 25. cali no procesa varias temps para el fluid1
-- Created at   2017-04-23 14:13:03 -0400
+## 25. opcion --relax debe considerar variable que ya estén relajadas
+- Created at   2017-04-23 17:39:21 -0400
 
