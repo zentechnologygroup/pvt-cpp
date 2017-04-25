@@ -234,8 +234,8 @@ ZfactorHallYarborough::impl(const double & tpr,
   pr = prf;
            
   z = a * ppr / pr;
-  
-  if ((std::isnan(z) or z <= min_z) and j <= 2){
+
+  if ((std::isnan(z) or z <= min_z) and j < 2){
     j++;
     goto calculate;
   }
@@ -247,6 +247,10 @@ inline double
 ZfactorDranchukPR::impl(const double & tpr,
 			const double & ppr) noexcept
 {
+  typedef double (*FunctionPointer)(const double &, const double &);
+  FunctionPointer InitialValueFunctions[] = {guess_initial_value_linear, guess_initial_value_nonlinear, guess_initial_value_eos};
+  int j = 0;
+
   constexpr double a1 = 0.31506237;
   constexpr double a2 = -1.0467099;
   constexpr double a3 = -0.57832729;
@@ -259,15 +263,23 @@ ZfactorDranchukPR::impl(const double & tpr,
   const double tpr2 = tpr*tpr;
   const double tpr3 = tpr2*tpr;
 
-      // pr: Densidad reducida definida por el autor del metodo
   constexpr double epsilon = 1.0e-8;
   //double z = 0.5;
   //double zprev = 0.6;
-  double z = 0;
+
+/*  double z = 0;
   double zf = 0;
-  double zprev = guess_initial_value_linear(tpr, ppr);
-            
-      // iteracion por metodo Newton-Raphson
+  double zprev = guess_initial_value_linear(tpr, ppr);*/
+
+  // pr: Reduced density
+  double zprev, z, zf;
+
+  calculate:
+  zprev = InitialValueFunctions[j](tpr, ppr); 
+  z = 0;
+  zf = 0;
+
+  // Newton-Raphson method iteration
   for (size_t i = 0; i < 60 and (fabs(zprev - z) > epsilon); ++i)
     {
       z = zprev;
@@ -292,8 +304,10 @@ ZfactorDranchukPR::impl(const double & tpr,
       zprev = zf;
     }
 
-  if (zf < min_z)
-    return min_z;
+  if ((std::isnan(zf) or zf <= min_z) and j < 2){
+    j++;
+    goto calculate;
+  }
 
   return zf;
 }
