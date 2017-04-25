@@ -19,7 +19,7 @@ PvtData data;
   {									\
     if (&arg.unit_ptr->physical_quantity != &pq_name::get_instance())	\
       ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +			\
-	       " is not an unit for " + pq_name::get_instance().name); \
+	       " is not an unit for " + pq_name::get_instance().name);	\
   }
 
 // Defines a input of form

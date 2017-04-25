@@ -364,10 +364,8 @@ struct PvtData
 
 	const string & name_in_data = ptr->first;
 	if (name_in_data == "t" or name_in_data == "p" or
-	    name_in_data == "pb" or name_in_data == "uod")
-	  continue;
-
-	if (relax_tbl.contains(name_in_data) or
+	    name_in_data == "pb" or name_in_data == "uod" or
+	    relax_tbl.contains(name_in_data) or
 	    par.get_synonyms().exists([&relax_tbl] (auto & p)
 				      { return relax_tbl.has(p.first); }))
 	  continue;
@@ -404,7 +402,8 @@ struct PvtData
 
   // Return a list of parameters avoiding application
   DynList<pair<string, bool>>
-  list_restrictions(const Correlation * corr_ptr) const
+  list_restrictions(const Correlation * corr_ptr,
+		    const DynSetTree<string> & relax_tbl) const
   {
     DynList<pair<string, bool>> ret;
     auto ref_vectors = search_vectors(corr_ptr->target_name());
@@ -424,7 +423,10 @@ struct PvtData
 
 	const string & name_in_data = ptr->first;
 	if (name_in_data == "t" or name_in_data == "p" or
-	    name_in_data == "pb" or name_in_data == "uod")
+	    name_in_data == "pb" or name_in_data == "uod" or
+	    relax_tbl.contains(name_in_data) or
+	    par.get_synonyms().exists([&relax_tbl] (auto & p)
+				      { return relax_tbl.has(p.first); }))
 	  continue;
 
 	const ConstDesc * const_ptr = search_const(name_in_data);
@@ -608,6 +610,11 @@ struct PvtData
 			   const Correlation * corr_ptr,
 			   double c, double m) const
   {
+    bool is_rs = corr_ptr->target_name() == "rs";
+    const ConstDesc * rsb_ptr = search_const("rsb");
+    if (rsb_ptr == nullptr)
+      ZENTHROW(InvalidConst, "Data set does not contain rsb value");
+    VtlQuantity rsb = { *rsb_ptr->unit_ptr, rsb_ptr->value };
     DynList<double> pvals;
     DynList<double> vals;
     ParList pars;
@@ -624,16 +631,18 @@ struct PvtData
 	pars.insert("p", p, punit);
 	try
 	  {
-	    VtlQuantity r = corr_ptr->compute_by_names(pars, false);
+	    VtlQuantity r = corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	    if (is_rs)
+	      r = min(r, rsb);
 	    pvals.append(p);
-	    vals.append(c + m*r.raw());
+	    vals.append(r.raw());
 	    pars.tbl.for_each([] (auto p)
               {
 		cout << " " << p.first << " = " << p.second.first;
 	      });
 	    cout << " = " << c + m*r.raw() << endl;
 	  }
-	catch (...) {}
+	catch (...) {} 
 	pars.remove("p");
       }
     return VectorDesc(vector_ptr->t, vector_ptr->pb, vector_ptr->bobp,

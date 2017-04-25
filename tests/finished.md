@@ -1588,3 +1588,15 @@
 - Comment      
 - Finished     
 
+## 266. encontrar una forma de acotar rs a rsb desde a calibracón
+- Created at   2017-04-24 19:28:02 -0400
+- Completed at 2017-04-25 10:58:38 -0400
+- Comment      
+- Finished     
+
+## 267. considerar añadir a las correlaciones de rs el parámetro rsb
+- Created at   2017-04-25 10:40:25 -0400
+- Completed at 2017-04-25 10:58:46 -0400
+- Comment      
+- Finished     
+

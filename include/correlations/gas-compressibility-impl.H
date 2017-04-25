@@ -186,18 +186,16 @@ using GuessFct = double (*)(const double &, const double &);
 
 static GuessFct guess_fct[] =
   {
-    guess_initial_value_linear,
-    guess_initial_value_nonlinear,
-    guess_initial_value_eos,
-    nullptr
+    &guess_initial_value_linear,
+    &guess_initial_value_nonlinear,
+    &guess_initial_value_eos,
+    nullptr // sentinel value for indicating array end
   };
 
 inline double
 ZfactorHallYarborough::impl(const double & tpr,
 			    const double & ppr) noexcept
 {
-  GuessFct * guess = &guess_fct[0];
-
   const double tpr_1 = 1/tpr;
   const double tpr_1_2 = tpr_1*tpr_1;
   const double tpr_1_3 = tpr_1_2*tpr_1;
@@ -210,16 +208,18 @@ ZfactorHallYarborough::impl(const double & tpr,
  
   constexpr double epsilon = 1.0e-8;
 
-  // pr: Reduced density
-  double zprev, pr, prf, z, prprev;
+  GuessFct * guess_ptr = &guess_fct[0];
 
  calculate:
+
+  assert(*guess_ptr == guess_initial_value_linear or
+	 *guess_ptr == guess_initial_value_nonlinear or
+	 *guess_ptr == guess_initial_value_eos);
   
-  zprev = (*guess)(tpr, ppr);
-  pr = 0; 
-  prf = 0;
-  z = 0;
-  prprev = a * ppr / zprev;
+  double pr = 0, prf = 0, z = 0;   // pr: Reduced density
+
+  double zprev = (**guess_ptr)(tpr, ppr);
+  double prprev = a * ppr / zprev;
 
   // Newton-Raphson method iteration
   for (size_t i = 0; i < 60 and (fabs(prprev - pr) > epsilon); ++i)
@@ -244,10 +244,10 @@ ZfactorHallYarborough::impl(const double & tpr,
   z = a * ppr / pr;
   
   if ((std::isnan(z) or z < min_z))
-    if (++guess)
+    if (*(++guess_ptr) != nullptr) // *guess_ptr because is a pointer to pointer
       goto calculate;
     else
-      z = min_z;
+      z = min_z; // all the guessing methods have been explored unsuccessfully
   
   return z;
 }
