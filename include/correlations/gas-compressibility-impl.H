@@ -60,7 +60,7 @@ static double guess_initial_value_linear(const double & tpr, const double & ppr)
 
   const double z = 1/C + M*ppr2*(1 - B/C2)/C;
 
-  return z > min_z ? z : 0.25;
+  return z > min_z ? z : min_z;
 }
 
 static double guess_initial_value_nonlinear(const double & tpr, const double & ppr)
@@ -113,7 +113,7 @@ static double guess_initial_value_nonlinear(const double & tpr, const double & p
   const double yG = pow(y, G);
   const double z = (D * ppr * (1 + y + y2 - y3)) / ((D * ppr + E * y2 - F * yG) * pow(1 - y, 3));
 
-  return z > min_z ? z : 0.25;
+  return z > min_z ? z : min_z;
 }
 
 static double guess_initial_value_eos(const double & tpr, const double & ppr)
@@ -126,7 +126,7 @@ static double guess_initial_value_eos(const double & tpr, const double & ppr)
   const double a = 0.06125*tpr_1*exp(-1.2*tpr_1_1*tpr_1_1);
   double z = a * ppr / prprev;
 
-  return z > min_z ? z : 0.25;
+  return z > min_z ? z : min_z;
 }
 
 inline double
@@ -182,14 +182,21 @@ ZfactorSarem::impl(const double & tpr,
   return z;
 }
 
+using GuessFct = double (*)(const double &, const double &);
+
+static GuessFct guess_fct[] =
+  {
+    guess_initial_value_linear,
+    guess_initial_value_nonlinear,
+    guess_initial_value_eos,
+    nullptr
+  };
 
 inline double
 ZfactorHallYarborough::impl(const double & tpr,
 			    const double & ppr) noexcept
 {
-  typedef double (*FunctionPointer)(const double &, const double &);
-  FunctionPointer InitialValueFunctions[] = {guess_initial_value_linear, guess_initial_value_nonlinear, guess_initial_value_eos};
-  int j = 0;
+  GuessFct * guess = &guess_fct[0];
 
   const double tpr_1 = 1/tpr;
   const double tpr_1_2 = tpr_1*tpr_1;
@@ -206,8 +213,9 @@ ZfactorHallYarborough::impl(const double & tpr,
   // pr: Reduced density
   double zprev, pr, prf, z, prprev;
 
-  calculate:
-  zprev = InitialValueFunctions[j](tpr, ppr);
+ calculate:
+  
+  zprev = (*guess)(tpr, ppr);
   pr = 0; 
   prf = 0;
   z = 0;
@@ -234,11 +242,12 @@ ZfactorHallYarborough::impl(const double & tpr,
   pr = prf;
            
   z = a * ppr / pr;
-
-  if ((std::isnan(z) or z <= min_z) and j < 2){
-    j++;
-    goto calculate;
-  }
+  
+  if ((std::isnan(z) or z < min_z))
+    if (++guess)
+      goto calculate;
+    else
+      z = min_z;
   
   return z;
 }
@@ -247,10 +256,6 @@ inline double
 ZfactorDranchukPR::impl(const double & tpr,
 			const double & ppr) noexcept
 {
-  typedef double (*FunctionPointer)(const double &, const double &);
-  FunctionPointer InitialValueFunctions[] = {guess_initial_value_linear, guess_initial_value_nonlinear, guess_initial_value_eos};
-  int j = 0;
-
   constexpr double a1 = 0.31506237;
   constexpr double a2 = -1.0467099;
   constexpr double a3 = -0.57832729;
@@ -267,15 +272,10 @@ ZfactorDranchukPR::impl(const double & tpr,
   //double z = 0.5;
   //double zprev = 0.6;
 
-/*  double z = 0;
-  double zf = 0;
-  double zprev = guess_initial_value_linear(tpr, ppr);*/
-
   // pr: Reduced density
   double zprev, z, zf;
 
-  calculate:
-  zprev = InitialValueFunctions[j](tpr, ppr); 
+  zprev = guess_initial_value_linear(tpr, ppr);
   z = 0;
   zf = 0;
 
@@ -303,11 +303,6 @@ ZfactorDranchukPR::impl(const double & tpr,
       zf = z - f/dfdz;
       zprev = zf;
     }
-
-  if ((std::isnan(zf) or zf <= min_z) and j < 2){
-    j++;
-    goto calculate;
-  }
 
   return zf;
 }

@@ -1312,11 +1312,11 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
   auto rs = dcompute(rs_corr, check, p_q, rs_pars, p_par);		\
   rs = min(rs, rsb);							\
   auto rs_par = NPAR(rs);						\
-  auto co = dcompute(co_corr, check, p_q, co_pars, p_par);		\
-  auto co_par = NPAR(co);						\
-  auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, co_par);\
+  auto coa = dcompute(co_corr, check, p_q, co_pars, p_par);		\
+  auto coa_par = NPAR(coa);						\
+  auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, coa_par);\
   auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par);	\
-  auto po = dcompute(po_corr, check, p_q, po_pars, p_par, rs_par, co_par,\
+  auto po = dcompute(po_corr, check, p_q, po_pars, p_par, rs_par, coa_par,\
 		     npar("bob", bo));					\
   VtlQuantity z;							\
   if (p_q <= pb_q)							\
@@ -1339,7 +1339,7 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
   auto sgo = compute(sgo_corr, check, sgo_pars, p_par);			\
   auto sgw = compute(sgw_corr, check, sgw_pars, p_par);			\
 									\
-  size_t n = insert_in_row(row, p_q, rs, co, bo, uo, po, z, cg, bg,	\
+  size_t n = insert_in_row(row, p_q, rs, coa, bo, uo, po, z, cg, bg,	\
 			   ug, pg, bw, uw, pw, rsw, cw, sgo, sgw);	\
 									\
   assert(row.size() == 21);

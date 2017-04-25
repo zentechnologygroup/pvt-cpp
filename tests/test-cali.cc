@@ -313,6 +313,67 @@ namespace TCLAP
   template<> struct ArgTraits<ActionType> { typedef StringLike ValueCategory; };
 }
 
+struct GenerateInput
+{
+  string target_name = "No-defined";
+  const Correlation * corr_ptr = nullptr;
+  string src_name = "No-defined";
+  double c = 0, m = 1;
+
+  friend ostream & operator << (ostream & out, const GenerateInput & i)
+  {
+    return out << "Target name = " << i.target_name << endl
+	       << "Correlation = " << i.corr_ptr->name << endl
+	       << "Source name = " << i.src_name;
+  }
+
+  GenerateInput() {}
+
+  GenerateInput & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> target_name))
+      ZENTHROW(CommandLineError, "Cannot read target name property");
+
+    string corr_name;
+    if (not (iss >> corr_name))
+      ZENTHROW(CommandLineError, "Cannot read correlation name");
+    corr_ptr = Correlation::search_by_name(corr_name);
+    if (corr_ptr == nullptr)
+      ZENTHROW(CommandLineError, "correlation " + corr_name + " not found");
+
+    if (target_name != corr_ptr->target_name())
+      ZENTHROW(CommandLineError, "Correlation target " + corr_ptr->name +
+	       " does not match " + target_name);
+
+    string data;
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read c value");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "c value " + data + " for " + corr_name +
+	       " is not a double");
+    c = atof(data);
+
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read m value");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "m value for " + data + " for " + corr_name +
+	       " is not a double");
+    m = atof(data);
+
+    if (not (iss >> src_name))
+      ZENTHROW(CommandLineError, "cannot read source name property");
+
+    return *this;
+  }
+};
+
+namespace TCLAP
+{
+  template<> struct ArgTraits<GenerateInput>
+  { typedef StringLike ValueCategory; };
+}
+
 const DynSetTree<string> ActionType::valid_actions = 
   { "print", "list", "match", "apply", "napply", "global_apply", "lcal",
     "pbcal", "global_calibration" };
@@ -362,12 +423,27 @@ ValueArg<double> nacl = { "", "nacl", "nacl", false, 0, "nacl in Molality_NaCl",
 			  cmd };
 ValueArg<double> uod = { "", "uod", "uod", false, 0, "uod in cP", cmd };
 
+vector<string> relax_names =
+  {
+    "api", "yo", "rsb", "yg", "tsep", "psep", "h2s", "co2", "n2", "nacl", "pb",
+    "uod", "rs", "bobp", "uobp", "coa"
+  };
+ValuesConstraint<string> allowed_relax_names = relax_names;
+MultiArg<string> relax_pars =
+  { "", "relax", "relax parameter range application check", false,
+    &allowed_relax_names, cmd };
 
 MultiArg<ValuesArg> target =
   { "", "property", "property array", false, 
     "property array in format \"property property-unit t tunit pb punit p-list "
     "property-list\"", cmd };
 
+DynSetTree<string> input_types =
+  { "rs", "bob", "boa", "uob", "uob", "cob", "coa" };
+
+MultiArg<GenerateInput> input = { "", "input", "input from correlation", false,
+				  "input tgt corr c m src", cmd };
+				  
 vector<string> output_types = { "R", "csv", "mat" };
 ValuesConstraint<string> allowed_output_types = output_types;
 ValueArg<string> output = { "", "output", "output type", false,
@@ -400,6 +476,13 @@ const Unit * test_unit(const string & par_name, const Unit & dft_unit)
   return ret;
 }
 
+DynSetTree<string> relax_names_tbl;
+void set_relax_names()
+{
+  for (auto & p : relax_pars.getValue())
+    relax_names_tbl.append(p);
+}
+
 void build_pvt_data()
 {
   data.add_const("api", api.getValue(), *test_unit("api", Api::get_instance()));
@@ -428,6 +511,38 @@ void build_pvt_data()
   for (auto & a : target.getValue())
     data.add_vector(a.t, a.pb, a.uod, a.bobp, a.uobp, a.p, *a.punit_ptr,
 		    a.target_name, a.values, *a.unit_ptr);
+}
+
+void input_data(const GenerateInput & in)
+{
+  DynList<const VectorDesc*> src_vectors = data.search_vectors(in.src_name);
+  if (src_vectors.is_empty())
+    ZENTHROW(CommandLineError, "target name " + in.target_name +
+	     " not found in data set");
+
+  DynList<const VectorDesc*> tgt_vectors = data.search_vectors(in.target_name);
+  DynSetTree<double> temps = tgt_vectors.maps<double>([] (auto ptr)
+    {
+      return ptr->t;
+    });
+
+  const Correlation * corr_ptr = in.corr_ptr;
+  for (auto it = src_vectors.get_it(); it.has_curr(); it.next())
+    {
+      auto src_ptr = it.get_curr();
+      if (temps.has(src_ptr->t))
+	continue;
+      VectorDesc d = data.build_samples(src_ptr, corr_ptr, in.c, in.m);
+      temps.insert(d.t);
+      data.add_vector(move(d));
+    }
+	 
+}
+
+void input_data()
+{
+  for (auto & d : input.getValue())
+    input_data(d);
 }
 
 void dummy()
@@ -506,7 +621,7 @@ DynMapTree<string, bool (*)(const T&, const T&)> cmp =
 void process_apply()
 {
   auto property_name = action.getValue().property_name;
-  auto corr_list = data.can_be_applied(property_name);
+  auto corr_list = data.can_be_applied(property_name, relax_names_tbl);
 
   DynList<T> stats;
   if (property_name == "pb")
@@ -551,14 +666,17 @@ void process_napply()
       DynList<string> row = build_dynlist<string>(p.first->name);
       row.append(p.second.template maps<string>([] (pair<string, bool> p)
         {
-      	  DynList<string> r;
-      	  r.append(p.first);
-      	  r.append(p.second ? "range" : "missing");
-      	  return r;
+	  return build_dynlist<string>(p.first + " (" +
+				       (p.second ? "range)" : "missing)"));
       	}));
       return row;
     });
-  cout << to_string(format_string(rows)) << endl;
+
+  const auto & out_type = output.getValue();
+  if (out_type == "csv")
+    cout << to_string(format_string_csv(complete_rows(rows))) << endl;
+  else
+    cout << to_string(format_string(complete_rows(rows))) << endl;
 }
 
 void put_sample(const Correlation * corr_ptr,
@@ -733,10 +851,6 @@ void proccess_local_calibration()
   for (auto it = corr_list.get_it(); it.has_curr(); it.next())
     {
       auto corr_ptr = it.get_curr();
-      if (not data.can_be_applied(corr_ptr))
-	ZENTHROW(CommandLineError,
-		 corr_ptr->name + " does not apply to data set");
-      
       if (mode != "single")
 	{
 	  auto stats = data.istats(corr_ptr);
@@ -940,6 +1054,8 @@ int main(int argc, char *argv[])
   UnitsInstancer::init();
   cmd.parse(argc, argv);
   build_pvt_data();
+  set_relax_names();
+  input_data();
   dispatcher.run(action.getValue().type);
 
   // TODO: falta sort

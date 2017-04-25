@@ -63,7 +63,7 @@ struct VectorDesc
 
   double gety(double pval) const
   {
-    const size_t & n = p.size();
+    const long n = p.size();
     long i = binary_search(p, pval);
     if (i < 0 or i >= n)
       ZENTHROW(ValueNotFound, ::to_string(pval) + " not found in data set");
@@ -77,7 +77,7 @@ struct VectorDesc
 
     if (i < 0)
       return extrapolate_left(p(0), p(1), y(0), y(1), pval);
-    else if (i >= (long) n)
+    else if (i >= n - 1)
       return extrapolate_right(p(n - 2), p(n - 1), y(n - 2), y(n - 1), pval);
     else
       return interpolate(p(i), p(i + 1), y(i), y(i + 1), pval);
@@ -225,34 +225,36 @@ struct PvtData
     return make_pair(desc_ptr->punit, desc_ptr->yunit);
   }
 
-  void
-  add_vector(double t, double pb, double uod, double bobp, double uobp,
-	     const Array<double> & p, const Unit & punit,
-	     const string yname, const Array<double> & y, const Unit & yunit)
+  void add_vector(VectorDesc && v)
   {
-    if (&punit.physical_quantity != &Pressure::get_instance())
-      ZENTHROW(InvalidPressureUnit, punit.name + " is not for pressure");
+    if (&v.punit->physical_quantity != &Pressure::get_instance())
+      ZENTHROW(InvalidPressureUnit, v.punit->name + " is not for pressure");
 
-    if (not is_sorted(p))
+    if (not is_sorted(v.p))
       ZENTHROW(SamplesUnsorted, "pressure values are not sorted");
 
-    auto sibling = search_vectors(yname);
-    if (not sibling.is_empty() and not sibling.all([&yunit] (auto & p)
-        { return p->yunit->is_sibling(yunit); }))
-      ZENTHROW(InvalidTargetUnit, yunit.name + " is not sibling");
+    auto sibling = search_vectors(v.yname);
+    if (not sibling.is_empty() and not sibling.all([&v] (auto & p)
+        { return p->yunit->is_sibling(*v.yunit); }))
+      ZENTHROW(InvalidTargetUnit, v.yunit->name + " is not sibling");
 
-    temperatures.insert(t);
+    temperatures.insert(v.t);
     names.append("p");
     names.append("pb");
     names.append("t");
     names.append("uod");
     names.append("uobp");
     names.append("bobp");
-    names.append(yname);
-     // VectorDesc(double t, double pb, double bobp, double uod, double uobp,
-     // 	     const Array<double> & p, const Unit * punit,
-     // 	     const string & yname, const Unit * yunit, const Array<double> & y)
-    vectors.emplace(t, pb, bobp, uod, uobp, p, &punit, yname, &yunit, y);
+    names.append(v.yname);
+    vectors.insert(move(v));
+  }
+
+  void
+  add_vector(double t, double pb, double uod, double bobp, double uobp,
+	     const Array<double> & p, const Unit & punit,
+	     const string yname, const Array<double> & y, const Unit & yunit)
+  {
+    add_vector(VectorDesc(t, pb, bobp, uod, uobp, p, &punit, yname, &yunit, y));
   }
 
   const ConstDesc * search_const(const string & name) const noexcept
@@ -352,7 +354,7 @@ struct PvtData
     for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
 	 it.next())
       {
-	auto & par = it.get_curr();
+	const CorrelationPar & par = it.get_curr();
 	auto * ptr = par.names().find_ptr([this] (auto & p)
 					  {
 					    return names.has(p.first);
@@ -365,18 +367,17 @@ struct PvtData
 	    name_in_data == "pb" or name_in_data == "uod")
 	  continue;
 
-	if (relax_tbl.contains(name_in_data))
+	if (relax_tbl.contains(name_in_data) or
+	    par.get_synonyms().exists([&relax_tbl] (auto & p)
+				      { return relax_tbl.has(p.first); }))
 	  continue;
 
 	const ConstDesc * const_ptr = search_const(name_in_data);
 	if (const_ptr) // is name_in_data as constant?
 	  {
-	    if ( (not par.check(VtlQuantity(*const_ptr->unit_ptr,
-					    const_ptr->value))))
-	      {
-		cout << corr_ptr->name << " fails for " << name_in_data << endl;
+	    if ((not par.check(VtlQuantity(*const_ptr->unit_ptr,
+					   const_ptr->value))))
 	      return false;
-	      }
 	    continue;
 	  }
 
@@ -390,10 +391,7 @@ struct PvtData
 				  return par.check(VtlQuantity(*yunit, v));
 				});
 	     }))
-	  {
-	    cout << corr_ptr->name << " fails for " << name_in_data << endl;
 	  return false;
-	  }
       }
 
     return true;
@@ -408,14 +406,12 @@ struct PvtData
   DynList<pair<string, bool>>
   list_restrictions(const Correlation * corr_ptr) const
   {
-    cout << "Testing " << corr_ptr->name << endl;
     DynList<pair<string, bool>> ret;
     auto ref_vectors = search_vectors(corr_ptr->target_name());
     for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
 	 it.next())
       {
 	auto & par = it.get_curr();
-	cout << "    Par " << par.name << endl;
 	auto * ptr = par.names().find_ptr([this] (auto & p)
 					  {
 					    return names.has(p.first);
@@ -452,7 +448,6 @@ struct PvtData
 	      }))
 	  ret.append(make_pair(name_in_data, true));
       }
-    cout << "    done" << endl;
 
     return ret;
   }
@@ -609,6 +604,43 @@ struct PvtData
     return ret;
   }
 
+  VectorDesc build_samples(const VectorDesc * vector_ptr,
+			   const Correlation * corr_ptr,
+			   double c, double m) const
+  {
+    DynList<double> pvals;
+    DynList<double> vals;
+    ParList pars;
+    const Unit * punit = vector_ptr->punit;
+    pars.insert("t", vector_ptr->t, &Fahrenheit::get_instance());
+    pars.insert("pb", vector_ptr->pb, punit);
+    pars.insert("uod", vector_ptr->uod, &CP::get_instance());
+    pars.insert("bobp", vector_ptr->bobp, &RB_STB::get_instance());
+    pars.insert("uobp", vector_ptr->uobp, &CP::get_instance());
+    load_consts(corr_ptr, pars);
+    for (auto it = vector_ptr->p.get_it(); it.has_curr(); it.next())
+      {
+	auto & p = it.get_curr();
+	pars.insert("p", p, punit);
+	try
+	  {
+	    VtlQuantity r = corr_ptr->compute_by_names(pars, false);
+	    pvals.append(p);
+	    vals.append(c + m*r.raw());
+	    pars.tbl.for_each([] (auto p)
+              {
+		cout << " " << p.first << " = " << p.second.first;
+	      });
+	    cout << " = " << c + m*r.raw() << endl;
+	  }
+	catch (...) {}
+	pars.remove("p");
+      }
+    return VectorDesc(vector_ptr->t, vector_ptr->pb, vector_ptr->bobp,
+		      vector_ptr->uod, vector_ptr->uobp, pvals, punit,
+		      corr_ptr->target_name(), &corr_ptr->unit, vals);
+  }
+
   //                  t,      pb,     bobp,   uod,   uobp
   using TYPE = tuple<double, double, double, double, double,
 		     //  p,            y,                 yc		     
@@ -666,13 +698,13 @@ struct PvtData
 	    const double & y = get<2>(t);
 	    pars.insert("p", p, punit);
 	    pars.insert(par_name, parval, par_unit);
-
-	    pars.tbl.for_each([par_unit] (auto p)
-              {
-	    	cout << p.first << " = " << p.second.first
-	    	     << " " << p.second.second->name << " ";
-	      });
-	    cout << endl;
+	    
+	    // pars.tbl.for_each([par_unit] (auto p)
+            //   {
+	    // 	cout << p.first << " = " << p.second.first
+	    // 	     << " " << p.second.second->name << " ";
+	    //   });
+	    // cout << endl;
 
 	    try
 	      {
@@ -682,11 +714,11 @@ struct PvtData
 		plist.append(p);
 		ylist.append(y);
 		yclist.append(result.raw());
-		cout << target_name << " = " << result << endl;
+		//cout << target_name << " = " << result << endl;
 	      }
 	    catch (exception & e)
 	      {
-		cout << e.what() << endl;
+		// cout << e.what() << endl;
 	      }
 	    pars.remove("p");
 	    pars.remove(par_name);
@@ -747,13 +779,6 @@ struct PvtData
 		    return get<0>(t1) < get<0>(t2);
 		  }); 
 
-    cout << "istats(" << corr_ptr->name << ")" << endl;
-    l.for_each([] (auto & t)
-    {
-      cout << "p = " << get<0>(t) << " y = " << get<1>(t) << " yc = "
-    	   << get<2>(t) << endl;
-    });
-
     //           yc,          p,       y
     DynMapTree<double, pair<double, double>> ptbl;
     for (auto it = l.get_it(); it.has_curr(); it.next())
@@ -778,11 +803,6 @@ struct PvtData
     	y.append(second.second);
     	yc.append(pp.first);
       }
-
-    cout << "**" << endl;
-    cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-    cout << "y ="; y.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-    cout << "yc ="; yc.for_each([] (auto v) { cout << " " << v; }); cout << endl;
 
     auto stats = CorrStat(yc).stats(y);
 
