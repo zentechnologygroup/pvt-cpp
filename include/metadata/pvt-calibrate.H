@@ -455,7 +455,8 @@ struct PvtData
   }
 
   DynList<pair<const Correlation*, DynList<pair<string, bool>>>>
-  list_restrictions(const string & target_name) const
+  list_restrictions(const string & target_name,
+		    const DynSetTree<string> & relax_tbl) const
   {
     auto corr_list = Correlation::array().filter([&target_name] (auto ptr)
       {
@@ -466,7 +467,7 @@ struct PvtData
     for (auto it = corr_list.get_it(); it.has_curr(); it.next())
       {
 	auto corr_ptr = it.get_curr();
-	auto restrictions = list_restrictions(corr_ptr);
+	auto restrictions = list_restrictions(corr_ptr, relax_tbl);
 	if (not restrictions.is_empty())
 	  ret.append(make_pair(corr_ptr, move(restrictions)));
       }

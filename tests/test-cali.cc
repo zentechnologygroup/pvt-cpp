@@ -658,7 +658,7 @@ void process_apply()
 void process_napply()
 {
   auto property_name = action.getValue().property_name;
-  auto missing_list = data.list_restrictions(property_name);
+  auto missing_list = data.list_restrictions(property_name, relax_names_tbl);
 
   DynList<DynList<string>> rows =
     missing_list.maps<DynList<string>>([] (auto p)

@@ -1600,3 +1600,9 @@
 - Comment      
 - Finished     
 
+## 268. opcion --relax debe considerar variable que ya estén relajadas
+- Created at   2017-04-23 17:39:21 -0400
+- Completed at 2017-04-25 17:16:57 -0400
+- Comment      
+- Finished     
+

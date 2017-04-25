@@ -265,3 +265,4 @@ opcion que diga dónde una correklación falló,2017-04-19 14:33:41 -0400,2017-0
 cali no procesa varias temps para el fluid1,2017-04-23 14:13:03 -0400,2017-04-24 10:54:59 -0400,,2017-04-24 10:55:02 -0400
 encontrar una forma de acotar rs a rsb desde a calibracón,2017-04-24 19:28:02 -0400,2017-04-25 10:58:38 -0400,,2017-04-25 10:58:44 -0400
 considerar añadir a las correlaciones de rs el parámetro rsb,2017-04-25 10:40:25 -0400,2017-04-25 10:58:46 -0400,,2017-04-25 10:58:48 -0400
+opcion --relax debe considerar variable que ya estén relajadas,2017-04-23 17:39:21 -0400,2017-04-25 17:16:57 -0400,,2017-04-25 17:17:08 -0400

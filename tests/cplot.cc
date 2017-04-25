@@ -591,6 +591,13 @@ MultiArg<RowDesc> row = { "", "tp_pair", "add a pair of t, p values",
 
 SwitchArg permute = { "", "permute", "permute tp pairs", cmd };
 
+struct RowSet
+{
+  DynList<double> values;
+
+  
+};
+
 vector<string> sort_types = { "no_sort", "t", "p" };
 ValuesConstraint<string> allowed_sort_types = sort_types;
 ValueArg<string> sort_type = { "", "sort", "sorting type", false,
