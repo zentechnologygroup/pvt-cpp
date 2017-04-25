@@ -58,10 +58,10 @@ struct ArgUnit
   {
     istringstream iss(str);
     if (not (iss >> name >> unit_name))
-      throw TCLAP::ArgParseException(str + " is not a pair par-name unit");
+      ZENTHROW(CommandLineError, str + " is not a pair par-name unit");
 
     if (not par_name_tbl.contains(name))
-      throw TCLAP::ArgParseException(name + " is an invalid parameter name");
+      ZENTHROW(CommandLineError, name + " is an invalid parameter name");
 
     return *this;
   }
@@ -129,7 +129,7 @@ struct PropertyUnit
   {
     istringstream iss(str);
     if (not (iss >> name >> unit_name))
-      throw TCLAP::ArgParseException(str + " is not a pair par-name unit");
+      ZENTHROW(CommandLineError, str + " is not a pair par-name unit");
 
     return *this;
   }
@@ -498,16 +498,16 @@ struct RangeDesc
   {
     istringstream iss(str);
     if (not (iss >> min >> max >> n))
-      throw TCLAP::ArgParseException(str + " is not of form \"min max n\"");
+      ZENTHROW(CommandLineError, str + " is not of form \"min max n\"");
 
     if (n == 0)
-      throw TCLAP::ArgParseException(::to_string(n) + " n cannot be zero");
+      ZENTHROW(CommandLineError, ::to_string(n) + " n cannot be zero");
 
     if (min > max)
       {
 	ostringstream s;
 	s << "min value " << min <<  " greater than max value " << max;
-	throw TCLAP::ArgParseException(s.str());
+	ZENTHROW(CommandLineError, s.str());
       }
 
     return *this;
@@ -567,10 +567,10 @@ struct RowDesc
   {
     istringstream iss(str);
     if (not (iss >> t >> p))
-      throw TCLAP::ArgParseException(str + " is not of form \"t p\"");
+      ZENTHROW(CommandLineError, str + " is not of form \"t p\"");
 
     if (t <= 0 or p <= 0)
-      throw TCLAP::ArgParseException("t and p must be greater than zero");
+      ZENTHROW(CommandLineError, "t and p must be greater than zero");
 
     return *this;
   }
@@ -595,8 +595,36 @@ struct RowSet
 {
   DynList<double> values;
 
-  
+  RowSet & operator = (const string & str)
+  {
+    string data;
+    istringstream iss(str);
+
+    while (iss >> data)
+      {
+	if (not is_double(data))
+	  ZENTHROW(CommandLineError, data + " is not a double");
+
+	values.append(atof(data));
+      }
+
+    if (values.is_empty())
+      ZENTHROW(CommandLineError, "cannot read array");
+ 
+    return *this;
+  }
 };
+
+namespace TCLAP
+{
+  template<> struct ArgTraits<RowSet> { typedef StringLike ValueCategory; };
+}
+
+ValueArg<RowSet> t_array = { "", "t_array", "temp array", false, RowSet(), 
+			     "temp array", cmd };
+
+ValueArg<RowSet> p_array = { "", "p_array", "pressure array", false, RowSet(), 
+			     "pressure array", cmd };
 
 vector<string> sort_types = { "no_sort", "t", "p" };
 ValuesConstraint<string> allowed_sort_types = sort_types;
@@ -653,11 +681,20 @@ void set_ranges()
   t_unit = test_par_unit_change("t", Fahrenheit::get_instance());
   p_unit = test_par_unit_change("p", psia::get_instance());
 
+  // TODO: cuadrar semánticamente con t_array y p_array
   if (t_range.isSet() and p_range.isSet())
     {
       if (row.isSet())
 	error_msg(t_range.getName() + " and " + p_range.getName() +
 		  " options cannot be used with " + row.getName() + " option");
+      if (t_range.isSet() and t_array.isSet())
+	error_msg(t_array.getName() + " and " + t_range.getName() +
+		  " options cannot be used together");
+      if (p_range.isSet() and p_array.isSet())
+	error_msg(p_array.getName() + " and " + p_range.getName() +
+		  " options cannot be used together");
+
+
       set_t_range();
       set_p_range();
       return;
