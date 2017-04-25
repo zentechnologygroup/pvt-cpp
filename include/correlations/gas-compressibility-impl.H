@@ -60,7 +60,7 @@ static double guess_initial_value_linear(const double & tpr, const double & ppr)
 
   const double z = 1/C + M*ppr2*(1 - B/C2)/C;
 
-  return z > min_z ? z : 0.25;
+  return z > min_z ? z : min_z;
 }
 
 static double guess_initial_value_nonlinear(const double & tpr, const double & ppr)
@@ -113,7 +113,7 @@ static double guess_initial_value_nonlinear(const double & tpr, const double & p
   const double yG = pow(y, G);
   const double z = (D * ppr * (1 + y + y2 - y3)) / ((D * ppr + E * y2 - F * yG) * pow(1 - y, 3));
 
-  return z > min_z ? z : 0.25;
+  return z > min_z ? z : min_z;
 }
 
 static double guess_initial_value_eos(const double & tpr, const double & ppr)
@@ -126,7 +126,7 @@ static double guess_initial_value_eos(const double & tpr, const double & ppr)
   const double a = 0.06125*tpr_1*exp(-1.2*tpr_1_1*tpr_1_1);
   double z = a * ppr / prprev;
 
-  return z > min_z ? z : 0.25;
+  return z > min_z ? z : min_z;
 }
 
 inline double
@@ -268,15 +268,18 @@ ZfactorDranchukPR::impl(const double & tpr,
   const double tpr2 = tpr*tpr;
   const double tpr3 = tpr2*tpr;
 
-      // pr: Densidad reducida definida por el autor del metodo
   constexpr double epsilon = 1.0e-8;
   //double z = 0.5;
   //double zprev = 0.6;
-  double z = 0;
-  double zf = 0;
-  double zprev = guess_initial_value_linear(tpr, ppr);
-            
-      // iteracion por metodo Newton-Raphson
+
+  // pr: Reduced density
+  double zprev, z, zf;
+
+  zprev = guess_initial_value_linear(tpr, ppr);
+  z = 0;
+  zf = 0;
+
+  // Newton-Raphson method iteration
   for (size_t i = 0; i < 60 and (fabs(zprev - z) > epsilon); ++i)
     {
       z = zprev;
@@ -300,9 +303,6 @@ ZfactorDranchukPR::impl(const double & tpr,
       zf = z - f/dfdz;
       zprev = zf;
     }
-
-  if (zf < min_z)
-    return min_z;
 
   return zf;
 }
