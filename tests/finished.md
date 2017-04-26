@@ -1624,3 +1624,27 @@
 - Comment      
 - Finished     
 
+## 272. Zen exception en par-liats
+- Created at   2017-04-04 08:49:24 -0400
+- Completed at 2017-04-26 16:21:27 -0400
+- Comment      
+- Finished     
+
+## 273. RsCegarra pow(10
+- Created at    l4*api< - l3*t) en linea 386
+- Completed at 2017-04-26 16:23:22 -0400
+- Comment      
+- Finished     
+
+## 274. verificar que Invalid_Value y VtlQuantity() se estén procesando en cplot
+- Created at   2017-03-14 20:51:35 -0400
+- Completed at 2017-04-26 16:25:25 -0400
+- Comment      
+- Finished     
+
+## 275. corregir entrada csv via stdin plot-r
+- Created at   2017-04-19 11:33:53 -0400
+- Completed at 2017-04-26 16:51:28 -0400
+- Comment      
+- Finished     
+

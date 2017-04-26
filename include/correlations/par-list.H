@@ -6,6 +6,7 @@
 # include <tpl_odhash.H>
 
 # include <pvt-units.H>
+# include <pvt-exceptions.H>
 
 using namespace std;
 
@@ -61,8 +62,8 @@ public:
   void insert(const NamedPar & par)
   {
     if (not get<0>(par))
-      throw domain_error("Correlation parameter " + get<1>(par) +
-			 " has not been set");
+      ZENTHROW(ParameterNameNotSet, "Correlation parameter " + get<1>(par) +
+	       " has not been set");
     
     insert(get<1>(par), get<2>(par), get<3>(par));
   }
@@ -72,7 +73,7 @@ public:
     ParPair pp; pp.first = name;
     auto p = tbl.search(pp);
     if (p == nullptr)
-      throw domain_error("Parameter name " + name + " not found");
+      ZENTHROW(ParameterNameNotFound, "Parameter name " + name + " not found");
 
     const ValPair & vpair = p->second;
     return VtlQuantity(*vpair.second, vpair.first);
@@ -108,7 +109,7 @@ public:
 	  s << ", ";
       }
     s << "} have not been found in parameter list";
-    throw domain_error(s.str());
+    ZENTHROW(ParameterNameNotFound, s.str());
   }
 
   VtlQuantity operator () (const string & name) const

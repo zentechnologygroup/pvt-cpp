@@ -178,7 +178,7 @@ void process_property_unit_changes()
 // Given the csv stack with names and units, this routine builds a
 // parallel stack of changed unit columns through --property-unit flags
 pair<FixedStack<const Unit*>, FixedStack<Unit_Convert_Fct_Ptr>>
-			      build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
+build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
 {
   const size_t n = h.size();
   FixedStack<const Unit*> ret(n); // this will be field first of return value
@@ -419,24 +419,24 @@ void set_correlation(ValueArg<string> & corr_name_arg,
 // target correlation name target_name. By default, if the argument is
 // not input, then the value is 0.0
 # define Declare_c_par(target_name)			\
- ValueArg<double> c_##target_name##_arg =		 \
-  { "", "c-" #target_name, #target_name " c", false, 0, \
-   #target_name " c", cmd };
+  ValueArg<double> c_##target_name##_arg =			\
+    { "", "c-" #target_name, #target_name " c", false, 0,	\
+      #target_name " c", cmd };
 
 // Declare a command line argument for a tuning parameter m for the
 // target correlation name target_name. By default, if the argument is
 // not input, then the value is 1.0
 # define Declare_m_par(target_name)			\
- ValueArg<double> m_##target_name##_arg =			\
-  { "", "m-" #target_name, #target_name " m", false, 1,	\
-   #target_name " m", cmd };
+  ValueArg<double> m_##target_name##_arg =		\
+    { "", "m-" #target_name, #target_name " m", false, 1,	\
+      #target_name " m", cmd };
 
 // Defines a calibrated correlation along with its calibration
 // parameters. The command line argument is mandatory
 # define Command_Arg_Tuned_Correlation(target_name)	\
- Command_Arg_Mandatory_Correlation(target_name);	\
- Declare_c_par(target_name);				\
- Declare_m_par(target_name);
+  Command_Arg_Mandatory_Correlation(target_name);	\
+  Declare_c_par(target_name);				\
+  Declare_m_par(target_name);
 
 Command_Arg_Tuned_Correlation(pb);
 Command_Arg_Tuned_Correlation(rs);
@@ -651,6 +651,8 @@ ValueArg<string> sort_type = { "", "sort", "sorting type", false,
 Command_Line_Range(t, "temperature");
 Command_Line_Range(p, "pressure");
 
+SwitchArg transpose_par = { "", "transpose", "transpose grid", cmd };
+
 using TPPair = pair<Correlation::NamedPar, Correlation::NamedPar>;
 
 // This list is only used with --tp_pair option and --permute is not set
@@ -759,9 +761,9 @@ void set_ranges()
 			  make_tuple(true, "p", p.p, p_unit)));
       cout << "pairs" << endl;
       tp_values.for_each([] (auto & p)
-			 {
-			   cout << get<2>(p.first) << ", " << get<2>(p.second) << endl;
-			 });
+        {
+	  cout << get<2>(p.first) << ", " << get<2>(p.second) << endl;
+	});
 
       sort_dispatcher.run(sort_type.getValue());
 
@@ -814,7 +816,7 @@ test_parameter(const DynList<pair<string, DynList<string>>> & required,
 	       const Correlation::NamedPar & par, ParList & pars_list)
 {
   if (required.exists([&par] (const auto & p) { return p.first == get<1>(par) or
-	  p.second.exists([&par] (const auto & s) { return s == get<1>(par); }); }))
+      p.second.exists([&par] (const auto & s) { return s == get<1>(par); }); }))
     pars_list.insert(par);
 }
 
@@ -1138,6 +1140,61 @@ size_t insert_in_row(FixedStack<const VtlQuantity*> & row,
   return n;
 }
 
+bool transposed = false;
+DynList<DynList<string>> rows; // only used if transposed is set
+
+inline void buffer_row(const FixedStack<const VtlQuantity*> & row,
+		       const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
+		       bool is_pb)
+{
+  DynList<string> l = build_dynlist<string>(is_pb ? "\"true\"" : "\"false\"");
+
+  const size_t n = row.size();
+  const VtlQuantity ** ptr = &row.base();
+
+  if (exception_thrown)
+    {
+      l.append("\"true\"");
+      exception_thrown = false;
+    }
+  else
+    l.append("\"false\"");
+
+  const Unit_Convert_Fct_Ptr * tgt_unit_ptr = &row_convert.base();
+  for (long i = n - 1; i >= 0; --i)
+    {
+      Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
+      const VtlQuantity & q = *ptr[i];
+      if (not q.is_null())
+	l.append(to_string(convert_fct ? convert_fct(q.raw()) : q.raw()));
+      else
+	l.append("");
+    }
+
+  rows.append(move(l));
+}
+
+inline void print_row(const DynList<string> & l)
+{
+  const auto & last = l.get_last();
+  for (auto it = l.get_it(); it.has_curr(); it.next())
+    {
+      auto & curr = it.get_curr();
+      if (&curr != &last)
+	printf("%s,", curr.c_str());
+      else
+	printf(curr.c_str());
+    }
+  printf("\n");
+}
+
+void print_transpose()
+{
+  assert(transposed);
+
+  transpose(rows).for_each([] (auto & l) { print_row(l); });
+}
+
 inline void print_row(const FixedStack<const VtlQuantity*> & row,
 		      const FixedStack<Unit_Convert_Fct_Ptr> & row_convert)
 {
@@ -1173,6 +1230,12 @@ inline void print_row(const FixedStack<const VtlQuantity*> & row,
 		      const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
 		      bool is_pb)
 {
+  if (transposed)
+    {
+      buffer_row(row, row_convert, is_pb);
+      return;
+    }
+  
   if (is_pb)
     printf("\"true\",");
   else
@@ -1195,16 +1258,29 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
   pair<string, const Unit*> * col_ptr = &header.base();
 
   const Unit ** final_units = &ret.first.base();
- 
-  for (long i = n - 1; i >= 0; --i)
-    {
-      const pair<string, const Unit*> & val = col_ptr[i];
-      printf("%s %s", val.first.c_str(), final_units[i]->name.c_str());
-      if (i > 0)
-	printf(",");
-    }
 
-  printf("\n");
+  if (transposed)
+    {
+      DynList<string> row;
+      for (long i = n - 1; i >= 0; --i)
+	{
+	  const pair<string, const Unit*> & val = col_ptr[i];
+	  row.append(val.first + " " + final_units[i]->name);
+	}
+      rows.append(move(row));
+    }
+  else
+    {
+      for (long i = n - 1; i >= 0; --i)
+	{
+	  const pair<string, const Unit*> & val = col_ptr[i];
+	  printf("%s %s", val.first.c_str(), final_units[i]->name.c_str());
+	  if (i > 0)
+	    printf(",");
+	}
+      
+      printf("\n");
+    }
 
   return ret.second;
 }
@@ -1933,15 +2009,19 @@ void generate_grid(const string & fluid_type)
   report_exceptions = catch_exceptions.getValue();
 
   set_ranges();
- 
+
+  transposed = transpose_par.getValue();
   grid_dispatcher.run(fluid_type);
 
-  if (report_exceptions)
-    {
-      cout << endl
-	   << "Exceptions:" << endl;
-      exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
-    }
+  if (transposed)
+    print_transpose();
+  else
+    if (report_exceptions)
+      {
+	cout << endl
+	     << "Exceptions:" << endl;
+	exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
+      }
 
   exit(0);
 }

@@ -269,3 +269,7 @@ opcion --relax debe considerar variable que ya estén relajadas,2017-04-23 17:39
 opcion en cplot que especifique un vector específico de temp y pression,2017-04-23 13:26:53 -0400,2017-04-26 10:00:03 -0400,,2017-04-26 10:00:06 -0400
 en calibración verificar que no hayan nan,2017-04-20 17:04:19 -0400,2017-04-26 11:25:29 -0400,,2017-04-26 11:25:32 -0400
 para conjunto subsaturados la presión de burbuja debe ser ligeramente incrementada,2017-04-20 10:33:52 -0400,2017-04-26 11:26:06 -0400,,2017-04-26 11:26:10 -0400
+Zen exception en par-liats,2017-04-04 08:49:24 -0400,2017-04-26 16:21:27 -0400,,2017-04-26 16:21:30 -0400
+RsCegarra pow(10, l4*api< - l3*t) en linea 386,2017-04-26 16:23:22 -0400,,2017-04-26 16:23:26 -0400
+verificar que Invalid_Value y VtlQuantity() se estén procesando en cplot,2017-03-14 20:51:35 -0400,2017-04-26 16:25:25 -0400,,2017-04-26 16:25:30 -0400
+corregir entrada csv via stdin plot-r,2017-04-19 11:33:53 -0400,2017-04-26 16:51:28 -0400,,2017-04-26 16:51:31 -0400
