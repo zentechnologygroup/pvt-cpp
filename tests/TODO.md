@@ -64,3 +64,6 @@
 ## 20. opción cplot que solo imprima excepciones
 - Created at   2017-04-26 17:35:47 -0400
 
+## 21. acelerar la traspuesta
+- Created at   2017-04-26 17:53:11 -0400
+
