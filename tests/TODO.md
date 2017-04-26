@@ -4,6 +4,7 @@
 
 ## 2. script que lea hoja de Virginia y genere los csv para distintos grids
 - Created at   2017-02-16 18:15:52 -0400
+- Completed at 2017-04-26 11:25:56 -0400
 
 ## 3. verificar que Invalid_Value y VtlQuantity() se estén procesando en cplot
 - Created at   2017-03-14 20:51:35 -0400
@@ -61,18 +62,9 @@
 ## 19. hacer funciones de acceso a TYPE
 - Created at   2017-04-19 15:49:34 -0400
 
-## 20. para conjunto subsaturados la presión de burbuja debe ser ligeramente incrementada
-- Created at   2017-04-20 10:33:52 -0400
-
-## 21. --cob en cplot debe ser por omisión CobMcCainEtAl
+## 20. --cob en cplot debe ser por omisión CobMcCainEtAl
 - Created at   2017-04-20 16:31:47 -0400
 
-## 22. añadir opción a test-corr que reciba un arreglo de t y p como en cplot y genere la matriz
+## 21. añadir opción a test-corr que reciba un arreglo de t y p como en cplot y genere la matriz
 - Created at   2017-04-20 16:50:00 -0400
-
-## 23. en calibración verificar que no hayan nan
-- Created at   2017-04-20 17:04:19 -0400
-
-## 24. opcion en cplot que especifique un vector específico de temp y pression
-- Created at   2017-04-23 13:26:53 -0400
 

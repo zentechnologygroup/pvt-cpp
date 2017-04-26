@@ -1606,3 +1606,21 @@
 - Comment      
 - Finished     
 
+## 269. opcion en cplot que especifique un vector específico de temp y pression
+- Created at   2017-04-23 13:26:53 -0400
+- Completed at 2017-04-26 10:00:03 -0400
+- Comment      
+- Finished     
+
+## 270. en calibración verificar que no hayan nan
+- Created at   2017-04-20 17:04:19 -0400
+- Completed at 2017-04-26 11:25:29 -0400
+- Comment      
+- Finished     
+
+## 271. para conjunto subsaturados la presión de burbuja debe ser ligeramente incrementada
+- Created at   2017-04-20 10:33:52 -0400
+- Completed at 2017-04-26 11:26:06 -0400
+- Comment      
+- Finished     
+

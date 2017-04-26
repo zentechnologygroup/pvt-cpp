@@ -266,3 +266,6 @@ cali no procesa varias temps para el fluid1,2017-04-23 14:13:03 -0400,2017-04-24
 encontrar una forma de acotar rs a rsb desde a calibracón,2017-04-24 19:28:02 -0400,2017-04-25 10:58:38 -0400,,2017-04-25 10:58:44 -0400
 considerar añadir a las correlaciones de rs el parámetro rsb,2017-04-25 10:40:25 -0400,2017-04-25 10:58:46 -0400,,2017-04-25 10:58:48 -0400
 opcion --relax debe considerar variable que ya estén relajadas,2017-04-23 17:39:21 -0400,2017-04-25 17:16:57 -0400,,2017-04-25 17:17:08 -0400
+opcion en cplot que especifique un vector específico de temp y pression,2017-04-23 13:26:53 -0400,2017-04-26 10:00:03 -0400,,2017-04-26 10:00:06 -0400
+en calibración verificar que no hayan nan,2017-04-20 17:04:19 -0400,2017-04-26 11:25:29 -0400,,2017-04-26 11:25:32 -0400
+para conjunto subsaturados la presión de burbuja debe ser ligeramente incrementada,2017-04-20 10:33:52 -0400,2017-04-26 11:26:06 -0400,,2017-04-26 11:26:10 -0400
