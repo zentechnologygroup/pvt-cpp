@@ -188,6 +188,8 @@ struct CorrelationInstantiater
     UobGilFonseca::get_instance();
     UobDeGhettoEtAl::get_instance();
     UobDindorukChristman::get_instance();
+    UobLopezCR::get_instance();
+//    UobLopezCRHigherT::get_instance();
 
     UoaKartoatmodjoSchmidt::get_instance();
     UoaDeGhettoEtAl::get_instance();

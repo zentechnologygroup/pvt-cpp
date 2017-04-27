@@ -158,5 +158,38 @@ UobDindorukChristman::impl(const double & uod,
   return uob;
 }
 
+inline double
+UobLopezCR::impl(const double & rs,
+		 const double & api,
+		 const double & t,
+		 const double & p) noexcept
+{
+  constexpr double a1 = 15.2127;
+  constexpr double a2 = -0.0339308;
+  constexpr double a3 = -0.000113009;
+  constexpr double a4 = -0.00194864;
+  constexpr double a5 = -0.374708;
+   
+  const double uob = exp(a1 +  a2 * t + a3 * p + a4 * rs + a5 * api);
+
+  return uob;
+}
+
+inline double
+UobLopezCRHigherT::impl(const double & rs,
+		 	 const double & api,
+		 	 const double & t,
+		 	 const double & p) noexcept
+{
+  constexpr double a1 = 4.20953;
+  constexpr double a2 = 0.0123087;
+  constexpr double a3 = 0.00011787;
+  constexpr double a4 = -0.00930884;
+  constexpr double a5 = -0.190943;
+   
+  const double uob = exp(a1 +  a2 * t + a3 * p + a4 * rs + a5 * api);
+
+  return uob;
+}
 
 # endif // SATURATED_OIL_VISCOSITY_IMPL_H
