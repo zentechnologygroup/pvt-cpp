@@ -1141,11 +1141,40 @@ size_t insert_in_row(FixedStack<const VtlQuantity*> & row,
 }
 
 bool transposed = false;
-DynList<DynList<string>> rows; // only used if transposed is set
+Array<Array<string>> rows; // only used if transposed is set
 
 inline void buffer_row(const FixedStack<const VtlQuantity*> & row,
-		       const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
-		       bool is_pb)
+		       const FixedStack<Unit_Convert_Fct_Ptr> & row_convert)
+{
+  const size_t n = row.size();
+  const VtlQuantity ** ptr = &row.base();
+
+  DynList<string> l;
+  if (exception_thrown)
+    {
+      l.append("\"true\"");
+      exception_thrown = false;
+    }
+  else
+    l.append("\"false\"");
+
+  const Unit_Convert_Fct_Ptr * tgt_unit_ptr = &row_convert.base();
+  for (long i = n - 1; i >= 0; --i)
+    {
+      Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
+      const VtlQuantity & q = *ptr[i];
+      if (not q.is_null())
+	l.append(to_string(convert_fct ? convert_fct(q.raw()) : q.raw()));
+      else
+	l.append("");
+    }
+
+  rows.append(move(l));
+}
+
+inline void buffer_row_pb(const FixedStack<const VtlQuantity*> & row,
+			  const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
+			  bool is_pb)
 {
   DynList<string> l = build_dynlist<string>(is_pb ? "\"true\"" : "\"false\"");
 
@@ -1192,11 +1221,22 @@ void print_transpose()
 {
   assert(transposed);
 
-  transpose(rows).for_each([] (auto & l) { print_row(l); });
+  const size_t nrow = rows.size();
+  const size_t ncol = rows(0).size();
+  for (size_t j = 0; j < ncol; ++j)
+    {
+      for (size_t i = 0; i < nrow; ++i)
+	{
+	  printf(rows(i)(j).c_str());
+	  if (i != nrow - 1)
+	    printf(",");
+	}
+      printf("\n");
+    }
 }
 
-inline void print_row(const FixedStack<const VtlQuantity*> & row,
-		      const FixedStack<Unit_Convert_Fct_Ptr> & row_convert)
+inline void process_row(const FixedStack<const VtlQuantity*> & row,
+			const FixedStack<Unit_Convert_Fct_Ptr> & row_convert)
 {
   const size_t n = row.size();
   const VtlQuantity ** ptr = &row.base();
@@ -1226,23 +1266,29 @@ inline void print_row(const FixedStack<const VtlQuantity*> & row,
   printf("\n");
 }
 
-inline void print_row(const FixedStack<const VtlQuantity*> & row,
-		      const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
-		      bool is_pb)
+inline void process_row_pb(const FixedStack<const VtlQuantity*> & row,
+			   const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
+			   bool is_pb)
 {
-  if (transposed)
-    {
-      buffer_row(row, row_convert, is_pb);
-      return;
-    }
-  
-  if (is_pb)
-    printf("\"true\",");
-  else
-    printf("\"false\",");
-
-  print_row(row, row_convert);
+  printf(is_pb ? "\"true\"," : "\"false\",");
+  process_row(row, row_convert);
 }
+
+using RowFctPb = void (*)(const FixedStack<const VtlQuantity*>&,
+			  const FixedStack<Unit_Convert_Fct_Ptr>&, bool);
+
+inline void no_row_pb(const FixedStack<const VtlQuantity*>&,
+		      const FixedStack<Unit_Convert_Fct_Ptr>&, bool) {}
+
+RowFctPb row_fct_pb = nullptr;
+
+using RowFct = void (*)(const FixedStack<const VtlQuantity*>&,
+			const FixedStack<Unit_Convert_Fct_Ptr>&);
+
+inline void no_row(const FixedStack<const VtlQuantity*>&,
+		   const FixedStack<Unit_Convert_Fct_Ptr>&) {}
+
+RowFct row_fct = nullptr;
 
 // Print out the csv header according to passed args and return a
 // stack of definitive units for each column
@@ -1250,9 +1296,17 @@ template <typename ... Args>
 FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 {
   FixedStack<pair<string, const Unit*>> header;
+
   insert_in_container(header, args...);
 
   auto ret = build_stack_of_property_units(header);
+
+  if (report_exceptions)
+    {
+      row_fct_pb = &no_row_pb;
+      row_fct = &no_row;
+      return ret.second;
+    }
 
   const size_t n = header.size();
   pair<string, const Unit*> * col_ptr = &header.base();
@@ -1268,6 +1322,8 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 	  row.append(val.first + " " + final_units[i]->name);
 	}
       rows.append(move(row));
+      row_fct_pb = &buffer_row_pb;
+      row_fct = &buffer_row;
     }
   else
     {
@@ -1280,6 +1336,8 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 	}
       
       printf("\n");
+      row_fct_pb = &process_row_pb;
+      row_fct = &process_row;
     }
 
   return ret.second;
@@ -1560,7 +1618,7 @@ void generate_grid_blackoil()
 	    }		
 
 	  Blackoil_Pressure_Calculations();
-	  print_row(row, row_units, pb_row);
+	  row_fct_pb(row, row_units, pb_row);
 	  row.popn(n);
 	}
       Blackoil_Pop_Temperature_Parameters();
@@ -1582,7 +1640,7 @@ void generate_rows_blackoil()
       VtlQuantity p_q = par(p_par);
       {
 	Blackoil_Pressure_Calculations();
-	print_row(row, row_units, false);
+	row_fct_pb(row, row_units, false);
 	row.popn(n);
       }
       Blackoil_Pop_Temperature_Parameters();
@@ -1746,7 +1804,7 @@ Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
 									\
   assert(row.size() == 13);						\
 									\
-  print_row(row, row_units);						\
+  row_fct(row, row_units);						\
   row.popn(n)
 
 # define Wetgas_Pop_Temperature_Parameters()		\
@@ -1917,7 +1975,7 @@ void generate_rows_wetgas()
 									\
   assert(row.size() == 13);						\
 									\
-  print_row(row, row_units);						\
+  row_fct(row, row_units);						\
   row.popn(n)
 
 # define Drygas_Pop_Temperature_Parameters()		\
@@ -2015,13 +2073,12 @@ void generate_grid(const string & fluid_type)
 
   if (transposed)
     print_transpose();
-  else
-    if (report_exceptions)
-      {
-	cout << endl
-	     << "Exceptions:" << endl;
-	exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
-      }
+  else if (report_exceptions)
+    {
+      cout << endl
+	   << "Exceptions:" << endl;
+      exception_list.for_each([] (const auto & s) { printf(s.c_str()); });
+    }
 
   exit(0);
 }
@@ -2031,6 +2088,10 @@ using OptionPtr = DynList<DynList<double>> (*)();
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
+
+  if (transpose_par.isSet() and catch_exceptions.isSet())
+    error_msg("--transpose and --exceptions cannot be set together"
+	      " (due to performance reasons)");
 
   if (print_types.getValue())
     print_fluid_types();

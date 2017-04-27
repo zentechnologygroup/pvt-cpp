@@ -1648,3 +1648,45 @@
 - Comment      
 - Finished     
 
+## 276. acelerar la traspuesta
+- Created at   2017-04-26 17:53:11 -0400
+- Completed at 2017-04-27 10:06:29 -0400
+- Comment      
+- Finished     
+
+## 277. hacer funciones de acceso a TYPE
+- Created at   2017-04-19 15:49:34 -0400
+- Completed at 2017-04-27 10:19:25 -0400
+- Comment      
+- Finished     
+
+## 278. opción cplot que solo imprima excepciones
+- Created at   2017-04-26 17:35:47 -0400
+- Completed at 2017-04-27 10:19:16 -0400
+- Comment      
+- Finished     
+
+## 279. pasar excepciones de tclap a zen
+- Created at   2017-03-28 15:26:32 -0400
+- Completed at 2017-04-27 10:21:40 -0400
+- Comment      Para eso hacer una excepcion TCLAP
+- Finished     Para eso hacer una excepcion TCLAP
+
+## 280. --cob en cplot debe ser por omisión CobMcCainEtAl
+- Created at   2017-04-20 16:31:47 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 281. opción para generar el grid traspuesto
+- Created at   2017-04-11 16:53:37 -0400
+- Completed at 2017-04-27 10:24:39 -0400
+- Comment      
+- Finished     
+
+## 282. diseñar esquema para que z_min sea comartible entre correlaiones y unidades
+- Created at   2017-04-11 16:53:16 -0400
+- Completed at 2017-04-27 10:39:20 -0400
+- Comment      
+- Finished     
+
