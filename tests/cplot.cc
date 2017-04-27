@@ -1341,7 +1341,6 @@ void print_transpose()
     }
 
   const size_t val_ncol = rows(0).second.size();
-  const size_t ncol = str_ncol + val_ncol;
   for (size_t j = 0; j < val_ncol; ++j)
     {
       printf(col_names(j).c_str());
