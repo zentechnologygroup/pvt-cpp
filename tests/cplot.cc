@@ -1140,6 +1140,12 @@ size_t insert_in_row(FixedStack<const VtlQuantity*> & row,
   return n;
 }
 
+struct Row
+{
+  Array<Array<string>> str_rows;
+  Array<Array<double>> d_rows;
+};
+
 bool transposed = false;
 Array<Array<string>> rows; // only used if transposed is set
 
