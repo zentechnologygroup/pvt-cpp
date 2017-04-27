@@ -438,6 +438,18 @@ RsManucciRosales::impl(const double & yg,
   return rs;
 }
 
+inline double
+RsLopezCR::impl(const double & yg,
+		const double & p,
+		const double & api,
+		const double & t) noexcept
+{
+  double rs = -35.6135 + 0.0830159 * p - 0.052482 * t + 51.479 * yg + 1.98597 * api;
+
+  rs = max(0.0, rs);
+  return rs;
+}
+
 void RsAbovePb::precondition(const Quantity<psia> & p,
 			     const Quantity<psia> & pb) const
 {

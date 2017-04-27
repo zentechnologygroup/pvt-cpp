@@ -298,6 +298,23 @@ add_internal_note("The correlation could not be verified because the original re
 set_hidden()
 end_correlation()
 
+################################################################
+
+begin_correlation("RsLopezCR", "SolutionGasOilRelation", "SCF_STB", 12, 110)
+add_title("LÓPEZ, CASTILLO & ROJAS CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
+add_db("Based on 48 PVT tests from saturated oil reservoirs located in Bare and Arecuna fields, from the Ayacucho Area of the Faja Petrolífera del Orinoco.")
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.5086, 0.75)
+add_parameter("p", "psia", "Pressure", 100, 1315)
+add_parameter("api", "Api", "API oil gravity", 7.4, 14.5)
+add_parameter("t", "Fahrenheit", "Temperature", 124, 220)
+add_author("López, Castillo & Rojas")
+add_ref("lopez:2014")
+add_internal_note("The correlation was verified by using the original reference. Date: April 27 2017.")
+set_hidden()
+end_correlation()
+
+################################################################
+
 begin_correlation("RsAbovePb", "SolutionGasOilRelation", "SCF_STB")
 add_title("Faked constant for internal computations above bubble point")
 add_parameter("pb", "psia", "Bubble point pressure")
@@ -306,4 +323,7 @@ add_parameter("rsb", "SCF_STB", "Solution GOR at Pb")
 add_precondition("p", "pb")
 set_hidden()
 end_correlation()
+
+################################################################
+
 

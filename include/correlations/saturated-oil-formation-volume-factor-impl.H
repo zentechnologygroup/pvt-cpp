@@ -328,5 +328,13 @@ BobManucciRosales::impl(const double & api,
   return 0.2378 * pow(rs, 0.221) * pow(10, x);
 }
 
+inline double
+BobLopezCR::impl(const double & yg,
+		 const double & api,
+		 const double & rs,
+		 const double & t) noexcept
+{
+  return 0.93176 + 0.000422061 * t + 0.000372363 * rs + 0.0545485 * yg + 0.00159098 * api;
+}
 
 # endif // SATURATED_OIL_FORMATION_VOLUME_FACTOR_IMPL_H
