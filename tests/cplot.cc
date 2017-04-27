@@ -630,6 +630,7 @@ ValueArg<string> sort_type = { "", "sort", "sorting type", false,
       #prefix " values", cmd };						\
 									\
   DynList<Correlation::NamedPar> prefix##_values;			\
+  size_t prefix##_values_sz = 0;					\
 									\
   const Unit * prefix##_unit = nullptr;					\
 									\
