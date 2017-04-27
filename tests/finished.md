@@ -1606,3 +1606,87 @@
 - Comment      
 - Finished     
 
+## 269. opcion en cplot que especifique un vector específico de temp y pression
+- Created at   2017-04-23 13:26:53 -0400
+- Completed at 2017-04-26 10:00:03 -0400
+- Comment      
+- Finished     
+
+## 270. en calibración verificar que no hayan nan
+- Created at   2017-04-20 17:04:19 -0400
+- Completed at 2017-04-26 11:25:29 -0400
+- Comment      
+- Finished     
+
+## 271. para conjunto subsaturados la presión de burbuja debe ser ligeramente incrementada
+- Created at   2017-04-20 10:33:52 -0400
+- Completed at 2017-04-26 11:26:06 -0400
+- Comment      
+- Finished     
+
+## 272. Zen exception en par-liats
+- Created at   2017-04-04 08:49:24 -0400
+- Completed at 2017-04-26 16:21:27 -0400
+- Comment      
+- Finished     
+
+## 273. RsCegarra pow(10
+- Created at    l4*api< - l3*t) en linea 386
+- Completed at 2017-04-26 16:23:22 -0400
+- Comment      
+- Finished     
+
+## 274. verificar que Invalid_Value y VtlQuantity() se estén procesando en cplot
+- Created at   2017-03-14 20:51:35 -0400
+- Completed at 2017-04-26 16:25:25 -0400
+- Comment      
+- Finished     
+
+## 275. corregir entrada csv via stdin plot-r
+- Created at   2017-04-19 11:33:53 -0400
+- Completed at 2017-04-26 16:51:28 -0400
+- Comment      
+- Finished     
+
+## 276. acelerar la traspuesta
+- Created at   2017-04-26 17:53:11 -0400
+- Completed at 2017-04-27 10:06:29 -0400
+- Comment      
+- Finished     
+
+## 277. hacer funciones de acceso a TYPE
+- Created at   2017-04-19 15:49:34 -0400
+- Completed at 2017-04-27 10:19:25 -0400
+- Comment      
+- Finished     
+
+## 278. opción cplot que solo imprima excepciones
+- Created at   2017-04-26 17:35:47 -0400
+- Completed at 2017-04-27 10:19:16 -0400
+- Comment      
+- Finished     
+
+## 279. pasar excepciones de tclap a zen
+- Created at   2017-03-28 15:26:32 -0400
+- Completed at 2017-04-27 10:21:40 -0400
+- Comment      Para eso hacer una excepcion TCLAP
+- Finished     Para eso hacer una excepcion TCLAP
+
+## 280. --cob en cplot debe ser por omisión CobMcCainEtAl
+- Created at   2017-04-20 16:31:47 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 281. opción para generar el grid traspuesto
+- Created at   2017-04-11 16:53:37 -0400
+- Completed at 2017-04-27 10:24:39 -0400
+- Comment      
+- Finished     
+
+## 282. diseñar esquema para que z_min sea comartible entre correlaiones y unidades
+- Created at   2017-04-11 16:53:16 -0400
+- Completed at 2017-04-27 10:39:20 -0400
+- Comment      
+- Finished     
+

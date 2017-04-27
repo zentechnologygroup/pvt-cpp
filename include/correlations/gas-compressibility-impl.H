@@ -7,7 +7,7 @@
 
 # include <math.h>
 
-static const double min_z = 0.1;
+static const double min_z = MIN_Z_VALUE;
 
 static double guess_initial_value_linear(const double & tpr, const double & ppr)
 {
@@ -470,8 +470,5 @@ ZfactorPapay::impl(const double & tpr,
 
   return z;
 }
-
-
-
 
 # endif // GAS_COMPRESSIBILITY_IMPL_H
