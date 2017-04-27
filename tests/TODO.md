@@ -44,3 +44,6 @@
 ## 14. calibración global
 - Created at   2017-04-26 16:38:18 -0400
 
+## 15. verrificar que move sea invocado en row para traspuestas
+- Created at   2017-04-27 15:40:55 -0400
+
