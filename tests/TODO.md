@@ -29,21 +29,18 @@
 ## 9. test-pvt-data opcion para cambiarunidades de salida
 - Created at   2017-04-03 16:50:06 -0400
 
-## 10. revisar si es necesario guardia de retorno negativo para correlaciones de rx
-- Created at   2017-04-11 21:51:40 -0400
-
-## 11. piner un filtro por propiedad a opcion print
+## 10. piner un filtro por propiedad a opcion print
 - Created at   2017-04-19 14:25:40 -0400
 
-## 12. añadir opción a test-corr que reciba un arreglo de t y p como en cplot y genere la matriz
+## 11. añadir opción a test-corr que reciba un arreglo de t y p como en cplot y genere la matriz
 - Created at   2017-04-20 16:50:00 -0400
 
-## 13. hacer el inputing de pb
+## 12. hacer el inputing de pb
 - Created at   2017-04-26 15:52:26 -0400
 
-## 14. calibración global
+## 13. calibración global
 - Created at   2017-04-26 16:38:18 -0400
 
-## 15. opciones en cali para generar y leer json
+## 14. opciones en cali para generar y leer json
 - Created at   2017-04-28 12:55:38 -0400
 

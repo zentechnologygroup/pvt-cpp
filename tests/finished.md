@@ -1696,3 +1696,9 @@
 - Comment      
 - Finished     
 
+## 284. revisar si es necesario guardia de retorno negativo para correlaciones de rx
+- Created at   2017-04-11 21:51:40 -0400
+- Completed at 2017-04-28 15:04:12 -0400
+- Comment      
+- Finished     
+
