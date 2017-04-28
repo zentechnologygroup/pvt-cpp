@@ -1345,11 +1345,10 @@ void print_transpose()
     {
       printf("%s,", col_names(j).c_str());
       for (size_t i = 0; i < nrow; ++i)
-	{
+	if (i != nrow - 1)
+	  printf("%f,", rows(i).second(j));
+	else
 	  printf("%f", rows(i).second(j));
-	  if (i != nrow - 1)
-	    printf(",");
-	}
       printf("\n");
     }
 }
