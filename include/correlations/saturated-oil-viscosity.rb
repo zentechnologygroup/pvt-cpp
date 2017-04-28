@@ -1,7 +1,5 @@
 # coding: utf-8
 
-# coding: utf-8
-
 ## verificada con python
 begin_correlation("UobBeggsRobinson", "SaturatedOilViscosity", "CP")
 add_title("BEGGS & ROBINSON CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
@@ -128,4 +126,34 @@ add_parameter("rs",  "SCF_STB", "Solution GOR", 133, 3050)
 add_author("Dindoruk & Christman")
 add_ref("dindoruk:2004")
 add_internal_note("The range assigned for Rs was taken from the range expressed by the author for Rsb.")
+end_correlation()
+
+################################################################
+
+begin_correlation("UobLopezCR", "SaturatedOilViscosity", "CP", 100, 1800)
+add_title("LÓPEZ, CASTILLO & ROJAS CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY FOR LOWER TEMPERATURES")
+add_db("Based on 48 PVT tests from saturated oil reservoirs located in Bare and Arecuna fields, from the Ayacucho Area of the Faja Petrolífera del Orinoco.")
+add_parameter("rs", "SCF_STB", "Solution GOR",  12,  110)
+add_parameter("api", "Api", "API oil gravity", 7.4, 14.5)
+add_parameter("t", "Fahrenheit", "Temperature", 130, 142)
+add_parameter("p", "psia", "Pressure", 100, 1315)
+add_author("López, Castillo & Rojas")
+add_ref("lopez:2014")
+add_internal_note("The correlation was verified by using the original reference. Date: April 27 2017.")
+set_hidden()
+end_correlation()
+
+################################################################
+
+begin_correlation("UobLopezCRHigherT", "SaturatedOilViscosity", "CP", 100, 1125)
+add_title("LÓPEZ, CASTILLO & ROJAS CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY FOR HIGHER TEMPERATURES")
+add_db("Based on 48 PVT tests from saturated oil reservoirs located in Bare and Arecuna fields, from the Ayacucho Area of the Faja Petrolífera del Orinoco.")
+add_parameter("rs", "SCF_STB", "Solution GOR",  12,  110)
+add_parameter("api", "Api", "API oil gravity", 7.4, 14.5)
+add_parameter("t", "Fahrenheit", "Temperature", 154, 220)
+add_parameter("p", "psia", "Pressure", 100, 1315)
+add_author("López, Castillo & Rojas (Higher T)")
+add_ref("lopez:2014")
+add_internal_note("The correlation was verified by using the original reference. Date: April 27 2017.")
+set_hidden()
 end_correlation()

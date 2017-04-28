@@ -331,3 +331,36 @@ add_ref("glaso:1980")
 add_eq("P_b=10^{(1.7669+{1.7447\\cdot{\\log{P_{b}^{\\ast}}}}-{0.30218\\cdot{(\\log{P_{b}^{\\ast}})^{2}}})}")
 add_eq("{P_b}^{\\ast}={{\\left(\\frac{R_s}{\\gamma_g}\\right)}^{0.816}}\\cdot{\\frac{T^{0.172}}{{\\gamma_{API}}^{0.989}}}")
 end_correlation()
+
+################################################################
+
+begin_correlation("PbLopezCR", "BubblePointPressure", "psia", 100, 1315)
+add_title("LÓPEZ, CASTILLO & ROJAS CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
+add_db("Based on 48 PVT tests from saturated oil reservoirs located in Bare and Arecuna fields, from the Ayacucho Area of the Faja Petrolífera del Orinoco.")
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.5086, 0.75)
+add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  0,  120)
+add_parameter("api", "Api", "API oil gravity", 7.4, 14.5)
+add_parameter("t", "Fahrenheit", "Temperature", 124, 220)
+add_author("López, Castillo & Rojas")
+add_ref("lopez:2014")
+add_internal_note("The correlation was verified by using the original reference. Date: April 27 2017.")
+add_note("López, Castillo & Rojas presented separate equations for solution gas oil ratio (Rs) and bubble point pressure (Pb). Their Rs equation provides a higher determination coefficient and a lower arithmetic average error; therefore, the correlation for Rs is used to calculate Pb by rearranging the equation.")
+set_hidden()
+end_correlation()
+
+################################################################
+
+begin_correlation("PbLopezCRDetachedFromRs", "BubblePointPressure", "psia", 100, 1315)
+add_title("LÓPEZ, CASTILLO & ROJAS CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
+add_db("Based on 48 PVT tests from saturated oil reservoirs located in Bare and Arecuna fields, from the Ayacucho Area of the Faja Petrolífera del Orinoco.")
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.5086, 0.75)
+add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  12,  110)
+add_parameter("api", "Api", "API oil gravity", 7.4, 14.5)
+add_parameter("t", "Fahrenheit", "Temperature", 124, 220)
+add_author("López, Castillo & Rojas")
+add_ref("lopez:2014")
+add_internal_note("The correlation was verified by using the original reference. Date: April 27 2017.")
+set_hidden()
+end_correlation()
+
+################################################################

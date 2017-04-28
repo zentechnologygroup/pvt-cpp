@@ -1690,3 +1690,9 @@
 - Comment      
 - Finished     
 
+## 283. verrificar que move sea invocado en row para traspuestas
+- Created at   2017-04-27 15:40:55 -0400
+- Completed at 2017-04-27 17:40:23 -0400
+- Comment      
+- Finished     
+

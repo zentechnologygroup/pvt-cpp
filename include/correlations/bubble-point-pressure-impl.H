@@ -434,5 +434,26 @@ PbGlaso::impl(const double & yg,
   return pb;
 }
 
+inline double
+PbLopezCR::impl(const double & yg,
+		const double & rsb,
+		const double & api,
+		const double & t) noexcept
+{
+  const double pb = (rsb + 35.6135 + 0.052482 * t - 51.479 * yg - 1.98597 * api) / 0.0830159;
+
+  return pb;
+}
+
+inline double
+PbLopezCRDetachedFromRs::impl(const double & yg,
+			      const double & rsb,
+			      const double & api,
+			      const double & t) noexcept
+{
+  const double pb = 92.8034 + 6.77638 * (rsb/yg) + 0.688117 * t - 24.0569 * api;
+
+  return pb;
+}
 
 # endif // BUBBLE_POINT_PRESSURE_IMPL_H

@@ -527,16 +527,18 @@ namespace TCLAP
 }
 
 // Given a RangeDesc, put in the correlation parameters list l the
-// range values Each value is a correlation parameter; i.e. a tuple
-// <true, name, value, unit>
-void set_range(const RangeDesc & range, const string & name,
-	       const Unit & unit, DynList<Correlation::NamedPar> & l)
+// range values Each value is a named correlation parameter; i.e. a
+// tuple <true, name, value, unit>
+size_t set_range(const RangeDesc & range, const string & name,
+		 const Unit & unit, DynList<Correlation::NamedPar> & l)
 {
   assert(l.is_empty());
   const auto & step = range.step();
   double val = range.min;
   for (size_t i = 0; i < range.n; ++i, val += step)
     l.append(make_tuple(true, name, val, &unit));
+
+  return range.n;
 }
 
 struct RowDesc
@@ -602,12 +604,14 @@ namespace TCLAP
   template<> struct ArgTraits<ArrayDesc> { typedef StringLike ValueCategory; };
 }
 
-void set_array(const ArrayDesc & rowset, const string & name,
-	       const Unit & unit, DynList<Correlation::NamedPar> & l)
+size_t set_array(const ArrayDesc & rowset, const string & name,
+		 const Unit & unit, DynList<Correlation::NamedPar> & l)
 {
   assert(l.is_empty() and not rowset.values.is_empty());
-  for (auto it = rowset.values.get_it(); it.has_curr(); it.next())
+  const auto & values = rowset.values;
+  for (auto it = values.get_it(); it.has_curr(); it.next())
     l.append(make_tuple(true, name, it.get_curr(), &unit));
+  return values.size();
 }
 
 vector<string> sort_types = { "no_sort", "t", "p" };
@@ -630,20 +634,24 @@ ValueArg<string> sort_type = { "", "sort", "sorting type", false,
       #prefix " values", cmd };						\
 									\
   DynList<Correlation::NamedPar> prefix##_values;			\
+<<<<<<< HEAD
   size_t prefix##_values_sz = 0;					\
+=======
+  size_t prefix##_num_items = 0;					\
+>>>>>>> 4f2d784303d9469072e599d349bc0ba80c5bbf33
 									\
   const Unit * prefix##_unit = nullptr;					\
 									\
-  void set_##prefix##_range()						\
+  size_t set_##prefix##_range()					\
   {									\
-    set_range(prefix##_range.getValue(), #prefix,			\
-	      *prefix##_unit, prefix##_values);				\
+    return set_range(prefix##_range.getValue(), #prefix,		\
+		     *prefix##_unit, prefix##_values);			\
   }									\
 									\
-  void set_##prefix##_array()						\
+  size_t set_##prefix##_array()					\
   {									\
-    set_array(prefix##_array.getValue(), #prefix,			\
-	      *prefix##_unit, prefix##_values);				\
+    return set_array(prefix##_array.getValue(), #prefix,		\
+		     *prefix##_unit, prefix##_values);			\
   }
 
 # define T_UNIT Fahrenheit
@@ -709,7 +717,7 @@ void set_ranges()
       if (t_array.isSet())
 	error_msg(t_range.getName() + " option cannot be used with " +
 		  t_array.getName() + " option");
-      set_t_range();
+      t_num_items = set_t_range();
       t_values_set = true;
     }
 
@@ -718,7 +726,7 @@ void set_ranges()
       if (row.isSet())
 	error_msg(t_array.getName() + " option cannot be used with " +
 		  row.getName() + " option");
-      set_t_array();
+      t_num_items = set_t_array();
       t_values_set = true;
     }
 
@@ -730,7 +738,7 @@ void set_ranges()
       if (p_array.isSet())
 	error_msg(p_range.getName() + " option cannot be used with " +
 		  p_array.getName() + " option");
-      set_p_range();
+      p_num_items = set_p_range();
       p_values_set = true;
     }
 
@@ -739,7 +747,7 @@ void set_ranges()
       if (row.isSet())
 	error_msg(t_array.getName() + " option cannot be used with " +
 		  row.getName() + " option");
-      set_p_array();
+      p_num_items = set_p_array();
       p_values_set = true;
     }
 
@@ -777,6 +785,9 @@ void set_ranges()
       theap.insert(p.t);
       pheap.insert(p.p);
     }
+
+  t_num_items = theap.size();
+  p_num_items = pheap.size();
 
   while (not theap.is_empty())
     t_values.append(make_tuple(true, "t", theap.get(), t_unit));
@@ -1141,8 +1152,10 @@ size_t insert_in_row(FixedStack<const VtlQuantity*> & row,
   return n;
 }
 
+using Row = pair<Array<string>, Array<double>>; // TODO determinar sizes
+
 bool transposed = false;
-Array<Array<string>> rows; // only used if transposed is set
+Array<Row> rows; // only used if transposed is set
 
 inline void buffer_row(const FixedStack<const VtlQuantity*> & row,
 		       const FixedStack<Unit_Convert_Fct_Ptr> & row_convert)
@@ -1150,14 +1163,14 @@ inline void buffer_row(const FixedStack<const VtlQuantity*> & row,
   const size_t n = row.size();
   const VtlQuantity ** ptr = &row.base();
 
-  DynList<string> l;
+  Row p;
   if (exception_thrown)
     {
-      l.append("\"true\"");
+      p.first.append("\"true\"");
       exception_thrown = false;
     }
   else
-    l.append("\"false\"");
+    p.first.append("\"false\"");
 
   const Unit_Convert_Fct_Ptr * tgt_unit_ptr = &row_convert.base();
   for (long i = n - 1; i >= 0; --i)
@@ -1165,30 +1178,31 @@ inline void buffer_row(const FixedStack<const VtlQuantity*> & row,
       Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
       const VtlQuantity & q = *ptr[i];
       if (not q.is_null())
-	l.append(to_string(convert_fct ? convert_fct(q.raw()) : q.raw()));
+	p.second.append(convert_fct ? convert_fct(q.raw()) : q.raw());
       else
-	l.append("");
+	p.second.append(Invalid_Value);
     }
 
-  rows.append(move(l));
+  rows.append(move(p));
 }
 
 inline void buffer_row_pb(const FixedStack<const VtlQuantity*> & row,
 			  const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
 			  bool is_pb)
 {
-  DynList<string> l = build_dynlist<string>(is_pb ? "\"true\"" : "\"false\"");
+  Row p;
+  p.first.append(is_pb ? "\"true\"" : "\"false\"");
 
   const size_t n = row.size();
   const VtlQuantity ** ptr = &row.base();
 
   if (exception_thrown)
     {
-      l.append("\"true\"");
+      p.first.append("\"true\"");
       exception_thrown = false;
     }
   else
-    l.append("\"false\"");
+    p.first.append("\"false\"");
 
   const Unit_Convert_Fct_Ptr * tgt_unit_ptr = &row_convert.base();
   for (long i = n - 1; i >= 0; --i)
@@ -1196,44 +1210,12 @@ inline void buffer_row_pb(const FixedStack<const VtlQuantity*> & row,
       Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
       const VtlQuantity & q = *ptr[i];
       if (not q.is_null())
-	l.append(to_string(convert_fct ? convert_fct(q.raw()) : q.raw()));
+	p.second.append(convert_fct ? convert_fct(q.raw()) : q.raw());
       else
-	l.append("");
+	p.second.append(Invalid_Value);
     }
 
-  rows.append(move(l));
-}
-
-inline void print_row(const DynList<string> & l)
-{
-  const auto & last = l.get_last();
-  for (auto it = l.get_it(); it.has_curr(); it.next())
-    {
-      auto & curr = it.get_curr();
-      if (&curr != &last)
-	printf("%s,", curr.c_str());
-      else
-	printf(curr.c_str());
-    }
-  printf("\n");
-}
-
-void print_transpose()
-{
-  assert(transposed);
-
-  const size_t nrow = rows.size();
-  const size_t ncol = rows(0).size();
-  for (size_t j = 0; j < ncol; ++j)
-    {
-      for (size_t i = 0; i < nrow; ++i)
-	{
-	  printf(rows(i)(j).c_str());
-	  if (i != nrow - 1)
-	    printf(",");
-	}
-      printf("\n");
-    }
+  rows.append(move(p));
 }
 
 inline void process_row(const FixedStack<const VtlQuantity*> & row,
@@ -1291,6 +1273,8 @@ inline void no_row(const FixedStack<const VtlQuantity*>&,
 
 RowFct row_fct = nullptr;
 
+Array<string> col_names; // TODO: determinar el tamaño
+
 // Print out the csv header according to passed args and return a
 // stack of definitive units for each column
 template <typename ... Args>
@@ -1316,13 +1300,12 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 
   if (transposed)
     {
-      DynList<string> row;
+      rows.reserve(t_num_items*p_num_items + 10);
       for (long i = n - 1; i >= 0; --i)
 	{
 	  const pair<string, const Unit*> & val = col_ptr[i];
-	  row.append(val.first + " " + final_units[i]->name);
+	  col_names.append(val.first + " " + final_units[i]->name);
 	}
-      rows.append(move(row));
       row_fct_pb = &buffer_row_pb;
       row_fct = &buffer_row;
     }
@@ -1335,13 +1318,44 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 	  if (i > 0)
 	    printf(",");
 	}
-      
       printf("\n");
       row_fct_pb = &process_row_pb;
       row_fct = &process_row;
     }
 
   return ret.second;
+}
+
+void print_transpose()
+{
+  assert(transposed);
+
+  const size_t nrow = rows.size();
+  const size_t str_ncol = rows(0).first.size();
+  for (size_t j = 0; j < str_ncol; ++j)
+    {
+      printf(col_names(j).c_str());
+      for (size_t i = 0; i < nrow; ++i)
+	{
+	  printf(rows(i).first(j).c_str());
+	  if (i != nrow - 1)
+	    printf(",");
+	}
+      printf("\n");
+    }
+
+  const size_t val_ncol = rows(0).second.size();
+  for (size_t j = 0; j < val_ncol; ++j)
+    {
+      printf(col_names(j).c_str());
+      for (size_t i = 0; i < nrow; ++i)
+	{
+	  printf("%f", rows(i).second(j));
+	  if (i != nrow - 1)
+	    printf(",");
+	}
+      printf("\n");
+    }
 }
 
 # define Blackoil_Init()						\
