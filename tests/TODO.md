@@ -44,3 +44,6 @@
 ## 14. calibración global
 - Created at   2017-04-26 16:38:18 -0400
 
+## 15. opciones en cali para generar y leer json
+- Created at   2017-04-28 12:55:38 -0400
+
