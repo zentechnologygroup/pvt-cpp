@@ -189,7 +189,7 @@ struct CorrelationInstantiater
     UobDeGhettoEtAl::get_instance();
     UobDindorukChristman::get_instance();
     UobLopezCR::get_instance();
-//    UobLopezCRHigherT::get_instance();
+    UobLopezCRHigherT::get_instance();
 
     UoaKartoatmodjoSchmidt::get_instance();
     UoaDeGhettoEtAl::get_instance();
@@ -261,10 +261,11 @@ struct CorrelationInstantiater
     SgwJenningsNewman::get_instance();
 
     CwbSpiveyMN::get_instance();
+    CwbMcCain::get_instance();
+    CwbMcCainOsif::get_instance();
     CwaSpiveyMN::get_instance();
     CwaDodsonStanding::get_instance();
     CwaOsif::get_instance();
-    CwbMcCain::get_instance();
 
     RswSpiveyMN::get_instance();
     RswMcCoy::get_instance();
