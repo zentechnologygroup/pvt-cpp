@@ -6,6 +6,8 @@
 
 # include <tclap/CmdLine.h>
 
+# include <json.hpp>
+
 # include <metadata/pvt-calibrate.H>
 
 using namespace std;
