@@ -634,11 +634,7 @@ ValueArg<string> sort_type = { "", "sort", "sorting type", false,
       #prefix " values", cmd };						\
 									\
   DynList<Correlation::NamedPar> prefix##_values;			\
-<<<<<<< HEAD
-  size_t prefix##_values_sz = 0;					\
-=======
   size_t prefix##_num_items = 0;					\
->>>>>>> 4f2d784303d9469072e599d349bc0ba80c5bbf33
 									\
   const Unit * prefix##_unit = nullptr;					\
 									\
