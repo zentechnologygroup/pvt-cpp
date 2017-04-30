@@ -1,8 +1,11 @@
 # ifndef PVT_CALIBRATE_H
 # define PVT_CALIBRATE_H
 
+# include <json.hpp>
 # include <correlations/correlation-stats.H>
 # include "metadata-exceptions.H"
+
+using Json = nlohmann::json;
 
 struct VectorDesc
 {
@@ -17,6 +20,22 @@ struct VectorDesc
   const string yname = "no-name";
   const Unit * yunit = nullptr;
   const Array<double> y;
+
+  Json to_json() const
+  {
+    Json j;
+    j["t"] = t;
+    j["pb"] = pb;
+    j["bobp"] = bobp;
+    j["uobp"] = uobp;
+    j["uod"] = uod;
+    j["punit"] = punit->name;
+    j["target_name"] = yname;
+    j["target_unit"] = yunit->name;
+    j["p"] = to_vector(p);
+    j["y"] = to_vector(y);
+    return j;
+  }
 
   void validate()
   {
@@ -96,7 +115,7 @@ struct VectorDesc
 	return build_dynlist<string>(::to_string(get<0>(t)),
 				     ::to_string(get<1>(t)));
 			       
-       }, p, y);
+      }, p, y);
     ret.insert(build_dynlist<string>("p " + punit->name,
 				     yname + " " + yunit->name));
     return ret;
@@ -142,6 +161,15 @@ struct ConstDesc
 
   ConstDesc(const string & name = "no-name") : name(name) {}
 
+  Json to_json() const
+  {
+    Json j;
+    j["name"] = name;
+    j["value"] = value;
+    j["unit"] = unit_ptr->name;
+    return j;
+  }
+
   string to_string() const
   {
     return name + " " + ::to_string(value) + " " + unit_ptr->name;
@@ -167,6 +195,16 @@ struct PvtData
   DynSetTree<VectorDesc> vectors;
 
   DynSetTree<string> names;
+
+  Json to_json() const
+  {
+    Json j;
+    j["vectors"] =
+      to_vector(vectors.maps<Json>([] (auto &v) { return v.to_json(); }));
+    j["constants"] =
+      to_vector(const_values.maps<Json>([] (auto &v) { return v.to_json(); }));
+    return j;
+  }
 
   string to_string() const
   {

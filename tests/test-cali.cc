@@ -13,7 +13,6 @@
 using namespace std;
 using namespace TCLAP;
 using namespace Aleph;
-using Json = nlohmann::json;
 
 PvtData data;
 
@@ -46,23 +45,6 @@ struct ValuesArg
   Array<double> p;
   
   Array<double> values; // property values
-
-  Json to_json() const
-  {
-    Json j;
-    j["target_name"] = target_name;
-    j["unit"] = unit_ptr->name;
-    j["t"] = t;
-    j["tunit"] = tunit_ptr->name;
-    j["uod"] = uod;
-    j["uobp"] = uobp;
-    j["bobp"] = bobp;
-    j["pb"] = pb;
-    j["punit"] = punit_ptr->name;
-    j["p"] = to_vector(p);
-    j["values"] = to_vector(values);
-    return j;
-  }
 
   friend ostream & operator << (ostream & out, const ValuesArg & a)
   {
