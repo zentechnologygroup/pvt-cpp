@@ -44,3 +44,9 @@
 ## 14. opciones en cali para generar y leer json
 - Created at   2017-04-28 12:55:38 -0400
 
+## 15. extrapolar pb segun otros arrglos (en concreto uob)
+- Created at   2017-05-01 16:29:03 -0400
+
+## 16. calibrar uod
+- Created at   2017-05-01 16:48:22 -0400
+

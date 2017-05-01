@@ -191,13 +191,13 @@ struct ConstDesc
     return j;
   }
 
-  ConstDesc(const Json & j)
-    : name(j["name"].get<string>()), value(j["value"]),
-      unit_ptr(Unit::search_by_name(j["unit"]))
-  {
-    if (unit_ptr == nullptr)
-      ZENTHROW(UnitNotFound, "unit for " + name + " not found");
-  }
+  // ConstDesc(const Json & j)
+  //   : name(j["name"].get<string>()), value(j["value"]),
+  //     unit_ptr(Unit::search_by_name(j["unit"]))
+  // {
+  //   if (unit_ptr == nullptr)
+  //     ZENTHROW(UnitNotFound, "unit for " + name + " not found");
+  // }
 
   string to_string() const
   {
@@ -307,7 +307,7 @@ struct PvtData
 
     auto sibling = search_vectors(v.yname);
     if (not sibling.is_empty() and not sibling.all([&v] (auto & p)
-u        { return p->yunit->is_sibling(*v.yunit); }))
+        { return p->yunit->is_sibling(*v.yunit); }))
       ZENTHROW(InvalidTargetUnit, v.yunit->name + " is not sibling");
 
     temperatures.insert(v.t);
