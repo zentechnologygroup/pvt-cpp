@@ -2,6 +2,8 @@
 # define PVT_CALIBRATE_H
 
 # include <json.hpp>
+# include <ah-stl-utils.H>
+
 # include <correlations/correlation-stats.H>
 # include "metadata-exceptions.H"
 
@@ -19,7 +21,7 @@ struct VectorDesc
 
   const string yname = "no-name";
   const Unit * yunit = nullptr;
-  const Array<double> y;
+  mutable Array<double> y;
 
   Json to_json() const
   {
@@ -35,6 +37,25 @@ struct VectorDesc
     j["p"] = to_vector(p);
     j["y"] = to_vector(y);
     return j;
+  }
+
+  VectorDesc(const Json & j)
+    : t(atof(j["t"])), pb(atof(j["pb"])), bobp(atof(j["bobp"])),
+      uod(atof(j["uod"])), uobp(atof(j["uobp"])),
+      p(to_Array(j["p"].get<vector<double>>())),
+      punit(Unit::search_by_name(j["punit"])),
+      yname(j["target_name"].get<string>()),
+      yunit(Unit::search_by_name(j["yunit"])),
+      y(to_Array(j["y"].get<vector<double>>()))
+  {
+    if (punit == nullptr)
+      ZENTHROW(UnitNotFound, "pressure unit " + j["punit"].get<string>() +
+	       " not found");
+    if (&punit->physical_quantity != &Pressure::get_instance())
+      ZENTHROW(PressureMismatch, "unit " + punit->name +
+	       " does not represent pressure");
+    if (yunit == nullptr)
+      ZENTHROW(UnitNotFound, "unit for " + yname + " not found");
   }
 
   void validate()
@@ -170,6 +191,14 @@ struct ConstDesc
     return j;
   }
 
+  ConstDesc(const Json & j)
+    : name(j["name"].get<string>()), value(j["value"]),
+      unit_ptr(Unit::search_by_name(j["unit"]))
+  {
+    if (unit_ptr == nullptr)
+      ZENTHROW(UnitNotFound, "unit for " + name + " not found");
+  }
+
   string to_string() const
   {
     return name + " " + ::to_string(value) + " " + unit_ptr->name;
@@ -240,6 +269,11 @@ struct PvtData
     names.append(name);
   }
 
+  void add_const(const ConstDesc & c)
+  {
+    // TODO
+  }
+
   DynList<const VectorDesc*> search_vectors(const string & name) const noexcept
   {
     DynList<const VectorDesc*> ret;
@@ -273,7 +307,7 @@ struct PvtData
 
     auto sibling = search_vectors(v.yname);
     if (not sibling.is_empty() and not sibling.all([&v] (auto & p)
-        { return p->yunit->is_sibling(*v.yunit); }))
+u        { return p->yunit->is_sibling(*v.yunit); }))
       ZENTHROW(InvalidTargetUnit, v.yunit->name + " is not sibling");
 
     temperatures.insert(v.t);
