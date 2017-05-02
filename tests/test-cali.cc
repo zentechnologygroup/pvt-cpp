@@ -36,11 +36,11 @@ struct ValuesArg
   double t; // temperature
   const Unit * tunit_ptr = nullptr; // temperature unit
 
-  double uod = 0; // uod
-  double uobp = 0;
-  double bobp = 0;
+  double uod = -1; // uod
+  double uobp = -1;
+  double bobp = -1;
 
-  double pb; // bubble point
+  double pb = -1; // bubble point
   const Unit * punit_ptr = nullptr; // pressure unit (for pb and p)
   Array<double> p;
   
@@ -67,7 +67,7 @@ struct ValuesArg
   void validate_property()
   {
     static const DynSetTree<string> valid_targets =
-      { "rs", "bob", "boa", "uob", "uoa", "cob", "coa", "zfactor" };
+      { "rs", "bob", "boa", "uob", "uoa", "cob", "coa", "zfactor", "bo", "uo" };
     if (not valid_targets.contains(target_name))
       ZENTHROW(InvalidProperty, "target name " + target_name +
 	       " is not valid");
@@ -80,9 +80,12 @@ struct ValuesArg
     // read target_name
     if (not (iss >> target_name))
       ZENTHROW(CommandLineError, str + " does not contain target name");
+
+    const bool compound_target = target_name == "bo" or target_name == "uo";
+
     validate_property();
-    if (not Correlation::array().exists([this] (auto ptr)
-				{ return ptr->target_name() == target_name; }))
+    if (not compound_target and not Correlation::array().exists([this] (auto ptr)
+        { return ptr->target_name() == target_name; }))
       ZENTHROW(CommandLineError, target_name + " is invalid as target name");
 
     { // read property unit
@@ -116,12 +119,15 @@ struct ValuesArg
     if (&tunit_ptr->physical_quantity != &Temperature::get_instance())
       ZENTHROW(CommandLineError, unit_name + " is not a temperature unit");
 
-    // read pb value
-    if (not (iss >> data))
-      ZENTHROW(CommandLineError, "pb value not found");
-    if (not is_double(data))
-      ZENTHROW(CommandLineError, "pb value " + data + " is not a double");
-    pb = atof(data);
+    if (not compound_target)
+      {
+	// read pb value
+	if (not (iss >> data))
+	  ZENTHROW(CommandLineError, "pb value not found");
+	if (not is_double(data))
+	  ZENTHROW(CommandLineError, "pb value " + data + " is not a double");
+	pb = atof(data);
+      }
 
     // read pressure unit
     if (not (iss >> unit_name))
@@ -164,7 +170,8 @@ struct ValuesArg
 	p_reversed = true;
       }
 
-    if (not p.exists([this] (auto v) { return v == pb; }))
+    if (not compound_target and not
+	p.exists([this] (auto v) { return v == pb; }))
       ZENTHROW(CommandLineError, "pb value " + to_string(pb) +
 	       " not found in pressures array");
 
@@ -190,8 +197,10 @@ AHDispatcher<string, void (*)(const ValuesArg&)>
 ValuesArg::check_dispatcher("rs", ValuesArg::check_rs,
 			    "bob", ValuesArg::check_bo,
 			    "boa", ValuesArg::check_bo,
+			    "bo", ValuesArg::check_bo,
 			    "uob", ValuesArg::check_uo,
 			    "uoa", ValuesArg::check_uo,
+			    "uo", ValuesArg::check_uo,
 			    "cob", ValuesArg::check_co,
 			    "coa", ValuesArg::check_co,
 			    "zfactor", ValuesArg::check_zfactor);
@@ -399,7 +408,7 @@ ActionType::dispatcher
  "pbcal", ActionType::read_local_calibration,
  "lcal", ActionType::read_local_calibration,
  "global_calibration", ActionType::dummy
-);
+ );
 
 CmdLine cmd = { "adjust", ' ', "0" };
 
@@ -435,7 +444,7 @@ MultiArg<string> relax_pars =
   { "", "relax", "relax parameter range application check", false,
     &allowed_relax_names, cmd };
 
-MultiArg<ValuesArg> target =
+MultiArg<ValuesArg> property =
   { "", "property", "property array", false, 
     "property array in format \"property property-unit t tunit pb punit p-list "
     "property-list\"", cmd };
@@ -462,6 +471,10 @@ ValueArg<string> mode_type = { "", "mode", "mode", false, "both",
 			       &allowed_mode_types, cmd };
 
 SwitchArg json = { "", "json", "generate json of data", cmd };
+
+SwitchArg split_bo_arg = { "", "split_bo", "split bo vector", cmd };
+SwitchArg split_uo_arg = { "", "split_uo", "split uo vector", cmd };
+SwitchArg save = { "", "save", "save data to json", cmd };
 
 ValueArg<string> load = { "f", "file", "load json", false, "", "load json", cmd };
 
@@ -514,7 +527,7 @@ void build_pvt_data()
     data.add_const("nacl", nacl.getValue(),
 		   *test_unit("nacl", Molality_NaCl::get_instance()));
 
-  for (auto & a : target.getValue())
+  for (auto & a : property.getValue())
     data.add_vector(a.t, a.pb, a.uod, a.bobp, a.uobp, a.p, *a.punit_ptr,
 		    a.target_name, a.values, *a.unit_ptr);
 }
@@ -1057,6 +1070,36 @@ const AHDispatcher<string, void (*)()> dispatcher =
     "global_calibration", dummy
   };
 
+void split_bo()
+{
+  auto bo_vectors = data.search_vectors("bo");
+  if (bo_vectors.is_empty())
+    ZENTHROW(VarNameNotFound, "data does not contain bo");
+
+  for (auto it = bo_vectors.get_it(); it.has_curr(); it.next())
+    {
+      auto bo_ptr = it.get_curr();
+      auto p = bo_ptr->split_bo();
+      data.add_vector(p.first);
+      data.add_vector(p.second);
+    }
+}
+
+void split_uo()
+{
+  auto uo_vectors = data.search_vectors("uo");
+  if (uo_vectors.is_empty())
+    ZENTHROW(VarNameNotFound, "data does not contain bo");
+
+  for (auto it = uo_vectors.get_it(); it.has_curr(); it.next())
+    {
+      auto uo_ptr = it.get_curr();
+      auto p = uo_ptr->split_uo();
+      data.add_vector(p.first);
+      data.add_vector(p.second);
+    }
+}
+
 int main(int argc, char *argv[])
 {
   UnitsInstancer::init();
@@ -1064,18 +1107,29 @@ int main(int argc, char *argv[])
   if (load.isSet())
     {
       ifstream in(load.getValue());
-      if (not in)
-	{
-	  cout << "cannot open " << load.getValue() << " file" << endl;
-	  abort();
-	}
-      data = PvtData(in);
+      if (in)
+	data = PvtData(in);
+      in.close();
     }
-  else
-    build_pvt_data();
+
+  build_pvt_data();
+
+  if (split_bo_arg.getValue())
+    split_bo();
+
+  if (split_uo_arg.getValue())
+    split_uo();
+
   set_relax_names();
   input_data();
   dispatcher.run(action.getValue().type);
 
+  if (save.getValue())
+    {
+      if (not load.isSet())
+	ZENTHROW(InvalidTargetName, "json name not defined (--file)");
+      ofstream out(load.getValue());
+      out << data.to_json().dump(2);
+    }
   // TODO: falta sort
 }

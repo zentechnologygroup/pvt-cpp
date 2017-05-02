@@ -4,7 +4,7 @@
 # include <json.hpp>
 # include <ah-stl-utils.H>
 
-# include <lin-reg.H>
+# include <lfit.H>
 
 # include <correlations/correlation-stats.H>
 # include "metadata-exceptions.H"
@@ -14,7 +14,7 @@ using Json = nlohmann::json;
 struct VectorDesc
 {
   const double t = 0; //  unit will always be in Fahrenheit
-  const double pb = 0; // bubble point pressure in the same unit that p
+  const double pb = -1; // bubble point pressure in the same unit that p
   const double bobp = -1; // in RB_STB
   const double uod = -1; // dead oil viscosity in cP
   const double uobp = -1; // oil viscosity at pb in cP
@@ -146,8 +146,9 @@ struct VectorDesc
   string to_string() const
   {
     ostringstream s;
-    s << "For t = " << t << " " << Fahrenheit::get_instance().name << " pb = "
-      << pb << " " << punit->name;
+    s << "For t = " << t << " " << Fahrenheit::get_instance().name;
+    if (pb > 0)
+      s << " pb = " << pb << " " << punit->name;
     if (uod > 0)
       s << " uod = " << uod << " " << CP::get_instance().name;
     if (bobp > 0)
@@ -166,49 +167,108 @@ struct VectorDesc
 
   pair<VectorDesc, VectorDesc> split_bo() const
   {
+    if (yname != "bo")
+      ZENTHROW(InvalidTargetName, "yname " + yname + " is not \"bo\"");
+
+    if (&yunit->physical_quantity != &FVFvolumeRatio::get_instance())
+      ZENTHROW(InvalidTargetUnit, "yunit " + yunit->name +
+	       " is not an unit for oil formation volume ratio");
+
     size_t max_idx = 0;
-    double max_y = numeric_limits<double>::max();
+    double max_y = 0;
     for (auto it = enum_zip_it(y); it.has_curr(); it.next())
       {
 	auto curr = it.get_curr();
-	if (get<0>(curr) < max_y)
+	if (get<0>(curr) > max_y)
 	  {
 	    max_idx = get<1>(curr);
 	    max_y = get<0>(curr);
 	  }
       }
 
-    Array<double> p_below = p.take(max_idx);
-    Array<double> bob = y.take(max_idx);
+    Array<double> p_below = p.take(max_idx + 1);
+    Array<double> bob = y.take(max_idx + 1);
     if (not is_sorted(bob))
       ZENTHROW(SamplesUnsorted, "saturated region of bo is not increasing");
 
     Array<double> p_above, boa;
     p_above.append(nextafter(p_below.get_last(), numeric_limits<double>::max()));
     boa.append(nextafter(bob.get_last(), 0));
-    for (size_t i = max_idx; i < p.size(); ++i)
+    for (size_t i = max_idx + 1; i < p.size(); ++i)
       {
 	p_above.append(p(i));
 	boa.append(y(i));
       }
-
+    
     if (not is_inversely_sorted(boa))
       ZENTHROW(SamplesUnsorted, "undersaturated region of bo is not decreasing");
 
-    LinearRegression lm_below(p_below, bob); 
-    lm_below.train(.001, 6*p_below.size());
+    LFit lm_below(p_below, bob); 
+    LFit lm_above(p_above, boa); 
 
-    LinearRegression lm_above(p_above, boa); 
-    lm_below.train(.001, 6*p_above.size());
-
-    const double & cb = lm_below.c(), mb = lm_below.m(),
-      ca = lm_above.c(), ma = lm_above.m();
+    const double & cb = lm_below.c, mb = lm_below.m,
+      ca = lm_above.c, ma = lm_above.m;
 
     double pb = (ca - cb) / (mb - ma);
     double bobp = (cb/mb - ca/ma) / (1/mb - 1/ma);
 
     VectorDesc v_below(t, pb, bobp, -1, -1, p_below, punit, "bob", yunit, bob);
     VectorDesc v_above(t, pb, bobp, -1, -1, p_above, punit, "boa", yunit, boa);
+
+    return make_pair(move(v_below), move(v_above));
+  }
+
+  pair<VectorDesc, VectorDesc> split_uo() const
+  {
+    if (yname != "uo")
+      ZENTHROW(InvalidTargetName, "yname " + yname + " is not \"uo\"");
+
+    if (&yunit->physical_quantity != &DynamicViscosity::get_instance())
+      ZENTHROW(InvalidTargetUnit, "yunit " + yunit->name +
+	       " is not an unit for oil formation volume ratio");
+
+    const double max_val = numeric_limits<double>::max();
+    size_t min_idx = 0;
+    double min_y = numeric_limits<double>::max();
+    for (auto it = enum_zip_it(y); it.has_curr(); it.next())
+      {
+	auto curr = it.get_curr();
+	if (get<0>(curr) < min_y)
+	  {
+	    min_idx = get<1>(curr);
+	    min_y = get<0>(curr);
+	  }
+      }
+    
+    Array<double> p_below = p.take(min_idx + 1);
+    Array<double> uob = y.take(min_idx + 1);
+    if (not is_inversely_sorted(uob))
+      ZENTHROW(SamplesUnsorted, "saturated region of uo is not decreasing");
+
+    Array<double> p_above, uoa;
+    p_above.append(nextafter(p_below.get_last(), max_val));
+    uoa.append(nextafter(uob.get_last(), max_val));
+    for (size_t i = min_idx + 1; i < p.size(); ++i)
+      {
+	p_above.append(p(i));
+	uoa.append(y(i));
+      }
+
+    if (not is_sorted(uoa))
+      ZENTHROW(SamplesUnsorted, "undersaturated region of uo is not increasing");
+
+    LFit lm_below(p_below, uob); 
+    LFit lm_above(p_above, uoa); 
+
+    const double & cb = lm_below.c, mb = lm_below.m,
+      ca = lm_above.c, ma = lm_above.m;
+
+    double pb = (ca - cb) / (mb - ma);
+    double uobp = (cb/mb - ca/ma) / (1/mb - 1/ma);
+    double uod = lm_below.predict(0).first;
+
+    VectorDesc v_below(t, pb, -1, uod, uobp, p_below, punit, "bob", yunit, uob);
+    VectorDesc v_above(t, pb, -1, uod, uobp, p_above, punit, "boa", yunit, uoa);
 
     return make_pair(move(v_below), move(v_above));
   }
