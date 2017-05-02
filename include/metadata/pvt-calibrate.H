@@ -1,8 +1,15 @@
 # ifndef PVT_CALIBRATE_H
 # define PVT_CALIBRATE_H
 
+# include <json.hpp>
+# include <ah-stl-utils.H>
+
+# include <lin-reg.H>
+
 # include <correlations/correlation-stats.H>
 # include "metadata-exceptions.H"
+
+using Json = nlohmann::json;
 
 struct VectorDesc
 {
@@ -16,7 +23,41 @@ struct VectorDesc
 
   const string yname = "no-name";
   const Unit * yunit = nullptr;
-  const Array<double> y;
+  mutable Array<double> y;
+
+  Json to_json() const
+  {
+    Json j;
+    j["t"] = t;
+    j["pb"] = pb;
+    j["bobp"] = bobp;
+    j["uobp"] = uobp;
+    j["uod"] = uod;
+    j["punit"] = punit->name;
+    j["target_name"] = yname;
+    j["target_unit"] = yunit->name;
+    j["p"] = to_vector(p);
+    j["y"] = to_vector(y);
+    return j;
+  }
+
+  VectorDesc(const Json & j)
+    : t(j["t"]), pb(j["pb"]), bobp(j["bobp"]), uod(j["uod"]), uobp(j["uobp"]),
+      p(to_Array(j["p"].get<vector<double>>())),
+      punit(Unit::search_by_name(j["punit"])),
+      yname(j["target_name"].get<string>()),
+      yunit(Unit::search_by_name(j["target_unit"])),
+      y(to_Array(j["y"].get<vector<double>>()))
+  {
+    if (punit == nullptr)
+      ZENTHROW(UnitNotFound, "pressure unit " + j["punit"].get<string>() +
+	       " not found");
+    if (&punit->physical_quantity != &Pressure::get_instance())
+      ZENTHROW(PressureMismatch, "unit " + punit->name +
+	       " does not represent pressure");
+    if (yunit == nullptr)
+      ZENTHROW(UnitNotFound, "unit for " + yname + " not found");
+  }
 
   void validate()
   {
@@ -96,7 +137,7 @@ struct VectorDesc
 	return build_dynlist<string>(::to_string(get<0>(t)),
 				     ::to_string(get<1>(t)));
 			       
-       }, p, y);
+      }, p, y);
     ret.insert(build_dynlist<string>("p " + punit->name,
 				     yname + " " + yunit->name));
     return ret;
@@ -122,6 +163,55 @@ struct VectorDesc
   {
     return out << d.to_string();
   }
+
+  pair<VectorDesc, VectorDesc> split_bo() const
+  {
+    size_t max_idx = 0;
+    double max_y = numeric_limits<double>::max();
+    for (auto it = enum_zip_it(y); it.has_curr(); it.next())
+      {
+	auto curr = it.get_curr();
+	if (get<0>(curr) < max_y)
+	  {
+	    max_idx = get<1>(curr);
+	    max_y = get<0>(curr);
+	  }
+      }
+
+    Array<double> p_below = p.take(max_idx);
+    Array<double> bob = y.take(max_idx);
+    if (not is_sorted(bob))
+      ZENTHROW(SamplesUnsorted, "saturated region of bo is not increasing");
+
+    Array<double> p_above, boa;
+    p_above.append(nextafter(p_below.get_last(), numeric_limits<double>::max()));
+    boa.append(nextafter(bob.get_last(), 0));
+    for (size_t i = max_idx; i < p.size(); ++i)
+      {
+	p_above.append(p(i));
+	boa.append(y(i));
+      }
+
+    if (not is_inversely_sorted(boa))
+      ZENTHROW(SamplesUnsorted, "undersaturated region of bo is not decreasing");
+
+    LinearRegression lm_below(p_below, bob); 
+    lm_below.train(.001, 6*p_below.size());
+
+    LinearRegression lm_above(p_above, boa); 
+    lm_below.train(.001, 6*p_above.size());
+
+    const double & cb = lm_below.c(), mb = lm_below.m(),
+      ca = lm_above.c(), ma = lm_above.m();
+
+    double pb = (ca - cb) / (mb - ma);
+    double bobp = (cb/mb - ca/ma) / (1/mb - 1/ma);
+
+    VectorDesc v_below(t, pb, bobp, -1, -1, p_below, punit, "bob", yunit, bob);
+    VectorDesc v_above(t, pb, bobp, -1, -1, p_above, punit, "boa", yunit, boa);
+
+    return make_pair(move(v_below), move(v_above));
+  }
 };
 
 struct ConstDesc
@@ -141,6 +231,23 @@ struct ConstDesc
     : name(name), value(value), unit_ptr(unit_ptr) {}
 
   ConstDesc(const string & name = "no-name") : name(name) {}
+
+  Json to_json() const
+  {
+    Json j;
+    j["name"] = name;
+    j["value"] = value;
+    j["unit"] = unit_ptr->name;
+    return j;
+  }
+
+  ConstDesc(const Json & j)
+    : name(j["name"].get<string>()), value(j["value"]),
+      unit_ptr(Unit::search_by_name(j["unit"]))
+  {
+    if (unit_ptr == nullptr)
+      ZENTHROW(UnitNotFound, "unit for " + name + " not found");
+  }
 
   string to_string() const
   {
@@ -167,6 +274,16 @@ struct PvtData
   DynSetTree<VectorDesc> vectors;
 
   DynSetTree<string> names;
+
+  Json to_json() const
+  {
+    Json j;
+    j["vectors"] =
+      to_vector(vectors.maps<Json>([] (auto &v) { return v.to_json(); }));
+    j["constants"] =
+      to_vector(const_values.maps<Json>([] (auto &v) { return v.to_json(); }));
+    return j;
+  }
 
   string to_string() const
   {
@@ -196,10 +313,15 @@ struct PvtData
     return out << d.to_string();
   }
 
+  void add_const(const ConstDesc & c)
+  {
+    const_values.append(c);
+    names.append(c.name);
+  }
+
   void add_const(const string & name, double v, const Unit & unit)
   {
-    const_values.emplace(name, v, &unit);
-    names.append(name);
+    add_const(ConstDesc(name, v, &unit));
   }
 
   DynList<const VectorDesc*> search_vectors(const string & name) const noexcept
@@ -249,12 +371,48 @@ struct PvtData
     vectors.insert(move(v));
   }
 
+  void add_vector(const VectorDesc & v)
+  {
+    if (&v.punit->physical_quantity != &Pressure::get_instance())
+      ZENTHROW(InvalidPressureUnit, v.punit->name + " is not for pressure");
+
+    if (not is_sorted(v.p))
+      ZENTHROW(SamplesUnsorted, "pressure values are not sorted");
+
+    auto sibling = search_vectors(v.yname);
+    if (not sibling.is_empty() and not sibling.all([&v] (auto & p)
+        { return p->yunit->is_sibling(*v.yunit); }))
+      ZENTHROW(InvalidTargetUnit, v.yunit->name + " is not sibling");
+
+    temperatures.insert(v.t);
+    names.append("p");
+    names.append("pb");
+    names.append("t");
+    names.append("uod");
+    names.append("uobp");
+    names.append("bobp");
+    names.append(v.yname);
+    vectors.insert(v);
+  }
+
   void
   add_vector(double t, double pb, double uod, double bobp, double uobp,
 	     const Array<double> & p, const Unit & punit,
 	     const string yname, const Array<double> & y, const Unit & yunit)
   {
     add_vector(VectorDesc(t, pb, bobp, uod, uobp, p, &punit, yname, &yunit, y));
+  }
+
+  PvtData() {}
+
+  PvtData(istream & input)
+  {
+    Json j = Json::parse(input);
+    for (const ConstDesc & c : j["constants"])
+      add_const(c);
+
+    for (const Json & jv : j["vectors"])
+      add_vector(jv);
   }
 
   const ConstDesc * search_const(const string & name) const noexcept

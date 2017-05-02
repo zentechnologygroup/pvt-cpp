@@ -6,6 +6,8 @@
 
 # include <tclap/CmdLine.h>
 
+# include <json.hpp>
+
 # include <metadata/pvt-calibrate.H>
 
 using namespace std;
@@ -410,9 +412,9 @@ MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
 			   "unit \"par-name unit\"", cmd };
 
 // Constant parameters
-ValueArg<double> api = { "", "api", "api", true, 0, "api", cmd };
-ValueArg<double> rsb = { "", "rsb", "rsb", true, 0, "rsb in SCF_STB", cmd };
-ValueArg<double> yg = { "", "yg", "yg", true, 0, "yg in Sgg", cmd };
+ValueArg<double> api = { "", "api", "api", false, 0, "api", cmd };
+ValueArg<double> rsb = { "", "rsb", "rsb", false, 0, "rsb in SCF_STB", cmd };
+ValueArg<double> yg = { "", "yg", "yg", false, 0, "yg in Sgg", cmd };
 ValueArg<double> tsep = { "", "tsep", "tsep", false, 0, "tsep in Fahrenheit",
 			  cmd };
 ValueArg<double> psep = { "", "psep", "psep", false, 0, "psep in psia", cmd };
@@ -458,6 +460,10 @@ vector<string> mode_types = { "single", "calibrated", "both" };
 ValuesConstraint<string> allowed_mode_types = mode_types;
 ValueArg<string> mode_type = { "", "mode", "mode", false, "both",
 			       &allowed_mode_types, cmd };
+
+SwitchArg json = { "", "json", "generate json of data", cmd };
+
+ValueArg<string> load = { "f", "file", "load json", false, "", "load json", cmd };
 
 const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 {
@@ -535,8 +541,7 @@ void input_data(const GenerateInput & in)
       VectorDesc d = data.build_samples(src_ptr, corr_ptr, in.c, in.m);
       temps.insert(d.t);
       data.add_vector(move(d));
-    }
-	 
+    }	 
 }
 
 void input_data()
@@ -569,7 +574,10 @@ void print_correlations(const DynList<DynList<string>> & l)
 
 void print_data()
 {
-  cout << data << endl;
+  if (json.getValue())
+    cout << data.to_json().dump(2) << endl;
+  else
+    cout << data << endl;
 }
 
 void process_list()
@@ -1053,7 +1061,18 @@ int main(int argc, char *argv[])
 {
   UnitsInstancer::init();
   cmd.parse(argc, argv);
-  build_pvt_data();
+  if (load.isSet())
+    {
+      ifstream in(load.getValue());
+      if (not in)
+	{
+	  cout << "cannot open " << load.getValue() << " file" << endl;
+	  abort();
+	}
+      data = PvtData(in);
+    }
+  else
+    build_pvt_data();
   set_relax_names();
   input_data();
   dispatcher.run(action.getValue().type);

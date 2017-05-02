@@ -1148,7 +1148,7 @@ size_t insert_in_row(FixedStack<const VtlQuantity*> & row,
   return n;
 }
 
-using Row = pair<Array<string>, Array<double>>; // TODO determinar sizes
+using Row = pair<Array<string>, Array<double>>;
 
 bool transposed = false;
 Array<Row> rows; // only used if transposed is set
@@ -1269,7 +1269,7 @@ inline void no_row(const FixedStack<const VtlQuantity*>&,
 
 RowFct row_fct = nullptr;
 
-Array<string> col_names; // TODO: determinar el tamaño
+Array<string> col_names;
 
 // Print out the csv header according to passed args and return a
 // stack of definitive units for each column
@@ -1330,26 +1330,24 @@ void print_transpose()
   const size_t str_ncol = rows(0).first.size();
   for (size_t j = 0; j < str_ncol; ++j)
     {
-      printf(col_names(j).c_str());
+      printf("%s,", col_names(j).c_str());
       for (size_t i = 0; i < nrow; ++i)
-	{
+	if (i != nrow - 1)	
+	  printf("%s,", rows(i).first(j).c_str());
+	else
 	  printf(rows(i).first(j).c_str());
-	  if (i != nrow - 1)
-	    printf(",");
-	}
       printf("\n");
     }
 
   const size_t val_ncol = rows(0).second.size();
   for (size_t j = 0; j < val_ncol; ++j)
     {
-      printf(col_names(j).c_str());
+      printf("%s,", col_names(j).c_str());
       for (size_t i = 0; i < nrow; ++i)
-	{
+	if (i != nrow - 1)
+	  printf("%f,", rows(i).second(j));
+	else
 	  printf("%f", rows(i).second(j));
-	  if (i != nrow - 1)
-	    printf(",");
-	}
       printf("\n");
     }
 }

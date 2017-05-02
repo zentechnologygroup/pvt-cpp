@@ -281,3 +281,5 @@ pasar excepciones de tclap a zen,2017-03-28 15:26:32 -0400,2017-04-27 10:21:40 -
 opción para generar el grid traspuesto,2017-04-11 16:53:37 -0400,2017-04-27 10:24:39 -0400,,2017-04-27 10:24:41 -0400
 diseñar esquema para que z_min sea comartible entre correlaiones y unidades,2017-04-11 16:53:16 -0400,2017-04-27 10:39:20 -0400,,2017-04-27 10:39:24 -0400
 verrificar que move sea invocado en row para traspuestas,2017-04-27 15:40:55 -0400,2017-04-27 17:40:23 -0400,,2017-04-27 17:40:26 -0400
+revisar si es necesario guardia de retorno negativo para correlaciones de rx,2017-04-11 21:51:40 -0400,2017-04-28 15:04:12 -0400,,2017-04-28 15:04:15 -0400
+opciones en cali para generar y leer json,2017-04-28 12:55:38 -0400,2017-05-02 09:11:29 -0400,,2017-05-02 09:11:31 -0400
