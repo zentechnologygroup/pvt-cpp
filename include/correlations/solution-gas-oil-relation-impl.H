@@ -450,13 +450,37 @@ RsLopezCR::impl(const double & yg,
   return rs;
 }
 
+inline double
+RsSalazar::impl(const double & yg,
+		const double & p,
+		const double & api,
+		const double & t) noexcept
+{
+  double rs = (p - 402.144 - 2.150 * t + 542.629 * yg + 46.415 * api) / 12.282;
+
+  rs = max(0.0, rs);
+  return rs;
+}
+
+inline double
+RsSalazarDetachedFromPb::impl(const double & yg,
+			      const double & p,
+			      const double & api,
+			      const double & t) noexcept
+{
+  double rs = -21.445 + 0.087 * p + 2.333 * api + 25.427 * yg - 0.1 * t;
+
+  rs = max(0.0, rs);
+  return rs;
+}
+
 void RsAbovePb::precondition(const Quantity<psia> & p,
 			     const Quantity<psia> & pb) const
 {
   if (p <= pb)
     {
       ostringstream s;
-      s << "Rsa::impl: pressure" << p << " is less than bubble point pressure "
+      s << "RsAbovePb::impl: pressure" << p << " is less than bubble point pressure "
 	<< pb;
       ZENTHROW(WrongValueUndersaturatedCondition, s.str());
     }
