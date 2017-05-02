@@ -364,3 +364,17 @@ set_hidden()
 end_correlation()
 
 ################################################################
+
+begin_correlation("PbSalazar", "BubblePointPressure", "psia", 253, 1564)
+add_title("SALAZAR CORRELATION, CALCULATION OF BUBBLE POINT PRESSURE")
+add_db("Based on 136 PVT reports from different areas of the Faja Petrolífera del Orinoco: 60 from Ayacucho, 48 from Junín, 26 from Carabobo, and 2 from Boyacá.")
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.601, 1.107)
+add_parameter("rsb", "SCF_STB", "Solution GOR at Pb", 26, 149)
+add_parameter("api", "Api", "API oil gravity", 7.1, 18.9)
+add_parameter("t", "Fahrenheit", "Temperature", 108, 169)
+add_author("Salazar")
+add_ref("salazar:2008")
+add_note("Salazar (2008) presented the correlation as model 1.")
+add_internal_note("The correlation was verified by using the original reference. Date: April 28 2017.")
+set_hidden()
+end_correlation()

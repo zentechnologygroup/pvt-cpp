@@ -304,3 +304,18 @@ add_ref("lopez:2014")
 add_internal_note("The correlation was verified by using the original reference. Date: April 27 2017.")
 set_hidden()
 end_correlation()
+
+################################################################
+
+begin_correlation("BobSalazar", "SaturatedOilVolumeFactor", "RB_STB", 1.02, 1.1)
+add_title("SALAZAR CORRELATION, CALCULATION OF SATURATED OIL FORMATION VOLUME FACTOR")
+add_db("Based on 136 PVT reports from different areas of the Faja Petrolífera del Orinoco: 60 from Ayacucho, 48 from Junín, 26 from Carabobo, and 2 from Boyacá.")
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.584, 1.142)
+add_parameter("api", "Api", "API oil gravity", 7.1, 18.9)
+add_parameter("p", "psia", "Pressure")
+add_author("Salazar")
+add_ref("salazar:2008")
+add_note("Salazar (2008) presented the correlation as model 1.")
+add_internal_note("The correlation was verified by using the original reference. Date: April 28 2017.")
+set_hidden()
+end_correlation()

@@ -456,4 +456,15 @@ PbLopezCRDetachedFromRs::impl(const double & yg,
   return pb;
 }
 
+inline double
+PbSalazar::impl(const double & yg,
+		const double & rsb,
+		const double & api,
+		const double & t) noexcept
+{
+  const double pb = 402.144 + 2.150 * t + 12.282 * rsb - 542.629 * yg - 46.415 * api;
+
+  return pb;
+}
+
 # endif // BUBBLE_POINT_PRESSURE_IMPL_H

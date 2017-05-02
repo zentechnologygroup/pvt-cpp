@@ -337,4 +337,12 @@ BobLopezCR::impl(const double & yg,
   return 0.93176 + 0.000422061 * t + 0.000372363 * rs + 0.0545485 * yg + 0.00159098 * api;
 }
 
+inline double
+BobSalazar::impl(const double & yg,
+		 const double & api,
+		 const double & p) noexcept
+{
+  return 0.99619 + 0.00003 * p + 0.00245 * api + 0.01433 * yg;
+}
+
 # endif // SATURATED_OIL_FORMATION_VOLUME_FACTOR_IMPL_H

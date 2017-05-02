@@ -192,4 +192,21 @@ UobLopezCRHigherT::impl(const double & rs,
   return uob;
 }
 
+inline double
+UobSalazar::impl(const double & bob,
+		 const double & api,
+		 const double & t,
+		 const double & p) noexcept
+{
+  constexpr double a1 = 23.487;
+  constexpr double a2 = -0.001;
+  constexpr double a3 = -0.035;
+  constexpr double a4 = -6.669;
+  constexpr double a5 = -0.439;
+   
+  const double uob = exp(a1 +  a2 * p + a3 * t + a4 * bob + a5 * api);
+
+  return uob;
+}
+
 # endif // SATURATED_OIL_VISCOSITY_IMPL_H

@@ -315,6 +315,38 @@ end_correlation()
 
 ################################################################
 
+begin_correlation("RsSalazar", "SolutionGasOilRelation", "SCF_STB", 26, 149)
+add_title("SALAZAR CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
+add_db("Based on 136 PVT reports from different areas of the Faja Petrolífera del Orinoco: 60 from Ayacucho, 48 from Junín, 26 from Carabobo, and 2 from Boyacá.")
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.5086, 0.75)
+add_parameter("p", "psia", "Pressure", 253, 1564)
+add_parameter("api", "Api", "API oil gravity", 7.1, 18.9)
+add_parameter("t", "Fahrenheit", "Temperature", 108, 169)
+add_author("Salazar")
+add_ref("salazar:2008")
+add_internal_note("The correlation was verified by using the original reference. Date: April 28 2017.")
+add_note("Salazar presented separate equations for solution gas oil ratio (Rs) and bubble point pressure (Pb). The best Pb correlation provides a lower average error than the different ones proposed for Rs; therefore, this correlation is used to calculate Rs by rearranging the equation.")
+set_hidden()
+end_correlation()
+
+################################################################
+
+begin_correlation("RsSalazarDetachedFromPb", "SolutionGasOilRelation", "SCF_STB", 25, 154)
+add_title("SALAZAR CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
+add_db("Based on 136 PVT reports from different areas of the Faja Petrolífera del Orinoco: 60 from Ayacucho, 48 from Junín, 26 from Carabobo, and 2 from Boyacá.")
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.5692, 0.6930)
+add_parameter("p", "psia", "Pressure", 65, 1940)
+add_parameter("api", "Api", "API oil gravity", 7.8, 14.9)
+add_parameter("t", "Fahrenheit", "Temperature", 118, 220)
+add_author("Salazar")
+add_ref("salazar:2008")
+add_note("Salazar (2008) presented the correlation as model 1.")
+add_internal_note("The correlation was verified by using the original reference. Date: April 28 2017.")
+set_hidden()
+end_correlation()
+
+################################################################
+
 begin_correlation("RsAbovePb", "SolutionGasOilRelation", "SCF_STB")
 add_title("Faked constant for internal computations above bubble point")
 add_parameter("pb", "psia", "Bubble point pressure")
