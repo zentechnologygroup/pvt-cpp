@@ -47,3 +47,18 @@
 ## 15. calibrar uod
 - Created at   2017-05-01 16:48:22 -0400
 
+## 16. falta split de co
+- Created at   2017-05-02 14:57:05 -0400
+
+## 17. ponerle al etado de calibración las correlaciones
+- Created at   2017-05-02 15:09:38 -0400
+
+## 18. opción de borrar un vector o constante
+- Created at   2017-05-02 17:42:34 -0400
+
+## 19. opción a cplot que genere grid conciso
+- Created at   2017-05-03 08:47:55 -0400
+
+## 20. preguntar por columnas de compresibilidad
+- Created at   2017-05-03 09:28:49 -0400
+
