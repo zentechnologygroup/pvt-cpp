@@ -795,15 +795,43 @@ struct PvtData
 
     return pairs.maps([] (auto p) { return p; });
   }
-  
-  //       t     pb_lab, pb_corr
-  DynList<tuple<double, double, double>>
-  pbapply(const Correlation * corr_ptr) const
-  {
-    if (corr_ptr->target_name() != "pb")
-      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
-	       " is not for pb");
 
+  // DynList<tuple<double, const Unit*, double, const Unit*, double>>
+  // tp_sets() const
+  // {
+  //   DynMapTree<double, double> pairs;
+  //   for (auto it = vectors.get_it(); it.has_curr(); it.next())
+  //     {
+  // 	const VectorDesc & vdesc = it.get_curr();
+  // 	auto ptr = pairs.search(vdesc.t);
+  // 	if (ptr == nullptr)
+  // 	  pairs.insert(vdesc.t, unit_convert(*vdesc.punit, vdesc.pb,
+  // 					     psia::get_instance()));
+  // 	else
+  // 	  {
+  // 	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
+  // 					  psia::get_instance());
+  // 	    if (ptr->second != p)
+  // 	      {
+  // 		ostringstream s;
+  // 		s << "Found two contradictory pairs t,pb: " << ptr->first << ","
+  // 		  << ptr->second << " != " << vdesc.t << "," << vdesc.pb;
+  // 		ZENTHROW(PressureMismatch, s.str());
+  // 	      }		       
+  // 	  }
+  //     }
+
+  //   if (not is_sorted(pairs.values()))
+  //     ZENTHROW(PressureMismatch,
+  // 	       "pb values are not sorted through temperatures");
+
+  //   return pairs.maps([] (auto p) { return p; });
+  // }
+
+    //       t     pb_lab, pb_corr
+  DynList<tuple<double, double, double>>
+  single_apply(const Correlation * corr_ptr) const
+  {
     //              t,     pb
     DynList<pair<double, double>> pairs = tp_pairs();
 
@@ -823,6 +851,26 @@ struct PvtData
       }
 
     return ret;
+  }
+
+  DynList<tuple<double, double, double>>
+  pbapply(const Correlation * corr_ptr) const
+  {
+    if (corr_ptr->target_name() != "pb")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for pb");
+
+    return single_apply(corr_ptr);
+  }
+
+  DynList<tuple<double, double, double>>
+  uodapply(const Correlation * corr_ptr) const
+  {
+    if (corr_ptr->target_name() != "uod")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for uod");
+
+    return single_apply(corr_ptr);
   }
 
   VectorDesc build_samples(const VectorDesc * vector_ptr,
@@ -976,6 +1024,24 @@ struct PvtData
 	       " is not applicable to this data set");
 
     auto vals = pbapply(corr_ptr);
+    auto t = t_unzip(vals);
+    DynList<double> & y = get<1>(t);
+    DynList<double> & yc = get<2>(t);
+
+    return T(corr_ptr, get<0>(t), y, CorrStat(move(y)).stats(move(yc)));
+  }
+
+  T uodstats(const Correlation * corr_ptr) const
+  {
+    if (corr_ptr->target_name() != "uod")
+      ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
+	       " is not for uod");
+
+    if (not can_be_applied(corr_ptr))
+      ZENTHROW(CorrelationNotApplicable, "correlation " + corr_ptr->name +
+	       " is not applicable to this data set");
+
+    auto vals = uodapply(corr_ptr);
     auto t = t_unzip(vals);
     DynList<double> & y = get<1>(t);
     DynList<double> & yc = get<2>(t);

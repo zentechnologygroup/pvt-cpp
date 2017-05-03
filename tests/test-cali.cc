@@ -476,7 +476,7 @@ SwitchArg split_bo_arg = { "", "split_bo", "split bo vector", cmd };
 SwitchArg split_uo_arg = { "", "split_uo", "split uo vector", cmd };
 SwitchArg save = { "", "save", "save data to json", cmd };
 
-ValueArg<string> load = { "f", "file", "load json", false, "", "load json", cmd };
+ValueArg<string> file = { "f", "file", "load json", false, "", "load json", cmd };
 
 const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 {
@@ -649,6 +649,11 @@ void process_apply()
     stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
     {
       return data.pbstats(corr_ptr);
+    }), cmp[::sort.getValue()]);
+  else if (property_name == "uod")
+    stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
+    {
+      return data.uodstats(corr_ptr);
     }), cmp[::sort.getValue()]);
   else
     stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
@@ -1104,9 +1109,9 @@ int main(int argc, char *argv[])
 {
   UnitsInstancer::init();
   cmd.parse(argc, argv);
-  if (load.isSet())
+  if (file.isSet())
     {
-      ifstream in(load.getValue());
+      ifstream in(file.getValue());
       if (in)
 	data = PvtData(in);
       in.close();
@@ -1126,9 +1131,9 @@ int main(int argc, char *argv[])
 
   if (save.getValue())
     {
-      if (not load.isSet())
+      if (not file.isSet())
 	ZENTHROW(InvalidTargetName, "json name not defined (--file)");
-      ofstream out(load.getValue());
+      ofstream out(file.getValue());
       out << data.to_json().dump(2);
     }
   // TODO: falta sort
