@@ -193,7 +193,6 @@ struct CorrelationInstantiater
     UobDeGhettoEtAl::get_instance();
     UobDindorukChristman::get_instance();
     UobLopezCR::get_instance();
-    // UobLopezCRHigherT::get_instance();
     UobSalazar::get_instance();
 
     UoaKartoatmodjoSchmidt::get_instance();
@@ -216,8 +215,6 @@ struct CorrelationInstantiater
 
     PpchcStanding::get_instance();
     PpchcSutton::get_instance();
-    PpchcGuoGhalambor::get_instance();
-    PpcAhmed::get_instance();
     PpchcElsharkawyEtAl::get_instance();
     PpchcStandingHeavierFractions::get_instance();
 
