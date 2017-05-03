@@ -62,3 +62,12 @@
 ## 20. preguntar por columnas de compresibilidad
 - Created at   2017-05-03 09:28:49 -0400
 
+## 21. fag a cplot que imprima resultados a precisión
+- Created at   2017-05-03 15:24:34 -0400
+
+## 22. documentar ocpiones action y property en test-cali
+- Created at   2017-05-03 16:14:39 -0400
+
+## 23. dry en ValusArg::operator = de test-cali
+- Created at   2017-05-03 16:59:18 -0400
+

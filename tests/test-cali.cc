@@ -43,6 +43,8 @@ struct ValuesArg
   double pb = -1; // bubble point
   const Unit * punit_ptr = nullptr; // pressure unit (for pb and p)
   Array<double> p;
+  Array<double> & pmin = p;
+  Array<double> pmax; // only used for coa
   
   Array<double> values; // property values
 
@@ -61,16 +63,42 @@ struct ValuesArg
   Define_Check_Property(rs, GORGLRvolumeRatio);
   Define_Check_Property(bo, FVFvolumeRatio);
   Define_Check_Property(uo, DynamicViscosity);
-  Define_Check_Property(co, IsothermalCompressibility);
+  Define_Check_Property(coa, IsothermalCompressibility);
   Define_Check_Property(zfactor, CompressibilityFactor);
 
   void validate_property()
   {
     static const DynSetTree<string> valid_targets =
-      { "rs", "bob", "boa", "uob", "uoa", "cob", "coa", "zfactor", "bo", "uo" };
+      { "rs", "bob", "boa", "uob", "uoa", "coa", "zfactor", "bo", "uo" };
     if (not valid_targets.contains(target_name))
       ZENTHROW(InvalidProperty, "target name " + target_name +
 	       " is not valid");
+  }
+
+  void read_coa(istringstream & iss)
+  {
+    string data;
+    DynList<double> vals;
+    size_t n = 0;
+    for (; iss >> data; ++n)
+      {
+	if (not is_double(data))
+	  ZENTHROW(CommandLineError, data + " is not a double");
+	vals.append(atof(data));
+      }
+
+    if ((n % 3) != 0)
+      ZENTHROW(CommandLineError,
+	       "In input of coa values: number of values is not multiple of 3");
+    
+    const size_t dim = n/3;
+    each(dim, [&vals, this] () { pmin.append(vals.remove_first()); });
+    each(dim, [&vals, this] () { pmax.append(vals.remove_first()); });
+    if (not zip_all([] (auto t) { return get<0>(t) < get<1>(t); }, pmin, pmax))
+      ZENTHROW(type, msg)
+    
+
+    each(dim, [&vals, this] () { values.append(vals.remove_first()); });
   }
 
   ValuesArg & operator = (const string & str)
@@ -119,6 +147,12 @@ struct ValuesArg
     if (&tunit_ptr->physical_quantity != &Temperature::get_instance())
       ZENTHROW(CommandLineError, unit_name + " is not a temperature unit");
 
+    if (target_name == "coa")
+      {
+	read_coa(iss);
+	return *this;
+      }
+
     if (not compound_target)
       {
 	// read pb value
@@ -155,7 +189,7 @@ struct ValuesArg
 	vals.append(atof(data));
       }
 
-    if (n % 2 != 0)
+    if ((n % 2) != 0)
       ZENTHROW(CommandLineError, "number of values is not even");
 
     auto it = vals.get_it();

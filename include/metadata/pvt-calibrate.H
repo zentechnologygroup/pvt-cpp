@@ -796,63 +796,61 @@ struct PvtData
     return pairs.maps([] (auto p) { return p; });
   }
 
-  // DynList<tuple<double, const Unit*, double, const Unit*, double>>
-  // tp_sets() const
-  // {
-  //   DynMapTree<double, double> pairs;
-  //   for (auto it = vectors.get_it(); it.has_curr(); it.next())
-  //     {
-  // 	const VectorDesc & vdesc = it.get_curr();
-  // 	auto ptr = pairs.search(vdesc.t);
-  // 	if (ptr == nullptr)
-  // 	  pairs.insert(vdesc.t, unit_convert(*vdesc.punit, vdesc.pb,
-  // 					     psia::get_instance()));
-  // 	else
-  // 	  {
-  // 	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
-  // 					  psia::get_instance());
-  // 	    if (ptr->second != p)
-  // 	      {
-  // 		ostringstream s;
-  // 		s << "Found two contradictory pairs t,pb: " << ptr->first << ","
-  // 		  << ptr->second << " != " << vdesc.t << "," << vdesc.pb;
-  // 		ZENTHROW(PressureMismatch, s.str());
-  // 	      }		       
-  // 	  }
-  //     }
-
-  //   if (not is_sorted(pairs.values()))
-  //     ZENTHROW(PressureMismatch,
-  // 	       "pb values are not sorted through temperatures");
-
-  //   return pairs.maps([] (auto p) { return p; });
-  // }
-
-    //       t     pb_lab, pb_corr
-  DynList<tuple<double, double, double>>
-  single_apply(const Correlation * corr_ptr) const
+  //                     t,     pb,     uod,
+  using Ttuple = tuple<double, double, double>;
+  DynList<Ttuple> tp_sets() const
   {
-    //              t,     pb
-    DynList<pair<double, double>> pairs = tp_pairs();
-
-    ParList pars; // parameter to be passed to correlation corr_ptr
-    load_consts(corr_ptr, pars);
-    DynList<tuple<double, double, double>> ret;
-    for (auto it = pairs.get_it(); it.has_curr(); it.next())
+    DynMapTree<double, Ttuple> tuples;
+    for (auto it = vectors.get_it(); it.has_curr(); it.next())
       {
-	auto pp = it.get_curr();
-	const double & t = pp.first;
-	const double & pb_lab = pp.second;
-	pars.insert("t", t, &Fahrenheit::get_instance());
-	auto result = corr_ptr->compute_by_names(pars, false);
-	auto pb_ret = VtlQuantity(psia::get_instance(), result).raw();
-	ret.append(make_tuple(t, pb_lab, pb_ret));
-	pars.remove("t");
+  	const VectorDesc & vdesc = it.get_curr();
+  	auto ptr = tuples.search(vdesc.t);
+  	if (ptr == nullptr)
+	  if (vdesc.uod > 0)
+	    tuples.insert(vdesc.t, Ttuple(vdesc.t,
+					unit_convert(*vdesc.punit, vdesc.pb,
+						     psia::get_instance()),
+					  unit_convert(*vdesc.yunit, vdesc.uod,
+						       CP::get_instance())));
+	  else
+	    tuples.insert(vdesc.t, Ttuple(vdesc.t,
+					  unit_convert(*vdesc.punit, vdesc.pb,
+						       psia::get_instance()), -1));
+	else
+  	  {
+  	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
+  					  psia::get_instance());
+	    Ttuple & t = ptr->second;
+  	    if (get<1>(t) != p)
+  	      {
+  		ostringstream s;
+  		s << "Found two contradictory pairs t,pb: " << ptr->first << ","
+  		  << get<1>(t) << " != " << vdesc.t << "," << vdesc.pb;
+  		ZENTHROW(PressureMismatch, s.str());
+  	      }
+	    if (vdesc.uod > 0) // valid uod?
+	      get<2>(t) = unit_convert(*vdesc.yunit, vdesc.uod,
+				       CP::get_instance());
+	    else if (get<2>(t) != vdesc.uod)
+	      {
+		ostringstream s;
+  		s << "Found two ambiguous uod values for t = " << vdesc.t
+		  << " pb = " << vdesc.pb << " " << get<2>(t) << " != "
+		  << vdesc.uod;
+  		ZENTHROW(AmbiguousDeadViscosity, s.str());
+	      }
+  	  }
       }
 
-    return ret;
+    if (not is_sorted(tuples.values().
+		      maps<double>([] (auto & t) { return get<1>(t); })))
+      ZENTHROW(PressureMismatch,
+  	       "pb values are not sorted through temperatures");
+
+    return tuples.maps<Ttuple>([] (auto & p) { return p.second; });
   }
 
+    //       t     pb_lab, pb_corr
   DynList<tuple<double, double, double>>
   pbapply(const Correlation * corr_ptr) const
   {
@@ -860,9 +858,25 @@ struct PvtData
       ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for pb");
 
-    return single_apply(corr_ptr);
+    DynList<Ttuple> tuples = tp_sets();
+    ParList pars; // parameter to be passed to correlation corr_ptr
+    load_consts(corr_ptr, pars);
+    DynList<tuple<double, double, double>> ret;
+    for (auto it = tuples.get_it(); it.has_curr(); it.next())
+      {
+	auto pp = it.get_curr();
+	const double & t = get<0>(pp);
+	const double & pb_lab = get<1>(pp);
+	pars.insert("t", t, &Fahrenheit::get_instance());
+	auto result = corr_ptr->compute_by_names(pars, false);
+	auto pb_ret = VtlQuantity(psia::get_instance(), result).raw();
+	ret.append(make_tuple(t, pb_lab, pb_ret));
+	pars.remove("t");
+      }
+    return ret;
   }
 
+      //       t     pb_lab, uod_corr
   DynList<tuple<double, double, double>>
   uodapply(const Correlation * corr_ptr) const
   {
@@ -870,7 +884,22 @@ struct PvtData
       ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for uod");
 
-    return single_apply(corr_ptr);
+    DynList<Ttuple> tuples = tp_sets();
+    ParList pars; // parameter to be passed to correlation corr_ptr
+    load_consts(corr_ptr, pars);
+    DynList<tuple<double, double, double>> ret;
+    for (auto it = tuples.get_it(); it.has_curr(); it.next())
+      {
+	auto pp = it.get_curr();
+	const double & t = get<0>(pp);
+	const double & uod_lab = get<2>(pp);
+	pars.insert("t", t, &Fahrenheit::get_instance());
+	auto result = corr_ptr->compute_by_names(pars, false);
+	auto uod_ret = VtlQuantity(CP::get_instance(), result).raw();
+	ret.append(make_tuple(t, uod_lab, uod_ret));
+	pars.remove("t");
+      }
+    return ret;
   }
 
   VectorDesc build_samples(const VectorDesc * vector_ptr,
