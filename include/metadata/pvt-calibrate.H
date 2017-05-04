@@ -267,8 +267,8 @@ struct VectorDesc
     double uobp = (cb/mb - ca/ma) / (1/mb - 1/ma);
     double uod = lm_below.predict(0).first;
 
-    VectorDesc v_below(t, pb, -1, uod, uobp, p_below, punit, "bob", yunit, uob);
-    VectorDesc v_above(t, pb, -1, uod, uobp, p_above, punit, "boa", yunit, uoa);
+    VectorDesc v_below(t, pb, -1, uod, uobp, p_below, punit, "uob", yunit, uob);
+    VectorDesc v_above(t, pb, -1, uod, uobp, p_above, punit, "uoa", yunit, uoa);
 
     return make_pair(move(v_below), move(v_above));
   }
@@ -813,15 +813,16 @@ struct PvtData
 					  unit_convert(*vdesc.yunit, vdesc.uod,
 						       CP::get_instance())));
 	  else
-	    tuples.insert(vdesc.t, Ttuple(vdesc.t,
-					  unit_convert(*vdesc.punit, vdesc.pb,
-						       psia::get_instance()), -1));
+	    tuples.insert(vdesc.t,
+			  Ttuple(vdesc.t,
+				 unit_convert(*vdesc.punit, vdesc.pb,
+					      psia::get_instance()), -1));
 	else
   	  {
   	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
   					  psia::get_instance());
 	    Ttuple & t = ptr->second;
-  	    if (get<1>(t) != p)
+  	    if (get<1>(t) > 0 and get<1>(t) != p)
   	      {
   		ostringstream s;
   		s << "Found two contradictory pairs t,pb: " << ptr->first << ","
@@ -831,7 +832,7 @@ struct PvtData
 	    if (vdesc.uod > 0) // valid uod?
 	      get<2>(t) = unit_convert(*vdesc.yunit, vdesc.uod,
 				       CP::get_instance());
-	    else if (get<2>(t) != vdesc.uod)
+	    else if (get<2>(t) > 0 and get<2>(t) != vdesc.uod)
 	      {
 		ostringstream s;
   		s << "Found two ambiguous uod values for t = " << vdesc.t

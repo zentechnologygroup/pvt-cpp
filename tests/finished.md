@@ -1708,3 +1708,33 @@
 - Comment      
 - Finished     
 
+## 286. 
+- Created at   2017-05-04 10:37:26 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 287. preguntar por columnas de compresibilidad
+- Created at   2017-05-03 09:28:49 -0400
+- Completed at 2017-05-04 11:16:33 -0400
+- Comment      
+- Finished     
+
+## 288. falta split de co
+- Created at   2017-05-02 14:57:05 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 289. extrapolar pb segun otros arrglos (en concreto uob)
+- Created at   2017-05-01 16:29:03 -0400
+- Completed at 2017-05-04 11:17:19 -0400
+- Comment      
+- Finished     
+
+## 290. calibrar uod
+- Created at   2017-05-01 16:48:22 -0400
+- Completed at 2017-05-04 11:18:29 -0400
+- Comment      
+- Finished     
+

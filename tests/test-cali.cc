@@ -43,8 +43,6 @@ struct ValuesArg
   double pb = -1; // bubble point
   const Unit * punit_ptr = nullptr; // pressure unit (for pb and p)
   Array<double> p;
-  Array<double> & pmin = p;
-  Array<double> pmax; // only used for coa
   
   Array<double> values; // property values
 
@@ -92,13 +90,23 @@ struct ValuesArg
 	       "In input of coa values: number of values is not multiple of 3");
     
     const size_t dim = n/3;
-    each(dim, [&vals, this] () { pmin.append(vals.remove_first()); });
-    each(dim, [&vals, this] () { pmax.append(vals.remove_first()); });
-    if (not zip_all([] (auto t) { return get<0>(t) < get<1>(t); }, pmin, pmax))
-      ZENTHROW(type, msg)
-    
+    DynList<double> pmin, pmax;
+    each(dim, [&vals, &pmin] () { pmin.append(vals.remove_first()); });
+    each(dim, [&vals, &pmax] () { pmax.append(vals.remove_first()); });
+    if (not (zip_all([] (auto t) { return get<0>(t) < get<1>(t); }, pmin, pmax)
+        or zip_all([] (auto t) { return get<0>(t) > get<1>(t); }, pmin, pmax)))
+      ZENTHROW(CommandLineError,
+	       "At least a pressure pair for compressibility is invalid");
 
     each(dim, [&vals, this] () { values.append(vals.remove_first()); });
+
+    p = zip_maps<double>([] (auto t) { return (get<1>(t) + get<0>(t))/2; },
+			 pmin, pmax);
+    if (not is_sorted(p))
+      {
+	p = p.rev();
+	values = values.rev();
+      }
   }
 
   ValuesArg & operator = (const string & str)
@@ -128,15 +136,6 @@ struct ValuesArg
 
     check_dispatcher.run(target_name, *this);
 
-    // read temperature value
-    string data;
-    if (not (iss >> data))
-      ZENTHROW(CommandLineError, "temperature value not found");
-    if (not is_double(data))
-      ZENTHROW(CommandLineError, "temperature value " + data +
-	       " is not a double");
-    t = atof(data);
-
      // read temperature unit
     string unit_name;
     if (not (iss >> unit_name))
@@ -147,11 +146,23 @@ struct ValuesArg
     if (&tunit_ptr->physical_quantity != &Temperature::get_instance())
       ZENTHROW(CommandLineError, unit_name + " is not a temperature unit");
 
-    if (target_name == "coa")
-      {
-	read_coa(iss);
-	return *this;
-      }
+    // read temperature value
+    string data;
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "temperature value not found");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "temperature value " + data +
+	       " is not a double");
+    t = atof(data);
+
+    // read pressure unit
+    if (not (iss >> unit_name))
+      ZENTHROW(CommandLineError, str + " does not contain unit name");
+    punit_ptr = Unit::search(unit_name);
+    if (punit_ptr == nullptr)
+      ZENTHROW(CommandLineError, "unit " + unit_name + " for pressure not found");
+    if (&punit_ptr->physical_quantity != &Pressure::get_instance())
+      ZENTHROW(CommandLineError, unit_name + " is not for pressure");
 
     if (not compound_target)
       {
@@ -163,14 +174,11 @@ struct ValuesArg
 	pb = atof(data);
       }
 
-    // read pressure unit
-    if (not (iss >> unit_name))
-      ZENTHROW(CommandLineError, str + " does not contain unit name");
-    punit_ptr = Unit::search(unit_name);
-    if (punit_ptr == nullptr)
-      ZENTHROW(CommandLineError, "unit " + unit_name + " for pressure not found");
-    if (&punit_ptr->physical_quantity != &Pressure::get_instance())
-      ZENTHROW(CommandLineError, unit_name + " is not for pressure");
+    if (target_name == "coa")
+      {
+	read_coa(iss);
+	return *this;
+      }
 
     if (target_name == "uob" or target_name == "uoa")
       {
@@ -235,8 +243,7 @@ ValuesArg::check_dispatcher("rs", ValuesArg::check_rs,
 			    "uob", ValuesArg::check_uo,
 			    "uoa", ValuesArg::check_uo,
 			    "uo", ValuesArg::check_uo,
-			    "cob", ValuesArg::check_co,
-			    "coa", ValuesArg::check_co,
+			    "coa", ValuesArg::check_coa,
 			    "zfactor", ValuesArg::check_zfactor);
 
 namespace TCLAP
@@ -883,7 +890,7 @@ void proccess_local_calibration()
         << Rvector("cols", colors) << endl
         << Rvector("pchs", pchs) << endl
         << Rvector("ltys", ltys) << endl
-        <<  "legend(\"topleft\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
+        <<  "legend(\"topright\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
         << endl;
 
       return s.str();
@@ -958,7 +965,7 @@ void proccess_local_calibration()
   DynList<DynList<string>> result =
     transpose(rows.maps<DynList<string>>([] (auto & l)
     {
-      return l.template maps<string>([] (auto v) { return to_string(v); });
+      return l.template maps<string>([] (auto v) { return to_str(v); });
     }));
   result.insert(header);
 
@@ -1023,7 +1030,7 @@ void proccess_pb_calibration()
 	}
       s << Rvector("cnames", colnames) << endl
         << Rvector("cols", colors) << endl
-        <<  "legend(\"topleft\", legend=cnames, col=cols, lty=1)"
+        <<  "legend(\"topright\", legend=cnames, col=cols, lty=1)"
         << endl;
 
       return s.str();
@@ -1087,7 +1094,7 @@ void proccess_pb_calibration()
   DynList<DynList<string>> result =
     transpose(rows.maps<DynList<string>>([] (auto & l)
     {
-      return l.template maps<string>([] (auto v) { return to_string(v); });
+      return l.template maps<string>([] (auto v) { return to_str(v); });
     }));
   result.insert(header);
 

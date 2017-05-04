@@ -41,33 +41,27 @@
 ## 13. calibración global
 - Created at   2017-04-26 16:38:18 -0400
 
-## 14. extrapolar pb segun otros arrglos (en concreto uob)
-- Created at   2017-05-01 16:29:03 -0400
-
-## 15. calibrar uod
-- Created at   2017-05-01 16:48:22 -0400
-
-## 16. falta split de co
-- Created at   2017-05-02 14:57:05 -0400
-
-## 17. ponerle al etado de calibración las correlaciones
+## 14. ponerle al etado de calibración las correlaciones
 - Created at   2017-05-02 15:09:38 -0400
 
-## 18. opción de borrar un vector o constante
+## 15. opción de borrar un vector o constante
 - Created at   2017-05-02 17:42:34 -0400
 
-## 19. opción a cplot que genere grid conciso
+## 16. opción a cplot que genere grid conciso
 - Created at   2017-05-03 08:47:55 -0400
 
-## 20. preguntar por columnas de compresibilidad
-- Created at   2017-05-03 09:28:49 -0400
-
-## 21. fag a cplot que imprima resultados a precisión
+## 17. fag a cplot que imprima resultados a precisión
 - Created at   2017-05-03 15:24:34 -0400
 
-## 22. documentar ocpiones action y property en test-cali
+## 18. documentar ocpiones action y property en test-cali
 - Created at   2017-05-03 16:14:39 -0400
 
-## 23. dry en ValusArg::operator = de test-cali
+## 19. dry en ValusArg::operator = de test-cali
 - Created at   2017-05-03 16:59:18 -0400
+
+## 20. validad que el data set tenga el mismo pb para cada vector: 
+- Created at   
+
+## 21. ojo con la precisión en cplot
+- Created at   2017-05-04 11:02:49 -0400
 
