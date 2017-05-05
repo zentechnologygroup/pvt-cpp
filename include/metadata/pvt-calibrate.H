@@ -384,6 +384,13 @@ struct PvtData
     add_const(ConstDesc(name, v, &unit));
   }
 
+  void rm_const(const string & name)
+  {
+    if (search_const(name) == nullptr)
+      ZENTHROW(ConstNameNotFound, "const name " + name + " not found");
+    const_values.remove(ConstDesc(name));
+  }
+
   DynList<const VectorDesc*> search_vectors(const string & name) const noexcept
   {
     DynList<const VectorDesc*> ret;
@@ -393,7 +400,6 @@ struct PvtData
 	if (ptr != nullptr)
 	  ret.append(ptr);
       }
-
     return ret;
   }
 
@@ -453,6 +459,16 @@ struct PvtData
     names.append("bobp");
     names.append(v.yname);
     vectors.insert(v);
+  }
+
+  void rm_vector(double t, const string & target_name)
+  {
+    if (search_vectors(target_name).is_empty())
+      ZENTHROW(VarNameNotFound, "variable " + target_name + " not found");
+    vectors.remove(VectorDesc(t, target_name));
+    if (not vectors.exists([&target_name] (auto &v)
+			   { return v.yname == target_name; }))
+      names.remove(target_name);
   }
 
   void
@@ -804,6 +820,9 @@ struct PvtData
     for (auto it = vectors.get_it(); it.has_curr(); it.next())
       {
   	const VectorDesc & vdesc = it.get_curr();
+	if (vdesc.yname == "bo" or vdesc.yname == "uo")
+	  continue;
+
   	auto ptr = tuples.search(vdesc.t);
   	if (ptr == nullptr)
 	  if (vdesc.uod > 0)

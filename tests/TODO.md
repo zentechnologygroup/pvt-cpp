@@ -44,24 +44,21 @@
 ## 14. ponerle al etado de calibración las correlaciones
 - Created at   2017-05-02 15:09:38 -0400
 
-## 15. opción de borrar un vector o constante
-- Created at   2017-05-02 17:42:34 -0400
-
-## 16. opción a cplot que genere grid conciso
+## 15. opción a cplot que genere grid conciso
 - Created at   2017-05-03 08:47:55 -0400
 
-## 17. fag a cplot que imprima resultados a precisión
+## 16. fag a cplot que imprima resultados a precisión
 - Created at   2017-05-03 15:24:34 -0400
 
-## 18. documentar ocpiones action y property en test-cali
+## 17. documentar ocpiones action y property en test-cali
 - Created at   2017-05-03 16:14:39 -0400
 
-## 19. dry en ValusArg::operator = de test-cali
+## 18. dry en ValusArg::operator = de test-cali
 - Created at   2017-05-03 16:59:18 -0400
 
-## 20. validad que el data set tenga el mismo pb para cada vector: 
+## 19. validad que el data set tenga el mismo pb para cada vector: 
 - Created at   
 
-## 21. ojo con la precisión en cplot
+## 20. ojo con la precisión en cplot
 - Created at   2017-05-04 11:02:49 -0400
 

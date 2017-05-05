@@ -24,6 +24,9 @@ PvtData data;
 	       " is not an unit for " + pq_name::get_instance().name);	\
   }
 
+static const DynSetTree<string> valid_targets =
+  { "rs", "bob", "boa", "uob", "uoa", "coa", "zfactor", "bo", "uo" };
+
 // Defines a input of form
 // "property-name property-unit t tunit pb punit p-list property-list"
 struct ValuesArg
@@ -66,8 +69,6 @@ struct ValuesArg
 
   void validate_property()
   {
-    static const DynSetTree<string> valid_targets =
-      { "rs", "bob", "boa", "uob", "uoa", "coa", "zfactor", "bo", "uo" };
     if (not valid_targets.contains(target_name))
       ZENTHROW(InvalidProperty, "target name " + target_name +
 	       " is not valid");
@@ -257,6 +258,8 @@ namespace TCLAP
 DynSetTree<string> const_name_tbl =
   { "api", "rsb", "yg", "tsep", "psep", "h2s", "co2", "n2", "nacl" };
 
+vector<string> valid_consts = to_vector(const_name_tbl);
+
 // input parameter unit change specification
 //
 // form is: --unit "par-name unit"
@@ -426,6 +429,35 @@ namespace TCLAP
   { typedef StringLike ValueCategory; };
 }
 
+struct RmProperty
+{
+  string yname = "No-Defined";
+  double t = -1;
+
+  RmProperty() {}
+
+  RmProperty & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> yname))
+      ZENTHROW(CommandLineError, "Cannot read target name property");
+    if (not valid_targets.contains(yname))
+      ZENTHROW(InvalidProperty, yname + " is not a valid property");
+    string data;
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "in rm option: cannot read temperature value");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "value " + data + " is not a double");
+    t = atof(data);
+    return *this;
+  }
+};
+
+namespace TCLAP
+{
+  template<> struct ArgTraits<RmProperty> { typedef StringLike ValueCategory; };
+}
+
 const DynSetTree<string> ActionType::valid_actions = 
   { "print", "list", "match", "apply", "napply", "global_apply", "lcal",
     "pbcal", "global_calibration" };
@@ -517,6 +549,13 @@ SwitchArg split_bo_arg = { "", "split_bo", "split bo vector", cmd };
 SwitchArg split_uo_arg = { "", "split_uo", "split uo vector", cmd };
 SwitchArg save = { "", "save", "save data to json", cmd };
 
+MultiArg<RmProperty> rm_property =
+  { "", "rm_property", "remove property t", false, "remove \"property t\"", cmd };
+
+ValuesConstraint<string> allowed_consts = valid_consts;
+MultiArg<string> rm_const = { "", "rm_const", "remove const", false,
+			      &allowed_consts, cmd };
+
 ValueArg<string> file = { "f", "file", "load json", false, "", "load json", cmd };
 
 const Unit * test_unit(const string & par_name, const Unit & dft_unit)
@@ -541,6 +580,18 @@ void set_relax_names()
 {
   for (auto & p : relax_pars.getValue())
     relax_names_tbl.append(p);
+}
+
+void remove_consts()
+{
+  for (auto & c : rm_const.getValue())
+    data.rm_const(c);
+}
+
+void remove_properties()
+{
+  for (auto & p : rm_property.getValue())
+    data.rm_vector(p.t, p.yname);
 }
 
 void build_pvt_data()
@@ -1159,6 +1210,8 @@ int main(int argc, char *argv[])
     }
 
   build_pvt_data();
+  remove_consts();
+  remove_properties();
 
   if (split_bo_arg.getValue())
     split_bo();

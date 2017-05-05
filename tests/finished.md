@@ -1738,3 +1738,15 @@
 - Comment      
 - Finished     
 
+## 291. opción de borrar un vector o constante
+- Created at   2017-05-02 17:42:34 -0400
+- Completed at 2017-05-05 10:45:41 -0400
+- Comment      
+- Finished     
+
+## 292. remove const
+- Created at   2017-05-05 10:35:09 -0400
+- Completed at 2017-05-05 11:06:58 -0400
+- Comment      
+- Finished     
+
