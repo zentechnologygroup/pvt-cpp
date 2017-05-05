@@ -468,7 +468,7 @@ Command_Arg_Optional_Correlation(sgo, SgoBakerSwerdloff);
 Command_Arg_Optional_Correlation(sgw, SgwJenningsNewman);
 
 vector<string> grid_types =
-  { "blackoil", "wetgas", "drygas", "brine", "gascondensate" };
+  { "blackoil", "wetgas", "drygas", "brine", "gascondensate", "simple" };
 ValuesConstraint<string> allowed_grid_types = grid_types;
 ValueArg<string> grid = { "", "grid", "grid type", false,
 			  "blackoil", &allowed_grid_types, cmd };
@@ -1656,6 +1656,219 @@ void generate_rows_blackoil()
     }
 }
 
+# define Simple_Init()						\
+  set_api(); /* Initialization of constant data */			\
+  set_rsb();								\
+  set_yg();								\
+  set_tsep();								\
+  set_psep();								\
+  set_h2s();								\
+  set_co2();								\
+  set_n2();								\
+  set_nacl();								\
+									\
+  set_pb_corr(); /* Initialization of correlations */			\
+  set_rs_corr();							\
+  set_bob_corr();							\
+  set_boa_corr();							\
+  set_uod_corr();							\
+  set_cob_corr();							\
+  set_coa_corr();							\
+  set_uob_corr();							\
+  set_uoa_corr();							\
+  set_ppchc_corr();							\
+  set_tpchc_corr();							\
+  set_ppcm_mixing_corr();						\
+  set_tpcm_mixing_corr();						\
+  set_adjustedppcm_corr();						\
+  set_adjustedtpcm_corr();						\
+  set_zfactor_corr();							\
+									\
+  /* Calculation of constants for Z */					\
+  auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg), \
+			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
+  auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),		\
+			   NPAR(n2), NPAR(co2), NPAR(h2s));		\
+  auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),		\
+			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
+  auto tpchc = tpchc_corr->compute(check, yghc);			\
+  auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),		\
+			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
+  auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),	\
+				  NPAR(tpcm), NPAR(co2), NPAR(h2s));	\
+  auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),	\
+				  NPAR(co2), NPAR(h2s));		\
+  /* End calculation constants for z */					\
+									\
+  /* Initialization of correlation parameter lists */			\
+  auto pb_pars = load_constant_parameters({pb_corr});			\
+  auto rs_pars = load_constant_parameters({rs_corr,			\
+	&RsAbovePb::get_instance()});					\
+  auto uod_pars = load_constant_parameters({uod_corr});			\
+  auto bo_pars = load_constant_parameters({bob_corr, boa_corr});	\
+  auto co_pars = load_constant_parameters({cob_corr, coa_corr});	\
+  auto uo_pars = load_constant_parameters({uob_corr, uoa_corr});	\
+									\
+  using P = pair<string, const Unit*>;					\
+  auto row_units =							\
+	     print_csv_header(P("t", t_unit),				\
+			      P("pb", &pb_corr->unit),			\
+			      P("uod", &uod_corr->unit),		\
+			      P("p", p_unit),				\
+			      P("rs", &::rs_corr->unit),		\
+			      P("co", &cob_corr->unit),			\
+			      P("bo", &bob_corr->unit),			\
+			      P("uo", &uob_corr->unit),			\
+			      P("zfactor", &Zfactor::get_instance()),	\
+			      P("exception", &Unit::null_unit),		\
+			      P("pbrow", &Unit::null_unit));		\
+									\
+  auto rs_pb = npar("rs", rsb_par);					\
+									\
+  /* Here are the values. Ensure that the insertion order is the same*/	\
+  /* as for the csv header temperature loop */				\
+									\
+  FixedStack<const VtlQuantity*> row(25); 
+
+# define Simple_Temperature_Calculations()				\
+  VtlQuantity t_q = par(t_par);						\
+  temperature = t_q.raw();						\
+  CALL(Tpr, tpr, t_q, adjustedtpcm);					\
+  auto tpr_par = NPAR(tpr);						\
+									\
+  VtlQuantity pb_q =							\
+    tcompute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);   \
+  auto pb_par = npar("pb", pb_q);					\
+  auto p_pb = npar("p", pb_q);						\
+									\
+  auto uod_val = compute(uod_corr, check, uod_pars, t_par, pb_par);	\
+									\
+  insert_in_container(rs_pars, t_par, pb_par);				\
+  auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(), \
+				      m_rs_arg.getValue(),		\
+				      &RsAbovePb::get_instance());	\
+									\
+  insert_in_container(co_pars, t_par, pb_par);				\
+  auto co_corr =							\
+    define_correlation(pb_q,	\
+		       cob_corr, c_cob_arg.getValue(), m_cob_arg.getValue(), \
+		       coa_corr, c_coa_arg.getValue(), m_coa_arg.getValue()); \
+  auto bo_corr =							\
+    define_correlation(pb_q,	\
+		       bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(), \
+		       boa_corr, c_boa_arg.getValue(), m_boa_arg.getValue()); \
+									\
+  insert_in_container(uo_pars, t_par, pb_par, npar("uod", uod_val));	\
+  auto uo_corr =							\
+    define_correlation(pb_q,	\
+		       uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(), \
+		       uoa_corr, c_uoa_arg.getValue(), m_uoa_arg.getValue()); \
+  									\
+  bo_pars.insert(t_par);						\
+  auto bobp = tcompute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(), \
+		       check, bo_pars, p_pb, rs_pb);			\
+									\
+  auto uobp = tcompute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(), \
+		       check, uo_pars, p_pb, rs_pb);			\
+									\
+  insert_in_container(bo_pars, pb_par, NPAR(bobp));			\
+									\
+  uo_pars.insert("uobp", uobp.raw(), &uobp.unit);			\
+									\
+  size_t n = insert_in_row(row, t_q, pb_q, uod_val);
+
+# define Simple_Pressure_Calculations()				\
+  pressure = p_q.raw();							\
+  CALL(Ppr, ppr, p_q, adjustedppcm);					\
+  auto ppr_par = NPAR(ppr);						\
+  auto rs = dcompute(rs_corr, check, p_q, rs_pars, p_par);		\
+  rs = min(rs, rsb);							\
+  auto rs_par = NPAR(rs);						\
+  auto coa = dcompute(co_corr, check, p_q, co_pars, p_par);		\
+  auto coa_par = NPAR(coa);						\
+  auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, coa_par); \
+  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par);	\
+  VtlQuantity z;							\
+  if (p_q <= pb_q)							\
+    z = compute(zfactor_corr, check, ppr_par, tpr_par);			\
+  auto z_par = NPAR(z);							\
+									\
+  size_t n = insert_in_row(row, p_q, rs, coa, bo, uo, z);
+
+# define Simple_Pop_Temperature_Parameters()			\
+  row.popn(n);							\
+  remove_from_container(rs_pars, "pb", t_par);			\
+  remove_from_container(co_pars, "pb", t_par);			\
+  remove_from_container(bo_pars, "bobp", "pb", t_par);		\
+  remove_from_container(uo_pars, "uobp", "pb", "uod", t_par);
+
+void generate_grid_simple()
+{
+  Simple_Init();
+
+  for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next()) 
+    {
+      Correlation::NamedPar t_par = t_it.get_curr();
+      Simple_Temperature_Calculations();
+      auto pb = pb_q.raw();
+      double next_pb = nextafter(pb, numeric_limits<double>::max());
+      VtlQuantity next_pb_q = { pb_q.unit, next_pb };
+
+      auto first_p_point = p_values.get_first();
+      bool first_p_above_pb = VtlQuantity(*get<3>(first_p_point),
+					  get<2>(first_p_point)) > pb_q; 
+
+      size_t i = 0;
+      for (auto p_it = p_values.get_it(); p_it.has_curr(); ) // pressure loop
+	{
+	  Correlation::NamedPar p_par = p_it.get_curr();
+	  VtlQuantity p_q = par(p_par);
+
+	  bool pb_row = false; /* true if this line concerns to bubble point */	
+
+	  /* WARNING: these predicates must be evaluated exactly in
+	     this order */
+	  if (p_q <= pb_q or (not (i < 2)) or first_p_above_pb)
+	    p_it.next();
+	  else
+	    {
+	      pb_row = true;
+	      p_par = npar("p", ++i == 1 ? pb_q : next_pb_q);
+	      p_q = par(p_par);
+	      assert(i <= 2);
+	    }		
+
+	  Simple_Pressure_Calculations();
+	  row_fct_pb(row, row_units, pb_row);
+	  row.popn(n);
+	}
+      Simple_Pop_Temperature_Parameters();
+    }
+}
+
+void generate_rows_simple()
+{
+  assert(not tp_values.is_empty());
+ 
+  Blackoil_Init();
+  for (auto it = tp_values.get_it(); it.has_curr(); it.next())
+    {
+      auto & curr = it.get_curr();
+      Correlation::NamedPar t_par = curr.first;
+      Correlation::NamedPar p_par = curr.second;
+      Blackoil_Temperature_Calculations();
+
+      VtlQuantity p_q = par(p_par);
+      {
+	Blackoil_Pressure_Calculations();
+	row_fct_pb(row, row_units, false);
+	row.popn(n);
+      }
+      Blackoil_Pop_Temperature_Parameters();
+    }
+}
+
+
 // This routine is invoked to validate the use of one or two separators
 void check_second_separator_case()
 {
@@ -2062,13 +2275,15 @@ void process_gascondensate()
 Define_Process_Fluid_Fct(blackoil);
 Define_Process_Fluid_Fct(wetgas);
 Define_Process_Fluid_Fct(drygas);
+Define_Process_Fluid_Fct(simple);
 
 AHDispatcher<string, void (*)()>
 grid_dispatcher("blackoil", process_blackoil,
 		"wetgas", process_wetgas,
 		"drygas", process_drygas,
 		"brine", process_brine,
-		"gascondensate", process_gascondensate);
+		"gascondensate", process_gascondensate,
+		"simple", process_simple);
 
 void generate_grid(const string & fluid_type)
 {

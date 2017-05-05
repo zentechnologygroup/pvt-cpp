@@ -1184,10 +1184,16 @@ void split_bo()
 
 void split_uo()
 {
-  auto uo_vectors = data.search_vectors("uo");
+  DynList<const VectorDesc*> uo_vectors = data.search_vectors("uo");
   if (uo_vectors.is_empty())
-    ZENTHROW(VarNameNotFound, "data does not contain bo");
+    ZENTHROW(VarNameNotFound, "data does not contain uo");
 
+  cout << "uod :"; uo_vectors.for_each([] (auto p) { cout << " " << p; }); cout << endl;
+  uo_vectors.for_each([] (auto p)
+		 {
+		   cout << "testing " << p->yname << endl;
+		   assert(p->p.is_valid() and p->y.is_valid());
+		 });
   for (auto it = uo_vectors.get_it(); it.has_curr(); it.next())
     {
       auto uo_ptr = it.get_curr();
@@ -1197,18 +1203,32 @@ void split_uo()
     }
 }
 
+void test_load_file()
+{
+  if (not file.isSet())
+    return;
+  
+  ifstream in(file.getValue());
+  if (in)
+    {
+      try
+	{
+	  data = PvtData(in);
+	}
+      catch (exception & e)
+	{
+	  if (not save.getValue())
+	    ZENTHROW(InvalidJson, "reading json: " + string(e.what()));
+	}
+    }
+}
+
 int main(int argc, char *argv[])
 {
   UnitsInstancer::init();
   cmd.parse(argc, argv);
-  if (file.isSet())
-    {
-      ifstream in(file.getValue());
-      if (in)
-	data = PvtData(in);
-      in.close();
-    }
 
+  test_load_file();
   build_pvt_data();
   remove_consts();
   remove_properties();

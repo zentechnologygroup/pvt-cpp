@@ -329,8 +329,6 @@ struct PvtData
 {
   DynSetTree<ConstDesc> const_values; // indexed and sorted by name
 
-  DynSetTree<double> temperatures; 
-
   DynSetTree<VectorDesc> vectors;
 
   DynSetTree<string> names;
@@ -393,13 +391,13 @@ struct PvtData
 
   DynList<const VectorDesc*> search_vectors(const string & name) const noexcept
   {
-    DynList<const VectorDesc*> ret;
-    for (auto t : temperatures)
-      {
-	const VectorDesc * ptr = vectors.search(VectorDesc(t, name));
-	if (ptr != nullptr)
-	  ret.append(ptr);
-      }
+    cout << "search_vectors(" << name << ")" << endl;
+    auto v = vectors.filter([&name] (auto & v) { return v.yname == name; });
+    assert(v.all([] (auto & v) { return v.p.is_valid() and v.y.is_valid(); }));
+    auto ret = v.maps<const VectorDesc*>([] (const auto & v) { return &v; });
+    assert(ret.all([] (auto ptr) { return ptr->p.is_valid() and ptr->y.is_valid(); }));
+    cout << "Retorno es válido para " << name << endl;
+    cout << "Ptrs:"; ret.for_each([] (auto p) { cout << " " << p; }); cout << endl;
     return ret;
   }
 
@@ -426,7 +424,6 @@ struct PvtData
         { return p->yunit->is_sibling(*v.yunit); }))
       ZENTHROW(InvalidTargetUnit, v.yunit->name + " is not sibling");
 
-    temperatures.insert(v.t);
     names.append("p");
     names.append("pb");
     names.append("t");
@@ -450,7 +447,6 @@ struct PvtData
         { return p->yunit->is_sibling(*v.yunit); }))
       ZENTHROW(InvalidTargetUnit, v.yunit->name + " is not sibling");
 
-    temperatures.insert(v.t);
     names.append("p");
     names.append("pb");
     names.append("t");
@@ -463,11 +459,16 @@ struct PvtData
 
   void rm_vector(double t, const string & target_name)
   {
-    if (search_vectors(target_name).is_empty())
+    auto l = search_vectors(target_name);
+    if (l.is_empty())
       ZENTHROW(VarNameNotFound, "variable " + target_name + " not found");
+    if (not l.exists([&target_name, &t] (auto & ptr)
+		     { return ptr->yname == target_name and ptr->t == t; }))
+      ZENTHROW(VarNameNotFound, "variable " + target_name +
+	       " is to associated to t = " + ::to_string(t));
     vectors.remove(VectorDesc(t, target_name));
-    if (not vectors.exists([&target_name] (auto &v)
-			   { return v.yname == target_name; }))
+    if (not vectors.exists([&target_name, &t] (auto &v)
+			   { return v.yname == target_name and v.t == t; }))
       names.remove(target_name);
   }
 
