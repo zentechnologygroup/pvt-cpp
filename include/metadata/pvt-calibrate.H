@@ -333,6 +333,16 @@ struct PvtData
 
   DynSetTree<string> names;
 
+  const Correlation * pb_corr = nullptr;
+  const Correlation * rs_corr = nullptr;
+  const Correlation * bob_corr = nullptr;
+  const Correlation * boa_corr = nullptr;
+  const Correlation * cob_corr = nullptr;
+  const Correlation * coa_corr = nullptr;
+  const Correlation * uod_corr = nullptr;
+  const Correlation * uob_corr = nullptr;
+  const Correlation * uoa_corr = nullptr;
+
   Json to_json() const
   {
     Json j;
@@ -391,14 +401,7 @@ struct PvtData
 
   DynList<const VectorDesc*> search_vectors(const string & name) const noexcept
   {
-    cout << "search_vectors(" << name << ")" << endl;
-    auto v = vectors.filter([&name] (auto & v) { return v.yname == name; });
-    assert(v.all([] (auto & v) { return v.p.is_valid() and v.y.is_valid(); }));
-    auto ret = v.maps<const VectorDesc*>([] (const auto & v) { return &v; });
-    assert(ret.all([] (auto ptr) { return ptr->p.is_valid() and ptr->y.is_valid(); }));
-    cout << "Retorno es válido para " << name << endl;
-    cout << "Ptrs:"; ret.for_each([] (auto p) { cout << " " << p; }); cout << endl;
-    return ret;
+    return vectors.ptr_filter([&name] (auto & v) { return v.yname == name; });
   }
 
   pair<const Unit*, const Unit*> search_units(const string & target_name) const
@@ -779,38 +782,6 @@ struct PvtData
 	if (const_ptr)
 	  pars.insert(par.name, const_ptr->value, const_ptr->unit_ptr);
       }
-  }
-
-  //     
-  DynList<pair<double, double>> tp_pairs() const
-  {
-    DynMapTree<double, double> pairs;
-    for (auto it = vectors.get_it(); it.has_curr(); it.next())
-      {
-	const VectorDesc & vdesc = it.get_curr();
-	auto ptr = pairs.search(vdesc.t);
-	if (ptr == nullptr)
-	  pairs.insert(vdesc.t, unit_convert(*vdesc.punit, vdesc.pb,
-					     psia::get_instance()));
-	else
-	  {
-	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
-					  psia::get_instance());
-	    if (ptr->second != p)
-	      {
-		ostringstream s;
-		s << "Found two contradictory pairs t,pb: " << ptr->first << ","
-		  << ptr->second << " != " << vdesc.t << "," << vdesc.pb;
-		ZENTHROW(PressureMismatch, s.str());
-	      }		       
-	  }
-      }
-
-    if (not is_sorted(pairs.values()))
-      ZENTHROW(PressureMismatch,
-	       "pb values are not sorted through temperatures");
-
-    return pairs.maps([] (auto p) { return p; });
   }
 
   //                     t,     pb,     uod,

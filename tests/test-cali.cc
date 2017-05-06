@@ -1123,10 +1123,10 @@ void proccess_pb_calibration()
 	comb.append(make_pair(0, 1));
     }
 
-  auto tp_pairs = data.tp_pairs();
-  auto vals = unzip(tp_pairs);
+  auto tp_tuples = data.tp_sets();
+  auto vals = t_unzip(tp_tuples);
   DynList<DynList<double>> rows =
-    build_dynlist<DynList<double>>(vals.first, vals.second);
+    build_dynlist<DynList<double>>(get<0>(vals), get<1>(vals));
   DynList<string> header = build_dynlist<string>("t", "pb");
 
   for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
@@ -1154,6 +1154,12 @@ void proccess_pb_calibration()
   cout << print_dispatcher.run(output.getValue(), result) << endl;
 }
 
+void proccess_cplot()
+{
+  cout << "Not yet implemented" << endl;
+  abort();
+}
+
 const AHDispatcher<string, void (*)()> dispatcher =
   {
     "print", print_data,
@@ -1164,7 +1170,8 @@ const AHDispatcher<string, void (*)()> dispatcher =
     "global_apply", dummy,
     "lcal", proccess_local_calibration,
     "pbcal", proccess_pb_calibration,
-    "global_calibration", dummy
+    "global_calibration", dummy,
+    "cplot", process_cplot
   };
 
 void split_bo()
@@ -1188,12 +1195,6 @@ void split_uo()
   if (uo_vectors.is_empty())
     ZENTHROW(VarNameNotFound, "data does not contain uo");
 
-  cout << "uod :"; uo_vectors.for_each([] (auto p) { cout << " " << p; }); cout << endl;
-  uo_vectors.for_each([] (auto p)
-		 {
-		   cout << "testing " << p->yname << endl;
-		   assert(p->p.is_valid() and p->y.is_valid());
-		 });
   for (auto it = uo_vectors.get_it(); it.has_curr(); it.next())
     {
       auto uo_ptr = it.get_curr();
