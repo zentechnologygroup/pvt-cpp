@@ -359,7 +359,8 @@ struct PvtData
     return j;
   }
 
-  static void json_to_corr(const Json & j, const Correlation *& corr_ptr,
+  static
+  void load_corr_from_json(const Json & j, const Correlation *& corr_ptr,
 			   double & c, double & m, const string & target_name)
   {
     c = j["c"];
@@ -371,6 +372,42 @@ struct PvtData
     if (corr_ptr->target_name() != target_name)
       ZENTHROW(CorrelationNotApplicable, "correlation " + name +
 	       " is not for " + target_name);
+  }
+
+  static string to_string( const Correlation * corr_ptr, double c, double m)
+  {
+    ostringstream s;
+    s << corr_ptr->name << " c = " << c << " m = " << m;
+    return s.str();
+  }
+
+  static DynList<string>
+  corr_to_list(const Correlation * corr_ptr, double c, double m)
+  {
+    return build_dynlist<string>(corr_ptr->name, "m = " + to_str(c),
+				 "c = " + to_str(m));
+  }
+
+  DynList<DynList<string>> corr_list() const
+  {
+    DynList<DynList<string>> ret;
+    if (pb_corr)
+      ret.append(corr_to_list(pb_corr, c_pb, m_pb));
+    if (rs_corr)
+      ret.append(corr_to_list(rs_corr, c_rs, m_rs));
+    if (bob_corr)
+      ret.append(corr_to_list(bob_corr, c_bob, m_bob));
+    if (boa_corr)
+      ret.append(corr_to_list(boa_corr, c_boa, m_boa));
+    if (coa_corr)
+      ret.append(corr_to_list(coa_corr, c_coa, m_coa));
+    if (uob_corr)
+      ret.append(corr_to_list(uob_corr, c_uob, m_uob));
+    if (uoa_corr)
+      ret.append(corr_to_list(uoa_corr, c_uoa, m_uoa));
+    if (uod_corr)
+      ret.append(corr_to_list(uoa_corr, c_uoa, m_uoa));
+    return ret;
   }
 
   Json to_json() const
@@ -402,6 +439,8 @@ struct PvtData
     s << "Constants:" << endl
       << shift_lines_to_left(Aleph::to_string(format_string(const_list)), 2)
       << endl
+      << "Correlations:" << endl
+      << shift_lines_to_left(Aleph::to_string(format_string(corr_list())), 2)
       << endl
       << "Variables:" << endl;
     for (auto it = vectors.get_it(); it.has_curr(); it.next())
@@ -526,6 +565,15 @@ struct PvtData
   PvtData(istream & input)
   {
     Json j = Json::parse(input);
+    load_corr_from_json(j["pb_corr"], pb_corr, c_pb, m_pb, "pb");
+    load_corr_from_json(j["rs_corr"], rs_corr, c_rs, m_rs, "rs");
+    load_corr_from_json(j["bob_corr"], bob_corr, c_bob, m_bob, "bob");
+    load_corr_from_json(j["boa_corr"], boa_corr, c_boa, m_boa, "boa");
+    load_corr_from_json(j["coa_corr"], coa_corr, c_coa, m_coa, "coa");
+    load_corr_from_json(j["uob_corr"], uob_corr, c_uob, m_uob, "uob");
+    load_corr_from_json(j["uoa_corr"], uoa_corr, c_uoa, m_uoa, "uoa");
+    load_corr_from_json(j["uod_corr"], uod_corr, c_uod, m_uoa, "uod");
+
     for (const ConstDesc & c : j["constants"])
       add_const(c);
 
