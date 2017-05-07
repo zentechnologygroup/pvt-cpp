@@ -558,6 +558,53 @@ MultiArg<string> rm_const = { "", "rm_const", "remove const", false,
 
 ValueArg<string> file = { "f", "file", "load json", false, "", "load json", cmd };
 
+# define Corr_Arg(NAME)							\
+  ValueArg<string> NAME##_corr_arg =					\
+    { "", #NAME "_corr", "set " #NAME " correlation", false, "",	\
+      "set " #NAME " correlation", cmd };				\
+									\
+  ValueArg<string> NAME##_cal_corr_arg =				\
+    { "", #NAME "_cal_corr", "set calibrated " #NAME " correlation", false, \
+      "", "set calibrated " #NAME " correlation", cmd };		\
+									\
+  const Correlation * NAME##_corr = nullptr;				\
+  double c_##NAME = 0;							\
+  double m_##NAME = 1;							\
+									\
+  void set_##NAME##_corr()						\
+  {									\
+    if (not NAME##_corr_arg.isSet() and not NAME##_cal_corr_arg.isSet()) \
+      return;								\
+    if (NAME##_corr_arg.isSet() and NAME##_cal_corr_arg.isSet())	\
+      ZENTHROW(CommandLineError, "options " + NAME##_corr_arg.getName() + \
+	       NAME##_cal_corr_arg.getName() + " cannot be used together"); \
+    const bool calibrated = NAME##_cal_corr_arg.isSet();		\
+    const string corr_name = calibrated ? NAME##_cal_corr_arg.getValue() : \
+      NAME##_corr_arg.getValue();					\
+    auto corr_ptr = Correlation::search_by_name(corr_name);		\
+    if (corr_ptr == nullptr)						\
+      ZENTHROW(CommandLineError, "correlation " + corr_name + " not found"); \
+    if (corr_ptr->target_name() != #NAME)				\
+      ZENTHROW(CommandLineError, "correlation " + corr_ptr->name +	\
+	       " is not for " #NAME);					\
+    data.NAME##_corr = corr_ptr;					\
+    if (calibrated)							\
+      {									\
+	auto s = data.stats(corr_ptr);					\
+	data.c_##NAME = CorrStat::c(get<3>(s));				\
+	data.m_##NAME = CorrStat::m(get<3>(s));				\
+      }									\
+  }
+
+Corr_Arg(pb);
+Corr_Arg(rs);
+Corr_Arg(bob);
+Corr_Arg(boa);
+Corr_Arg(uob);
+Corr_Arg(uoa);
+Corr_Arg(uod);
+Corr_Arg(coa);
+
 const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 {
   if (not const_name_tbl.has(par_name))
@@ -1154,7 +1201,7 @@ void proccess_pb_calibration()
   cout << print_dispatcher.run(output.getValue(), result) << endl;
 }
 
-void proccess_cplot()
+void process_cplot()
 {
   cout << "Not yet implemented" << endl;
   abort();
@@ -1224,6 +1271,18 @@ void test_load_file()
     }
 }
 
+void set_correlations()
+{
+  set_pb_corr();
+  set_rs_corr();
+  set_bob_corr();
+  set_boa_corr();
+  set_coa_corr();
+  set_uod_corr();
+  set_uob_corr();
+  set_uoa_corr();
+}    
+
 int main(int argc, char *argv[])
 {
   UnitsInstancer::init();
@@ -1240,6 +1299,7 @@ int main(int argc, char *argv[])
   if (split_uo_arg.getValue())
     split_uo();
 
+  set_correlations();
   set_relax_names();
   input_data();
   dispatcher.run(action.getValue().type);

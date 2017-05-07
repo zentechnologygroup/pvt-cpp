@@ -1,4 +1,19 @@
 {
+  "boa_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "bob_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "coa_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
   "constants": [
     {
       "name": "api",
@@ -36,6 +51,31 @@
       "value": 0.6927
     }
   ],
+  "pb_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "rs_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "uoa_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "uob_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "uod_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
   "vectors": [
     {
       "bobp": 1.063,

@@ -334,18 +334,56 @@ struct PvtData
   DynSetTree<string> names;
 
   const Correlation * pb_corr = nullptr;
+  mutable double c_pb = 0, m_pb = 1;    
   const Correlation * rs_corr = nullptr;
+  mutable double c_rs = 0, m_rs = 1;    
   const Correlation * bob_corr = nullptr;
+  mutable double c_bob = 0, m_bob = 1;    
   const Correlation * boa_corr = nullptr;
-  const Correlation * cob_corr = nullptr;
+  mutable double c_boa = 0, m_boa = 1;    
   const Correlation * coa_corr = nullptr;
+  mutable double c_coa = 0, m_coa = 1;    
   const Correlation * uod_corr = nullptr;
+  mutable double c_uod = 0, m_uod = 1;    
   const Correlation * uob_corr = nullptr;
+  mutable double c_uob = 0, m_uob = 1;    
   const Correlation * uoa_corr = nullptr;
+  mutable double c_uoa = 0, m_uoa = 1;
+
+  static Json to_json(const Correlation * corr_ptr, double c, double m)
+  {
+    Json j;
+    j["name"] = corr_ptr ? corr_ptr->name : "null";
+    j["c"] = c;
+    j["m"] = m;
+    return j;
+  }
+
+  static void json_to_corr(const Json & j, const Correlation *& corr_ptr,
+			   double & c, double & m, const string & target_name)
+  {
+    c = j["c"];
+    m = j["m"];
+    const string name = j["name"];
+    corr_ptr = Correlation::search_by_name(name);
+    if (corr_ptr == nullptr)
+      return;
+    if (corr_ptr->target_name() != target_name)
+      ZENTHROW(CorrelationNotApplicable, "correlation " + name +
+	       " is not for " + target_name);
+  }
 
   Json to_json() const
   {
     Json j;
+    j["pb_corr"] = to_json(pb_corr, c_pb, m_pb);
+    j["rs_corr"] = to_json(rs_corr, c_rs, m_rs);
+    j["bob_corr"] = to_json(bob_corr, c_bob, m_bob);
+    j["boa_corr"] = to_json(boa_corr, c_boa, m_boa);
+    j["uod_corr"] = to_json(uod_corr, c_uod, m_uod);
+    j["uob_corr"] = to_json(uob_corr, c_uob, m_uob);
+    j["uoa_corr"] = to_json(uoa_corr, c_uoa, m_uoa);
+    j["coa_corr"] = to_json(coa_corr, c_coa, m_coa);
     j["vectors"] =
       to_vector(vectors.maps<Json>([] (auto &v) { return v.to_json(); }));
     j["constants"] =
@@ -1122,6 +1160,17 @@ struct PvtData
     auto stats = CorrStat(yc).stats(y);
 
     return make_tuple(corr_ptr, move(p), move(y), move(stats));
+  }
+
+  T stats(const Correlation * corr_ptr) const
+  {
+    const string tgt_name = corr_ptr->target_name();
+    if (tgt_name == "pb")
+      return pbstats(corr_ptr);
+    else if (tgt_name == "uod")
+      return uodstats(corr_ptr);
+    else
+      return istats(corr_ptr);
   }
 };
 
