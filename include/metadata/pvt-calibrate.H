@@ -350,6 +350,31 @@ struct PvtData
   const Correlation * uoa_corr = nullptr;
   mutable double c_uoa = 0, m_uoa = 1;
 
+  using Tcorr = tuple<const Correlation**, double*, double*>;
+  using Pcorr = pair<string, Tcorr>;
+
+  tuple<const Correlation*, double, double>
+  get_corr(const string & target_name)
+  {
+    static DynMapTree<string, Tcorr> corr_tbl =
+      {
+	Pcorr("pb", Tcorr(&pb_corr, &c_pb, &m_pb)),
+	Pcorr("rs", Tcorr(&rs_corr, &c_rs, &m_rs)),
+	Pcorr("bob", Tcorr(&bob_corr, &c_bob, &m_bob)),
+	Pcorr("boa", Tcorr(&boa_corr, &c_boa, &m_boa)),
+	Pcorr("coa", Tcorr(&coa_corr, &c_coa, &m_coa)),
+	Pcorr("uob", Tcorr(&uob_corr, &c_uob, &m_uob)),
+	Pcorr("uod", Tcorr(&uoa_corr, &c_uoa, &m_uoa)),
+	Pcorr("uoa", Tcorr(&uoa_corr, &c_uoa, &m_uoa))
+      };
+
+    auto ptr = corr_tbl.search(target_name);
+    if (ptr == nullptr)
+      ZENTHROW(InvalidTargetName, "target name " + target_name + " not found");
+    Tcorr t = ptr->second;
+    return make_tuple(*get<1>(t), *get<1>(t), *get<2>(t));
+  }
+
   static Json to_json(const Correlation * corr_ptr, double c, double m)
   {
     Json j;
@@ -1219,6 +1244,12 @@ struct PvtData
       return uodstats(corr_ptr);
     else
       return istats(corr_ptr);
+  }
+
+  pair<double, double> cm(const Correlation * corr_ptr) const
+  {
+    T s = stats(corr_ptr);
+    return make_pair(CorrStat::c(get<3>(s)), CorrStat::m(get<3>(s)));
   }
 };
 

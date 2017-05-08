@@ -371,9 +371,7 @@ namespace TCLAP
 struct GenerateInput
 {
   string target_name = "No-defined";
-  const Correlation * corr_ptr = nullptr;
   string src_name = "No-defined";
-  double c = 0, m = 1;
 
   friend ostream & operator << (ostream & out, const GenerateInput & i)
   {
@@ -400,24 +398,6 @@ struct GenerateInput
     if (target_name != corr_ptr->target_name())
       ZENTHROW(CommandLineError, "Correlation target " + corr_ptr->name +
 	       " does not match " + target_name);
-
-    string data;
-    if (not (iss >> data))
-      ZENTHROW(CommandLineError, "cannot read c value");
-    if (not is_double(data))
-      ZENTHROW(CommandLineError, "c value " + data + " for " + corr_name +
-	       " is not a double");
-    c = atof(data);
-
-    if (not (iss >> data))
-      ZENTHROW(CommandLineError, "cannot read m value");
-    if (not is_double(data))
-      ZENTHROW(CommandLineError, "m value for " + data + " for " + corr_name +
-	       " is not a double");
-    m = atof(data);
-
-    if (not (iss >> src_name))
-      ZENTHROW(CommandLineError, "cannot read source name property");
 
     return *this;
   }
@@ -505,7 +485,6 @@ ValueArg<double> co2 = { "", "co2", "co2", false, 0, "co2 in MolePercent", cmd }
 ValueArg<double> n2 = { "", "n2", "n2", false, 0, "n2 in MolePercent", cmd };
 ValueArg<double> nacl = { "", "nacl", "nacl", false, 0, "nacl in Molality_NaCl",
 			  cmd };
-ValueArg<double> uod = { "", "uod", "uod", false, 0, "uod in cP", cmd };
 
 vector<string> relax_names =
   {
@@ -526,7 +505,7 @@ DynSetTree<string> input_types =
   { "rs", "bob", "boa", "uob", "uob", "cob", "coa" };
 
 MultiArg<GenerateInput> input = { "", "input", "input from correlation", false,
-				  "input tgt corr c m src", cmd };
+				  "input tgt corr src [cal]", cmd };
 				  
 vector<string> output_types = { "R", "csv", "mat" };
 ValuesConstraint<string> allowed_output_types = output_types;
@@ -560,11 +539,11 @@ ValueArg<string> file = { "f", "file", "load json", false, "", "load json", cmd 
 
 # define Corr_Arg(NAME)							\
   ValueArg<string> NAME##_corr_arg =					\
-    { "", #NAME "_corr", "set " #NAME " correlation", false, "",	\
+    { "", #NAME, "set " #NAME " correlation", false, "",		\
       "set " #NAME " correlation", cmd };				\
 									\
   ValueArg<string> NAME##_cal_corr_arg =				\
-    { "", #NAME "_cal_corr", "set calibrated " #NAME " correlation", false, \
+    { "", #NAME "_cal", "set calibrated " #NAME " correlation", false,	\
       "", "set calibrated " #NAME " correlation", cmd };		\
 									\
   const Correlation * NAME##_corr = nullptr;				\
@@ -684,13 +663,17 @@ void input_data(const GenerateInput & in)
       return ptr->t;
     });
 
-  const Correlation * corr_ptr = in.corr_ptr;
   for (auto it = src_vectors.get_it(); it.has_curr(); it.next())
     {
       auto src_ptr = it.get_curr();
       if (temps.has(src_ptr->t))
 	continue;
-      VectorDesc d = data.build_samples(src_ptr, corr_ptr, in.c, in.m);
+
+      auto pars = data.get_corr(in.src_name);
+      // TODO: verificar qe corr_ptr esté en data
+      pair<double, double> p = data.cm(corr_ptr);
+
+      VectorDesc d = data.build_samples(src_ptr, corr_ptr, p.first, p.second);
       temps.insert(d.t);
       data.add_vector(move(d));
     }	 
