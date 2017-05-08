@@ -372,7 +372,7 @@ struct PvtData
     if (ptr == nullptr)
       ZENTHROW(InvalidTargetName, "target name " + target_name + " not found");
     Tcorr t = ptr->second;
-    return make_tuple(*get<1>(t), *get<1>(t), *get<2>(t));
+    return make_tuple(*get<0>(t), *get<1>(t), *get<2>(t));
   }
 
   static Json to_json(const Correlation * corr_ptr, double c, double m)

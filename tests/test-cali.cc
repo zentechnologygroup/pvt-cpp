@@ -376,7 +376,6 @@ struct GenerateInput
   friend ostream & operator << (ostream & out, const GenerateInput & i)
   {
     return out << "Target name = " << i.target_name << endl
-	       << "Correlation = " << i.corr_ptr->name << endl
 	       << "Source name = " << i.src_name;
   }
 
@@ -387,17 +386,13 @@ struct GenerateInput
     istringstream iss(str);
     if (not (iss >> target_name))
       ZENTHROW(CommandLineError, "Cannot read target name property");
+    if (not valid_targets.contains(target_name))
+      ZENTHROW(CommandLineError, target_name +  " is not a valid target name");
 
-    string corr_name;
-    if (not (iss >> corr_name))
-      ZENTHROW(CommandLineError, "Cannot read correlation name");
-    corr_ptr = Correlation::search_by_name(corr_name);
-    if (corr_ptr == nullptr)
-      ZENTHROW(CommandLineError, "correlation " + corr_name + " not found");
-
-    if (target_name != corr_ptr->target_name())
-      ZENTHROW(CommandLineError, "Correlation target " + corr_ptr->name +
-	       " does not match " + target_name);
+    if (not (iss >> src_name))
+      ZENTHROW(CommandLineError, "Cannot read source name property");
+    if (not valid_targets.contains(src_name))
+      ZENTHROW(CommandLineError, src_name +  " is not a valid source name");
 
     return *this;
   }
@@ -505,7 +500,7 @@ DynSetTree<string> input_types =
   { "rs", "bob", "boa", "uob", "uob", "cob", "coa" };
 
 MultiArg<GenerateInput> input = { "", "input", "input from correlation", false,
-				  "input tgt corr src [cal]", cmd };
+				  "input tgt src", cmd };
 				  
 vector<string> output_types = { "R", "csv", "mat" };
 ValuesConstraint<string> allowed_output_types = output_types;
