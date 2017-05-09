@@ -705,7 +705,8 @@ void process_apply()
     return;
   
   auto property_name = apply.getValue();
-  if (not valid_targets.contains(property_name))
+  if (not valid_targets.contains(property_name) and property_name != "pb" and
+      property_name != "uod")
     ZENTHROW(CommandLineError, "target name " + property_name + " is not valid");
   
   auto corr_list = data.can_be_applied(property_name, relax_names_tbl);
@@ -755,7 +756,8 @@ void process_napply()
     return;
   
   auto property_name = napply.getValue();
-  if (not valid_targets.contains(property_name))
+  if (not valid_targets.contains(property_name) and property_name != "pb" and
+      property_name != "uod")
     ZENTHROW(CommandLineError, "target name " + property_name + " is not valid");
 
   auto missing_list = data.list_restrictions(property_name, relax_names_tbl);
@@ -1098,7 +1100,7 @@ void process_pb_calibration()
   if (not pb_cal.isSet())
     return;
 
-  auto name_list = to_DynList(cal.getValue());
+  auto name_list = to_DynList(pb_cal.getValue());
   auto corr_list = name_list.maps<const Correlation*>([] (auto & name)
     {
       auto ptr = Correlation::search_by_name(name);
@@ -1235,7 +1237,7 @@ void process_uod_calibration()
   if (not uod_cal.isSet())
     return;
 
-  auto name_list = to_DynList(cal.getValue());
+  auto name_list = to_DynList(uod_cal.getValue());
   auto corr_list = name_list.maps<const Correlation*>([] (auto & name)
     {
       auto ptr = Correlation::search_by_name(name);
