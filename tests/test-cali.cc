@@ -298,76 +298,6 @@ namespace TCLAP
   template<> struct ArgTraits<ArgUnit> { typedef StringLike ValueCategory; };
 }
 
-struct ActionType
-{
-  static const DynSetTree<string> valid_actions;
-  static const AHDispatcher<string, void (*)(ActionType*, istringstream*)>
-  dispatcher;
-  string type;
-  string property_name;
-  DynList<const Correlation*> corr_list;
-  DynList<pair<const Correlation*, const Correlation*>> corr_pair_list;
-
-  ActionType() {}
-
-  ActionType & operator = (const string & str)
-  {
-    istringstream iss(str);
-
-    if (not (iss >> type))
-      ZENTHROW(CommandLineError, "cannot read action type");
-    if (not valid_actions.contains(type))
-      {
-	ostringstream s;
-	s << type << " is not a valid action (must be";
-	valid_actions.for_each([&s] (auto & a) { s << " " << a; });
-	s << ")";
-	ZENTHROW(CommandLineError, s.str());
-      }
-
-    dispatcher.run(type, this, &iss);
-
-    return *this;
-  }
-
-  static void read_property_name(ActionType * action, istringstream * iss)
-  {
-    if (not (*iss >> action->property_name))
-      ZENTHROW(CommandLineError, "cannot read property name");
-  }
-
-  static void read_local_calibration(ActionType * action, istringstream * iss)
-  {
-    string corr_name;
-    while (*iss >> corr_name)
-      {
-	auto corr_ptr = Correlation::search_by_name(corr_name);
-	if (corr_ptr == nullptr)
-	  ZENTHROW(CommandLineError, "correlation " + corr_name + " not found");
-	action->corr_list.append(corr_ptr);
-      }
-
-    if (action->corr_list.is_empty())
-      ZENTHROW(CommandLineError, "list of correlations is empty");
-
-    const string & subtype = action->corr_list.get_first()->subtype_name;
-    if (not action->corr_list.all([&subtype] (auto p)
-				  { return p->subtype_name == subtype; }))
-      ZENTHROW(CommandLineError, "correlation must be of same subtype");
-  }
-
-  static void dummy(ActionType*, istringstream*)
-  {
-    cout << "Not implemented" << endl;
-    abort();
-  };
-};
-
-namespace TCLAP
-{
-  template<> struct ArgTraits<ActionType> { typedef StringLike ValueCategory; };
-}
-
 struct GenerateInput
 {
   string target_name = "No-defined";
@@ -433,37 +363,7 @@ namespace TCLAP
   template<> struct ArgTraits<RmProperty> { typedef StringLike ValueCategory; };
 }
 
-const DynSetTree<string> ActionType::valid_actions = 
-  { "print", "list", "match", "apply", "napply", "global_apply", "lcal",
-    "pbcal", "uodcal", "global_calibration" };
-
-const string actions =
- ActionType::valid_actions.take(ActionType::valid_actions.size() - 1).
-	    foldl<string>("", [] (auto & a, auto & s)
-	      {
-		return a + s + " | ";
-	      }) + ActionType::valid_actions.get_last();
-
-const AHDispatcher<string, void (*)(ActionType*, istringstream*)>
-ActionType::dispatcher 
-(
- "print", [] (ActionType*, istringstream*) {},
- "list", ActionType::read_property_name,
- "match", ActionType::read_property_name,
- "apply", ActionType::read_property_name,
- "napply", ActionType::read_property_name,
- "global_apply", ActionType::dummy,
- "pbcal", ActionType::read_local_calibration,
- "uodcal", ActionType::read_local_calibration,
- "lcal", ActionType::read_local_calibration,
- "global_calibration", ActionType::dummy
- );
-
 CmdLine cmd = { "adjust", ' ', "0" };
-
-/// TODO: documentar action lista 
-ValueArg<ActionType> action = { "", "action", "action", false, ActionType(),
-				actions, cmd };
 
 // Unit change specification. Suitable for any parameter
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
@@ -532,6 +432,30 @@ MultiArg<string> rm_const = { "", "rm_const", "remove const", false,
 			      &allowed_consts, cmd };
 
 ValueArg<string> file = { "f", "file", "load json", false, "", "load json", cmd };
+
+SwitchArg print = { "p", "print", "print stored data", cmd };
+
+ValueArg<string> list_corr = { "l", "list", "list correlations", false, "",
+			       "list property", cmd };
+
+ValueArg<string> match = { "m", "match", "print matching correlations", false, "",
+			   "match property", cmd };
+
+ValueArg<string> apply = { "a", "apply", "print applying correlations", false, "",
+			   "apply property", cmd };
+
+ValueArg<string> napply =
+  { "n", "napply", "print non applying correlations and reasons", false, "",
+    "napply property", cmd };
+
+MultiArg<string> cal = { "", "lcal", "calibrate correlations", false,
+			 "calibrate correlation-list", cmd };
+
+MultiArg<string> pb_cal = { "", "pbcal", "calibrate correlations", false,
+			      "calibrate correlation-list", cmd };
+
+MultiArg<string> uod_cal = { "", "uodcal", "calibrate correlations", false,
+			       "calibrate correlation-list", cmd };
 
 # define Corr_Arg(NAME)							\
   ValueArg<string> NAME##_corr_arg =					\
@@ -686,50 +610,57 @@ void input_data()
     input_data(d);
 }
 
-void dummy()
-{
-  cout << "No implemented" << endl;
-}
-
 void print_correlations(const DynList<DynList<string>> & l)
 {
-  l.for_each([] (auto & l)
-	     {
-	       cout << l.get_first() << "(";
-	       auto & last = l.get_last();
-	       for (auto it = l.get_it(1); it.has_curr(); it.next())
-		 {
-		   auto & curr = it.get_curr();
-		   cout << curr;
-		   if (&curr != &last)
-		     cout << ", ";
-		 }
-	       cout << ")" << endl;
-	     });
+  if (l.is_empty())
+    cout << "Not found" << endl;
+  else      
+    l.for_each([] (auto & l)
+	       {
+		 cout << l.get_first() << "(";
+		 auto & last = l.get_last();
+		 for (auto it = l.get_it(1); it.has_curr(); it.next())
+		   {
+		     auto & curr = it.get_curr();
+		     cout << curr;
+		     if (&curr != &last)
+		       cout << ", ";
+		   }
+		 cout << ")" << endl;
+	       });
 }
 
-void print_data()
+void process_print_data()
 {
+  if (not print.getValue())
+    return;
   if (json.getValue())
     cout << data.to_json().dump(2) << endl;
   else
     cout << data << endl;
+  exit(0);
 }
 
 void process_list()
 {
+  if (not list_corr.isSet())
+    return;
   print_correlations(Correlation::array().
-    filter([tgt = action.getValue().property_name] (auto p)
+    filter([tgt = list_corr.getValue()] (auto p)
 	   {
 	     return p->target_name() == tgt;
 	   }).maps<DynList<string>>([] (auto p) { return p->to_dynlist(); }));
+  exit(0);
 }
 
 void process_match()
 {
-  print_correlations(data.matches_with_pars(action.getValue().property_name).
+  if (not match.isSet())
+    return;
+  print_correlations(data.matches_with_pars(match.getValue()).
 		     maps<DynList<string>>([] (auto p)
 					   { return p->to_dynlist(); }));
+  exit(0);
 }
 
 using T = PvtData::T;
@@ -764,7 +695,13 @@ DynMapTree<string, bool (*)(const T&, const T&)> cmp =
 
 void process_apply()
 {
-  auto property_name = action.getValue().property_name;
+  if (not apply.isSet())
+    return;
+  
+  auto property_name = apply.getValue();
+  if (not valid_targets.contains(property_name))
+    ZENTHROW(CommandLineError, "target name " + property_name + " is not valid");
+  
   auto corr_list = data.can_be_applied(property_name, relax_names_tbl);
 
   DynList<T> stats;
@@ -802,11 +739,19 @@ void process_apply()
     cout << Aleph::to_string(format_string_csv(rows)) << endl;
   else
     cout << Aleph::to_string(format_string(rows)) << endl;
+
+  exit(0);
 }
 
 void process_napply()
 {
-  auto property_name = action.getValue().property_name;
+  if (not napply.isSet())
+    return;
+  
+  auto property_name = napply.getValue();
+  if (not valid_targets.contains(property_name))
+    ZENTHROW(CommandLineError, "target name " + property_name + " is not valid");
+
   auto missing_list = data.list_restrictions(property_name, relax_names_tbl);
 
   DynList<DynList<string>> rows =
@@ -826,6 +771,8 @@ void process_napply()
     cout << to_string(format_string_csv(complete_rows(rows))) << endl;
   else
     cout << to_string(format_string(complete_rows(rows))) << endl;
+
+  exit(0);
 }
 
 void put_sample(const Correlation * corr_ptr,
@@ -991,9 +938,27 @@ void process_local_calibration()
   static AHDispatcher<string, string (*)(const DynList<DynList<string>>&)>
     print_dispatcher = { "R", print_R, "csv", print_csv, "mat", print_mat };
 
+  if (not cal.isSet())
+    return;
+
+  auto name_list = to_DynList(cal.getValue());
+  auto corr_list = name_list.maps<const Correlation*>([] (auto & name)
+    {
+      auto ptr = Correlation::search_by_name(name);
+      if (ptr == nullptr)
+	ZENTHROW(CommandLineError, "Not found correlation wit name " + name);
+      return ptr;
+    });
+
+  const Correlation * fst_corr = corr_list.get_first();
+  const string target_name = fst_corr->target_name();
+
+  if (not corr_list.all([&target_name] (auto p)
+			{ return p->target_name() == target_name; }))
+    ZENTHROW(CommandLineError, "correlations are not for the same target");
+
   const auto & mode = mode_type.getValue();
   
-  const auto & corr_list = action.getValue().corr_list;
   DynList<pair<double, double>> comb; // coefficients c and m
 
   // First we must verify that each read correlation applies to the data set
@@ -1010,8 +975,6 @@ void process_local_calibration()
 	comb.append(make_pair(0, 1));
     }
   
-  const Correlation * fst_corr = corr_list.get_first();
-  const string target_name = fst_corr->target_name();
   auto fst = data.iapply(fst_corr);
 
   // First correlation here because the pressure and lab values are
@@ -1054,6 +1017,7 @@ void process_local_calibration()
   assert(equal_length(rows, header));
 
   cout << print_dispatcher.run(output.getValue(), result) << endl;
+  exit(0);
 }
 
 void process_pb_calibration() 
@@ -1125,9 +1089,23 @@ void process_pb_calibration()
   static AHDispatcher<string, string (*)(const DynList<DynList<string>>&)>
     print_dispatcher = { "R", print_R, "csv", print_csv, "mat", print_mat };
 
+  if (not pb_cal.isSet())
+    return;
+
+  auto name_list = to_DynList(cal.getValue());
+  auto corr_list = name_list.maps<const Correlation*>([] (auto & name)
+    {
+      auto ptr = Correlation::search_by_name(name);
+      if (ptr == nullptr)
+	ZENTHROW(CommandLineError, "Not found correlation wit name " + name);
+      return ptr;
+    });
+
+  if (not corr_list.all([] (auto p) { return p->target_name() == "pb"; }))
+    ZENTHROW(CommandLineError, "correlations are not for pb");
+
   const auto & mode = mode_type.getValue();
   
-  const auto & corr_list = action.getValue().corr_list;
   DynList<pair<double, double>> comb; // coefficients c and m
 
   // First we must verify that each read correlation applies to the data set
@@ -1177,6 +1155,7 @@ void process_pb_calibration()
   assert(equal_length(rows, header));
 
   cout << print_dispatcher.run(output.getValue(), result) << endl;
+  exit(0);
 }
 
 void process_uod_calibration() 
@@ -1247,9 +1226,23 @@ void process_uod_calibration()
   static AHDispatcher<string, string (*)(const DynList<DynList<string>>&)>
     print_dispatcher = { "R", print_R, "csv", print_csv, "mat", print_mat };
 
+  if (not uod_cal.isSet())
+    return;
+
+  auto name_list = to_DynList(cal.getValue());
+  auto corr_list = name_list.maps<const Correlation*>([] (auto & name)
+    {
+      auto ptr = Correlation::search_by_name(name);
+      if (ptr == nullptr)
+	ZENTHROW(CommandLineError, "Not found correlation wit name " + name);
+      return ptr;
+    });
+
+  if (not corr_list.all([] (auto p) { return p->target_name() == "uod"; }))
+    ZENTHROW(CommandLineError, "correlations are not for uod");
+
   const auto & mode = mode_type.getValue();
   
-  const auto & corr_list = action.getValue().corr_list;
   DynList<pair<double, double>> comb; // coefficients c and m
 
   // First we must verify that each read correlation applies to the data set
@@ -1299,32 +1292,15 @@ void process_uod_calibration()
   assert(equal_length(rows, header));
 
   cout << print_dispatcher.run(output.getValue(), result) << endl;
+  exit(0);
 }
 
 void process_cplot()
 {
   if (not data.are_all_correlations_defined())
-    {
-      ostringstream s;
-      s 
-  cout << "./cplot -
-
+    ;
+  abort();
 }
-
-const AHDispatcher<string, void (*)()> dispatcher =
-  {
-    "print", print_data,
-    "list", process_list,
-    "match", process_match,
-    "apply", process_apply,
-    "napply", process_napply,
-    "global_apply", dummy,
-    "lcal", process_local_calibration,
-    "pbcal", process_pb_calibration,
-    "uodcal", process_uod_calibration,
-    "global_calibration", dummy,
-    "cplot", process_cplot
-  };
 
 void split_bo()
 {
@@ -1407,8 +1383,11 @@ int main(int argc, char *argv[])
   set_correlations();
   set_relax_names();
   input_data();
-  if (action.isSet())
-    dispatcher.run(action.getValue().type);
+
+  if (not data.defined())
+    ZENTHROW(CommandLineError, "data is not defined");
+
+  process_print_data();
 
   if (save.getValue())
     {
@@ -1417,5 +1396,13 @@ int main(int argc, char *argv[])
       ofstream out(file.getValue());
       out << data.to_json().dump(2);
     }
-  // TODO: falta sort
+
+  process_list();
+  process_match();
+  process_apply();
+  process_napply();
+  process_local_calibration();
+  process_pb_calibration();
+  process_uod_calibration();
+  process_cplot();
 }

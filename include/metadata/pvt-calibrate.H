@@ -328,32 +328,36 @@ struct ConstDesc
 struct PvtData
 {
   DynSetTree<ConstDesc> const_values; // indexed and sorted by name
-
   DynSetTree<VectorDesc> vectors;
-
   DynSetTree<string> names;
 
   const Correlation * pb_corr = nullptr;
-  mutable double c_pb = 0, m_pb = 1;    
+  double c_pb = 0, m_pb = 1;    
   const Correlation * rs_corr = nullptr;
-  mutable double c_rs = 0, m_rs = 1;    
+  double c_rs = 0, m_rs = 1;    
   const Correlation * bob_corr = nullptr;
-  mutable double c_bob = 0, m_bob = 1;    
+  double c_bob = 0, m_bob = 1;    
   const Correlation * boa_corr = nullptr;
-  mutable double c_boa = 0, m_boa = 1;    
+  double c_boa = 0, m_boa = 1;    
   const Correlation * coa_corr = nullptr;
-  mutable double c_coa = 0, m_coa = 1;    
+  double c_coa = 0, m_coa = 1;    
   const Correlation * uod_corr = nullptr;
-  mutable double c_uod = 0, m_uod = 1;    
+  double c_uod = 0, m_uod = 1;    
   const Correlation * uob_corr = nullptr;
-  mutable double c_uob = 0, m_uob = 1;    
+  double c_uob = 0, m_uob = 1;    
   const Correlation * uoa_corr = nullptr;
-  mutable double c_uoa = 0, m_uoa = 1;
+  double c_uoa = 0, m_uoa = 1;
+
+  bool defined() const
+  {
+    cout << const_values.is_empty() << " " << vectors.is_empty() << endl;
+    return not (const_values.is_empty() and vectors.is_empty());
+  }
 
   using Tcorr = tuple<const Correlation**, double*, double*>;
   using Pcorr = pair<string, Tcorr>;
 
-  const DynMapTree<string, Tcorr> corr_tbl =
+  DynMapTree<string, Tcorr> corr_tbl =
     {
       Pcorr("pb", Tcorr(&pb_corr, &c_pb, &m_pb)),
       Pcorr("rs", Tcorr(&rs_corr, &c_rs, &m_rs)),
