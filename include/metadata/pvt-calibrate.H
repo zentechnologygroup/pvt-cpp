@@ -280,6 +280,8 @@ struct ConstDesc
   const double value = 0;
   const Unit * unit_ptr = nullptr;
 
+  string to_cplot() const { return "--" + name + " " + to_str(value); }
+
   // only take in account the name in order to index and sort by name
   // in a binary search tree
   bool operator < (const ConstDesc & rhs) const noexcept
@@ -348,10 +350,12 @@ struct PvtData
   const Correlation * uoa_corr = nullptr;
   double c_uoa = 0, m_uoa = 1;
 
-  bool defined() const
+  string cplot_consts() const
   {
-    cout << const_values.is_empty() << " " << vectors.is_empty() << endl;
-    return not (const_values.is_empty() and vectors.is_empty());
+    return const_values.foldl<string>("", [] (auto & acu, auto & c)
+      {
+	return acu + c.to_cplot() + " ";
+      });
   }
 
   using Tcorr = tuple<const Correlation**, double*, double*>;
@@ -368,6 +372,32 @@ struct PvtData
       Pcorr("uod", Tcorr(&uoa_corr, &c_uoa, &m_uoa)),
       Pcorr("uoa", Tcorr(&uoa_corr, &c_uoa, &m_uoa))
     };
+
+  string cplot_corrs()
+  {
+    ostringstream s;
+    for (auto it = corr_tbl.get_it(); it.has_curr(); it.next())
+      {
+	auto & curr = it.get_curr();
+	const string & tgt = curr.first;
+	cout << "Processing " << tgt << endl;
+	auto t = curr.second;
+	assert(get<0>(t));
+	auto corr_ptr = *get<0>(t);
+	if (corr_ptr == nullptr)
+	  ZENTHROW(InvalidTargetName, "correlation for " + tgt + " not found");
+	const double c = *get<1>(t), m = *get<2>(t);
+	cout << "c = " << c << " m = " << m << endl;
+	s << "--" << tgt << " " << corr_ptr->name << " --c-" << tgt << " "
+	  << to_str(c) << " --m-" << tgt << " " << to_str(m) << " ";
+      }
+    return s.str();
+  }
+
+  bool defined() const
+  {
+    return not (const_values.is_empty() and vectors.is_empty());
+  }
 
   tuple<const Correlation*, double, double>
   get_corr(const string & target_name)
@@ -422,32 +452,24 @@ struct PvtData
   }
 
   static DynList<string>
-  corr_to_list(const Correlation * corr_ptr, double c, double m)
+  corr_to_list(const string & tgt,
+	       const Correlation * corr_ptr, double c, double m)
   {
-    return build_dynlist<string>(corr_ptr->name, "c = " + to_str(c),
-				 "m = " + to_str(m));
+    if (corr_ptr)
+      return build_dynlist<string>(tgt + " = " + corr_ptr->name, "c = " +
+				   to_str(c), "m = " + to_str(m));
+    return build_dynlist<string>(tgt + " = undefined", "c = undefined",
+				   "m = undefined");
   }
+
+# define Corr_List(NAME) corr_to_list(#NAME, NAME##_corr, c_##NAME, m_##NAME)
 
   DynList<DynList<string>> corr_list() const
   {
-    DynList<DynList<string>> ret;
-    if (pb_corr)
-      ret.append(corr_to_list(pb_corr, c_pb, m_pb));
-    if (rs_corr)
-      ret.append(corr_to_list(rs_corr, c_rs, m_rs));
-    if (bob_corr)
-      ret.append(corr_to_list(bob_corr, c_bob, m_bob));
-    if (boa_corr)
-      ret.append(corr_to_list(boa_corr, c_boa, m_boa));
-    if (coa_corr)
-      ret.append(corr_to_list(coa_corr, c_coa, m_coa));
-    if (uob_corr)
-      ret.append(corr_to_list(uob_corr, c_uob, m_uob));
-    if (uoa_corr)
-      ret.append(corr_to_list(uoa_corr, c_uoa, m_uoa));
-    if (uod_corr)
-      ret.append(corr_to_list(uoa_corr, c_uoa, m_uoa));
-    return ret;
+    return build_dynlist<DynList<string>>(Corr_List(pb), Corr_List(rs),
+					  Corr_List(bob), Corr_List(boa), 
+					  Corr_List(coa), Corr_List(uod),
+					  Corr_List(uob), Corr_List(uoa));
   }
 
   Json to_json() const
@@ -475,6 +497,7 @@ struct PvtData
       ([] (auto & c) { return c.to_dynlist(); });
     const_list.insert(build_dynlist<string>("name", "value", "unit"));
 
+    auto corrs = corr_list();
     ostringstream s;
     s << "Constants:" << endl
       << shift_lines_to_left(Aleph::to_string(format_string(const_list)), 2)

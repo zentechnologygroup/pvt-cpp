@@ -457,6 +457,8 @@ MultiArg<string> pb_cal = { "", "pbcal", "calibrate correlations", false,
 MultiArg<string> uod_cal = { "", "uodcal", "calibrate correlations", false,
 			       "calibrate correlation-list", cmd };
 
+SwitchArg cplot = { "", "cplot", "generate cplot command", cmd };
+
 # define Corr_Arg(NAME)							\
   ValueArg<string> NAME##_corr_arg =					\
     { "", #NAME, "set " #NAME " correlation", false, "",		\
@@ -542,10 +544,14 @@ void remove_properties()
 
 void build_pvt_data()
 {
-  data.add_const("api", api.getValue(), *test_unit("api", Api::get_instance()));
-  data.add_const("rsb", rsb.getValue(), *test_unit("rsb",
-						   SCF_STB::get_instance()));
-  data.add_const("yg", yg.getValue(), *test_unit("yg", Sgg::get_instance()));
+  if (api.isSet())
+    data.add_const("api", api.getValue(),
+		   *test_unit("api", Api::get_instance()));
+  if (rsb.isSet())
+    data.add_const("rsb", rsb.getValue(), *test_unit("rsb",
+						     SCF_STB::get_instance()));
+  if (yg.isSet())
+    data.add_const("yg", yg.getValue(), *test_unit("yg", Sgg::get_instance()));
   if (tsep.isSet())
     data.add_const("tsep", tsep.getValue(),
 		   *test_unit("tsep", Fahrenheit::get_instance()));
@@ -1297,9 +1303,22 @@ void process_uod_calibration()
 
 void process_cplot()
 {
+  if (not cplot.getValue())
+    return;
   if (not data.are_all_correlations_defined())
-    ;
-  abort();
+    {
+      ostringstream s;
+      s << "cannot generate cplot because the following correlations are "
+	"not defined:" << endl;
+      data.missing_correlations().for_each([] (auto & s)
+					   {
+					     cout << "  " << s << endl;
+					   });
+      ZENTHROW(CommandLineError, "missing correlations");
+    }
+  cout << "./cplot " << data.cplot_consts() << data.cplot_corrs()
+       << endl;
+  exit(0);      
 }
 
 void split_bo()
