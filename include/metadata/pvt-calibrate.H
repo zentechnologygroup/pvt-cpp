@@ -353,26 +353,37 @@ struct PvtData
   using Tcorr = tuple<const Correlation**, double*, double*>;
   using Pcorr = pair<string, Tcorr>;
 
+  const DynMapTree<string, Tcorr> corr_tbl =
+    {
+      Pcorr("pb", Tcorr(&pb_corr, &c_pb, &m_pb)),
+      Pcorr("rs", Tcorr(&rs_corr, &c_rs, &m_rs)),
+      Pcorr("bob", Tcorr(&bob_corr, &c_bob, &m_bob)),
+      Pcorr("boa", Tcorr(&boa_corr, &c_boa, &m_boa)),
+      Pcorr("coa", Tcorr(&coa_corr, &c_coa, &m_coa)),
+      Pcorr("uob", Tcorr(&uob_corr, &c_uob, &m_uob)),
+      Pcorr("uod", Tcorr(&uoa_corr, &c_uoa, &m_uoa)),
+      Pcorr("uoa", Tcorr(&uoa_corr, &c_uoa, &m_uoa))
+    };
+
   tuple<const Correlation*, double, double>
   get_corr(const string & target_name)
   {
-    static DynMapTree<string, Tcorr> corr_tbl =
-      {
-	Pcorr("pb", Tcorr(&pb_corr, &c_pb, &m_pb)),
-	Pcorr("rs", Tcorr(&rs_corr, &c_rs, &m_rs)),
-	Pcorr("bob", Tcorr(&bob_corr, &c_bob, &m_bob)),
-	Pcorr("boa", Tcorr(&boa_corr, &c_boa, &m_boa)),
-	Pcorr("coa", Tcorr(&coa_corr, &c_coa, &m_coa)),
-	Pcorr("uob", Tcorr(&uob_corr, &c_uob, &m_uob)),
-	Pcorr("uod", Tcorr(&uoa_corr, &c_uoa, &m_uoa)),
-	Pcorr("uoa", Tcorr(&uoa_corr, &c_uoa, &m_uoa))
-      };
-
     auto ptr = corr_tbl.search(target_name);
     if (ptr == nullptr)
       ZENTHROW(InvalidTargetName, "target name " + target_name + " not found");
     Tcorr t = ptr->second;
     return make_tuple(*get<0>(t), *get<1>(t), *get<2>(t));
+  }
+
+  bool are_all_correlations_defined() const
+  {
+    return corr_tbl.all([] (auto p) { return get<0>(p.second); });
+  }
+
+  DynList<string> missing_correlations() const
+  {
+    return corr_tbl.filter([] (auto p) { return not get<0>(p.second); }).
+      maps<string>([] (auto p) { return p.first; });
   }
 
   static Json to_json(const Correlation * corr_ptr, double c, double m)
@@ -409,8 +420,8 @@ struct PvtData
   static DynList<string>
   corr_to_list(const Correlation * corr_ptr, double c, double m)
   {
-    return build_dynlist<string>(corr_ptr->name, "m = " + to_str(c),
-				 "c = " + to_str(m));
+    return build_dynlist<string>(corr_ptr->name, "c = " + to_str(c),
+				 "m = " + to_str(m));
   }
 
   DynList<DynList<string>> corr_list() const
@@ -905,20 +916,19 @@ struct PvtData
   	const VectorDesc & vdesc = it.get_curr();
 	if (vdesc.yname == "bo" or vdesc.yname == "uo")
 	  continue;
-
+	// TODO: aquí hay error
   	auto ptr = tuples.search(vdesc.t);
   	if (ptr == nullptr)
-	  if (vdesc.uod > 0)
+	  if (vdesc.yname == "uob" or vdesc.yname == "uoa")
 	    tuples.insert(vdesc.t, Ttuple(vdesc.t,
-					unit_convert(*vdesc.punit, vdesc.pb,
-						     psia::get_instance()),
+					  unit_convert(*vdesc.punit, vdesc.pb,
+						       psia::get_instance()),
 					  unit_convert(*vdesc.yunit, vdesc.uod,
 						       CP::get_instance())));
 	  else
 	    tuples.insert(vdesc.t,
-			  Ttuple(vdesc.t,
-				 unit_convert(*vdesc.punit, vdesc.pb,
-					      psia::get_instance()), -1));
+			  Ttuple(vdesc.t, unit_convert(*vdesc.punit, vdesc.pb,
+						       psia::get_instance()), -1));
 	else
   	  {
   	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
@@ -931,7 +941,7 @@ struct PvtData
   		  << get<1>(t) << " != " << vdesc.t << "," << vdesc.pb;
   		ZENTHROW(PressureMismatch, s.str());
   	      }
-	    if (vdesc.uod > 0) // valid uod?
+	    if (vdesc.yname == "uob" or vdesc.yname == "uoa")
 	      get<2>(t) = unit_convert(*vdesc.yunit, vdesc.uod,
 				       CP::get_instance());
 	    else if (get<2>(t) > 0 and get<2>(t) != vdesc.uod)
