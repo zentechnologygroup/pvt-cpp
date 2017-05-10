@@ -110,6 +110,11 @@ struct ValuesArg
       }
   }
 
+  void set_uod(DynList<double> & vals)
+  {
+    cout << "uod = " << uod << endl;
+  }
+
   ValuesArg & operator = (const string & str)
   {
     istringstream iss(str);
@@ -181,14 +186,6 @@ struct ValuesArg
 	return *this;
       }
 
-    if (target_name == "uob" or target_name == "uoa")
-      {
-	if (not (iss >> data))
-	  ZENTHROW(CommandLineError, "uod value not found");
-	if (not is_double(data))
-	  ZENTHROW(CommandLineError, "uod value " + data + " is not a double");
-	uod = atof(data);
-      }
     DynList<double> vals;
     size_t n = 0;
     for (; iss >> data; ++n)
@@ -198,8 +195,17 @@ struct ValuesArg
 	vals.append(atof(data));
       }
 
-    if ((n % 2) != 0)
-      ZENTHROW(CommandLineError, "number of values is not even");
+    bool regression_required = false;
+    if (target_name == "uob" or target_name == "uoa")
+      {
+	if (target_name == "uob")
+	  if ((n % 2) != 0)
+	    set_uod(vals);
+	  else
+	    regression_required = true;
+	else
+	  set_uod(vals);
+      }
 
     auto it = vals.get_it();
     for (size_t i = 0; i < n/2; ++i, it.next())
@@ -209,7 +215,6 @@ struct ValuesArg
     if (not is_sorted(p))
       {
 	p = p.rev();
-	assert(is_sorted(p));
 	p_reversed = true;
       }
 
@@ -228,6 +233,9 @@ struct ValuesArg
       bobp = unit_convert(*unit_ptr, values.get_first(), RB_STB::get_instance());
     if (target_name == "uoa")
       uobp = unit_convert(*unit_ptr, values.get_first(), CP::get_instance());
+
+    if (regression_required)
+      uod = LFit(p, values).c;
 
     if (target_name.size() == 3 and target_name[2] == 'a')
       p.get_first() = nextafter(p.get_first(), p.get_last());
@@ -358,9 +366,38 @@ struct RmProperty
   }
 };
 
+struct CorrArgs
+{
+  DynList<const Correlation*> corr_list;
+
+  CorrArgs & operator = (const string & str)
+  {
+    istringstream iss(str);
+    string name;
+    while (iss >> name)
+      {
+	auto corr_ptr = Correlation::search_by_name(name);
+	if (corr_ptr == nullptr)
+	  ZENTHROW(CommandLineError, "correlation " + name + " not found");
+	corr_list.append(corr_ptr);
+      }
+
+    if (corr_list.is_empty())
+      ZENTHROW(CommandLineError, "Not correlation specified for calibration");
+
+    name = corr_list.get_first()->target_name();
+    if (not corr_list.all([&name] (auto p) { return p->target_name() == name; }))
+      ZENTHROW(CommandLineError,
+	       "Not all the correlations to be calibrated have target " + name);
+
+    return *this;
+  }
+};
+
 namespace TCLAP
 {
   template<> struct ArgTraits<RmProperty> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<CorrArgs> { typedef StringLike ValueCategory; };
 }
 
 CmdLine cmd = { "adjust", ' ', "0" };
@@ -448,14 +485,14 @@ ValueArg<string> napply =
   { "n", "napply", "print non applying correlations and reasons", false, "",
     "napply property", cmd };
 
-MultiArg<string> cal = { "", "lcal", "calibrate correlations", false,
-			 "calibrate correlation-list", cmd };
+ValueArg<CorrArgs> cal = { "", "lcal", "calibrate correlations", false,
+			   CorrArgs(), "calibrate correlation-list", cmd };
 
-MultiArg<string> pb_cal = { "", "pbcal", "calibrate correlations", false,
-			      "calibrate correlation-list", cmd };
+ValueArg<CorrArgs> pb_cal = { "", "pbcal", "calibrate correlations", false,
+			      CorrArgs(), "calibrate correlation-list", cmd };
 
-MultiArg<string> uod_cal = { "", "uodcal", "calibrate correlations", false,
-			       "calibrate correlation-list", cmd };
+ValueArg<CorrArgs> uod_cal = { "", "uodcal", "calibrate correlations", false,
+			       CorrArgs(), "calibrate correlation-list", cmd };
 
 SwitchArg cplot = { "", "cplot", "generate cplot command", cmd };
 
@@ -703,7 +740,7 @@ void process_apply()
 {
   if (not apply.isSet())
     return;
-  
+
   auto property_name = apply.getValue();
   if (not valid_targets.contains(property_name) and property_name != "pb" and
       property_name != "uod")
@@ -949,21 +986,7 @@ void process_local_calibration()
   if (not cal.isSet())
     return;
 
-  auto name_list = to_DynList(cal.getValue());
-  auto corr_list = name_list.maps<const Correlation*>([] (auto & name)
-    {
-      auto ptr = Correlation::search_by_name(name);
-      if (ptr == nullptr)
-	ZENTHROW(CommandLineError, "Not found correlation wit name " + name);
-      return ptr;
-    });
-
-  const Correlation * fst_corr = corr_list.get_first();
-  const string target_name = fst_corr->target_name();
-
-  if (not corr_list.all([&target_name] (auto p)
-			{ return p->target_name() == target_name; }))
-    ZENTHROW(CommandLineError, "correlations are not for the same target");
+  auto & corr_list = cal.getValue().corr_list;
 
   const auto & mode = mode_type.getValue();
   
@@ -982,7 +1005,9 @@ void process_local_calibration()
       else
 	comb.append(make_pair(0, 1));
     }
-  
+
+  auto fst_corr = corr_list.get_first();
+  auto target_name = fst_corr->target_name();
   auto fst = data.iapply(fst_corr);
 
   // First correlation here because the pressure and lab values are
@@ -1100,17 +1125,7 @@ void process_pb_calibration()
   if (not pb_cal.isSet())
     return;
 
-  auto name_list = to_DynList(pb_cal.getValue());
-  auto corr_list = name_list.maps<const Correlation*>([] (auto & name)
-    {
-      auto ptr = Correlation::search_by_name(name);
-      if (ptr == nullptr)
-	ZENTHROW(CommandLineError, "Not found correlation wit name " + name);
-      return ptr;
-    });
-
-  if (not corr_list.all([] (auto p) { return p->target_name() == "pb"; }))
-    ZENTHROW(CommandLineError, "correlations are not for pb");
+  auto & corr_list = pb_cal.getValue().corr_list;
 
   const auto & mode = mode_type.getValue();
   
@@ -1237,17 +1252,7 @@ void process_uod_calibration()
   if (not uod_cal.isSet())
     return;
 
-  auto name_list = to_DynList(uod_cal.getValue());
-  auto corr_list = name_list.maps<const Correlation*>([] (auto & name)
-    {
-      auto ptr = Correlation::search_by_name(name);
-      if (ptr == nullptr)
-	ZENTHROW(CommandLineError, "Not found correlation wit name " + name);
-      return ptr;
-    });
-
-  if (not corr_list.all([] (auto p) { return p->target_name() == "uod"; }))
-    ZENTHROW(CommandLineError, "correlations are not for uod");
+  auto corr_list = uod_cal.getValue().corr_list;
 
   const auto & mode = mode_type.getValue();
   
@@ -1311,12 +1316,12 @@ void process_cplot()
     {
       ostringstream s;
       s << "cannot generate cplot because the following correlations are "
-	"not defined:" << endl;
-      data.missing_correlations().for_each([] (auto & s)
+	"not defined:";
+      data.missing_correlations().for_each([&s] (auto & name)
 					   {
-					     cout << "  " << s << endl;
+					     s << "  " << name;
 					   });
-      ZENTHROW(CommandLineError, "missing correlations");
+      ZENTHROW(CommandLineError, s.str());
     }
   cout << "./cplot " << data.cplot_consts() << data.cplot_corrs()
        << endl;
@@ -1391,6 +1396,7 @@ int main(int argc, char *argv[])
   cmd.parse(argc, argv);
 
   test_load_file();
+
   build_pvt_data();
   remove_consts();
   remove_properties();
@@ -1416,6 +1422,7 @@ int main(int argc, char *argv[])
 	ZENTHROW(InvalidTargetName, "json name not defined (--file)");
       ofstream out(file.getValue());
       out << data.to_json().dump(2);
+      exit(0);
     }
 
   process_list();
@@ -1426,4 +1433,6 @@ int main(int argc, char *argv[])
   process_pb_calibration();
   process_uod_calibration();
   process_cplot();
+
+  cout << "Not given command" << endl;
 }

@@ -68,6 +68,3 @@
 ## 22. formatera bien lista e correlaciones
 - Created at   2017-05-09 14:40:23 -0400
 
-## 23. uod automático según multiplicidad de arrreglos
-- Created at   2017-05-09 15:40:50 -0400
-

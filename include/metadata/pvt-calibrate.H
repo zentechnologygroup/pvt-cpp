@@ -358,39 +358,23 @@ struct PvtData
       });
   }
 
-  using Tcorr = tuple<const Correlation**, double*, double*>;
-  using Pcorr = pair<string, Tcorr>;
-
-  DynMapTree<string, Tcorr> corr_tbl =
-    {
-      Pcorr("pb", Tcorr(&pb_corr, &c_pb, &m_pb)),
-      Pcorr("rs", Tcorr(&rs_corr, &c_rs, &m_rs)),
-      Pcorr("bob", Tcorr(&bob_corr, &c_bob, &m_bob)),
-      Pcorr("boa", Tcorr(&boa_corr, &c_boa, &m_boa)),
-      Pcorr("coa", Tcorr(&coa_corr, &c_coa, &m_coa)),
-      Pcorr("uob", Tcorr(&uob_corr, &c_uob, &m_uob)),
-      Pcorr("uod", Tcorr(&uoa_corr, &c_uoa, &m_uoa)),
-      Pcorr("uoa", Tcorr(&uoa_corr, &c_uoa, &m_uoa))
-    };
-
   string cplot_corrs()
   {
     ostringstream s;
-    for (auto it = corr_tbl.get_it(); it.has_curr(); it.next())
-      {
-	auto & curr = it.get_curr();
-	const string & tgt = curr.first;
-	cout << "Processing " << tgt << endl;
-	auto t = curr.second;
-	assert(get<0>(t));
-	auto corr_ptr = *get<0>(t);
-	if (corr_ptr == nullptr)
-	  ZENTHROW(InvalidTargetName, "correlation for " + tgt + " not found");
-	const double c = *get<1>(t), m = *get<2>(t);
-	cout << "c = " << c << " m = " << m << endl;
-	s << "--" << tgt << " " << corr_ptr->name << " --c-" << tgt << " "
-	  << to_str(c) << " --m-" << tgt << " " << to_str(m) << " ";
-      }
+    // for (auto it = corr_tbl.get_it(); it.has_curr(); it.next())
+    //   {
+    // 	const Pcorr & curr = it.get_curr();
+    // 	const string & tgt = curr.first;
+    // 	cout << "Processing " << tgt << endl;
+    // 	const Tcorr & t = curr.second;
+    // 	const Correlation * corr_ptr = *get<0>(t);
+    // 	if (corr_ptr == nullptr)
+    // 	  ZENTHROW(InvalidTargetName, "correlation for " + tgt + " not found");
+    // 	const double c = *get<1>(t), m = *get<2>(t);
+    // 	cout << "c = " << c << " m = " << m << endl;
+    // 	s << "--" << tgt << " " << corr_ptr->name << " --c-" << tgt << " "
+    // 	  << to_str(c) << " --m-" << tgt << " " << to_str(m) << " ";
+    //   }
     return s.str();
   }
 
@@ -399,25 +383,41 @@ struct PvtData
     return not (const_values.is_empty() and vectors.is_empty());
   }
 
+# define CORR_TEST(NAME) if (target_name == #NAME)	\
+    return make_tuple(NAME##_corr, c_##NAME, m_##NAME)
+
   tuple<const Correlation*, double, double>
-  get_corr(const string & target_name)
+  get_corr(const string & target_name) const
   {
-    auto ptr = corr_tbl.search(target_name);
-    if (ptr == nullptr)
-      ZENTHROW(InvalidTargetName, "target name " + target_name + " not found");
-    Tcorr t = ptr->second;
-    return make_tuple(*get<0>(t), *get<1>(t), *get<2>(t));
+    CORR_TEST(pb);
+    CORR_TEST(rs);
+    CORR_TEST(bob);
+    CORR_TEST(boa);
+    CORR_TEST(coa);
+    CORR_TEST(uod);
+    CORR_TEST(uob);
+    CORR_TEST(uoa);
+    ZENTHROW(InvalidTargetName, "target name " + target_name + " not found");
   }
 
   bool are_all_correlations_defined() const
   {
-    return corr_tbl.all([] (auto p) { return get<0>(p.second); });
+    static DynList<string> names =
+      { "pb", "rs", "bob", "boa", "coa", "uod", "uob", "uob" };
+    return names.all([this] (auto & name)
+		     {
+		       return get<0>(this->get_corr(name)) != nullptr;
+		     });
   }
 
   DynList<string> missing_correlations() const
   {
-    return corr_tbl.filter([] (auto p) { return not get<0>(p.second); }).
-      maps<string>([] (auto p) { return p.first; });
+    static DynList<string> names =
+      { "pb", "rs", "bob", "boa", "coa", "uod", "uob", "uob" };
+    return names.filter([this] (auto & name)
+			{
+			  return get<0>(this->get_corr(name));
+			});
   }
 
   static Json to_json(const Correlation * corr_ptr, double c, double m)
@@ -636,7 +636,6 @@ struct PvtData
     load_corr_from_json(j["uob_corr"], uob_corr, c_uob, m_uob, "uob");
     load_corr_from_json(j["uoa_corr"], uoa_corr, c_uoa, m_uoa, "uoa");
     load_corr_from_json(j["uod_corr"], uod_corr, c_uod, m_uoa, "uod");
-
     for (const ConstDesc & c : j["constants"])
       add_const(c);
 
@@ -1072,11 +1071,11 @@ struct PvtData
 	      r = min(r, rsb);
 	    pvals.append(p);
 	    vals.append(r.raw());
-	    pars.tbl.for_each([] (auto p)
-              {
-		cout << " " << p.first << " = " << p.second.first;
-	      });
-	    cout << " = " << c + m*r.raw() << endl;
+	    // pars.tbl.for_each([] (auto p)
+            //   {
+	    // 	cout << " " << p.first << " = " << p.second.first;
+	    //   });
+	    // cout << " = " << c + m*r.raw() << endl;
 	  }
 	catch (...) {} 
 	pars.remove("p");

@@ -1750,3 +1750,9 @@
 - Comment      
 - Finished     
 
+## 293. uod automático según multiplicidad de arrreglos
+- Created at   2017-05-09 15:40:50 -0400
+- Completed at 2017-05-10 19:42:17 -0400
+- Comment      
+- Finished     
+
