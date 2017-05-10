@@ -1,0 +1,8 @@
+-std=c++14
+-Wall
+-Wextra
+-Wno-format-security
+-DDEBUG
+-I/home/lrleon/Aleph-w
+-I/home/lrleon/zen/include
+-I/home/lrleon/pvt/include
