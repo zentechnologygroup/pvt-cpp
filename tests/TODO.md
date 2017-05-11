@@ -65,6 +65,3 @@
 ## 21. dry de process_uod_calibration y process_pb_calibration
 - Created at   2017-05-08 16:14:55 -0400
 
-## 22. formatera bien lista e correlaciones
-- Created at   2017-05-09 14:40:23 -0400
-

@@ -1756,3 +1756,9 @@
 - Comment      
 - Finished     
 
+## 294. formatera bien lista e correlaciones
+- Created at   2017-05-09 14:40:23 -0400
+- Completed at 2017-05-11 10:22:28 -0400
+- Comment      
+- Finished     
+

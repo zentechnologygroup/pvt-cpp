@@ -416,7 +416,7 @@ struct PvtData
       { "pb", "rs", "bob", "boa", "coa", "uod", "uob", "uob" };
     return names.filter([this] (auto & name)
 			{
-			  return get<0>(this->get_corr(name));
+			  return not get<0>(this->get_corr(name));
 			});
   }
 
@@ -456,20 +456,22 @@ struct PvtData
 	       const Correlation * corr_ptr, double c, double m)
   {
     if (corr_ptr)
-      return build_dynlist<string>(tgt + " = " + corr_ptr->name, "c = " +
-				   to_str(c), "m = " + to_str(m));
-    return build_dynlist<string>(tgt + " = undefined", "c = undefined",
-				   "m = undefined");
+      return build_dynlist<string>(tgt, " = ", corr_ptr->name, " c = ",
+				   to_str(c), " m = ", to_str(m));
+    return build_dynlist<string>(tgt, " = ", "undefined", " c = ", "undefined",
+				 " m = ", "undefined");
   }
 
 # define Corr_List(NAME) corr_to_list(#NAME, NAME##_corr, c_##NAME, m_##NAME)
 
-  DynList<DynList<string>> corr_list() const
+  string corr_list() const
   {
-    return build_dynlist<DynList<string>>(Corr_List(pb), Corr_List(rs),
-					  Corr_List(bob), Corr_List(boa), 
-					  Corr_List(coa), Corr_List(uod),
-					  Corr_List(uob), Corr_List(uoa));
+    return Aleph::to_string
+      (format_string
+       (build_dynlist<DynList<string>>(Corr_List(pb), Corr_List(rs),
+				       Corr_List(bob), Corr_List(boa), 
+				       Corr_List(coa), Corr_List(uod),
+				       Corr_List(uob), Corr_List(uoa))));
   }
 
   Json to_json() const
@@ -490,21 +492,21 @@ struct PvtData
     return j;
   }
 
+  string const_list() const
+  {
+    DynList<DynList<string>> l = const_values.maps<DynList<string>>
+      ([] (auto & c) { return c.to_dynlist(); });
+    l.insert(build_dynlist<string>("name", "value", "unit"));
+    return Aleph::to_string(format_string(l));
+  }
+
   string to_string() const
   {
-    DynList<DynList<string>> const_list =
-      const_values.maps<DynList<string>>
-      ([] (auto & c) { return c.to_dynlist(); });
-    const_list.insert(build_dynlist<string>("name", "value", "unit"));
-
-    auto corrs = corr_list();
     ostringstream s;
     s << "Constants:" << endl
-      << shift_lines_to_left(Aleph::to_string(format_string(const_list)), 2)
-      << endl
+      << shift_lines_to_left(const_list(), 2) << endl
       << "Correlations:" << endl
-      << shift_lines_to_left(Aleph::to_string(format_string(corr_list())), 2)
-      << endl
+      << shift_lines_to_left(corr_list(), 2) << endl
       << "Variables:" << endl;
     for (auto it = vectors.get_it(); it.has_curr(); it.next())
       {
@@ -1187,10 +1189,6 @@ struct PvtData
       ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
 	       " is not for pb");
 
-    if (not can_be_applied(corr_ptr))
-      ZENTHROW(CorrelationNotApplicable, "correlation " + corr_ptr->name +
-	       " is not applicable to this data set");
-
     auto vals = pbapply(corr_ptr);
     auto t = t_unzip(vals);
     DynList<double> & y = get<1>(t);
@@ -1204,10 +1202,6 @@ struct PvtData
     if (corr_ptr->target_name() != "uod")
       ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
 	       " is not for uod");
-
-    if (not can_be_applied(corr_ptr))
-      ZENTHROW(CorrelationNotApplicable, "correlation " + corr_ptr->name +
-	       " is not applicable to this data set");
 
     auto vals = uodapply(corr_ptr);
     auto t = t_unzip(vals);

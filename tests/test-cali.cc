@@ -457,20 +457,23 @@ ValueArg<string> mode_type = { "", "mode", "mode", false, "both",
 
 SwitchArg json = { "", "json", "generate json of data", cmd };
 
-SwitchArg split_bo_arg = { "", "split_bo", "split bo vector", cmd };
-SwitchArg split_uo_arg = { "", "split_uo", "split uo vector", cmd };
+SwitchArg split_bo_arg = { "", "split-bo", "split bo vector", cmd };
+SwitchArg split_uo_arg = { "", "split-uo", "split uo vector", cmd };
 SwitchArg save = { "", "save", "save data to json", cmd };
 
 MultiArg<RmProperty> rm_property =
-  { "", "rm_property", "remove property t", false, "remove \"property t\"", cmd };
+  { "", "rm-property", "remove property t", false, "remove \"property t\"", cmd };
 
 ValuesConstraint<string> allowed_consts = valid_consts;
-MultiArg<string> rm_const = { "", "rm_const", "remove const", false,
+MultiArg<string> rm_const = { "", "rm-const", "remove const", false,
 			      &allowed_consts, cmd };
 
 ValueArg<string> file = { "f", "file", "load json", false, "", "load json", cmd };
 
 SwitchArg print = { "p", "print", "print stored data", cmd };
+
+ValueArg<string> Print = { "P", "Print", "print stored data", false, "",
+			   "constants|correlations|property-name", cmd };
 
 ValueArg<string> list_corr = { "l", "list", "list correlations", false, "",
 			       "list property", cmd };
@@ -502,7 +505,7 @@ SwitchArg cplot = { "", "cplot", "generate cplot command", cmd };
       "set " #NAME " correlation", cmd };				\
 									\
   ValueArg<string> NAME##_cal_corr_arg =				\
-    { "", #NAME "_cal", "set calibrated " #NAME " correlation", false,	\
+    { "", #NAME "-cal", "set calibrated " #NAME " correlation", false,	\
       "", "set calibrated " #NAME " correlation", cmd };		\
 									\
   const Correlation * NAME##_corr = nullptr;				\
@@ -681,6 +684,32 @@ void process_print_data()
     cout << data.to_json().dump(2) << endl;
   else
     cout << data << endl;
+  exit(0);
+}
+
+void process_Print_data()
+{
+  if (not Print.isSet())
+    return;
+  const string & type = Print.getValue();
+  if (type == "constants")
+    cout << "Constants:" << endl
+	 << shift_lines_to_left(data.const_list(), 2) << endl;
+  else if (type == "correlations")
+    cout << "Correlations:" << endl
+	 << shift_lines_to_left(data.corr_list(), 2) << endl;
+  else
+    {
+      auto vectors = data.search_vectors(type);
+      if (vectors.is_empty())
+	cout << "Property " << type << " not found in data set" << endl;
+      else
+	{
+	  cout << type << ":" << endl;
+	  for (auto it = vectors.get_it(); it.has_curr(); it.next())
+	    cout << shift_lines_to_left(it.get_curr()->to_string(), 2) << endl;
+	}
+    }
   exit(0);
 }
 
@@ -1415,6 +1444,7 @@ int main(int argc, char *argv[])
     ZENTHROW(CommandLineError, "data is not defined");
 
   process_print_data();
+  process_Print_data();
 
   if (save.getValue())
     {
@@ -1434,5 +1464,5 @@ int main(int argc, char *argv[])
   process_uod_calibration();
   process_cplot();
 
-  cout << "Not given command" << endl;
+  cout << "Not given action" << endl;
 }

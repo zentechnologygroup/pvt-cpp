@@ -12,7 +12,7 @@
   "coa_corr": {
     "c": 1.91960243119868e-06,
     "m": 0.350107978465188,
-    "name": "CoaDeGhetto"
+    "name": "CoaVasquezBeggs"
   },
   "constants": [
     {
@@ -73,7 +73,7 @@
   },
   "uod_corr": {
     "c": -803.243273323241,
-    "m": 8.81623881979526,
+    "m": 1.0,
     "name": "UodEgbogahNg"
   },
   "vectors": [
