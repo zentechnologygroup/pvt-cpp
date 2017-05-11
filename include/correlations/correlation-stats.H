@@ -210,6 +210,11 @@ public:
 				 is_valid(d) ? "valid" : "invalid");
   }
 
+  static DynList<string> invalid_desc_to_dynlist()
+  {
+    return build_dynlist<string>("-", "-", "-", "-", "-", "-", "invalid");
+  }
+
   static DynList<string> stats_header()
   {
     return

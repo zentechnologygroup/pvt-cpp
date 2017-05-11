@@ -777,27 +777,16 @@ void process_apply()
   
   auto corr_list = data.can_be_applied(property_name, relax_names_tbl);
 
-  DynList<T> stats;
-  if (property_name == "pb")
-    stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
+  DynList<T> stats = Aleph::sort(corr_list.maps<T>([] (auto corr_ptr)
     {
-      return data.pbstats(corr_ptr);
+      return data.stats(corr_ptr);
     }), cmp[::sort.getValue()]);
-  else if (property_name == "uod")
-    stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
-    {
-      return data.uodstats(corr_ptr);
-    }), cmp[::sort.getValue()]);
-  else
-    stats = Aleph::sort(corr_list.maps<T>([&] (auto corr_ptr)
-      {
-	return data.istats(corr_ptr);
-      }), cmp[::sort.getValue()]);
 
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {
       DynList<string> ret = build_dynlist<string>(get<0>(t)->name);
-      auto stats = CorrStat::desc_to_dynlist(get<3>(t));
+      auto stats = get<4>(t) ? CorrStat::desc_to_dynlist(get<3>(t)) :
+      CorrStat::invalid_desc_to_dynlist();
       ret.append(stats);
       return ret;
     });

@@ -1164,7 +1164,7 @@ struct PvtData
 	      }
 	    catch (exception & e)
 	      {
-		// cout << e.what() << endl;
+		//cout << "ERROR: " << e.what() << endl;
 	      }
 	    pars.remove("p");
 	    pars.remove(par_name);
@@ -1180,25 +1180,28 @@ struct PvtData
     return make_tuple(punit, yunit, ret);
   }
 
-  using T =
-    tuple<const Correlation*, DynList<double>, DynList<double>, CorrStat::Desc>;
+  using T = tuple<const Correlation*, DynList<double>, DynList<double>,
+		  CorrStat::Desc, bool>;
 
   T pbstats(const Correlation * corr_ptr) const
   {
     if (corr_ptr->target_name() != "pb")
       ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
 	       " is not for pb");
-
-    if (not can_be_applied(corr_ptr))
-      ZENTHROW(CorrelationNotApplicable, "correlation " + corr_ptr->name +
-	       " is not applicable to this data set");
-
-    auto vals = pbapply(corr_ptr);
-    auto t = t_unzip(vals);
-    DynList<double> & y = get<1>(t);
-    DynList<double> & yc = get<2>(t);
-
-    return T(corr_ptr, get<0>(t), y, CorrStat(move(y)).stats(move(yc)));
+    try
+      {
+	auto vals = pbapply(corr_ptr);
+	auto t = t_unzip(vals);
+	DynList<double> & y = get<1>(t);
+	DynList<double> & yc = get<2>(t);
+	return T(corr_ptr, get<0>(t), y,
+		 CorrStat(move(y)).stats(move(yc)), true);
+      }
+    catch (exception & e)
+      {
+	return T(corr_ptr, DynList<double>(), DynList<double>(),
+		 CorrStat::Desc(), false);
+      }
   }
 
   T uodstats(const Correlation * corr_ptr) const
@@ -1206,71 +1209,77 @@ struct PvtData
     if (corr_ptr->target_name() != "uod")
       ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
 	       " is not for uod");
-
-    if (not can_be_applied(corr_ptr))
-      ZENTHROW(CorrelationNotApplicable, "correlation " + corr_ptr->name +
-	       " is not applicable to this data set");
-
-    auto vals = uodapply(corr_ptr);
-    auto t = t_unzip(vals);
-    DynList<double> & y = get<1>(t);
-    DynList<double> & yc = get<2>(t);
-
-    return T(corr_ptr, get<0>(t), y, CorrStat(move(y)).stats(move(yc)));
+    try
+      {
+	auto vals = uodapply(corr_ptr);
+	auto t = t_unzip(vals);
+	DynList<double> & y = get<1>(t);
+	DynList<double> & yc = get<2>(t);
+	return T(corr_ptr, get<0>(t), y,
+		 CorrStat(move(y)).stats(move(yc)), true);
+      }
+    catch (exception & e)
+      {
+	return T(corr_ptr, DynList<double>(), DynList<double>(),
+		 CorrStat::Desc(), false);
+      }
   }
 
   T istats(const Correlation * corr_ptr) const
   {
-    //cout << "ystats " << corr_ptr->target_name() << endl;
-    // using TYPE = tuple<double, double, double, double,
-    // 		     //  p,            y,                 yc		     
-    // 		     DynList<double>, DynList<double>, DynList<double>>;
-    auto vals = iapply(corr_ptr);
-
-    using Trio = tuple<double, double, double>;
-    DynList<Trio> l;
-    for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
+    try
       {
-	auto & t = it.get_curr();
-	DynList<double> & p = get<5>(t);
-	DynList<double> & y = get<6>(t);
-	DynList<double> & yc = get<7>(t);	 
-	l.append(t_zip(move(p), move(y), move(yc)));
+	auto vals = iapply(corr_ptr);
+	using Trio = tuple<double, double, double>;
+	DynList<Trio> l;
+	for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
+	  {
+	    auto & t = it.get_curr();
+	    DynList<double> & p = get<5>(t);
+	    DynList<double> & y = get<6>(t);
+	    DynList<double> & yc = get<7>(t);	 
+	    l.append(t_zip(move(p), move(y), move(yc)));
+	  }
+
+	in_place_sort(l, [] (const Trio & t1, const Trio & t2)
+		      { // sorting by pressure
+			return get<0>(t1) < get<0>(t2);
+		      });
+
+	//           yc,          p,       y
+	DynMapTree<double, pair<double, double>> ptbl;
+	for (auto it = l.get_it(); it.has_curr(); it.next())
+	  {
+	    const auto & t = it.get_curr();
+	    const double & p = get<0>(t);
+	    const double & y = get<1>(t);
+	    const double & yc = get<2>(t);
+	    auto ptr = ptbl.search(y);
+	    if (ptr == nullptr)
+	      ptbl.append(y, make_pair(p, yc));
+	    else if (yc > ptr->second.second)
+	      ptr->second = make_pair(p, yc);
+	  }
+
+	DynList<double> p, y, yc;
+	for (auto it = ptbl.get_it(); it.has_curr(); it.next())
+	  {
+	    auto pp = it.get_curr();
+	    auto & second = pp.second;
+	    p.append(second.first);
+	    y.append(second.second);
+	    yc.append(pp.first);
+	  }
+
+	auto stats = CorrStat(yc).stats(y);
+
+	return make_tuple(corr_ptr, move(p), move(y), move(stats), true);
       }
-
-    in_place_sort(l, [] (const Trio & t1, const Trio & t2)
-		  { // sorting by pressure
-		    return get<0>(t1) < get<0>(t2);
-		  }); 
-
-    //           yc,          p,       y
-    DynMapTree<double, pair<double, double>> ptbl;
-    for (auto it = l.get_it(); it.has_curr(); it.next())
+    catch (exception &e)
       {
-    	const auto & t = it.get_curr();
-    	const double & p = get<0>(t);
-    	const double & y = get<1>(t);
-    	const double & yc = get<2>(t);
-    	auto ptr = ptbl.search(y);
-    	if (ptr == nullptr)
-    	  ptbl.append(y, make_pair(p, yc));
-    	else if (yc > ptr->second.second)
-    	  ptr->second = make_pair(p, yc);
+	return make_tuple(corr_ptr, DynList<double>(), DynList<double>(),
+			  CorrStat::Desc(), false);
       }
-
-    DynList<double> p, y, yc;
-    for (auto it = ptbl.get_it(); it.has_curr(); it.next())
-      {
-    	auto pp = it.get_curr();
-    	auto & second = pp.second;
-    	p.append(second.first);
-    	y.append(second.second);
-    	yc.append(pp.first);
-      }
-
-    auto stats = CorrStat(yc).stats(y);
-
-    return make_tuple(corr_ptr, move(p), move(y), move(stats));
   }
 
   T stats(const Correlation * corr_ptr) const
