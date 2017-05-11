@@ -74,7 +74,7 @@
   "uoa_corr": {
     "c": 0.0,
     "m": 1.0,
-    "name": "null"
+    "name": "UoaDeGhettoEtAl"
   },
   "uob_corr": {
     "c": 0.0,
@@ -84,7 +84,7 @@
   "uod_corr": {
     "c": 0.0,
     "m": 1.0,
-    "name": "null"
+    "name": "UodBeal"
   },
   "vectors": [
     {

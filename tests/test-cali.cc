@@ -1341,7 +1341,7 @@ void process_cplot()
 					   });
       ZENTHROW(CommandLineError, s.str());
     }
-  cout << "./cplot " << data.cplot_consts() << data.cplot_corrs()
+  cout << "./cplot --grid simple " << data.cplot_consts() << data.cplot_corrs()
        << endl;
   exit(0);      
 }

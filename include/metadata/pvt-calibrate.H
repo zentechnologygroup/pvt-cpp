@@ -350,6 +350,10 @@ struct PvtData
   const Correlation * uoa_corr = nullptr;
   double c_uoa = 0, m_uoa = 1;
 
+# define CORR_PARS(NAME, s) if (NAME##_corr)				\
+    s << " --" #NAME " " << NAME##_corr->name << " --c-"#NAME" "	\
+      << to_str(c_##NAME) << " --m-"#NAME" " << to_str(m_##NAME)
+
   string cplot_consts() const
   {
     return const_values.foldl<string>("", [] (auto & acu, auto & c)
@@ -361,20 +365,15 @@ struct PvtData
   string cplot_corrs()
   {
     ostringstream s;
-    // for (auto it = corr_tbl.get_it(); it.has_curr(); it.next())
-    //   {
-    // 	const Pcorr & curr = it.get_curr();
-    // 	const string & tgt = curr.first;
-    // 	cout << "Processing " << tgt << endl;
-    // 	const Tcorr & t = curr.second;
-    // 	const Correlation * corr_ptr = *get<0>(t);
-    // 	if (corr_ptr == nullptr)
-    // 	  ZENTHROW(InvalidTargetName, "correlation for " + tgt + " not found");
-    // 	const double c = *get<1>(t), m = *get<2>(t);
-    // 	cout << "c = " << c << " m = " << m << endl;
-    // 	s << "--" << tgt << " " << corr_ptr->name << " --c-" << tgt << " "
-    // 	  << to_str(c) << " --m-" << tgt << " " << to_str(m) << " ";
-    //   }
+    CORR_PARS(pb, s);
+    CORR_PARS(rs, s);
+    CORR_PARS(bob, s);
+    CORR_PARS(boa, s);
+    CORR_PARS(coa, s);
+    CORR_PARS(uod, s);
+    CORR_PARS(uob, s);
+    CORR_PARS(uoa, s);
+    s << "--cob CobMcCainEtAl ";
     return s.str();
   }
 
