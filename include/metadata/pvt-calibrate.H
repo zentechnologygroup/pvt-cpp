@@ -1189,6 +1189,10 @@ struct PvtData
       ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
 	       " is not for pb");
 
+    if (not can_be_applied(corr_ptr))
+      ZENTHROW(CorrelationNotApplicable, "correlation " + corr_ptr->name +
+	       " is not applicable to this data set");
+
     auto vals = pbapply(corr_ptr);
     auto t = t_unzip(vals);
     DynList<double> & y = get<1>(t);
@@ -1202,6 +1206,10 @@ struct PvtData
     if (corr_ptr->target_name() != "uod")
       ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
 	       " is not for uod");
+
+    if (not can_be_applied(corr_ptr))
+      ZENTHROW(CorrelationNotApplicable, "correlation " + corr_ptr->name +
+	       " is not applicable to this data set");
 
     auto vals = uodapply(corr_ptr);
     auto t = t_unzip(vals);
