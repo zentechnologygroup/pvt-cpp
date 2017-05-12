@@ -457,10 +457,10 @@ namespace TCLAP
 
 CmdLine cmd = { "adjust", ' ', "0" };
 
-ValueArg<RangeDesc> t = { "t", "t-range", "t range", false, RangeDesc(),
+ValueArg<RangeDesc> t = { "t", "t", "t range", false, RangeDesc(),
 			  "t min max n", cmd };
 
-ValueArg<RangeDesc> p = { "p", "p-range", "p range", false, RangeDesc(),
+ValueArg<RangeDesc> p = { "p", "p", "p range", false, RangeDesc(),
 			  "p min max n", cmd };
 
 ValueArg<ArrayDesc> tarray = { "", "t-array", "t array", false, ArrayDesc(),
@@ -537,7 +537,7 @@ MultiArg<string> rm_const = { "", "rm-const", "remove const", false,
 
 ValueArg<string> file = { "f", "file", "load json", false, "", "load json", cmd };
 
-SwitchArg print = { "p", "print", "print stored data", cmd };
+SwitchArg print = { "", "print", "print stored data", cmd };
 
 ValueArg<string> Print = { "P", "Print", "print stored data", false, "",
 			   "constants|correlations|property-name", cmd };
