@@ -112,7 +112,7 @@ struct ValuesArg
 
   void set_uod(DynList<double> & vals)
   {
-    cout << "uod = " << uod << endl;
+    uod = vals.remove_first();
   }
 
   ValuesArg & operator = (const string & str)
@@ -394,13 +394,80 @@ struct CorrArgs
   }
 };
 
+struct RangeDesc
+{
+  double min = 0, max = 0;
+  size_t n = 1; // num of steps
+
+  RangeDesc & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> min >> max >> n))
+      ZENTHROW(CommandLineError, str + " is not of form \"min max n\"");
+
+    if (n == 0)
+      ZENTHROW(CommandLineError, ::to_string(n) + " n cannot be zero");
+
+    if (min > max)
+      {
+	ostringstream s;
+	s << "min value " << min << " greater than max value " << max;
+	ZENTHROW(CommandLineError, s.str());
+      }
+
+    return *this;
+  }
+
+  double step() const noexcept { return (max - min) / (n - 1); }
+};
+
+struct ArrayDesc
+{
+  DynList<double> values;
+
+  ArrayDesc & operator = (const string & str)
+  {
+    string data;
+    istringstream iss(str);
+
+    while (iss >> data)
+      {
+	if (not is_double(data))
+	  ZENTHROW(CommandLineError, data + " is not a double");
+
+	values.append(atof(data));
+      }
+
+    if (values.is_empty())
+      ZENTHROW(CommandLineError, "cannot read array");
+
+    in_place_sort(values);
+ 
+    return *this;
+  }
+};
+
 namespace TCLAP
 {
   template<> struct ArgTraits<RmProperty> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<CorrArgs> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<RangeDesc> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<ArrayDesc> { typedef StringLike ValueCategory; };
 }
 
 CmdLine cmd = { "adjust", ' ', "0" };
+
+ValueArg<RangeDesc> t = { "t", "t-range", "t range", false, RangeDesc(),
+			  "t min max n", cmd };
+
+ValueArg<RangeDesc> p = { "p", "p-range", "p range", false, RangeDesc(),
+			  "p min max n", cmd };
+
+ValueArg<ArrayDesc> tarray = { "", "t-array", "t array", false, ArrayDesc(),
+			       "list-t-values", cmd };
+
+ValueArg<ArrayDesc> parray = { "", "p-array", "p array", false, ArrayDesc(),
+			       "list-p-values", cmd };
 
 // Unit change specification. Suitable for any parameter
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
@@ -1342,7 +1409,29 @@ void process_cplot()
       ZENTHROW(CommandLineError, s.str());
     }
   cout << "./cplot --grid simple " << data.cplot_consts() << data.cplot_corrs()
-       << endl;
+       << " ";
+  if (t.isSet())
+    {
+      const RangeDesc & val = t.getValue();
+      cout << "--t \"" << val.min << " " << val.max << " " << val.n << "\" ";
+    }
+  if (p.isSet())
+    {
+      const RangeDesc & val = p.getValue();
+      cout << "--p \"" << val.min << " " << val.max << " " << val.n << "\" ";
+    }
+  if (tarray.isSet())
+    {
+      cout << "t_array \"";
+      tarray.getValue().values.for_each([] (auto v) { cout << " " << v; });
+      cout << "\" ";
+    }
+  if (parray.isSet())
+    {
+      cout << "p_array \"";
+      parray.getValue().values.for_each([] (auto v) { cout << " " << v; });
+      cout << "\" ";
+    }
   exit(0);      
 }
 

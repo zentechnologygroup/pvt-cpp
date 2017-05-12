@@ -373,7 +373,7 @@ struct PvtData
     CORR_PARS(uod, s);
     CORR_PARS(uob, s);
     CORR_PARS(uoa, s);
-    s << "--cob CobMcCainEtAl ";
+    s << " --cob CobMcCainEtAl ";
     return s.str();
   }
 
