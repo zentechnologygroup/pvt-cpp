@@ -68,3 +68,6 @@
 ## 22. calculadora grid
 - Created at   2017-05-12 17:32:34 -0400
 
+## 23. acelerar cplot mediante factorización de parámetros en familias de correlaciones
+- Created at   2017-05-13 09:28:03 -0400
+
