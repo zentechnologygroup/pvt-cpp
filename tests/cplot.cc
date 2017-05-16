@@ -1272,7 +1272,7 @@ RowFct row_fct = nullptr;
 Array<string> col_names;
 
 // Print out the csv header according to passed args and return a
-// stack of definitive units for each column
+// stack of definitive units for each column. Also it sets row_fct
 template <typename ... Args>
 FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 {
@@ -1341,6 +1341,40 @@ void print_transpose()
 
   const size_t val_ncol = rows(0).second.size();
   for (size_t j = 0; j < val_ncol; ++j)
+    {
+      printf("%s,", col_names(j + str_ncol).c_str());
+      for (size_t i = 0; i < nrow; ++i)
+	{
+	  const double & val = rows(i).second(j);
+	  if (val != Invalid_Value)
+	     if (i != nrow - 1)
+	       printf("%f,", rows(i).second(j));
+	     else
+	       printf("%f", rows(i).second(j));
+	  else if (i != nrow - 1)
+	    printf(",");
+	}
+      printf("\n");
+    }
+}
+
+void print_notranspose()
+{
+  const size_t nrow = rows.size();
+  const size_t str_ncol = rows(0).first.size();
+  for (size_t j = 0; j < str_ncol; ++j)
+    {
+      printf("%s,", col_names(j).c_str());
+      for (size_t i = 0; i < nrow; ++i)
+	if (i != nrow - 1)	
+	  printf("%s,", rows(i).first(j).c_str());
+	else
+	  printf(rows(i).first(j).c_str());
+      printf("\n");
+    }
+
+  const size_t val_ncol = rows(0).second.size();
+  for (size_t j = str_ncol; j < str_ncol + val_ncol; ++j)
     {
       printf("%s,", col_names(j).c_str());
       for (size_t i = 0; i < nrow; ++i)

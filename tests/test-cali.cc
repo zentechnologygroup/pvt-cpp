@@ -1422,13 +1422,13 @@ void process_cplot()
     }
   if (tarray.isSet())
     {
-      cout << "t_array \"";
+      cout << "--t_array \"";
       tarray.getValue().values.for_each([] (auto v) { cout << " " << v; });
       cout << "\" ";
     }
   if (parray.isSet())
     {
-      cout << "p_array \"";
+      cout << "--p_array \"";
       parray.getValue().values.for_each([] (auto v) { cout << " " << v; });
       cout << "\" ";
     }
