@@ -566,6 +566,8 @@ ValueArg<CorrArgs> uod_cal = { "", "uodcal", "calibrate correlations", false,
 
 SwitchArg cplot = { "", "cplot", "generate cplot command", cmd };
 
+SwitchArg eol { "", "eol", "add to output an end of line", cmd };
+
 # define Corr_Arg(NAME)							\
   ValueArg<string> NAME##_corr_arg =					\
     { "", #NAME, "set " #NAME " correlation", false, "",		\
@@ -743,6 +745,13 @@ void print_correlations(const DynList<DynList<string>> & l)
 	       });
 }
 
+void terminate_app()
+{
+  if (eol.getValue())
+    cout << endl;
+  exit(0);
+}
+
 void process_print_data()
 {
   if (not print.getValue())
@@ -751,7 +760,7 @@ void process_print_data()
     cout << data.to_json().dump(2) << endl;
   else
     cout << data << endl;
-  exit(0);
+  terminate_app();
 }
 
 void process_Print_data()
@@ -777,7 +786,7 @@ void process_Print_data()
 	    cout << shift_lines_to_left(it.get_curr()->to_string(), 2) << endl;
 	}
     }
-  exit(0);
+  terminate_app();
 }
 
 void process_list()
@@ -789,7 +798,7 @@ void process_list()
 	   {
 	     return p->target_name() == tgt;
 	   }).maps<DynList<string>>([] (auto p) { return p->to_dynlist(); }));
-  exit(0);
+  terminate_app();
 }
 
 void process_match()
@@ -799,7 +808,7 @@ void process_match()
   print_correlations(data.matches_with_pars(match.getValue()).
 		     maps<DynList<string>>([] (auto p)
 					   { return p->to_dynlist(); }));
-  exit(0);
+  terminate_app();
 }
 
 using T = PvtData::T;
@@ -869,7 +878,7 @@ void process_apply()
   else
     cout << Aleph::to_string(format_string(rows)) << endl;
 
-  exit(0);
+  terminate_app();
 }
 
 void process_napply()
@@ -902,7 +911,7 @@ void process_napply()
   else
     cout << to_string(format_string(complete_rows(rows))) << endl;
 
-  exit(0);
+  terminate_app();
 }
 
 void put_sample(const Correlation * corr_ptr,
@@ -1135,7 +1144,7 @@ void process_local_calibration()
   assert(equal_length(rows, header));
 
   cout << print_dispatcher.run(output.getValue(), result) << endl;
-  exit(0);
+  terminate_app();
 }
 
 void process_pb_calibration() 
@@ -1263,7 +1272,7 @@ void process_pb_calibration()
   assert(equal_length(rows, header));
 
   cout << print_dispatcher.run(output.getValue(), result) << endl;
-  exit(0);
+  terminate_app();
 }
 
 void process_uod_calibration() 
@@ -1390,7 +1399,7 @@ void process_uod_calibration()
   assert(equal_length(rows, header));
 
   cout << print_dispatcher.run(output.getValue(), result) << endl;
-  exit(0);
+  terminate_app();
 }
 
 void process_cplot()
@@ -1432,7 +1441,7 @@ void process_cplot()
       parray.getValue().values.for_each([] (auto v) { cout << " " << v; });
       cout << "\" ";
     }
-  exit(0);      
+  terminate_app();
 }
 
 void split_bo()
@@ -1530,7 +1539,7 @@ int main(int argc, char *argv[])
 	ZENTHROW(InvalidTargetName, "json name not defined (--file)");
       ofstream out(file.getValue());
       out << data.to_json().dump(2);
-      exit(0);
+      terminate_app();
     }
 
   process_list();

@@ -1762,3 +1762,45 @@
 - Comment      
 - Finished     
 
+## 295. acelerar cplot mediante factorización de parámetros en familias de correlaciones
+- Created at   2017-05-13 09:28:03 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 296. calculadora grid
+- Created at   2017-05-12 17:32:34 -0400
+- Completed at 2017-05-22 16:25:34 -0400
+- Comment      
+- Finished     
+
+## 297. opción a cali con alto de linea en salida
+- Created at   2017-05-22 16:05:03 -0400
+- Completed at 2017-05-22 17:14:31 -0400
+- Comment      
+- Finished     
+
+## 298. opción a cplot que genere grid conciso
+- Created at   2017-05-03 08:47:55 -0400
+- Completed at 2017-05-22 17:17:10 -0400
+- Comment      
+- Finished     
+
+## 299. ponerle al etado de calibración las correlaciones
+- Created at   2017-05-02 15:09:38 -0400
+- Completed at 2017-05-22 17:17:25 -0400
+- Comment      
+- Finished     
+
+## 300. piner un filtro por propiedad a opcion print
+- Created at   2017-04-19 14:25:40 -0400
+- Completed at 2017-05-22 17:17:45 -0400
+- Comment      
+- Finished     
+
+## 301. hacer el inputing de pb
+- Created at   2017-04-26 15:52:26 -0400
+- Completed at 2017-05-22 17:18:05 -0400
+- Comment      
+- Finished     
+

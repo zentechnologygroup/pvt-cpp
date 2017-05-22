@@ -857,7 +857,7 @@ inline bool insert_in_pars_list(ParList&) { return true; }
 
 template <typename ... Args> inline
 bool insert_in_pars_list(ParList & pars_list, 
-			 const Correlation::NamedPar & par, Args & ... args)
+			 const Correlation::NamedPar & par, const Args & ... args)
 {
   if (get<2>(par) == Invalid_Value)
     return false;
@@ -892,7 +892,7 @@ bool insert_in_pars_list(ParList & pars_list,
 template <typename ... Args> inline
 VtlQuantity tcompute(const Correlation * corr_ptr,
 		     double c, double m, bool check,
-		     ParList & pars_list, Args ... args)
+		     ParList & pars_list, const Args & ... args)
 {
   try
     {
@@ -916,7 +916,7 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
 
 template <typename ... Args> inline
 VtlQuantity compute(const Correlation * corr_ptr, bool check,
-		    ParList & pars_list, Args ... args)
+		    ParList & pars_list, const Args & ... args)
 {
   try
     {
@@ -941,7 +941,7 @@ VtlQuantity compute(const Correlation * corr_ptr, bool check,
 // return true if all args... are valid
 inline bool valid_args() { return true; }
 template <typename ... Args> inline
-bool valid_args(const VtlQuantity & par, Args ... args)
+bool valid_args(const VtlQuantity & par, const Args & ... args)
 {
   if (par.is_null())
     return false;
@@ -949,7 +949,7 @@ bool valid_args(const VtlQuantity & par, Args ... args)
 } 
 
 template <typename ... Args> inline
-string correlation_call(const Correlation * corr_ptr, Args ... args)
+string correlation_call(const Correlation * corr_ptr, const Args & ... args)
 {
   DynList<Correlation::NamedPar> pars;
   append_in_container(pars, args...);
@@ -969,7 +969,7 @@ string correlation_call(const Correlation * corr_ptr, Args ... args)
 
 template <typename ... Args> inline
 VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
-			ParList & pars_list, Args ... args)
+			ParList & pars_list, const Args & ... args)
 {
   try
     {
@@ -1016,7 +1016,7 @@ bool insert_in_pars_list(const DefinedCorrelation & corr,
 			 const VtlQuantity & p_q,
 			 ParList & pars_list,
 			 const Correlation::NamedPar & par,
-			 Args & ... args)
+			 const Args & ... args)
 {
   if (get<2>(par) == Invalid_Value)
     {
@@ -1038,7 +1038,7 @@ bool insert_in_pars_list(const DefinedCorrelation & corr,
 template <typename ... Args> inline
 VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
 		     const VtlQuantity & p_q,
-		     ParList & pars_list, Args ... args)
+		     ParList & pars_list, const Args & ... args)
 {
   if (not insert_in_pars_list(corr, p_q, pars_list, args...))
     return VtlQuantity();
@@ -1072,7 +1072,7 @@ VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
 
 template <typename ... Args> inline
 VtlQuantity tcompute(const Correlation * corr_ptr,
-		     double c, double m, bool check, Args ... args)
+		     double c, double m, bool check, const Args & ... args)
 { // static for creating it once and thus to gain time. But beware!
   // The function is not reentrant and can not be used in a
   // multithreaded environment
@@ -1081,7 +1081,8 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
 }
 
 template <typename ... Args> inline
-VtlQuantity compute(const Correlation * corr_ptr, bool check, Args ... args)
+VtlQuantity compute(const Correlation * corr_ptr, bool check,
+		    const Args & ... args)
 { // static for creating it once and thus to gain time. But beware!
   // The function is not reentrant and can not be used in a
   // multithreaded environment
@@ -1090,7 +1091,8 @@ VtlQuantity compute(const Correlation * corr_ptr, bool check, Args ... args)
 }
 
 template <typename ... Args> inline
-VtlQuantity compute_exc(const Correlation * corr_ptr, bool check, Args ... args)
+VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
+			const Args & ... args)
 { // static for creating it once and thus to gain time. But beware!
   // The function is not reentrant and can not be used in a
   // multithreaded environment
@@ -1100,7 +1102,7 @@ VtlQuantity compute_exc(const Correlation * corr_ptr, bool check, Args ... args)
 
 template <typename ... Args> inline
 VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
-		     const VtlQuantity & p_q, Args ... args)
+		     const VtlQuantity & p_q, const Args & ... args)
 { // static for creating it once and thus to gain time. But beware!
   // The function is not reentrant and can not be used in a
   // multithreaded environment
@@ -1132,7 +1134,7 @@ void insert_in_row(FixedStack<const VtlQuantity*> &, size_t&) {}
 
 template <class ... Args>
 void insert_in_row(FixedStack<const VtlQuantity*> & row, size_t & n,
-		   const VtlQuantity & q, Args & ... args)
+		   const VtlQuantity & q, const Args & ... args)
 {
   row.insert(&q);
   ++n;
@@ -1141,7 +1143,7 @@ void insert_in_row(FixedStack<const VtlQuantity*> & row, size_t & n,
 
 template <class ... Args>
 size_t insert_in_row(FixedStack<const VtlQuantity*> & row,
-		     const VtlQuantity & q, Args & ... args)
+		     const VtlQuantity & q, const Args & ... args)
 {
   size_t n = 0;
   insert_in_row(row, n, q, args...);
