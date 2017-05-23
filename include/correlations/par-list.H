@@ -30,7 +30,7 @@ inline size_t first_par_hash(const ParPair & p)
 
 inline size_t second_par_hash(const ParPair & p)
 {
-  return dft_hash_fct(p.first);
+  return snd_hash_fct(p.first);
 }
 
 using HashParTbl = ODhashTable<ParPair, ParEqual>;

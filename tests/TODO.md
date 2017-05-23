@@ -56,3 +56,6 @@
 ## 18. macros para referencias biblio
 - Created at   2017-05-22 16:04:19 -0400
 
+## 19. transpose para tuner
+- Created at   2017-05-23 15:18:21 -0400
+

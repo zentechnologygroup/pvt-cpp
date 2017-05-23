@@ -18,9 +18,9 @@ inline double
 PoaBradley::impl(const double & pobp,
 		 const double & p,
 		 const double & pb,
-		 const double & co) noexcept
+		 const double & coa) noexcept
 {
-  const double po = pobp * exp(co * (p - pb));
+  const double po = pobp * exp(coa * (p - pb));
 
   return po;
 }
