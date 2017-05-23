@@ -473,6 +473,12 @@ ValueArg<ArrayDesc> parray = { "", "p-array", "p array", false, ArrayDesc(),
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
 			   "unit \"par-name unit\"", cmd };
 
+ValueArg<string> p_out_unit = { "", "p-out-unit", "pressure output unit", false,
+				"psia", "pressure output unit", cmd };
+
+ValueArg<string> y_out_unit = { "", "y-out-unit", "y output unit", false,
+				"", "y output unit", cmd };
+
 // Constant parameters
 ValueArg<double> api = { "", "api", "api", false, 0, "api", cmd };
 ValueArg<double> rsb = { "", "rsb", "rsb", false, 0, "rsb in SCF_STB", cmd };
@@ -630,6 +636,18 @@ const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 	return ret;
       }
   return ret;
+}
+
+const Unit * test_p_out_unit(const Unit * curr_unit)
+{
+  if (not p_out_unit.isSet())
+    return curr_unit;
+
+  const Unit * ret = Unit::search(p_out_unit.getValue());
+  if (ret == nullptr)
+    ZENTHROW(UnitNotFound, "p unit " + p_out_unit.getValue() + " not found");
+  if (not ret->is_sibling(*curr_unit))
+    ZENTHROW(
 }
 
 DynSetTree<string> relax_names_tbl;
@@ -1123,6 +1141,7 @@ void process_local_calibration()
       auto curr = it.get_curr();
       const Correlation * corr_ptr = get<0>(curr);
       auto vals = data.iapply(corr_ptr);
+      // todo aquí va cambio de unidades
       const auto & cm = get<1>(curr);
       const double & c = cm.first;
       const double & m = cm.second;

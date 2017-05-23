@@ -1144,13 +1144,6 @@ struct PvtData
 	    pars.insert("p", p, punit);
 	    pars.insert(par_name, parval, par_unit);
 	    
-	    // pars.tbl.for_each([par_unit] (auto p)
-            //   {
-	    // 	cout << p.first << " = " << p.second.first
-	    // 	     << " " << p.second.second->name << " ";
-	    //   });
-	    // cout << endl;
-
 	    try
 	      {
 		VtlQuantity result =
@@ -1159,7 +1152,6 @@ struct PvtData
 		plist.append(p);
 		ylist.append(y);
 		yclist.append(result.raw());
-		//cout << target_name << " = " << result << endl;
 	      }
 	    catch (exception & e)
 	      {
