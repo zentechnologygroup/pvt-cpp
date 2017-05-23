@@ -533,6 +533,7 @@ SwitchArg json = { "", "json", "generate json of data", cmd };
 SwitchArg split_bo_arg = { "", "split-bo", "split bo vector", cmd };
 SwitchArg split_uo_arg = { "", "split-uo", "split uo vector", cmd };
 SwitchArg save = { "", "save", "save data to json", cmd };
+SwitchArg transpose_out = { "", "transpose", "transpose output", cmd };
 
 MultiArg<RmProperty> rm_property =
   { "", "rm-property", "remove property t", false, "remove \"property t\"", cmd };
@@ -1097,7 +1098,10 @@ void process_local_calibration()
 
   static auto print_csv = [] (const DynList<DynList<string>> & l)
   {
-    return to_string(format_string_csv(l));
+    if (transpose_out.getValue())
+      return to_string(format_string_csv(transpose(l)));
+    else
+      return to_string(format_string_csv(l));
   };
 
   static auto print_mat = [] (const DynList<DynList<string>> & l)
