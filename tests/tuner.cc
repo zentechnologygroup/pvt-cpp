@@ -638,17 +638,24 @@ const Unit * test_unit(const string & par_name, const Unit & dft_unit)
   return ret;
 }
 
-const Unit * test_p_out_unit(const Unit * curr_unit)
-{
-  if (not p_out_unit.isSet())
-    return curr_unit;
+# define Declare_Test_Out_Unit(NAME)						\
+  const Unit * test_##NAME##_out_unit(const Unit * curr_unit)		\
+  {									\
+    if (not NAME##_out_unit.isSet())					\
+      return curr_unit;							\
+									\
+    const string & NAME##unit_name = NAME##_out_unit.getValue();	\
+    const Unit * ret_unit = Unit::search(NAME##unit_name);		\
+    if (ret_unit == nullptr)						\
+      ZENTHROW(UnitNotFound, #NAME " unit " + NAME##unit_name + " not found"); \
+    if (not ret_unit->is_sibling(*curr_unit))				\
+      ZENTHROW(WrongSiblingUnit, NAME##unit_name + " and " + curr_unit->name + \
+	       " are not physically related");				\
+    return ret_unit;							\
+  }
 
-  const Unit * ret = Unit::search(p_out_unit.getValue());
-  if (ret == nullptr)
-    ZENTHROW(UnitNotFound, "p unit " + p_out_unit.getValue() + " not found");
-  if (not ret->is_sibling(*curr_unit))
-    ZENTHROW(
-}
+Declare_Test_Out_Unit(p);
+Declare_Test_Out_Unit(y);
 
 DynSetTree<string> relax_names_tbl;
 void set_relax_names()
@@ -934,14 +941,17 @@ void process_napply()
 
 void put_sample(const Correlation * corr_ptr,
 		DynList<DynList<double>> & rows, DynList<string> & header,
-		double temp,
+		double temp, const Unit * yunit,
 		DynList<double> & yc, double c, double m)
 {
   const string name = corr_ptr->name + "_" + ::to_string((int(temp)));
   const auto & mode = mode_type.getValue();
 
+  const Unit * y_out_unit = test_y_out_unit(yunit);
+
   if (mode == "single")
     {
+      mutable_unit_convert(*yunit, yc, *y_out_unit);
       rows.append(move(yc));
       header.append(name);
     }
@@ -952,7 +962,10 @@ void put_sample(const Correlation * corr_ptr,
     }
   else
     {
-      rows.append(yc.maps([c, m] (auto y) { return c + m*y; }));
+      rows.append(unit_convert(*yunit,
+			       yc.maps([c, m] (auto y) { return c + m*y; }),
+			       *y_out_unit));
+      mutable_unit_convert(*yunit, yc, *y_out_unit);
       rows.append(move(yc));
       header.append(name + "_adjusted");
       header.append(name);
@@ -1121,6 +1134,8 @@ void process_local_calibration()
   auto fst_corr = corr_list.get_first();
   auto target_name = fst_corr->target_name();
   auto fst = data.iapply(fst_corr);
+  const Unit * punit = get<0>(fst);
+  const Unit * yunit = get<1>(fst);
 
   // First correlation here because the pressure and lab values are
   // the same through all correlations
@@ -1130,10 +1145,18 @@ void process_local_calibration()
   for (auto it = get<2>(fst).get_it(); it.has_curr(); it.next())
     {
       PvtData::TYPE & vals = it.get_curr();
+      auto & pvals = get<5>(vals);
+      const Unit * out_p_unit = test_p_out_unit(punit);
+      mutable_unit_convert(*punit, pvals, *out_p_unit);
+
+      auto & yvals = get<6>(vals);
+      const Unit * out_y_unit = test_y_out_unit(yunit);
+      mutable_unit_convert(*yunit, yvals, *out_y_unit);
+      
       const string t_tag = ::to_string((int) get<0>(vals));
       header.append(build_dynlist<string>("p_" + t_tag,
 					  target_name + "_" + t_tag));
-      rows.append(build_dynlist<DynList<double>>(get<5>(vals), get<6>(vals)));
+      rows.append(build_dynlist<DynList<double>>(move(pvals), move(yvals)));
     }
 
   for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
@@ -1141,7 +1164,8 @@ void process_local_calibration()
       auto curr = it.get_curr();
       const Correlation * corr_ptr = get<0>(curr);
       auto vals = data.iapply(corr_ptr);
-      // todo aquí va cambio de unidades
+      const Unit * yunit = get<1>(vals);
+
       const auto & cm = get<1>(curr);
       const double & c = cm.first;
       const double & m = cm.second;
@@ -1150,7 +1174,7 @@ void process_local_calibration()
 	  auto & curr = it.get_curr();
 	  const double & temp = get<0>(curr);
 	  DynList<double> & yc = get<7>(curr);
-	  put_sample(corr_ptr, rows, header, temp, yc, c, m);
+	  put_sample(corr_ptr, rows, header, temp, yunit, yc, c, m);
 	}
     }
   DynList<DynList<string>> result =
