@@ -3,6 +3,8 @@
 
 # include <zen-exceptions.H>
 
+DEFINE_ZEN_EXCEPTION(MismatchAuthors,
+		     "Pair of correlations have not the same author");
 DEFINE_ZEN_EXCEPTION(CorrelationNotApplicable, "Correlation is not applicable");
 DEFINE_ZEN_EXCEPTION(VarNameNotFound, "variable not found in empirical set");
 DEFINE_ZEN_EXCEPTION(PressureMismatch, "Pressure values mismatch");

@@ -22,7 +22,7 @@ LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
 
 TESTSRCS = test-all-units-1.cc test-conversion.cc test-corr.cc test-seq.cc \
 	test-biblio.cc test-json.cc test-tuning.cc test-analyse.cc \
-	test-empirical-json.cc test-fluid-analysis.cc tuner.cc\
+	test-empirical-json.cc test-fluid-analysis.cc tuner.cc ztuner.cc\
 	test-def-corr.cc test-calibrate.cc test-par.cc plot.cc cplot.cc \
 	test-exception.cc vector-conversion.cc test-pvt-data.cc test-adjust.cc
 
@@ -85,5 +85,8 @@ NormalProgramTarget(test-adjust,test-adjust.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SY
 
 AllTarget(tuner)
 NormalProgramTarget(tuner,tuner.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(ztuner)
+NormalProgramTarget(ztuner,ztuner.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()

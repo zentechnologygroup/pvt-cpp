@@ -225,6 +225,12 @@ public:
   /// Returns the correlation target name
   const string & target_name() const { return __target_name; }
 
+  string author_name() const
+  {
+    auto pos = name.find(::to_name(__target_name));
+    return name.substr(pos + __target_name.size());
+  }
+
   // Returns the parameters names in the declaration order
   DynList<string> parameters_signature() const
   {

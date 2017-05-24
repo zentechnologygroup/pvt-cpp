@@ -34,34 +34,6 @@ end_correlation()
 
 ################################################################
 
-begin_correlation("PpchcGuoGhalambor", "HydrocarbonGasPseudocriticalPressure", "psia")
-add_parameter("yghc", "Sgg", "Gas gravity of the hydrocarbon portion")
-add_parameter("n2", "MoleFraction", "N2 concentration", "Quantity<MolePercent>(0)", "Quantity<MolePercent>(5)") 
-add_parameter("h2s", "MoleFraction", "H2S concentration", "Quantity<MolePercent>(0)", "Quantity<MolePercent>(3)") 
-add_title("GUO & GHALAMBOR CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE NATURAL GAS HYDROCARBON PORTION")
-add_note("The book is available at: https://books.google.co.ve/books?id=KXmjAQAAQBAJ&pg=PA13&hl=es&source=gbs_toc_r&cad=4#v=onepage&q&f=false")
-set_hidden()
-add_hidden_note("It was decided to eliminate this correlation.")
-add_author("Guo & Ghalambor")
-end_correlation()
-
-################################################################
-
-begin_correlation("PpcAhmed", "HydrocarbonGasPseudocriticalPressure", "psia")
-add_parameter("yghc", "Sgg", "Gas gravity of the hydrocarbon portion")
-add_parameter("n2", "MoleFraction", "N2 concentration")
-add_parameter("co2", "MoleFraction", "CO2 concentration")
-add_parameter("h2s", "MoleFraction", "H2S concentration")
-add_precondition("n2", "co2", "h2s")
-add_title("AHMED CORRELATION, CALCULATION OF PSEUDOCRITICAL PRESSURE OF THE NATURAL GAS MIXTURE")
-add_note("The correlation already has impurity corrections for mixture pseudocriticals.")
-set_hidden()
-add_hidden_note("It was decided to eliminate this correlation.")
-add_author("Ahmed")
-end_correlation()
-
-################################################################
-
 begin_correlation("PpchcStandingHeavierFractions",
          "HydrocarbonGasPseudocriticalPressure", "psia", 620, 675)
 add_parameter("yghc", "Sgg", "Gas gravity of the hydrocarbon portion", 0.58, 1.3)
