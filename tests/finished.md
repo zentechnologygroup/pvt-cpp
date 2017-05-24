@@ -1804,3 +1804,9 @@
 - Comment      
 - Finished     
 
+## 302. transpose para tuner
+- Created at   2017-05-23 15:18:21 -0400
+- Completed at 2017-05-24 16:11:00 -0400
+- Comment      
+- Finished     
+

@@ -1090,7 +1090,7 @@ void process_local_calibration()
         << Rvector("cols", colors) << endl
         << Rvector("pchs", pchs) << endl
         << Rvector("ltys", ltys) << endl
-        <<  "legend(\"topright\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
+        << "legend(\"topright\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
         << endl;
 
       return s.str();
