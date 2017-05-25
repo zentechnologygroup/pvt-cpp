@@ -59,6 +59,11 @@ public:
     insert(get<0>(par), get<1>(par), get<2>(par));
   }
 
+  void insert(const string & name, const VtlQuantity & q)
+  {
+    insert(name, q.raw(), &q.unit);
+  }
+
   void insert(const NamedPar & par)
   {
     if (not get<0>(par))

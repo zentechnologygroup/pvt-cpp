@@ -59,3 +59,6 @@
 ## 19. cambio unidades entrada a ztuner
 - Created at   2017-05-24 16:10:44 -0400
 
+## 20. compute de Correlation n debe retornar double
+- Created at   2017-05-25 10:52:02 -0400
+
