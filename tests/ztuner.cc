@@ -67,12 +67,10 @@ struct PZArg
     for (size_t i = 0; i < n/2; ++i)
       z.append(l.remove_first());
 
-    bool p_reversed = false;
     if (not is_sorted(p))
       {
 	p = p.rev();
 	z = z.rev();
-	p_reversed = true;
       }
       
     if (not is_sorted(p) and not is_inversely_sorted(p))

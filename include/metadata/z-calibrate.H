@@ -53,16 +53,18 @@ Declare_Correlations_Set(zfactor)
 Declare_Pair_Correlations_Set(ppchc, tpchc, pseudo_correlations)
 Declare_Pair_Correlations_Set(adjustedppcm, adjustedtpcm, adjusted_correlations)
 
-struct ZData
+struct Zdata
 {
-  const Quantity<Fahrenheit> t;
+  const Quantity<Fahrenheit> t = VtlQuantity::null_quantity;
   const Array<double> p; // psia
   const Array<double> z;
 
-  ZData(const Quantity<Fahrenheit> & t, Array<double> && p, Array<double> && z)
+  Zdata(const Quantity<Fahrenheit> & t, Array<double> && p, Array<double> && z)
     : t(t), p(move(p)), z(move(z)) {}
 
-  bool operator < (const ZData & z) const { return t.raw() < z.t.raw(); }
+  Zdata() {}
+
+  bool operator < (const Zdata & z) const { return t.raw() < z.t.raw(); }
 };
 
 struct Ztuner
@@ -71,17 +73,34 @@ struct Ztuner
   const Quantity<MoleFraction> n2;
   const Quantity<MoleFraction> co2;
   const Quantity<MoleFraction> h2s;
-  DynSetTree<ZData> zvals;
+  DynSetTree<Zdata> zvals;
   const DynList<const Correlation*> yghc_corrs = yghc_correlations();
   const DynList<PseudoPair> pseudo_corrs = pseudo_correlations();
   const DynList<PseudoPair> adjust_corrs = adjusted_correlations();
   const DynList<const Correlation*> z_corrs = zfactor_correlations();
 
+  //                t,     p,       z
+  using T = tuple<double, double, double>;
+
+  DynList<T> lab_values() const
+  {
+    DynList<T> ret;
+    zvals.for_each([&ret] (auto & d)
+      {
+	for (auto it = zip_it(d.p, d.z); it.has_curr(); it.next())
+	  {
+	    auto p = it.get_curr();
+	    ret.append(T(d.t.raw(), get<0>(p), get<1>(p)));
+	  }
+      });
+    return ret;
+  }
+
   Ztuner(const Quantity<Sgg> yg, const Quantity<MoleFraction> n2,
 	 const Quantity<MoleFraction> co2, const Quantity<MoleFraction> h2s)
     : yg(yg), n2(n2), co2(co2), h2s(h2s) {}
 
-  void add_z(ZData && z)
+  void add_z(Zdata && z)
   {
     if (zvals.has(z))
       ZENTHROW(DuplicatedVarName, "duplicated z for t = " + z.t.to_string());
@@ -102,6 +121,11 @@ struct Ztuner
 
   DynList<Zcomb> solve(bool check)
   {
+    DynList<Zcomb> ret;
+    auto zlab = sort(lab_values(), [] (auto & t1, auto & t2)
+		    { return get<1>(t1) < get<1>(t2); });
+    auto zx = zlab.maps<double>([] (auto & t) { return get<2>(t); });
+
     ParList pars;
     insert_in_container(pars, NPAR(yg), NPAR(n2), NPAR(co2), NPAR(h2s));
     for (auto yghc_it = yghc_corrs.get_it(); yghc_it.has_curr(); yghc_it.next())
@@ -131,31 +155,31 @@ struct Ztuner
 		  adjustedtpcm_corr->compute_by_names(pars, check);
 		insert_in_container(pars, NPAR(adjustedppcm), NPAR(adjustedtpcm));
 
-		DynList<tuple<double, double, double>> z;
+		DynList<double> zlist;
 		for (auto zit = z_corrs.get_it(); zit.has_curr(); zit.next())
 		  {
 		    auto zcorr = zit.get_curr();
-		    for (auto it = zvals.get_it(); it.has_curr(); it.next())
+		    for (auto it = zlab.get_it(); it.has_curr(); it.next())
 		      {
 			auto & d = it.get_curr();
+			const auto & t = Quantity<Fahrenheit>(get<0>(d));
+			const auto & p = Quantity<psia>(get<1>(d));
 			auto tpr =
-			  Tpr::get_instance().compute({d.t, adjustedtpcm}, check);
-			auto ppr = d.p.maps<PseudoReducedPressure>
-			  ([&adjustedtpcm, &d, check] (auto v)
-			   {
-			     return Ppr::get_instance().
-			       compute({Quantity<psia>(v), adjustedtpcm}, check);
-			   });
-			auto z = ppr.maps<double>([&tpr, check, zcorr] (auto & ppr)
-                          {
-			    return zcorr->compute({tpr, ppr}, check);
-			  });
-			zip_for_each([t = d.t.raw()] (auto v)
-				     {
-				       return make_tuple(t, get<0>(v),
-							 get<1>(v));
-				     }, d.p, z);
+			  Tpr::get_instance().compute({t, adjustedtpcm}, check);
+			auto ppr =
+			  Ppr::get_instance().compute({p, adjustedtpcm}, check);
+			DynList<VtlQuantity> prpars =
+			  build_dynlist<VtlQuantity>(tpr, ppr);
+			auto z = zcorr->compute(prpars, check);
+			zlist.append(z.raw());
 		      }
+		    // here we have in zlist the computed values for
+		    // the correlation. Now we perform a linear fit
+		    LFit fit(zx, zlist);
+		    ret.append(Zcomb(zcorr, make_pair(ppchc_corr, tpchc_corr),
+				     make_pair(adjustedppcm_corr,
+					       adjustedtpcm_corr),
+				     zcorr, fit));
 		  }
 		
 		remove_from_container(pars, "adjustedppcm", "adjustedtpcm");
@@ -165,8 +189,9 @@ struct Ztuner
 	  }
 	pars.remove("yghc");
       }
-  }
-  
+
+    return ret;
+  }  
 };
 
 # endif
