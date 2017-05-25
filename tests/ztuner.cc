@@ -115,6 +115,9 @@ Declare_Arg(h2s);
 MultiArg<PZArg> zvalues = { "", "z", "z", false,
 			    "t tunit punit p-list z-list", cmd };
 
+ValueArg<string> fname = { "f", "file", "file name", false, "",
+			   "file name", cmd };
+
 void process_z()
 {
   for (auto & z : zvalues.getValue())

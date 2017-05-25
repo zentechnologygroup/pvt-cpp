@@ -4,15 +4,17 @@
 # include <ah-string-utils.H>
 # include <tpl_array.H>
 # include <tpl_dynSetTree.H>
+# include <json.hpp>
 # include <lfit.H>
 # include <correlations/pvt-correlations.H>
 # include <metadata/metadata-exceptions.H>
 
+using Json = nlohmann::json;
 using PseudoPair = pair<const Correlation*, const Correlation*>;
 
-# define Declare_Correlations_Set(NAME)			\
-  DynList<const Correlation*> NAME##_correlations()	\
-  {							\
+# define Declare_Correlations_Set(NAME)					\
+  DynList<const Correlation*> NAME##_correlations()			\
+  {									\
     return Correlation::array().filter([] (auto p)			\
 				       { return p->target_name() == #NAME; }); \
   }
@@ -65,22 +67,57 @@ struct Zdata
   Zdata() {}
 
   bool operator < (const Zdata & z) const { return t.raw() < z.t.raw(); }
+
+  Json to_json() const
+  {
+    Json j;
+    j["t"] = t.raw();
+    j["p"] = to_vector(p);
+    j["z"] = to_vector(z);
+    return j;
+  }
+
+  Zdata(const Json & j)
+    : t(Quantity<Fahrenheit>(j["t"].get<double>())),
+      p(to_Array(j["p"].get<vector<double>>())),
+      z(to_Array(j["z"].get<vector<double>>())) {}
 };
 
 struct Ztuner
 {
-  const Quantity<Sgg> yg;
-  const Quantity<MoleFraction> n2;
-  const Quantity<MoleFraction> co2;
-  const Quantity<MoleFraction> h2s;
+  mutable Quantity<Sgg> yg;
+  mutable Quantity<MoleFraction> n2;
+  mutable Quantity<MoleFraction> co2;
+  mutable Quantity<MoleFraction> h2s;
   DynSetTree<Zdata> zvals;
-  const DynList<const Correlation*> yghc_corrs = yghc_correlations();
-  const DynList<PseudoPair> pseudo_corrs = pseudo_correlations();
-  const DynList<PseudoPair> adjust_corrs = adjusted_correlations();
-  const DynList<const Correlation*> z_corrs = zfactor_correlations();
+  mutable DynList<const Correlation*> yghc_corrs = yghc_correlations();
+  mutable DynList<PseudoPair> pseudo_corrs = pseudo_correlations();
+  mutable DynList<PseudoPair> adjust_corrs = adjusted_correlations();
+  mutable DynList<const Correlation*> z_corrs = zfactor_correlations();
 
   //                t,     p,       z
   using T = tuple<double, double, double>;
+
+  Json to_json() const
+  {
+    Json j;
+    j["yg"] = yg.raw();
+    j["n2"] = n2.raw();
+    j["co2"] = co2.raw();
+    j["h2s"] = h2s.raw();
+    j["zvals"] = to_vector(zvals.maps<Json>([] (auto & z) { return z.to_json(); }));
+    return j;
+  }
+
+  Ztuner(iostream & in)
+  {
+    Json j = Json::parse(in);
+    yg = Quantity<Sgg>(j["yg"].get<double>());
+    n2 = Quantity<MoleFraction>(j["n2"].get<double>());
+    co2 = Quantity<MoleFraction>(j["co2"].get<double>());
+    h2s = Quantity<MoleFraction>(j["h2s"].get<double>());
+    zvals = to_DynList(j["zvals"].get<vector<Json>>());// TODO con for
+  }
 
   DynList<T> lab_values() const
   {
