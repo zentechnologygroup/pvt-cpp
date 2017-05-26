@@ -96,11 +96,6 @@ struct PZArg
   }
 };
 
-namespace TCLAP
-{
-  template <> struct ArgTraits<PZArg> { typedef StringLike ValueCategory; };
-}
-
 static const DynSetTree<string> valid = { "yg", "co2", "n2", "h2s" };
 
 struct ArgUnit
@@ -131,18 +126,19 @@ struct ArgUnit
 namespace TCLAP
 {
   template<> struct ArgTraits<ArgUnit> { typedef StringLike ValueCategory; };
+  template <> struct ArgTraits<PZArg> { typedef StringLike ValueCategory; };
 }
 
 CmdLine cmd = { "ztuner", ' ', "0" };		 
 
-# define Declare_Arg(NAME, u)						\
-  ValueArg<double> NAME##_arg = { "", #NAME, #NAME, 0, false, #NAME, cmd }; \
-  const Unit * NAME##_unit = &u
+# define Declare_Arg(NAME, v)						\
+  ValueArg<double> NAME##_arg = { "", #NAME, #NAME, false, v, #NAME, cmd }; \
+  const Unit * NAME##_unit = nullptr;
 
-Declare_Arg(yg, Sgg::get_instance());
-Declare_Arg(co2, MoleFraction::get_instance());
-Declare_Arg(n2, MoleFraction::get_instance());
-Declare_Arg(h2s, MoleFraction::get_instance());
+Declare_Arg(yg, 0.6);
+Declare_Arg(co2, 0);
+Declare_Arg(n2, 0);
+Declare_Arg(h2s, 0);
 
 MultiArg<PZArg> zvalues = { "", "z", "z", false,
 			    "t tunit punit p-list z-list", cmd };
@@ -152,13 +148,15 @@ ValueArg<string> fname = { "f", "file", "file name", false, "",
 
 SwitchArg save = { "s", "save", "save json", cmd };
 
+SwitchArg print = { "p", "print", "print data", cmd };
+
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
 			   "unit \"par-name unit\"", cmd };
 
 // Checks whether the parameter par_name has a change of
 // unity. ref_unit is the default unit of the parameter. If there was
 // no change specification for par_name, then returns ref_unit
-void test_par_unit_change(const string & par_name, const Unit *& unit_ptr)
+const Unit * test_par_unit_change(const string & par_name, const Unit & unit_ref)
 {
   if (not valid.contains(par_name))
     {
@@ -166,8 +164,9 @@ void test_par_unit_change(const string & par_name, const Unit *& unit_ptr)
 	   << endl;
       abort();
     }
- 
-  auto & pq = unit_ptr->physical_quantity;
+
+  const Unit * unit_ptr = &unit_ref;
+  auto & pq = unit_ref.physical_quantity;
   for (const auto & par : unit.getValue()) // traverse list of changes
     if (par.name == par_name)
       {
@@ -185,18 +184,17 @@ void test_par_unit_change(const string & par_name, const Unit *& unit_ptr)
 		 << pq.name << " is invalid" << endl;
 	    abort();
 	  }
-	break;
+	return unit_ptr;
       }
+  return unit_ptr;
 }
-
-# define Test_Unit(NAME) test_par_unit_change(#NAME, NAME##_unit)
 
 Ztuner process_input()
 {
-  Test_Unit(yg);
-  Test_Unit(n2);
-  Test_Unit(co2);
-  Test_Unit(h2s);
+  yg_unit = test_par_unit_change("yg", Sgg::get_instance());
+  n2_unit = test_par_unit_change("n2", MolePercent::get_instance());
+  co2_unit = test_par_unit_change("co2", MolePercent::get_instance());
+  h2s_unit = test_par_unit_change("h2s", MolePercent::get_instance());
 
   Ztuner ret(VtlQuantity(*yg_unit, yg_arg.getValue()),
 	     VtlQuantity(*n2_unit, n2_arg.getValue()),
@@ -238,6 +236,7 @@ int main(int argc, char *argv[])
   auto l = data.solve(true);
   auto s = Ztuner::to_dynlist(l);
       
-  cout << to_string(format_string(s)) << endl;v
+  cout << to_string(format_string(s)) << endl;
 
+  data.exception_list.for_each([] (auto & s) { cout << s << endl; });
 }

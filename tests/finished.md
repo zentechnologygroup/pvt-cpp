@@ -1810,3 +1810,9 @@
 - Comment      
 - Finished     
 
+## 303. generar por cada correlacion método validate_and_call
+- Created at   2017-05-26 15:58:04 -0400
+- Completed at 
+- Comment      
+- Finished     
+

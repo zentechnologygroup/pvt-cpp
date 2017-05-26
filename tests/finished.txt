@@ -300,3 +300,4 @@ ponerle al etado de calibración las correlaciones,2017-05-02 15:09:38 -0400,201
 piner un filtro por propiedad a opcion print,2017-04-19 14:25:40 -0400,2017-05-22 17:17:45 -0400,,2017-05-22 17:17:49 -0400
 hacer el inputing de pb,2017-04-26 15:52:26 -0400,2017-05-22 17:18:05 -0400,,2017-05-22 17:18:08 -0400
 transpose para tuner,2017-05-23 15:18:21 -0400,2017-05-24 16:11:00 -0400,,2017-05-24 16:11:03 -0400
+generar por cada correlacion método validate_and_call,2017-05-26 15:58:04 -0400,,,2017-05-26 15:58:16 -0400

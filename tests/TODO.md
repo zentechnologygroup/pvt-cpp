@@ -62,3 +62,9 @@
 ## 20. compute de Correlation n debe retornar double
 - Created at   2017-05-25 10:52:02 -0400
 
+## 21. generar por cada correlacion método validate_and_call
+- Created at   2017-05-26 15:56:41 -0400
+
+## 22. opción export en cplot que genere grid sin las 2 primeras cols
+- Created at   2017-05-26 17:32:45 -0400
+
