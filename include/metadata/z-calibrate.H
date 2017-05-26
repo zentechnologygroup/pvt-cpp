@@ -109,7 +109,7 @@ struct Ztuner
     return j;
   }
 
-  Ztuner(iostream & in)
+  Ztuner(istream & in)
   {
     Json j = Json::parse(in);
     yg = Quantity<Sgg>(j["yg"].get<double>());
@@ -119,6 +119,10 @@ struct Ztuner
     for (const Json & jz : j["zvals"])
       zvals.append(jz);
   }
+
+  Ztuner(istream && in) : Ztuner(in) {}
+
+  Ztuner() {}
 
   DynList<T> lab_values() const
   {
@@ -146,8 +150,31 @@ struct Ztuner
     zvals.append(move(z));
   }
 
+  void add_z(const Quantity<Fahrenheit> & t, Array<double> && p, Array<double> && z)
+  {
+    add_z(Zdata(t, move(p), move(z)));
+  }
+
   using Zcomb = tuple<const Correlation*, PseudoPair,
 		      PseudoPair, const Correlation*, LFit>;
+
+  static DynList<string> zcomb_header()
+  {
+    return build_dynlist<string>("yghc", "ppchc", "tpchc", "ppcm", "tpcm",
+				 "adjustedppcm", "adjustedtpcm", "sumsq", "c", "m");
+  }
+  
+  static DynList<string> zcomb_to_str(const Zcomb & c)
+  {
+    return build_dynlist<string>(get<0>(c)->name,
+				 get<1>(c).first->name,
+				 get<1>(c).second->name,
+				 get<2>(c).first->name,
+				 get<2>(c).second->name,
+				 get<3>(c)->name,
+				 get<4>(c).sumsq,
+				 get<4>(c).c, get<4>(c).m);		 
+  }
 
   static Correlation::NamedPar npar(const string & name, double val,
 				    const Unit * unit_ptr)
@@ -229,7 +256,15 @@ struct Ztuner
       }
 
     return ret;
-  }  
+  }
+
+  static DynList<DynList<string>> to_dynlist(const DynList<Zcomb> & l)
+  {
+    DynList<DynList<string>> ret;
+    ret.append(zcomb_header());
+    ret.append(l.maps<DynList<string>>([] (auto & c) { return zcomb_to_str(c); }));
+    return ret;
+  }
 };
 
 # endif

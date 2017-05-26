@@ -1,4 +1,6 @@
 
+# include <fstream>
+
 # include <ah-string-utils.H>
 # include <tclap/CmdLine.h>
 
@@ -14,8 +16,8 @@ struct PZArg
   const Unit * punit_ptr = nullptr;
 
   double t = 0;
-  Array<double> p;
-  Array<double> z;
+  DynList<double> p;
+  DynList<double> z;
 
   PZArg() {}
 
@@ -99,13 +101,42 @@ namespace TCLAP
   template <> struct ArgTraits<PZArg> { typedef StringLike ValueCategory; };
 }
 
+static const DynSetTree<string> valid = { "yg", "co2", "n2", "h2s" };
+
+struct ArgUnit
+{
+  string name;
+  string unit_name;
+
+  ArgUnit & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> name >> unit_name))
+      ZENTHROW(CommandLineError, str + " is not a pair par-name unit");
+
+    if (not valid.contains(name))
+      ZENTHROW(CommandLineError, name + " is an invalid parameter name");
+
+    return *this;
+  }
+
+  ArgUnit() {}
+
+  friend ostream& operator << (ostream &os, const ArgUnit & a) 
+  {
+    return os << a.name << " " << a.unit_name;
+  }
+};
+
+namespace TCLAP
+{
+  template<> struct ArgTraits<ArgUnit> { typedef StringLike ValueCategory; };
+}
+
 CmdLine cmd = { "ztuner", ' ', "0" };		 
 
 # define Declare_Arg(NAME)			\
-  ValueArg<double> NAME##_arg = { "", #NAME, #NAME, 0, false, #NAME, cmd }; \
-									\
-  const Correlation * NAME##_corr = nullptr;				\
-  const Unit * NAME##_unit = nullptr
+  ValueArg<double> NAME##_arg = { "", #NAME, #NAME, 0, false, #NAME, cmd }; 
 
 Declare_Arg(yg);
 Declare_Arg(co2);
@@ -118,18 +149,95 @@ MultiArg<PZArg> zvalues = { "", "z", "z", false,
 ValueArg<string> fname = { "f", "file", "file name", false, "",
 			   "file name", cmd };
 
-void process_z()
+SwitchArg save = { "s", "save", "save json", cmd };
+
+MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
+			   "unit \"par-name unit\"", cmd };
+
+// Checks whether the parameter par_name has a change of
+// unity. ref_unit is the default unit of the parameter. If there was
+// no change specification for par_name, then returns ref_unit
+const Unit * test_par_unit_change(const string & par_name,
+				  const Unit & ref_unit)
 {
-  for (auto & z : zvalues.getValue())
+  if (not valid.contains(par_name))
     {
-      cout << z << endl;
+      cout << "for option --unit " << par_name << ": invalid parameter name"
+	   << endl;
+      abort();
     }
+ 
+  const Unit * ret = &ref_unit;
+  for (const auto & par : unit.getValue()) // traverse list of changes
+    if (par.name == par_name)
+      {
+	const Unit * ret = Unit::search_by_name(par.unit_name);
+	if (ret == nullptr)
+	  {
+	    cout << "In unit change for " << par_name << ": unit name "
+		 << par.unit_name << " not found" << endl;
+	    abort();
+	  }
+
+	if (&ref_unit.physical_quantity != &ret->physical_quantity)
+	  {
+	    cout << "For " << par_name << " unit: physical quantity "
+		 << ret->physical_quantity.name << " is invalid" << endl;
+	    abort();
+	  }
+	return ret;
+      }
+ 
+  return ret;
+}
+
+Ztuner process_input()
+{
+  const Unit * yg_unit = test_par_unit_change("yg", Sgg::get_instance());
+  const Unit * n2_unit = test_par_unit_change("n2", MoleFraction::get_instance());
+  const Unit * co2_unit = test_par_unit_change("co2", MoleFraction::get_instance());
+  const Unit * h2s_unit = test_par_unit_change("h2s", MoleFraction::get_instance());
+
+  Ztuner ret(VtlQuantity(*yg_unit, yg_arg.getValue()),
+	     VtlQuantity(*n2_unit, n2_arg.getValue()),
+	     VtlQuantity(*co2_unit, co2_arg.getValue()),
+	     VtlQuantity(*h2s_unit, h2s_arg.getValue()));
+
+  for (auto & z : zvalues.getValue())
+    ret.add_z(VtlQuantity(*z.tunit_ptr, z.t), move(z.p), move(z.z));
+
+  return ret;
 }
 
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
 
-  process_z();
-}
+  Ztuner data;
 
+  if (fname.isSet())
+    {
+      const string & file_name = fname.getValue();
+      if (not exists_file(file_name))
+	ZENTHROW(CommandLineError, "file with name " + file_name + " not found");
+      data = Ztuner(ifstream(file_name));
+    }
+  else
+    {
+      data = process_input();
+      if (save.getValue())
+	{
+	  if (not fname.isSet())
+	    ZENTHROW(CommandLineError,
+		     "for save option file name has not been set");
+	  ofstream out(fname.getValue());
+	  out << data.to_json().dump(2) << endl;
+	}
+    }
+
+  auto l = data.solve(true);
+  auto s = Ztuner::to_dynlist(l);
+      
+  cout << to_string(format_string(s)) << endl;
+
+}

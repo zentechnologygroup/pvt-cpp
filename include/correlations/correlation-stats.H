@@ -184,8 +184,9 @@ public:
   static double m(const Desc & d) { return get<3>(d).m; }
   static bool is_valid(const Desc & d)
   {
-    bool invalid = std::isnan(r2(d)) or std::isnan(mse(d)) or std::isnan(sigma(d)) or
-      std::isnan(sumsq(d)) or std::isnan(c(d)) or std::isnan(m(d));
+    bool invalid = std::isnan(r2(d)) or std::isnan(mse(d)) or
+      std::isnan(sigma(d)) or std::isnan(sumsq(d)) or std::isnan(c(d)) or
+      std::isnan(m(d));
     return not invalid;
   }
 
