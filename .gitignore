@@ -1,3 +1,4 @@
+~*
 *.o
 Makefile
 *.a
@@ -5,3 +6,6 @@ Makefile
 *.bak
 gitversion.H
 backend*
+call*
+*.out
+*.user

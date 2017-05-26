@@ -116,7 +116,8 @@ struct Ztuner
     n2 = Quantity<MoleFraction>(j["n2"].get<double>());
     co2 = Quantity<MoleFraction>(j["co2"].get<double>());
     h2s = Quantity<MoleFraction>(j["h2s"].get<double>());
-    zvals = to_DynList(j["zvals"].get<vector<Json>>());// TODO con for
+    for (const Json & jz : j["zvals"])
+      zvals.append(jz);
   }
 
   DynList<T> lab_values() const
