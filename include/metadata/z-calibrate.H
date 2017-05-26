@@ -172,8 +172,9 @@ struct Ztuner
 				 get<2>(c).first->name,
 				 get<2>(c).second->name,
 				 get<3>(c)->name,
-				 get<4>(c).sumsq,
-				 get<4>(c).c, get<4>(c).m);		 
+				 ::to_string(get<4>(c).sumsq),
+				 ::to_string(get<4>(c).c),
+				 ::to_string(get<4>(c).m));
   }
 
   static Correlation::NamedPar npar(const string & name, double val,

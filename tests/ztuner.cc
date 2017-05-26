@@ -135,13 +135,14 @@ namespace TCLAP
 
 CmdLine cmd = { "ztuner", ' ', "0" };		 
 
-# define Declare_Arg(NAME)			\
-  ValueArg<double> NAME##_arg = { "", #NAME, #NAME, 0, false, #NAME, cmd }; 
+# define Declare_Arg(NAME, u)						\
+  ValueArg<double> NAME##_arg = { "", #NAME, #NAME, 0, false, #NAME, cmd }; \
+  const Unit * NAME##_unit = &u
 
-Declare_Arg(yg);
-Declare_Arg(co2);
-Declare_Arg(n2);
-Declare_Arg(h2s);
+Declare_Arg(yg, Sgg::get_instance());
+Declare_Arg(co2, MoleFraction::get_instance());
+Declare_Arg(n2, MoleFraction::get_instance());
+Declare_Arg(h2s, MoleFraction::get_instance());
 
 MultiArg<PZArg> zvalues = { "", "z", "z", false,
 			    "t tunit punit p-list z-list", cmd };
@@ -157,8 +158,7 @@ MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
 // Checks whether the parameter par_name has a change of
 // unity. ref_unit is the default unit of the parameter. If there was
 // no change specification for par_name, then returns ref_unit
-const Unit * test_par_unit_change(const string & par_name,
-				  const Unit & ref_unit)
+void test_par_unit_change(const string & par_name, const Unit *& unit_ptr)
 {
   if (not valid.contains(par_name))
     {
@@ -167,36 +167,36 @@ const Unit * test_par_unit_change(const string & par_name,
       abort();
     }
  
-  const Unit * ret = &ref_unit;
+  auto & pq = unit_ptr->physical_quantity;
   for (const auto & par : unit.getValue()) // traverse list of changes
     if (par.name == par_name)
       {
-	const Unit * ret = Unit::search_by_name(par.unit_name);
-	if (ret == nullptr)
+	unit_ptr = Unit::search_by_name(par.unit_name);
+	if (unit_ptr == nullptr)
 	  {
 	    cout << "In unit change for " << par_name << ": unit name "
 		 << par.unit_name << " not found" << endl;
 	    abort();
 	  }
 
-	if (&ref_unit.physical_quantity != &ret->physical_quantity)
+	if (&pq != &unit_ptr->physical_quantity)
 	  {
 	    cout << "For " << par_name << " unit: physical quantity "
-		 << ret->physical_quantity.name << " is invalid" << endl;
+		 << pq.name << " is invalid" << endl;
 	    abort();
 	  }
-	return ret;
+	break;
       }
- 
-  return ret;
 }
+
+# define Test_Unit(NAME) test_par_unit_change(#NAME, NAME##_unit)
 
 Ztuner process_input()
 {
-  const Unit * yg_unit = test_par_unit_change("yg", Sgg::get_instance());
-  const Unit * n2_unit = test_par_unit_change("n2", MoleFraction::get_instance());
-  const Unit * co2_unit = test_par_unit_change("co2", MoleFraction::get_instance());
-  const Unit * h2s_unit = test_par_unit_change("h2s", MoleFraction::get_instance());
+  Test_Unit(yg);
+  Test_Unit(n2);
+  Test_Unit(co2);
+  Test_Unit(h2s);
 
   Ztuner ret(VtlQuantity(*yg_unit, yg_arg.getValue()),
 	     VtlQuantity(*n2_unit, n2_arg.getValue()),
@@ -238,6 +238,6 @@ int main(int argc, char *argv[])
   auto l = data.solve(true);
   auto s = Ztuner::to_dynlist(l);
       
-  cout << to_string(format_string(s)) << endl;
+  cout << to_string(format_string(s)) << endl;v
 
 }
