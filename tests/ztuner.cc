@@ -2,6 +2,7 @@
 # include <fstream>
 
 # include <ah-string-utils.H>
+# include <ah-dispatcher.H>
 # include <tclap/CmdLine.h>
 
 # include <correlations/pvt-correlations.H>
@@ -21,8 +22,9 @@ struct PZArg
 
   PZArg() {}
 
-  static void read_and_validate_unit(const PhysicalQuantity & pq,
-				     istringstream & iss, const Unit *& unit_ptr)
+  static void
+  read_and_validate_unit(const PhysicalQuantity & pq,
+			 istringstream & iss, const Unit *& unit_ptr)
   {
     string data;
     if (not (iss >> data))
@@ -150,13 +152,32 @@ SwitchArg save = { "s", "save", "save json", cmd };
 
 SwitchArg print = { "p", "print", "print data", cmd };
 
+SwitchArg eol = { "n", "eol", "print end of line", cmd };
+
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
 			   "unit \"par-name unit\"", cmd };
+
+vector<string> sort_types = { "sumsq", "c", "m" };
+ValuesConstraint<string> allowed_sort_types = sort_types;
+ValueArg<string> sort = { "", "sort", "sort type", false,
+			  "sumsq", &allowed_sort_types, cmd };
+
+vector<string> output_types = { "R", "csv", "mat" };
+ValuesConstraint<string> allowed_output_types = output_types;
+ValueArg<string> output = { "", "output", "output type", false,
+			    "mat", &allowed_output_types, cmd };
+
+SwitchArg solve = { "S", "solve", "solve z", cmd };
+
+SwitchArg check = { "c", "check", "check z application ranges", cmd };
+
+SwitchArg exceptions = { "e", "exceptions", "prints exceptions", cmd };
 
 // Checks whether the parameter par_name has a change of
 // unity. ref_unit is the default unit of the parameter. If there was
 // no change specification for par_name, then returns ref_unit
-const Unit * test_par_unit_change(const string & par_name, const Unit & unit_ref)
+const Unit * test_par_unit_change(const string & par_name,
+				  const Unit & unit_ref)
 {
   if (not valid.contains(par_name))
     {
@@ -189,54 +210,109 @@ const Unit * test_par_unit_change(const string & par_name, const Unit & unit_ref
   return unit_ptr;
 }
 
-Ztuner process_input()
+# define Set_Par(NAME, UNIT)						\
+  if (NAME##_arg.isSet())							\
+    {									\
+      NAME##_unit = test_par_unit_change(#NAME, UNIT::get_instance());	\
+      data_ptr->NAME = VtlQuantity(*NAME##_unit, NAME##_arg.getValue()); \
+    }
+
+
+void process_input(unique_ptr<Ztuner> & data_ptr)
 {
   yg_unit = test_par_unit_change("yg", Sgg::get_instance());
   n2_unit = test_par_unit_change("n2", MolePercent::get_instance());
   co2_unit = test_par_unit_change("co2", MolePercent::get_instance());
   h2s_unit = test_par_unit_change("h2s", MolePercent::get_instance());
 
-  Ztuner ret(VtlQuantity(*yg_unit, yg_arg.getValue()),
-	     VtlQuantity(*n2_unit, n2_arg.getValue()),
-	     VtlQuantity(*co2_unit, co2_arg.getValue()),
-	     VtlQuantity(*h2s_unit, h2s_arg.getValue()));
+  if (data_ptr == nullptr)
+    data_ptr = unique_ptr<Ztuner>
+      (new Ztuner(VtlQuantity(*yg_unit, yg_arg.getValue()),
+		  VtlQuantity(*n2_unit, n2_arg.getValue()),
+		  VtlQuantity(*co2_unit, co2_arg.getValue()),
+		  VtlQuantity(*h2s_unit, h2s_arg.getValue())));
+
+  Set_Par(yg, Sgg);
+  Set_Par(n2, MolePercent);
+  Set_Par(co2, MolePercent);
+  Set_Par(h2s, MolePercent);
 
   for (auto & z : zvalues.getValue())
-    ret.add_z(VtlQuantity(*z.tunit_ptr, z.t), move(z.p), move(z.z));
+    data_ptr->add_z(VtlQuantity(*z.tunit_ptr, z.t), move(z.p), move(z.z));
+}
 
-  return ret;
+void terminate_app()
+{
+  if (eol.getValue())
+    cout << endl;
+  exit(0);
+}
+
+unique_ptr<Ztuner> data;
+
+void process_print()
+{
+  if (not print.isSet())
+    return;
+
+  cout << *data << endl;
+  terminate_app();
+}
+
+void process_solve()
+{
+  if (not solve.isSet())
+    return;
+
+  auto l = data->solve(check.getValue());
+
+  // TODO sort options
+
+  static auto format_mat = [] (const DynList<Ztuner::Zcomb> & l) -> string
+    {
+      return to_string(format_string(Ztuner::to_dynlist(l)));
+    };
+  static auto format_csv = [] (const DynList<Ztuner::Zcomb> & l) -> string
+    {
+      return to_string(format_string_csv(Ztuner::to_dynlist(l)));
+    };
+  static auto format_R = [] (const DynList<Ztuner::Zcomb> &) -> string
+    {
+      return "R format is incompatible for solve option";
+    };
+
+  static AHDispatcher<string, string (*)(const DynList<Ztuner::Zcomb>&)>
+    dispatcher("mat", format_mat, "csv", format_csv, "R", format_R);
+
+  cout << dispatcher.run(output.getValue(), l);
+
+  terminate_app();
 }
 
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
 
-  Ztuner data;
-
   if (fname.isSet())
     {
       const string & file_name = fname.getValue();
-      if (not exists_file(file_name))
+      if (not exists_file(file_name) and not save.isSet())
 	ZENTHROW(CommandLineError, "file with name " + file_name + " not found");
-      data = Ztuner(ifstream(file_name));
+      else if (not save.isSet())
+	data = unique_ptr<Ztuner>(new Ztuner(ifstream(file_name)));
     }
-  else
+
+  process_input(data);
+  if (save.getValue())
     {
-      data = process_input();
-      if (save.getValue())
-	{
-	  if (not fname.isSet())
-	    ZENTHROW(CommandLineError,
-		     "for save option file name has not been set");
-	  ofstream out(fname.getValue());
-	  out << data.to_json().dump(2) << endl;
-	}
+      if (not fname.isSet())
+	ZENTHROW(CommandLineError,
+		 "for save option file name has not been set");
+      ofstream out(fname.getValue());
+      out << data->to_json().dump(2) << endl;
     }
 
-  auto l = data.solve(true);
-  auto s = Ztuner::to_dynlist(l);
-      
-  cout << to_string(format_string(s)) << endl;
-
-  data.exception_list.for_each([] (auto & s) { cout << s << endl; });
+  process_print();
+  process_solve();
+  
 }

@@ -78,6 +78,18 @@ struct Zdata
     return j;
   }
 
+  string to_string() const
+  {
+    ostringstream s;
+    s << "t = " << t << endl
+      << "p =";
+    p.for_each([&s] (auto v) { s << " " << v; });
+    s << endl
+      << "z =";
+    z.for_each([&s] (auto v) { s << " " << v; });
+    return s.str();
+  }
+
   Zdata(const Json & j)
     : t(Quantity<Fahrenheit>(j["t"].get<double>())),
       p(to_Array(j["p"].get<vector<double>>())),
@@ -86,11 +98,16 @@ struct Zdata
 
 struct Ztuner
 {
-  mutable Quantity<Sgg> yg;
-  mutable Quantity<MoleFraction> n2;
-  mutable Quantity<MoleFraction> co2;
-  mutable Quantity<MoleFraction> h2s;
+  Quantity<Sgg> yg;
+  Quantity<MoleFraction> n2;
+  Quantity<MoleFraction> co2;
+  Quantity<MoleFraction> h2s;
+
+private:
+
   DynSetTree<Zdata> zvals;
+
+public:
 
   //                t,     p,       z
   using T = tuple<double, double, double>;
@@ -105,6 +122,30 @@ struct Ztuner
     j["zvals"] =
       to_vector(zvals.maps<Json>([] (auto & z) { return z.to_json(); }));
     return j;
+  }
+
+  string to_string() const
+  {
+    ostringstream s;
+    s << "yg = " << yg << endl
+      << "n2 = " << n2 << endl
+      << "co2 = " << co2 << endl
+      << "h2s = " << h2s << endl
+      << "zvals:" << endl;
+    auto & last = zvals.get_last();
+    for (auto it = zvals.get_it(); it.has_curr(); it.next())
+      {
+	auto & z = it.get_curr();
+	s << shift_lines_to_left(z.to_string(), 2);
+	if (&z != &last)
+	  s << endl;
+      }
+    return s.str();
+  }
+
+  friend ostream & operator << (ostream& out, const Ztuner & z)
+  {
+    return out << z.to_string();
   }
 
   Ztuner(istream & in)
