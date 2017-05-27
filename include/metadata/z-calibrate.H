@@ -196,6 +196,10 @@ public:
   using Zcomb = tuple<const Correlation*, PseudoPair,
 		      PseudoPair, PseudoPair, const Correlation*, LFit>;
 
+  static const LFit & fit(const Zcomb & z) { return get<5>(z); }
+  static double sumsq(const Zcomb & z) { return fit(z).sumsq; }
+  static double c(const Zcomb & z) { return fit(z).c; }
+  static double m(const Zcomb & z) { return fit(z).m; }
   static DynList<string> zcomb_header()
   {
     return build_dynlist<string>("yghc", "ppchc", "tpchc", "ppcm", "tpcm",

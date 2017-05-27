@@ -2,6 +2,7 @@
 # include <fstream>
 
 # include <ah-string-utils.H>
+# include <ahSort.H>
 # include <ah-dispatcher.H>
 # include <tclap/CmdLine.h>
 
@@ -259,33 +260,38 @@ void process_print()
   terminate_app();
 }
 
+# define Define_Cmp(NAME)			\
+  static auto cmp_##NAME = [] (const Ztuner::Zcomb & z1, const Ztuner::Zcomb & z2) \
+    {									\
+      return Ztuner::NAME(z1) < Ztuner::NAME(z2);			\
+    }
 void process_solve()
 {
-  if (not solve.isSet())
-    return;
-
-  auto l = data->solve(check.getValue());
-
-  // TODO sort options
-
-  static auto format_mat = [] (const DynList<Ztuner::Zcomb> & l) -> string
+  Define_Cmp(sumsq);
+  Define_Cmp(c);
+  Define_Cmp(m);
+  static DynMapTree<string, bool (*)(const Ztuner::Zcomb&, const Ztuner::Zcomb&)>
+    cmp = { {"sumsq", cmp_sumsq}, {"c", cmp_c}, {"m", cmp_m} };
+  static auto format_mat = [] (const DynList<Ztuner::Zcomb> & l)
     {
       return to_string(format_string(Ztuner::to_dynlist(l)));
     };
-  static auto format_csv = [] (const DynList<Ztuner::Zcomb> & l) -> string
+  static auto format_csv = [] (const DynList<Ztuner::Zcomb> & l)
     {
       return to_string(format_string_csv(Ztuner::to_dynlist(l)));
     };
   static auto format_R = [] (const DynList<Ztuner::Zcomb> &) -> string
     {
       return "R format is incompatible for solve option";
-    };
-
+    };  
   static AHDispatcher<string, string (*)(const DynList<Ztuner::Zcomb>&)>
     dispatcher("mat", format_mat, "csv", format_csv, "R", format_R);
 
-  cout << dispatcher.run(output.getValue(), l);
+  if (not solve.isSet())
+    return;
 
+  auto l = Aleph::sort(data->solve(check.getValue()), cmp.find(::sort.getValue()));
+  cout << dispatcher.run(output.getValue(), l);
   terminate_app();
 }
 
