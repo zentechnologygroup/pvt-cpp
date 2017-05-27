@@ -305,7 +305,8 @@ struct Ztuner
 			  }
 			LFit fit(zx, zlist); 
 			zlist.empty();
-			ret.append(Zcomb(zcorr, make_pair(ppchc_corr, tpchc_corr),
+			ret.append(Zcomb(yghc_corr,
+					 make_pair(ppchc_corr, tpchc_corr),
 					 make_pair(ppcm_corr, tpcm_corr),
 					 make_pair(adjustedppcm_corr,
 						   adjustedtpcm_corr),
