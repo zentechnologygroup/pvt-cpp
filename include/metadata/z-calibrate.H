@@ -387,18 +387,29 @@ public:
     return zcomb_list.maps([] (auto &l) { return l; });
   }
 
-  // t-p zvals normal-comb calibrated-comb
-  DynList<DynList<T>> vals() const
+  DynList<DynList<double>> vals() const
   {
-    DynList<DynList<T>> ret;
+    DynList<DynList<double>> ret;
     for (auto it = zvals.get_it(); it.has_curr(); it.next())
       {
 	const Zdata & zdata = it.get_curr();
-	auto l = zip_maps<T>([temp = zdata.t.raw()] (auto t)
-			     {
-			       return T(temp, get<0>(t), get<1>(t));
-			     }, zdata.p, zdata.z);
+	auto l = zip_maps<DynList<double>>([] (auto t)
+          {                               // p ,    z
+	    return build_dynlist<double>(get<0>(t), get<1>(t));
+	  }, zdata.p, zdata.z);
 	ret.append(move(l));
+      }
+    return ret;
+  }
+
+  DynList<string> basic_header() const
+  {
+    DynList<string> ret;
+    for (auto it = zvals.get_it(); it.has_curr(); it.next())
+      {
+	auto & z = it.get_curr();
+	const string t = ::to_string(int(z.t.raw()));
+	ret.append(build_dynlist<string>("p-" + t, "z-" + t));
       }
     return ret;
   }

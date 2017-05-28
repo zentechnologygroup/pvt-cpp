@@ -279,7 +279,7 @@ void process_print()
   terminate_app();
 }
 
-# define Define_Cmp(NAME)			\
+# define Define_Cmp(NAME)						\
   static auto cmp_##NAME = [] (const Ztuner::Zcomb & z1, const Ztuner::Zcomb & z2) \
     {									\
       return Ztuner::NAME(z1) < Ztuner::NAME(z2);			\
@@ -288,10 +288,20 @@ void process_print()
 void process_plot()
 {
   assert(plot.isSet());
+  assert(not data->zcomb_list.is_empty());
+  assert(not plot.getValue().numbers.is_empty());
 
   const PlotNumbers & numbers = plot.getValue();
-  if (not numbers.numbers.all([n = numbers.n] (auto i) { return i < n; }))
+  cout << numbers.numbers.size() << endl;
+  numbers.numbers.for_each([] (auto i) { cout << i << " "; }); cout << endl;
+  if (not numbers.numbers.all([n = data->zcomb_list.size()] (auto i)
+			      { return i < n; }))
     ZENTHROW(CommandLineError, "Invalid number in plot list");
+
+  DynList<string> header = data->basic_header();
+  DynList<DynList<double>> cols = transpose(data->vals());
+
+  header.for_each([] (auto & s) { cout << s << "  "; }); cout << endl;
 
   cout << "Not yet implemented" << endl;
 }
