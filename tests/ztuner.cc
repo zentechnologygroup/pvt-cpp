@@ -293,7 +293,7 @@ void process_plot()
   if (not numbers.numbers.all([n = numbers.n] (auto i) { return i < n; }))
     ZENTHROW(CommandLineError, "Invalid number in plot list");
 
-  
+  cout << "Not yet implemented" << endl;
 }
 
 void process_solve()

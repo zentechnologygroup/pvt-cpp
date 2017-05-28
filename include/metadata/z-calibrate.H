@@ -196,6 +196,16 @@ public:
   using Zcomb = tuple<const Correlation*, PseudoPair,
 		      PseudoPair, PseudoPair, const Correlation*, LFit, size_t>;
 
+  static const Correlation * yghc_c(const Zcomb & z) { return get<0>(z); }
+  static const Correlation * ppchc_c(const Zcomb & z) { return get<1>(z).first; }
+  static const Correlation * tpchc_c(const Zcomb & z) { return get<1>(z).second; }
+  static const Correlation * ppcm_c(const Zcomb & z) { return get<2>(z).first; }
+  static const Correlation * tpcm_c(const Zcomb & z) { return get<2>(z).second; }
+  static const Correlation * adjustedppcm_c(const Zcomb & z)
+  { return get<3>(z).first; }
+  static const Correlation * adjustedtpcm_c(const Zcomb & z)
+  { return get<3>(z).second; }
+  static const Correlation * z_c(const Zcomb & z) { return get<4>(z); }
   static const LFit & fit(const Zcomb & z) { return get<5>(z); }
   static double sumsq(const Zcomb & z) { return fit(z).sumsq; }
   static double c(const Zcomb & z) { return fit(z).c; }
@@ -228,6 +238,11 @@ public:
 				    const Unit * unit_ptr)
   {
     return Correlation::NamedPar(true, name, val, unit_ptr);
+  }
+
+  static Correlation::NamedPar npar(const string & name, const VtlQuantity & q)
+  {
+    return Correlation::NamedPar(true, name, q.raw(), &q.unit);
   }
 
 # define NPAR(NAME) npar(#NAME, NAME.raw(), &NAME.unit)
@@ -370,6 +385,73 @@ public:
       }
 
     return zcomb_list.maps([] (auto &l) { return l; });
+  }
+
+  // t-p zvals normal-comb calibrated-comb
+  DynList<DynList<T>> vals() const
+  {
+    DynList<DynList<T>> ret;
+    for (auto it = zvals.get_it(); it.has_curr(); it.next())
+      {
+	const Zdata & zdata = it.get_curr();
+	auto l = zip_maps<T>([temp = zdata.t.raw()] (auto t)
+			     {
+			       return T(temp, get<0>(t), get<1>(t));
+			     }, zdata.p, zdata.z);
+	ret.append(move(l));
+      }
+    return ret;
+  }
+
+  DynList<DynList<pair<double, double>>> eval(const Zcomb & z, bool check) const
+  {
+    const Correlation * yghc_corr = yghc_c(z);
+    const Correlation * ppchc_corr = ppchc_c(z);
+    const Correlation * tpchc_corr = tpchc_c(z);
+    const Correlation * ppcm_corr = ppcm_c(z);
+    const Correlation * tpcm_corr = tpcm_c(z);
+    const Correlation * adjustedppcm_corr = adjustedppcm_c(z);
+    const Correlation * adjustedtpcm_corr = adjustedtpcm_c(z);
+    const Correlation * z_corr = z_c(z);
+
+    ParList pars;
+    insert_in_container(pars, NPAR(yg), NPAR(n2), NPAR(co2), NPAR(h2s));
+    Quantity<Sgg> yghc = yghc_corr->compute_by_names(pars, true);
+    pars.insert("yghc", yghc);
+
+    auto ppchc = ppchc_corr->compute_by_names(pars, true);
+    auto tpchc = tpchc_corr->compute_by_names(pars, true);
+    insert_in_container(pars, NPAR(ppchc), NPAR(tpchc));
+
+    VtlQuantity ppcm = ppcm_corr->compute_by_names(pars, true);
+    VtlQuantity tpcm = tpcm_corr->compute_by_names(pars, true);
+    insert_in_container(pars, NPAR(ppcm), NPAR(tpcm));
+
+    ppcm = adjustedppcm_corr->compute_by_names(pars, true);
+    tpcm = adjustedtpcm_corr->compute_by_names(pars, true);
+    remove_from_container(pars, "ppcm", "tpcm");
+    insert_in_container(pars, NPAR(ppcm), NPAR(tpcm));
+
+    DynList<DynList<pair<double, double>>> ret;
+
+    for (auto vit = zvals.get_it(); vit.has_curr(); vit.next())
+      {
+	const Zdata & zdata = vit.get_curr();
+	auto tpr = Tpr::get_instance().compute({zdata.t, tpcm}, true);
+	DynList<double> zc;
+	for (auto it = zdata.p.get_it(); it.has_curr(); it.next())
+	  {
+	    auto pp = it.get_curr();
+	    Quantity<psia> p(pp);
+	    auto ppr = Ppr::get_instance().compute({p, ppcm}, true);
+	    auto z = z_corr->compute(build_dynlist<VtlQuantity>(tpr, ppr), check);
+	    zc.append(z.raw());
+	  }
+	ret.append(zc.maps<pair<double, double>>
+		   ([t = zdata.t.raw()] (auto z) { return make_pair(t, z); }));
+      }
+
+    return ret;
   }
 
   static DynList<DynList<string>> to_dynlist(const DynList<Zcomb> & l)
