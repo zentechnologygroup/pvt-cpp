@@ -61,3 +61,6 @@
 ## 20. opción export en cplot que genere grid sin las 2 primeras cols
 - Created at   2017-05-26 17:32:45 -0400
 
+## 21. opcion filter con nombres de columnas y a la vez orden de aparición
+- Created at   2017-05-28 18:06:13 -0400
+
