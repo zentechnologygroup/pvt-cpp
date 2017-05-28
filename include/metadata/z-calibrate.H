@@ -194,17 +194,18 @@ public:
   }
 
   using Zcomb = tuple<const Correlation*, PseudoPair,
-		      PseudoPair, PseudoPair, const Correlation*, LFit>;
+		      PseudoPair, PseudoPair, const Correlation*, LFit, size_t>;
 
   static const LFit & fit(const Zcomb & z) { return get<5>(z); }
   static double sumsq(const Zcomb & z) { return fit(z).sumsq; }
   static double c(const Zcomb & z) { return fit(z).c; }
   static double m(const Zcomb & z) { return fit(z).m; }
+  static double num(const Zcomb & z) { return get<6>(z); }
   static DynList<string> zcomb_header()
   {
     return build_dynlist<string>("yghc", "ppchc", "tpchc", "ppcm", "tpcm",
 				 "adjustedppcm", "adjustedtpcm", "z",
-				 "sumsq", "c", "m");
+				 "sumsq", "c", "m", "num");
   }
   
   static DynList<string> zcomb_to_str(const Zcomb & c)
@@ -219,7 +220,8 @@ public:
 				 get<4>(c)->name,
 				 ::to_string(get<5>(c).sumsq),
 				 ::to_string(get<5>(c).c),
-				 ::to_string(get<5>(c).m));
+				 ::to_string(get<5>(c).m),
+				 ::to_string(get<6>(c)));
   }
 
   static Correlation::NamedPar npar(const string & name, double val,
@@ -231,6 +233,8 @@ public:
 # define NPAR(NAME) npar(#NAME, NAME.raw(), &NAME.unit)
 
   DynList<string> exception_list;
+
+  Array<Zcomb> zcomb_list;
 
   mutable DynList<const Correlation*> yghc_corrs = yghc_correlations();
   mutable DynList<PseudoPair> pch_corrs = pch_correlations();
@@ -257,11 +261,11 @@ public:
     if (zvals.is_empty())
       ZENTHROW(EmptyVarSet, "data set does not contain p-z values");
     
-    DynList<Zcomb> ret;
     auto zlab = sort(lab_values(), [] (auto & t1, auto & t2)
 		    { return get<1>(t1) < get<1>(t2); });
     auto zx = zlab.maps<double>([] (auto & t) { return get<2>(t); });
 
+    size_t num = 0;
     ParList pars;
     insert_in_container(pars, NPAR(yg), NPAR(n2), NPAR(co2), NPAR(h2s));
     for (auto yghc_it = yghc_corrs.get_it(); yghc_it.has_curr(); yghc_it.next())
@@ -350,12 +354,12 @@ public:
 			  }
 			LFit fit(zx, zlist); 
 			zlist.empty();
-			ret.append(Zcomb(yghc_corr,
-					 make_pair(ppchc_corr, tpchc_corr),
-					 make_pair(ppcm_corr, tpcm_corr),
-					 make_pair(adjustedppcm_corr,
-						   adjustedtpcm_corr),
-					 zcorr, fit));
+			zcomb_list.append(Zcomb(yghc_corr,
+						make_pair(ppchc_corr, tpchc_corr),
+						make_pair(ppcm_corr, tpcm_corr),
+						make_pair(adjustedppcm_corr,
+							  adjustedtpcm_corr),
+						zcorr, fit, num++));
 		      }
 		    remove_from_container(pars, "ppcm", "tpcm");
 		  }
@@ -365,7 +369,7 @@ public:
 	pars.remove("yghc");
       }
 
-    return ret;
+    return zcomb_list.maps([] (auto &l) { return l; });
   }
 
   static DynList<DynList<string>> to_dynlist(const DynList<Zcomb> & l)

@@ -126,10 +126,32 @@ struct ArgUnit
   }
 };
 
+struct PlotNumbers
+{
+  size_t n = 0;
+  DynList<size_t> numbers;
+
+  PlotNumbers() {}
+
+  PlotNumbers & operator = (const string & str)
+  {
+    string data;
+    istringstream iss(str);
+    for (; iss >> data; ++n)
+      if (not is_size_t(data))
+	ZENTHROW(CommandLineError, data + " is not a unsigned integer");
+      else
+	numbers.append(atol(data));
+
+    return *this;
+  }
+};
+
 namespace TCLAP
 {
   template<> struct ArgTraits<ArgUnit> { typedef StringLike ValueCategory; };
   template <> struct ArgTraits<PZArg> { typedef StringLike ValueCategory; };
+  template <> struct ArgTraits<PlotNumbers> { typedef StringLike ValueCategory; };
 }
 
 CmdLine cmd = { "ztuner", ' ', "0" };		 
@@ -158,10 +180,10 @@ SwitchArg eol = { "n", "eol", "print end of line", cmd };
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
 			   "unit \"par-name unit\"", cmd };
 
-vector<string> sort_types = { "sumsq", "c", "m" };
+vector<string> sort_types = { "sumsq", "c", "m", "num" };
 ValuesConstraint<string> allowed_sort_types = sort_types;
 ValueArg<string> sort = { "", "sort", "sort type", false,
-			  "sumsq", &allowed_sort_types, cmd };
+			  "num", &allowed_sort_types, cmd };
 
 vector<string> output_types = { "R", "csv", "mat" };
 ValuesConstraint<string> allowed_output_types = output_types;
@@ -173,6 +195,9 @@ SwitchArg solve = { "S", "solve", "solve z", cmd };
 SwitchArg check = { "c", "check", "check z application ranges", cmd };
 
 SwitchArg exceptions = { "e", "exceptions", "prints exceptions", cmd };
+
+ValueArg<PlotNumbers> plot = { "P", "plot", "plot", false, PlotNumbers(),
+			       "plot", cmd };
 
 // Checks whether the parameter par_name has a change of
 // unity. ref_unit is the default unit of the parameter. If there was
@@ -218,14 +243,8 @@ const Unit * test_par_unit_change(const string & par_name,
       data_ptr->NAME = VtlQuantity(*NAME##_unit, NAME##_arg.getValue()); \
     }
 
-
 void process_input(unique_ptr<Ztuner> & data_ptr)
 {
-  yg_unit = test_par_unit_change("yg", Sgg::get_instance());
-  n2_unit = test_par_unit_change("n2", MolePercent::get_instance());
-  co2_unit = test_par_unit_change("co2", MolePercent::get_instance());
-  h2s_unit = test_par_unit_change("h2s", MolePercent::get_instance());
-
   if (data_ptr == nullptr)
     data_ptr = unique_ptr<Ztuner>
       (new Ztuner(VtlQuantity(*yg_unit, yg_arg.getValue()),
@@ -265,13 +284,26 @@ void process_print()
     {									\
       return Ztuner::NAME(z1) < Ztuner::NAME(z2);			\
     }
+
+void process_plot()
+{
+  assert(plot.isSet());
+
+  const PlotNumbers & numbers = plot.getValue();
+  if (not numbers.numbers.all([n = numbers.n] (auto i) { return i < n; }))
+    ZENTHROW(CommandLineError, "Invalid number in plot list");
+
+  
+}
+
 void process_solve()
 {
   Define_Cmp(sumsq);
   Define_Cmp(c);
   Define_Cmp(m);
+  Define_Cmp(num);
   static DynMapTree<string, bool (*)(const Ztuner::Zcomb&, const Ztuner::Zcomb&)>
-    cmp = { {"sumsq", cmp_sumsq}, {"c", cmp_c}, {"m", cmp_m} };
+    cmp = { {"sumsq", cmp_sumsq}, {"c", cmp_c}, {"m", cmp_m}, {"num", cmp_num} };
   static auto format_mat = [] (const DynList<Ztuner::Zcomb> & l)
     {
       return to_string(format_string(Ztuner::to_dynlist(l)));
@@ -290,8 +322,15 @@ void process_solve()
   if (not solve.isSet())
     return;
 
-  auto l = Aleph::sort(data->solve(check.getValue()), cmp.find(::sort.getValue()));
-  cout << dispatcher.run(output.getValue(), l);
+  auto l = data->solve(check.getValue());
+		       
+  if (exceptions.getValue())
+    data->exception_list.for_each([] (auto & s) { cout << s << endl; });
+  else if (plot.isSet())
+    process_plot();
+  else
+    cout << dispatcher.run(output.getValue(),
+			   Aleph::sort(l, cmp.find(::sort.getValue())));
   terminate_app();
 }
 

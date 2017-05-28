@@ -1816,3 +1816,15 @@
 - Comment      
 - Finished     
 
+## 304. compute en empirical_data 1405: se puede acer más raṕido
+- Created at   2016-12-01 17:30:02 -0400
+- Completed at 2017-05-27 19:44:50 -0400
+- Comment      
+- Finished     
+
+## 305. script que lea hoja de Virginia y genere los csv para distintos grids
+- Created at   2017-02-16 18:15:52 -0400
+- Completed at 2017-04-26 11:25:56 -0400
+- Comment      
+- Finished     
+
