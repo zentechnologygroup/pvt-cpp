@@ -535,10 +535,32 @@ struct ColNames
   }
 };
 
+struct Digits
+{
+  string col_name;
+  string num_digits = "6";
+
+  Digits & operator = (const string & str)
+  {
+    istringstream iss(str);
+    if (not (iss >> col_name))
+      ZENTHROW(CommandLineError, "--digit : cannot read column name");
+    if (not (iss >> num_digits))
+      ZENTHROW(CommandLineError, "--digit \"" + col_name +
+	       "... : cannot read number o digits");
+    if (not is_size_t(num_digits))
+      ZENTHROW(CommandLineError, "in --digit \"" + col_name + " " + num_digits +
+	       "\" : invalid number o digits");
+
+    return *this;
+  }
+};
+
 namespace TCLAP
 {
   template<> struct ArgTraits<RangeDesc> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<ColNames> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<Digits> { typedef StringLike ValueCategory; };
 }
 
 // Given a RangeDesc, put in the correlation parameters list l the
@@ -673,8 +695,11 @@ Command_Line_Range(p, "pressure");
 
 SwitchArg transpose_par = { "", "transpose", "transpose grid", cmd };
 
-ValueArg<ColNames> order = { "", "order", "col names", false, ColNames(),
-			     "col names list", cmd };
+ValueArg<ColNames> filter_par = { "", "filter", "col names", false, ColNames(),
+				  "col names list", cmd };
+
+MultiArg<Digits> digits = { "", "digits", "number of decimal digits", false,
+			    "number of decimal digits", cmd };
 
 using TPPair = pair<Correlation::NamedPar, Correlation::NamedPar>;
 
@@ -1234,6 +1259,13 @@ inline void buffer_row_pb(const FixedStack<const VtlQuantity*> & row,
   rows.append(move(p));
 }
 
+// TODO documentar estos arreglos
+Array<string> col_names;
+Array<const char*> precisions;
+DynMapTree<string, string> name_to_precision;
+
+const string dft_precision = "8";
+
 inline void process_row(const FixedStack<const VtlQuantity*> & row,
 			const FixedStack<Unit_Convert_Fct_Ptr> & row_convert)
 {
@@ -1254,7 +1286,7 @@ inline void process_row(const FixedStack<const VtlQuantity*> & row,
       Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
       const VtlQuantity & q = *ptr[i];
       if (not q.is_null())
-	printf("%f", convert_fct ? convert_fct(q.raw()) : q.raw());
+	printf(precisions(i), convert_fct ? convert_fct(q.raw()) : q.raw());
 
       // Comment line above and uncomment below in order to get maximum precision
       //printf("%.17g", convert_fct ? convert_fct(q.raw()) : q.raw());
@@ -1289,8 +1321,6 @@ inline void no_row(const FixedStack<const VtlQuantity*>&,
 
 RowFct row_fct = nullptr;
 
-Array<string> col_names;
-
 // Print out the csv header according to passed args and return a
 // stack of definitive units for each column. Also it sets row_fct
 template <typename ... Args>
@@ -1299,6 +1329,28 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
   FixedStack<pair<string, const Unit*>> header;
 
   insert_in_container(header, args...);
+  name_to_precision = header.maps<pair<string, string>>([] (auto & h)
+    {
+      return pair<string, string>(h.first, "%." + dft_precision + "f");
+    });
+
+  for (auto & d : digits.getValue())
+    {
+      try
+	{
+	  name_to_precision[d.col_name] = "%." + d.num_digits + "f";
+	}
+      catch (exception & e)
+	{
+	  ZENTHROW(CommandLineError, "error in --digits \"" + d.col_name + " " +
+		   d.num_digits + "\" (probably " + d.col_name + " is invalid");
+	}
+    }
+
+  precisions = header.maps<const char*>([] (auto & h)
+    {
+      return name_to_precision[h.first].data();
+    });
 
   auto ret = build_stack_of_property_units(header);
 
@@ -1361,14 +1413,16 @@ void print_column(size_t col_idx)
   else
     {
       const size_t j = col_idx - str_ncol;
+      const char * format = precisions(col_idx);
+      const char * format_comma = (string(format) + ",").data();
       for (size_t i = 0; i < nrow; ++i)
 	{
 	  const double & val = rows(i).second(j);
 	  if (val != Invalid_Value)
 	    if (i != nrow - 1)
-	      printf("%f,", rows(i).second(j));
+	      printf(format_comma, rows(i).second(j));
 	    else
-	      printf("%f", rows(i).second(j));
+	      printf(format, rows(i).second(j));
 	  else if (i != nrow - 1)
 	    printf(",");
 	}
@@ -1377,7 +1431,7 @@ void print_column(size_t col_idx)
 
 void print_order()
 {
-  assert(transposed and order.isSet());
+  assert(transposed and filter_par.isSet());
 
   DynMapTree<string, size_t> name_map;
   enum_for_each(col_names, [&name_map] (auto & name, auto i)
@@ -1386,7 +1440,7 @@ void print_order()
 		  name_map.insert(parts[0], i);
 		});
 
-  auto names = order.getValue().col_names;
+  auto names = filter_par.getValue().col_names;
   if (not names.all([&name_map] (auto & name) { return name_map.has(name); }))
     ZENTHROW(CommandLineError, "--order contains an invalid name");
 
@@ -1403,13 +1457,21 @@ void print_transpose()
 {
   assert(transposed);
 
-  if (order.isSet())
+  if (filter_par.isSet())
     {
       print_order();
       return;
     }
 
   const size_t nrow = rows.size();
+  const size_t ncol = rows(0).first.size() + rows(0).second.size();
+  for (size_t j = 0; j < ncol; ++j)
+    {
+      print_column(j);
+      printf("\n");
+    }
+  return;
+  
   const size_t str_ncol = rows(0).first.size();
   for (size_t j = 0; j < str_ncol; ++j)
     {
