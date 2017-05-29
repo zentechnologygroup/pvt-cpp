@@ -1412,8 +1412,9 @@ void print_column(size_t col_idx)
 	printf(rows(i).first(col_idx).c_str());
   else
     {
+      const size_t ncol = str_ncol + rows(0).second.size();
       const size_t j = col_idx - str_ncol;
-      const char * format = precisions(col_idx);
+      const char * format = precisions(ncol - col_idx - 1);
       const char * format_comma = (string(format) + ",").data();
       for (size_t i = 0; i < nrow; ++i)
 	{
@@ -1471,7 +1472,7 @@ void print_transpose()
       printf("\n");
     }
   return;
-  
+  // TODO: borrar
   const size_t str_ncol = rows(0).first.size();
   for (size_t j = 0; j < str_ncol; ++j)
     {
