@@ -64,3 +64,6 @@
 ## 21. opcion filter con nombres de columnas y a la vez orden de aparición
 - Created at   2017-05-28 18:06:13 -0400
 
+## 22. dry de print_column en cplot
+- Created at   2017-05-29 10:39:46 -0400
+

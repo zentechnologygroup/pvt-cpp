@@ -521,9 +521,24 @@ struct RangeDesc
   }
 };
 
+struct ColNames
+{
+  Array<string> col_names;
+
+  ColNames & operator = (const string & str)
+  {
+    string name;
+    istringstream iss(str);
+    while (iss >> name)
+      col_names.append(name);
+    return *this;
+  }
+};
+
 namespace TCLAP
 {
   template<> struct ArgTraits<RangeDesc> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<ColNames> { typedef StringLike ValueCategory; };
 }
 
 // Given a RangeDesc, put in the correlation parameters list l the
@@ -657,6 +672,9 @@ Command_Line_Range(t, "temperature");
 Command_Line_Range(p, "pressure");
 
 SwitchArg transpose_par = { "", "transpose", "transpose grid", cmd };
+
+ValueArg<ColNames> order = { "", "order", "col names", false, ColNames(),
+			     "col names list", cmd };
 
 using TPPair = pair<Correlation::NamedPar, Correlation::NamedPar>;
 
@@ -1324,9 +1342,72 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
   return ret.second;
 }
 
+void print_column(size_t col_idx)
+{
+  assert(transposed);
+  assert(col_idx < col_names.size());
+
+  const size_t & nrow = rows.size();
+  const size_t & str_ncol = rows(0).first.size();
+
+  printf("%s,", col_names(col_idx).c_str());
+
+  if (col_idx < str_ncol)
+    for (size_t i = 0; i < nrow; ++i)
+      if (i != nrow - 1)	
+	printf("%s,", rows(i).first(col_idx).c_str());
+      else
+	printf(rows(i).first(col_idx).c_str());
+  else
+    {
+      const size_t j = col_idx - str_ncol;
+      for (size_t i = 0; i < nrow; ++i)
+	{
+	  const double & val = rows(i).second(j);
+	  if (val != Invalid_Value)
+	    if (i != nrow - 1)
+	      printf("%f,", rows(i).second(j));
+	    else
+	      printf("%f", rows(i).second(j));
+	  else if (i != nrow - 1)
+	    printf(",");
+	}
+    }
+}
+
+void print_order()
+{
+  assert(transposed and order.isSet());
+
+  DynMapTree<string, size_t> name_map;
+  enum_for_each(col_names, [&name_map] (auto & name, auto i)
+		{
+		  auto parts = split(name, ' ');
+		  name_map.insert(parts[0], i);
+		});
+
+  auto names = order.getValue().col_names;
+  if (not names.all([&name_map] (auto & name) { return name_map.has(name); }))
+    ZENTHROW(CommandLineError, "--order contains an invalid name");
+
+  // TODO reconocer fin de línea en último valor
+  for (auto it = names.get_it(); it.has_curr(); it.next())
+    {
+      size_t col_idx = name_map[it.get_curr()];
+      print_column(col_idx);
+      printf("\n");
+    }
+}
+
 void print_transpose()
 {
   assert(transposed);
+
+  if (order.isSet())
+    {
+      print_order();
+      return;
+    }
 
   const size_t nrow = rows.size();
   const size_t str_ncol = rows(0).first.size();
