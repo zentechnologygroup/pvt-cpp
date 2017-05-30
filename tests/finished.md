@@ -1864,3 +1864,9 @@
 - Comment      
 - Finished     
 
+## 312. averiguar como convertir lambda a void (*)()
+- Created at   2017-05-30 16:39:58 -0400
+- Completed at 
+- Comment      
+- Finished     
+

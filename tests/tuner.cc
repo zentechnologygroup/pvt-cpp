@@ -1252,7 +1252,10 @@ void process_pb_calibration()
 
   static auto print_csv = [] (const DynList<DynList<string>> & l)
   {
-    return to_string(format_string_csv(l));
+    if (transpose_out.getValue())
+      return to_string(format_string_csv(transpose(l)));
+    else
+      return to_string(format_string_csv(l));
   };
 
   static auto print_mat = [] (const DynList<DynList<string>> & l)
@@ -1379,7 +1382,10 @@ void process_uod_calibration()
 
   static auto print_csv = [] (const DynList<DynList<string>> & l)
   {
-    return to_string(format_string_csv(l));
+    if (transpose_out.getValue())
+      return to_string(format_string_csv(transpose(l)));
+    else
+      return to_string(format_string_csv(l));
   };
 
   static auto print_mat = [] (const DynList<DynList<string>> & l)

@@ -538,7 +538,7 @@ struct ColNames
 struct Digits
 {
   string col_name;
-  string num_digits = "6";
+  string num_digits = "8";
 
   Digits & operator = (const string & str)
   {
@@ -697,6 +697,9 @@ SwitchArg transpose_par = { "", "transpose", "transpose grid", cmd };
 
 ValueArg<ColNames> filter_par = { "", "filter", "col names", false, ColNames(),
 				  "col names list", cmd };
+
+ValueArg<size_t> dft_precision = { "", "dft-precision", "default precision value",
+				   false, 6, "default precision value", cmd };
 
 MultiArg<Digits> digits = { "", "digits", "number of decimal digits", false,
 			    "number of decimal digits", cmd };
@@ -1269,8 +1272,6 @@ Array<const char*> precisions;
 // Maps col_name to precision
 DynMapTree<string, string> name_to_precision;
 
-const string dft_precision = "8";
-
 inline void process_row(const FixedStack<const VtlQuantity*> & row,
 			const FixedStack<Unit_Convert_Fct_Ptr> & row_convert)
 {
@@ -1328,12 +1329,14 @@ RowFct row_fct = nullptr;
 template <typename ... Args>
 FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 {
+  const string precision = to_string(::dft_precision.getValue());
+
   FixedStack<pair<string, const Unit*>> header;
 
   insert_in_container(header, args...);
-  name_to_precision = header.maps<pair<string, string>>([] (auto & h)
+  name_to_precision = header.maps<pair<string, string>>([&precision] (auto & h)
     {
-      return pair<string, string>(h.first, "%." + dft_precision + "f");
+      return pair<string, string>(h.first, "%." + precision + "f");
     });
 
   for (auto & d : digits.getValue())

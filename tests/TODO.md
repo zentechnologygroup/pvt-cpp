@@ -49,3 +49,12 @@
 ## 16. generar por cada correlacion método validate_and_call
 - Created at   2017-05-26 15:56:41 -0400
 
+## 17. opción flobal dpara digits
+- Created at   2017-05-30 14:54:13 -0400
+
+## 18. tuner si escritura de archvo jon falla ==> abortar
+- Created at   2017-05-30 15:13:46 -0400
+
+## 19. averiguar como convertir lambda a void (*)()
+- Created at   2017-05-30 16:39:09 -0400
+

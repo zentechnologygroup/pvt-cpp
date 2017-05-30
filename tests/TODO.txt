@@ -14,3 +14,6 @@ dry de process_uod_calibration y process_pb_calibration,2017-05-08 16:14:55 -040
 macros para referencias biblio,2017-05-22 16:04:19 -0400,,
 cambio unidades entrada a ztuner,2017-05-24 16:10:44 -0400,,
 generar por cada correlacion método validate_and_call,2017-05-26 15:56:41 -0400,,
+opción flobal dpara digits,2017-05-30 14:54:13 -0400,,
+tuner si escritura de archvo jon falla ==> abortar,2017-05-30 15:13:46 -0400,,
+averiguar como convertir lambda a void (*)(),2017-05-30 16:39:09 -0400,,

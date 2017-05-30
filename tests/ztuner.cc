@@ -199,6 +199,8 @@ SwitchArg exceptions = { "e", "exceptions", "prints exceptions", cmd };
 ValueArg<PlotNumbers> plot = { "P", "plot", "plot", false, PlotNumbers(),
 			       "plot", cmd };
 
+SwitchArg transpose_out = { "", "transpose", "transpose output", cmd };
+
 // Checks whether the parameter par_name has a change of
 // unity. ref_unit is the default unit of the parameter. If there was
 // no change specification for par_name, then returns ref_unit
@@ -291,6 +293,33 @@ void process_print()
       return Ztuner::NAME(z1) < Ztuner::NAME(z2);			\
     }
 
+void plot_mat(const DynList<DynList<string>> & m)
+{
+    // TODO transpose
+  cout << Aleph::to_string(format_string(m)) << endl;
+}
+
+void plot_csv(const DynList<DynList<string>> & m)
+{
+  // TODO transpose
+  cout << Aleph::to_string(format_string_csv(m)) << endl;
+}
+
+void plot_R(const DynList<DynList<string>> & m)
+{
+  const DynList<string> & header = m.get_first();
+  auto parts = header.partition([] (auto & name)
+				{ return split(name, '-').size() < 3; });
+  const DynList<string> & lab_tags = parts.first;
+  const DynList<string> & corr_tags = parts.second;
+
+  cout << "lab_tags =";
+  lab_tags.for_each([] (auto & s) { cout << " " << s; });
+  cout << endl
+       << "cor_tags =";
+  corr_tags.for_each([] (auto & s) { cout << " " << s; }); cout << endl;
+}
+
 void process_plot()
 {
   assert(plot.isSet());
@@ -330,17 +359,19 @@ void process_plot()
 	  cols.append(move(get<1>(curr)));
 	  cols.append(move(get<2>(curr)));
 	}
-    }  
+    }
 
-  zip_for_each([] (auto t)
-	       {
-		 cout << get<0>(t) << ":";
-		 get<1>(t).for_each([] (auto v) { cout << " " << v; });
-		 cout << endl;
-	       }, header, cols);
-  header.for_each([] (auto & s) { cout << s << "  "; }); cout << endl;
+  DynList<DynList<string>> rows =
+    transpose(cols).maps<DynList<string>>([] (const DynList<double> & col)
+    {
+      return col.maps<string>([] (auto v) { return to_string(v, 17); }); //TODO:ver 17
+    });
+  rows.insert(header);
 
-  cout << "Not yet implemented" << endl;
+  static AHDispatcher<string, void (*)(const DynList<DynList<string>>&)>
+    dispatcher("mat", plot_mat, "csv", plot_csv, "R", plot_R);
+				       
+  dispatcher.run(output.getValue(), rows);
 }
 
 void process_solve()
