@@ -303,3 +303,9 @@ transpose para tuner,2017-05-23 15:18:21 -0400,2017-05-24 16:11:00 -0400,,2017-0
 generar por cada correlacion método validate_and_call,2017-05-26 15:58:04 -0400,,,2017-05-26 15:58:16 -0400
 compute en empirical_data 1405: se puede acer más raṕido,2016-12-01 17:30:02 -0400,2017-05-27 19:44:50 -0400,,2017-05-27 19:44:57 -0400
 script que lea hoja de Virginia y genere los csv para distintos grids,2017-02-16 18:15:52 -0400,2017-04-26 11:25:56 -0400,,2017-05-27 19:44:57 -0400
+dry de print_column en cplot,2017-05-29 10:39:46 -0400,2017-05-30 07:45:35 -0400,,2017-05-30 07:45:38 -0400
+opcion filter con nombres de columnas y a la vez orden de aparición,2017-05-28 18:06:13 -0400,2017-05-30 07:45:49 -0400,,2017-05-30 07:45:52 -0400
+opción export en cplot que genere grid sin las 2 primeras cols,2017-05-26 17:32:45 -0400,2017-05-30 07:46:06 -0400,,2017-05-30 07:46:09 -0400
+ojo con la precisión en cplot,2017-05-04 11:02:49 -0400,2017-05-30 07:46:19 -0400,,2017-05-30 07:46:23 -0400
+compute de Correlation n debe retornar double,2017-05-25 10:52:02 -0400,,,2017-05-30 07:46:38 -0400
+fag a cplot que imprima resultados a precisión,2017-05-03 15:24:34 -0400,2017-05-30 07:47:02 -0400,,2017-05-30 07:47:04 -0400

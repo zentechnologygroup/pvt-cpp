@@ -1259,9 +1259,14 @@ inline void buffer_row_pb(const FixedStack<const VtlQuantity*> & row,
   rows.append(move(p));
 }
 
-// TODO documentar estos arreglos
+// The following three variables are set by print_csv_header()
+
+// According to inverse apparition order, col_names contains string
+// with float format. For example "%.4f"
 Array<string> col_names;
+// Similar to above but with pointers for more speed
 Array<const char*> precisions;
+// Maps col_name to precision
 DynMapTree<string, string> name_to_precision;
 
 const string dft_precision = "8";
@@ -1287,9 +1292,6 @@ inline void process_row(const FixedStack<const VtlQuantity*> & row,
       const VtlQuantity & q = *ptr[i];
       if (not q.is_null())
 	printf(precisions(i), convert_fct ? convert_fct(q.raw()) : q.raw());
-
-      // Comment line above and uncomment below in order to get maximum precision
-      //printf("%.17g", convert_fct ? convert_fct(q.raw()) : q.raw());
 
       if (i > 0)
 	printf(",");
@@ -1394,7 +1396,7 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
   return ret.second;
 }
 
-void print_column(size_t col_idx)
+inline void print_column(size_t col_idx)
 {
   assert(transposed);
   assert(col_idx < col_names.size());
@@ -1445,7 +1447,6 @@ void print_order()
   if (not names.all([&name_map] (auto & name) { return name_map.has(name); }))
     ZENTHROW(CommandLineError, "--order contains an invalid name");
 
-  // TODO reconocer fin de línea en último valor
   for (auto it = names.get_it(); it.has_curr(); it.next())
     {
       size_t col_idx = name_map[it.get_curr()];
@@ -1472,36 +1473,6 @@ void print_transpose()
       printf("\n");
     }
   return;
-  // TODO: borrar
-  const size_t str_ncol = rows(0).first.size();
-  for (size_t j = 0; j < str_ncol; ++j)
-    {
-      printf("%s,", col_names(j).c_str());
-      for (size_t i = 0; i < nrow; ++i)
-	if (i != nrow - 1)	
-	  printf("%s,", rows(i).first(j).c_str());
-	else
-	  printf(rows(i).first(j).c_str());
-      printf("\n");
-    }
-
-  const size_t val_ncol = rows(0).second.size();
-  for (size_t j = 0; j < val_ncol; ++j)
-    {
-      printf("%s,", col_names(j + str_ncol).c_str());
-      for (size_t i = 0; i < nrow; ++i)
-	{
-	  const double & val = rows(i).second(j);
-	  if (val != Invalid_Value)
-	     if (i != nrow - 1)
-	       printf("%f,", rows(i).second(j));
-	     else
-	       printf("%f", rows(i).second(j));
-	  else if (i != nrow - 1)
-	    printf(",");
-	}
-      printf("\n");
-    }
 }
 
 void print_notranspose()

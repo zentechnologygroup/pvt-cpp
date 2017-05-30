@@ -236,15 +236,20 @@ const Unit * test_par_unit_change(const string & par_name,
   return unit_ptr;
 }
 
-# define Set_Par(NAME, UNIT)						\
-  if (NAME##_arg.isSet())							\
-    {									\
-      NAME##_unit = test_par_unit_change(#NAME, UNIT::get_instance());	\
-      data_ptr->NAME = VtlQuantity(*NAME##_unit, NAME##_arg.getValue()); \
-    }
+# define Set_Unit(NAME, UNIT)						\
+  NAME##_unit = test_par_unit_change(#NAME, UNIT::get_instance());
+
+# define Set_Par(NAME)							\
+  if (NAME##_arg.isSet())						\
+    data_ptr->NAME = VtlQuantity(*NAME##_unit, NAME##_arg.getValue());
 
 void process_input(unique_ptr<Ztuner> & data_ptr)
 {
+  Set_Unit(yg, Sgg);
+  Set_Unit(n2, MolePercent);
+  Set_Unit(co2, MolePercent);
+  Set_Unit(h2s, MolePercent);
+
   if (data_ptr == nullptr)
     data_ptr = unique_ptr<Ztuner>
       (new Ztuner(VtlQuantity(*yg_unit, yg_arg.getValue()),
@@ -252,10 +257,10 @@ void process_input(unique_ptr<Ztuner> & data_ptr)
 		  VtlQuantity(*co2_unit, co2_arg.getValue()),
 		  VtlQuantity(*h2s_unit, h2s_arg.getValue())));
 
-  Set_Par(yg, Sgg);
-  Set_Par(n2, MolePercent);
-  Set_Par(co2, MolePercent);
-  Set_Par(h2s, MolePercent);
+  Set_Par(yg);
+  Set_Par(n2);
+  Set_Par(co2);
+  Set_Par(h2s);
 
   for (auto & z : zvalues.getValue())
     data_ptr->add_z(VtlQuantity(*z.tunit_ptr, z.t), move(z.p), move(z.z));
@@ -280,7 +285,8 @@ void process_print()
 }
 
 # define Define_Cmp(NAME)						\
-  static auto cmp_##NAME = [] (const Ztuner::Zcomb & z1, const Ztuner::Zcomb & z2) \
+  static auto cmp_##NAME = [] (const Ztuner::Zcomb & z1,		\
+			       const Ztuner::Zcomb & z2)		\
     {									\
       return Ztuner::NAME(z1) < Ztuner::NAME(z2);			\
     }
@@ -292,15 +298,46 @@ void process_plot()
   assert(not plot.getValue().numbers.is_empty());
 
   const PlotNumbers & numbers = plot.getValue();
-  cout << numbers.numbers.size() << endl;
-  numbers.numbers.for_each([] (auto i) { cout << i << " "; }); cout << endl;
+  const DynList<size_t> num_list = numbers.numbers;
   if (not numbers.numbers.all([n = data->zcomb_list.size()] (auto i)
 			      { return i < n; }))
     ZENTHROW(CommandLineError, "Invalid number in plot list");
 
   DynList<string> header = data->basic_header();
-  DynList<DynList<double>> cols = transpose(data->vals());
+  auto lab_vals = data->vals();
+  DynList<DynList<double>> cols;
+  for (auto it = lab_vals.get_it(); it.has_curr(); it.next())
+    {
+      auto curr = it.get_curr();
+      cols.append(get<1>(curr));
+      cols.append(get<2>(curr));
+    }
 
+  const bool check = ::check.getValue();
+
+  for (auto it = num_list.get_it(); it.has_curr(); it.next())
+    {
+      const auto num = it.get_curr();
+      const Ztuner::Zcomb & z = data->zcomb_list(num);
+      auto vals = data->eval(z, check);
+      for (auto it = vals.get_it(); it.has_curr(); it.next())
+	{
+	  auto & curr = it.get_curr();
+	  const double & t = get<0>(curr);
+	  const string tstr = to_string(int(t));
+	  const string title = "z-" + to_string(num) + "-" + tstr;
+	  header.append({title, title + "-cal"});
+	  cols.append(move(get<1>(curr)));
+	  cols.append(move(get<2>(curr)));
+	}
+    }  
+
+  zip_for_each([] (auto t)
+	       {
+		 cout << get<0>(t) << ":";
+		 get<1>(t).for_each([] (auto v) { cout << " " << v; });
+		 cout << endl;
+	       }, header, cols);
   header.for_each([] (auto & s) { cout << s << "  "; }); cout << endl;
 
   cout << "Not yet implemented" << endl;
@@ -316,11 +353,11 @@ void process_solve()
     cmp = { {"sumsq", cmp_sumsq}, {"c", cmp_c}, {"m", cmp_m}, {"num", cmp_num} };
   static auto format_mat = [] (const DynList<Ztuner::Zcomb> & l)
     {
-      return to_string(format_string(Ztuner::to_dynlist(l)));
+      return to_string(format_string(Ztuner::zcomb_to_dynlist(l)));
     };
   static auto format_csv = [] (const DynList<Ztuner::Zcomb> & l)
     {
-      return to_string(format_string_csv(Ztuner::to_dynlist(l)));
+      return to_string(format_string_csv(Ztuner::zcomb_to_dynlist(l)));
     };
   static auto format_R = [] (const DynList<Ztuner::Zcomb> &) -> string
     {
@@ -353,7 +390,7 @@ int main(int argc, char *argv[])
       const string & file_name = fname.getValue();
       if (not exists_file(file_name) and not save.isSet())
 	ZENTHROW(CommandLineError, "file with name " + file_name + " not found");
-      else if (not save.isSet())
+      else 
 	data = unique_ptr<Ztuner>(new Ztuner(ifstream(file_name)));
     }
 

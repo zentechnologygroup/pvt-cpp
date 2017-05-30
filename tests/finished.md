@@ -1828,3 +1828,39 @@
 - Comment      
 - Finished     
 
+## 306. dry de print_column en cplot
+- Created at   2017-05-29 10:39:46 -0400
+- Completed at 2017-05-30 07:45:35 -0400
+- Comment      
+- Finished     
+
+## 307. opcion filter con nombres de columnas y a la vez orden de aparición
+- Created at   2017-05-28 18:06:13 -0400
+- Completed at 2017-05-30 07:45:49 -0400
+- Comment      
+- Finished     
+
+## 308. opción export en cplot que genere grid sin las 2 primeras cols
+- Created at   2017-05-26 17:32:45 -0400
+- Completed at 2017-05-30 07:46:06 -0400
+- Comment      
+- Finished     
+
+## 309. ojo con la precisión en cplot
+- Created at   2017-05-04 11:02:49 -0400
+- Completed at 2017-05-30 07:46:19 -0400
+- Comment      
+- Finished     
+
+## 310. compute de Correlation n debe retornar double
+- Created at   2017-05-25 10:52:02 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 311. fag a cplot que imprima resultados a precisión
+- Created at   2017-05-03 15:24:34 -0400
+- Completed at 2017-05-30 07:47:02 -0400
+- Comment      
+- Finished     
+

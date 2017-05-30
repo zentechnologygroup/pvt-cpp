@@ -28,42 +28,24 @@
 ## 9. calibración global
 - Created at   2017-04-26 16:38:18 -0400
 
-## 10. fag a cplot que imprima resultados a precisión
-- Created at   2017-05-03 15:24:34 -0400
-
-## 11. documentar ocpiones action y property en test-cali
+## 10. documentar ocpiones action y property en test-cali
 - Created at   2017-05-03 16:14:39 -0400
 
-## 12. dry en ValusArg::operator = de test-cali
+## 11. dry en ValusArg::operator = de test-cali
 - Created at   2017-05-03 16:59:18 -0400
 
-## 13. validad que el data set tenga el mismo pb para cada vector: 
+## 12. validad que el data set tenga el mismo pb para cada vector: 
 - Created at   
 
-## 14. ojo con la precisión en cplot
-- Created at   2017-05-04 11:02:49 -0400
-
-## 15. dry de process_uod_calibration y process_pb_calibration
+## 13. dry de process_uod_calibration y process_pb_calibration
 - Created at   2017-05-08 16:14:55 -0400
 
-## 16. macros para referencias biblio
+## 14. macros para referencias biblio
 - Created at   2017-05-22 16:04:19 -0400
 
-## 17. cambio unidades entrada a ztuner
+## 15. cambio unidades entrada a ztuner
 - Created at   2017-05-24 16:10:44 -0400
 
-## 18. compute de Correlation n debe retornar double
-- Created at   2017-05-25 10:52:02 -0400
-
-## 19. generar por cada correlacion método validate_and_call
+## 16. generar por cada correlacion método validate_and_call
 - Created at   2017-05-26 15:56:41 -0400
-
-## 20. opción export en cplot que genere grid sin las 2 primeras cols
-- Created at   2017-05-26 17:32:45 -0400
-
-## 21. opcion filter con nombres de columnas y a la vez orden de aparición
-- Created at   2017-05-28 18:06:13 -0400
-
-## 22. dry de print_column en cplot
-- Created at   2017-05-29 10:39:46 -0400
 

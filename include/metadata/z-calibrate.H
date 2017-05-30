@@ -132,13 +132,18 @@ public:
       << "co2 = " << co2 << endl
       << "h2s = " << h2s << endl
       << "zvals:" << endl;
-    auto & last = zvals.get_last();
-    for (auto it = zvals.get_it(); it.has_curr(); it.next())
+    if (zvals.is_empty())
+      s << "  empty";
+    else
       {
-	auto & z = it.get_curr();
-	s << shift_lines_to_left(z.to_string(), 2);
-	if (&z != &last)
-	  s << endl;
+	auto & last = zvals.get_last();
+	for (auto it = zvals.get_it(); it.has_curr(); it.next())
+	  {
+	    auto & z = it.get_curr();
+	    s << shift_lines_to_left(z.to_string(), 2);
+	    if (&z != &last)
+	      s << endl;
+	  }
       }
     return s.str();
   }
@@ -156,7 +161,7 @@ public:
     co2 = Quantity<MoleFraction>(j["co2"].get<double>());
     h2s = Quantity<MoleFraction>(j["h2s"].get<double>());
     for (const Json & jz : j["zvals"])
-      zvals.append(jz);
+      add_z(jz);
   }
 
   Ztuner(istream && in) : Ztuner(in) {}
@@ -387,17 +392,15 @@ public:
     return zcomb_list.maps([] (auto &l) { return l; });
   }
 
-  DynList<DynList<double>> vals() const
+  //               t,      p vals,          z vals
+  DynList<tuple<double, DynList<double>, DynList<double>>> vals() const
   {
-    DynList<DynList<double>> ret;
+    DynList<tuple<double, DynList<double>, DynList<double>>> ret;
     for (auto it = zvals.get_it(); it.has_curr(); it.next())
       {
 	const Zdata & zdata = it.get_curr();
-	auto l = zip_maps<DynList<double>>([] (auto t)
-          {                               // p ,    z
-	    return build_dynlist<double>(get<0>(t), get<1>(t));
-	  }, zdata.p, zdata.z);
-	ret.append(move(l));
+	ret.append(make_tuple(zdata.t.raw(), to_dynlist(zdata.p),
+	 		      to_dynlist(zdata.z)));
       }
     return ret;
   }
@@ -414,7 +417,9 @@ public:
     return ret;
   }
 
-  DynList<DynList<pair<double, double>>> eval(const Zcomb & z, bool check) const
+  //                t,        zvals,         calibrated zvals
+  DynList<tuple<double, DynList<double>, DynList<double>>>
+	 eval(const Zcomb & z, bool check) const
   {
     const Correlation * yghc_corr = yghc_c(z);
     const Correlation * ppchc_corr = ppchc_c(z);
@@ -443,29 +448,34 @@ public:
     remove_from_container(pars, "ppcm", "tpcm");
     insert_in_container(pars, NPAR(ppcm), NPAR(tpcm));
 
-    DynList<DynList<pair<double, double>>> ret;
+    DynList<tuple<double, DynList<double>, DynList<double>>> ret;
+
+    const double c = this->c(z);
+    const double m = this->m(z);
 
     for (auto vit = zvals.get_it(); vit.has_curr(); vit.next())
       {
 	const Zdata & zdata = vit.get_curr();
 	auto tpr = Tpr::get_instance().compute({zdata.t, tpcm}, true);
-	DynList<double> zc;
+	DynList<double> zc; // computed values for given z correlation
 	for (auto it = zdata.p.get_it(); it.has_curr(); it.next())
 	  {
 	    auto pp = it.get_curr();
 	    Quantity<psia> p(pp);
-	    auto ppr = Ppr::get_instance().compute({p, ppcm}, true);
+	    auto ppr = Ppr::get_instance().compute({p, ppcm}, check);
 	    auto z = z_corr->compute(build_dynlist<VtlQuantity>(tpr, ppr), check);
 	    zc.append(z.raw());
 	  }
-	ret.append(zc.maps<pair<double, double>>
-		   ([t = zdata.t.raw()] (auto z) { return make_pair(t, z); }));
+
+	auto zcali = zc.maps([c, m] (auto z) { return c + m*z; });
+	auto val = make_tuple(zdata.t.raw(), move(zc), move(zcali));
+	ret.append(val);
       }
 
     return ret;
   }
 
-  static DynList<DynList<string>> to_dynlist(const DynList<Zcomb> & l)
+  static DynList<DynList<string>> zcomb_to_dynlist(const DynList<Zcomb> & l)
   {
     DynList<DynList<string>> ret;
     ret.append(zcomb_header());
