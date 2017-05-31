@@ -310,3 +310,4 @@ ojo con la precisión en cplot,2017-05-04 11:02:49 -0400,2017-05-30 07:46:19 -04
 compute de Correlation n debe retornar double,2017-05-25 10:52:02 -0400,,,2017-05-30 07:46:38 -0400
 fag a cplot que imprima resultados a precisión,2017-05-03 15:24:34 -0400,2017-05-30 07:47:02 -0400,,2017-05-30 07:47:04 -0400
 averiguar como convertir lambda a void (*)(),2017-05-30 16:39:58 -0400,,,2017-05-30 16:40:05 -0400
+opción flobal dpara digits,2017-05-30 14:54:13 -0400,2017-05-31 17:44:13 -0400,,2017-05-31 17:44:18 -0400

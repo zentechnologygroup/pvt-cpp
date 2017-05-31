@@ -1308,6 +1308,44 @@ inline void process_row_pb(const FixedStack<const VtlQuantity*> & row,
   process_row(row, row_convert);
 }
 
+// TODO: aquí se implementa la opción filter en csv puro
+// hacerlo con índices y no con nombres. El arreglo se define cuando el header.
+inline void process_filter_row(const FixedStack<const VtlQuantity*> & row,
+			       const FixedStack<Unit_Convert_Fct_Ptr> & row_convert)
+{
+  const size_t n = row.size();
+  const VtlQuantity ** ptr = &row.base();
+
+  if (exception_thrown)
+    {
+      printf("\"true\",");
+      exception_thrown = false;
+    }
+  else
+    printf("\"false\",");
+
+  const Unit_Convert_Fct_Ptr * tgt_unit_ptr = &row_convert.base();
+  for (long i = n - 1; i >= 0; --i)
+    {
+      Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
+      const VtlQuantity & q = *ptr[i];
+      if (not q.is_null())
+	printf(precisions(i), convert_fct ? convert_fct(q.raw()) : q.raw());
+
+      if (i > 0)
+	printf(",");
+    }
+  printf("\n");
+}
+
+inline void process_filter_row_pb(const FixedStack<const VtlQuantity*> & row,
+				  const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
+				  bool is_pb)
+{
+  printf(is_pb ? "\"true\"," : "\"false\",");
+  process_row(row, row_convert);
+}
+
 using RowFctPb = void (*)(const FixedStack<const VtlQuantity*>&,
 			  const FixedStack<Unit_Convert_Fct_Ptr>&, bool);
 

@@ -308,7 +308,7 @@ void plot_csv(const DynList<DynList<string>> & m)
 void plot_R(const DynList<DynList<string>> & m)
 {
   auto p = transpose(m).partition([] (auto & col)
-		       { return split(col.get_first(), '-').size() < 3; });
+		       { return split(col.get_first(), '.').size() < 3; });
 
   const DynList<DynList<string>> & lab_cols = p.first;
   const DynList<DynList<string>> & corr_cols = p.second;
@@ -319,7 +319,6 @@ void plot_R(const DynList<DynList<string>> & m)
       auto & l = it.get_curr();
       if (l.get_first()[0] == 'p')
 	{
-	  cout << "min_p = " << pmin << endl;
 	  pmax = l.drop(1).foldl(pmax, [] (auto m, auto v)
 				 { return max(m, atof(v)); });
 	  pmin = l.drop(1).foldl(pmin, [] (auto m, auto v)
@@ -347,12 +346,49 @@ void plot_R(const DynList<DynList<string>> & m)
   cout << "plot(0, type=\"n\", xlim=c(" << pmin << "," << pmax << "), ylim=c("
         << zmin << "," << zmax << "))" << endl;
 
-  
+  size_t pch = 1;
+  size_t col = 1;
+  DynList<string> colnames;
+  DynList<int> colors;
+  DynList<string> ltys;
+  DynList<string> pchs;
+  Array<string> pnames;
+  for (auto it = lab_cols.get_it(); it.has_curr(); it.next())
+    {
+      auto & plist = it.get_curr(); it.next();
+      auto & zlist = it.get_curr(); 
+      const string & pname = plist.get_first();
+      pnames.append(pname);
+      const string & zname = zlist.get_first();
+      colors.append(1);
+      ltys.append("NA");
+      pchs.append(to_string(pch));
+      cout << "points(" << pname << "," << zname << ",pch=" << pch++ << ")"
+	   << endl;
+      colnames.append("\"" + zname + "\"");
+      colors.append(col);
+      pchs.append("NA");
+      ltys.append("1");
+    }
 
-  cout << "max_p = " << p_max << endl
-       << "min_p = " << p_min << endl
-       << "max_z = " << z_max << endl
-       << "min_z = " << z_min << endl;
+  size_t i = 0;
+  for (auto it = corr_cols.get_it(); it.has_curr(); it.next(), ++i)
+    {
+      const string & pname = pnames(i % pnames.size());
+      const string & zname = it.get_curr().get_first();
+      cout << "lines(" << pname << "," << zname << ",col=" << col++ << ")"
+	   << endl;
+      colnames.append("\"" + zname + "\"");
+      colors.append(col);
+      pchs.append("NA");
+      ltys.append("1");
+    }
+  cout << Rvector("cnames", colnames) << endl
+       << Rvector("cols", colors) << endl
+       << Rvector("pchs", pchs) << endl
+       << Rvector("ltys", ltys) << endl
+       << "legend(\"topright\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
+       << endl;
 }
 
 void process_plot()
@@ -389,8 +425,8 @@ void process_plot()
 	  auto & curr = it.get_curr();
 	  const double & t = get<0>(curr);
 	  const string tstr = to_string(int(t));
-	  const string title = "z-" + to_string(num) + "-" + tstr;
-	  header.append({title, title + "-cal"});
+	  const string title = "z." + to_string(num) + "." + tstr;
+	  header.append({title, title + ".cal"});
 	  cols.append(move(get<1>(curr)));
 	  cols.append(move(get<2>(curr)));
 	}

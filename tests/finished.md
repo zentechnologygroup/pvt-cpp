@@ -1870,3 +1870,9 @@
 - Comment      
 - Finished     
 
+## 313. opción flobal dpara digits
+- Created at   2017-05-30 14:54:13 -0400
+- Completed at 2017-05-31 17:44:13 -0400
+- Comment      
+- Finished     
+

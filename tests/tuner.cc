@@ -1181,6 +1181,12 @@ void process_local_calibration()
 	  put_sample(corr_ptr, rows, header, temp, yunit, yc, c, m);
 	}
     }
+
+  auto row_str = rows.maps<DynList<string>>([] (auto & l)
+    {
+      return l.template maps<string>([] (auto v) { return to_str(v); });
+    });
+
   DynList<DynList<string>> result =
     transpose(rows.maps<DynList<string>>([] (auto & l)
     {

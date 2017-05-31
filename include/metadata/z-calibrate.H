@@ -412,7 +412,7 @@ public:
       {
 	auto & z = it.get_curr();
 	const string t = ::to_string(int(z.t.raw()));
-	ret.append(build_dynlist<string>("p-" + t, "z-" + t));
+	ret.append(build_dynlist<string>("p." + t, "z." + t));
       }
     return ret;
   }
