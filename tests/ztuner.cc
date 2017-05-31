@@ -307,17 +307,52 @@ void plot_csv(const DynList<DynList<string>> & m)
 
 void plot_R(const DynList<DynList<string>> & m)
 {
-  const DynList<string> & header = m.get_first();
-  auto parts = header.partition([] (auto & name)
-				{ return split(name, '-').size() < 3; });
-  const DynList<string> & lab_tags = parts.first;
-  const DynList<string> & corr_tags = parts.second;
+  auto p = transpose(m).partition([] (auto & col)
+		       { return split(col.get_first(), '-').size() < 3; });
 
-  cout << "lab_tags =";
-  lab_tags.for_each([] (auto & s) { cout << " " << s; });
-  cout << endl
-       << "cor_tags =";
-  corr_tags.for_each([] (auto & s) { cout << " " << s; }); cout << endl;
+  const DynList<DynList<string>> & lab_cols = p.first;
+  const DynList<DynList<string>> & corr_cols = p.second;
+
+  double pmax = 0, zmax = 0, pmin = 1e6 , zmin = 1e6;
+  for (auto it = lab_cols.get_it(); it.has_curr(); it.next())
+    {
+      auto & l = it.get_curr();
+      if (l.get_first()[0] == 'p')
+	{
+	  cout << "min_p = " << pmin << endl;
+	  pmax = l.drop(1).foldl(pmax, [] (auto m, auto v)
+				 { return max(m, atof(v)); });
+	  pmin = l.drop(1).foldl(pmin, [] (auto m, auto v)
+				  { return min(m, atof(v)); });
+	}
+      else
+	{
+	  zmax = l.drop(1).foldl(zmax, [] (auto m, auto v)
+				 { return max(m, atof(v)); });
+	  zmin = l.drop(1).foldl(zmin, [] (auto m, auto v)
+				 { return min(m, atof(v)); });
+	}
+      cout << Rvector(l) << endl;
+    }
+  for (auto it = corr_cols.get_it(); it.has_curr(); it.next())
+    {
+      auto & l = it.get_curr();
+      zmax = l.drop(1).foldl(zmax, [] (auto m, auto v)
+			     { return max(m, atof(v)); });
+      zmin = l.drop(1).foldl(zmin, [] (auto m, auto v)
+			     { return min(m, atof(v)); });
+      cout << Rvector(l) << endl;
+    }
+
+  cout << "plot(0, type=\"n\", xlim=c(" << pmin << "," << pmax << "), ylim=c("
+        << zmin << "," << zmax << "))" << endl;
+
+  
+
+  cout << "max_p = " << p_max << endl
+       << "min_p = " << p_min << endl
+       << "max_z = " << z_max << endl
+       << "min_z = " << z_min << endl;
 }
 
 void process_plot()
