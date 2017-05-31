@@ -64,3 +64,6 @@
 ## 21. process_ow de cplot espeial para cuando hay filtro
 - Created at   2017-05-31 17:46:08 -0400
 
+## 22. error en legenda de ztuner
+- Created at   2017-05-31 17:53:22 -0400
+
