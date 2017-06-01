@@ -1876,3 +1876,33 @@
 - Comment      
 - Finished     
 
+## 314. validar nombre columna en filter
+- Created at   2017-06-01 11:57:09 -0400
+- Completed at 2017-06-01 12:33:30 -0400
+- Comment      
+- Finished     
+
+## 315. process_ow de cplot espeial para cuando hay filtro
+- Created at   2017-05-31 17:46:08 -0400
+- Completed at 2017-06-01 12:33:52 -0400
+- Comment      
+- Finished     
+
+## 316. cplot con opcion filter debe funcionar para no traspuesta
+- Created at   2017-05-31 15:59:08 -0400
+- Completed at 2017-06-01 12:34:12 -0400
+- Comment      
+- Finished     
+
+## 317. dry de conversión de uunidad en rutinas row
+- Created at   2017-05-31 21:25:57 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 318. documentar ocpiones action y property en test-cali
+- Created at   2017-05-03 16:14:39 -0400
+- Completed at 
+- Comment      
+- Finished     
+

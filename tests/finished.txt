@@ -311,3 +311,8 @@ compute de Correlation n debe retornar double,2017-05-25 10:52:02 -0400,,,2017-0
 fag a cplot que imprima resultados a precisión,2017-05-03 15:24:34 -0400,2017-05-30 07:47:02 -0400,,2017-05-30 07:47:04 -0400
 averiguar como convertir lambda a void (*)(),2017-05-30 16:39:58 -0400,,,2017-05-30 16:40:05 -0400
 opción flobal dpara digits,2017-05-30 14:54:13 -0400,2017-05-31 17:44:13 -0400,,2017-05-31 17:44:18 -0400
+validar nombre columna en filter,2017-06-01 11:57:09 -0400,2017-06-01 12:33:30 -0400,,2017-06-01 12:33:36 -0400
+process_ow de cplot espeial para cuando hay filtro,2017-05-31 17:46:08 -0400,2017-06-01 12:33:52 -0400,,2017-06-01 12:33:55 -0400
+cplot con opcion filter debe funcionar para no traspuesta,2017-05-31 15:59:08 -0400,2017-06-01 12:34:12 -0400,,2017-06-01 12:34:16 -0400
+dry de conversión de uunidad en rutinas row,2017-05-31 21:25:57 -0400,,,2017-06-01 12:38:50 -0400
+documentar ocpiones action y property en test-cali,2017-05-03 16:14:39 -0400,,,2017-06-01 12:39:14 -0400

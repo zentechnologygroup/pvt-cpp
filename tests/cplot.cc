@@ -1262,15 +1262,16 @@ inline void buffer_row_pb(const FixedStack<const VtlQuantity*> & row,
   rows.append(move(p));
 }
 
-// The following three variables are set by print_csv_header()
+// The following four variables are set by print_csv_header()
+Array<string> col_names; 
 
-// According to inverse apparition order, col_names contains string
-// with float format. For example "%.4f"
-Array<string> col_names;
-// Similar to above but with pointers for more speed
-Array<const char*> precisions;
-// Maps col_name to precision
+// Maps col_name to precision format of form "%.nf" (n is number of digits)
 DynMapTree<string, string> name_to_precision;
+
+// Parallel array to col_names containing the precision formats
+Array<const char*> precisions;
+
+size_t ncol = 0; // number of columns 
 
 inline void process_row(const FixedStack<const VtlQuantity*> & row,
 			const FixedStack<Unit_Convert_Fct_Ptr> & row_convert)
@@ -1308,43 +1309,80 @@ inline void process_row_pb(const FixedStack<const VtlQuantity*> & row,
   process_row(row, row_convert);
 }
 
-Array<size_t> col_indexes;
+Array<size_t> col_indexes; // order of columns to be shown 
 // TODO: aquí se implementa la opción filter en csv puro
 // hacerlo con índices y no con nombres. El arreglo se define cuando el header.
-inline void process_filter_row(const FixedStack<const VtlQuantity*> & row,
-			       const FixedStack<Unit_Convert_Fct_Ptr> & row_convert)
+
+inline void
+process_filter_row(const FixedStack<const VtlQuantity*> & row,
+		   const FixedStack<Unit_Convert_Fct_Ptr> & row_convert)
 {
-  const size_t n = row.size();
+  const size_t n = col_indexes.size();
   const VtlQuantity ** ptr = &row.base();
 
-  if (exception_thrown)
-    {
-      printf("\"true\",");
-      exception_thrown = false;
-    }
-  else
-    printf("\"false\",");
-
   const Unit_Convert_Fct_Ptr * tgt_unit_ptr = &row_convert.base();
-  for (long i = n - 1; i >= 0; --i)
+  for (size_t k = 0; k < n; ++k)
     {
-      Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
-      const VtlQuantity & q = *ptr[i];
-      if (not q.is_null())
-	printf(precisions(i), convert_fct ? convert_fct(q.raw()) : q.raw());
-
-      if (i > 0)
+      size_t i = col_indexes(k);
+      if (i == 0)
+	{
+	  if (exception_thrown)
+	    {
+	      printf("\"true\"");
+	      exception_thrown = false;
+	    }
+	  else
+	    printf("\"false\"");
+	}
+      else
+	{
+	  --i;
+	  Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
+	  const VtlQuantity & q = *ptr[i];
+	  if (not q.is_null())
+	    printf(precisions(i), convert_fct ? convert_fct(q.raw()) : q.raw());
+	}
+      if (k > 0)
 	printf(",");
     }
   printf("\n");
 }
 
-inline void process_filter_row_pb(const FixedStack<const VtlQuantity*> & row,
-				  const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
-				  bool is_pb)
+inline void
+process_filter_row_pb(const FixedStack<const VtlQuantity*> & row,
+		      const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
+		      bool is_pb)
 {
-  printf(is_pb ? "\"true\"," : "\"false\",");
-  process_row(row, row_convert);
+  const size_t & n = col_indexes.size();
+  const VtlQuantity ** ptr = &row.base();
+
+  const Unit_Convert_Fct_Ptr * tgt_unit_ptr = &row_convert.base();
+  for (size_t k = 0; k < n; ++k)
+    {
+      size_t i = col_indexes(k);
+      if (i == ncol - 1)
+	printf(is_pb ? "\"true\"" : "\"false\"");
+      else if (i == ncol - 2)
+	{
+	  if (exception_thrown)
+	    {
+	      printf("\"true\"");
+	      exception_thrown = false;
+	    }
+	  else
+	    printf("\"false\"");
+	}
+      else
+	{
+	  Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
+	  const VtlQuantity & q = *ptr[i];
+	  if (not q.is_null())
+	    printf(precisions(i), convert_fct ? convert_fct(q.raw()) : q.raw());
+	}
+      if (k < n - 1)
+	printf(",");
+    }
+  printf("\n");
 }
 
 using RowFctPb = void (*)(const FixedStack<const VtlQuantity*>&,
@@ -1372,7 +1410,7 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 
   FixedStack<pair<string, const Unit*>> header;
 
-  insert_in_container(header, args...);
+  ncol = insert_in_container(header, args...);
   name_to_precision = header.maps<pair<string, string>>([&precision] (auto & h)
     {
       return pair<string, string>(h.first, "%." + precision + "f");
@@ -1386,7 +1424,13 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 	idx.insert(it.get_curr().first, i++);
       for (auto it = filter_par.getValue().col_names.get_it(); it.has_curr();
 	   it.next())
-	; // TODO
+	{
+	  const string & col_name = it.get_curr();
+	  if (not name_to_precision.contains(col_name))
+	    ZENTHROW(CommandLineError, "in --filter: " + col_name +
+		     " is not a valid column name");
+	  col_indexes.append(idx[col_name]);
+	}
     }
 
   for (auto & d : digits.getValue())
@@ -1432,6 +1476,21 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
       row_fct_pb = &buffer_row_pb;
       row_fct = &buffer_row;
     }
+  else if (filter_par.isSet())
+    {
+      const size_t & n = col_indexes.size();
+      for (size_t k = 0; k < n; ++k)
+	{
+	  const size_t i = col_indexes(k);
+	  const pair<string, const Unit*> val = col_ptr[i];
+	  printf("%s %s", val.first.c_str(), final_units[i]->name.c_str());
+	  if (k < n - 1)
+	    printf(",");
+	}
+      printf("\n");
+      row_fct_pb = &process_filter_row_pb;
+      row_fct = &process_filter_row;
+    }
   else
     {
       for (long i = n - 1; i >= 0; --i)
@@ -1467,7 +1526,7 @@ inline void print_column(size_t col_idx)
 	printf(rows(i).first(col_idx).c_str());
   else
     {
-      const size_t ncol = str_ncol + rows(0).second.size();
+      assert(ncol == str_ncol + rows(0).second.size());
       const size_t j = col_idx - str_ncol;
       const char * format = precisions(ncol - col_idx - 1);
       const char * format_comma = (string(format) + ",").data();
@@ -1518,8 +1577,6 @@ void print_transpose()
       return;
     }
 
-  const size_t nrow = rows.size();
-  const size_t ncol = rows(0).first.size() + rows(0).second.size();
   for (size_t j = 0; j < ncol; ++j)
     {
       print_column(j);
@@ -2016,6 +2073,7 @@ void generate_grid_simple()
       Simple_Temperature_Calculations();
       auto pb = pb_q.raw();
       double next_pb = nextafter(pb, numeric_limits<double>::max());
+      assert(pb != next_pb);
       VtlQuantity next_pb_q = { pb_q.unit, next_pb };
 
       auto first_p_point = p_values.get_first();

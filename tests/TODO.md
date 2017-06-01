@@ -28,45 +28,33 @@
 ## 9. calibración global
 - Created at   2017-04-26 16:38:18 -0400
 
-## 10. documentar ocpiones action y property en test-cali
-- Created at   2017-05-03 16:14:39 -0400
-
-## 11. dry en ValusArg::operator = de test-cali
+## 10. dry en ValusArg::operator = de test-cali
 - Created at   2017-05-03 16:59:18 -0400
 
-## 12. validad que el data set tenga el mismo pb para cada vector: 
+## 11. validad que el data set tenga el mismo pb para cada vector: 
 - Created at   
 
-## 13. dry de process_uod_calibration y process_pb_calibration
+## 12. dry de process_uod_calibration y process_pb_calibration
 - Created at   2017-05-08 16:14:55 -0400
 
-## 14. macros para referencias biblio
+## 13. macros para referencias biblio
 - Created at   2017-05-22 16:04:19 -0400
 
-## 15. cambio unidades entrada a ztuner
+## 14. cambio unidades entrada a ztuner
 - Created at   2017-05-24 16:10:44 -0400
 
-## 16. generar por cada correlacion método validate_and_call
+## 15. generar por cada correlacion método validate_and_call
 - Created at   2017-05-26 15:56:41 -0400
 
-## 17. tuner si escritura de archvo jon falla ==> abortar
+## 16. tuner si escritura de archvo jon falla ==> abortar
 - Created at   2017-05-30 15:13:46 -0400
 
-## 18. averiguar como convertir lambda a void (*)()
+## 17. averiguar como convertir lambda a void (*)()
 - Created at   2017-05-30 16:39:09 -0400
 
-## 19. cplot con opcion filter debe funcionar para no traspuesta
-- Created at   2017-05-31 15:59:08 -0400
-
-## 20. fluid1.json para lcal alguna rs trae arreglos incompletos
+## 18. fluid1.json para lcal alguna rs trae arreglos incompletos
 - Created at   2017-05-31 16:50:02 -0400
 
-## 21. process_ow de cplot espeial para cuando hay filtro
-- Created at   2017-05-31 17:46:08 -0400
-
-## 22. error en legenda de ztuner
+## 19. error en legenda de ztuner
 - Created at   2017-05-31 17:53:22 -0400
-
-## 23. dry de conversión de uunidad en rutinas row
-- Created at   2017-05-31 21:25:57 -0400
 
