@@ -1323,20 +1323,11 @@ process_filter_row(const FixedStack<const VtlQuantity*> & row,
   const Unit_Convert_Fct_Ptr * tgt_unit_ptr = &row_convert.base();
   for (size_t k = 0; k < n; ++k)
     {
-      size_t i = col_indexes(k);
-      if (i == 0)
-	{
-	  if (exception_thrown)
-	    {
-	      printf("\"true\"");
-	      exception_thrown = false;
-	    }
-	  else
-	    printf("\"false\"");
-	}
+      const size_t i = col_indexes(k);
+      if (i ==  ncol - 1)
+	printf(exception_thrown ? "\"true\"":  "\"false\"");
       else
 	{
-	  --i;
 	  Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
 	  const VtlQuantity & q = *ptr[i];
 	  if (not q.is_null())
@@ -1345,6 +1336,7 @@ process_filter_row(const FixedStack<const VtlQuantity*> & row,
       if (k > 0)
 	printf(",");
     }
+  exception_thrown = false;
   printf("\n");
 }
 
@@ -1359,19 +1351,11 @@ process_filter_row_pb(const FixedStack<const VtlQuantity*> & row,
   const Unit_Convert_Fct_Ptr * tgt_unit_ptr = &row_convert.base();
   for (size_t k = 0; k < n; ++k)
     {
-      size_t i = col_indexes(k);
+      const size_t i = col_indexes(k);
       if (i == ncol - 1)
 	printf(is_pb ? "\"true\"" : "\"false\"");
       else if (i == ncol - 2)
-	{
-	  if (exception_thrown)
-	    {
-	      printf("\"true\"");
-	      exception_thrown = false;
-	    }
-	  else
-	    printf("\"false\"");
-	}
+	printf(exception_thrown ? "\"true\"":  "\"false\"");
       else
 	{
 	  Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
@@ -1382,6 +1366,7 @@ process_filter_row_pb(const FixedStack<const VtlQuantity*> & row,
       if (k < n - 1)
 	printf(",");
     }
+  exception_thrown = false;
   printf("\n");
 }
 
