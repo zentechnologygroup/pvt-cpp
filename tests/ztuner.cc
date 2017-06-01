@@ -295,14 +295,18 @@ void process_print()
 
 void plot_mat(const DynList<DynList<string>> & m)
 {
-    // TODO transpose
-  cout << Aleph::to_string(format_string(m)) << endl;
+  if (transpose_out.getValue())
+    cout << Aleph::to_string(format_string(transpose(m))) << endl;
+  else
+    cout << Aleph::to_string(format_string(m)) << endl;
 }
 
 void plot_csv(const DynList<DynList<string>> & m)
 {
-  // TODO transpose
-  cout << Aleph::to_string(format_string_csv(m)) << endl;
+  if (transpose_out.getValue())
+    cout << Aleph::to_string(format_string_csv(m)) << endl;
+  else
+    cout << Aleph::to_string(format_string_csv(transpose(m))) << endl;
 }
 
 void plot_R(const DynList<DynList<string>> & m)
@@ -347,36 +351,35 @@ void plot_R(const DynList<DynList<string>> & m)
         << zmin << "," << zmax << "))" << endl;
 
   size_t pch = 1;
-  size_t col = 1;
   DynList<string> colnames;
   DynList<int> colors;
   DynList<string> ltys;
   DynList<string> pchs;
   Array<string> pnames;
-  for (auto it = lab_cols.get_it(); it.has_curr(); it.next())
+  size_t n_p = 0;
+  for (auto it = lab_cols.get_it(); it.has_curr(); it.next(), ++pch)
     {
       auto & plist = it.get_curr(); it.next();
       auto & zlist = it.get_curr(); 
       const string & pname = plist.get_first();
       pnames.append(pname);
+      ++n_p;
       const string & zname = zlist.get_first();
       colors.append(1);
       ltys.append("NA");
-      pchs.append(to_string(pch));
-      cout << "points(" << pname << "," << zname << ",pch=" << pch++ << ")"
+      cout << "points(" << pname << "," << zname << ",pch=" << pch << ")"
 	   << endl;
       colnames.append("\"" + zname + "\"");
-      colors.append(col);
-      pchs.append("NA");
-      ltys.append("1");
+      pchs.append(to_string(pch));
     }
 
+  size_t col = 1;
   size_t i = 0;
-  for (auto it = corr_cols.get_it(); it.has_curr(); it.next(), ++i)
+  for (auto it = corr_cols.get_it(); it.has_curr(); it.next(), ++i, ++col)
     {
-      const string & pname = pnames(i % pnames.size());
+      const string & pname = pnames((i/2) % n_p);
       const string & zname = it.get_curr().get_first();
-      cout << "lines(" << pname << "," << zname << ",col=" << col++ << ")"
+      cout << "lines(" << pname << "," << zname << ",col=" << col << ")"
 	   << endl;
       colnames.append("\"" + zname + "\"");
       colors.append(col);
