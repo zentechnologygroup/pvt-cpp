@@ -1308,6 +1308,7 @@ inline void process_row_pb(const FixedStack<const VtlQuantity*> & row,
   process_row(row, row_convert);
 }
 
+Array<size_t> col_indexes;
 // TODO: aquí se implementa la opción filter en csv puro
 // hacerlo con índices y no con nombres. El arreglo se define cuando el header.
 inline void process_filter_row(const FixedStack<const VtlQuantity*> & row,
@@ -1376,6 +1377,17 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
     {
       return pair<string, string>(h.first, "%." + precision + "f");
     });
+
+  if (filter_par.isSet())
+    {
+      DynMapTree<string, size_t> idx;
+      size_t i = 0;
+      for (auto it = header.get_it(); it.has_curr(); it.next())
+	idx.insert(it.get_curr().first, i++);
+      for (auto it = filter_par.getValue().col_names.get_it(); it.has_curr();
+	   it.next())
+	; // TODO
+    }
 
   for (auto & d : digits.getValue())
     {

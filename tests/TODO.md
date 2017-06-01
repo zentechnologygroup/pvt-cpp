@@ -67,3 +67,6 @@
 ## 22. error en legenda de ztuner
 - Created at   2017-05-31 17:53:22 -0400
 
+## 23. dry de conversión de uunidad en rutinas row
+- Created at   2017-05-31 21:25:57 -0400
+
