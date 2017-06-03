@@ -20,6 +20,7 @@ class PvtGrid
 
   struct Desc
   {
+    Array<string> names;
     Array<double> p;
     Array<Array<double>> vals;
   };
@@ -32,6 +33,7 @@ class PvtGrid
 
   void process_row(const Array<string> & row,
 		   DynMapTree<double, Desc> & tmap,
+		   const Array<size_t> & col_indexes,
 		   size_t row_idx, size_t ncol, size_t tidx, size_t pidx)
   {
     if (row.size() != ncol)
@@ -44,15 +46,16 @@ class PvtGrid
     double t = atof(row(tidx));
     Desc & desc = tmap[t];
     Array<double> vals;
+    vals.reserve(ncol - 2);
+    vals.putn(ncol - 2);
     for (size_t i = 0; i < ncol; ++i)
       {
 	double val = atof(row(i));
 	if (i == pidx)
 	  desc.p.append(val);
 	else if (i != tidx)
-	  vals.append(val);
+	  vals(col_indexes(i)) = val;
       }
-    assert(vals.size() == ncol - 2);
     desc.vals.append(move(vals));
   }
 
@@ -61,6 +64,7 @@ public:
   PvtGrid(istream & in)
   {
     Array<string> header = csv_read_row(in);
+    DynList<pair<string, size_t>> names_to_idx;
     size_t i = 0, tidx = 0, pidx = 0;
     for (auto it = header.get_it(); it.has_curr(); it.next(), ++i)
       {
@@ -84,8 +88,17 @@ public:
 	    pidx = i;
 	  }
 	else
-	  var_names.append(make_pair(var_name, unit_ptr));
+	  {
+	    var_names.append(make_pair(var_name, unit_ptr));
+	    names_to_idx.append(make_pair(var_name, i));
+	  }
       }
+
+    in_place_sort(names_to_idx, [] (auto & p1, auto & p2)
+		  { return p1.first < p2.first; });
+
+    Array<size_t> col_indexes =
+      names_to_idx.maps<size_t>([] (auto p) { return p.second; });
 
     const size_t & ncol = header.size();
     DynMapTree<double, Desc> tmap;
@@ -94,7 +107,7 @@ public:
 	Array<string> row = csv_read_row(in);
 	if (row.size() == 0)
 	  break;
-	process_row(row, tmap, i, ncol, tidx, pidx);
+	process_row(row, tmap, col_indexes, i, ncol, tidx, pidx);
       }
 
     auto & fst = tmap.get_first();
@@ -128,6 +141,15 @@ public:
 
   friend ostream & operator << (ostream & out, const PvtGrid & grid)
   {
+    out << "t " << grid.tunit_ptr->name << ", p " << grid.punit_ptr->name;
+    for (auto it = grid.var_names.get_it(); it.has_curr(); it.next())
+      {
+	auto & p =it.get_curr();
+	out << ", " << p.first << " " << p.second->name;
+      }
+    cout << endl;
+
+    
 
     return out;
   }
