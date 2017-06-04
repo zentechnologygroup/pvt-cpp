@@ -1906,3 +1906,9 @@
 - Comment      
 - Finished     
 
+## 319. error en legenda de ztuner
+- Created at   2017-05-31 17:53:22 -0400
+- Completed at 2017-06-02 14:53:01 -0400
+- Comment      
+- Finished     
+
