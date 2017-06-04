@@ -51,21 +51,18 @@ class PvtGrid
     double t = atof(row(tidx));
     Desc & desc = tmap[t];
     Array<double> vals;
-    vals.reserve(ncol - 2);
-    vals.putn(ncol - 2);
-    size_t i = 0;
     zip_for_each([] (auto t)
 		 { cout << "(" << get<0>(t).first << " " << get<1>(t) << ")"; },
 		 var_names, col_indexes); cout << endl; 
-    for (auto it = col_indexes.get_it(); it.has_curr(); it.next(), ++i)
+    for (auto it = col_indexes.get_it(); it.has_curr(); it.next())
       {
-	const size_t idx = col_indexes(it.get_curr());
-	const string & v = row(idx);
+	const size_t i = col_indexes(it.get_curr());
+	const string & v = row(i);
 	double val = v.size() ? atof(row(i)) : Unit::Invalid_Value;
 	if (i == pidx)
 	  desc.p.append(val);
 	else if (i != tidx)
-	  vals(i) = val;
+	  vals.append(val);
       }
     vals.for_each([] (auto v) { cout << v << ", "; }); cout << endl;
     // for (size_t i = 0; i < ncol; ++i)
