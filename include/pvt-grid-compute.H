@@ -38,6 +38,7 @@ class PvtGrid
 		   const Array<size_t> & col_indexes,
 		   size_t row_idx, size_t ncol, size_t tidx, size_t pidx)
   {
+    assert(col_indexes.size() == ncol);
     if (row.size() != ncol)
       ZENTHROW(InvalidCsvRow, "invalid size of " + to_string(row_idx) +
 	       "-th row");
@@ -45,22 +46,41 @@ class PvtGrid
       ZENTHROW(InvalidConversion, "a value in row " + to_string(row_idx) +
 	       " cannot be converted to double");
 
-    row.for_each([] (auto &s) { cout << s << ","; }); cout << endl;
+    //    row.for_each([] (auto &s) { cout << s << ","; }); cout << endl;
 
     double t = atof(row(tidx));
     Desc & desc = tmap[t];
     Array<double> vals;
     vals.reserve(ncol - 2);
     vals.putn(ncol - 2);
-    for (size_t i = 0; i < ncol; ++i)
+    size_t i = 0;
+    zip_for_each([] (auto t)
+		 { cout << "(" << get<0>(t).first << " " << get<1>(t) << ")"; },
+		 var_names, col_indexes); cout << endl; 
+    for (auto it = col_indexes.get_it(); it.has_curr(); it.next(), ++i)
       {
-	const string & v = row(i);
+	const size_t idx = col_indexes(it.get_curr());
+	const string & v = row(idx);
 	double val = v.size() ? atof(row(i)) : Unit::Invalid_Value;
 	if (i == pidx)
 	  desc.p.append(val);
 	else if (i != tidx)
-	  vals(col_indexes(i)) = val;
+	  vals(i) = val;
       }
+    vals.for_each([] (auto v) { cout << v << ", "; }); cout << endl;
+    // for (size_t i = 0; i < ncol; ++i)
+    //   {
+    // 	const string & v = row(i);
+    // 	double val = v.size() ? atof(row(i)) : Unit::Invalid_Value;
+    // 	if (i == pidx)
+    // 	  desc.p.append(val);
+    // 	else if (i != tidx)
+    // 	  {
+    // 	    cout << "*" << var_names(col_indexes(i)).first << " = " << val << endl;
+    // 	    vals(i) = 
+    // 	    vals(col_indexes(i)) = val;
+    // 	  }
+    //   }
     desc.vals.append(move(vals));
   }
 
@@ -80,6 +100,7 @@ public:
 	const string & var_name = parts[0];
 	const string & unit_name = parts[1];
 	const Unit * unit_ptr = Unit::search(unit_name);
+	names_to_idx.append(make_pair(var_name, i));
 	if (unit_ptr == nullptr)
 	  ZENTHROW(UnitNotFound, "unit " + unit_name + " not found");
 	if (var_name == "t")
@@ -92,13 +113,11 @@ public:
 	    punit_ptr = unit_ptr;
 	    pidx = i;
 	  }
-	else
-	  {
-	    var_names.append(make_pair(var_name, unit_ptr));
-	    names_to_idx.append(make_pair(var_name, i));
-	  }
+	var_names.append(make_pair(var_name, unit_ptr));
       }
 
+    in_place_sort(var_names, [] (auto & p1, auto & p2)
+		  { return p1.first < p2.first; });
     in_place_sort(names_to_idx, [] (auto & p1, auto & p2)
 		  { return p1.first < p2.first; });
 
@@ -127,6 +146,9 @@ public:
 	
 	temps.append(T(t, move(desc.p), move(desc.vals)));
       }
+
+    var_names = var_names.filter([] (auto & p)
+				 { return p.first != "t" and p.first != "p"; });
   }
 
   friend ostream & operator << (ostream & out, const PvtGrid & grid)
@@ -139,26 +161,27 @@ public:
       }
     out << endl;
 
-
     for (auto tit = grid.temps.get_it(); tit.has_curr(); tit.next())
       {
 	const T & tt = tit.get_curr();
 	const double & t = get<0>(tt);
 
 	const Array<double> & p = get<1>(tt);
-
-	for (auto pit = p.get_it(); pit.has_curr(); pit.next())
+	const Array<Array<double>> & vals = get<2>(tt);
+	for (auto rit = zip_it(p, vals); rit.has_curr(); rit.next())
 	  {
-	    const double & p = pit.get_curr();
-	    cout << "nrow = " << get<2>(tt).size() << endl;
-
-	    for (auto rit = get<2>(tt).get_it(); rit.has_curr(); rit.next())
+	    auto tt = rit.get_curr();
+	    const double & p = get<0>(tt);
+	    const Array<double> & vals = get<1>(tt);
+	    out << t << "," << p;
+	    for (auto it = vals.get_it(); it.has_curr(); it.next())
 	      {
-		out << t << "," << p;
-		for (auto it = rit.get_curr().get_it(); it.has_curr(); it.next())
-		  out << "," << it.get_curr();
-		out << endl;
+		const auto & val = it.get_curr();
+		out << ",";
+		if (val != Unit::Invalid_Value)
+		  out << val;
 	      }
+	    out << endl;
 	  }
       }
 
