@@ -55,3 +55,12 @@
 ## 18. fluid1.json para lcal alguna rs trae arreglos incompletos
 - Created at   2017-05-31 16:50:02 -0400
 
+<<<<<<< HEAD
+=======
+## 19. error en legenda de ztuner
+- Created at   2017-05-31 17:53:22 -0400
+
+## 20. procesar invalidos en grid
+- Created at   2017-06-04 11:59:07 -0400
+
+>>>>>>> b50b0bc71f3b5650d10e7a7654ee9adeab05ee02
