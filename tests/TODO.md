@@ -58,3 +58,6 @@
 ## 19. error en legenda de ztuner
 - Created at   2017-05-31 17:53:22 -0400
 
+## 20. procesar invalidos en grid
+- Created at   2017-06-04 11:59:07 -0400
+

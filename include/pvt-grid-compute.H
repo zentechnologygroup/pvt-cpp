@@ -25,11 +25,13 @@ class PvtGrid
     Array<Array<double>> vals;
   };
 
-  Array<double> p; 
+  Array<double> p;
+
+  using T = tuple<double, Array<double>, Array<Array<double>>>;
 
   //          t,          matrix of values associated to temperature t
   // columns in second are ordered by name in var_names array
-  Array<pair<double, Array<Array<double>>>> temps; 
+  Array<T> temps; 
 
   void process_row(const Array<string> & row,
 		   DynMapTree<double, Desc> & tmap,
@@ -39,9 +41,11 @@ class PvtGrid
     if (row.size() != ncol)
       ZENTHROW(InvalidCsvRow, "invalid size of " + to_string(row_idx) +
 	       "-th row");
-    if (not row.all([] (auto &s) { return is_double(s); }))
+    if (not row.all([] (auto &s) { return s.size() == 0 or is_double(s); }))
       ZENTHROW(InvalidConversion, "a value in row " + to_string(row_idx) +
 	       " cannot be converted to double");
+
+    row.for_each([] (auto &s) { cout << s << ","; }); cout << endl;
 
     double t = atof(row(tidx));
     Desc & desc = tmap[t];
@@ -50,7 +54,8 @@ class PvtGrid
     vals.putn(ncol - 2);
     for (size_t i = 0; i < ncol; ++i)
       {
-	double val = atof(row(i));
+	const string & v = row(i);
+	double val = v.size() ? atof(row(i)) : Unit::Invalid_Value;
 	if (i == pidx)
 	  desc.p.append(val);
 	else if (i != tidx)
@@ -110,32 +115,17 @@ public:
 	process_row(row, tmap, col_indexes, i, ncol, tidx, pidx);
       }
 
-    auto & fst = tmap.get_first();
-    Desc & desc = const_cast<Desc&>(fst.second);
-    p = move(desc.p);
-    temps.append(pair<double,
-		 Aleph::Array<Aleph::Array<double>>>(fst.first,
-						     move(desc.vals)));
-
-    // TODO: falta ordenar columnas
-
-    if (not is_sorted(p))
-      ZENTHROW(UnsortedPressureValues, "pressure values associated to temp " +
-	       to_string(fst.first) + " are not sorted");
-
-    for (auto it = tmap.get_it(1); it.has_curr(); it.next())
+    for (auto it = tmap.get_it(); it.has_curr(); it.next())
       {
 	auto & curr = it.get_curr();
 	const double & t = curr.first;
 	Desc & desc = curr.second;
-
-	if (not zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
-			p, desc.p))
-	  ZENTHROW(MismatchInPressureValues,
-		   "Found inconsistency en pressure values associated to temp" +
-		   to_string(t));
-
-	temps.append(pair<double, Array<Array<double>>>(t, move(desc.vals)));
+	
+	if (not is_sorted(desc.p))
+	  ZENTHROW(UnsortedPressureValues, "pressure values associated to temp " +
+		   to_string(t) + " are not sorted");
+	
+	temps.append(T(t, move(desc.p), move(desc.vals)));
       }
   }
 
@@ -147,9 +137,30 @@ public:
 	auto & p =it.get_curr();
 	out << ", " << p.first << " " << p.second->name;
       }
-    cout << endl;
+    out << endl;
 
-    
+
+    for (auto tit = grid.temps.get_it(); tit.has_curr(); tit.next())
+      {
+	const T & tt = tit.get_curr();
+	const double & t = get<0>(tt);
+
+	const Array<double> & p = get<1>(tt);
+
+	for (auto pit = p.get_it(); pit.has_curr(); pit.next())
+	  {
+	    const double & p = pit.get_curr();
+	    cout << "nrow = " << get<2>(tt).size() << endl;
+
+	    for (auto rit = get<2>(tt).get_it(); rit.has_curr(); rit.next())
+	      {
+		out << t << "," << p;
+		for (auto it = rit.get_curr().get_it(); it.has_curr(); it.next())
+		  out << "," << it.get_curr();
+		out << endl;
+	      }
+	  }
+      }
 
     return out;
   }
