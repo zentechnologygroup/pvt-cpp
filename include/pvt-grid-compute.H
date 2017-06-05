@@ -3,7 +3,9 @@
 
 # include <parse-csv.H>
 # include <tpl_array.H>
+# include <tpl_sort_utils.H>
 # include <tpl_dynMapTree.H>
+# include <utils.H>
 # include <units.H>
 
 DEFINE_ZEN_EXCEPTION(MismatchInPressureValues, "pressure values does not match");
@@ -46,17 +48,12 @@ class PvtGrid
       ZENTHROW(InvalidConversion, "a value in row " + to_string(row_idx) +
 	       " cannot be converted to double");
 
-    //    row.for_each([] (auto &s) { cout << s << ","; }); cout << endl;
-
     double t = atof(row(tidx));
     Desc & desc = tmap[t];
     Array<double> vals;
-    zip_for_each([] (auto t)
-		 { cout << "(" << get<0>(t).first << " " << get<1>(t) << ")"; },
-		 var_names, col_indexes); cout << endl; 
     for (auto it = col_indexes.get_it(); it.has_curr(); it.next())
       {
-	const size_t i = col_indexes(it.get_curr());
+	const size_t i = it.get_curr();
 	const string & v = row(i);
 	double val = v.size() ? atof(row(i)) : Unit::Invalid_Value;
 	if (i == pidx)
@@ -64,20 +61,6 @@ class PvtGrid
 	else if (i != tidx)
 	  vals.append(val);
       }
-    vals.for_each([] (auto v) { cout << v << ", "; }); cout << endl;
-    // for (size_t i = 0; i < ncol; ++i)
-    //   {
-    // 	const string & v = row(i);
-    // 	double val = v.size() ? atof(row(i)) : Unit::Invalid_Value;
-    // 	if (i == pidx)
-    // 	  desc.p.append(val);
-    // 	else if (i != tidx)
-    // 	  {
-    // 	    cout << "*" << var_names(col_indexes(i)).first << " = " << val << endl;
-    // 	    vals(i) = 
-    // 	    vals(col_indexes(i)) = val;
-    // 	  }
-    //   }
     desc.vals.append(move(vals));
   }
 
@@ -138,7 +121,8 @@ public:
 	Desc & desc = curr.second;
 	
 	if (not is_sorted(desc.p))
-	  ZENTHROW(UnsortedPressureValues, "pressure values associated to temp " +
+	  ZENTHROW(UnsortedPressureValues,
+		   "pressure values associated to temp " +
 		   to_string(t) + " are not sorted");
 	
 	temps.append(T(t, move(desc.p), move(desc.vals)));
@@ -185,14 +169,117 @@ public:
     return out;
   }
 
-  bool check(istream & in) const
-  {
+private:
 
-  }
-
-  double compute(double t, double p, const string & name) const
+  pair<size_t, size_t> search_temperature(const double t) const
   {
     
+    if (t < get<0>(temps.get_first()) or t > get<0>(temps.get_last()))
+      ZENTHROW(OutOfRange, "temperature value " + to_string(t) +
+	       "is out of range [" + to_string(get<0>(temps.get_first())) +
+	       ", " + to_string(get<0>(temps.get_last())) + "]");
+
+    const T t_t = T(t, DynList<double>(), Array<Array<double>>());
+    const long i = Aleph::binary_search(temps, t_t, [] (auto & t1, auto & t2)
+					{ return get<0>(t1) < get<0>(t2); });
+    assert(i >= 0 and size_t(i) < temps.size());
+    const T & found_entry = temps(i);
+    const double & found_t = get<0>(found_entry);
+    if (found_t == t)
+      return make_pair(i, i);
+    else if (t < found_t)
+      {
+	assert(i > 0);
+	return make_pair(i - 1, i);
+      }
+    else
+      {
+	assert(size_t(i) < temps.size() - 1);
+	return make_pair(i, i + 1);
+      }
+  }
+
+  pair<size_t, size_t> search_presure(const T & desc, const double & p) const
+  {
+    const Array<double> & pvals = get<1>(desc);
+    const double & fst_p = pvals.get_first();
+    const double & lst_p = pvals.get_last();
+    if (p < fst_p or p > lst_p)
+      ZENTHROW(OutOfMemory, "pressure value " + to_string(p) +
+	       "is out of range [" + to_string(fst_p) + ", " +
+	       to_string(lst_p) + "]");
+    
+    const long i = binary_search(pvals, p);
+
+    assert(i >= 0 and size_t(i) < pvals.size());
+    const double & found_p = pvals(i);
+    if (found_p == p)
+      return make_pair(i, i);
+    else if (p < found_p)
+      {
+	assert(i > 0);
+	return make_pair(i - 1, i);
+      }
+    else
+      {
+	assert(size_t(i) < pvals.size() - 1);
+	return make_pair(i, i + 1);
+      }
+  }
+
+  size_t property_index(const string & name) const
+  {
+    pair<string, const Unit*> p;
+    p.first = name;
+    long i = binary_search(var_names, p, [] (auto & p1, auto & p2)
+			   { return p1.first > p2.first; });
+    if (i < 0 or size_t(i) >= var_names.size() or var_names(i).first != name)
+      ZENTHROW(NameNotFound, "var name " + name + " not found");
+    return i;
+  }
+
+  double interpolate_p(const T & desc, const double p, size_t name_idx) const
+  {
+    const Array<double> & pvals = get<1>(desc);
+    const Array<Array<double>> & vals = get<2>(desc);
+    const auto p_idx = search_presure(desc, p);
+    
+    const double & p1 = pvals(p_idx.first);
+    const Array<double> & vals1 = vals(p_idx.first);    
+    const double & y1 = vals1(name_idx);
+    if (p == p1)
+      return y1;
+
+    const double & p2 = pvals(p_idx.second);
+    const Array<double> & vals2 = vals(p_idx.second);
+    const double & y2 = vals2(name_idx);
+    if (p == p2)
+      return y2;
+
+    return ::interpolate(p1, p2, y1, y2, p);
+  }
+  
+public:
+
+  double compute(const double t, const double p, const string & name) const
+  {
+    size_t name_idx = property_index(name);
+
+    auto t_idx = search_temperature(t);
+    const T & desc1 = temps(t_idx.first);
+    const double & t1 = get<0>(desc1);
+    if (t == t1)
+      return interpolate_p(desc1, p, name_idx);
+
+    const T & desc2 = temps(t_idx.second);
+    const double & t2 = get<0>(desc2);
+    if (t == t2)
+      return interpolate_p(desc1, p, name_idx);
+
+    const double y1 = interpolate_p(desc1, p, name_idx);
+    const double y2 = interpolate_p(desc1, p, name_idx);
+
+    return ::interpolate(t1, t2, y1, y2, t);
   }
 
 };
