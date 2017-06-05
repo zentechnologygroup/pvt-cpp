@@ -269,8 +269,6 @@ ZfactorDranchukPR::impl(const double & tpr,
   const double tpr3 = tpr2*tpr;
 
   constexpr double epsilon = 1.0e-8;
-  //double z = 0.5;
-  //double zprev = 0.6;
 
   // pr: Reduced density
   double zprev, z, zf;
@@ -304,6 +302,9 @@ ZfactorDranchukPR::impl(const double & tpr,
       zprev = zf;
     }
 
+  if (zf < min_z)
+    return min_z;
+                            
   return zf;
 }
 /*
@@ -375,6 +376,9 @@ ZfactorDranchukAK::impl(const double & tpr,
       zprev = zf;
     }     
 
+  if (zf < min_z)
+    return min_z;
+                            
   return zf;
 }
 
