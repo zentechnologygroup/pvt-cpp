@@ -173,11 +173,12 @@ private:
 
   pair<size_t, size_t> search_temperature(const double t) const
   {
-    
-    if (t < get<0>(temps.get_first()) or t > get<0>(temps.get_last()))
+    const double & t1 = get<0>(temps.get_first());
+    const double & t2 = get<0>(temps.get_last());
+    if (not (t >= t1 and t <= t2))
       ZENTHROW(OutOfRange, "temperature value " + to_string(t) +
-	       "is out of range [" + to_string(get<0>(temps.get_first())) +
-	       ", " + to_string(get<0>(temps.get_last())) + "]");
+	       " is out of range [" + to_string(t1) + ", " +
+	       to_string(t2) + "]");
 
     const T t_t = T(t, DynList<double>(), Array<Array<double>>());
     const long i = Aleph::binary_search(temps, t_t, [] (auto & t1, auto & t2)
@@ -232,7 +233,7 @@ private:
     pair<string, const Unit*> p;
     p.first = name;
     long i = binary_search(var_names, p, [] (auto & p1, auto & p2)
-			   { return p1.first > p2.first; });
+			   { return p1.first < p2.first; });
     if (i < 0 or size_t(i) >= var_names.size() or var_names(i).first != name)
       ZENTHROW(NameNotFound, "var name " + name + " not found");
     return i;
@@ -277,11 +278,15 @@ public:
       return interpolate_p(desc1, p, name_idx);
 
     const double y1 = interpolate_p(desc1, p, name_idx);
-    const double y2 = interpolate_p(desc1, p, name_idx);
+    const double y2 = interpolate_p(desc2, p, name_idx);
 
     return ::interpolate(t1, t2, y1, y2, t);
   }
 
+  double operator () (const string & name, const double t, const double p) const
+  {
+    return compute(t, p, name);
+  }
 };
 
 # endif
