@@ -122,8 +122,8 @@ public:
 	
 	if (not is_sorted(desc.p))
 	  ZENTHROW(UnsortedPressureValues,
-		   "pressure values associated to temp " +
-		   to_string(t) + " are not sorted");
+		   "pressure values associated to temp " + to_string(t) +
+		   " are not sorted");
 	
 	temps.append(T(t, move(desc.p), move(desc.vals)));
       }
@@ -180,23 +180,24 @@ private:
 	       " is out of range [" + to_string(t1) + ", " +
 	       to_string(t2) + "]");
 
-    const T t_t = T(t, DynList<double>(), Array<Array<double>>());
+    T t_t;
+    get<0>(t_t) = t;
     const long i = Aleph::binary_search(temps, t_t, [] (auto & t1, auto & t2)
 					{ return get<0>(t1) < get<0>(t2); });
     assert(i >= 0 and size_t(i) < temps.size());
     const T & found_entry = temps(i);
     const double & found_t = get<0>(found_entry);
     if (found_t == t)
-      return make_pair(i, i);
+      return pair<size_t, size_t>(i, i);
     else if (t < found_t)
       {
 	assert(i > 0);
-	return make_pair(i - 1, i);
+	return pair<size_t, size_t>(i - 1, i);
       }
     else
       {
 	assert(size_t(i) < temps.size() - 1);
-	return make_pair(i, i + 1);
+	return pair<size_t, size_t>(i, i + 1);
       }
   }
 
@@ -215,16 +216,16 @@ private:
     assert(i >= 0 and size_t(i) < pvals.size());
     const double & found_p = pvals(i);
     if (found_p == p)
-      return make_pair(i, i);
+      return pair<size_t, size_t>(i, i);
     else if (p < found_p)
       {
 	assert(i > 0);
-	return make_pair(i - 1, i);
+	return pair<size_t, size_t>(i - 1, i);
       }
     else
       {
 	assert(size_t(i) < pvals.size() - 1);
-	return make_pair(i, i + 1);
+	return pair<size_t, size_t>(i, i + 1);
       }
   }
 
@@ -286,6 +287,11 @@ public:
   double operator () (const string & name, const double t, const double p) const
   {
     return compute(t, p, name);
+  }
+
+  pair<double, double> t_limits() const
+  {
+    
   }
 };
 

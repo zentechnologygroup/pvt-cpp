@@ -64,3 +64,6 @@
 ## 21. falta procesar computo en grid cuando el valor no está definido
 - Created at   2017-06-06 11:35:15 -0400
 
+## 22. en grid métodos que reciban lista o vector de t o p
+- Created at   2017-06-06 12:56:23 -0400
+
