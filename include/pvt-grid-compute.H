@@ -10,6 +10,7 @@
 
 DEFINE_ZEN_EXCEPTION(MismatchInPressureValues, "pressure values does not match");
 DEFINE_ZEN_EXCEPTION(UnsortedPressureValues, "pressure values are not sorted");
+//DEFINE_ZEN_EXCEPTION(
 
 class PvtGrid
 {
@@ -249,12 +250,20 @@ private:
     const double & p1 = pvals(p_idx.first);
     const Array<double> & vals1 = vals(p_idx.first);    
     const double & y1 = vals1(name_idx);
+    if (y1 == Unit::Invalid_Value)
+      ZENTHROW(OutOfRange, "for t = " + to_string(get<0>(desc)) + " p = " +
+	       to_str(p) + " : value of " + var_names(name_idx).first +
+	       " out of grid range"); 
     if (p == p1)
       return y1;
 
     const double & p2 = pvals(p_idx.second);
     const Array<double> & vals2 = vals(p_idx.second);
     const double & y2 = vals2(name_idx);
+    if (y2 == Unit::Invalid_Value)
+      ZENTHROW(OutOfRange, "for t = " + to_string(get<0>(desc)) + " p = " +
+	       to_str(p) + " : value of " + var_names(name_idx).first +
+	       " out of grid range");    
     if (p == p2)
       return y2;
 
@@ -263,9 +272,9 @@ private:
   
 public:
 
-  double compute(const double t, const double p, const string & name) const
+  double compute(const size_t name_idx, const double t, const double p) const
   {
-    size_t name_idx = property_index(name);
+    assert(name_idx < var_names.size());
 
     auto t_idx = search_temperature(t);
     const T & desc1 = temps(t_idx.first);
@@ -284,14 +293,19 @@ public:
     return ::interpolate(t1, t2, y1, y2, t);
   }
 
-  double operator () (const string & name, const double t, const double p) const
+  double compute(const string & name, const double t, const double p) const
   {
-    return compute(t, p, name);
+    return compute(property_index(name), t, p);
   }
 
-  pair<double, double> t_limits() const
+  double operator () (const string & name, const double t, const double p) const
   {
-    
+    return compute(name, t, p);
+  }
+
+  double operator () (const size_t name_idx, const double t, const double p) const
+  {
+    return compute(name_idx, t, p);
   }
 };
 

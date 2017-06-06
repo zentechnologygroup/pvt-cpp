@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
   const auto & pdesc = p.getValue();
   for (double tval = tdesc.min; tval <= tdesc.max; tval += tdesc.step())
     for (double pval = pdesc.min; pval <= pdesc.max; pval += pdesc.step())
-      cout << "name(" << tval << ", " << pval << ") = "
+      cout << name << "(" << tval << ", " << pval << ") = "
 	   << grid(name, tval, pval) << endl;
 }
 

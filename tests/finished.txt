@@ -317,3 +317,16 @@ cplot con opcion filter debe funcionar para no traspuesta,2017-05-31 15:59:08 -0
 dry de conversión de uunidad en rutinas row,2017-05-31 21:25:57 -0400,,,2017-06-01 12:38:50 -0400
 documentar ocpiones action y property en test-cali,2017-05-03 16:14:39 -0400,,,2017-06-01 12:39:14 -0400
 error en legenda de ztuner,2017-05-31 17:53:22 -0400,2017-06-02 14:53:01 -0400,,2017-06-02 14:53:06 -0400
+procesar invalidos en grid,2017-06-04 11:59:07 -0400,2017-06-06 15:20:08 -0400,,2017-06-06 15:20:13 -0400
+falta procesar computo en grid cuando el valor no está definido,2017-06-06 11:35:15 -0400,2017-06-06 15:20:04 -0400,,2017-06-06 15:20:15 -0400
+en grid métodos que reciban lista o vector de t o p,2017-06-06 12:56:23 -0400,,,2017-06-06 15:28:54 -0400
+tuner si escritura de archvo jon falla ==> abortar,2017-05-30 15:13:46 -0400,2017-06-06 15:56:12 -0400,,2017-06-06 15:56:15 -0400
+error en legenda de ztuner,2017-05-31 17:53:22 -0400,2017-06-06 15:56:24 -0400,,2017-06-06 15:56:27 -0400
+averiguar como convertir lambda a void (*)(),2017-05-30 16:39:09 -0400,2017-06-06 16:04:22 -0400,,2017-06-06 16:04:27 -0400
+fluid1.json para lcal alguna rs trae arreglos incompletos,2017-05-31 16:50:02 -0400,2017-06-06 16:05:07 -0400,,2017-06-06 16:05:09 -0400
+calibrar zfactor,2017-03-20 16:15:08 -0400,2017-06-06 16:05:48 -0400,,2017-06-06 16:05:51 -0400
+validad que el data set tenga el mismo pb para cada vector: ,,2017-06-06 16:06:22 -0400,,2017-06-06 16:06:28 -0400
+cambio unidades entrada a ztuner,2017-05-24 16:10:44 -0400,2017-06-06 16:19:20 -0400,,2017-06-06 16:19:23 -0400
+añadir opción a test-corr que reciba un arreglo de t y p como en cplot y genere la matriz,2017-04-20 16:50:00 -0400,,,2017-06-06 16:35:11 -0400
+generar por cada correlacion método validate_and_call,2017-05-26 15:56:41 -0400,2017-06-06 17:10:17 -0400,,2017-06-06 17:10:21 -0400
+dry en ValusArg::operator = de test-cali,2017-05-03 16:59:18 -0400,,,2017-06-06 17:15:00 -0400

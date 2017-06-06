@@ -1598,6 +1598,9 @@ int main(int argc, char *argv[])
 	ZENTHROW(InvalidTargetName, "json name not defined (--file)");
       ofstream out(file.getValue());
       out << data.to_json().dump(2);
+      if (out.bad())
+	ZENTHROW(CommandLineError, "cannot write to " + file.getValue() +
+		 " file");
       terminate_app();
     }
 

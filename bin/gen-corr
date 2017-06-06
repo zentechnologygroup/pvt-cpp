@@ -11,7 +11,7 @@ class CorrelationGen
 
   class Parameter
 
-    attr_reader :name, :desc, :unit
+    attr_reader :name, :desc, :unit, :min, :max
 
     def initialize(name, unit, desc, min = nil, max = nil)
       @name = name
@@ -159,7 +159,23 @@ class CorrelationGen
       s += ', ' unless par == @pars.last
     end
     s += "));\n"\
-         "}\n"
+         "}\n"\
+         "\n"\
+         "#{impl_type} validate_and_call(#{gen_pars}) const\n"\
+         "{\n"
+    @pars.each do |par|
+      if par.name != 'p' && par.name != 't'
+        s += "  if (not (#{par.name} >= #{par.min}))\n"\
+             "    ZENTHROW(OutOfParameterRange, "\
+             "\"parameter #{par.name} is less than #{par.min}\");\n" if par.min
+        s += "  if (not (#{par.name} <= #{par.max}))\n"\
+             "    ZENTHROW(OutOfParameterRange, "\
+             "\"parameter #{par.name} is greater than #{par.max}\");\n" if par.max
+      end
+    end
+    s += "\n"\
+         "return call(#{pars_list});\n"\
+         "}\n"\
   end
 
   def gen_par_operator

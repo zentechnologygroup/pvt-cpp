@@ -507,6 +507,9 @@ int main(int argc, char *argv[])
 		 "for save option file name has not been set");
       ofstream out(fname.getValue());
       out << data->to_json().dump(2) << endl;
+       if (out.bad())
+	ZENTHROW(CommandLineError, "cannot write to " + fname.getValue() +
+		 " file");
     }
 
   process_print();

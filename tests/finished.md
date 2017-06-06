@@ -1912,3 +1912,81 @@
 - Comment      
 - Finished     
 
+## 320. procesar invalidos en grid
+- Created at   2017-06-04 11:59:07 -0400
+- Completed at 2017-06-06 15:20:08 -0400
+- Comment      
+- Finished     
+
+## 321. falta procesar computo en grid cuando el valor no está definido
+- Created at   2017-06-06 11:35:15 -0400
+- Completed at 2017-06-06 15:20:04 -0400
+- Comment      
+- Finished     
+
+## 322. en grid métodos que reciban lista o vector de t o p
+- Created at   2017-06-06 12:56:23 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 323. tuner si escritura de archvo jon falla ==> abortar
+- Created at   2017-05-30 15:13:46 -0400
+- Completed at 2017-06-06 15:56:12 -0400
+- Comment      
+- Finished     
+
+## 324. error en legenda de ztuner
+- Created at   2017-05-31 17:53:22 -0400
+- Completed at 2017-06-06 15:56:24 -0400
+- Comment      
+- Finished     
+
+## 325. averiguar como convertir lambda a void (*)()
+- Created at   2017-05-30 16:39:09 -0400
+- Completed at 2017-06-06 16:04:22 -0400
+- Comment      
+- Finished     
+
+## 326. fluid1.json para lcal alguna rs trae arreglos incompletos
+- Created at   2017-05-31 16:50:02 -0400
+- Completed at 2017-06-06 16:05:07 -0400
+- Comment      
+- Finished     
+
+## 327. calibrar zfactor
+- Created at   2017-03-20 16:15:08 -0400
+- Completed at 2017-06-06 16:05:48 -0400
+- Comment      
+- Finished     
+
+## 328. validad que el data set tenga el mismo pb para cada vector: 
+- Created at   
+- Completed at 2017-06-06 16:06:22 -0400
+- Comment      
+- Finished     
+
+## 329. cambio unidades entrada a ztuner
+- Created at   2017-05-24 16:10:44 -0400
+- Completed at 2017-06-06 16:19:20 -0400
+- Comment      
+- Finished     
+
+## 330. añadir opción a test-corr que reciba un arreglo de t y p como en cplot y genere la matriz
+- Created at   2017-04-20 16:50:00 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 331. generar por cada correlacion método validate_and_call
+- Created at   2017-05-26 15:56:41 -0400
+- Completed at 2017-06-06 17:10:17 -0400
+- Comment      
+- Finished     
+
+## 332. dry en ValusArg::operator = de test-cali
+- Created at   2017-05-03 16:59:18 -0400
+- Completed at 
+- Comment      
+- Finished     
+
