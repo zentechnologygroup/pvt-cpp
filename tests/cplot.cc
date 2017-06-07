@@ -1396,6 +1396,7 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
   FixedStack<pair<string, const Unit*>> header;
 
   ncol = insert_in_container(header, args...);
+  
   name_to_precision = header.maps<pair<string, string>>([&precision] (auto & h)
     {
       return pair<string, string>(h.first, "%." + precision + "f");
@@ -2130,7 +2131,7 @@ Command_Arg_Optional_Correlation(veqsp2, Veqsp2McCain);
 Command_Arg_Optional_Correlation(gpasp, GpaspMcCain);
 Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
 
-# define Webgas_Init()							\
+# define Wetgas_Init()							\
   /* Initialization of constant data */					\
   set_api();								\
   set_yg();								\
@@ -2289,7 +2290,7 @@ Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
 
 void generate_grid_wetgas()
 { 
-  Webgas_Init();
+  Wetgas_Init();
 
   // Temperature loop
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next()) 
@@ -2310,7 +2311,7 @@ void generate_grid_wetgas()
 
 void generate_rows_wetgas()
 { 
-  Webgas_Init();
+  Wetgas_Init();
 
   for (auto it = tp_values.get_it(); it.has_curr(); it.next())
     {
