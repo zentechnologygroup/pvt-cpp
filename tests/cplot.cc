@@ -1333,7 +1333,7 @@ process_filter_row(const FixedStack<const VtlQuantity*> & row,
 	  if (not q.is_null())
 	    printf(precisions(i), convert_fct ? convert_fct(q.raw()) : q.raw());
 	}
-      if (k > 0)
+      if (k < n - 1)
 	printf(",");
     }
   exception_thrown = false;
