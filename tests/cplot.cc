@@ -1638,6 +1638,8 @@ void print_notranspose()
   set_sgo_corr();							\
   set_sgw_corr();							\
 									\
+  pressure = get<2>(p_values.get_first());				\
+									\
   /* Calculation of constants for Z */					\
   auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg), \
 			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
@@ -1931,6 +1933,8 @@ void generate_rows_blackoil()
   set_adjustedtpcm_corr();						\
   set_zfactor_corr();							\
 									\
+  pressure = get<2>(p_values.get_first());				\
+									\
   /* Calculation of constants for Z */					\
   auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg), \
 			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
@@ -2167,6 +2171,8 @@ Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
 									\
   check_second_separator_case();					\
 									\
+  pressure = get<2>(p_values.get_first());				\
+									\
   /* Calculation of constants required for grid generation */		\
   auto rsp1 = compute_exc(rsp1_corr, true, ogr_par);			\
   auto gpa = compute_exc(two_separators() ? gpasp2_corr : gpasp_corr, true, \
@@ -2350,6 +2356,8 @@ void generate_rows_wetgas()
   set_rsw_corr();							\
   set_cwb_corr();							\
   set_sgw_corr();							\
+									\
+  pressure = get<2>(p_values.get_first());				\
 									\
   /* Calculation of constants for Z */					\
   auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg), \
