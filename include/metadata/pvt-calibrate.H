@@ -963,21 +963,19 @@ struct PvtData
 	    Ttuple & t = ptr->second;
   	    if (get<1>(t) > 0 and get<1>(t) != p)
   	      {
-  		ostringstream s;
-  		s << "Found two contradictory pairs t,pb: " << ptr->first << ","
-  		  << get<1>(t) << " != " << vdesc.t << "," << vdesc.pb;
-  		ZENTHROW(PressureMismatch, s.str());
+		cout << "Found two contradictory pairs t,pb: " << ptr->first << ","
+		     << get<1>(t) << " != " << vdesc.t << "," << vdesc.pb << endl;
+  		abort();
   	      }
 	    if (vdesc.yname == "uob" or vdesc.yname == "uoa")
 	      get<2>(t) = unit_convert(*vdesc.yunit, vdesc.uod,
 				       CP::get_instance());
 	    else if (get<2>(t) > 0 and get<2>(t) != vdesc.uod)
 	      {
-		ostringstream s;
-  		s << "Found two ambiguous uod values for t = " << vdesc.t
-		  << " pb = " << vdesc.pb << " " << get<2>(t) << " != "
-		  << vdesc.uod;
-  		ZENTHROW(AmbiguousDeadViscosity, s.str());
+  		cout << "Found two ambiguous uod values for t = " << vdesc.t
+		     << " pb = " << vdesc.pb << " " << get<2>(t) << " != "
+		     << vdesc.uod << endl;
+		abort();
 	      }
   	  }
       }

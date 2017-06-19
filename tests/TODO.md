@@ -28,3 +28,6 @@
 ## 9. macros para referencias biblio
 - Created at   2017-05-22 16:04:19 -0400
 
+## 10. parámetro de correación que no tenga rango que no queme ciclos por eso
+- Created at   2017-06-15 16:27:26 -0400
+

@@ -26,6 +26,11 @@
       "value": 2.84
     },
     {
+      "name": "h2s",
+      "unit": "MolePercent",
+      "value": 0.0
+    },
+    {
       "name": "n2",
       "unit": "MolePercent",
       "value": 0.52

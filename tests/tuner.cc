@@ -530,7 +530,6 @@ ValueArg<string> mode_type = { "", "mode", "mode", false, "both",
 
 SwitchArg json = { "", "json", "generate json of data", cmd };
 
-SwitchArg split_bo_arg = { "", "split-bo", "split bo vector", cmd };
 SwitchArg split_uo_arg = { "", "split-uo", "split uo vector", cmd };
 SwitchArg save = { "", "save", "save data to json", cmd };
 SwitchArg transpose_out = { "", "transpose", "transpose output", cmd };
@@ -1503,21 +1502,6 @@ void process_cplot()
   terminate_app();
 }
 
-void split_bo()
-{
-  auto bo_vectors = data.search_vectors("bo");
-  if (bo_vectors.is_empty())
-    ZENTHROW(VarNameNotFound, "data does not contain bo");
-
-  for (auto it = bo_vectors.get_it(); it.has_curr(); it.next())
-    {
-      auto bo_ptr = it.get_curr();
-      auto p = bo_ptr->split_bo();
-      data.add_vector(p.first);
-      data.add_vector(p.second);
-    }
-}
-
 void split_uo()
 {
   DynList<const VectorDesc*> uo_vectors = data.search_vectors("uo");
@@ -1575,9 +1559,6 @@ int main(int argc, char *argv[])
   build_pvt_data();
   remove_consts();
   remove_properties();
-
-  if (split_bo_arg.getValue())
-    split_bo();
 
   if (split_uo_arg.getValue())
     split_uo();
