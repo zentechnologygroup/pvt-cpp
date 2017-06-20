@@ -31,3 +31,6 @@
 ## 10. parámetro de correación que no tenga rango que no queme ciclos por eso
 - Created at   2017-06-15 16:27:26 -0400
 
+## 11. eliminar entrada de bo
+- Created at   2017-06-20 14:54:33 -0400
+
