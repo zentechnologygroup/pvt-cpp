@@ -55,7 +55,6 @@ void BoaHanafy::precondition(const Quantity<psia> & p,
 {
   if (not (p > pb))
     {
-      cout << fabs(p.raw() - pb.raw()) << " " << " " << (p < pb) << endl;
       ostringstream s;
       s << "BoaHanafy::impl: pressure " << p << " is not greater than pb " << pb;
       ZENTHROW(WrongValueUndersaturatedCondition, s.str());
