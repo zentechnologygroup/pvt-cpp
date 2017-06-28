@@ -1846,7 +1846,76 @@ void generate_grid_blackoil()
   for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next()) 
     {
       Correlation::NamedPar t_par = t_it.get_curr();
-      Blackoil_Temperature_Calculations();
+
+      VtlQuantity t_q = par(t_par);
+      temperature = t_q.raw();
+      CALL(Tpr, tpr, t_q, adjustedtpcm);
+      auto tpr_par = NPAR(tpr);
+      VtlQuantity pb_q =
+	tcompute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par); 
+      auto pb_par = npar("pb", pb_q);
+      auto p_pb = npar("p", pb_q);
+
+      auto uod_val = compute(uod_corr, check, uod_pars, t_par, pb_par);
+
+      insert_in_container(rs_pars, t_par, pb_par);
+      auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(),
+					m_rs_arg.getValue(),
+					&RsAbovePb::get_instance());
+
+      insert_in_container(co_pars, t_par, pb_par);
+      auto co_corr =
+	define_correlation(pb_q,
+			   cob_corr, c_cob_arg.getValue(), m_cob_arg.getValue(),
+			   coa_corr, c_coa_arg.getValue(), m_coa_arg.getValue());
+      auto bo_corr =
+	define_correlation(pb_q,
+			   bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
+			   boa_corr, c_boa_arg.getValue(), m_boa_arg.getValue());
+
+      insert_in_container(uo_pars, t_par, pb_par, npar("uod", uod_val));
+      auto uo_corr =
+	define_correlation(pb_q,
+			   uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
+			   uoa_corr, c_uoa_arg.getValue(), m_uoa_arg.getValue());
+
+      auto po_corr = define_correlation(pb_q, &PobBradley::get_instance(),
+					&PoaBradley::get_instance());
+
+      auto bw_corr = define_correlation(pb_q, bwb_corr, bwa_corr);
+
+      auto cw_corr = define_correlation(pb_q, cwb_corr, cwa_corr);
+
+      bo_pars.insert(t_par);
+      auto bobp = tcompute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(),
+			   check, bo_pars, p_pb, rs_pb);
+
+      auto uobp = tcompute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(),
+			   check, uo_pars, p_pb, rs_pb);
+
+      insert_in_container(bo_pars, pb_par, NPAR(bobp));
+
+      uo_pars.insert("uobp", uobp.raw(), &uobp.unit);
+
+      auto pobp = compute(&PobBradley::get_instance(), check, po_pars,
+			  rs_pb, npar("bob", bobp));
+
+      auto bwbp = compute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));
+
+      insert_in_container(po_pars, pb_par, NPAR(pobp));
+      insert_in_container(ug_pars, t_par, tpr_par);
+      insert_in_container(bw_pars, t_par, pb_par, NPAR(bwbp));
+      cg_pars.insert(tpr_par);
+      uw_pars.insert(t_par);
+      pw_pars.insert(t_par);
+      rsw_pars.insert(t_par);
+      cw_pars.insert(t_par);
+      cwa_pars.insert(t_par);
+      sgo_pars.insert(t_par);
+      sgw_pars.insert(t_par);
+
+      size_t n = insert_in_row(row, t_q, pb_q, uod_val);
+      //Blackoil_Temperature_Calculations();
       auto pb = pb_q.raw();
       double next_pb = nextafter(pb, numeric_limits<double>::max());
       VtlQuantity next_pb_q = { pb_q.unit, next_pb };
