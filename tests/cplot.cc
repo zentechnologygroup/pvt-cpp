@@ -810,13 +810,15 @@ void set_ranges()
 	tp_values.append(pair<Correlation::NamedPar, Correlation::NamedPar>
 			 (make_tuple(true, "t", p.t, t_unit),
 			  make_tuple(true, "p", p.p, p_unit)));
-      cout << "pairs" << endl;
-      tp_values.for_each([] (auto & p)
-        {
-	  cout << get<2>(p.first) << ", " << get<2>(p.second) << endl;
-	});
 
       sort_dispatcher.run(sort_type.getValue());
+
+      for (auto it = tp_values.get_it(); it.has_curr(); it.next())
+	{
+	  const TPPair & p = it.get_curr();
+	  t_values.append(p.first);
+	  p_values.append(p.second);
+	}
 
       return;
     }
