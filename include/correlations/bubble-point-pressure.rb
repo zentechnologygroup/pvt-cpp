@@ -263,13 +263,14 @@ add_author("Cegarra")
 add_ref("cegarra:2007")
 add_ref("standing:1947")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 10 2016.")
-set_hidden()
+#set_hidden()
 end_correlation()
 
 ################################################################
 
 begin_correlation("PbPerezML", "BubblePointPressure", "psia", 405, 1335)
 add_title("PÉREZ, HENY & LAGO CORRELATION (MODIFIED TOTAL CFP CORRELATION), CALCULATION OF BUBBLE POINT PRESSURE")
+add_note("Pérez, Heny & Lago correlation (modified Total CFP correlation), calculation of bubble point pressure.")
 add_parameter("yg", "Sgg", "Gas specific gravity",  0.571,  0.981)
 add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  38,  121)
 add_parameter("api", "Api", "API oil gravity",  6.4,  12.9)
@@ -277,7 +278,7 @@ add_parameter("t", "Fahrenheit", "Temperature",  112,  300)
 add_author("Pérez, Heny & Lago")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 10 2016.")
-set_hidden()
+#set_hidden()
 end_correlation()
 
 ################################################################
@@ -293,7 +294,7 @@ add_author("Millán-Arcia")
 add_ref("millan:1984")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 10 2016.")
-set_hidden()
+#set_hidden()
 end_correlation()
 
 ################################################################
@@ -309,7 +310,7 @@ add_author("Manucci & Rosales")
 add_ref("manucci:1968")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 10 2016.")
-set_hidden()
+#set_hidden()
 end_correlation()
 
 ################################################################
@@ -345,7 +346,7 @@ add_author("López, Castillo & Rojas")
 add_ref("lopez:2014")
 add_internal_note("The correlation was verified by using the original reference. Date: April 27 2017.")
 add_note("López, Castillo & Rojas presented separate equations for solution gas oil ratio (Rs) and bubble point pressure (Pb). Their Rs equation provides a higher determination coefficient and a lower arithmetic average error; therefore, the correlation for Rs is used to calculate Pb by rearranging the equation.")
-set_hidden()
+#set_hidden()
 end_correlation()
 
 ################################################################
@@ -376,5 +377,5 @@ add_author("Salazar")
 add_ref("salazar:2008")
 add_note("Salazar (2008) presented the correlation as model 1.")
 add_internal_note("The correlation was verified by using the original reference. Date: April 28 2017.")
-set_hidden()
+#set_hidden()
 end_correlation()

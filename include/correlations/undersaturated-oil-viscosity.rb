@@ -116,6 +116,7 @@ end_correlation()
 
 begin_correlation("UoaPerezML", "UndersaturatedOilViscosity", "CP")
 add_title("PÉREZ, HENY & LAGO CORRELATION (MODIFIED LABEDI CORRELATION), CALCULATION OF UNDERSATURATED OIL VISCOSITY")
+add_note("Pérez, Heny & Lago correlation (modified Labedi correlation), calculation of undersaturated oil viscosity.")
 add_parameter("uobp", "CP", "Oil viscosity at Pb")
 add_parameter("p", "psia", "Pressure")
 add_parameter("pb", "psia", "Bubble point pressure", 405, 1335)
@@ -123,7 +124,7 @@ add_precondition("p", "pb")
 add_author("Pérez, Heny & Lago")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: September 8 2016.")
-set_hidden()
+#set_hidden()
 end_correlation()
 
 ################################################################
