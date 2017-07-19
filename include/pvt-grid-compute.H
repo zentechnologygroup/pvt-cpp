@@ -10,7 +10,7 @@
 
 DEFINE_ZEN_EXCEPTION(MismatchInPressureValues, "pressure values does not match");
 DEFINE_ZEN_EXCEPTION(UnsortedPressureValues, "pressure values are not sorted");
-//DEFINE_ZEN_EXCEPTION(
+
 
 class PvtGrid
 {
@@ -272,38 +272,43 @@ private:
   
 public:
 
-  double compute(const size_t name_idx, const double t, const double p) const
+  VtlQuantity
+  compute(const size_t name_idx, const double t, const double p) const
   {
     assert(name_idx < var_names.size());
+
+    const Unit * unit_ptr = var_names(name_idx).second;
 
     auto t_idx = search_temperature(t);
     const T & desc1 = temps(t_idx.first);
     const double & t1 = get<0>(desc1);
     if (t == t1)
-      return interpolate_p(desc1, p, name_idx);
+      return VtlQuantity(*unit_ptr, interpolate_p(desc1, p, name_idx));
 
     const T & desc2 = temps(t_idx.second);
     const double & t2 = get<0>(desc2);
     if (t == t2)
-      return interpolate_p(desc1, p, name_idx);
+      return VtlQuantity(*unit_ptr, interpolate_p(desc1, p, name_idx));
 
     const double y1 = interpolate_p(desc1, p, name_idx);
     const double y2 = interpolate_p(desc2, p, name_idx);
 
-    return ::interpolate(t1, t2, y1, y2, t);
+    return VtlQuantity(*unit_ptr, ::interpolate(t1, t2, y1, y2, t));
   }
 
-  double compute(const string & name, const double t, const double p) const
+  VtlQuantity compute(const string & name, const double t, const double p) const
   {
     return compute(property_index(name), t, p);
   }
 
-  double operator () (const string & name, const double t, const double p) const
+  VtlQuantity
+  operator () (const string & name, const double t, const double p) const
   {
     return compute(name, t, p);
   }
 
-  double operator () (const size_t name_idx, const double t, const double p) const
+  VtlQuantity
+  operator () (const size_t name_idx, const double t, const double p) const
   {
     return compute(name_idx, t, p);
   }
