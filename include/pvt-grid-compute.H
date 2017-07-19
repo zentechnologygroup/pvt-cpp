@@ -11,7 +11,6 @@
 DEFINE_ZEN_EXCEPTION(MismatchInPressureValues, "pressure values does not match");
 DEFINE_ZEN_EXCEPTION(UnsortedPressureValues, "pressure values are not sorted");
 
-
 class PvtGrid
 {
   const Unit * tunit_ptr = nullptr;
@@ -230,6 +229,8 @@ private:
       }
   }
 
+public:
+
   size_t property_index(const string & name) const
   {
     pair<string, const Unit*> p;
@@ -240,6 +241,8 @@ private:
       ZENTHROW(NameNotFound, "var name " + name + " not found");
     return i;
   }
+
+private:
 
   double interpolate_p(const T & desc, const double p, size_t name_idx) const
   {
@@ -273,10 +276,13 @@ private:
 public:
 
   VtlQuantity
-  compute(const size_t name_idx, const double t, const double p) const
+  compute(const size_t name_idx,
+	  const VtlQuantity & temp, const VtlQuantity & pressure) const
   {
     assert(name_idx < var_names.size());
 
+    const double & t = temp.raw();
+    const double & p = pressure.raw();
     const Unit * unit_ptr = var_names(name_idx).second;
 
     auto t_idx = search_temperature(t);
@@ -296,21 +302,27 @@ public:
     return VtlQuantity(*unit_ptr, ::interpolate(t1, t2, y1, y2, t));
   }
 
-  VtlQuantity compute(const string & name, const double t, const double p) const
+  VtlQuantity compute(const string & name,
+		      const VtlQuantity & temp,
+		      const VtlQuantity & pressure) const
   {
-    return compute(property_index(name), t, p);
+    return compute(property_index(name), temp, pressure);
   }
 
   VtlQuantity
-  operator () (const string & name, const double t, const double p) const
+  operator () (const string & name,
+	       const VtlQuantity & temp,
+	       const VtlQuantity & pressure) const
   {
-    return compute(name, t, p);
+    return compute(name, temp, pressure);
   }
 
   VtlQuantity
-  operator () (const size_t name_idx, const double t, const double p) const
+  operator () (const size_t name_idx, 
+	       const VtlQuantity & temp,
+	       const VtlQuantity & pressure) const
   {
-    return compute(name_idx, t, p);
+    return compute(name_idx, temp, pressure);
   }
 };
 

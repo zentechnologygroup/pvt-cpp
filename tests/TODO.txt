@@ -9,3 +9,4 @@ dry de process_uod_calibration y process_pb_calibration,2017-05-08 16:14:55 -040
 macros para referencias biblio,2017-05-22 16:04:19 -0400,,
 parámetro de correación que no tenga rango que no queme ciclos por eso,2017-06-15 16:27:26 -0400,,
 eliminar entrada de bo,2017-06-20 14:54:33 -0400,,
+variables globales para propiedades; de ese modo evitaos macros,2017-07-14 15:35:47 -0400,,

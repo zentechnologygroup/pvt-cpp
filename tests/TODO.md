@@ -34,3 +34,6 @@
 ## 11. eliminar entrada de bo
 - Created at   2017-06-20 14:54:33 -0400
 
+## 12. variables globales para propiedades; de ese modo evitaos macros
+- Created at   2017-07-14 15:35:47 -0400
+
