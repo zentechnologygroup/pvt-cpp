@@ -293,7 +293,7 @@ add_db("Venezuelan heavy crudes were correlated.")
 add_author("Millán-Arcia")
 add_ref("millan:1984")
 add_ref("perez:2001")
-add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 10 2016.")
+add_internal_note("The correlation was verified by using a secondary reference (Salazar, 2008). Date: July 27 2017.")
 #set_hidden()
 end_correlation()
 
