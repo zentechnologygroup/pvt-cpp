@@ -123,6 +123,7 @@ struct CorrelationInstantiater
     RsVelarde::get_instance();
     RsCegarra::get_instance();
     RsPerezML::get_instance();
+    RsMillanArciaDetachedFromPb::get_instance();
     RsMillanArcia::get_instance();
     RsManucciRosales::get_instance();
     RsLopezCR::get_instance();
@@ -131,6 +132,7 @@ struct CorrelationInstantiater
 
     BobAlmarhoun::get_instance();
     BobAlShammasi::get_instance();
+    BobCegarra::get_instance();
     BobDeGhetto::get_instance();
     BobDindorukChristman::get_instance();
     BobDoklaOsman::get_instance();

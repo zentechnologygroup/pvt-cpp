@@ -27,6 +27,16 @@ BobAlShammasi::impl(const double & yg,
 }
 
 inline double
+BobCegarra::impl(const double & yg,
+		         const double & yo,
+		         const double & rs,
+		         const double & t) noexcept
+{
+  const double bob = BobAlShammasi::get_instance().impl(yg, yo, rs, t);
+  return bob;
+}
+
+inline double
 BobDeGhetto::impl(const double & yg,
 		 const double & api,
 		 const double & rs,

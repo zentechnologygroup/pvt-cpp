@@ -32,6 +32,23 @@ end_correlation()
 
 ################################################################
 
+## verificada con python
+begin_correlation("BobCegarra", "SaturatedOilVolumeFactor", "RB_STB")
+add_title("CEGARRA CORRELATION (AL-SHAMMASI CORRELATION APPLIED FOR CEGARRA), CALCULATION OF SATURATED OIL FORMATION VOLUME FACTOR")
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.654, 1.337)
+add_parameter("yo", "Sg_do", "Oil specific gravity", "Quantity<Api>(41.9)", "Quantity<Api>(22)")
+add_synonym("yo", "api", "Api")
+add_parameter("rs", "SCF_STB", "Solution GOR",  135,  4290)
+add_parameter("t", "Fahrenheit", "Temperature", 117, 354)
+add_author("Cegarra")
+add_ref("cegarra:2007")
+add_ref("alShammasi:1999")
+add_note("Cegarra didn't present a correlation for Bo. Al-Shammasi's correlation is used to calculate Bob because of the similarity of his development ranges with Cegarra's.")
+set_hidden_calc()
+end_correlation()
+
+################################################################
+
 begin_correlation("BobDeGhetto", "SaturatedOilVolumeFactor", "RB_STB",
          1.057, 1.362)
 add_title("DE GHETTO, PAONE & VILLA CORRELATION FOR EXTRA-HEAVY AND HEAVY OILS (VAZQUEZ & BEGGS CORRELATION), CALCULATION OF SATURATED OIL FORMATION VOLUME FACTOR")
