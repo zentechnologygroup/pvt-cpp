@@ -104,16 +104,44 @@ RsDoklaOsman::impl(const double & yg,
   return rs;
 }
 
+void RsGlaso::precondition(const Quantity<MoleFraction> & n2,
+			   const Quantity<MoleFraction> & co2,
+			   const Quantity<MoleFraction> & h2s) const
+{
+  if (n2.raw() + co2.raw() +
+      h2s.raw() >= 1)
+    {
+      ostringstream s;
+      s << "In RsGlaso::impl: invalid values for nonhydrocarbon concentrations.";
+      ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    }
+}
+
 inline double
 RsGlaso::impl(const double & yg,
 	      const double & p,
 	      const double & api,
-	      const double & t) noexcept
+	      const double & t,
+	      const double & n2,
+	      const double & co2,
+	      const double & h2s) noexcept
 {
   constexpr double a = -0.30218;
   constexpr double b = 1.7447;
   constexpr double b2 = b*b; // b**2
-  const double c = 1.7669 - log10(p);
+  //const double c = 1.7669 - log10(p);
+
+  const double n2effect = 1 + ((-2.65e-4*api + 5.5e-3)*t +
+			       (0.0931*api - 0.8295)) *
+    n2 + (1.954e-11*pow(api, 4.699)*t + 0.027*api - 2.366) *
+    n2*n2;
+
+  const double co2effect = 1 - 693.8*co2 * pow(t, -1.553);
+  
+  const double h2seffect = 1 - (0.9035 + 0.0015*api) * h2s +
+    0.019*(45 - api)*h2s*h2s;
+
+  const double c = 1.7669 - log10(p / (n2effect * co2effect * h2seffect));
 
   // TODO: considerar resolver la eq 2do grado y decidir por el
   // valor de p. La solución es log10(p)=(17669*a-2500*b^2)/(10000*a)
@@ -414,14 +442,28 @@ inline double RsPerezML::impl(const double & pb,
 }
 
 inline double
-RsMillanArcia::impl(const double & pb,
-		    const double & p,
-		    const double & rsb) noexcept
+RsMillanArciaDetachedFromPb::impl(const double & pb,
+		                          const double & p,
+		                          const double & rsb) noexcept
 {
   double rs = (rsb/1.031) * pow(p/pb, 0.83);
 
   rs = max(0.0, rs);
   return min(rs, rsb);  
+}
+
+inline double
+RsMillanArcia::impl(const double & yg,
+		       const double & p,
+		       const double & api,
+		       const double & t) noexcept
+{
+  const double x = 0.00091*t - 0.0125*api;
+
+  double rs = yg * pow(10, ((log10(p/25.3302)/0.9433) - x)/0.8303);
+
+  rs = max(0.0, rs);
+  return rs;  
 }
 
 inline double
