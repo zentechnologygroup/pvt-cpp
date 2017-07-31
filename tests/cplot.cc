@@ -2270,7 +2270,7 @@ Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
   auto bw_par = npar("bw", bwb);					\
   auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);		\
   auto cwb = compute(cwb_corr, check, cwb_pars, p_par, z_par,		\
-		     NPAR(bwg), rsw_par, bw_par);			\
+		     npar("bg", bwg), rsw_par, bw_par);			\
   CALL(PpwSpiveyMN, ppw, t_q, p_q);					\
   auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));		\
   auto sgw = compute(sgw_corr, check, sgw_pars, p_par);			\
