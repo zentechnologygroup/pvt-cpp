@@ -429,7 +429,8 @@ void process_plot()
 	  const double & t = get<0>(curr);
 	  const string tstr = to_string(int(t));
 	  const string title = "z." + to_string(num) + "." + tstr;
-	  header.append({title, title + ".cal"});
+	  const auto l = build_dynlist<string>(title, title + ".cal");
+	  header.append(l); // La versión 4.9.2 de c++ tiene problemas para compilar con header.append({title, title + ".cal"});
 	  cols.append(move(get<1>(curr)));
 	  cols.append(move(get<2>(curr)));
 	}
