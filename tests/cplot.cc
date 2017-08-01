@@ -1751,14 +1751,14 @@ void print_notranspose()
 									\
   auto cw_corr = define_correlation(pb_q, cwb_corr, cwa_corr);		\
 									\
-  bo_pars.insert(t_par);						\
+  insert_in_container(bo_pars, t_par, pb_par);				\
   auto bobp = tcompute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(), \
 		       check, bo_pars, p_pb, rs_pb);			\
 									\
   auto uobp = tcompute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(), \
 		       check, uo_pars, p_pb, rs_pb);			\
 									\
-  insert_in_container(bo_pars, pb_par, NPAR(bobp));			\
+  bo_pars.insert(NPAR(bobp));						\
 									\
   uo_pars.insert("uobp", uobp.raw(), &uobp.unit);			\
 									\
