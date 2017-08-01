@@ -1756,7 +1756,7 @@ void print_notranspose()
 		       check, bo_pars, p_pb, rs_pb);			\
 									\
   auto uobp = tcompute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(), \
-		       check, uo_pars, p_pb, rs_pb);			\
+		       check, uo_pars, p_pb, rs_pb, npar("bob", bobp));	\
 									\
   bo_pars.insert(NPAR(bobp));						\
 									\
