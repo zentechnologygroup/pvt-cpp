@@ -17,12 +17,6 @@ using json = nlohmann::json;
 using namespace std;
 using namespace TCLAP;
 
-void error_msg(const string & msg)
-{
-  cout << msg << endl;
-  abort();
-}
-
 CmdLine cmd = { "plot-corr", ' ', "0" };
 
 // indicates that correlation parameter ranges must be verified
