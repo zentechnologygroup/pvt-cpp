@@ -149,12 +149,6 @@ auto get_cmp(const string & sort_type) -> bool
   abort();
 }
 
-void error_msg(const string & msg = "Not yet implemented")
-{
-  cout << msg << endl;
-  abort();
-}
-
 enum class OutputType { mat, csv, R, json, undefined };
 
 OutputType get_output_type(const string & type)
