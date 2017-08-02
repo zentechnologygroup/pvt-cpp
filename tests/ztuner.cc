@@ -496,8 +496,9 @@ int main(int argc, char *argv[])
       const string & file_name = fname.getValue();
       if (not exists_file(file_name) and not save.isSet())
 	ZENTHROW(CommandLineError, "file with name " + file_name + " not found");
-      else 
-	data = unique_ptr<Ztuner>(new Ztuner(ifstream(file_name)));
+      // else 
+      // 	data = unique_ptr<Ztuner>(new Ztuner(ifstream(file_name)));
+      // TODO: revisarx
     }
 
   process_input(data);
