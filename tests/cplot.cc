@@ -945,7 +945,7 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
       remove_from_container(pars_list, args...);
       return ret;
     }
-  catch (UnitConversionNotFound) {}
+  //catch (UnitConversionNotFound) {}
   catch (exception & e)
     {
       if (report_exceptions)
@@ -969,7 +969,7 @@ VtlQuantity compute(const Correlation * corr_ptr, bool check,
       remove_from_container(pars_list, args...);
       return ret;
     }
-  catch (UnitConversionNotFound) {}  
+  //catch (UnitConversionNotFound) {}  
   catch (exception & e)
     {
       if (report_exceptions)
@@ -1022,7 +1022,7 @@ VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
       remove_from_container(pars_list, args...);
       return ret;
     }
-  catch (UnitConversionNotFound) {}
+  //catch (UnitConversionNotFound) {}
   catch (exception & e)
     {
       remove_from_container(pars_list, args ...);
@@ -1041,7 +1041,7 @@ VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
       if (valid_args(args))					\
 	var = corr_name::get_instance().call(args);		\
     }								\
-  catch (UnitConversionNotFound) {}				\
+  /* catch (UnitConversionNotFound) {} */			\
   catch (exception & e)						\
     {								\
       store_exception(corr_name::get_instance().name, e);	\
@@ -2269,8 +2269,7 @@ Command_Arg_Optional_Correlation(gpasp2, Gpasp2McCain);
   auto bwb = compute(bwb_corr, check, bwb_pars, p_par);			\
   auto bw_par = npar("bw", bwb);					\
   auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);		\
-  auto cwb = compute(cwb_corr, check, cwb_pars, p_par, z_par,		\
-		     npar("bg", bwg), rsw_par, bw_par);			\
+  auto cwb = compute(cwb_corr, check, cwb_pars, p_par, z_par);		\
   CALL(PpwSpiveyMN, ppw, t_q, p_q);					\
   auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));		\
   auto sgw = compute(sgw_corr, check, sgw_pars, p_par);			\
@@ -2443,7 +2442,7 @@ void generate_rows_wetgas()
   auto bw_par = npar("bw", bwb);					\
   auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);		\
   auto cwb = compute(cwb_corr, check, cwb_pars, p_par, z_par,		\
-		     NPAR(bg), rsw_par, bw_par);			\
+		     NPAR(bg), bw_par);					\
   CALL(PpwSpiveyMN, ppw, t_q, p_q);					\
   auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));		\
   auto sgw = compute(sgw_corr, check, sgw_pars, p_par);			\
