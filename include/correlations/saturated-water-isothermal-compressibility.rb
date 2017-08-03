@@ -58,5 +58,6 @@ add_note("McCain's correlation is evaluated with the undersaturated water isothe
 add_note("Ramey (1964) developed the graphical correlation for the derivative of the solution gas-water ratio with respect to the pressure, and McCain (1990) presented it in a mathematical form.")
 add_internal_note("The development ranges for the temperature and pressure were taken from the graph presented by Ramey (1964). The development range for the salt concentration was taken from the graph suggested by McCain (1990).")
 add_internal_note("The correlation was verified by using the original reference and Bánzer (1996) as a secondary reference. Date: October 21 2016.")
+set_hidden_wetgas_grid()
 set_hidden_blackoil_grid()
 end_correlation()
