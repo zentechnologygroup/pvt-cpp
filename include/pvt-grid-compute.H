@@ -242,6 +242,24 @@ public:
     return i;
   }
 
+  bool has_name(const string & name) const
+  {
+    pair<string, const Unit*> p;
+    p.first = name;
+    long i = binary_search(var_names, p, [] (auto & p1, auto & p2)
+			   { return p1.first < p2.first; });
+    return i >= 0 and size_t(i) < var_names.size() and var_names(i).first == name;
+  }
+
+  void remove(const string & name)
+  {
+    const size_t idx = property_index(name);
+    close_gap(&var_names.base(), var_names.size(), idx);
+    var_names.remove_last();
+    close_gap(&temps.base(), temps.size(), idx);
+    temps.remove_last();
+  }
+
 private:
 
   double interpolate_p(const T & desc, const double p, size_t name_idx) const
