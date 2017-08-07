@@ -430,7 +430,9 @@ void process_plot()
 	  const string tstr = to_string(int(t));
 	  const string title = "z." + to_string(num) + "." + tstr;
 	  const auto l = build_dynlist<string>(title, title + ".cal");
-	  header.append(l); // La versión 4.9.2 de c++ tiene problemas para compilar con header.append({title, title + ".cal"});
+	  header.append(l); // Version 4.9.2 of gnu c++ has problems
+			    // compiling with header.append ({title,
+			    // title + ".cal"});
 	  cols.append(move(get<1>(curr)));
 	  cols.append(move(get<2>(curr)));
 	}
@@ -496,9 +498,8 @@ int main(int argc, char *argv[])
       const string & file_name = fname.getValue();
       if (not exists_file(file_name) and not save.isSet())
 	ZENTHROW(CommandLineError, "file with name " + file_name + " not found");
-      // else 
-      // 	data = unique_ptr<Ztuner>(new Ztuner(ifstream(file_name)));
-      // TODO: revisarx
+      else if (exists_file(file_name))
+       	data = unique_ptr<Ztuner>(new Ztuner(ifstream(file_name)));
     }
 
   process_input(data);
@@ -515,6 +516,5 @@ int main(int argc, char *argv[])
     }
 
   process_print();
-  process_solve();
-  
+  process_solve();  
 }

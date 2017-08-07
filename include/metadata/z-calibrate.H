@@ -93,7 +93,10 @@ struct Zdata
   Zdata(const Json & j)
     : t(Quantity<Fahrenheit>(j["t"].get<double>())),
       p(to_Array(j["p"].get<vector<double>>())),
-      z(to_Array(j["z"].get<vector<double>>())) {}
+      z(to_Array(j["z"].get<vector<double>>()))
+  {
+    // empty
+  }
 };
 
 struct Ztuner
