@@ -203,6 +203,8 @@ struct ValuesArg
 	    set_uod(vals);
 	  else
 	    regression_required = true;
+	else if ((n % 2) == 0)
+	  ZENTHROW(CommandLineError, "In uoa input: expecting uod value");
 	else
 	  set_uod(vals);
       }
@@ -777,14 +779,22 @@ void terminate_app()
   exit(0);
 }
 
+SwitchArg print_uod = { "", "print_uod", "only print uod value", cmd };
+
 void process_print_data()
 {
   if (not print.getValue())
     return;
   if (json.getValue())
     cout << data.to_json().dump(2) << endl;
-  else
-    cout << data << endl;
+  else 
+    if (print_uod.getValue())
+      data.vectors.for_each([] (auto & v)
+        {
+	  cout << "t = " << v.t << " degF uod = "<< v.uod << " cP" << endl;
+	});
+    else
+      cout << data << endl;
   terminate_app();
 }
 
