@@ -279,7 +279,7 @@ inline Correlation::NamedPar npar(const string & name,
 // - A variable VtlQuantity with name name
 # define Declare_Command_Line_Arg(name, UnitName, desc)		\
   ValueArg<double> name##_arg = { "", #name, #name, false, 0,	\
-				  desc " in " #name, cmd };	\
+				  desc " in " #UnitName, cmd };	\
   Correlation::NamedPar name##_par;				\
   VtlQuantity name;
 
