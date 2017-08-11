@@ -489,18 +489,31 @@ void process_solve()
   terminate_app();
 }
 
+void test_load_file()
+{
+  if (not fname.isSet())
+    return;
+  
+  ifstream in(fname.getValue());
+  if (in)
+    {
+      try
+	{
+	  data = unique_ptr<Ztuner>(new Ztuner(in));
+	}
+      catch (exception & e)
+	{
+	  if (not save.getValue())
+	    ZENTHROW(InvalidJson, "reading json: " + string(e.what()));
+	}
+    }
+}
+
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
 
-  if (fname.isSet())
-    {
-      const string & file_name = fname.getValue();
-      if (not exists_file(file_name) and not save.isSet())
-	ZENTHROW(CommandLineError, "file with name " + file_name + " not found");
-      else if (exists_file(file_name))
-       	data = unique_ptr<Ztuner>(new Ztuner(ifstream(file_name)));
-    }
+  test_load_file();
 
   process_input(data);
   if (save.getValue())
