@@ -27,8 +27,6 @@ class PvtGrid
     Array<Array<double>> vals;
   };
 
-  Array<double> p;
-
   using T = tuple<double, Array<double>, Array<Array<double>>>;
 
   //          t,          matrix of values associated to temperature t
@@ -66,6 +64,19 @@ class PvtGrid
 
 public:
 
+  PvtGrid(PvtGrid && grid)
+    : tunit_ptr(grid.tunit_ptr), punit_ptr(grid.punit_ptr),
+      var_names(move(grid.var_names)), temps(move(grid.temps)) {}
+
+  PvtGrid & operator = (PvtGrid && grid)
+  {
+    swap(tunit_ptr, grid.tunit_ptr);
+    swap(punit_ptr, grid.punit_ptr);
+    swap(var_names, grid.var_names);
+    swap(temps, grid.temps);
+    return *this;
+  }
+
   PvtGrid(istream & in)
   {
     Array<string> header = csv_read_row(in);
@@ -76,7 +87,8 @@ public:
 	auto & s = it.get_curr();
 	auto parts = split(s, ' ');
 	if (parts.size() != 2)
-	  ZENTHROW(InvalidCsvHeader, "Invalid format in column " + to_string(i));
+	  ZENTHROW(InvalidCsvHeader, "Invalid format in column " +
+		   to_string(i));
 	const string & var_name = parts[0];
 	const string & unit_name = parts[1];
 	const Unit * unit_ptr = Unit::search(unit_name);
@@ -327,18 +339,16 @@ public:
     return compute(property_index(name), temp, pressure);
   }
 
-  VtlQuantity
-  operator () (const string & name,
-	       const VtlQuantity & temp,
-	       const VtlQuantity & pressure) const
+  VtlQuantity operator () (const string & name,
+			   const VtlQuantity & temp,
+			   const VtlQuantity & pressure) const
   {
     return compute(name, temp, pressure);
   }
 
-  VtlQuantity
-  operator () (const size_t name_idx, 
-	       const VtlQuantity & temp,
-	       const VtlQuantity & pressure) const
+  VtlQuantity operator () (const size_t name_idx, 
+			   const VtlQuantity & temp,
+			   const VtlQuantity & pressure) const
   {
     return compute(name_idx, temp, pressure);
   }
