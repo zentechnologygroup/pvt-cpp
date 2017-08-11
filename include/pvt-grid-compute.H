@@ -64,6 +64,8 @@ class PvtGrid
 
 public:
 
+  PvtGrid() {}
+
   PvtGrid(PvtGrid && grid)
     : tunit_ptr(grid.tunit_ptr), punit_ptr(grid.punit_ptr),
       var_names(move(grid.var_names)), temps(move(grid.temps)) {}
