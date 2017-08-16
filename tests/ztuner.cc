@@ -304,9 +304,9 @@ void plot_mat(const DynList<DynList<string>> & m)
 void plot_csv(const DynList<DynList<string>> & m)
 {
   if (transpose_out.getValue())
-    cout << Aleph::to_string(format_string_csv(m)) << endl;
-  else
     cout << Aleph::to_string(format_string_csv(transpose(m))) << endl;
+  else
+    cout << Aleph::to_string(format_string_csv(m)) << endl;
 }
 
 void plot_R(const DynList<DynList<string>> & m)
