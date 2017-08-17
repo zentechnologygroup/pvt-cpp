@@ -100,12 +100,12 @@ public:
 	if (var_name == "t")
 	  {
 	    tunit_ptr = unit_ptr;
-	    tidx = i;
+	    tidx = i; // temperature column index in csv
 	  }
 	else if (var_name == "p")
 	  {
 	    punit_ptr = unit_ptr;
-	    pidx = i;
+	    pidx = i; // pressure column index in csv
 	  }
 	var_names.append(make_pair(var_name, unit_ptr));
       }
@@ -119,7 +119,7 @@ public:
       names_to_idx.maps<size_t>([] (auto p) { return p.second; });
 
     const size_t & ncol = header.size();
-    DynMapTree<double, Desc> tmap;
+    DynMapTree<double, Desc> tmap; // temperature to Desc mapping 
     for (size_t i = 1; in.good(); ++i)
       {
 	Array<string> row = csv_read_row(in);
