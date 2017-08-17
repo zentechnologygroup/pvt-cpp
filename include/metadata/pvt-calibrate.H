@@ -1214,6 +1214,45 @@ struct PvtData
       }
   }
 
+  /* Given corr_ptr, this routine builds a linear regression as follows:
+
+     ylab (experimental values)
+     ^
+     |
+     x                                              o
+     |
+     |
+     |
+     x
+     |
+     |
+     x                                    o
+     |
+     |
+     x                         o
+     |
+     |
+     x           o
+     |
+     |
+     x    o
+     |
+     |
+     |
+     -----x------x------x------x----------x---------x-------> yc (values given
+     (these values are sorted by pressure)                        by corr_ptr)
+          
+
+     The line 
+      
+        c + m Correlation(pars) 
+
+     best fitting is computed.
+
+     So, the calibrated way would be
+
+     Calibrated(corr pars) = c + m Correlation(corr pars)
+   */
   T istats(const Correlation * corr_ptr) const
   {
     try
