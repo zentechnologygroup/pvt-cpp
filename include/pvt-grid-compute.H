@@ -82,6 +82,12 @@ public:
   PvtGrid(istream & in)
   {
     Array<string> header = csv_read_row(in);
+    if (not header.exists([] (auto & s)
+			  { return split_to_list(s, " ")[0] == "t"; }))
+      ZENTHROW(InvalidCsvHeader, "csv header does not contain t field");
+    if (not header.exists([] (auto & s)
+			  { return split_to_list(s, " ")[0] == "p"; }))
+      ZENTHROW(InvalidCsvHeader, "csv header does not contain p field");
     DynList<pair<string, size_t>> names_to_idx;
     size_t i = 0, tidx = 0, pidx = 0;
     for (auto it = header.get_it(); it.has_curr(); it.next(), ++i)
