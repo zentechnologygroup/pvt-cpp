@@ -222,7 +222,7 @@ private:
     const double & lst_p = pvals.get_last();
     if (p < fst_p or p > lst_p)
       ZENTHROW(OutOfRange, "pressure value " + to_string(p) +
-	       "is out of range [" + to_string(fst_p) + ", " +
+	       " is out of range [" + to_string(fst_p) + ", " +
 	       to_string(lst_p) + "]");
     
     const long i = binary_search(pvals, p);
