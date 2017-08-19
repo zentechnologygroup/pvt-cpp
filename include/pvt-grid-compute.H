@@ -221,7 +221,7 @@ private:
     const double & fst_p = pvals.get_first();
     const double & lst_p = pvals.get_last();
     if (p < fst_p or p > lst_p)
-      ZENTHROW(OutOfMemory, "pressure value " + to_string(p) +
+      ZENTHROW(OutOfRange, "pressure value " + to_string(p) +
 	       "is out of range [" + to_string(fst_p) + ", " +
 	       to_string(lst_p) + "]");
     
