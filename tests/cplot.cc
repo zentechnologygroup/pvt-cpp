@@ -13,6 +13,10 @@
 
 using json = nlohmann::json;
 
+# include <units.H>
+
+const UnitsInstancer & units_instancer = UnitsInstancer::init();
+
 # include <correlations/pvt-correlations.H>
 # include <correlations/defined-correlation.H>
 
