@@ -445,6 +445,7 @@ Command_Arg_Tuned_Correlation(cob);
 Command_Arg_Tuned_Correlation(coa);
 Command_Arg_Tuned_Correlation(uob);
 Command_Arg_Tuned_Correlation(uoa);
+Command_Arg_Tuned_Correlation(zfactor);
 
 Command_Arg_Optional_Correlation(ppchc, PpchcStanding);
 Command_Arg_Optional_Correlation(ppcm_mixing, PpcmKayMixingRule);
@@ -452,7 +453,7 @@ Command_Arg_Optional_Correlation(adjustedppcm, AdjustedppcmWichertAziz);
 Command_Arg_Optional_Correlation(tpchc, TpchcStanding);
 Command_Arg_Optional_Correlation(tpcm_mixing, TpcmKayMixingRule);
 Command_Arg_Optional_Correlation(adjustedtpcm, AdjustedtpcmWichertAziz);
-Command_Arg_Optional_Correlation(zfactor, ZfactorDranchukAK);
+//Command_Arg_Optional_Correlation(zfactor, ZfactorDranchukAK);
 Command_Arg_Optional_Correlation(cg, CgMattarBA);
 Command_Arg_Optional_Correlation(ug, UgCarrKB);
 Command_Arg_Optional_Correlation(bwb, BwbSpiveyMN);
@@ -1638,6 +1639,9 @@ void print_notranspose()
   set_sgo_corr();							\
   set_sgw_corr();							\
 									\
+  const double & c_z = c_zfactor_arg.getValue();			\
+  const double & m_z = m_zfactor_arg.getValue();			\
+									\
   pressure = get<2>(p_values.get_first());				\
 									\
   /* Calculation of constants for Z */					\
@@ -1800,7 +1804,7 @@ void print_notranspose()
 		     npar("bob", bo));					\
   VtlQuantity z;							\
   if (p_q <= pb_q)							\
-    z = compute(zfactor_corr, check, ppr_par, tpr_par);			\
+    z = tcompute(zfactor_corr, c_z, m_z, check, ppr_par, tpr_par);	\
   auto z_par = NPAR(z);							\
   auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);		\
   CALL(Bg, bg, t_q, p_q, z);						\

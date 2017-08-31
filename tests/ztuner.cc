@@ -6,6 +6,10 @@
 # include <ah-dispatcher.H>
 # include <tclap/CmdLine.h>
 
+# include <units.H>
+
+auto & units_instancer = UnitsInstancer::init();
+
 # include <correlations/pvt-correlations.H>
 # include <metadata/z-calibrate.H>
 
