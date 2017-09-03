@@ -37,3 +37,6 @@
 ## 12. variables globales para propiedades; de ese modo evitaos macros
 - Created at   2017-07-14 15:35:47 -0400
 
+## 13. generar doxygen desde ruby
+- Created at   2017-09-03 18:44:40 -0400
+
