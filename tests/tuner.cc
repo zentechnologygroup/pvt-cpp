@@ -1102,6 +1102,8 @@ void process_local_calibration()
         << "legend(\"topright\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
         << endl;
 
+      execute_R_script(s.str());
+
       return s.str();
     };
 
@@ -1262,6 +1264,8 @@ void process_pb_calibration()
         <<  "legend(\"topright\", legend=cnames, col=cols, lty=1)"
         << endl;
 
+      execute_R_script(s.str());
+
       return s.str();
     };
 
@@ -1391,6 +1395,8 @@ void process_uod_calibration()
         << Rvector("cols", colors) << endl
         <<  "legend(\"topright\", legend=cnames, col=cols, lty=1)"
         << endl;
+
+      execute_R_script(s.str());
 
       return s.str();
     };
