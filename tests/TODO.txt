@@ -11,3 +11,6 @@ parámetro de correación que no tenga rango que no queme ciclos por eso,2017-06
 eliminar entrada de bo,2017-06-20 14:54:33 -0400,,
 variables globales para propiedades; de ese modo evitaos macros,2017-07-14 15:35:47 -0400,,
 generar doxygen desde ruby,2017-09-03 18:44:40 -0400,,
+poner opción a plotr para dibujar directamente,2017-09-06 09:29:36 -0400,,
+hacer plot R directo desde cplot,2017-09-06 09:29:55 -0400,,
+documentar más cplot,2017-09-06 09:31:57 -0400,,

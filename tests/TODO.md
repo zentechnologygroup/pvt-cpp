@@ -40,3 +40,12 @@
 ## 13. generar doxygen desde ruby
 - Created at   2017-09-03 18:44:40 -0400
 
+## 14. poner opción a plotr para dibujar directamente
+- Created at   2017-09-06 09:29:36 -0400
+
+## 15. hacer plot R directo desde cplot
+- Created at   2017-09-06 09:29:55 -0400
+
+## 16. documentar más cplot
+- Created at   2017-09-06 09:31:57 -0400
+
