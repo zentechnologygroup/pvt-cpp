@@ -70,6 +70,20 @@ class Table
   end
 end
 
+def execute_R_script(scr, file_name = 'tmp.R')
+  str = "#!/usr/bin/Rscript\n"\
+        "\n"\
+        "X11()\n"\
+        "#{scr}\n"\
+        "message(\"Press Return To Continue\")\n"\
+        "invisible(readLines(\"stdin\", n=1))\n"
+  #puts str
+  file = File.new(file_name, 'w')
+  file << str
+  file.close
+  system("Rscript #{file_name}")
+end
+
 options = {}
 options_parser = OptionParser.new do |opts|
   opts.on('-f CSV', '--file CSV', 'csv file') do |file_name|
@@ -78,6 +92,10 @@ options_parser = OptionParser.new do |opts|
 
   opts.on('-P PROPERTY', '--property PROPERTY', 'property name') do |name|
     options[:property] = name
+  end
+
+  opts.on('-R', '--R', 'direct execution of R script') do
+    options[:R] = true
   end
 end
 
@@ -92,5 +110,9 @@ property = options[:property]
 fail 'Property not defined (option -P PROPERTY)' unless property
 fail "Invalid property #{property}" unless data.is_valid_property_name property
 
-puts data.plot_pressure(property, data.get_property(property))
+if options[:R]
+  execute_R_script(data.plot_pressure(property, data.get_property(property)))
+else
+  puts data.plot_pressure(property, data.get_property(property))
+end
 
