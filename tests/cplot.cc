@@ -542,7 +542,7 @@ size_t set_range(const ParRangeDesc & range, const string & name,
 		 const Unit & unit, DynList<Correlation::NamedPar> & l)
 {
   assert(l.is_empty());
-  const auto & step = range.step();
+  const auto step = range.step();
   double val = range.min;
   for (size_t i = 0; i < range.n; ++i, val += step)
     l.append(make_tuple(true, name, val, &unit));
