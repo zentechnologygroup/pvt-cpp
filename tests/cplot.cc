@@ -1,7 +1,7 @@
 
 # include <memory>
 
-# include <tclap/CmdLine.h>
+# include <tclap-utils.H>
 
 # include <ah-zip.H>
 # include <ahSort.H>
@@ -45,36 +45,9 @@ DynSetTree<string> par_name_tbl =
   { "api", "rsb", "yg", "tsep", "tsep2", "t", "p", "psep", "h2s", "co2", "n2",
     "nacl", "ogr" };
 
-// input parameter unit change specification
-//
-// form is: --unit "par-name unit"
-struct ArgUnit
-{
-  string name;
-  string unit_name;
-
-  ArgUnit & operator = (const string & str)
-  {
-    istringstream iss(str);
-    if (not (iss >> name >> unit_name))
-      ZENTHROW(CommandLineError, str + " is not a pair par-name unit");
-
-    if (not par_name_tbl.contains(name))
-      ZENTHROW(CommandLineError, name + " is an invalid parameter name");
-
-    return *this;
-  }
-
-  ArgUnit() {}
-
-  friend ostream& operator << (ostream &os, const ArgUnit & a) 
-  {
-    return os << a.name << " " << a.unit_name;
-  }
-};
-
 namespace TCLAP
 {
+  // defined in tclap-utils.H
   template<> struct ArgTraits<ArgUnit> { typedef StringLike ValueCategory; };
 }
 
@@ -488,12 +461,12 @@ void print_fluid_types()
 // To be used for the temperature and pressure
 //
 // Parameter has form --property "min max num-of-steps"
-struct RangeDesc
+struct ParRangeDesc
 {
   double min = 0, max = 0;
   size_t n = 1; // num of steps
 
-  RangeDesc & operator = (const string & str)
+  ParRangeDesc & operator = (const string & str)
   {
     istringstream iss(str);
     if (not (iss >> min >> max >> n))
@@ -514,7 +487,7 @@ struct RangeDesc
 
   double step() const noexcept { return (max - min) / (n - 1); }
 
-  friend ostream & operator << (ostream & os, const RangeDesc & d)
+  friend ostream & operator << (ostream & os, const ParRangeDesc & d)
   {
     return os << d.min<< " " << d.max << " " << d.n;
   }
@@ -557,15 +530,15 @@ struct Digits
 
 namespace TCLAP
 {
-  template<> struct ArgTraits<RangeDesc> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<ParRangeDesc> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<ColNames> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<Digits> { typedef StringLike ValueCategory; };
 }
 
-// Given a RangeDesc, put in the correlation parameters list l the
+// Given a ParRangeDesc, put in the correlation parameters list l the
 // range values Each value is a named correlation parameter; i.e. a
 // tuple <true, name, value, unit>
-size_t set_range(const RangeDesc & range, const string & name,
+size_t set_range(const ParRangeDesc & range, const string & name,
 		 const Unit & unit, DynList<Correlation::NamedPar> & l)
 {
   assert(l.is_empty());
@@ -661,8 +634,8 @@ ValueArg<string> sort_type = { "", "sort", "sorting type", false,
 // - name: name of property
 // - UnitName
 # define Command_Line_Range(prefix, name)				\
-  ValueArg<RangeDesc> prefix##_range =					\
-    { "", #prefix, "min max n", false, RangeDesc(),			\
+  ValueArg<ParRangeDesc> prefix##_range =				\
+    { "", #prefix, "min max n", false, ParRangeDesc(),			\
       "range spec \"min max n\" for " #name, cmd };			\
 									\
   ValueArg<ArrayDesc> prefix##_array =					\
