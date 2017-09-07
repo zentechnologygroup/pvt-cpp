@@ -49,3 +49,15 @@
 ## 16. documentar más cplot
 - Created at   2017-09-06 09:31:57 -0400
 
+## 17. verificar error en ./tuner -f f5.json --input "bob uob"
+- Created at   2017-09-07 16:22:47 -0400
+
+## 18. error en input bob rs es parametro fuera de rango
+- Created at   2017-09-07 17:01:01 -0400
+
+## 19. añadir xfactor a generación de cplot desde tuner
+- Created at   2017-09-07 17:19:36 -0400
+
+## 20. revisa que opcion simple de grid sea equipaable a blackoil
+- Created at   2017-09-07 17:49:42 -0400
+
