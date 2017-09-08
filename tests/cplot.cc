@@ -426,7 +426,6 @@ Command_Arg_Optional_Correlation(adjustedppcm, AdjustedppcmWichertAziz);
 Command_Arg_Optional_Correlation(tpchc, TpchcStanding);
 Command_Arg_Optional_Correlation(tpcm_mixing, TpcmKayMixingRule);
 Command_Arg_Optional_Correlation(adjustedtpcm, AdjustedtpcmWichertAziz);
-//Command_Arg_Optional_Correlation(zfactor, ZfactorDranchukAK);
 Command_Arg_Optional_Correlation(cg, CgMattarBA);
 Command_Arg_Optional_Correlation(ug, UgCarrKB);
 Command_Arg_Optional_Correlation(bwb, BwbSpiveyMN);
@@ -1772,7 +1771,8 @@ void print_notranspose()
   auto coa = dcompute(co_corr, check, p_q, co_pars, p_par);		\
   auto coa_par = NPAR(coa);						\
   auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, coa_par); \
-  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par, npar("bob", bo)); \
+  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par,	\
+		     npar("bob", bo));					\
   auto po = dcompute(po_corr, check, p_q, po_pars, p_par, rs_par, coa_par, \
 		     npar("bob", bo));					\
   VtlQuantity z;							\
@@ -1912,6 +1912,9 @@ void generate_rows_blackoil()
   set_adjustedtpcm_corr();						\
   set_zfactor_corr();							\
 									\
+  const double & c_z = c_zfactor_arg.getValue();			\
+  const double & m_z = m_zfactor_arg.getValue();			\
+									\
   pressure = get<2>(p_values.get_first());				\
 									\
   /* Calculation of constants for Z */					\
@@ -2022,7 +2025,7 @@ void generate_rows_blackoil()
   auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par);	\
   VtlQuantity z;							\
   if (p_q <= pb_q)							\
-    z = compute(zfactor_corr, check, ppr_par, tpr_par);			\
+    z = tcompute(zfactor_corr, c_z, m_z, check, ppr_par, tpr_par);	\
   auto z_par = NPAR(z);							\
 									\
   size_t n = insert_in_row(row, p_q, rs, coa, bo, uo, z);

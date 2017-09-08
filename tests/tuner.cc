@@ -25,7 +25,7 @@ PvtData data;
   }
 
 static const DynSetTree<string> valid_targets =
-  { "rs", "bob", "boa", "uob", "uoa", "coa", "zfactor", "bo", "uo" };
+  { "rs", "bob", "boa", "uob", "uoa", "coa", "bo", "uo" };
 
 // Defines a input of form
 // "property-name property-unit t tunit pb punit p-list property-list"
@@ -65,7 +65,6 @@ struct ValuesArg
   Define_Check_Property(bo, FVFvolumeRatio);
   Define_Check_Property(uo, DynamicViscosity);
   Define_Check_Property(coa, IsothermalCompressibility);
-  Define_Check_Property(zfactor, CompressibilityFactor);
 
   void validate_property()
   {
@@ -254,8 +253,7 @@ ValuesArg::check_dispatcher("rs", ValuesArg::check_rs,
 			    "uob", ValuesArg::check_uo,
 			    "uoa", ValuesArg::check_uo,
 			    "uo", ValuesArg::check_uo,
-			    "coa", ValuesArg::check_coa,
-			    "zfactor", ValuesArg::check_zfactor);
+			    "coa", ValuesArg::check_coa);
 
 namespace TCLAP
 {
@@ -1480,19 +1478,9 @@ void process_cplot()
 {
   if (not cplot.getValue())
     return;
-  if (not data.are_all_correlations_defined())
-    {
-      ostringstream s;
-      s << "cannot generate cplot because the following correlations are "
-	"not defined:";
-      data.missing_correlations().for_each([&s] (auto & name)
-					   {
-					     s << "  " << name;
-					   });
-      ZENTHROW(CommandLineError, s.str());
-    }
+  
   cout << "./cplot --grid simple " << data.cplot_consts() << data.cplot_corrs()
-       << " ";
+       << " --zfactor ZfactorDranchukAK ";
   if (t.isSet())
     {
       const RangeDesc & val = t.getValue();

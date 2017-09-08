@@ -6,6 +6,7 @@
 
 # include <lfit.H>
 
+# include <correlations/pvt-correlations.H>
 # include <correlations/correlation-stats.H>
 # include "metadata-exceptions.H"
 
@@ -350,9 +351,12 @@ struct PvtData
   const Correlation * uoa_corr = nullptr;
   double c_uoa = 0, m_uoa = 1;
 
-# define CORR_PARS(NAME, s) if (NAME##_corr)				\
+# define CORR_PARS(NAME, s, dft_corr)					\
+  if (NAME##_corr)							\
     s << " --" #NAME " " << NAME##_corr->name << " --c-"#NAME" "	\
-      << to_str(c_##NAME) << " --m-"#NAME" " << to_str(m_##NAME)
+      << to_str(c_##NAME) << " --m-"#NAME" " << to_str(m_##NAME);	\
+  else									\
+    s << " --" #NAME " " << dft_corr::get_instance().name;
 
   string cplot_consts() const
   {
@@ -365,14 +369,14 @@ struct PvtData
   string cplot_corrs()
   {
     ostringstream s;
-    CORR_PARS(pb, s);
-    CORR_PARS(rs, s);
-    CORR_PARS(bob, s);
-    CORR_PARS(boa, s);
-    CORR_PARS(coa, s);
-    CORR_PARS(uod, s);
-    CORR_PARS(uob, s);
-    CORR_PARS(uoa, s);
+    CORR_PARS(pb, s, PbAlMarhoun);
+    CORR_PARS(rs, s, RsAlMarhoun);
+    CORR_PARS(bob, s, BobAlmarhoun);
+    CORR_PARS(boa, s, BoaMcCain);
+    CORR_PARS(coa, s, CoaVasquezBeggs);
+    CORR_PARS(uod, s, UodBeal);
+    CORR_PARS(uob, s, UobBeggsRobinson);
+    CORR_PARS(uoa, s, UoaBeal);
     s << " --cob CobMcCainEtAl ";
     return s.str();
   }
