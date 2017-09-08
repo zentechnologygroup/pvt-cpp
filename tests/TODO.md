@@ -61,3 +61,9 @@
 ## 20. revisa que opcion simple de grid sea equipaable a blackoil
 - Created at   2017-09-07 17:49:42 -0400
 
+## 21. cplot poner coa a simple 
+- Created at   2017-09-08 18:00:57 -0400
+
+## 22. en tuner opcion que genere el grid
+- Created at   2017-09-08 18:04:32 -0400
+

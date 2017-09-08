@@ -463,10 +463,10 @@ ValueArg<RangeDesc> t = { "t", "t", "t range", false, RangeDesc(),
 ValueArg<RangeDesc> p = { "p", "p", "p range", false, RangeDesc(),
 			  "p min max n", cmd };
 
-ValueArg<ArrayDesc> tarray = { "", "t-array", "t array", false, ArrayDesc(),
+ValueArg<ArrayDesc> tarray = { "", "t_array", "t array", false, ArrayDesc(),
 			       "list-t-values", cmd };
 
-ValueArg<ArrayDesc> parray = { "", "p-array", "p array", false, ArrayDesc(),
+ValueArg<ArrayDesc> parray = { "", "p_array", "p array", false, ArrayDesc(),
 			       "list-p-values", cmd };
 
 // Unit change specification. Suitable for any parameter
