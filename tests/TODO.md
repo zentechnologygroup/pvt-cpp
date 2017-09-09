@@ -45,6 +45,7 @@
 
 ## 15. hacer plot R directo desde cplot
 - Created at   2017-09-06 09:29:55 -0400
+- Completed at 2017-09-09 09:43:09 -0400
 
 ## 16. documentar más cplot
 - Created at   2017-09-06 09:31:57 -0400

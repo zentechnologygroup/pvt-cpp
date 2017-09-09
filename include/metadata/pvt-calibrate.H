@@ -26,6 +26,18 @@ struct VectorDesc
   const Unit * yunit = nullptr;
   mutable Array<double> y;
 
+  double pmin() const
+  {
+    assert(p.get_first() < p.get_last());
+    return p.get_first();
+  }
+  
+  double pmax() const
+  {
+    assert(p.get_first() < p.get_last());
+    return p.get_last();
+  }
+
   Json to_json() const
   {
     Json j;
@@ -350,6 +362,26 @@ struct PvtData
   double c_uob = 0, m_uob = 1;    
   const Correlation * uoa_corr = nullptr;
   double c_uoa = 0, m_uoa = 1;
+
+  double pmin() const
+  {
+    return vectors.foldl(numeric_limits<double>::max(),
+			 [] (double acu, auto & v)
+			 { return min(acu, v.pmin()); });
+  }
+
+  double pmax() const
+  {
+    return vectors.foldl(0, [] (double acu, auto & v)
+			 { return max(acu, v.pmax()); });
+  }
+
+  DynList<double> get_temperatures() const
+  {
+    DynSetTree<double> s;
+    vectors.for_each([&s] (auto & v) { s.append(v.t); });
+    return s.maps([] (auto v) { return v; });
+  }
 
 # define CORR_PARS(NAME, s, dft_corr)					\
   if (NAME##_corr)							\

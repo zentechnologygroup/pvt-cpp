@@ -469,6 +469,8 @@ ValueArg<ArrayDesc> tarray = { "", "t_array", "t array", false, ArrayDesc(),
 ValueArg<ArrayDesc> parray = { "", "p_array", "p array", false, ArrayDesc(),
 			       "list-p-values", cmd };
 
+SwitchArg Cplot = { "", "CPLOT", "generate simple cplot command", cmd };
+
 // Unit change specification. Suitable for any parameter
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
 			   "unit \"par-name unit\"", cmd };
@@ -1506,6 +1508,20 @@ void process_cplot()
   terminate_app();
 }
 
+void process_CPLOT()
+{
+  if (not Cplot.getValue())
+    return;
+
+  cout << "./cplot --grid simple " << data.cplot_consts() << data.cplot_corrs()
+       << " --zfactor ZfactorDranchukAK --t_array \""
+       << join(data.get_temperatures().maps<string>([] (auto v)
+						    { return to_string(v); })
+	       , " ") << "\" --p \""
+       << data.pmin() << " " << data.pmax() << " 100\"" << endl;
+  terminate_app();
+}
+
 void split_uo()
 {
   DynList<const VectorDesc*> uo_vectors = data.search_vectors("uo");
@@ -1596,6 +1612,7 @@ int main(int argc, char *argv[])
   process_local_calibration();
   process_pb_calibration();
   process_uod_calibration();
+  process_CPLOT();
   process_cplot();
 
   cout << "Not given action" << endl;
