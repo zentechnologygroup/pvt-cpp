@@ -68,3 +68,6 @@
 ## 22. en tuner opcion que genere el grid
 - Created at   2017-09-08 18:04:32 -0400
 
+## 23. grid pvt debe extrapolar
+- Created at   2017-09-08 18:29:26 -0400
+
