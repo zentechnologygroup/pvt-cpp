@@ -469,7 +469,12 @@ ValueArg<ArrayDesc> tarray = { "", "t_array", "t array", false, ArrayDesc(),
 ValueArg<ArrayDesc> parray = { "", "p_array", "p array", false, ArrayDesc(),
 			       "list-p-values", cmd };
 
-SwitchArg Cplot = { "", "CPLOT", "generate simple cplot command", cmd };
+SwitchArg Cplot = { "", "Cplot", "generate simple cplot command", cmd };
+
+vector<string> r_types = { "rs", "co", "bo", "uo" };
+ValuesConstraint<string> allowed_r_types = r_types;
+ValueArg<string> R = { "R", "R", "direct R output", false, "",
+		       &allowed_r_types, cmd };
 
 // Unit change specification. Suitable for any parameter
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
@@ -1508,18 +1513,37 @@ void process_cplot()
   terminate_app();
 }
 
+string plot_cmd()
+{
+  ostringstream s;
+  s << "./cplot --grid simple " << data.cplot_consts() << data.cplot_corrs()
+    << " --zfactor ZfactorDranchukAK --t_array \""
+    << join(data.get_temperatures().maps<string>([] (auto v)
+						 { return to_string(v); })
+	    , " ") << "\" --p \""
+    << data.pmin() << " " << data.pmax() << " 100\"";
+  return s.str();
+}
+
 void process_CPLOT()
 {
   if (not Cplot.getValue())
     return;
 
-  cout << "./cplot --grid simple " << data.cplot_consts() << data.cplot_corrs()
-       << " --zfactor ZfactorDranchukAK --t_array \""
-       << join(data.get_temperatures().maps<string>([] (auto v)
-						    { return to_string(v); })
-	       , " ") << "\" --p \""
-       << data.pmin() << " " << data.pmax() << " 100\"" << endl;
+  cout << plot_cmd() << endl;
   terminate_app();
+}
+
+void process_R()
+{
+  if (not R.isSet())
+    return;
+
+  const string plot = plot_cmd() + " > tmp.csv";
+  system(plot.c_str());
+
+  const string plotr = "./plot-r -f tmp.csv -P " + R.getValue() + " -R";
+  system(plotr.c_str());
 }
 
 void split_uo()
@@ -1612,6 +1636,7 @@ int main(int argc, char *argv[])
   process_local_calibration();
   process_pb_calibration();
   process_uod_calibration();
+  process_R();
   process_CPLOT();
   process_cplot();
 

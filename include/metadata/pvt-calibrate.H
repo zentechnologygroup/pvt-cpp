@@ -1106,13 +1106,12 @@ struct PvtData
 	      r = min(r, rsb);
 	    pvals.append(p);
 	    vals.append(r.raw());
-	    // pars.tbl.for_each([] (auto p)
-            //   {
-	    // 	cout << " " << p.first << " = " << p.second.first;
-	    //   });
-	    // cout << " = " << c + m*r.raw() << endl;
 	  }
-	catch (...) {} 
+	catch (ParameterNameNotFound & e)
+	  {
+	    throw;
+	  }
+	catch (...) {}
 	pars.remove("p");
       }
     return VectorDesc(vector_ptr->t, vector_ptr->pb, vector_ptr->bobp,
