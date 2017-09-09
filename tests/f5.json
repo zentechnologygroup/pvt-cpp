@@ -2,17 +2,17 @@
   "boa_corr": {
     "c": 0.0,
     "m": 1.0,
-    "name": "null"
+    "name": "BoaMcCain"
   },
   "bob_corr": {
-    "c": 0.0,
-    "m": 1.0,
-    "name": "null"
+    "c": -1.47161078695732,
+    "m": 2.43346296073539,
+    "name": "BobKartoatmodjo"
   },
   "coa_corr": {
-    "c": 0.0,
-    "m": 1.0,
-    "name": "null"
+    "c": 3.17255178806123e-06,
+    "m": 0.450283224220164,
+    "name": "CoaKartoatmodjoSchmidt"
   },
   "constants": [
     {
@@ -62,14 +62,14 @@
     }
   ],
   "pb_corr": {
-    "c": 0.0,
-    "m": 1.0,
-    "name": "null"
+    "c": 58.9216674773746,
+    "m": 0.832262895375856,
+    "name": "PbSalazar"
   },
   "rs_corr": {
-    "c": 0.0,
-    "m": 1.0,
-    "name": "null"
+    "c": -2.72121284375068,
+    "m": 1.21274301609593,
+    "name": "RsSalazar"
   },
   "uoa_corr": {
     "c": 0.0,
