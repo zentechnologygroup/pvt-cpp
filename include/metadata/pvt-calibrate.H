@@ -1107,10 +1107,6 @@ struct PvtData
 	    pvals.append(p);
 	    vals.append(r.raw());
 	  }
-	catch (ParameterNameNotFound & e)
-	  {
-	    throw;
-	  }
 	catch (...) {}
 	pars.remove("p");
       }

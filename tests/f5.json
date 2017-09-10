@@ -1,8 +1,8 @@
 {
   "boa_corr": {
-    "c": 0.605488488576403,
-    "m": 0.443995352836762,
-    "name": "BoaPerezML"
+    "c": -0.260005454479017,
+    "m": 1.23760105495816,
+    "name": "BoaMillanArcia"
   },
   "bob_corr": {
     "c": -0.743320864010538,
@@ -77,14 +77,14 @@
     "name": "UoaDeGhettoEtAl"
   },
   "uob_corr": {
-    "c": 22.2752792659726,
-    "m": 0.296395071371948,
-    "name": "UobKartoatmodjoSchmidt"
+    "c": -138.470633573862,
+    "m": 1.18174982673783,
+    "name": "UobPerezML"
   },
   "uod_corr": {
-    "c": -2987.82391529848,
+    "c": -4124.34486516297,
     "m": 1.0,
-    "name": "UodDeGhettoEtAl"
+    "name": "UodPerezML"
   },
   "vectors": [
     {

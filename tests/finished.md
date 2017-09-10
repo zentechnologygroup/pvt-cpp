@@ -1990,3 +1990,51 @@
 - Comment      
 - Finished     
 
+## 333. generar doxygen desde ruby
+- Created at   2017-09-03 18:44:40 -0400
+- Completed at 2017-09-10 10:52:05 -0400
+- Comment      
+- Finished     
+
+## 334. firma única de familia de correlación: que reciba union de todos los parámtros
+- Created at   2017-03-29 16:31:35 -0400
+- Completed at 
+- Comment      qu se apoye en gen-corr
+- Finished     qu se apoye en gen-corr
+
+## 335. poner opción a plotr para dibujar directamente
+- Created at   2017-09-06 09:29:36 -0400
+- Completed at 2017-09-10 10:54:35 -0400
+- Comment      
+- Finished     
+
+## 336. hacer plot R directo desde cplot
+- Created at   2017-09-06 09:29:55 -0400
+- Completed at 2017-09-09 09:43:09 -0400
+- Comment      
+- Finished     
+
+## 337. verificar error en ./tuner -f f5.json --input "bob uob"
+- Created at   2017-09-07 16:22:47 -0400
+- Completed at 2017-09-10 10:52:50 -0400
+- Comment      
+- Finished     
+
+## 338. revisa que opcion simple de grid sea equipaable a blackoil
+- Created at   2017-09-07 17:49:42 -0400
+- Completed at 2017-09-10 10:54:54 -0400
+- Comment      
+- Finished     
+
+## 339. cplot poner coa a simple 
+- Created at   2017-09-08 18:00:57 -0400
+- Completed at 2017-09-09 13:04:57 -0400
+- Comment      
+- Finished     
+
+## 340. en tuner opcion que genere el grid
+- Created at   2017-09-08 18:04:32 -0400
+- Completed at 2017-09-09 13:04:47 -0400
+- Comment      
+- Finished     
+
