@@ -47,3 +47,6 @@
 ## 16. input opcion en tuner debe permitir poner varios arreglos de entrada
 - Created at   2017-09-10 10:51:58 -0400
 
+## 17. revisar por qué corta columnas en ./tuner -f f5.json --input "bob uob" --lcal "BobSalazar BobPerezML"
+- Created at   2017-09-11 11:42:27 -0400
+
