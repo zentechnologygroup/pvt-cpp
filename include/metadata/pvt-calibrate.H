@@ -1079,7 +1079,7 @@ struct PvtData
     return ret;
   }
 
-      //       t     pb_lab, uod_corr
+      //       t     uod_lab, uod_corr
   DynList<tuple<double, double, double>>
   uodapply(const Correlation * corr_ptr) const
   {
@@ -1095,7 +1095,7 @@ struct PvtData
       {
 	auto pp = it.get_curr();
 	const double & t = get<0>(pp);
-	const double & uod_lab = get<2>(pp);
+	const double & uod_lab = get<1>(pp);
 	pars.insert("t", t, &Fahrenheit::get_instance());
 	auto result = corr_ptr->compute_by_names(pars, false);
 	auto uod_ret = VtlQuantity(CP::get_instance(), result).raw();
