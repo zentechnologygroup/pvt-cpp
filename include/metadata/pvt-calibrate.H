@@ -110,6 +110,19 @@ struct VectorDesc
     return yname < rhs.yname;
   }
 
+  // Return true if this is "parallel" to v; this is if this and v
+  // share the same t values and p vectors
+  bool has_same_tp(const VectorDesc & v) const noexcept
+  {
+    return t == v.t and zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
+				p, v.p);
+  }
+
+  bool is_parallel(const VectorDesc & v) const noexcept
+  {
+    return has_same_tp(v);
+  }
+
   size_t get_yindex(double yval) const noexcept
   {
     return y.find_index([yval] (auto v) { return v == yval; });
@@ -374,6 +387,22 @@ struct PvtData
   {
     return vectors.foldl(0, [] (double acu, auto & v)
 			 { return max(acu, v.pmax()); });
+  }
+
+  // Return a list with all parallel vector to v, included v
+  DynList<const VectorDesc*> parallel_vectors(const VectorDesc & v)
+    const noexcept
+  {
+    auto ret = build_dynlist<const VectorDesc*>(&v);
+    for (auto it = vectors.get_it(); it.has_curr(); it.next())
+      {
+	auto & curr_v = it.get_curr();
+	if (&curr_v == &v)
+	  continue;
+	if (v.is_parallel(curr_v))
+	  ret.append(&curr_v);
+      }
+    return ret;
   }
 
   DynList<double> get_temperatures() const
@@ -1095,21 +1124,44 @@ struct PvtData
     pars.insert("bobp", vector_ptr->bobp, &RB_STB::get_instance());
     pars.insert("uobp", vector_ptr->uobp, &CP::get_instance());
     load_consts(corr_ptr, pars);
-    for (auto it = vector_ptr->p.get_it(); it.has_curr(); it.next())
+
+    DynList<const VectorDesc*> par_vectors = parallel_vectors(*vector_ptr);
+    auto & p = par_vectors.get_first()->p;
+    using T = tuple<string, const Unit*, double>;
+    DynList<DynList<T>> vars;
+    vars.append(p.maps<T>([vector_ptr] (auto p)
+			  { return T("p", vector_ptr->punit, p); }));
+    if (not par_vectors.is_unitarian())
+      for (auto it = par_vectors.get_it(1); it.has_curr(); it.next())
+	{
+	  auto & curr = it.get_curr();
+	  DynList<T> l;
+	  for (auto it = curr->y.get_it(); it.has_curr(); it.next())
+	    l.append(T(curr->yname, curr->yunit, it.get_curr()));
+	  vars.append(move(l));
+	}
+    vars = transpose(vars);
+
+    for (auto it = vars.get_it(); it.has_curr(); it.next())
       {
-	auto & p = it.get_curr();
-	pars.insert("p", p, punit);
+	auto & curr = it.get_curr();
+	curr.for_each([&pars] (auto & t)
+		      { pars.insert(get<0>(t), get<2>(t), get<1>(t)); });
 	try
 	  {
 	    VtlQuantity r = corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	    if (is_rs)
 	      r = min(r, rsb);
-	    pvals.append(p);
+	    pvals.append(get<2>(curr.get_first()));
 	    vals.append(r.raw());
 	  }
-	catch (...) {}
-	pars.remove("p");
+	catch (exception & e)
+	  {
+	    cout << e.what() << endl;
+	  }
+	curr.for_each([&pars] (auto & t) { pars.remove(get<0>(t)); });
       }
+    assert(p.size() == vals.size());
     return VectorDesc(vector_ptr->t, vector_ptr->pb, vector_ptr->bobp,
 		      vector_ptr->uod, vector_ptr->uobp, pvals, punit,
 		      corr_ptr->target_name(), &corr_ptr->unit, vals);
