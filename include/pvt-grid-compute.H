@@ -207,10 +207,13 @@ private:
   {
     const double & t1 = get<0>(temps.get_first());
     const double & t2 = get<0>(temps.get_last());
-    if (not (t >= t1 and t <= t2))
-      ZENTHROW(OutOfRange, "temperature value " + to_string(t) +
-	       " is out of range [" + to_string(t1) + ", " +
-	       to_string(t2) + "]");
+
+    assert(t1 < t2);
+    
+    if (t < t1)
+      return RangeDesc(0, 1, RangeDesc::Type::Left);
+    if (t > t2)
+      return RangeDesc(0, 1, RangeDesc::Type::Right);
 
     T t_t;
     get<0>(t_t) = t;
@@ -304,18 +307,6 @@ private:
     const Array<Array<double>> & vals = get<2>(desc);
     const RangeDesc p_idx = search_presure(desc, p);
 
-    switch (p_idx.type)
-      {
-      case RangeDesc::Type::Equal:
-	break;
-      case RangeDesc::Type::Internal:
-	break;
-      case RangeDesc::Type::Left:
-	break;
-      case RangeDesc::Type::Right:
-	break;
-      }
-    
     const double & p1 = pvals(p_idx.first);
     const Array<double> & vals1 = vals(p_idx.first);    
     const double & y1 = vals1(name_idx);
@@ -323,20 +314,44 @@ private:
       ZENTHROW(OutOfRange, "for t = " + to_string(get<0>(desc)) + " p = " +
 	       to_str(p) + " : value of " + var_names(name_idx).first +
 	       " out of grid range"); 
-    if (p == p1)
-      return y1;
 
     const double & p2 = pvals(p_idx.second);
     const Array<double> & vals2 = vals(p_idx.second);
     const double & y2 = vals2(name_idx);
-    if (y2 == Unit::Invalid_Value)
-      ZENTHROW(OutOfRange, "for t = " + to_string(get<0>(desc)) + " p = " +
-	       to_str(p) + " : value of " + var_names(name_idx).first +
-	       " out of grid range");    
-    if (p == p2)
-      return y2;
 
-    return ::interpolate(p1, p2, y1, y2, p);
+    assert(p1 <= p2);
+
+    double y = 0;
+    switch (p_idx.type)
+      {
+      case RangeDesc::Type::Equal:
+	assert(p == p1);
+	y = y1;
+	break;
+      case RangeDesc::Type::Internal:
+	if (y2 == Unit::Invalid_Value)
+	  ZENTHROW(OutOfRange, "for t = " + to_string(get<0>(desc)) + " p = " +
+		   to_str(p) + " : value of " + var_names(name_idx).first +
+		   " out of grid range");    
+	y = ::interpolate(p1, p2, y1, y2, p);
+	break;
+      case RangeDesc::Type::Left:
+	if (y2 == Unit::Invalid_Value)
+	  ZENTHROW(OutOfRange, "for t = " + to_string(get<0>(desc)) + " p = " +
+		   to_str(p) + " : value of " + var_names(name_idx).first +
+		   " out of grid range");    
+	y = extrapolate_left(p1, p2, y1, y2, p);
+	break;
+      case RangeDesc::Type::Right:
+	if (y2 == Unit::Invalid_Value)
+	  ZENTHROW(OutOfRange, "for t = " + to_string(get<0>(desc)) + " p = " +
+		   to_str(p) + " : value of " + var_names(name_idx).first +
+		   " out of grid range");    
+	y = extrapolate_right(p1, p2, y1, y2, p);
+	break;
+      }
+
+    return y;
   }
   
 public:
@@ -352,20 +367,42 @@ public:
     const Unit * unit_ptr = var_names(name_idx).second;
 
     const RangeDesc t_idx = search_temperature(t);
+    
     const T & desc1 = temps(t_idx.first);
     const double & t1 = get<0>(desc1);
-    if (t == t1)
-      return VtlQuantity(*unit_ptr, interpolate_p(desc1, p, name_idx));
-
+    
     const T & desc2 = temps(t_idx.second);
     const double & t2 = get<0>(desc2);
-    if (t == t2)
-      return VtlQuantity(*unit_ptr, interpolate_p(desc1, p, name_idx));
 
     const double y1 = interpolate_p(desc1, p, name_idx);
-    const double y2 = interpolate_p(desc2, p, name_idx);
 
-    return VtlQuantity(*unit_ptr, ::interpolate(t1, t2, y1, y2, t));
+    VtlQuantity ret = VtlQuantity::null_quantity;
+    switch (t_idx.type)
+      {
+      case RangeDesc::Type::Equal:
+	ret = VtlQuantity(*unit_ptr, y1);
+	break;
+      case RangeDesc::Type::Internal:
+	{
+	  const double y2 = interpolate_p(desc2, p, name_idx);
+	  ret = VtlQuantity(*unit_ptr, ::interpolate(t1, t2, y1, y2, t));
+	}
+	break;
+      case RangeDesc::Type::Left:
+	{
+	  const double y2 = interpolate_p(desc2, p, name_idx);
+	  ret = VtlQuantity(*unit_ptr, ::extrapolate_left(t1, t2, y1, y2, t));
+	}
+	break;
+      case RangeDesc::Type::Right:
+	{
+	  const double y2 = interpolate_p(desc2, p, name_idx);
+	  ret = VtlQuantity(*unit_ptr, ::extrapolate_right(t1, t2, y1, y2, t));
+	}
+	break;
+      }
+
+    return ret;
   }
 
   VtlQuantity compute(const string & name,

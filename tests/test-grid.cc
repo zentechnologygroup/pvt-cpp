@@ -58,6 +58,11 @@ ValueArg<string> var_name =
 
 SwitchArg print = { "P", "print", "print grid", cmd };
 
+vector<string> output_types = { "R", "csv", "mat" };
+ValuesConstraint<string> allowed_output_types = output_types;
+ValueArg<string> output = { "", "output", "output type", false,
+			    "mat", &allowed_output_types, cmd };
+
 void finish(const string & msg)
 {
   cout << msg << endl;
