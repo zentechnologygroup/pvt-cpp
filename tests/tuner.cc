@@ -745,6 +745,7 @@ void input_data(const GenerateInput & in)
       if (temps.has(src_ptr->t))
 	continue;
 
+      // TODO: buscar pares de entradas
       VectorDesc d = data.build_samples(src_ptr, corr_ptr, c, m);
       temps.insert(d.t);
       data.add_vector(move(d));
@@ -1008,6 +1009,34 @@ void put_pb_sample(const Correlation * corr_ptr,
     {
       rows.append(pb.maps([c, m] (auto y) { return c + m*y; }));
       rows.append(move(pb));
+      header.append(name);
+      header.append(name + "_adjusted");
+    }
+}
+
+void put_uod_sample(const Correlation * corr_ptr,
+		   DynList<DynList<double>> & rows, DynList<string> & header,
+		   DynList<double> & uod, double c, double m)
+{
+  cout << "uod sample =";
+  uod.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+  const string & name = corr_ptr->name;
+  const auto & mode = mode_type.getValue();
+
+  if (mode == "single")
+    {
+      rows.append(move(uod));
+      header.append(name);
+    }
+  else if (mode == "calibrated")
+    {
+      rows.append(uod.maps([c, m] (auto y) { return c + m*y; }));
+      header.append(name + "_adjusted");
+    }
+  else
+    {
+      rows.append(uod.maps([c, m] (auto y) { return c + m*y; }));
+      rows.append(move(uod));
       header.append(name);
       header.append(name + "_adjusted");
     }
@@ -1303,7 +1332,7 @@ void process_pb_calibration()
   for (auto it = corr_list.get_it(); it.has_curr(); it.next())
     {
       auto corr_ptr = it.get_curr();
-      if (not data.can_be_applied(corr_ptr))
+      if (not data.can_be_applied(corr_ptr, relax_names_tbl))
 	ZENTHROW(CommandLineError,
 		 corr_ptr->name + " does not apply to data set");
       
@@ -1435,7 +1464,7 @@ void process_uod_calibration()
   for (auto it = corr_list.get_it(); it.has_curr(); it.next())
     {
       auto corr_ptr = it.get_curr();
-      if (not data.can_be_applied(corr_ptr))
+      if (not data.can_be_applied(corr_ptr, relax_names_tbl))
 	ZENTHROW(CommandLineError,
 		 corr_ptr->name + " does not apply to data set");
       
@@ -1452,7 +1481,7 @@ void process_uod_calibration()
   auto tp_tuples = data.tp_sets();
   auto vals = t_unzip(tp_tuples);
   DynList<DynList<double>> rows =
-    build_dynlist<DynList<double>>(get<0>(vals), get<1>(vals));
+    build_dynlist<DynList<double>>(get<0>(vals), get<2>(vals));
   DynList<string> header = build_dynlist<string>("t", "uod");
 
   for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
@@ -1460,12 +1489,17 @@ void process_uod_calibration()
       auto curr = it.get_curr();
       const Correlation * corr_ptr = get<0>(curr);
       auto vals = data.uodapply(corr_ptr);
+      auto svals = vals.maps<DynList<string>>([] (auto & t)
+        {
+	  return build_dynlist<string>(to_string(get<0>(t)), to_string(get<1>(t)),
+				       to_string(get<2>(t)));
+	});
       const auto & cm = get<1>(curr);
       const double & c = cm.first;
       const double & m = cm.second;
-      DynList<double> pbvals =
-	vals.maps<double>([] (auto t) { return get<1>(t); });
-      put_pb_sample(corr_ptr, rows, header, pbvals, c,  m);
+      DynList<double> uodvals =
+	vals.maps<double>([] (auto t) { return get<2>(t); });
+      put_uod_sample(corr_ptr, rows, header, uodvals, c,  m);
     }
 
   DynList<DynList<string>> result =

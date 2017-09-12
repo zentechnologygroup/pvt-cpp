@@ -338,3 +338,5 @@ verificar error en ./tuner -f f5.json --input "bob uob",2017-09-07 16:22:47 -040
 revisa que opcion simple de grid sea equipaable a blackoil,2017-09-07 17:49:42 -0400,2017-09-10 10:54:54 -0400,,2017-09-10 10:55:51 -0400
 cplot poner coa a simple ,2017-09-08 18:00:57 -0400,2017-09-09 13:04:57 -0400,,2017-09-10 10:55:52 -0400
 en tuner opcion que genere el grid,2017-09-08 18:04:32 -0400,2017-09-09 13:04:47 -0400,,2017-09-10 10:56:00 -0400
+,2017-09-11 15:43:37 -0400,,,2017-09-11 17:35:18 -0400
+añadir xfactor a generación de cplot desde tuner,2017-09-07 17:19:36 -0400,2017-09-11 17:42:18 -0400,,2017-09-11 17:42:22 -0400

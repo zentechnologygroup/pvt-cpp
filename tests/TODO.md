@@ -38,14 +38,27 @@
 ## 13. error en input bob rs es parametro fuera de rango
 - Created at   2017-09-07 17:01:01 -0400
 
-## 14. añadir xfactor a generación de cplot desde tuner
-- Created at   2017-09-07 17:19:36 -0400
-
-## 15. grid pvt debe extrapolar
+## 14. grid pvt debe extrapolar
 - Created at   2017-09-08 18:29:26 -0400
 
-## 16. input opcion en tuner debe permitir poner varios arreglos de entrada
+## 15. input opcion en tuner debe permitir poner varios arreglos de entrada
 - Created at   2017-09-10 10:51:58 -0400
+- Completed at 2017-09-11 17:42:10 -0400
+
+## 16. pbcal y uodcl deben estar en lcal
+- Created at   2017-09-11 15:12:36 -0400
+
+## 17. en list corr coa va antes que boa
+- Created at   
+
+## 18. dry de put_pbuod_sample
+- Created at   2017-09-11 16:24:26 -0400
+
+## 19. put_pb_sample falta conversion
+- Created at   2017-09-11 16:53:37 -0400
+
+## 20. operación smooth grid en puntos de inflexión
+- Created at   2017-09-11 17:41:45 -0400
 
 ## 17. revisar por qué corta columnas en ./tuner -f f5.json --input "bob uob" --lcal "BobSalazar BobPerezML"
 - Created at   2017-09-11 11:42:27 -0400

@@ -2038,3 +2038,15 @@
 - Comment      
 - Finished     
 
+## 341. 
+- Created at   2017-09-11 15:43:37 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 342. añadir xfactor a generación de cplot desde tuner
+- Created at   2017-09-07 17:19:36 -0400
+- Completed at 2017-09-11 17:42:18 -0400
+- Comment      
+- Finished     
+

@@ -11,7 +11,15 @@ eliminar entrada de bo,2017-06-20 14:54:33 -0400,,
 variables globales para propiedades; de ese modo evitaos macros,2017-07-14 15:35:47 -0400,,
 documentar más cplot,2017-09-06 09:31:57 -0400,,
 error en input bob rs es parametro fuera de rango,2017-09-07 17:01:01 -0400,,
-añadir xfactor a generación de cplot desde tuner,2017-09-07 17:19:36 -0400,,
 grid pvt debe extrapolar,2017-09-08 18:29:26 -0400,,
+<<<<<<< HEAD
 input opcion en tuner debe permitir poner varios arreglos de entrada,2017-09-10 10:51:58 -0400,,
 revisar por qué corta columnas en ./tuner -f f5.json --input "bob uob" --lcal "BobSalazar BobPerezML",2017-09-11 11:42:27 -0400,,
+=======
+input opcion en tuner debe permitir poner varios arreglos de entrada,2017-09-10 10:51:58 -0400,2017-09-11 17:42:10 -0400,
+pbcal y uodcl deben estar en lcal,2017-09-11 15:12:36 -0400,,
+en list corr coa va antes que boa,,,
+dry de put_pbuod_sample,2017-09-11 16:24:26 -0400,,
+put_pb_sample falta conversion,2017-09-11 16:53:37 -0400,,
+operación smooth grid en puntos de inflexión,2017-09-11 17:41:45 -0400,,
+>>>>>>> 80a2507d55eead61fcf4247f59932bb61fbc2de6
