@@ -25,7 +25,7 @@ PvtData data;
   }
 
 static const DynSetTree<string> valid_targets =
-  { "rs", "bob", "boa", "uob", "uoa", "coa", "zfactor", "bo", "uo" };
+  { "rs", "bob", "boa", "uob", "uoa", "coa", "bo", "uo" };
 
 // Defines a input of form
 // "property-name property-unit t tunit pb punit p-list property-list"
@@ -65,7 +65,6 @@ struct ValuesArg
   Define_Check_Property(bo, FVFvolumeRatio);
   Define_Check_Property(uo, DynamicViscosity);
   Define_Check_Property(coa, IsothermalCompressibility);
-  Define_Check_Property(zfactor, CompressibilityFactor);
 
   void validate_property()
   {
@@ -203,6 +202,8 @@ struct ValuesArg
 	    set_uod(vals);
 	  else
 	    regression_required = true;
+	else if ((n % 2) == 0)
+	  ZENTHROW(CommandLineError, "In uoa input: expecting uod value");
 	else
 	  set_uod(vals);
       }
@@ -252,8 +253,7 @@ ValuesArg::check_dispatcher("rs", ValuesArg::check_rs,
 			    "uob", ValuesArg::check_uo,
 			    "uoa", ValuesArg::check_uo,
 			    "uo", ValuesArg::check_uo,
-			    "coa", ValuesArg::check_coa,
-			    "zfactor", ValuesArg::check_zfactor);
+			    "coa", ValuesArg::check_coa);
 
 namespace TCLAP
 {
@@ -463,11 +463,18 @@ ValueArg<RangeDesc> t = { "t", "t", "t range", false, RangeDesc(),
 ValueArg<RangeDesc> p = { "p", "p", "p range", false, RangeDesc(),
 			  "p min max n", cmd };
 
-ValueArg<ArrayDesc> tarray = { "", "t-array", "t array", false, ArrayDesc(),
+ValueArg<ArrayDesc> tarray = { "", "t_array", "t array", false, ArrayDesc(),
 			       "list-t-values", cmd };
 
-ValueArg<ArrayDesc> parray = { "", "p-array", "p array", false, ArrayDesc(),
+ValueArg<ArrayDesc> parray = { "", "p_array", "p array", false, ArrayDesc(),
 			       "list-p-values", cmd };
+
+SwitchArg Cplot = { "", "Cplot", "generate simple cplot command", cmd };
+
+vector<string> r_types = { "rs", "co", "bo", "uo" };
+ValuesConstraint<string> allowed_r_types = r_types;
+ValueArg<string> R = { "R", "R", "direct R output", false, "",
+		       &allowed_r_types, cmd };
 
 // Unit change specification. Suitable for any parameter
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
@@ -738,6 +745,7 @@ void input_data(const GenerateInput & in)
       if (temps.has(src_ptr->t))
 	continue;
 
+      // TODO: buscar pares de entradas
       VectorDesc d = data.build_samples(src_ptr, corr_ptr, c, m);
       temps.insert(d.t);
       data.add_vector(move(d));
@@ -777,14 +785,22 @@ void terminate_app()
   exit(0);
 }
 
+SwitchArg print_uod = { "", "print_uod", "only print uod value", cmd };
+
 void process_print_data()
 {
   if (not print.getValue())
     return;
   if (json.getValue())
     cout << data.to_json().dump(2) << endl;
-  else
-    cout << data << endl;
+  else 
+    if (print_uod.getValue())
+      data.vectors.for_each([] (auto & v)
+        {
+	  cout << "t = " << v.t << " degF uod = "<< v.uod << " cP" << endl;
+	});
+    else
+      cout << data << endl;
   terminate_app();
 }
 
@@ -998,6 +1014,34 @@ void put_pb_sample(const Correlation * corr_ptr,
     }
 }
 
+void put_uod_sample(const Correlation * corr_ptr,
+		   DynList<DynList<double>> & rows, DynList<string> & header,
+		   DynList<double> & uod, double c, double m)
+{
+  cout << "uod sample =";
+  uod.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+  const string & name = corr_ptr->name;
+  const auto & mode = mode_type.getValue();
+
+  if (mode == "single")
+    {
+      rows.append(move(uod));
+      header.append(name);
+    }
+  else if (mode == "calibrated")
+    {
+      rows.append(uod.maps([c, m] (auto y) { return c + m*y; }));
+      header.append(name + "_adjusted");
+    }
+  else
+    {
+      rows.append(uod.maps([c, m] (auto y) { return c + m*y; }));
+      rows.append(move(uod));
+      header.append(name);
+      header.append(name + "_adjusted");
+    }
+}
+
 void process_local_calibration() 
 {
   static auto print_R = [] (const DynList<DynList<string>> & l) -> string
@@ -1091,6 +1135,8 @@ void process_local_calibration()
         << Rvector("ltys", ltys) << endl
         << "legend(\"topright\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
         << endl;
+
+      execute_R_script(s.str());
 
       return s.str();
     };
@@ -1252,6 +1298,8 @@ void process_pb_calibration()
         <<  "legend(\"topright\", legend=cnames, col=cols, lty=1)"
         << endl;
 
+      execute_R_script(s.str());
+
       return s.str();
     };
 
@@ -1284,7 +1332,7 @@ void process_pb_calibration()
   for (auto it = corr_list.get_it(); it.has_curr(); it.next())
     {
       auto corr_ptr = it.get_curr();
-      if (not data.can_be_applied(corr_ptr))
+      if (not data.can_be_applied(corr_ptr, relax_names_tbl))
 	ZENTHROW(CommandLineError,
 		 corr_ptr->name + " does not apply to data set");
       
@@ -1382,6 +1430,8 @@ void process_uod_calibration()
         <<  "legend(\"topright\", legend=cnames, col=cols, lty=1)"
         << endl;
 
+      execute_R_script(s.str());
+
       return s.str();
     };
 
@@ -1414,7 +1464,7 @@ void process_uod_calibration()
   for (auto it = corr_list.get_it(); it.has_curr(); it.next())
     {
       auto corr_ptr = it.get_curr();
-      if (not data.can_be_applied(corr_ptr))
+      if (not data.can_be_applied(corr_ptr, relax_names_tbl))
 	ZENTHROW(CommandLineError,
 		 corr_ptr->name + " does not apply to data set");
       
@@ -1431,7 +1481,7 @@ void process_uod_calibration()
   auto tp_tuples = data.tp_sets();
   auto vals = t_unzip(tp_tuples);
   DynList<DynList<double>> rows =
-    build_dynlist<DynList<double>>(get<0>(vals), get<1>(vals));
+    build_dynlist<DynList<double>>(get<0>(vals), get<2>(vals));
   DynList<string> header = build_dynlist<string>("t", "uod");
 
   for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
@@ -1439,12 +1489,17 @@ void process_uod_calibration()
       auto curr = it.get_curr();
       const Correlation * corr_ptr = get<0>(curr);
       auto vals = data.uodapply(corr_ptr);
+      auto svals = vals.maps<DynList<string>>([] (auto & t)
+        {
+	  return build_dynlist<string>(to_string(get<0>(t)), to_string(get<1>(t)),
+				       to_string(get<2>(t)));
+	});
       const auto & cm = get<1>(curr);
       const double & c = cm.first;
       const double & m = cm.second;
-      DynList<double> pbvals =
-	vals.maps<double>([] (auto t) { return get<1>(t); });
-      put_pb_sample(corr_ptr, rows, header, pbvals, c,  m);
+      DynList<double> uodvals =
+	vals.maps<double>([] (auto t) { return get<2>(t); });
+      put_uod_sample(corr_ptr, rows, header, uodvals, c,  m);
     }
 
   DynList<DynList<string>> result =
@@ -1464,19 +1519,9 @@ void process_cplot()
 {
   if (not cplot.getValue())
     return;
-  if (not data.are_all_correlations_defined())
-    {
-      ostringstream s;
-      s << "cannot generate cplot because the following correlations are "
-	"not defined:";
-      data.missing_correlations().for_each([&s] (auto & name)
-					   {
-					     s << "  " << name;
-					   });
-      ZENTHROW(CommandLineError, s.str());
-    }
+  
   cout << "./cplot --grid simple " << data.cplot_consts() << data.cplot_corrs()
-       << " ";
+       << " --zfactor ZfactorDranchukAK ";
   if (t.isSet())
     {
       const RangeDesc & val = t.getValue();
@@ -1500,6 +1545,39 @@ void process_cplot()
       cout << "\" ";
     }
   terminate_app();
+}
+
+string plot_cmd()
+{
+  ostringstream s;
+  s << "./cplot --grid simple " << data.cplot_consts() << data.cplot_corrs()
+    << " --zfactor ZfactorDranchukAK --t_array \""
+    << join(data.get_temperatures().maps<string>([] (auto v)
+						 { return to_string(v); })
+	    , " ") << "\" --p \""
+    << data.pmin() << " " << data.pmax() << " 100\"";
+  return s.str();
+}
+
+void process_CPLOT()
+{
+  if (not Cplot.getValue())
+    return;
+
+  cout << plot_cmd() << endl;
+  terminate_app();
+}
+
+void process_R()
+{
+  if (not R.isSet())
+    return;
+
+  const string plot = plot_cmd() + " > tmp.csv";
+  system(plot.c_str());
+
+  const string plotr = "./plot-r -f tmp.csv -P " + R.getValue() + " -R";
+  system(plotr.c_str());
 }
 
 void split_uo()
@@ -1592,6 +1670,8 @@ int main(int argc, char *argv[])
   process_local_calibration();
   process_pb_calibration();
   process_uod_calibration();
+  process_R();
+  process_CPLOT();
   process_cplot();
 
   cout << "Not given action" << endl;

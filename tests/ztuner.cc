@@ -6,6 +6,10 @@
 # include <ah-dispatcher.H>
 # include <tclap/CmdLine.h>
 
+# include <units.H>
+
+auto & units_instancer = UnitsInstancer::init();
+
 # include <correlations/pvt-correlations.H>
 # include <metadata/z-calibrate.H>
 
@@ -304,9 +308,9 @@ void plot_mat(const DynList<DynList<string>> & m)
 void plot_csv(const DynList<DynList<string>> & m)
 {
   if (transpose_out.getValue())
-    cout << Aleph::to_string(format_string_csv(m)) << endl;
-  else
     cout << Aleph::to_string(format_string_csv(transpose(m))) << endl;
+  else
+    cout << Aleph::to_string(format_string_csv(m)) << endl;
 }
 
 void plot_R(const DynList<DynList<string>> & m)
@@ -316,6 +320,7 @@ void plot_R(const DynList<DynList<string>> & m)
 
   const DynList<DynList<string>> & lab_cols = p.first;
   const DynList<DynList<string>> & corr_cols = p.second;
+  ostringstream s;
 
   double pmax = 0, zmax = 0, pmin = 1e6 , zmin = 1e6;
   for (auto it = lab_cols.get_it(); it.has_curr(); it.next())
@@ -335,7 +340,7 @@ void plot_R(const DynList<DynList<string>> & m)
 	  zmin = l.drop(1).foldl(zmin, [] (auto m, auto v)
 				 { return min(m, atof(v)); });
 	}
-      cout << Rvector(l) << endl;
+      s << Rvector(l) << endl;
     }
   for (auto it = corr_cols.get_it(); it.has_curr(); it.next())
     {
@@ -344,11 +349,11 @@ void plot_R(const DynList<DynList<string>> & m)
 			     { return max(m, atof(v)); });
       zmin = l.drop(1).foldl(zmin, [] (auto m, auto v)
 			     { return min(m, atof(v)); });
-      cout << Rvector(l) << endl;
+      s << Rvector(l) << endl;
     }
 
-  cout << "plot(0, type=\"n\", xlim=c(" << pmin << "," << pmax << "), ylim=c("
-        << zmin << "," << zmax << "))" << endl;
+  s << "plot(0, type=\"n\", xlim=c(" << pmin << "," << pmax << "), ylim=c("
+    << zmin << "," << zmax << "))" << endl;
 
   size_t pch = 1;
   DynList<string> colnames;
@@ -367,8 +372,8 @@ void plot_R(const DynList<DynList<string>> & m)
       const string & zname = zlist.get_first();
       colors.append(1);
       ltys.append("NA");
-      cout << "points(" << pname << "," << zname << ",pch=" << pch << ")"
-	   << endl;
+      s << "points(" << pname << "," << zname << ",pch=" << pch << ")"
+	<< endl;
       colnames.append("\"" + zname + "\"");
       pchs.append(to_string(pch));
     }
@@ -379,19 +384,21 @@ void plot_R(const DynList<DynList<string>> & m)
     {
       const string & pname = pnames((i/2) % n_p);
       const string & zname = it.get_curr().get_first();
-      cout << "lines(" << pname << "," << zname << ",col=" << col << ")"
-	   << endl;
+      s << "lines(" << pname << "," << zname << ",col=" << col << ")"
+	<< endl;
       colnames.append("\"" + zname + "\"");
       colors.append(col);
       pchs.append("NA");
       ltys.append("1");
     }
-  cout << Rvector("cnames", colnames) << endl
-       << Rvector("cols", colors) << endl
-       << Rvector("pchs", pchs) << endl
-       << Rvector("ltys", ltys) << endl
-       << "legend(\"topright\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
-       << endl;
+  s << Rvector("cnames", colnames) << endl
+    << Rvector("cols", colors) << endl
+    << Rvector("pchs", pchs) << endl
+    << Rvector("ltys", ltys) << endl
+    << "legend(\"topright\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
+    << endl;
+
+  execute_R_script(s.str());
 }
 
 void process_plot()
@@ -430,7 +437,9 @@ void process_plot()
 	  const string tstr = to_string(int(t));
 	  const string title = "z." + to_string(num) + "." + tstr;
 	  const auto l = build_dynlist<string>(title, title + ".cal");
-	  header.append(l); // La versión 4.9.2 de c++ tiene problemas para compilar con header.append({title, title + ".cal"});
+	  header.append(l); // Version 4.9.2 of gnu c++ has problems
+			    // compiling with header.append ({title,
+			    // title + ".cal"});
 	  cols.append(move(get<1>(curr)));
 	  cols.append(move(get<2>(curr)));
 	}
@@ -487,19 +496,31 @@ void process_solve()
   terminate_app();
 }
 
+void test_load_file()
+{
+  if (not fname.isSet())
+    return;
+  
+  ifstream in(fname.getValue());
+  if (in)
+    {
+      try
+	{
+	  data = unique_ptr<Ztuner>(new Ztuner(in));
+	}
+      catch (exception & e)
+	{
+	  if (not save.getValue())
+	    ZENTHROW(InvalidJson, "reading json: " + string(e.what()));
+	}
+    }
+}
+
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
 
-  if (fname.isSet())
-    {
-      const string & file_name = fname.getValue();
-      if (not exists_file(file_name) and not save.isSet())
-	ZENTHROW(CommandLineError, "file with name " + file_name + " not found");
-      // else 
-      // 	data = unique_ptr<Ztuner>(new Ztuner(ifstream(file_name)));
-      // TODO: revisarx
-    }
+  test_load_file();
 
   process_input(data);
   if (save.getValue())
@@ -515,6 +536,5 @@ int main(int argc, char *argv[])
     }
 
   process_print();
-  process_solve();
-  
+  process_solve();  
 }

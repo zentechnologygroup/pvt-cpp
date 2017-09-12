@@ -11,29 +11,64 @@
 ## 4. correlaciones puede agruparse por target_name
 - Created at   2017-03-27 08:55:43 -0400
 
-## 5. firma única de familia de correlación: que reciba union de todos los parámtros
-- Created at   2017-03-29 16:31:35 -0400
-- Completed at 
-- Comment      qu se apoye en gen-corr
-
-## 6. test-pvt-data opcion para cambiarunidades de salida
+## 5. test-pvt-data opcion para cambiarunidades de salida
 - Created at   2017-04-03 16:50:06 -0400
 
-## 7. calibración global
+## 6. calibración global
 - Created at   2017-04-26 16:38:18 -0400
 
-## 8. dry de process_uod_calibration y process_pb_calibration
+## 7. dry de process_uod_calibration y process_pb_calibration
 - Created at   2017-05-08 16:14:55 -0400
 
-## 9. macros para referencias biblio
+## 8. macros para referencias biblio
 - Created at   2017-05-22 16:04:19 -0400
 
-## 10. parámetro de correación que no tenga rango que no queme ciclos por eso
+## 9. parámetro de correación que no tenga rango que no queme ciclos por eso
 - Created at   2017-06-15 16:27:26 -0400
 
-## 11. eliminar entrada de bo
+## 10. eliminar entrada de bo
 - Created at   2017-06-20 14:54:33 -0400
 
-## 12. variables globales para propiedades; de ese modo evitaos macros
+## 11. variables globales para propiedades; de ese modo evitaos macros
 - Created at   2017-07-14 15:35:47 -0400
+
+## 12. documentar más cplot
+- Created at   2017-09-06 09:31:57 -0400
+
+## 13. error en input bob rs es parametro fuera de rango
+- Created at   2017-09-07 17:01:01 -0400
+
+## 14. grid pvt debe extrapolar
+- Created at   2017-09-08 18:29:26 -0400
+
+## 15. <<<<<<< HEAD
+- Created at   
+
+## 16. input opcion en tuner debe permitir poner varios arreglos de entrada
+- Created at   2017-09-10 10:51:58 -0400
+
+## 17. revisar por qué corta columnas en ./tuner -f f5.json --input "bob uob" --lcal "BobSalazar BobPerezML"
+- Created at   2017-09-11 11:42:27 -0400
+
+## 18. input opcion en tuner debe permitir poner varios arreglos de entrada
+- Created at   2017-09-10 10:51:58 -0400
+- Completed at 2017-09-11 17:42:10 -0400
+
+## 19. pbcal y uodcl deben estar en lcal
+- Created at   2017-09-11 15:12:36 -0400
+
+## 20. en list corr coa va antes que boa
+- Created at   
+
+## 21. dry de put_pbuod_sample
+- Created at   2017-09-11 16:24:26 -0400
+
+## 22. put_pb_sample falta conversion
+- Created at   2017-09-11 16:53:37 -0400
+
+## 23. operación smooth grid en puntos de inflexión
+- Created at   2017-09-11 17:41:45 -0400
+
+## 24. eliminar tuplas como estructuctura y sustituirlas por struct
+- Created at   2017-09-12 13:16:12 -0400
 

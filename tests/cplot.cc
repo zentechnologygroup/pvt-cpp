@@ -1,7 +1,7 @@
 
 # include <memory>
 
-# include <tclap/CmdLine.h>
+# include <tclap-utils.H>
 
 # include <ah-zip.H>
 # include <ahSort.H>
@@ -12,6 +12,10 @@
 # include <json.hpp>
 
 using json = nlohmann::json;
+
+# include <units.H>
+
+const UnitsInstancer & units_instancer = UnitsInstancer::init();
 
 # include <correlations/pvt-correlations.H>
 # include <correlations/defined-correlation.H>
@@ -41,36 +45,9 @@ DynSetTree<string> par_name_tbl =
   { "api", "rsb", "yg", "tsep", "tsep2", "t", "p", "psep", "h2s", "co2", "n2",
     "nacl", "ogr" };
 
-// input parameter unit change specification
-//
-// form is: --unit "par-name unit"
-struct ArgUnit
-{
-  string name;
-  string unit_name;
-
-  ArgUnit & operator = (const string & str)
-  {
-    istringstream iss(str);
-    if (not (iss >> name >> unit_name))
-      ZENTHROW(CommandLineError, str + " is not a pair par-name unit");
-
-    if (not par_name_tbl.contains(name))
-      ZENTHROW(CommandLineError, name + " is an invalid parameter name");
-
-    return *this;
-  }
-
-  ArgUnit() {}
-
-  friend ostream& operator << (ostream &os, const ArgUnit & a) 
-  {
-    return os << a.name << " " << a.unit_name;
-  }
-};
-
 namespace TCLAP
 {
+  // defined in tclap-utils.H
   template<> struct ArgTraits<ArgUnit> { typedef StringLike ValueCategory; };
 }
 
@@ -279,7 +256,7 @@ inline Correlation::NamedPar npar(const string & name,
 // - A variable VtlQuantity with name name
 # define Declare_Command_Line_Arg(name, UnitName, desc)		\
   ValueArg<double> name##_arg = { "", #name, #name, false, 0,	\
-				  desc " in " #name, cmd };	\
+				  desc " in " #UnitName, cmd };	\
   Correlation::NamedPar name##_par;				\
   VtlQuantity name;
 
@@ -441,6 +418,7 @@ Command_Arg_Tuned_Correlation(cob);
 Command_Arg_Tuned_Correlation(coa);
 Command_Arg_Tuned_Correlation(uob);
 Command_Arg_Tuned_Correlation(uoa);
+Command_Arg_Tuned_Correlation(zfactor);
 
 Command_Arg_Optional_Correlation(ppchc, PpchcStanding);
 Command_Arg_Optional_Correlation(ppcm_mixing, PpcmKayMixingRule);
@@ -448,7 +426,6 @@ Command_Arg_Optional_Correlation(adjustedppcm, AdjustedppcmWichertAziz);
 Command_Arg_Optional_Correlation(tpchc, TpchcStanding);
 Command_Arg_Optional_Correlation(tpcm_mixing, TpcmKayMixingRule);
 Command_Arg_Optional_Correlation(adjustedtpcm, AdjustedtpcmWichertAziz);
-Command_Arg_Optional_Correlation(zfactor, ZfactorDranchukAK);
 Command_Arg_Optional_Correlation(cg, CgMattarBA);
 Command_Arg_Optional_Correlation(ug, UgCarrKB);
 Command_Arg_Optional_Correlation(bwb, BwbSpiveyMN);
@@ -483,12 +460,12 @@ void print_fluid_types()
 // To be used for the temperature and pressure
 //
 // Parameter has form --property "min max num-of-steps"
-struct RangeDesc
+struct ParRangeDesc
 {
   double min = 0, max = 0;
   size_t n = 1; // num of steps
 
-  RangeDesc & operator = (const string & str)
+  ParRangeDesc & operator = (const string & str)
   {
     istringstream iss(str);
     if (not (iss >> min >> max >> n))
@@ -509,7 +486,7 @@ struct RangeDesc
 
   double step() const noexcept { return (max - min) / (n - 1); }
 
-  friend ostream & operator << (ostream & os, const RangeDesc & d)
+  friend ostream & operator << (ostream & os, const ParRangeDesc & d)
   {
     return os << d.min<< " " << d.max << " " << d.n;
   }
@@ -552,19 +529,19 @@ struct Digits
 
 namespace TCLAP
 {
-  template<> struct ArgTraits<RangeDesc> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<ParRangeDesc> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<ColNames> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<Digits> { typedef StringLike ValueCategory; };
 }
 
-// Given a RangeDesc, put in the correlation parameters list l the
+// Given a ParRangeDesc, put in the correlation parameters list l the
 // range values Each value is a named correlation parameter; i.e. a
 // tuple <true, name, value, unit>
-size_t set_range(const RangeDesc & range, const string & name,
+size_t set_range(const ParRangeDesc & range, const string & name,
 		 const Unit & unit, DynList<Correlation::NamedPar> & l)
 {
   assert(l.is_empty());
-  const auto & step = range.step();
+  const auto step = range.step();
   double val = range.min;
   for (size_t i = 0; i < range.n; ++i, val += step)
     l.append(make_tuple(true, name, val, &unit));
@@ -656,8 +633,8 @@ ValueArg<string> sort_type = { "", "sort", "sorting type", false,
 // - name: name of property
 // - UnitName
 # define Command_Line_Range(prefix, name)				\
-  ValueArg<RangeDesc> prefix##_range =					\
-    { "", #prefix, "min max n", false, RangeDesc(),			\
+  ValueArg<ParRangeDesc> prefix##_range =				\
+    { "", #prefix, "min max n", false, ParRangeDesc(),			\
       "range spec \"min max n\" for " #name, cmd };			\
 									\
   ValueArg<ArrayDesc> prefix##_array =					\
@@ -1634,6 +1611,9 @@ void print_notranspose()
   set_sgo_corr();							\
   set_sgw_corr();							\
 									\
+  const double & c_z = c_zfactor_arg.getValue();			\
+  const double & m_z = m_zfactor_arg.getValue();			\
+									\
   pressure = get<2>(p_values.get_first());				\
 									\
   /* Calculation of constants for Z */					\
@@ -1791,12 +1771,13 @@ void print_notranspose()
   auto coa = dcompute(co_corr, check, p_q, co_pars, p_par);		\
   auto coa_par = NPAR(coa);						\
   auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, coa_par); \
-  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par, npar("bob", bo)); \
+  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par,	\
+		     npar("bob", bo));					\
   auto po = dcompute(po_corr, check, p_q, po_pars, p_par, rs_par, coa_par, \
 		     npar("bob", bo));					\
   VtlQuantity z;							\
   if (p_q <= pb_q)							\
-    z = compute(zfactor_corr, check, ppr_par, tpr_par);			\
+    z = tcompute(zfactor_corr, c_z, m_z, check, ppr_par, tpr_par);	\
   auto z_par = NPAR(z);							\
   auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);		\
   CALL(Bg, bg, t_q, p_q, z);						\
@@ -1931,6 +1912,9 @@ void generate_rows_blackoil()
   set_adjustedtpcm_corr();						\
   set_zfactor_corr();							\
 									\
+  const double & c_z = c_zfactor_arg.getValue();			\
+  const double & m_z = m_zfactor_arg.getValue();			\
+									\
   pressure = get<2>(p_values.get_first());				\
 									\
   /* Calculation of constants for Z */					\
@@ -2041,7 +2025,7 @@ void generate_rows_blackoil()
   auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par);	\
   VtlQuantity z;							\
   if (p_q <= pb_q)							\
-    z = compute(zfactor_corr, check, ppr_par, tpr_par);			\
+    z = tcompute(zfactor_corr, c_z, m_z, check, ppr_par, tpr_par);	\
   auto z_par = NPAR(z);							\
 									\
   size_t n = insert_in_row(row, p_q, rs, coa, bo, uo, z);

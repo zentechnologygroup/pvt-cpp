@@ -16,7 +16,7 @@ CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
 SYS_LIBRARIES =-L$(ZEN)/lib -lzen -L$(ALEPHW) -lAleph  -lstdc++ -lgsl -lgslcblas -lm -lc
 
-DEPLIBS	= $(TOP)/lib/libpvt.a 
+DEPLIBS	= $(TOP)/lib/libpvt.a $(ZEN)/lib/libzen.a $(ALEPHW)/libAleph.a
 
 LOCAL_LIBRARIES = $(TOP)/lib/libpvt.a
 

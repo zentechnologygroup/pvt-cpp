@@ -27,8 +27,6 @@ class PvtGrid
     Array<Array<double>> vals;
   };
 
-  Array<double> p;
-
   using T = tuple<double, Array<double>, Array<Array<double>>>;
 
   //          t,          matrix of values associated to temperature t
@@ -66,9 +64,30 @@ class PvtGrid
 
 public:
 
+  PvtGrid() {}
+
+  PvtGrid(PvtGrid && grid)
+    : tunit_ptr(grid.tunit_ptr), punit_ptr(grid.punit_ptr),
+      var_names(move(grid.var_names)), temps(move(grid.temps)) {}
+
+  PvtGrid & operator = (PvtGrid && grid)
+  {
+    swap(tunit_ptr, grid.tunit_ptr);
+    swap(punit_ptr, grid.punit_ptr);
+    swap(var_names, grid.var_names);
+    swap(temps, grid.temps);
+    return *this;
+  }
+
   PvtGrid(istream & in)
   {
     Array<string> header = csv_read_row(in);
+    if (not header.exists([] (auto & s)
+			  { return split_to_list(s, " ")[0] == "t"; }))
+      ZENTHROW(InvalidCsvHeader, "csv header does not contain t field");
+    if (not header.exists([] (auto & s)
+			  { return split_to_list(s, " ")[0] == "p"; }))
+      ZENTHROW(InvalidCsvHeader, "csv header does not contain p field");
     DynList<pair<string, size_t>> names_to_idx;
     size_t i = 0, tidx = 0, pidx = 0;
     for (auto it = header.get_it(); it.has_curr(); it.next(), ++i)
@@ -76,7 +95,8 @@ public:
 	auto & s = it.get_curr();
 	auto parts = split(s, ' ');
 	if (parts.size() != 2)
-	  ZENTHROW(InvalidCsvHeader, "Invalid format in column " + to_string(i));
+	  ZENTHROW(InvalidCsvHeader, "Invalid format in column " +
+		   to_string(i));
 	const string & var_name = parts[0];
 	const string & unit_name = parts[1];
 	const Unit * unit_ptr = Unit::search(unit_name);
@@ -86,12 +106,12 @@ public:
 	if (var_name == "t")
 	  {
 	    tunit_ptr = unit_ptr;
-	    tidx = i;
+	    tidx = i; // temperature column index in csv
 	  }
 	else if (var_name == "p")
 	  {
 	    punit_ptr = unit_ptr;
-	    pidx = i;
+	    pidx = i; // pressure column index in csv
 	  }
 	var_names.append(make_pair(var_name, unit_ptr));
       }
@@ -105,7 +125,7 @@ public:
       names_to_idx.maps<size_t>([] (auto p) { return p.second; });
 
     const size_t & ncol = header.size();
-    DynMapTree<double, Desc> tmap;
+    DynMapTree<double, Desc> tmap; // temperature to Desc mapping 
     for (size_t i = 1; in.good(); ++i)
       {
 	Array<string> row = csv_read_row(in);
@@ -171,7 +191,19 @@ public:
 
 private:
 
-  pair<size_t, size_t> search_temperature(const double t) const
+  struct RangeDesc
+  {
+    size_t first, second;
+    enum class Type { Left, Internal, Right, Equal };
+    Type type;
+
+    RangeDesc(const size_t first, const size_t second, const Type & type)
+      noexcept
+      : first(first), second(second), type(type) {}
+  };
+
+  // return first and second indexes of temperature
+  RangeDesc search_temperature(const double t) const
   {
     const double & t1 = get<0>(temps.get_first());
     const double & t2 = get<0>(temps.get_last());
@@ -188,44 +220,48 @@ private:
     const T & found_entry = temps(i);
     const double & found_t = get<0>(found_entry);
     if (found_t == t)
-      return pair<size_t, size_t>(i, i);
+      return RangeDesc(i, i, RangeDesc::Type::Equal);
     else if (t < found_t)
       {
 	assert(i > 0);
-	return pair<size_t, size_t>(i - 1, i);
+	return RangeDesc(i - 1, i, RangeDesc::Type::Internal);
       }
     else
       {
 	assert(size_t(i) < temps.size() - 1);
-	return pair<size_t, size_t>(i, i + 1);
+	return RangeDesc(i, i + 1, RangeDesc::Type::Internal);
       }
   }
 
-  pair<size_t, size_t> search_presure(const T & desc, const double & p) const
+  RangeDesc search_presure(const T & desc, const double & p) const
   {
     const Array<double> & pvals = get<1>(desc);
     const double & fst_p = pvals.get_first();
     const double & lst_p = pvals.get_last();
-    if (p < fst_p or p > lst_p)
-      ZENTHROW(OutOfMemory, "pressure value " + to_string(p) +
-	       "is out of range [" + to_string(fst_p) + ", " +
-	       to_string(lst_p) + "]");
+    if (p < fst_p)
+      return RangeDesc(0, 1, RangeDesc::Type::Left);
+
+    if (p > lst_p)
+      {
+	const size_t & n = pvals.size();
+	return RangeDesc(n - 1, n - 2, RangeDesc::Type::Right);
+      }
     
     const long i = binary_search(pvals, p);
 
     assert(i >= 0 and size_t(i) < pvals.size());
     const double & found_p = pvals(i);
     if (found_p == p)
-      return pair<size_t, size_t>(i, i);
+      return RangeDesc(i, i, RangeDesc::Type::Equal);
     else if (p < found_p)
       {
 	assert(i > 0);
-	return pair<size_t, size_t>(i - 1, i);
+	return RangeDesc(i - 1, i, RangeDesc::Type::Internal);
       }
     else
       {
 	assert(size_t(i) < pvals.size() - 1);
-	return pair<size_t, size_t>(i, i + 1);
+	return RangeDesc(i, i + 1, RangeDesc::Type::Internal);
       }
   }
 
@@ -242,13 +278,43 @@ public:
     return i;
   }
 
+  bool has_name(const string & name) const
+  {
+    pair<string, const Unit*> p;
+    p.first = name;
+    long i = binary_search(var_names, p, [] (auto & p1, auto & p2)
+			   { return p1.first < p2.first; });
+    return i >= 0 and size_t(i) < var_names.size() and var_names(i).first == name;
+  }
+
+  void remove(const string & name)
+  {
+    const size_t idx = property_index(name);
+    close_gap(&var_names.base(), var_names.size(), idx);
+    var_names.remove_last();
+    close_gap(&temps.base(), temps.size(), idx);
+    temps.remove_last();
+  }
+
 private:
 
   double interpolate_p(const T & desc, const double p, size_t name_idx) const
   {
     const Array<double> & pvals = get<1>(desc);
     const Array<Array<double>> & vals = get<2>(desc);
-    const auto p_idx = search_presure(desc, p);
+    const RangeDesc p_idx = search_presure(desc, p);
+
+    switch (p_idx.type)
+      {
+      case RangeDesc::Type::Equal:
+	break;
+      case RangeDesc::Type::Internal:
+	break;
+      case RangeDesc::Type::Left:
+	break;
+      case RangeDesc::Type::Right:
+	break;
+      }
     
     const double & p1 = pvals(p_idx.first);
     const Array<double> & vals1 = vals(p_idx.first);    
@@ -285,7 +351,7 @@ public:
     const double & p = pressure.raw();
     const Unit * unit_ptr = var_names(name_idx).second;
 
-    auto t_idx = search_temperature(t);
+    const RangeDesc t_idx = search_temperature(t);
     const T & desc1 = temps(t_idx.first);
     const double & t1 = get<0>(desc1);
     if (t == t1)
@@ -309,18 +375,16 @@ public:
     return compute(property_index(name), temp, pressure);
   }
 
-  VtlQuantity
-  operator () (const string & name,
-	       const VtlQuantity & temp,
-	       const VtlQuantity & pressure) const
+  VtlQuantity operator () (const string & name,
+			   const VtlQuantity & temp,
+			   const VtlQuantity & pressure) const
   {
     return compute(name, temp, pressure);
   }
 
-  VtlQuantity
-  operator () (const size_t name_idx, 
-	       const VtlQuantity & temp,
-	       const VtlQuantity & pressure) const
+  VtlQuantity operator () (const size_t name_idx, 
+			   const VtlQuantity & temp,
+			   const VtlQuantity & pressure) const
   {
     return compute(name_idx, temp, pressure);
   }

@@ -21,6 +21,10 @@ class CorrelationGen
       @max = max
     end
 
+    def doxy
+      "@param[in] #{name} #{desc}. Range in [#{min}, #{max}]"
+    end
+
     def make
       s = "add_parameter(\"#{@name}\", #{@unit}::get_instance(), \"#{@desc}\""
       s += ", #{@min}" if @min
@@ -46,6 +50,23 @@ class CorrelationGen
     @synonyms = []
     @eq = []
     @vars = []
+  end
+
+  def doxy
+    s = "/** #{@name}\n\n"\
+        "    Generated at #{Time.now}\n"\
+        "\n"\
+        "    Zen Technologies Group\n\n"
+    @notes.each {|n| s += "#{n}\n" }
+    s += "\n"
+    s += @doc if @doc
+    @internal_notes.each { |note| s += "#{note.ljust(60)}\n\n" }
+    s += "References:\n\n"
+    @refs.each {|r| s += "  - #{r}\n\n" }
+    @pars.each {|p| s += "#{p.doxy}\n" }
+    s += "@return inside [#{@min}, #{@max}]\n"\
+         "@ingroup Correlations\n"\
+         "*/"
   end
 
   attr_reader :name
@@ -271,20 +292,13 @@ class CorrelationGen
   end
 
   def gen_class
-    s = "/** #{@name}\n\n"\
-        "    Generated at #{Time.now}\n"\
+    s = "#{doxy}\n"\
+        "class #{@name} : public #{@subtype}\n" \
+        "{\n"\
+        "Correlation_Singleton(#{@name});\n"\
         "\n"\
-        "    Zen Technologies Group\n\n"
-    s += @doc if @doc
-    @internal_notes.each { |note| s += "#{note.ljust(60)}\n\n" }
-    s += "\n"\
-         "*/\n"
-    s += "class #{@name} : public #{@subtype}\n" \
-         "{\n"\
-         "Correlation_Singleton(#{@name});\n"\
-         "\n"\
-         "#{@name}()\n"\
-         "  : #{@subtype}(\"#{@name}\", #{@unit}::get_instance()"
+        "#{@name}()\n"\
+        "  : #{@subtype}(\"#{@name}\", #{@unit}::get_instance()"
     s += ", #{@min}" if @min
     s += ", #{@max}" if @max
     s += ")\n"\
