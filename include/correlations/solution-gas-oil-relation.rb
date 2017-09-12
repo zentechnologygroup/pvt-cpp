@@ -14,6 +14,23 @@ end_correlation()
 
 ################################################################
 
+begin_correlation("RsAlShammasiCalibration", "SolutionGasOilRelation", "SCF_STB", 6, 3298.6)
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.51, 3.44)
+add_parameter("p", "psia", "Pressure", "Quantity<Atmosphere>(1)")
+add_parameter("yo", "Sg_do", "Oil specific gravity", "Quantity<Api>(63.7)", "Quantity<Api>(6)")
+add_synonym("yo", "api", "Api")
+add_parameter("t", "Fahrenheit", "Temperature", 74, 341.6)
+add_parameter("c", "Dim_Less", "c")
+add_parameter("m", "Dim_Less", "m")
+add_title("AL-SHAMMASI CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
+add_db("Based on a total of 1709 data sets (1661 data sets from 13 different published literature papers and 48 data sets originated from Kuwait reservoirs from unpublished sources).")
+add_author("Al-Shammasi")
+add_ref("alShammasi:1999")
+set_hidden()
+end_correlation()
+
+################################################################
+
 begin_correlation("RsAlMarhoun", "SolutionGasOilRelation", "SCF_STB", 26, 1602)
 add_title("AL-MARHOUN CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
 add_parameter("yg", "Sgg", "Gas specific gravity", 0.752, 1.367)

@@ -20,5 +20,6 @@
 # include "water-cut-unit.H"
 # include "wet-gas-formation-volume-factor-unit.H"
 # include "OGR-LGR-volume-ratio-unit.H"
+# include "dimension-less-unit.H"
 
 # endif // PVT_UNITS_H

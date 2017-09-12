@@ -40,6 +40,24 @@ RsAlShammasi::impl(const double & yg,
 }
 
 inline double
+RsAlShammasiCalibration::impl(const double & yg,
+		  const double & p,
+		  const double & yo,
+		  const double & t,
+          const double & c,
+          const double & m) noexcept
+{
+  constexpr double c1 = 5.527215;
+  constexpr double c2 = -1.841408;
+  constexpr double c3_inv = 1/0.783716;
+
+  double rs = pow(((p - c)/m)/(pow(yo, c1)*exp(c2*yo*yg)), c3_inv) / ((t + 460) * yg); 
+
+  rs = max(0.0, rs);
+  return rs;
+}
+
+inline double
 RsDeGhetto::impl(const double & yg,
 		 const double & p,
 		 const double & api,
