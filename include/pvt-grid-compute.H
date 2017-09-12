@@ -191,7 +191,19 @@ public:
 
 private:
 
-  pair<size_t, size_t> search_temperature(const double t) const
+  struct RangeDesc
+  {
+    size_t first, second;
+    enum class Type { Left, Internal, Right, Equal };
+    Type type;
+
+    RangeDesc(const size_t first, const size_t second, const Type & type)
+      noexcept
+      : first(first), second(second), type(type) {}
+  };
+
+  // return first and second indexes of temperature
+  RangeDesc search_temperature(const double t) const
   {
     const double & t1 = get<0>(temps.get_first());
     const double & t2 = get<0>(temps.get_last());
@@ -208,44 +220,48 @@ private:
     const T & found_entry = temps(i);
     const double & found_t = get<0>(found_entry);
     if (found_t == t)
-      return pair<size_t, size_t>(i, i);
+      return RangeDesc(i, i, RangeDesc::Type::Equal);
     else if (t < found_t)
       {
 	assert(i > 0);
-	return pair<size_t, size_t>(i - 1, i);
+	return RangeDesc(i - 1, i, RangeDesc::Type::Internal);
       }
     else
       {
 	assert(size_t(i) < temps.size() - 1);
-	return pair<size_t, size_t>(i, i + 1);
+	return RangeDesc(i, i + 1, RangeDesc::Type::Internal);
       }
   }
 
-  pair<size_t, size_t> search_presure(const T & desc, const double & p) const
+  RangeDesc search_presure(const T & desc, const double & p) const
   {
     const Array<double> & pvals = get<1>(desc);
     const double & fst_p = pvals.get_first();
     const double & lst_p = pvals.get_last();
-    if (p < fst_p or p > lst_p)
-      ZENTHROW(OutOfRange, "pressure value " + to_string(p) +
-	       " is out of range [" + to_string(fst_p) + ", " +
-	       to_string(lst_p) + "]");
+    if (p < fst_p)
+      return RangeDesc(0, 1, RangeDesc::Type::Left);
+
+    if (p > lst_p)
+      {
+	const size_t & n = pvals.size();
+	return RangeDesc(n - 1, n - 2, RangeDesc::Type::Right);
+      }
     
     const long i = binary_search(pvals, p);
 
     assert(i >= 0 and size_t(i) < pvals.size());
     const double & found_p = pvals(i);
     if (found_p == p)
-      return pair<size_t, size_t>(i, i);
+      return RangeDesc(i, i, RangeDesc::Type::Equal);
     else if (p < found_p)
       {
 	assert(i > 0);
-	return pair<size_t, size_t>(i - 1, i);
+	return RangeDesc(i - 1, i, RangeDesc::Type::Internal);
       }
     else
       {
 	assert(size_t(i) < pvals.size() - 1);
-	return pair<size_t, size_t>(i, i + 1);
+	return RangeDesc(i, i + 1, RangeDesc::Type::Internal);
       }
   }
 
@@ -286,7 +302,19 @@ private:
   {
     const Array<double> & pvals = get<1>(desc);
     const Array<Array<double>> & vals = get<2>(desc);
-    const auto p_idx = search_presure(desc, p);
+    const RangeDesc p_idx = search_presure(desc, p);
+
+    switch (p_idx.type)
+      {
+      case RangeDesc::Type::Equal:
+	break;
+      case RangeDesc::Type::Internal:
+	break;
+      case RangeDesc::Type::Left:
+	break;
+      case RangeDesc::Type::Right:
+	break;
+      }
     
     const double & p1 = pvals(p_idx.first);
     const Array<double> & vals1 = vals(p_idx.first);    
@@ -323,7 +351,7 @@ public:
     const double & p = pressure.raw();
     const Unit * unit_ptr = var_names(name_idx).second;
 
-    auto t_idx = search_temperature(t);
+    const RangeDesc t_idx = search_temperature(t);
     const T & desc1 = temps(t_idx.first);
     const double & t1 = get<0>(desc1);
     if (t == t1)
