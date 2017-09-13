@@ -2104,7 +2104,6 @@ void generate_rows_simple()
     }
 }
 
-
 // This routine is invoked to validate the use of one or two separators
 void check_second_separator_case()
 {

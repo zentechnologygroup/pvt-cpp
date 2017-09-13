@@ -120,8 +120,8 @@ void process_output(const string & name, const DynList<DynList<double>> & l)
 	    << Rvector(vname, vvals) << endl;
 	  pmin = pvals.foldl(pmin, [] (auto a, auto v) { return min(a, v); });
 	  pmax = pvals.foldl(pmax, [] (auto a, auto v) { return max(a, v); });
-	  vmin = pvals.foldl(vmin, [] (auto a, auto v) { return min(a, v); });
-	  vmax = pvals.foldl(vmax, [] (auto a, auto v) { return max(a, v); });
+	  vmin = vvals.foldl(vmin, [] (auto a, auto v) { return min(a, v); });
+	  vmax = vvals.foldl(vmax, [] (auto a, auto v) { return max(a, v); });
 	}
 
       s << "plot(0, type=\"n\", xlim=c(" << pmin << "," << pmax << "), ylim=c("
@@ -137,15 +137,19 @@ void process_output(const string & name, const DynList<DynList<double>> & l)
 	{
 	  auto t = it.get_curr();
 	  const string & tname = get<0>(t);
-	  const string & pname = get<1>(t);
-	  const string & vname = get<2>(t);
+	  const string & pname = get<1>(t) + "-" + to_string(col);
+	  const string & vname = get<2>(t) + "-" + to_string(col);
 	  s << "lines(" << pname << "," << vname << ",col=" << col << ")"
 		<< endl;
 	  colnames.append("\"" + tname + "\"");
 	  colors.append(col);
 	}
 
-      cout << s.str() << endl;
+      s << Rvector("cnames", colnames) << endl
+        << Rvector("cols", colors) << endl
+        << "legend(\"topright\", legend=cnames, col=cols, lty=1)" << endl;
+
+      execute_R_script(s.str());
     };
 
   static AHDispatcher<string, void (*)(const string &, DynList<DynList<double>>&)>
