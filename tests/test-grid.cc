@@ -91,7 +91,7 @@ void process_output(const string & name, const DynList<DynList<double>> & l)
   static auto R = [] (const string & name, DynList<DynList<double>> & l)
     { //          t        p and value
       DynMapTree<double, DynList<DynList<double>>> temps;
-      for (auto it = l.get_it(1); it.has_curr(); it.next())
+      for (auto it = l.get_it(); it.has_curr(); it.next())
 	{
 	  auto & curr = it.get_curr();
 	  temps[curr.remove_first()].append(move(curr));
@@ -137,8 +137,8 @@ void process_output(const string & name, const DynList<DynList<double>> & l)
 	{
 	  auto t = it.get_curr();
 	  const string & tname = get<0>(t);
-	  const string & pname = get<1>(t) + "-" + to_string(col);
-	  const string & vname = get<2>(t) + "-" + to_string(col);
+	  const string & pname = get<1>(t);
+	  const string & vname = get<2>(t);
 	  s << "lines(" << pname << "," << vname << ",col=" << col << ")"
 		<< endl;
 	  colnames.append("\"" + tname + "\"");

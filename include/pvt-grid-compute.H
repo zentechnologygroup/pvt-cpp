@@ -199,7 +199,10 @@ private:
 
     RangeDesc(const size_t first, const size_t second, const Type & type)
       noexcept
-      : first(first), second(second), type(type) {}
+      : first(first), second(second), type(type)
+    {
+      assert(first <= second);
+    }
   };
 
   // return first and second indexes of temperature
@@ -212,8 +215,12 @@ private:
     
     if (t < t1)
       return RangeDesc(0, 1, RangeDesc::Type::Left);
+    
     if (t > t2)
-      return RangeDesc(0, 1, RangeDesc::Type::Right);
+      {
+	const size_t & n = temps.size();
+	return RangeDesc(n - 2, n - 1, RangeDesc::Type::Right);
+      }
 
     T t_t;
     get<0>(t_t) = t;
@@ -333,7 +340,7 @@ private:
 	  ZENTHROW(OutOfRange, "for t = " + to_string(get<0>(desc)) + " p = " +
 		   to_str(p) + " : value of " + var_names(name_idx).first +
 		   " out of grid range");    
-	y = ::interpolate(p1, p2, y1, y2, p);
+	y = interpolate(p1, p2, y1, y2, p);
 	break;
       case RangeDesc::Type::Left:
 	if (y2 == Unit::Invalid_Value)
@@ -374,6 +381,8 @@ public:
     const T & desc2 = temps(t_idx.second);
     const double & t2 = get<0>(desc2);
 
+    assert(t1 <= t2);
+
     const double y1 = interpolate_p(desc1, p, name_idx);
 
     VtlQuantity ret = VtlQuantity::null_quantity;
@@ -385,19 +394,19 @@ public:
       case RangeDesc::Type::Internal:
 	{
 	  const double y2 = interpolate_p(desc2, p, name_idx);
-	  ret = VtlQuantity(*unit_ptr, ::interpolate(t1, t2, y1, y2, t));
+	  ret = VtlQuantity(*unit_ptr, interpolate(t1, t2, y1, y2, t));
 	}
 	break;
       case RangeDesc::Type::Left:
 	{
 	  const double y2 = interpolate_p(desc2, p, name_idx);
-	  ret = VtlQuantity(*unit_ptr, ::extrapolate_left(t1, t2, y1, y2, t));
+	  ret = VtlQuantity(*unit_ptr, extrapolate_left(t1, t2, y1, y2, t));
 	}
 	break;
       case RangeDesc::Type::Right:
 	{
 	  const double y2 = interpolate_p(desc2, p, name_idx);
-	  ret = VtlQuantity(*unit_ptr, ::extrapolate_right(t1, t2, y1, y2, t));
+	  ret = VtlQuantity(*unit_ptr, extrapolate_right(t1, t2, y1, y2, t));
 	}
 	break;
       }

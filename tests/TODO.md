@@ -78,3 +78,9 @@
 ## 26. opcion de valores específicos para test-grid
 - Created at   2017-09-13 10:34:17 -0400
 
+## 27. probable bug en extrapolacion grid. revisar
+- Created at   2017-09-13 14:57:58 -0400
+
+## 28. generar grid desde tuner
+- Created at   2017-09-13 17:34:04 -0400
+

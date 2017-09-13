@@ -916,7 +916,7 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
   try
     {
       if (not insert_in_pars_list(pars_list, args...))
-	return VtlQuantity();
+	return VtlQuantity::null_quantity;
 
       auto ret = corr_ptr->tuned_compute_by_names(pars_list, c, m, check);
       remove_from_container(pars_list, args...);
@@ -930,7 +930,7 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
    
       remove_from_container(pars_list, args ...);
     }
-  return VtlQuantity();
+  return VtlQuantity::null_quantity;
 }
 
 template <typename ... Args> inline
@@ -940,7 +940,7 @@ VtlQuantity compute(const Correlation * corr_ptr, bool check,
   try
     {
       if (not insert_in_pars_list(pars_list, args...))
-	return VtlQuantity();
+	return VtlQuantity::null_quantity;
 
       auto ret = corr_ptr->compute_by_names(pars_list, check);
       remove_from_container(pars_list, args...);
@@ -954,7 +954,7 @@ VtlQuantity compute(const Correlation * corr_ptr, bool check,
    
       remove_from_container(pars_list, args ...);
     }
-  return VtlQuantity();
+  return VtlQuantity::null_quantity;
 }
 
 // return true if all args... are valid
@@ -993,7 +993,7 @@ VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
   try
     {
       if (not insert_in_pars_list(pars_list, args...))
-	return VtlQuantity();
+	return VtlQuantity::null_quantity;
 
       auto ret = corr_ptr->compute_by_names(pars_list, check);
       remove_from_container(pars_list, args...);
@@ -1007,7 +1007,7 @@ VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
 	   << "@ " << e.what();
       abort();
     }
-  return VtlQuantity();
+  return VtlQuantity::null_quantity;
 }
 
 // Macro for creating `var` variable with value returned by correlation corr_name
@@ -1060,7 +1060,7 @@ VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
 		     ParList & pars_list, const Args & ... args)
 {
   if (not insert_in_pars_list(corr, p_q, pars_list, args...))
-    return VtlQuantity();
+    return VtlQuantity::null_quantity;
  
   try
     {
@@ -1086,7 +1086,7 @@ VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
 
       remove_from_container(pars_list, args ...);
     }
-  return VtlQuantity();
+  return VtlQuantity::null_quantity;
 }
 
 template <typename ... Args> inline
