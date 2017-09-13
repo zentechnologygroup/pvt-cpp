@@ -72,3 +72,9 @@
 ## 24. eliminar tuplas como estructuctura y sustituirlas por struct
 - Created at   2017-09-12 13:16:12 -0400
 
+## 25. test-grid debe recibir puntos exprimentales y calcular el error
+- Created at   2017-09-13 10:11:06 -0400
+
+## 26. opcion de valores específicos para test-grid
+- Created at   2017-09-13 10:34:17 -0400
+

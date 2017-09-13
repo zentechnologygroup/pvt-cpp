@@ -1,5 +1,8 @@
 
 # include <tclap/CmdLine.h>
+# include <ah-comb.H>
+# include <ah-dispatcher.H>
+# include <ah-zip.H>
 # include <pvt-units.H>
 # include <pvt-grid-compute.H>
 
@@ -63,10 +66,92 @@ ValuesConstraint<string> allowed_output_types = output_types;
 ValueArg<string> output = { "", "output", "output type", false,
 			    "mat", &allowed_output_types, cmd };
 
-void finish(const string & msg)
+void process_output(const string & name, const DynList<DynList<double>> & l)
 {
-  cout << msg << endl;
-  abort();
+  static auto mapl = [] (const string & name, DynList<DynList<double>> & l)
+    {
+      auto out = l.maps<DynList<string>>([] (auto & l)
+      {
+	return l.template maps<string>([] (auto v) { return to_string(v); });
+      });
+      out.insert(build_dynlist<string>("t", "p", name)); // header
+      return out;
+    };
+  
+  static auto mat = [] (const string & name, DynList<DynList<double>> & l)
+    {
+      cout << to_string(format_string(mapl(name, l))) << endl;
+    };
+
+  static auto csv = [] (const string & name, DynList<DynList<double>> & l)
+    {
+      cout << to_string(format_string_csv(mapl(name, l))) << endl;
+    };
+
+  static auto R = [] (const string & name, DynList<DynList<double>> & l)
+    { //          t        p and value
+      DynMapTree<double, DynList<DynList<double>>> temps;
+      for (auto it = l.get_it(1); it.has_curr(); it.next())
+	{
+	  auto & curr = it.get_curr();
+	  temps[curr.remove_first()].append(move(curr));
+	}
+
+      DynList<string> pnames, vnames, tnames;
+      double pmin = numeric_limits<double>::max();
+      double pmax = numeric_limits<double>::min();
+      double vmin = numeric_limits<double>::max();
+      double vmax = numeric_limits<double>::min();
+      ostringstream s;
+      for (auto it = temps.get_it(); it.has_curr(); it.next())
+	{
+	  auto & curr = it.get_curr();
+	  const double & t = curr.first;
+	  const string tname = to_string(long(t));
+	  auto vals = transpose(curr.second);
+	  const string pname = "p_" + tname;
+	  const string vname = name + "_" + tname;
+	  tnames.append(tname);
+	  pnames.append(pname);
+	  vnames.append(vname);
+	  const DynList<double> & pvals = vals.get_first();
+	  const DynList<double> & vvals = vals.get_last();
+	  s << Rvector(pname, pvals) << endl
+	    << Rvector(vname, vvals) << endl;
+	  pmin = pvals.foldl(pmin, [] (auto a, auto v) { return min(a, v); });
+	  pmax = pvals.foldl(pmax, [] (auto a, auto v) { return max(a, v); });
+	  vmin = pvals.foldl(vmin, [] (auto a, auto v) { return min(a, v); });
+	  vmax = pvals.foldl(vmax, [] (auto a, auto v) { return max(a, v); });
+	}
+
+      s << "plot(0, type=\"n\", xlim=c(" << pmin << "," << pmax << "), ylim=c("
+        << vmin << "," << vmax << "))" << endl;
+
+      // TODO: añadir puntos experimentales si los hay en forma de points
+
+      size_t col = 1;
+      DynList<string> colnames;
+      DynList<int> colors;
+      for (auto it = zip_it(tnames, pnames, vnames); it.has_curr();
+	   it.next(), ++col)
+	{
+	  auto t = it.get_curr();
+	  const string & tname = get<0>(t);
+	  const string & pname = get<1>(t);
+	  const string & vname = get<2>(t);
+	  s << "lines(" << pname << "," << vname << ",col=" << col << ")"
+		<< endl;
+	  colnames.append("\"" + tname + "\"");
+	  colors.append(col);
+	}
+
+      cout << s.str() << endl;
+    };
+
+  static AHDispatcher<string, void (*)(const string &, DynList<DynList<double>>&)>
+    dispatcher("mat", mat, "csv", csv, "R", R);
+
+  dispatcher.run(output.getValue(), name, l);
 }
 
 int main(int argc, char *argv[])
@@ -75,7 +160,7 @@ int main(int argc, char *argv[])
 
   const string & file_name = file.getValue();
   if (not exists_file(file_name))
-    finish("file " + file_name + " does not exist");
+    error_msg("file " + file_name + " does not exist");
   ifstream in(file_name);
 
   PvtGrid grid(in);
@@ -89,12 +174,16 @@ int main(int argc, char *argv[])
   if (not (t.isSet() and p.isSet() and var_name.isSet()))
     return 0;
 
+  DynList<DynList<double>> l;
   const string & name = var_name.getValue();
   const auto & tdesc = t.getValue();
   const auto & pdesc = p.getValue();
   for (double tval = tdesc.min; tval <= tdesc.max; tval += tdesc.step())
     for (double pval = pdesc.min; pval <= pdesc.max; pval += pdesc.step())
-      cout << name << "(" << tval << ", " << pval << ") = "
-	   << grid(name, Quantity<Fahrenheit>(tval), Quantity<psia>(pval)) << endl;
+      l.append(build_dynlist<double>(tval, pval,
+				     grid(name, Quantity<Fahrenheit>(tval),
+					  Quantity<psia>(pval)).raw()));
+
+  process_output(name, l);
 }
 
