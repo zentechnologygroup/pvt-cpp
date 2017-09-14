@@ -90,3 +90,6 @@
 ## 30. revisar diagostico f5 Lopez para pb Perez para Rs
 - Created at   2017-09-14 16:22:21 -0400
 
+## 31. acelerar clot folding c-pb y m-pm-arg
+- Created at   2017-09-14 17:07:29 -0400
+

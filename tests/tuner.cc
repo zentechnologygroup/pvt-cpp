@@ -1575,6 +1575,7 @@ void process_R()
 
   const string plot = plot_cmd() + " > tmp.csv";
   system(plot.c_str());
+  cout << plot << endl;
 
   const string plotr = "./plot-r -f tmp.csv -P " + R.getValue() + " -R";
   system(plotr.c_str());

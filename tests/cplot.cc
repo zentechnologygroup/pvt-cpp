@@ -1702,7 +1702,9 @@ void print_notranspose()
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
-  auto uod_val = compute(uod_corr, check, uod_pars, t_par, pb_par);	\
+  auto uod_val = tcompute(uod_corr, c_uod_arg.getValue(),		\
+			  m_uod_arg.getValue(), check, uod_pars,	\
+			  t_par, pb_par);				\
 									\
   insert_in_container(rs_pars, t_par, pb_par);				\
   auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(), \
@@ -1978,7 +1980,8 @@ void generate_rows_blackoil()
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
-  auto uod_val = compute(uod_corr, check, uod_pars, t_par, pb_par);	\
+  auto uod_val = tcompute(uod_corr, check, c_uod_arg.getValue(),	\
+			  m_uod_arg.getValue(), uod_pars, t_par, pb_par); \
 									\
   insert_in_container(rs_pars, t_par, pb_par);				\
   auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(), \
