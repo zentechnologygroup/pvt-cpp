@@ -26,3 +26,5 @@ test-grid debe recibir puntos exprimentales y calcular el error,2017-09-13 10:11
 opcion de valores específicos para test-grid,2017-09-13 10:34:17 -0400,,
 probable bug en extrapolacion grid. revisar,2017-09-13 14:57:58 -0400,,
 generar grid desde tuner,2017-09-13 17:34:04 -0400,,
+revisar diagostico f5 Lopez para pb Perez para Rs,2017-09-14 16:18:30 -0400,,
+revisar diagostico f5 Lopez para pb Perez para Rs,2017-09-14 16:22:21 -0400,,

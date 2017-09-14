@@ -1695,7 +1695,8 @@ void print_notranspose()
   auto tpr_par = NPAR(tpr);						\
 									\
   VtlQuantity pb_q =							\
-    tcompute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);   \
+    tcompute(pb_corr, c_pb_arg.getValue(), m_pb_arg.getValue(),         \
+	     check, pb_pars, t_par);					\
   if (pb_q.is_null())							\
     continue;								\
   auto pb_par = npar("pb", pb_q);					\
@@ -1970,7 +1971,8 @@ void generate_rows_blackoil()
   auto tpr_par = NPAR(tpr);						\
 									\
   VtlQuantity pb_q =							\
-    tcompute(pb_corr, c_pb_arg.getValue(), 1, check, pb_pars, t_par);   \
+	   tcompute(pb_corr, c_pb_arg.getValue(), m_pb_arg.getValue(),	\
+		    check, pb_pars, t_par);				\
   if (pb_q.is_null())							\
     continue;								\
   auto pb_par = npar("pb", pb_q);					\

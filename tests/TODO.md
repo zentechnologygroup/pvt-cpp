@@ -84,3 +84,9 @@
 ## 28. generar grid desde tuner
 - Created at   2017-09-13 17:34:04 -0400
 
+## 29. revisar diagostico f5 Lopez para pb Perez para Rs
+- Created at   2017-09-14 16:18:30 -0400
+
+## 30. revisar diagostico f5 Lopez para pb Perez para Rs
+- Created at   2017-09-14 16:22:21 -0400
+

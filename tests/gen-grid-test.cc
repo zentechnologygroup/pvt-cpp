@@ -1,6 +1,5 @@
 
-# include <tclap/CmdLine.h>
-
+# include <tclap-utils.H>
 # include <utils.H>
 # include <pvt-grid-compute.H>
 
@@ -36,22 +35,40 @@ DynList<pair<double, DynList<double>>> gen(double first, double last, size_t n)
   for (auto & t : t.getValue())
     {
       for (size_t i = 0; i < n; ++i, x += step)
-	vals.append(eq(k, c0, c1, c2, c3, c4, t, x));
+	vals.append(build_dynlist<double>(x, eq(k, c0, c1, c2, c3, c4, t, x)));
       ret.append(make_pair(t, move(vals)));
     }
   return ret;
 }
 
-void gen_grid(const DynList<string> & names,
-	      const DynList<const Unit *> & units,
-	      const DynList<pair<double, DynList<double>>> & vals,
-	      ostream & out)
+iostream & gen_grid(const DynList<string> & names,
+		   const DynList<const Unit *> & units,
+		   const DynList<pair<double, DynList<double>>> & vals,
+		   iostream & out)
 {
   assert(names.size() == units.size());
   out << join(zip_maps<string>([] (auto t)
 			       { return get<0>(t) + " " + get<1>(t)->name; },
 			       names, units), " ") << endl;
+  for (auto it = vals.get_it(); it.has_curr(); it.next())
+    {
+      auto & p = it.get_curr();
+      const auto & l = p.second;
+      out << p.first << ", " << l.get_first() << ", " << l.get_last() << endl;
+    }
+  return out;
 }
+
+PvtGrid load_grid(istream & in)
+{
+  return PvtGrid(in);
+}
+
+namespace TCLAP
+{
+   template<> struct ArgTraits<RangeDesc> { typedef StringLike ValueCategory; };
+}
+
 
 int main(int argc, char *argv[argc])
 {
