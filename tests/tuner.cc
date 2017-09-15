@@ -1018,8 +1018,6 @@ void put_uod_sample(const Correlation * corr_ptr,
 		   DynList<DynList<double>> & rows, DynList<string> & header,
 		   DynList<double> & uod, double c, double m)
 {
-  cout << "uod sample =";
-  uod.for_each([] (auto v) { cout << " " << v; }); cout << endl;
   const string & name = corr_ptr->name;
   const auto & mode = mode_type.getValue();
 
@@ -1261,7 +1259,6 @@ void process_pb_calibration()
       for (auto it = cols.get_it(); it.has_curr(); it.next())
 	{
 	  const auto & p = it.get_curr();
-	  p.for_each([] (auto &s) { cout << s << "-"; }); cout << endl;
 	  const string & header = p.get_first();
 	  if (header[0] == 't')
 	    p.each(1, 1, [&xmin, &xmax] (auto v)
@@ -1472,7 +1469,6 @@ void process_uod_calibration()
 	{
 	  auto s = data.cm(corr_ptr);
 	  comb.append(make_pair(s.first, s.second));
-	  cout << "c = " << s.first << " m = " << s.second << endl;
 	}
       else
 	comb.append(make_pair(0, 1));

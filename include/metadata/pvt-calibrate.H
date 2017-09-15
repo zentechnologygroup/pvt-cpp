@@ -1267,7 +1267,7 @@ struct PvtData
 	DynList<double> & y = get<1>(t);
 	DynList<double> & yc = get<2>(t);
 	return T(corr_ptr, get<0>(t), y,
-		 CorrStat(move(y)).stats(move(yc)), true);
+		 CorrStat(move(yc)).stats(move(y)), true);
       }
     catch (exception & e)
       {
@@ -1288,7 +1288,7 @@ struct PvtData
 	DynList<double> & y = get<1>(t);
 	DynList<double> & yc = get<2>(t);
 	return T(corr_ptr, get<0>(t), y,
-		 CorrStat(move(y)).stats(move(yc)), true);
+		 CorrStat(move(yc)).stats(move(y)), true);
       }
     catch (exception & e)
       {
