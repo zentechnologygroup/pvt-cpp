@@ -84,3 +84,9 @@
 ## 28. lectura de grid pvt no acepta blancos y comas:
 - Created at   2017-09-15 11:29:16 -0400
 
+## 29. para tuner opcion automática que genere todos los parámetros según r2 y threshld
+- Created at   2017-09-15 15:52:57 -0400
+
+## 30. en pvt-calibrate cambiar tuplas por struct
+- Created at   2017-09-15 16:51:29 -0400
+

@@ -1046,11 +1046,11 @@ struct PvtData
       }
 
     if (not is_sorted(tuples.values().
-		      maps<double>([] (auto & t) { return get<1>(t); })))
+		      maps<double>([] (auto & t) { return get<0>(t); })))
       ZENTHROW(PressureMismatch,
   	       "pb values are not sorted through temperatures");
 
-    return tuples.maps<Ttuple>([] (auto & p) { return p.second; });
+    return tuples.values();
   }
 
     //       t     pb_lab, pb_corr

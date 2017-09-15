@@ -995,6 +995,12 @@ void put_pb_sample(const Correlation * corr_ptr,
   const string & name = corr_ptr->name;
   const auto & mode = mode_type.getValue();
 
+  cout << "c = " << c << " m = " << m << endl;
+  pb.for_each([c, m] (auto v)
+	      {
+		cout << "pb = " << v << " c + m pb = " << c + m*v << endl;
+	      });
+
   if (mode == "single")
     {
       rows.append(move(pb));
@@ -1007,8 +1013,8 @@ void put_pb_sample(const Correlation * corr_ptr,
     }
   else
     {
+      rows.append(pb);
       rows.append(pb.maps([c, m] (auto y) { return c + m*y; }));
-      rows.append(move(pb));
       header.append(name);
       header.append(name + "_adjusted");
     }
@@ -1033,8 +1039,8 @@ void put_uod_sample(const Correlation * corr_ptr,
     }
   else
     {
+      rows.append(uod);
       rows.append(uod.maps([c, m] (auto y) { return c + m*y; }));
-      rows.append(move(uod));
       header.append(name);
       header.append(name + "_adjusted");
     }
@@ -1358,7 +1364,7 @@ void process_pb_calibration()
       const double & c = cm.first;
       const double & m = cm.second;
       DynList<double> pbvals =
-	vals.maps<double>([] (auto t) { return get<1>(t); });
+	vals.maps<double>([] (auto t) { return get<2>(t); });
       put_pb_sample(corr_ptr, rows, header, pbvals, c,  m);
     }
 
