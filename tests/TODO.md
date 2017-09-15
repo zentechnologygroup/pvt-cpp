@@ -41,55 +41,46 @@
 ## 14. grid pvt debe extrapolar
 - Created at   2017-09-08 18:29:26 -0400
 
-## 15. <<<<<<< HEAD
-- Created at   
-
-## 16. input opcion en tuner debe permitir poner varios arreglos de entrada
+## 15. input opcion en tuner debe permitir poner varios arreglos de entrada
 - Created at   2017-09-10 10:51:58 -0400
 
-## 17. revisar por qué corta columnas en ./tuner -f f5.json --input "bob uob" --lcal "BobSalazar BobPerezML"
+## 16. revisar por qué corta columnas en ./tuner -f f5.json --input "bob uob" --lcal "BobSalazar BobPerezML"
 - Created at   2017-09-11 11:42:27 -0400
 
-## 18. input opcion en tuner debe permitir poner varios arreglos de entrada
+## 17. input opcion en tuner debe permitir poner varios arreglos de entrada
 - Created at   2017-09-10 10:51:58 -0400
 - Completed at 2017-09-11 17:42:10 -0400
 
-## 19. pbcal y uodcl deben estar en lcal
+## 18. pbcal y uodcl deben estar en lcal
 - Created at   2017-09-11 15:12:36 -0400
 
-## 20. en list corr coa va antes que boa
+## 19. en list corr coa va antes que boa
 - Created at   
 
-## 21. dry de put_pbuod_sample
+## 20. dry de put_pbuod_sample
 - Created at   2017-09-11 16:24:26 -0400
 
-## 22. put_pb_sample falta conversion
+## 21. put_pb_sample falta conversion
 - Created at   2017-09-11 16:53:37 -0400
 
-## 23. operación smooth grid en puntos de inflexión
+## 22. operación smooth grid en puntos de inflexión
 - Created at   2017-09-11 17:41:45 -0400
 
-## 24. eliminar tuplas como estructuctura y sustituirlas por struct
+## 23. eliminar tuplas como estructuctura y sustituirlas por struct
 - Created at   2017-09-12 13:16:12 -0400
 
-## 25. test-grid debe recibir puntos exprimentales y calcular el error
+## 24. test-grid debe recibir puntos exprimentales y calcular el error
 - Created at   2017-09-13 10:11:06 -0400
 
-## 26. opcion de valores específicos para test-grid
+## 25. opcion de valores específicos para test-grid
 - Created at   2017-09-13 10:34:17 -0400
 
-## 27. probable bug en extrapolacion grid. revisar
+## 26. probable bug en extrapolacion grid. revisar
 - Created at   2017-09-13 14:57:58 -0400
 
-## 28. generar grid desde tuner
-- Created at   2017-09-13 17:34:04 -0400
-
-## 29. revisar diagostico f5 Lopez para pb Perez para Rs
-- Created at   2017-09-14 16:18:30 -0400
-
-## 30. revisar diagostico f5 Lopez para pb Perez para Rs
-- Created at   2017-09-14 16:22:21 -0400
-
-## 31. acelerar clot folding c-pb y m-pm-arg
+## 27. acelerar clot folding c-pb y m-pm-arg
 - Created at   2017-09-14 17:07:29 -0400
+
+## 28. lectura de grid pvt no acepta blancos y comas:
+- Created at   2017-09-15 11:29:16 -0400
 

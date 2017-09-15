@@ -2062,3 +2062,27 @@
 - Comment      
 - Finished     
 
+## 345. revisar diagostico f5 Lopez para pb Perez para Rs
+- Created at   2017-09-14 16:18:30 -0400
+- Completed at 2017-09-15 10:36:33 -0400
+- Comment      
+- Finished     
+
+## 346. revisar diagostico f5 Lopez para pb Perez para Rs
+- Created at   2017-09-14 16:22:21 -0400
+- Completed at 2017-09-15 10:36:26 -0400
+- Comment      
+- Finished     
+
+## 347. generar grid desde tuner
+- Created at   2017-09-13 17:34:04 -0400
+- Completed at 2017-09-15 10:36:46 -0400
+- Comment      
+- Finished     
+
+## 348. <<<<<<< HEAD
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
