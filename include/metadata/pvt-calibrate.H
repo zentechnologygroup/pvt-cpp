@@ -1106,7 +1106,7 @@ struct PvtData
       {
 	auto pp = it.get_curr();
 	const double & t = get<0>(pp);
-	const double & uod_lab = get<1>(pp);
+	const double & uod_lab = get<2>(pp);
 	pars.insert("t", t, &Fahrenheit::get_instance());
 	auto result = corr_ptr->compute_by_names(pars, false);
 	auto uod_ret = VtlQuantity(CP::get_instance(), result).raw();

@@ -90,7 +90,6 @@
 ## 30. para tuner opcion automática que genere todos los parámetros según r2 y threshld
 - Created at   2017-09-16 16:12:50 -0400
 
-## 31. en pvt-calibrate cambiar tuplas por struct
-- Created at   2017-09-16 16:13:03 -0400
-- Completed at 2017-09-16 16:13:31 -0400
+## 31. forzar a que regresion de uod de cero en ptos negativos
+- Created at   2017-09-16 16:52:40 -0400
 

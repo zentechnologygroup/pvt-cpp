@@ -346,3 +346,4 @@ revisar diagostico f5 Lopez para pb Perez para Rs,2017-09-14 16:18:30 -0400,2017
 revisar diagostico f5 Lopez para pb Perez para Rs,2017-09-14 16:22:21 -0400,2017-09-15 10:36:26 -0400,,2017-09-15 10:36:35 -0400
 generar grid desde tuner,2017-09-13 17:34:04 -0400,2017-09-15 10:36:46 -0400,,2017-09-15 10:36:49 -0400
 <<<<<<< HEAD,,,,2017-09-15 10:38:57 -0400
+en pvt-calibrate cambiar tuplas por struct,2017-09-16 16:13:03 -0400,2017-09-16 16:13:31 -0400,,2017-09-16 16:19:09 -0400

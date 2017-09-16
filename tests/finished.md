@@ -2086,3 +2086,9 @@
 - Comment      
 - Finished     
 
+## 349. en pvt-calibrate cambiar tuplas por struct
+- Created at   2017-09-16 16:13:03 -0400
+- Completed at 2017-09-16 16:13:31 -0400
+- Comment      
+- Finished     
+
