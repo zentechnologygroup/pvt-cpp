@@ -84,3 +84,13 @@
 ## 28. lectura de grid pvt no acepta blancos y comas:
 - Created at   2017-09-15 11:29:16 -0400
 
+## 29. pbstats y uodstats deben usar tipo StatsDesc
+- Created at   2017-09-16 11:03:21 -0400
+
+## 30. para tuner opcion automática que genere todos los parámetros según r2 y threshld
+- Created at   2017-09-16 16:12:50 -0400
+
+## 31. en pvt-calibrate cambiar tuplas por struct
+- Created at   2017-09-16 16:13:03 -0400
+- Completed at 2017-09-16 16:13:31 -0400
+
