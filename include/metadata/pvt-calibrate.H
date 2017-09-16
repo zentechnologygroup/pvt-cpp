@@ -1046,16 +1046,22 @@ struct PvtData
       }
 
     if (not is_sorted(tuples.values().
-		      maps<double>([] (auto & t) { return get<0>(t); })))
+		      maps<double>([] (auto & t) { return get<1>(t); })))
       ZENTHROW(PressureMismatch,
   	       "pb values are not sorted through temperatures");
 
-    return tuples.values();
+    return tuples.maps<Ttuple>([] (auto & p) { return p.second; });
   }
 
+  struct PbDesc
+  {
+    double t, pb_lab, pb_corr;
+    PbDesc(double t, double pb_lab, double pb_corr)
+      : t(t), pb_lab(pb_lab), pb_corr(pb_corr) {}
+  };
+
     //       t     pb_lab, pb_corr
-  DynList<tuple<double, double, double>>
-  pbapply(const Correlation * corr_ptr) const
+  DynList<PbDesc> pbapply(const Correlation * corr_ptr) const
   {
     if (corr_ptr->target_name() != "pb")
       ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
@@ -1064,7 +1070,7 @@ struct PvtData
     DynList<Ttuple> tuples = tp_sets();
     ParList pars; // parameter to be passed to correlation corr_ptr
     load_consts(corr_ptr, pars);
-    DynList<tuple<double, double, double>> ret;
+    DynList<PbDesc> ret;
     for (auto it = tuples.get_it(); it.has_curr(); it.next())
       {
 	auto pp = it.get_curr();
@@ -1073,15 +1079,20 @@ struct PvtData
 	pars.insert("t", t, &Fahrenheit::get_instance());
 	auto result = corr_ptr->compute_by_names(pars, false);
 	auto pb_ret = VtlQuantity(psia::get_instance(), result).raw();
-	ret.append(make_tuple(t, pb_lab, pb_ret));
+	ret.append(PbDesc(t, pb_lab, pb_ret));
 	pars.remove("t");
       }
     return ret;
   }
 
-      //       t     uod_lab, uod_corr
-  DynList<tuple<double, double, double>>
-  uodapply(const Correlation * corr_ptr) const
+  struct UodDesc
+  {
+    double t, uod_lab, uod_corr;
+    UodDesc(double t, double uod_lab, double uod_corr)
+      : t(t), uod_lab(uod_lab), uod_corr(uod_corr) {}
+  };  
+
+  DynList<UodDesc> uodapply(const Correlation * corr_ptr) const
   {
     if (corr_ptr->target_name() != "uod")
       ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
@@ -1090,7 +1101,7 @@ struct PvtData
     DynList<Ttuple> tuples = tp_sets();
     ParList pars; // parameter to be passed to correlation corr_ptr
     load_consts(corr_ptr, pars);
-    DynList<tuple<double, double, double>> ret;
+    DynList<UodDesc> ret;
     for (auto it = tuples.get_it(); it.has_curr(); it.next())
       {
 	auto pp = it.get_curr();
@@ -1099,7 +1110,7 @@ struct PvtData
 	pars.insert("t", t, &Fahrenheit::get_instance());
 	auto result = corr_ptr->compute_by_names(pars, false);
 	auto uod_ret = VtlQuantity(CP::get_instance(), result).raw();
-	ret.append(make_tuple(t, uod_lab, uod_ret));
+	ret.append(UodDesc(t, uod_lab, uod_ret));
 	pars.remove("t");
       }
     return ret;
@@ -1167,12 +1178,17 @@ struct PvtData
 		      corr_ptr->target_name(), &corr_ptr->unit, vals);
   }
 
-  //                  t,      pb,     bobp,   uod,   uobp
-  using TYPE = tuple<double, double, double, double, double,
-		     //  p,            y,                 yc		     
-		     DynList<double>, DynList<double>, DynList<double>>;
+  struct CorrDesc
+  {
+    double t, pb, bobp, uod, uobp;
+    DynList<double> p, y, yc;
+    CorrDesc(double t, double pb, double bobp, double uod, double uobp,
+	     DynList<double> & p, DynList<double> & y, DynList<double> & yc)
+      : t(t), pb(pb), bobp(bobp), uod(uod), uobp(uobp),
+	p(move(p)), y(move(y)), yc(move(yc)) {}
+  };
 
-  tuple<const Unit*, const Unit*, DynList<TYPE>>
+  tuple<const Unit*, const Unit*, DynList<CorrDesc>>
   iapply(const Correlation * corr_ptr) const
   {
     const string target_name = corr_ptr->target_name();
@@ -1193,7 +1209,7 @@ struct PvtData
     const Unit * yunit = first_sample_ptr->yunit;
   // Using TYPE = tuple<double, double, double, double, DynList<double>,
   // 		      DynList<double>, DynList<double>>;
-    DynList<TYPE> ret;
+    DynList<CorrDesc> ret;
     for (auto it = zip_it(samples, target_vectors); it.has_curr(); it.next())
       {
 	auto tt = it.get_curr();
@@ -1241,7 +1257,7 @@ struct PvtData
 	    pars.remove("p");
 	    pars.remove(par_name);
 	  }
-	ret.append(TYPE(temp, bobp, pb, uod, uobp, plist, ylist, yclist));
+	ret.append(CorrDesc(temp, bobp, pb, uod, uobp, plist, ylist, yclist));
 	pars.remove("t");
 	pars.remove("pb");
 	pars.remove("uod");
@@ -1252,10 +1268,35 @@ struct PvtData
     return make_tuple(punit, yunit, ret);
   }
 
-  using T = tuple<const Correlation*, DynList<double>, DynList<double>,
-		  CorrStat::Desc, bool>;
+  struct PbStats
+  {
+    const Correlation * corr_ptr = nullptr;
+    DynList<double> t;
+    DynList<double> pb_lab;
+    DynList<double> pb_corr;
+    CorrStat::Desc desc;
+    bool valid;
+    PbStats(const Correlation * corr_ptr, DynList<double> && t,
+	    DynList<double> && pb_lab, DynList<double> && pb_corr)
+      : corr_ptr(corr_ptr), t(move(t)), pb_lab(pb_lab),
+	pb_corr(pb_corr), desc(CorrStat(move(pb_lab)).stats(move(pb_corr)))
+    {
+      assert(not this->pb_lab.is_empty());
+      assert(not this->pb_corr.is_empty());
 
-  T pbstats(const Correlation * corr_ptr) const
+      if (this->pb_lab.is_unitarian())
+	{
+	  assert(this->pb_corr.is_unitarian());
+	  CorrStat::c(desc) = -CorrStat::c(desc);
+	}
+      cout << corr_ptr->name << endl
+	   << "pb_lab = c(" << join(this->pb_lab, ", ") << ")" << endl
+	   << "pb_corr = c(" << join(this->pb_corr, ", ") << ")" << endl;
+    }
+    PbStats(const Correlation * corr_ptr) : corr_ptr(corr_ptr), valid(false) {}
+  };
+
+  PbStats pbstats(const Correlation * corr_ptr) const
   {
     if (corr_ptr->target_name() != "pb")
       ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
@@ -1263,20 +1304,45 @@ struct PvtData
     try
       {
 	auto vals = pbapply(corr_ptr);
-	auto t = t_unzip(vals);
-	DynList<double> & y = get<1>(t);
-	DynList<double> & yc = get<2>(t);
-	return T(corr_ptr, get<0>(t), y,
-		 CorrStat(move(yc)).stats(move(y)), true);
+	return PbStats(corr_ptr, vals.maps<double>([] (auto & d) { return d.t; }),
+		       vals.maps<double>([] (auto & d) { return d.pb_lab; }),
+		       vals.maps<double>([] (auto & d) { return d.pb_corr; }));
       }
     catch (exception & e)
       {
-	return T(corr_ptr, DynList<double>(), DynList<double>(),
-		 CorrStat::Desc(), false);
+	return PbStats(corr_ptr);
       }
   }
 
-  T uodstats(const Correlation * corr_ptr) const
+  struct UodStats
+  {
+    const Correlation * corr_ptr = nullptr;
+    DynList<double> t;
+    DynList<double> uod_lab;
+    DynList<double> uod_corr;
+    CorrStat::Desc desc;
+    bool valid;
+    UodStats(const Correlation * corr_ptr, DynList<double> && t,
+	    DynList<double> && uod_lab, DynList<double> && uod_corr)
+      : corr_ptr(corr_ptr), t(move(t)), uod_lab(uod_lab),
+	uod_corr(uod_corr), desc(CorrStat(move(uod_lab)).stats(move(uod_corr)))
+    {
+      assert(not this->uod_lab.is_empty());
+      assert(not this->uod_corr.is_empty());
+
+      if (this->uod_lab.is_unitarian())
+	{
+	  assert(this->uod_corr.is_unitarian());
+	  CorrStat::c(desc) = -CorrStat::c(desc);
+	}
+      cout << corr_ptr->name << endl
+	   << "uod_lab = c(" << join(this->uod_lab, ", ") << ")" << endl
+	   << "uod_corr = c(" << join(this->uod_corr, ", ") << ")" << endl;
+    }
+    UodStats(const Correlation * corr_ptr) : corr_ptr(corr_ptr), valid(false) {}
+  };
+  
+  UodStats uodstats(const Correlation * corr_ptr) const
   {
     if (corr_ptr->target_name() != "uod")
       ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
@@ -1284,18 +1350,39 @@ struct PvtData
     try
       {
 	auto vals = uodapply(corr_ptr);
-	auto t = t_unzip(vals);
-	DynList<double> & y = get<1>(t);
-	DynList<double> & yc = get<2>(t);
-	return T(corr_ptr, get<0>(t), y,
-		 CorrStat(move(yc)).stats(move(y)), true);
+	return UodStats(corr_ptr, vals.maps<double>([] (auto & d) { return d.t; }),
+			vals.maps<double>([] (auto & d) { return d.uod_lab; }),
+			vals.maps<double>([] (auto & d) { return d.uod_corr; }));
       }
     catch (exception & e)
       {
-	return T(corr_ptr, DynList<double>(), DynList<double>(),
-		 CorrStat::Desc(), false);
+	return UodStats(corr_ptr);
       }
   }
+
+  struct StatsDesc
+  {
+    const Correlation * corr_ptr = nullptr;
+    CorrStat::Desc desc;
+    DynList<double> ylab; // experimental values
+    DynList<double> ycorr; // values obtained from corr_ptr
+    bool valid;
+
+    StatsDesc(PbStats && stats)
+      : corr_ptr(stats.corr_ptr), desc(stats.desc), ylab(move(stats.pb_lab)),
+	ycorr(move(stats.pb_corr)), valid(stats.valid) {}
+
+    StatsDesc(UodStats && stats)
+      : corr_ptr(stats.corr_ptr), desc(stats.desc), ylab(move(stats.uod_lab)),
+	ycorr(move(stats.uod_corr)), valid(stats.valid) {}
+
+    StatsDesc(const Correlation * corr_ptr, DynList<double> & ylab,
+	      DynList<double> & ycorr)
+      : corr_ptr(corr_ptr), desc(CorrStat(ylab).stats(ycorr)),
+	ylab(move(ylab)), ycorr(move(ycorr)), valid(true) {}
+
+    StatsDesc(const Correlation * corr_ptr) : corr_ptr(corr_ptr), valid(false) {}
+  };
 
   /* Given corr_ptr, this routine builds a linear regression as follows:
 
@@ -1324,7 +1411,6 @@ struct PvtData
      |
      -----x------x------x------x----------x---------x-------> yc (values given
      (these values are sorted by pressure)                        by corr_ptr)
-          
 
      The line 
       
@@ -1336,7 +1422,7 @@ struct PvtData
 
      Calibrated(corr pars) = c + m Correlation(corr pars)
    */
-  T istats(const Correlation * corr_ptr) const
+  StatsDesc istats(const Correlation * corr_ptr) const
   {
     try
       {
@@ -1345,11 +1431,15 @@ struct PvtData
 	DynList<Trio> l;
 	for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
 	  {
-	    auto & t = it.get_curr();
-	    DynList<double> & p = get<5>(t);
-	    DynList<double> & y = get<6>(t);
-	    DynList<double> & yc = get<7>(t);	 
-	    l.append(t_zip(move(p), move(y), move(yc)));
+	    CorrDesc & t = it.get_curr();
+	    cout << endl
+		 << "p ="; t.p.for_each([] (auto v) { cout << " " << v; });
+	    cout << endl
+		 << "y ="; t.y.for_each([] (auto v) { cout << " " << v; });
+	    cout << endl
+		 << "yc ="; t.yc.for_each([] (auto v) { cout << " " << v; });
+	    cout << endl;
+	    l.append(t_zip(move(t.p), move(t.y), move(t.yc)));
 	  }
 
 	in_place_sort(l, [] (const Trio & t1, const Trio & t2)
@@ -1357,7 +1447,7 @@ struct PvtData
 			return get<0>(t1) < get<0>(t2);
 		      });
 
-	//           yc,          p,       y
+	//           y,          p,       yc
 	DynMapTree<double, pair<double, double>> ptbl;
 	for (auto it = l.get_it(); it.has_curr(); it.next())
 	  {
@@ -1378,36 +1468,38 @@ struct PvtData
 	    auto pp = it.get_curr();
 	    auto & second = pp.second;
 	    p.append(second.first);
-	    y.append(second.second);
-	    yc.append(pp.first);
+	    y.append(pp.first);
+	    yc.append(second.second);
 	  }
 
-	auto stats = CorrStat(yc).stats(y);
+	cout << corr_ptr->name << endl
+	     << "y = c(" << join(y, ", ") << ")" << endl
+	     << endl
+	     << "yc = c(" << join(yc, ", ") << ")" <<endl;
 
-	return make_tuple(corr_ptr, move(p), move(y), move(stats), true);
+	return StatsDesc(corr_ptr, y, yc);
       }
     catch (exception &e)
       {
-	return make_tuple(corr_ptr, DynList<double>(), DynList<double>(),
-			  CorrStat::Desc(), false);
+	return StatsDesc(corr_ptr);
       }
   }
 
-  T stats(const Correlation * corr_ptr) const
+  StatsDesc stats(const Correlation * corr_ptr) const
   {
     const string tgt_name = corr_ptr->target_name();
     if (tgt_name == "pb")
-      return pbstats(corr_ptr);
+      return StatsDesc(pbstats(corr_ptr));
     else if (tgt_name == "uod")
-      return uodstats(corr_ptr);
+      return StatsDesc(uodstats(corr_ptr));
     else
       return istats(corr_ptr);
   }
 
   pair<double, double> cm(const Correlation * corr_ptr) const
   {
-    T s = stats(corr_ptr);
-    return make_pair(CorrStat::c(get<3>(s)), CorrStat::m(get<3>(s)));
+    const StatsDesc s = stats(corr_ptr);
+    return make_pair(CorrStat::c(s.desc), CorrStat::m(s.desc));
   }
 };
 

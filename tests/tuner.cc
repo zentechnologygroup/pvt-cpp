@@ -613,9 +613,9 @@ SwitchArg eol { "", "eol", "add to output an end of line", cmd };
     data.NAME##_corr = corr_ptr;					\
     if (calibrated)							\
       {									\
-	auto s = data.stats(corr_ptr);					\
-	data.c_##NAME = CorrStat::c(get<3>(s));				\
-	data.m_##NAME = CorrStat::m(get<3>(s));				\
+	const PvtData::StatsDesc s = data.stats(corr_ptr);		\
+	data.c_##NAME = CorrStat::c(s.desc);				\
+	data.m_##NAME = CorrStat::m(s.desc);				\
       }									\
   }
 
@@ -852,19 +852,18 @@ void process_match()
   terminate_app();
 }
 
-using T = PvtData::T;
+using T = PvtData::StatsDesc;
 
 # define Define_Cmp(name)						\
   auto cmp_##name = [] (const T & d1, const T & d2)			\
   {									\
-    return CorrStat::name(get<3>(d1)) < CorrStat::name(get<3>(d2));	\
+    return CorrStat::name(d1.desc) < CorrStat::name(d2.desc);		\
   }
 
 # define Define_1_Cmp(name)						\
   auto cmp_##name = [] (const T & d1, const T & d2)			\
   {									\
-    return abs(1 - CorrStat::name(get<3>(d1))) <			\
-    abs(1 - CorrStat::name(get<3>(d2)));				\
+    return abs(1 - CorrStat::name(d1.desc)) < abs(1 - CorrStat::name(d2.desc));	\
   }
 
 Define_1_Cmp(r2);
@@ -875,7 +874,7 @@ Define_1_Cmp(m);
 
 auto cmp_c = [] (const T & d1, const T & d2)
 {
-  return abs(CorrStat::c(get<3>(d1))) < abs(CorrStat::c(get<3>(d2)));
+  return abs(CorrStat::c(d1.desc)) < abs(CorrStat::c(d2.desc));
 };
 
 DynMapTree<string, bool (*)(const T&, const T&)> cmp =
@@ -901,9 +900,9 @@ void process_apply()
 
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {
-      DynList<string> ret = build_dynlist<string>(get<0>(t)->name);
-      auto stats = get<4>(t) ? CorrStat::desc_to_dynlist(get<3>(t)) :
-      CorrStat::invalid_desc_to_dynlist();
+      DynList<string> ret = build_dynlist<string>(t.corr_ptr->name);
+      auto stats = t.valid ? CorrStat::desc_to_dynlist(t.desc) :
+        CorrStat::invalid_desc_to_dynlist();
       ret.append(stats);
       return ret;
     });
@@ -995,12 +994,6 @@ void put_pb_sample(const Correlation * corr_ptr,
   const string & name = corr_ptr->name;
   const auto & mode = mode_type.getValue();
 
-  cout << "c = " << c << " m = " << m << endl;
-  pb.for_each([c, m] (auto v)
-	      {
-		cout << "pb = " << v << " c + m pb = " << c + m*v << endl;
-	      });
-
   if (mode == "single")
     {
       rows.append(move(pb));
@@ -1024,6 +1017,8 @@ void put_uod_sample(const Correlation * corr_ptr,
 		   DynList<DynList<double>> & rows, DynList<string> & header,
 		   DynList<double> & uod, double c, double m)
 {
+  cout << "uod sample =";
+  uod.for_each([] (auto v) { cout << " " << v; }); cout << endl;
   const string & name = corr_ptr->name;
   const auto & mode = mode_type.getValue();
 
@@ -1177,8 +1172,8 @@ void process_local_calibration()
       if (mode != "single")
 	{
 	  auto stats = data.istats(corr_ptr);
-	  comb.append(make_pair(CorrStat::c(get<3>(stats)),
-				CorrStat::m(get<3>(stats))));
+	  comb.append(make_pair(CorrStat::c(stats.desc),
+				CorrStat::m(stats.desc)));
 	}
       else
 	comb.append(make_pair(0, 1));
@@ -1197,19 +1192,17 @@ void process_local_calibration()
 
   for (auto it = get<2>(fst).get_it(); it.has_curr(); it.next())
     {
-      PvtData::TYPE & vals = it.get_curr();
-      auto & pvals = get<5>(vals);
+      PvtData::CorrDesc & vals = it.get_curr();
       const Unit * out_p_unit = test_p_out_unit(punit);
-      mutable_unit_convert(*punit, pvals, *out_p_unit);
+      mutable_unit_convert(*punit, vals.p, *out_p_unit);
 
-      auto & yvals = get<6>(vals);
       const Unit * out_y_unit = test_y_out_unit(yunit);
-      mutable_unit_convert(*yunit, yvals, *out_y_unit);
+      mutable_unit_convert(*yunit, vals.y, *out_y_unit);
       
-      const string t_tag = ::to_string((int) get<0>(vals));
+      const string t_tag = ::to_string((int) vals.t);
       header.append(build_dynlist<string>("p_" + t_tag,
 					  target_name + "_" + t_tag));
-      rows.append(build_dynlist<DynList<double>>(move(pvals), move(yvals)));
+      rows.append(build_dynlist<DynList<double>>(move(vals.p), move(vals.y)));
     }
 
   for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
@@ -1224,10 +1217,8 @@ void process_local_calibration()
       const double & m = cm.second;
       for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
 	{
-	  auto & curr = it.get_curr();
-	  const double & temp = get<0>(curr);
-	  DynList<double> & yc = get<7>(curr);
-	  put_sample(corr_ptr, rows, header, temp, yunit, yc, c, m);
+	  PvtData::CorrDesc & curr = it.get_curr();
+	  put_sample(corr_ptr, rows, header, curr.t, yunit, curr.yc, c, m);
 	}
     }
 
@@ -1265,6 +1256,7 @@ void process_pb_calibration()
       for (auto it = cols.get_it(); it.has_curr(); it.next())
 	{
 	  const auto & p = it.get_curr();
+	  p.for_each([] (auto &s) { cout << s << "-"; }); cout << endl;
 	  const string & header = p.get_first();
 	  if (header[0] == 't')
 	    p.each(1, 1, [&xmin, &xmax] (auto v)
@@ -1341,9 +1333,9 @@ void process_pb_calibration()
       
       if (mode != "single")
 	{
-	  auto stats = data.pbstats(corr_ptr);
-	  comb.append(make_pair(CorrStat::c(get<3>(stats)),
-				CorrStat::m(get<3>(stats))));
+	  const PvtData::PbStats stats = data.pbstats(corr_ptr);
+	  comb.append(make_pair(CorrStat::c(stats.desc),
+				CorrStat::m(stats.desc)));
 	}
       else
 	comb.append(make_pair(0, 1));
@@ -1359,12 +1351,12 @@ void process_pb_calibration()
     {
       auto curr = it.get_curr();
       const Correlation * corr_ptr = get<0>(curr);
-      auto vals = data.pbapply(corr_ptr);
+      const DynList<PvtData::PbDesc> vals = data.pbapply(corr_ptr);
       const auto & cm = get<1>(curr);
       const double & c = cm.first;
       const double & m = cm.second;
-      DynList<double> pbvals =
-	vals.maps<double>([] (auto t) { return get<2>(t); });
+      DynList<double> pbvals = 
+	vals.maps<double>([] (auto & d) { return d.pb_corr; });
       put_pb_sample(corr_ptr, rows, header, pbvals, c,  m);
     }
 
@@ -1475,6 +1467,7 @@ void process_uod_calibration()
 	{
 	  auto s = data.cm(corr_ptr);
 	  comb.append(make_pair(s.first, s.second));
+	  cout << "c = " << s.first << " m = " << s.second << endl;
 	}
       else
 	comb.append(make_pair(0, 1));
@@ -1491,16 +1484,16 @@ void process_uod_calibration()
       auto curr = it.get_curr();
       const Correlation * corr_ptr = get<0>(curr);
       auto vals = data.uodapply(corr_ptr);
-      auto svals = vals.maps<DynList<string>>([] (auto & t)
+      auto svals = vals.maps<DynList<string>>([] (auto & d)
         {
-	  return build_dynlist<string>(to_string(get<0>(t)), to_string(get<1>(t)),
-				       to_string(get<2>(t)));
+	  return build_dynlist<string>(to_string(d.t), to_string(d.uod_lab),
+				       to_string(d.uod_corr));
 	});
       const auto & cm = get<1>(curr);
       const double & c = cm.first;
       const double & m = cm.second;
       DynList<double> uodvals =
-	vals.maps<double>([] (auto t) { return get<2>(t); });
+	vals.maps<double>([] (auto & d) { return d.uod_corr; });
       put_uod_sample(corr_ptr, rows, header, uodvals, c,  m);
     }
 
