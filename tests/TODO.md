@@ -86,6 +86,7 @@
 
 ## 29. pbstats y uodstats deben usar tipo StatsDesc
 - Created at   2017-09-16 11:03:21 -0400
+- Completed at 2017-09-16 18:50:12 -0400
 
 ## 30. para tuner opcion automática que genere todos los parámetros según r2 y threshld
 - Created at   2017-09-16 16:12:50 -0400

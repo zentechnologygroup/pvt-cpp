@@ -1166,10 +1166,7 @@ struct PvtData
 	    pvals.append(get<2>(curr.get_first()));
 	    vals.append(r.raw());
 	  }
-	catch (exception & e)
-	  {
-	    cout << e.what() << endl;
-	  }
+	catch (exception & e) {}
 	curr.for_each([&pars] (auto & t) { pars.remove(get<0>(t)); });
       }
     assert(p.size() == vals.size());
@@ -1250,10 +1247,7 @@ struct PvtData
 		ylist.append(y);
 		yclist.append(result.raw());
 	      }
-	    catch (exception & e)
-	      {
-		//cout << "ERROR: " << e.what() << endl;
-	      }
+	    catch (exception & e) {}
 	    pars.remove("p");
 	    pars.remove(par_name);
 	  }
@@ -1289,9 +1283,6 @@ struct PvtData
 	  assert(this->pb_corr.is_unitarian());
 	  CorrStat::c(desc) = -CorrStat::c(desc);
 	}
-      cout << corr_ptr->name << endl
-	   << "pb_lab = c(" << join(this->pb_lab, ", ") << ")" << endl
-	   << "pb_corr = c(" << join(this->pb_corr, ", ") << ")" << endl;
     }
     PbStats(const Correlation * corr_ptr) : corr_ptr(corr_ptr), valid(false) {}
   };
@@ -1335,9 +1326,6 @@ struct PvtData
 	  assert(this->uod_corr.is_unitarian());
 	  CorrStat::c(desc) = -CorrStat::c(desc);
 	}
-      cout << corr_ptr->name << endl
-	   << "uod_lab = c(" << join(this->uod_lab, ", ") << ")" << endl
-	   << "uod_corr = c(" << join(this->uod_corr, ", ") << ")" << endl;
     }
     UodStats(const Correlation * corr_ptr) : corr_ptr(corr_ptr), valid(false) {}
   };
@@ -1386,7 +1374,7 @@ struct PvtData
 
   /* Given corr_ptr, this routine builds a linear regression as follows:
 
-     ylab (experimental values)
+     values given by corr_ptr
      ^
      |
      x                                              o
@@ -1409,8 +1397,8 @@ struct PvtData
      |
      |
      |
-     -----x------x------x------x----------x---------x-------> yc (values given
-     (these values are sorted by pressure)                        by corr_ptr)
+     -----x------x------x------x----------x---------x-------> ylab 
+     (these values are sorted by pressure)              (experimental values)       
 
      The line 
       
@@ -1432,13 +1420,6 @@ struct PvtData
 	for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
 	  {
 	    CorrDesc & t = it.get_curr();
-	    cout << endl
-		 << "p ="; t.p.for_each([] (auto v) { cout << " " << v; });
-	    cout << endl
-		 << "y ="; t.y.for_each([] (auto v) { cout << " " << v; });
-	    cout << endl
-		 << "yc ="; t.yc.for_each([] (auto v) { cout << " " << v; });
-	    cout << endl;
 	    l.append(t_zip(move(t.p), move(t.y), move(t.yc)));
 	  }
 
@@ -1472,11 +1453,6 @@ struct PvtData
 	    yc.append(second.second);
 	  }
 
-	cout << corr_ptr->name << endl
-	     << "y = c(" << join(y, ", ") << ")" << endl
-	     << endl
-	     << "yc = c(" << join(yc, ", ") << ")" <<endl;
-
 	return StatsDesc(corr_ptr, y, yc);
       }
     catch (exception &e)
@@ -1500,6 +1476,66 @@ struct PvtData
   {
     const StatsDesc s = stats(corr_ptr);
     return make_pair(CorrStat::c(s.desc), CorrStat::m(s.desc));
+  }
+
+  struct AutoDesc
+  {
+    const Correlation * corr_ptr = nullptr;
+    CorrStat::Desc d;
+    AutoDesc(const Correlation * corr_ptr, const CorrStat::Desc & d)
+      : corr_ptr(corr_ptr), d(d) {}
+    AutoDesc() {}
+  };
+
+  AutoDesc auto_apply(const string & target_name,
+		      const DynSetTree<string> & relax_tbl,
+		      const DynSetTree<const Correlation*> & banned_list,
+		      const double r2_threshold) const
+  {
+    auto corr_list = can_be_applied(target_name, relax_tbl).
+      filter([&banned_list] (auto ptr)
+        {
+	  return not banned_list.has(ptr);
+	});
+    
+    if (corr_list.is_empty())
+      return AutoDesc();
+
+    auto rlist = corr_list.maps<AutoDesc>([this, r2_threshold] (auto ptr)
+      {
+	return AutoDesc(ptr, this->stats(ptr).desc);
+      });
+
+    rlist = rlist.filter([&r2_threshold] (auto & a)
+      {
+	return CorrStat::is_valid(a.d) and CorrStat::r2(a.d) >= r2_threshold;
+      });
+
+    if (rlist.is_empty())
+      return AutoDesc();
+
+    in_place_sort(rlist, [] (auto & a1, auto & a2)
+		  { return CorrStat::r2(a1.d) < CorrStat::r2(a2.d); });
+
+    return rlist.get_last();
+  }    
+
+  DynList<AutoDesc>
+  auto_apply(const DynSetTree<string> & relax_tbl,
+	     const DynSetTree<const Correlation*> & banned_list,
+	     const double r2_threshold = 0.98) const
+  {
+    static DynList<string> properties =
+      { "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa" };
+
+    DynList<AutoDesc> ret;
+    for (auto & target_name : properties)
+      {
+	auto a = auto_apply(target_name, relax_tbl, banned_list, r2_threshold);
+	if (a.corr_ptr != nullptr)
+	  ret.append(a);
+      }
+    return ret;
   }
 };
 

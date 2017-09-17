@@ -39,7 +39,7 @@ struct ValuesArg
   double t; // temperature
   const Unit * tunit_ptr = nullptr; // temperature unit
 
-  double uod = -1; // uod
+  double uod  = -1; // uod
   double uobp = -1;
   double bobp = -1;
 
@@ -581,6 +581,8 @@ SwitchArg cplot = { "", "cplot", "generate cplot command", cmd };
 
 SwitchArg eol { "", "eol", "add to output an end of line", cmd };
 
+SwitchArg auto_arg = { "", "auto", "automatic calibration", cmd };
+
 # define Corr_Arg(NAME)							\
   ValueArg<string> NAME##_corr_arg =					\
     { "", #NAME, "set " #NAME " correlation", false, "",		\
@@ -910,6 +912,67 @@ void process_apply()
   DynList<string> header = build_dynlist<string>("Correlation");
   header.append(CorrStat::stats_header());
 
+  rows.insert(header);
+
+  const auto & out_type = output.getValue();
+  if (out_type == "csv")
+    cout << Aleph::to_string(format_string_csv(rows)) << endl;
+  else
+    cout << Aleph::to_string(format_string(rows)) << endl;
+
+  terminate_app();
+}
+
+MultiArg<string> ban =
+  { "b", "ban", "ban correlation for automatic calibration", false, "", cmd };
+
+ValueArg<double> r2 = { "", "r2", "r2 threshold", false, 0.98,
+			"r2 threshold", cmd };
+
+void process_auto()
+{
+  if (not auto_arg.isSet())
+    return;
+
+  static const DynSetTree<const Correlation*> dft_ban_list =
+    Correlation::array().filter([] (auto ptr)
+				{
+				  return contains(ptr->name, "Hanafy");
+				});
+
+  const double & r2 = ::r2.getValue();  
+  if (r2 <= 0 or r2 > 1)
+    error_msg("r2 value " + to_string(r2) + " is not in (0, 1]");
+
+  DynSetTree<const Correlation*> ban_list;
+  for (auto & name : ban.getValue())
+    {
+      auto ptr = Correlation::search_by_name(name);
+      if (ptr == nullptr)
+	error_msg("For " + ban.getFlag() + ": correlation name " +
+		  name + " not found");
+      ban_list.append(ptr);
+    }
+
+  const DynSetTree<const Correlation*> * ban_list_ptr = nullptr;
+  if (ban_list.is_empty())
+    ban_list_ptr = &dft_ban_list;
+  else
+    ban_list_ptr = &ban_list;
+
+  auto corr_list = data.auto_apply(relax_names_tbl, *ban_list_ptr, r2);
+
+  corr_list.for_each([] (auto & a) { cout << a.corr_ptr->name << endl; });
+
+  DynList<DynList<string>> rows = corr_list.maps<DynList<string>>([] (auto & a)
+    {
+      DynList<string> ret = build_dynlist<string>(a.corr_ptr->name);
+      ret.append(CorrStat::desc_to_dynlist(a.d));
+      return ret;
+    });
+  
+  DynList<string> header = build_dynlist<string>("Correlation");
+  header.append(CorrStat::stats_header());
   rows.insert(header);
 
   const auto & out_type = output.getValue();
@@ -1661,6 +1724,7 @@ int main(int argc, char *argv[])
 
   process_list();
   process_match();
+  process_auto();
   process_apply();
   process_napply();
   process_local_calibration();
