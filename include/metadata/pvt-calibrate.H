@@ -3,6 +3,7 @@
 
 # include <json.hpp>
 # include <ah-stl-utils.H>
+# include <ah-dispatcher.H>
 
 # include <lfit.H>
 
@@ -1536,6 +1537,41 @@ struct PvtData
 	  ret.append(a);
       }
     return ret;
+  }
+
+# define Declare_Set_Corr(NAME)		\
+  static auto set_##NAME =						\
+			[] (PvtData * pvtdata, const AutoDesc & a)	\
+  {									\
+    pvtdata->NAME##_corr = a.corr_ptr;					\
+    pvtdata->c_##NAME = CorrStat::c(a.d);				\
+    pvtdata->m_##NAME = CorrStat::m(a.d);				\
+  }
+
+  void set_correlation(const AutoDesc & d)
+  {
+    Declare_Set_Corr(pb);
+    Declare_Set_Corr(rs);
+    Declare_Set_Corr(bob);
+    Declare_Set_Corr(coa);
+    Declare_Set_Corr(boa);
+    Declare_Set_Corr(uod);
+    Declare_Set_Corr(uob);
+    Declare_Set_Corr(uoa);
+    static const AHDispatcher<string, void (*)(PvtData*, const AutoDesc&)>
+      dispatcher("pb", set_pb, "rs", set_rs, "bob", set_bob, "coa", set_coa,
+		 "boa", set_boa, "uod", set_uod, "uob", set_uob, "uoa", set_uoa);
+
+    const string target_name = d.corr_ptr->target_name();
+    try
+      {
+	dispatcher.run(target_name, this, d);
+      }
+    catch (exception & e)
+      {
+	ZENTHROW(CorrelationNotApplicable,
+		 "Invalid target for correlation " + target_name);
+      }
   }
 };
 

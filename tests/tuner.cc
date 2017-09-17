@@ -583,6 +583,9 @@ SwitchArg eol { "", "eol", "add to output an end of line", cmd };
 
 SwitchArg auto_arg = { "", "auto", "automatic calibration", cmd };
 
+SwitchArg Auto_arg =
+  { "", "Auto", "set correlation given by automatic calibration", cmd };
+
 # define Corr_Arg(NAME)							\
   ValueArg<string> NAME##_corr_arg =					\
     { "", #NAME, "set " #NAME " correlation", false, "",		\
@@ -810,6 +813,7 @@ void process_Print_data()
 {
   if (not Print.isSet())
     return;
+
   const string & type = Print.getValue();
   if (type == "constants")
     cout << "Constants:" << endl
@@ -929,12 +933,9 @@ MultiArg<string> ban =
 ValueArg<double> r2 = { "", "r2", "r2 threshold", false, 0.98,
 			"r2 threshold", cmd };
 
-void process_auto()
+DynList<PvtData::AutoDesc> best_list()
 {
-  if (not auto_arg.isSet())
-    return;
-
-  static const DynSetTree<const Correlation*> dft_ban_list =
+ static const DynSetTree<const Correlation*> dft_ban_list =
     Correlation::array().filter([] (auto ptr)
 				{
 				  return contains(ptr->name, "Hanafy");
@@ -949,7 +950,7 @@ void process_auto()
     {
       auto ptr = Correlation::search_by_name(name);
       if (ptr == nullptr)
-	error_msg("For " + ban.getFlag() + ": correlation name " +
+	error_msg("For " + ban.getName() + ": correlation name " +
 		  name + " not found");
       ban_list.append(ptr);
     }
@@ -960,9 +961,15 @@ void process_auto()
   else
     ban_list_ptr = &ban_list;
 
-  auto corr_list = data.auto_apply(relax_names_tbl, *ban_list_ptr, r2);
+  return data.auto_apply(relax_names_tbl, *ban_list_ptr, r2);
+}
 
-  corr_list.for_each([] (auto & a) { cout << a.corr_ptr->name << endl; });
+void process_auto()
+{
+  if (not auto_arg.isSet())
+    return;
+
+  auto corr_list = best_list();
 
   DynList<DynList<string>> rows = corr_list.maps<DynList<string>>([] (auto & a)
     {
@@ -982,6 +989,20 @@ void process_auto()
     cout << Aleph::to_string(format_string(rows)) << endl;
 
   terminate_app();
+}
+
+void process_Auto()
+{
+  if (not Auto_arg.isSet())
+    return;
+
+  if (not Cplot.isSet() and not cplot.isSet() and not print.isSet() and
+      not Print.isSet())
+    error_msg("Option " + Auto_arg.getName() + " must be used in combination "
+	      "with " + cplot.getName() + " or " + Cplot.getName() + " or " +
+	      print.getName() + " or " + Print.getName());
+
+  best_list().for_each([ptr = &data] (auto & a) { ptr->set_correlation(a); });
 }
 
 void process_napply()
@@ -1707,6 +1728,7 @@ int main(int argc, char *argv[])
   if (not data.defined())
     ZENTHROW(CommandLineError, "data is not defined");
 
+  process_Auto();
   process_print_data();
   process_Print_data();
 
