@@ -44,6 +44,14 @@ ValueArg<double> c2 = { "", "c2", "c2", false, 1e-4, "c2", cmd };
 ValueArg<double> c3 = { "", "c3", "c3", false, 1e-7, "c3", cmd };
 ValueArg<double> c4 = { "", "c4", "c4", false, 1e-1, "c4", cmd };
 
+SwitchArg gen_arg = { "g", "gen-grid", "generate testing grid", cmd };
+ValueArg<string> file = { "f", "file", "file name", false, "", "file name", cmd };
+
+vector<string> output_types = { "R", "csv", "mat" };
+ValuesConstraint<string> allowed_output_types = output_types;
+ValueArg<string> output = { "", "output", "output type", false,
+			    "mat", &allowed_output_types, cmd };
+
 DynList<DynList<double>> gen_vals()
 {
   double k = ::k.getValue(), c0 = ::c0.getValue(), c1 = ::c1.getValue(),
@@ -82,6 +90,31 @@ ostream & gen_grid(const DynList<string> & names,
     }
 
   return out;
+}
+
+DynList<DynList<string>> convert_to_string(const DynList<DynList<double>> & vals)
+{
+  DynList<string> header =
+    build_dynlist<string>("t " + Fahrenheit::get_instance().name,
+			  "p " + psia::get_instance().name,
+			  "v " + TestUnit::get_instance().name);
+  auto rows = vals.maps<DynList<string>>([] (auto & l)
+    { return l.template maps<string>([] (double v) { return to_str(v); }); });
+  rows.insert(header);
+  return rows;
+}
+
+void process_gen_grid()
+{
+  static auto mat = [] (const DynList<DynList<double>> & vals)
+    {
+      cout << to_string(format_string(convert_to_string(vals))) << endl;
+    };
+  static auto csv = [] (const DynList<DynList<double>> & vals)
+    {
+      cout << to_string(format_string_csv(convert_to_string(vals))) << endl;
+    };
+  auto vals = gen_vals();
 }
 
 PvtGrid load_grid(istream & in)
