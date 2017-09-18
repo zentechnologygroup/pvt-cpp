@@ -2092,3 +2092,33 @@
 - Comment      
 - Finished     
 
+## 350. pbstats y uodstats deben usar tipo StatsDesc
+- Created at   2017-09-16 11:03:21 -0400
+- Completed at 2017-09-16 18:50:12 -0400
+- Comment      
+- Finished     
+
+## 351. input opcion en tuner debe permitir poner varios arreglos de entrada
+- Created at   2017-09-10 10:51:58 -0400
+- Completed at 2017-09-11 17:42:10 -0400
+- Comment      
+- Finished     
+
+## 352. revisar por qué corta columnas en ./tuner -f f5.json --input "bob uob" --lcal "BobSalazar BobPerezML"
+- Created at   2017-09-11 11:42:27 -0400
+- Completed at 2017-09-17 21:01:00 -0400
+- Comment      
+- Finished     
+
+## 353. error en input bob rs es parametro fuera de rango
+- Created at   2017-09-07 17:01:01 -0400
+- Completed at 2017-09-17 21:01:19 -0400
+- Comment      
+- Finished     
+
+## 354. para tuner opcion automática que genere todos los parámetros según r2 y threshld
+- Created at   2017-09-16 16:12:50 -0400
+- Completed at 2017-09-17 20:51:39 -0400
+- Comment      
+- Finished     
+

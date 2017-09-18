@@ -35,62 +35,46 @@
 ## 12. documentar más cplot
 - Created at   2017-09-06 09:31:57 -0400
 
-## 13. error en input bob rs es parametro fuera de rango
-- Created at   2017-09-07 17:01:01 -0400
-
-## 14. grid pvt debe extrapolar
+## 13. grid pvt debe extrapolar
 - Created at   2017-09-08 18:29:26 -0400
 
-## 15. input opcion en tuner debe permitir poner varios arreglos de entrada
+## 14. input opcion en tuner debe permitir poner varios arreglos de entrada
 - Created at   2017-09-10 10:51:58 -0400
 
-## 16. revisar por qué corta columnas en ./tuner -f f5.json --input "bob uob" --lcal "BobSalazar BobPerezML"
-- Created at   2017-09-11 11:42:27 -0400
-
-## 17. input opcion en tuner debe permitir poner varios arreglos de entrada
-- Created at   2017-09-10 10:51:58 -0400
-- Completed at 2017-09-11 17:42:10 -0400
-
-## 18. pbcal y uodcl deben estar en lcal
+## 15. pbcal y uodcl deben estar en lcal
 - Created at   2017-09-11 15:12:36 -0400
 
-## 19. en list corr coa va antes que boa
+## 16. en list corr coa va antes que boa
 - Created at   
 
-## 20. dry de put_pbuod_sample
+## 17. dry de put_pbuod_sample
 - Created at   2017-09-11 16:24:26 -0400
 
-## 21. put_pb_sample falta conversion
+## 18. put_pb_sample falta conversion
 - Created at   2017-09-11 16:53:37 -0400
 
-## 22. operación smooth grid en puntos de inflexión
+## 19. operación smooth grid en puntos de inflexión
 - Created at   2017-09-11 17:41:45 -0400
 
-## 23. eliminar tuplas como estructuctura y sustituirlas por struct
+## 20. eliminar tuplas como estructuctura y sustituirlas por struct
 - Created at   2017-09-12 13:16:12 -0400
 
-## 24. test-grid debe recibir puntos exprimentales y calcular el error
+## 21. test-grid debe recibir puntos exprimentales y calcular el error
 - Created at   2017-09-13 10:11:06 -0400
+- Completed at 2017-09-17 20:57:35 -0400
 
-## 25. opcion de valores específicos para test-grid
+## 22. opcion de valores específicos para test-grid
 - Created at   2017-09-13 10:34:17 -0400
 
-## 26. probable bug en extrapolacion grid. revisar
+## 23. probable bug en extrapolacion grid. revisar
 - Created at   2017-09-13 14:57:58 -0400
 
-## 27. acelerar clot folding c-pb y m-pm-arg
+## 24. acelerar clot folding c-pb y m-pm-arg
 - Created at   2017-09-14 17:07:29 -0400
 
-## 28. lectura de grid pvt no acepta blancos y comas:
+## 25. lectura de grid pvt no acepta blancos y comas:
 - Created at   2017-09-15 11:29:16 -0400
 
-## 29. pbstats y uodstats deben usar tipo StatsDesc
-- Created at   2017-09-16 11:03:21 -0400
-- Completed at 2017-09-16 18:50:12 -0400
-
-## 30. para tuner opcion automática que genere todos los parámetros según r2 y threshld
-- Created at   2017-09-16 16:12:50 -0400
-
-## 31. forzar a que regresion de uod de cero en ptos negativos
+## 26. forzar a que regresion de uod de cero en ptos negativos
 - Created at   2017-09-16 16:52:40 -0400
 

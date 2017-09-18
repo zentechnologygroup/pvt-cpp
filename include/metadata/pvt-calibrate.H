@@ -1539,7 +1539,7 @@ struct PvtData
     return ret;
   }
 
-# define Declare_Set_Corr(NAME)		\
+# define Declare_Set_Corr(NAME)						\
   static auto set_##NAME =						\
 			[] (PvtData * pvtdata, const AutoDesc & a)	\
   {									\

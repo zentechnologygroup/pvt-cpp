@@ -347,3 +347,8 @@ revisar diagostico f5 Lopez para pb Perez para Rs,2017-09-14 16:22:21 -0400,2017
 generar grid desde tuner,2017-09-13 17:34:04 -0400,2017-09-15 10:36:46 -0400,,2017-09-15 10:36:49 -0400
 <<<<<<< HEAD,,,,2017-09-15 10:38:57 -0400
 en pvt-calibrate cambiar tuplas por struct,2017-09-16 16:13:03 -0400,2017-09-16 16:13:31 -0400,,2017-09-16 16:19:09 -0400
+pbstats y uodstats deben usar tipo StatsDesc,2017-09-16 11:03:21 -0400,2017-09-16 18:50:12 -0400,,2017-09-17 20:51:44 -0400
+input opcion en tuner debe permitir poner varios arreglos de entrada,2017-09-10 10:51:58 -0400,2017-09-11 17:42:10 -0400,,2017-09-17 20:52:14 -0400
+revisar por qué corta columnas en ./tuner -f f5.json --input "bob uob" --lcal "BobSalazar BobPerezML",2017-09-11 11:42:27 -0400,2017-09-17 21:01:00 -0400,,2017-09-17 21:01:03 -0400
+error en input bob rs es parametro fuera de rango,2017-09-07 17:01:01 -0400,2017-09-17 21:01:19 -0400,,2017-09-17 21:01:24 -0400
+para tuner opcion automática que genere todos los parámetros según r2 y threshld,2017-09-16 16:12:50 -0400,2017-09-17 20:51:39 -0400,,2017-09-17 21:01:55 -0400
