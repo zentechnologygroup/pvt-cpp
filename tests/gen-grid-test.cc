@@ -1,5 +1,8 @@
 
 # include <iostream>
+
+# include <ah-comb.H>
+
 # include <tclap-utils.H>
 # include <utils.H>
 # include <pvt-grid-compute.H>
@@ -106,13 +109,35 @@ DynList<DynList<string>> convert_to_string(const DynList<DynList<double>> & vals
 
 void process_gen_grid()
 {
-  static auto mat = [] (const DynList<DynList<double>> & vals)
+  static auto print_mat = [] (const DynList<DynList<double>> & vals)
     {
       cout << to_string(format_string(convert_to_string(vals))) << endl;
     };
-  static auto csv = [] (const DynList<DynList<double>> & vals)
+  static auto print_csv = [] (const DynList<DynList<double>> & vals)
     {
       cout << to_string(format_string_csv(convert_to_string(vals))) << endl;
+    };
+  static auto print_R = [] (const DynList<DynList<double>> & vals)
+    {
+      DynMapTree<double, DynList<DynList<double>>> temps;
+      for (auto it = vals.get_it(); it.has_curr(); it.next())
+	{
+	  auto & l = it.get_curr();
+	  temps[l.get_first()].append(l.drop(1));
+	}
+
+      DynList<string> pnames, vnames;
+      ostringstream s;
+      for (auto it = temps.get_it(); it.has_curr(); it.next())
+	{
+	  auto & p = it.get_curr();
+	  const string tname = to_string(int(p.first));
+	  const string pname = "p_" + tname;
+	  const string vname = "v_" + vname;
+	  pnames.append(pname);
+	  vnames.append(vname);
+	  auto pv = transpose(p.second);
+	}
     };
   auto vals = gen_vals();
 }
