@@ -78,3 +78,6 @@
 ## 26. forzar a que regresion de uod de cero en ptos negativos
 - Created at   2017-09-16 16:52:40 -0400
 
+## 27. Revisar calculo de zfactor
+- Created at   2017-09-19 17:14:18 -0400
+
