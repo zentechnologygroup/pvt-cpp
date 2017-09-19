@@ -81,3 +81,9 @@
 ## 27. Revisar calculo de zfactor
 - Created at   2017-09-19 17:14:18 -0400
 
+## 28. para tuner y ztuner opcion que imprima data de regresión
+- Created at   2017-09-19 17:20:38 -0400
+
+## 29. uto debe usar uob sin calibrar en caso de tener coa
+- Created at   2017-09-19 17:48:24 -0400
+
