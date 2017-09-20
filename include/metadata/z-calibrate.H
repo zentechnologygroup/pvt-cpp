@@ -112,8 +112,11 @@ private:
 
 public:
 
-  //                t,     p,       z
-  using T = tuple<double, double, double>;
+  struct Desc
+  {
+    double t, p, z;
+    Desc(double t, double p, double z) : t(t), p(p), z(z) {}
+  };
 
   Json to_json() const
   {
@@ -169,15 +172,15 @@ public:
 
   Ztuner(istream && in) : Ztuner(in) {}
 
-  DynList<T> lab_values() const
+  DynList<Desc> lab_values() const
   {
-    DynList<T> ret;
+    DynList<Desc> ret;
     zvals.for_each([&ret] (auto & d)
       {
 	for (auto it = zip_it(d.p, d.z); it.has_curr(); it.next())
 	  {
 	    auto p = it.get_curr();
-	    ret.append(T(d.t.raw(), get<0>(p), get<1>(p)));
+	    ret.append(Desc(d.t.raw(), get<0>(p), get<1>(p)));
 	  }
       });
     return ret;
@@ -284,9 +287,9 @@ public:
     if (zvals.is_empty())
       ZENTHROW(EmptyVarSet, "data set does not contain p-z values");
     
-    auto zlab = sort(lab_values(), [] (auto & t1, auto & t2)
-		    { return get<1>(t1) < get<1>(t2); });
-    auto zx = zlab.maps<double>([] (auto & t) { return get<2>(t); });
+    auto zlab = sort(lab_values(), [] (auto & d1, auto & d2)
+		    { return d1.p < d2.p; });
+    auto zx = zlab.maps<double>([] (auto & d) { return d.z; });
 
     size_t num = 0;
     ParList pars;
@@ -350,8 +353,8 @@ public:
 			for (auto it = zlab.get_it(); it.has_curr(); it.next())
 			  {
 			    auto & d = it.get_curr();
-			    const auto & t = Quantity<Fahrenheit>(get<0>(d));
-			    const auto & p = Quantity<psia>(get<1>(d));
+			    const auto & t = Quantity<Fahrenheit>(d.t);
+			    const auto & p = Quantity<psia>(d.p);
 			    VtlQuantity tpr = VtlQuantity::null_quantity;
 			    VtlQuantity ppr = VtlQuantity::null_quantity;
 			    try
@@ -375,7 +378,7 @@ public:
 				goto explore_correlations; // view next correlation
 			      }
 			  }
-			LFit fit(zx, zlist); 
+			LFit fit(zlist, zx); 
 			zlist.empty();
 			zcomb_list.append(Zcomb(yghc_corr,
 						make_pair(ppchc_corr, tpchc_corr),
