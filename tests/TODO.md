@@ -87,3 +87,6 @@
 ## 29. uto debe usar uob sin calibrar en caso de tener coa
 - Created at   2017-09-19 17:48:24 -0400
 
+## 30. poner r2 en eporte solve de ztuner
+- Created at   2017-09-22 15:30:02 -0400
+
