@@ -90,3 +90,6 @@
 ## 30. poner r2 en eporte solve de ztuner
 - Created at   2017-09-22 15:30:02 -0400
 
+## 31. opcion ban de tuner dee afectar a apply
+- Created at   2017-09-22 19:55:50 -0400
+
