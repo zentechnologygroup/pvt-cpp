@@ -633,6 +633,44 @@ Corr_Arg(uoa);
 Corr_Arg(uod);
 Corr_Arg(coa);
 
+struct BanList
+{
+  DynSetTree<const Correlation*> corr_list;
+
+  BanList & operator = (const string & str)
+  {
+    string data;
+    istringstream iss(str);
+    while (iss >> data)
+      {
+	auto corr_ptr = Correlation::search_by_name(data);
+	if (corr_ptr == nullptr)
+	  ZENTHROW(CorrelationNotFound, "Correlation" + data + " not found");
+
+	if (corr_list.has(corr_ptr))
+	  ZENTHROW(DuplicatedCorrelationName, "Correlation " + data +
+		   " is already defined in ban list");
+
+	corr_list.append(corr_ptr);
+      }
+
+    return *this;
+  }
+};
+
+namespace TCLAP
+{
+  template <> struct ArgTraits<BanList> { typedef StringLike ValueCategory; };
+}
+
+
+ValueArg<BanList> ban = { "b", "ban",
+			  "ban correlation list for automatic calibration",
+			  false, BanList(), "banned correlation list", cmd };
+
+ValueArg<double> r2 = { "", "r2", "r2 threshold", false, 0.98,
+			"r2 threshold", cmd };
+
 const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 {
   if (not const_name_tbl.has(par_name))
@@ -897,7 +935,8 @@ void process_apply()
       property_name != "uod")
     ZENTHROW(CommandLineError, "target name " + property_name + " is not valid");
   
-  auto corr_list = data.can_be_applied(property_name, relax_names_tbl);
+  auto corr_list = data.can_be_applied(property_name, relax_names_tbl,
+				       ban.getValue().corr_list);
 
   DynList<T> stats = Aleph::sort(corr_list.maps<T>([] (auto corr_ptr)
     {
@@ -927,62 +966,14 @@ void process_apply()
   terminate_app();
 }
 
-struct BanList
-{
-  DynSetTree<const Correlation*> corr_list;
-
-  BanList & operator = (const string & str)
-  {
-    string data;
-    istringstream iss(str);
-    while (iss >> data)
-      {
-	auto corr_ptr = Correlation::search_by_name(data);
-	if (corr_ptr == nullptr)
-	  ZENTHROW(CorrelationNotFound, "Correlation" + data + " not found");
-
-	if (corr_list.has(corr_ptr))
-	  ZENTHROW(DuplicatedCorrelationName, "Correlation " + data +
-		   " is already defined in ban list");
-
-	corr_list.append(corr_ptr);
-      }
-
-    return *this;
-  }
-};
-
-namespace TCLAP
-{
-  template <> struct ArgTraits<BanList> { typedef StringLike ValueCategory; };
-}
-
-
-ValueArg<BanList> ban = { "b", "ban",
-			  "ban correlation list for automatic calibration",
-			  false, BanList(), "banned correlation list", cmd };
-
-ValueArg<double> r2 = { "", "r2", "r2 threshold", false, 0.98,
-			"r2 threshold", cmd };
-
 DynList<PvtData::AutoDesc> best_list()
 {
- static const DynSetTree<const Correlation*> dft_ban_list =
-    Correlation::array().filter([] (auto ptr)
-				{
-				  return contains(ptr->name, "Hanafy");
-				});
-
   const double & r2 = ::r2.getValue();  
   if (r2 <= 0 or r2 > 1)
     error_msg("r2 value " + to_string(r2) + " is not in (0, 1]");
 
   const DynSetTree<const Correlation*> & corr_list = ban.getValue().corr_list;
-  const DynSetTree<const Correlation*> * ban_list_ptr = &corr_list;
-  if (corr_list.is_empty())
-    ban_list_ptr = &dft_ban_list;
-
-  return data.auto_apply(relax_names_tbl, *ban_list_ptr, r2);
+  return data.auto_apply(relax_names_tbl, corr_list, r2);
 }
 
 void process_auto()

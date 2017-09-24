@@ -801,8 +801,12 @@ struct PvtData
   // required by the correlation re available and these match with
   // correlation development ranges
   bool can_be_applied(const Correlation * corr_ptr,
-		      const DynSetTree<string> & relax_tbl) const
+		      const DynSetTree<string> & relax_tbl,
+		      const DynSetTree<const Correlation*> & ban_list = {}) const
   {
+    if (ban_list.has(corr_ptr))
+      return false;
+    
     auto ref_vectors = search_vectors(corr_ptr->target_name());
     for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
 	 it.next())
@@ -846,11 +850,6 @@ struct PvtData
       }
 
     return true;
-  }
-
-  bool can_be_applied(const Correlation * corr_ptr) const
-  {    
-    return can_be_applied(corr_ptr, DynSetTree<string>());
   }
 
   // Return a list of parameters avoiding application
@@ -930,18 +929,15 @@ struct PvtData
 
   DynList<const Correlation*>
   can_be_applied(const string & target_name,
-		 const DynSetTree<string> & relax_tbl) const
+		 const DynSetTree<string> & relax_tbl,
+		 const DynSetTree<const Correlation*> & ban_list = {}) const
   {
-    return Correlation::array().filter([&target_name, &relax_tbl, this] (auto ptr)
+    return Correlation::array().
+      filter([&target_name, &relax_tbl, &ban_list, this] (auto ptr)
       {
-	return ptr->target_name() == target_name and
+	return ptr->target_name() == target_name and (not ban_list.has(ptr)) and
 	  this->can_be_applied(ptr, relax_tbl);
       });
-  }
-
-  DynList<const Correlation*> can_be_applied(const string & target_name) const
-  {
-    return can_be_applied(target_name, DynSetTree<string>());
   }
 
   DynList<Sample> get_vectors(const Correlation * corr_ptr,
@@ -1490,45 +1486,42 @@ struct PvtData
 
   enum class AutoApplyType { r2, mse, sigma, sumsq, cm };
 
+# define AUTO_FILTER(__name)				\
+  static auto __name##__filter = [] (const DynList<AutoDesc> & l, double threshold) \
+    {									\
+    return sort(l.filter([threshold] (auto & a)				\
+    {									\
+      return CorrStat::is_valid(a.d) and CorrStat::__name(a.d) < threshold; \
+    }), [] (auto & a1, auto & a2)					\
+		{							\
+		  return CorrStat::__name(a1.d) < CorrStat::__name(a2.d); \
+		});							\
+    }
   AutoDesc auto_apply(const string & target_name,
 		      const DynSetTree<string> & relax_tbl,
-		      const DynSetTree<const Correlation*> & banned_list,
-		      const AutoApplyType & type,
-		      const double threshold) const
+		      const DynSetTree<const Correlation*> & ban_list,
+		      const double threshold,
+		      const AutoApplyType & type = AutoApplyType::r2) const
   {
-    static r2_filter = [] (const DynList<const Correlation*> & l)
-      {
-	return l.maps<AutoDesc>([t] (auto ptr)
-      {
-	return AutoDesc(ptr, this->stats(ptr).desc);
-      });
-      };
-    auto corr_list = can_be_applied(target_name, relax_tbl).
-      filter([&banned_list] (auto ptr)
-        {
-	  return not banned_list.has(ptr);
-	});
-    
-    if (corr_list.is_empty())
-      return AutoDesc();
 
-    auto rlist = corr_list.maps<AutoDesc>([this, r2_threshold] (auto ptr)
-      {
-	return AutoDesc(ptr, this->stats(ptr).desc);
-      });
+    AUTO_FILTER(r2);
+    AUTO_FILTER(mse);
+    AUTO_FILTER(sigma);
+    AUTO_FILTER(sumsq);
+    // TODO: funcion n CorrSar que retorne num asociado a c y m
+    static AHDispatcher<AutoApplyType,
+			DynList<AutoDesc> (*)(const DynList<AutoDesc>&, double)>
+      dispatcher(AutoApplyType::r2, r2__filter,
+		 AutoApplyType::mse, mse__filter,
+		 AutoApplyType::sigma, sigma__filter,
+		 AutoApplyType::sumsq, sumsq__filter);
 
-    rlist = rlist.filter([&r2_threshold] (auto & a)
-      {
-	return CorrStat::is_valid(a.d) and CorrStat::r2(a.d) >= r2_threshold;
-      });
-
-    if (rlist.is_empty())
-      return AutoDesc();
-
-    in_place_sort(rlist, [] (auto & a1, auto & a2)
-		  { return CorrStat::r2(a1.d) < CorrStat::r2(a2.d); });
-
-    return rlist.get_last();
+    auto corr_list = can_be_applied(target_name, relax_tbl, ban_list);
+    auto auto_list = corr_list.maps<AutoDesc>([this] (auto ptr)
+				    {
+				      return AutoDesc(ptr, this->stats(ptr).desc);
+				    });
+    return dispatcher.run(type, auto_list, threshold).get_last();
   }    
 
   DynList<AutoDesc>
