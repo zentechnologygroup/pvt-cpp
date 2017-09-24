@@ -927,8 +927,40 @@ void process_apply()
   terminate_app();
 }
 
-MultiArg<string> ban =
-  { "b", "ban", "ban correlation for automatic calibration", false, "", cmd };
+struct BanList
+{
+  DynSetTree<const Correlation*> corr_list;
+
+  BanList & operator = (const string & str)
+  {
+    string data;
+    istringstream iss(str);
+    while (iss >> data)
+      {
+	auto corr_ptr = Correlation::search_by_name(data);
+	if (corr_ptr == nullptr)
+	  ZENTHROW(CorrelationNotFound, "Correlation" + data + " not found");
+
+	if (corr_list.has(corr_ptr))
+	  ZENTHROW(DuplicatedCorrelationName, "Correlation " + data +
+		   " is already defined in ban list");
+
+	corr_list.append(corr_ptr);
+      }
+
+    return *this;
+  }
+};
+
+namespace TCLAP
+{
+  template <> struct ArgTraits<BanList> { typedef StringLike ValueCategory; };
+}
+
+
+ValueArg<BanList> ban = { "b", "ban",
+			  "ban correlation list for automatic calibration",
+			  false, BanList(), "banned correlation list", cmd };
 
 ValueArg<double> r2 = { "", "r2", "r2 threshold", false, 0.98,
 			"r2 threshold", cmd };
@@ -945,21 +977,10 @@ DynList<PvtData::AutoDesc> best_list()
   if (r2 <= 0 or r2 > 1)
     error_msg("r2 value " + to_string(r2) + " is not in (0, 1]");
 
-  DynSetTree<const Correlation*> ban_list;
-  for (auto & name : ban.getValue())
-    {
-      auto ptr = Correlation::search_by_name(name);
-      if (ptr == nullptr)
-	error_msg("For " + ban.getName() + ": correlation name " +
-		  name + " not found");
-      ban_list.append(ptr);
-    }
-
-  const DynSetTree<const Correlation*> * ban_list_ptr = nullptr;
-  if (ban_list.is_empty())
+  const DynSetTree<const Correlation*> & corr_list = ban.getValue().corr_list;
+  const DynSetTree<const Correlation*> * ban_list_ptr = &corr_list;
+  if (corr_list.is_empty())
     ban_list_ptr = &dft_ban_list;
-  else
-    ban_list_ptr = &ban_list;
 
   return data.auto_apply(relax_names_tbl, *ban_list_ptr, r2);
 }

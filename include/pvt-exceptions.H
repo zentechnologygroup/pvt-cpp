@@ -10,6 +10,8 @@ DEFINE_ZEN_EXCEPTION(DuplicatedCorrelationName, "duplicated correlation name");
 DEFINE_ZEN_EXCEPTION(InvalidNumberOfParameters,
 		     "invalid number of parameters");
 
+DEFINE_ZEN_EXCEPTION(CorrelationNotFound, "Correlation not found");
+
 DEFINE_ZEN_EXCEPTION(ParameterNameNotFound, "parameter name not found");
 
 DEFINE_ZEN_EXCEPTION(ParameterNameNotSet, "parameter name not set");

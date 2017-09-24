@@ -352,3 +352,7 @@ input opcion en tuner debe permitir poner varios arreglos de entrada,2017-09-10 
 revisar por qué corta columnas en ./tuner -f f5.json --input "bob uob" --lcal "BobSalazar BobPerezML",2017-09-11 11:42:27 -0400,2017-09-17 21:01:00 -0400,,2017-09-17 21:01:03 -0400
 error en input bob rs es parametro fuera de rango,2017-09-07 17:01:01 -0400,2017-09-17 21:01:19 -0400,,2017-09-17 21:01:24 -0400
 para tuner opcion automática que genere todos los parámetros según r2 y threshld,2017-09-16 16:12:50 -0400,2017-09-17 20:51:39 -0400,,2017-09-17 21:01:55 -0400
+=======,,,,2017-09-24 12:41:01 -0400
+>>>>>>> 0cd61315775fbae5fbff5cb94b048b98dfcdacfc,,,,2017-09-24 12:41:19 -0400
+<<<<<<< HEAD,,,,2017-09-24 12:41:31 -0400
+para tuner y ztuner opcion que imprima data de regresión,2017-09-19 17:20:38 -0400,2017-09-24 12:41:56 -0400,,2017-09-24 12:41:59 -0400

@@ -81,17 +81,20 @@
 ## 27. Revisar calculo de zfactor
 - Created at   2017-09-19 17:14:18 -0400
 
-## 28. para tuner y ztuner opcion que imprima data de regresión
-- Created at   2017-09-19 17:20:38 -0400
-
-## 29. uto debe usar uob sin calibrar en caso de tener coa
+## 28. uto debe usar uob sin calibrar en caso de tener coa
 - Created at   2017-09-19 17:48:24 -0400
 
-## 30. auto modes por mse
+## 29. auto modes por mse
 - Created at    sigma
 - Completed at  sumsq y c+m
 - Comment      2017-09-24 12:39:47 -0400
 
-## 31. ban con lista
+## 30. ban con lista
 - Created at   2017-09-24 12:40:00 -0400
+
+## 31. poner r2 en eporte solve de ztuner
+- Created at   2017-09-22 15:30:02 -0400
+
+## 32. opcion ban de tuner dee afectar a apply
+- Created at   2017-09-22 19:55:50 -0400
 

@@ -1488,11 +1488,21 @@ struct PvtData
     AutoDesc() {}
   };
 
+  enum class AutoApplyType { r2, mse, sigma, sumsq, cm };
+
   AutoDesc auto_apply(const string & target_name,
 		      const DynSetTree<string> & relax_tbl,
 		      const DynSetTree<const Correlation*> & banned_list,
-		      const double r2_threshold) const
+		      const AutoApplyType & type,
+		      const double threshold) const
   {
+    static r2_filter = [] (const DynList<const Correlation*> & l)
+      {
+	return l.maps<AutoDesc>([t] (auto ptr)
+      {
+	return AutoDesc(ptr, this->stats(ptr).desc);
+      });
+      };
     auto corr_list = can_be_applied(target_name, relax_tbl).
       filter([&banned_list] (auto ptr)
         {

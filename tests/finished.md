@@ -2122,3 +2122,27 @@
 - Comment      
 - Finished     
 
+## 355. =======
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 356. >>>>>>> 0cd61315775fbae5fbff5cb94b048b98dfcdacfc
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 357. <<<<<<< HEAD
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 358. para tuner y ztuner opcion que imprima data de regresión
+- Created at   2017-09-19 17:20:38 -0400
+- Completed at 2017-09-24 12:41:56 -0400
+- Comment      
+- Finished     
+
