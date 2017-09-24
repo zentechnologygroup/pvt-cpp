@@ -27,3 +27,5 @@ forzar a que regresion de uod de cero en ptos negativos,2017-09-16 16:52:40 -040
 Revisar calculo de zfactor,2017-09-19 17:14:18 -0400,,
 para tuner y ztuner opcion que imprima data de regresión,2017-09-19 17:20:38 -0400,,
 uto debe usar uob sin calibrar en caso de tener coa,2017-09-19 17:48:24 -0400,,
+auto modes por mse, sigma, sumsq y c+m,2017-09-24 12:39:47 -0400,,
+ban con lista,2017-09-24 12:40:00 -0400,,

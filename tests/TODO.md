@@ -87,3 +87,11 @@
 ## 29. uto debe usar uob sin calibrar en caso de tener coa
 - Created at   2017-09-19 17:48:24 -0400
 
+## 30. auto modes por mse
+- Created at    sigma
+- Completed at  sumsq y c+m
+- Comment      2017-09-24 12:39:47 -0400
+
+## 31. ban con lista
+- Created at   2017-09-24 12:40:00 -0400
+
