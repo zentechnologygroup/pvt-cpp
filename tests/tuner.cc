@@ -972,8 +972,7 @@ DynList<PvtData::AutoDesc> best_list()
   if (r2 <= 0 or r2 > 1)
     error_msg("r2 value " + to_string(r2) + " is not in (0, 1]");
 
-  const DynSetTree<const Correlation*> & corr_list = ban.getValue().corr_list;
-  return data.auto_apply(relax_names_tbl, corr_list, r2);
+  return data.auto_apply(relax_names_tbl, ban.getValue().corr_list, r2);
 }
 
 void process_auto()
