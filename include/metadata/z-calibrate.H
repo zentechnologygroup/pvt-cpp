@@ -214,21 +214,28 @@ public:
     const Correlation * adjustedppcm_corr = nullptr;
     const Correlation * adjustedtpcm_corr = nullptr;
     const Correlation * z_corr = nullptr;
-    const LFit lfit;
-    const size_t i = 0;
+    mutable LFit lfit;
+    mutable size_t i = 0;
     Zcomb() {}
     Zcomb(const Correlation * __yghc_corr,
 	  const Correlation * __ppchc_corr, const Correlation * __tpchc_corr,
 	  const Correlation * __ppcm_corr, const Correlation * __tpcm_corr,
 	  const Correlation * __adjustedppcm_corr,
 	  const Correlation * __adjustedtpcm_corr,
-	  const Correlation * __z_corr, const LFit __lfit, const size_t __i)
+	  const Correlation * __z_corr, const LFit & __lfit, const size_t __i)
       : yghc_corr(__yghc_corr),
 	ppchc_corr(__ppchc_corr), tpchc_corr(__tpchc_corr),
 	ppcm_corr(__ppcm_corr), tpcm_corr(__tpcm_corr),
 	adjustedppcm_corr(__adjustedppcm_corr),
 	adjustedtpcm_corr(__adjustedtpcm_corr), z_corr(__z_corr),
 	lfit(__lfit), i(__i) {}
+    // Zcomb(const Zcomb & z)
+    //   : yghc_corr(z.yghc_corr),
+    // 	ppchc_corr(z.ppchc_corr), tpchc_corr(z.tpchc_corr),
+    // 	ppcm_corr(z.ppcm_corr), tpcm_corr(z.tpcm_corr),
+    // 	adjustedppcm_corr(z.adjustedppcm_corr),
+    // 	adjustedtpcm_corr(z.adjustedtpcm_corr), z_corr(z.z_corr),
+    // 	lfit(z.lfit), i(z.i) {}
     double c() const noexcept { return lfit.c; }
     double m() const noexcept { return lfit.sumsq; }
     double sumsq() const noexcept { return lfit.sumsq; }
@@ -403,7 +410,8 @@ public:
 	pars.remove("yghc");
       }
 
-    return zcomb_list.maps([] (auto &l) { return l; });
+        // zcomb_list is an array, so maps convert it in a DynList
+    return zcomb_list.maps([] (const Zcomb & z) { return z; });
   }
 
   //               t,      p vals,          z vals

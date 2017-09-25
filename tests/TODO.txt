@@ -27,3 +27,4 @@ forzar a que regresion de uod de cero en ptos negativos,2017-09-16 16:52:40 -040
 Revisar calculo de zfactor,2017-09-19 17:14:18 -0400,,
 uto debe usar uob sin calibrar en caso de tener coa,2017-09-19 17:48:24 -0400,,
 poner r2 en eporte solve de ztuner,2017-09-22 15:30:02 -0400,,
+comb_list debe ser una lista no un array,2017-09-25 18:54:15 -0400,,

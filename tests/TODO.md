@@ -87,3 +87,6 @@
 ## 29. poner r2 en eporte solve de ztuner
 - Created at   2017-09-22 15:30:02 -0400
 
+## 30. comb_list debe ser una lista no un array
+- Created at   2017-09-25 18:54:15 -0400
+

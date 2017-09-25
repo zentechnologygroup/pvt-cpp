@@ -1506,27 +1506,27 @@ struct PvtData
 		      const double threshold,
 		      const AutoApplyType & type = AutoApplyType::r2) const
   {
-    static auto cmp_r2 = [] (const AutoDesc & a1, const AutoDesc & a2) 
+    static auto cmp_r2 = [] (auto & a1, auto & a2) 
       {
 	return abs(1 - CorrStat::r2(a1.d)) < abs(1 - CorrStat::r2(a2.d));
       };
-    static auto cmp_mse = [] (const AutoDesc & a1, const AutoDesc & a2)
+    static auto cmp_mse = [] (auto & a1, auto & a2)
       {
 	return CorrStat::mse(a1.d) < CorrStat::mse(a2.d);
       };
-    static auto cmp_sigma = [] (const AutoDesc & a1, const AutoDesc & a2)
+    static auto cmp_sigma = [] (auto & a1, auto & a2)
       {
 	return CorrStat::sigma(a1.d) < CorrStat::sigma(a2.d);
       };
-    static auto cmp_sumsq = [] (const AutoDesc & a1, const AutoDesc & a2)
+    static auto cmp_sumsq = [] (auto & a1, auto & a2)
       {
 	return CorrStat::sumsq(a1.d) < CorrStat::sumsq(a2.d);
       };
-    static auto cmp_c = [] (const AutoDesc & a1, const AutoDesc & a2)
+    static auto cmp_c = [] (auto & a1, auto & a2)
       {
 	return CorrStat::c(a1.d) < CorrStat::c(a2.d);
       };
-    static auto cmp_m = [] (const AutoDesc & a1, const AutoDesc & a2)
+    static auto cmp_m = [] (auto & a1, auto & a2)
       {
 	return CorrStat::m(a1.d) < CorrStat::m(a2.d);
       };
