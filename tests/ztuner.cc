@@ -294,7 +294,7 @@ void process_print()
   static auto cmp_##NAME = [] (const Ztuner::Zcomb & z1,		\
 			       const Ztuner::Zcomb & z2)		\
     {									\
-      return Ztuner::NAME(z1) < Ztuner::NAME(z2);			\
+      return z1.NAME() < z2.NAME();					\
     }
 
 void plot_mat(const DynList<DynList<string>> & m)

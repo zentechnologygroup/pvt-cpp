@@ -2146,3 +2146,21 @@
 - Comment      
 - Finished     
 
+## 359. opcion ban de tuner dee afectar a apply
+- Created at   2017-09-22 19:55:50 -0400
+- Completed at 2017-09-25 15:08:14 -0400
+- Comment      
+- Finished     
+
+## 360. auto modes por mse
+- Created at    sigma
+- Completed at 2017-09-25 15:07:58 -0400
+- Comment      2017-09-24 12:39:47 -0400
+- Finished     2017-09-24 12:39:47 -0400
+
+## 361. ban con lista
+- Created at   2017-09-24 12:40:00 -0400
+- Completed at 2017-09-25 15:08:06 -0400
+- Comment      
+- Finished     
+

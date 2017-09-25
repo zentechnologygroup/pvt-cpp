@@ -356,3 +356,6 @@ para tuner opcion automática que genere todos los parámetros según r2 y thres
 >>>>>>> 0cd61315775fbae5fbff5cb94b048b98dfcdacfc,,,,2017-09-24 12:41:19 -0400
 <<<<<<< HEAD,,,,2017-09-24 12:41:31 -0400
 para tuner y ztuner opcion que imprima data de regresión,2017-09-19 17:20:38 -0400,2017-09-24 12:41:56 -0400,,2017-09-24 12:41:59 -0400
+opcion ban de tuner dee afectar a apply,2017-09-22 19:55:50 -0400,2017-09-25 15:08:14 -0400,,2017-09-25 15:08:17 -0400
+auto modes por mse, sigma,2017-09-25 15:07:58 -0400,2017-09-24 12:39:47 -0400,2017-09-25 15:08:53 -0400
+ban con lista,2017-09-24 12:40:00 -0400,2017-09-25 15:08:06 -0400,,2017-09-25 15:08:54 -0400
