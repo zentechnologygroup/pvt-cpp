@@ -663,13 +663,27 @@ namespace TCLAP
   template <> struct ArgTraits<BanList> { typedef StringLike ValueCategory; };
 }
 
+vector<string> auto_types = { "r2", "mse", "sigma", "sumsq", "c", "m" };
+ValuesConstraint<string> allowed_auto_types = auto_types;
+ValueArg<string> auto_type = { "", "auto-type", "auto triage type", false, "r2",
+		       &allowed_auto_types, cmd };
 
 ValueArg<BanList> ban = { "b", "ban",
 			  "ban correlation list for automatic calibration",
 			  false, BanList(), "banned correlation list", cmd };
 
-ValueArg<double> r2 = { "", "r2", "r2 threshold", false, 0.98,
-			"r2 threshold", cmd };
+ValueArg<double> threshold = { "", "threshold", "auto threshold", false, 0.98,
+			"auto threshold", cmd };
+
+DynMapTree<string, PvtData::AutoApplyType> auto_map =
+  {
+    { "r2", PvtData::AutoApplyType::r2 },
+    { "mse", PvtData::AutoApplyType::mse },
+    { "sigma", PvtData::AutoApplyType::sigma },
+    { "sumsq", PvtData::AutoApplyType::sumsq },
+    { "c", PvtData::AutoApplyType::c },
+    { "m", PvtData::AutoApplyType::m }
+  };
 
 const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 {
@@ -968,11 +982,11 @@ void process_apply()
 
 DynList<PvtData::AutoDesc> best_list()
 {
-  const double & r2 = ::r2.getValue();  
-  if (r2 <= 0 or r2 > 1)
-    error_msg("r2 value " + to_string(r2) + " is not in (0, 1]");
+  const double & threshold = ::threshold.getValue();
+  // TODO validad threshold segun auto-type
 
-  return data.auto_apply(relax_names_tbl, ban.getValue().corr_list, r2);
+  return data.auto_apply(relax_names_tbl, ban.getValue().corr_list,
+			 threshold, auto_map[auto_type.getValue()]);
 }
 
 void process_auto()
@@ -1026,7 +1040,8 @@ void process_napply()
       property_name != "uod")
     ZENTHROW(CommandLineError, "target name " + property_name + " is not valid");
 
-  auto missing_list = data.list_restrictions(property_name, relax_names_tbl);
+  auto missing_list = data.list_restrictions(property_name, relax_names_tbl,
+					     ban.getValue().corr_list);
 
   DynList<DynList<string>> rows =
     missing_list.maps<DynList<string>>([] (auto p)
@@ -1420,7 +1435,8 @@ void process_pb_calibration()
   for (auto it = corr_list.get_it(); it.has_curr(); it.next())
     {
       auto corr_ptr = it.get_curr();
-      if (not data.can_be_applied(corr_ptr, relax_names_tbl))
+      if (not data.can_be_applied(corr_ptr, relax_names_tbl,
+				  ban.getValue().corr_list))
 	ZENTHROW(CommandLineError,
 		 corr_ptr->name + " does not apply to data set");
       
@@ -1552,7 +1568,8 @@ void process_uod_calibration()
   for (auto it = corr_list.get_it(); it.has_curr(); it.next())
     {
       auto corr_ptr = it.get_curr();
-      if (not data.can_be_applied(corr_ptr, relax_names_tbl))
+      if (not data.can_be_applied(corr_ptr, relax_names_tbl,
+				  ban.getValue().corr_list))
 	ZENTHROW(CommandLineError,
 		 corr_ptr->name + " does not apply to data set");
       

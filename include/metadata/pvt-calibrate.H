@@ -802,7 +802,7 @@ struct PvtData
   // correlation development ranges
   bool can_be_applied(const Correlation * corr_ptr,
 		      const DynSetTree<string> & relax_tbl,
-		      const DynSetTree<const Correlation*> & ban_list = {}) const
+		      const DynSetTree<const Correlation*> & ban_list) const
   {
     if (ban_list.has(corr_ptr))
       return false;
@@ -908,11 +908,13 @@ struct PvtData
 
   DynList<pair<const Correlation*, DynList<pair<string, bool>>>>
   list_restrictions(const string & target_name,
-		    const DynSetTree<string> & relax_tbl) const
+		    const DynSetTree<string> & relax_tbl,
+		    const DynSetTree<const Correlation*> & ban_list) const
   {
-    auto corr_list = Correlation::array().filter([&target_name] (auto ptr)
+    auto corr_list =
+      Correlation::array().filter([&target_name, &ban_list] (auto ptr)
       {
-	return ptr->target_name() == target_name;
+	return ptr->target_name() == target_name and not ban_list.has(ptr);
       });
     
     DynList<pair<const Correlation*, DynList<pair<string, bool>>>> ret;
@@ -930,13 +932,13 @@ struct PvtData
   DynList<const Correlation*>
   can_be_applied(const string & target_name,
 		 const DynSetTree<string> & relax_tbl,
-		 const DynSetTree<const Correlation*> & ban_list = {}) const
+		 const DynSetTree<const Correlation*> & ban_list) const
   {
     return Correlation::array().
       filter([&target_name, &relax_tbl, &ban_list, this] (auto ptr)
       {
-	return ptr->target_name() == target_name and (not ban_list.has(ptr)) and
-	  this->can_be_applied(ptr, relax_tbl);
+	return ptr->target_name() == target_name and
+	  this->can_be_applied(ptr, relax_tbl, ban_list);
       });
   }
 
@@ -1484,50 +1486,79 @@ struct PvtData
     AutoDesc() {}
   };
 
-  enum class AutoApplyType { r2, mse, sigma, sumsq, cm };
+  enum class AutoApplyType { r2, mse, sigma, sumsq, c, m };
 
-# define AUTO_FILTER(__name)				\
-  static auto __name##__filter = [] (const DynList<AutoDesc> & l, double threshold) \
-    {									\
+# define AUTO_FILT(__name)			\
+  static auto __name##__filter = [] (const DynList<AutoDesc> & l,	\
+				     double threshold)			\
+  {									\
     return sort(l.filter([threshold] (auto & a)				\
     {									\
-      return CorrStat::is_valid(a.d) and CorrStat::__name(a.d) < threshold; \
-    }), [] (auto & a1, auto & a2)					\
-		{							\
-		  return CorrStat::__name(a1.d) < CorrStat::__name(a2.d); \
-		});							\
-    }
+      return CorrStat::is_valid(a.d) and CorrStat::__name(a.d) >= threshold; \
+    }), cmp_##__name);							\
+  }
+  
+# define AUTO_FILTER(__name) AUTO_FILT(__name, cmp_##__name)
+
   AutoDesc auto_apply(const string & target_name,
 		      const DynSetTree<string> & relax_tbl,
 		      const DynSetTree<const Correlation*> & ban_list,
 		      const double threshold,
 		      const AutoApplyType & type = AutoApplyType::r2) const
   {
-
-    AUTO_FILTER(r2);
-    AUTO_FILTER(mse);
-    AUTO_FILTER(sigma);
-    AUTO_FILTER(sumsq);
-    // TODO: funcion n CorrSar que retorne num asociado a c y m
+    static auto cmp_r2 = [] (const AutoDesc & a1, const AutoDesc & a2) 
+      {
+	return abs(1 - CorrStat::r2(a1.d)) < abs(1 - CorrStat::r2(a2.d));
+      };
+    static auto cmp_mse = [] (const AutoDesc & a1, const AutoDesc & a2)
+      {
+	return CorrStat::mse(a1.d) < CorrStat::mse(a2.d);
+      };
+    static auto cmp_sigma = [] (const AutoDesc & a1, const AutoDesc & a2)
+      {
+	return CorrStat::sigma(a1.d) < CorrStat::sigma(a2.d);
+      };
+    static auto cmp_sumsq = [] (const AutoDesc & a1, const AutoDesc & a2)
+      {
+	return CorrStat::sumsq(a1.d) < CorrStat::sumsq(a2.d);
+      };
+    static auto cmp_c = [] (const AutoDesc & a1, const AutoDesc & a2)
+      {
+	return CorrStat::c(a1.d) < CorrStat::c(a2.d);
+      };
+    static auto cmp_m = [] (const AutoDesc & a1, const AutoDesc & a2)
+      {
+	return CorrStat::m(a1.d) < CorrStat::m(a2.d);
+      };
+    AUTO_FILT(r2);
+    AUTO_FILT(mse);
+    AUTO_FILT(sigma);
+    AUTO_FILT(sumsq);
+    AUTO_FILT(c);
+    AUTO_FILT(m);
     static AHDispatcher<AutoApplyType,
-			DynList<AutoDesc> (*)(const DynList<AutoDesc>&, double)>
+     			DynList<AutoDesc> (*)(const DynList<AutoDesc>&, double)>
       dispatcher(AutoApplyType::r2, r2__filter,
 		 AutoApplyType::mse, mse__filter,
 		 AutoApplyType::sigma, sigma__filter,
-		 AutoApplyType::sumsq, sumsq__filter);
+		 AutoApplyType::sumsq, sumsq__filter,
+		 AutoApplyType::c, c__filter,
+		 AutoApplyType::m, m__filter);      
 
     auto corr_list = can_be_applied(target_name, relax_tbl, ban_list);
     auto auto_list = corr_list.maps<AutoDesc>([this] (auto ptr)
-				    {
-				      return AutoDesc(ptr, this->stats(ptr).desc);
-				    });
-    return dispatcher.run(type, auto_list, threshold).get_last();
+      {
+	return AutoDesc(ptr, this->stats(ptr).desc);
+      });
+    auto ret_list = dispatcher.run(type, auto_list, threshold);
+    return ret_list.is_empty() ? AutoDesc() : ret_list.get_first();
   }    
 
   DynList<AutoDesc>
   auto_apply(const DynSetTree<string> & relax_tbl,
 	     const DynSetTree<const Correlation*> & banned_list,
-	     const double r2_threshold = 0.98) const
+	     const double threshold,
+	     const AutoApplyType & type = AutoApplyType::r2) const
   {
     static DynList<string> properties =
       { "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa" };
@@ -1535,7 +1566,8 @@ struct PvtData
     DynList<AutoDesc> ret;
     for (auto & target_name : properties)
       {
-	auto a = auto_apply(target_name, relax_tbl, banned_list, r2_threshold);
+	auto a =
+	  auto_apply(target_name, relax_tbl, banned_list, threshold, type);
 	if (a.corr_ptr != nullptr)
 	  ret.append(a);
       }
