@@ -2164,3 +2164,51 @@
 - Comment      
 - Finished     
 
+## 362. dry de stats en corr-stats que ya están en lfit
+- Created at   2017-09-26 09:31:35 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 363. r2 debe ir en lfit
+- Created at   2017-09-25 21:10:00 -0400
+- Completed at 2017-09-26 10:08:09 -0400
+- Comment      
+- Finished     
+
+## 364. Revisar calculo de zfactor
+- Created at   2017-09-19 17:14:18 -0400
+- Completed at 2017-09-26 10:08:27 -0400
+- Comment      
+- Finished     
+
+## 365. eliminar tuplas como estructuctura y sustituirlas por struct
+- Created at   2017-09-12 13:16:12 -0400
+- Completed at 2017-09-26 10:12:23 -0400
+- Comment      
+- Finished     
+
+## 366. corregir abs por fabs y r2 en tuner
+- Created at   2017-09-26 09:51:33 -0400
+- Completed at 2017-09-26 10:07:47 -0400
+- Comment      
+- Finished     
+
+## 367. ztuner: número de digito de doubel como parametrod default 17
+- Created at   2017-09-26 09:24:49 -0400
+- Completed at 2017-09-26 10:19:37 -0400
+- Comment      
+- Finished     
+
+## 368. poner r2 en eporte solve de ztuner
+- Created at   2017-09-22 15:30:02 -0400
+- Completed at 2017-09-26 10:19:54 -0400
+- Comment      
+- Finished     
+
+## 369. comb_list debe ser una lista no un array
+- Created at   2017-09-25 18:54:15 -0400
+- Completed at 
+- Comment      
+- Finished     
+

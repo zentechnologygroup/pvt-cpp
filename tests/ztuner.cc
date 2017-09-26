@@ -194,6 +194,10 @@ ValuesConstraint<string> allowed_output_types = output_types;
 ValueArg<string> output = { "", "output", "output type", false,
 			    "mat", &allowed_output_types, cmd };
 
+ValueArg<size_t> precision_arg = { "", "digits", "number of digits in double",
+				   false, 17, "number of digits", cmd };
+const size_t Max_Precision = 17;
+
 SwitchArg solve = { "S", "solve", "solve z", cmd };
 
 SwitchArg check = { "c", "check", "check z application ranges", cmd };
@@ -452,10 +456,17 @@ void process_plot()
 	}
     }
 
+  const size_t precision = ::precision_arg.getValue();
+  if (precision == 0 or precision > 17)
+    error_msg("precision value " + to_string(precision) +
+	      " is not inside (0, 17]");
+
   DynList<DynList<string>> rows =
-    transpose(cols).maps<DynList<string>>([] (const DynList<double> & col)
+    transpose(cols).
+    maps<DynList<string>>([precision] (const DynList<double> & col)
     {
-      return col.maps<string>([] (auto v) { return to_string(v, 17); }); //TODO:ver 17 poner parámetro
+      return col.maps<string>([precision] (auto v)
+        { return to_string(v, precision); }); 
     });
   rows.insert(header);
 

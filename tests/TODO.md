@@ -56,49 +56,28 @@
 ## 19. operación smooth grid en puntos de inflexión
 - Created at   2017-09-11 17:41:45 -0400
 
-## 20. eliminar tuplas como estructuctura y sustituirlas por struct
-- Created at   2017-09-12 13:16:12 -0400
-
-## 21. test-grid debe recibir puntos exprimentales y calcular el error
+## 20. test-grid debe recibir puntos exprimentales y calcular el error
 - Created at   2017-09-13 10:11:06 -0400
 - Completed at 2017-09-17 20:57:35 -0400
 
-## 22. opcion de valores específicos para test-grid
+## 21. opcion de valores específicos para test-grid
 - Created at   2017-09-13 10:34:17 -0400
 
-## 23. probable bug en extrapolacion grid. revisar
+## 22. probable bug en extrapolacion grid. revisar
 - Created at   2017-09-13 14:57:58 -0400
 
-## 24. acelerar clot folding c-pb y m-pm-arg
+## 23. acelerar clot folding c-pb y m-pm-arg
 - Created at   2017-09-14 17:07:29 -0400
 
-## 25. lectura de grid pvt no acepta blancos y comas:
+## 24. lectura de grid pvt no acepta blancos y comas:
 - Created at   2017-09-15 11:29:16 -0400
 
-## 26. forzar a que regresion de uod de cero en ptos negativos
+## 25. forzar a que regresion de uod de cero en ptos negativos
 - Created at   2017-09-16 16:52:40 -0400
 
-## 27. Revisar calculo de zfactor
-- Created at   2017-09-19 17:14:18 -0400
-
-## 28. uto debe usar uob sin calibrar en caso de tener coa
+## 26. uto debe usar uob sin calibrar en caso de tener coa
 - Created at   2017-09-19 17:48:24 -0400
 
-## 29. poner r2 en eporte solve de ztuner
-- Created at   2017-09-22 15:30:02 -0400
-
-## 30. comb_list debe ser una lista no un array
-- Created at   2017-09-25 18:54:15 -0400
-
-## 31. r2 debe ir en lfit
-- Created at   2017-09-25 21:10:00 -0400
-
-## 32. ztuner: número de digito de doubel como parametrod default 17
-- Created at   2017-09-26 09:24:49 -0400
-
-## 33. dry de stats en corr-stats que ya están en lfit
-- Created at   2017-09-26 09:31:35 -0400
-
-## 34. corregir abs por fabs y r2 en tuner
-- Created at   2017-09-26 09:51:33 -0400
+## 27. bounds de lazos en cplot
+- Created at   2017-09-26 10:12:11 -0400
 
