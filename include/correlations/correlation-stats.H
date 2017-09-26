@@ -26,7 +26,7 @@ class CorrStat
 
 public:
 
-  double r2(const Array<double> & yc) const
+  double r2(const Array<double> & yc) 
   {
     auto pearson_corr = gsl_stats_correlation(&y.base(), 1,
 					      &yc.base(), 1, y.size());

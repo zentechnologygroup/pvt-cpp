@@ -229,24 +229,20 @@ public:
 	adjustedppcm_corr(__adjustedppcm_corr),
 	adjustedtpcm_corr(__adjustedtpcm_corr), z_corr(__z_corr),
 	lfit(__lfit), i(__i) {}
-    // Zcomb(const Zcomb & z)
-    //   : yghc_corr(z.yghc_corr),
-    // 	ppchc_corr(z.ppchc_corr), tpchc_corr(z.tpchc_corr),
-    // 	ppcm_corr(z.ppcm_corr), tpcm_corr(z.tpcm_corr),
-    // 	adjustedppcm_corr(z.adjustedppcm_corr),
-    // 	adjustedtpcm_corr(z.adjustedtpcm_corr), z_corr(z.z_corr),
-    // 	lfit(z.lfit), i(z.i) {}
     double c() const noexcept { return lfit.c; }
-    double m() const noexcept { return lfit.sumsq; }
+    double m() const noexcept { return lfit.m; }
     double sumsq() const noexcept { return lfit.sumsq; }
+    double r2() const noexcept { return lfit.r2; }
+    double sigma() const noexcept { return lfit.sigma; }
+    double mse() const noexcept { return lfit.mse; }
     double num() const noexcept { return i; }
   };
 
   static DynList<string> zcomb_header()
   {
     return build_dynlist<string>("yghc", "ppchc", "tpchc", "ppcm", "tpcm",
-				 "adjustedppcm", "adjustedtpcm", "z", 
-				 "sumsq", "c", "m", "num");
+				 "adjustedppcm", "adjustedtpcm", "z", "r2",
+				 "sumsq", "sigma", "mse", "c", "m", "num");
   }
   
   static DynList<string> zcomb_to_str(const Zcomb & c)
@@ -256,9 +252,10 @@ public:
 				 c.ppcm_corr->name, c.tpcm_corr->name,
 				 c.adjustedppcm_corr->name,
 				 c.adjustedtpcm_corr->name,
-				 ::to_string(c.lfit.sumsq),
-				 ::to_string(c.lfit.c), ::to_string(c.lfit.m),
-				 ::to_string(c.i));
+				 c.z_corr->name, ::to_string(c.r2()),
+				 ::to_string(c.sumsq()), ::to_string(c.sigma()),
+				 ::to_string(c.mse()), ::to_string(c.c()),
+				 ::to_string(c.m()), ::to_string(c.i));
   }
 
   static Correlation::NamedPar npar(const string & name, double val,

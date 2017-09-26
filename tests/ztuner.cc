@@ -184,7 +184,7 @@ SwitchArg eol = { "n", "eol", "print end of line", cmd };
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
 			   "unit \"par-name unit\"", cmd };
 
-vector<string> sort_types = { "sumsq", "c", "m", "num" };
+vector<string> sort_types = { "sumsq", "c", "m", "sigma", "mse", "r2", "num" };
 ValuesConstraint<string> allowed_sort_types = sort_types;
 ValueArg<string> sort = { "", "sort", "sort type", false,
 			  "num", &allowed_sort_types, cmd };
@@ -295,6 +295,13 @@ void process_print()
 			       const Ztuner::Zcomb & z2)		\
     {									\
       return z1.NAME() < z2.NAME();					\
+    }
+
+# define Define_1_Cmp(NAME)						\
+  static auto cmp_##NAME = [] (const Ztuner::Zcomb & z1,		\
+			       const Ztuner::Zcomb & z2)		\
+    {									\
+      return fabs(1 - z1.NAME()) < fabs(1 - z2.NAME());			\
     }
 
 void plot_mat(const DynList<DynList<string>> & m)
@@ -448,7 +455,7 @@ void process_plot()
   DynList<DynList<string>> rows =
     transpose(cols).maps<DynList<string>>([] (const DynList<double> & col)
     {
-      return col.maps<string>([] (auto v) { return to_string(v, 17); }); //TODO:ver 17
+      return col.maps<string>([] (auto v) { return to_string(v, 17); }); //TODO:ver 17 poner parámetro
     });
   rows.insert(header);
 
@@ -462,10 +469,15 @@ void process_solve()
 {
   Define_Cmp(sumsq);
   Define_Cmp(c);
-  Define_Cmp(m);
+  Define_1_Cmp(m);
+  Define_Cmp(mse);
+  Define_Cmp(sigma);
   Define_Cmp(num);
+  Define_1_Cmp(r2);
+
   static DynMapTree<string, bool (*)(const Ztuner::Zcomb&, const Ztuner::Zcomb&)>
-    cmp = { {"sumsq", cmp_sumsq}, {"c", cmp_c}, {"m", cmp_m}, {"num", cmp_num} };
+    cmp = { {"sumsq", cmp_sumsq}, {"c", cmp_c}, {"m", cmp_m}, {"num", cmp_num},
+	    {"r2", cmp_r2}, {"sigma", cmp_sigma}, {"mse", cmp_mse} };
   static auto format_mat = [] (const DynList<Ztuner::Zcomb> & l)
     {
       return to_string(format_string(Ztuner::zcomb_to_dynlist(l)));

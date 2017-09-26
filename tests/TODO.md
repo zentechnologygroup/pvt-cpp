@@ -90,3 +90,15 @@
 ## 30. comb_list debe ser una lista no un array
 - Created at   2017-09-25 18:54:15 -0400
 
+## 31. r2 debe ir en lfit
+- Created at   2017-09-25 21:10:00 -0400
+
+## 32. ztuner: número de digito de doubel como parametrod default 17
+- Created at   2017-09-26 09:24:49 -0400
+
+## 33. dry de stats en corr-stats que ya están en lfit
+- Created at   2017-09-26 09:31:35 -0400
+
+## 34. corregir abs por fabs y r2 en tuner
+- Created at   2017-09-26 09:51:33 -0400
+

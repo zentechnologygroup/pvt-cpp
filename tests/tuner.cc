@@ -921,7 +921,7 @@ using T = PvtData::StatsDesc;
 # define Define_1_Cmp(name)						\
   auto cmp_##name = [] (const T & d1, const T & d2)			\
   {									\
-    return abs(1 - CorrStat::name(d1.desc)) < abs(1 - CorrStat::name(d2.desc));	\
+    return fabs(1 - CorrStat::name(d1.desc)) < fabs(1 - CorrStat::name(d2.desc)); \
   }
 
 Define_1_Cmp(r2);
