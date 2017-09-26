@@ -1481,9 +1481,11 @@ struct PvtData
   {
     const Correlation * corr_ptr = nullptr;
     CorrStat::Desc d;
-    AutoDesc(const Correlation * corr_ptr, const CorrStat::Desc & d)
-      : corr_ptr(corr_ptr), d(d) {}
+    AutoDesc(const Correlation * __corr_ptr, const CorrStat::Desc & d)
+      : corr_ptr(__corr_ptr), d(d) {}
+    AutoDesc(const Correlation * __corr_ptr) : corr_ptr(__corr_ptr) {}
     AutoDesc() {}
+    bool is_valid() const noexcept { return corr_ptr != nullptr; }
   };
 
   enum class AutoApplyType { r2, mse, sigma, sumsq, c, m };
@@ -1508,7 +1510,7 @@ struct PvtData
   {
     static auto cmp_r2 = [] (auto & a1, auto & a2) 
       {
-	return abs(1 - CorrStat::r2(a1.d)) < abs(1 - CorrStat::r2(a2.d));
+	return fabs(1 - CorrStat::r2(a1.d)) < fabs(1 - CorrStat::r2(a2.d));
       };
     static auto cmp_mse = [] (auto & a1, auto & a2)
       {
@@ -1563,14 +1565,48 @@ struct PvtData
     static DynList<string> properties =
       { "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa" };
 
-    DynList<AutoDesc> ret;
+    DynMapTree<string, AutoDesc> m;
     for (auto & target_name : properties)
       {
 	auto a =
 	  auto_apply(target_name, relax_tbl, banned_list, threshold, type);
-	if (a.corr_ptr != nullptr)
-	  ret.append(a);
+	if (a.is_valid())
+	  m[target_name] = a;
       }
+
+    if (m.has("coa"))
+      m["boa"] = AutoDesc(&BoaMcCain::get_instance());
+    else 
+      {
+	auto & boa_desc = m["boa"];
+	auto boa_corr = boa_desc.corr_ptr;
+	if (boa_corr != &BoaMcCain::get_instance())
+	  {
+	    const string author = boa_corr->author_name();
+	        // Select coa correlation involving to boa
+	    auto coa_corr_ptr = Correlation::array().find_ptr([&author] (auto ptr)
+              {
+		return ptr->target_name() == "coa" and
+		  contains(ptr->name, author);
+	      });
+	    assert(coa_corr_ptr != nullptr);
+	    m["coa"] = AutoDesc(*coa_corr_ptr);
+	    boa_desc.corr_ptr = &BoaMcCain::get_instance();
+	    assert(m["boa"].corr_ptr == &BoaMcCain::get_instance());
+	    assert(CorrStat::c(m["boa"].d) == CorrStat::c(boa_desc.d));
+	    assert(CorrStat::m(m["boa"].d) == CorrStat::m(boa_desc.d));
+	  }
+      }
+
+        // Through this last pass we assure the same order than properties
+    DynList<AutoDesc> ret;
+    for (auto & target_name : properties)
+      {
+	auto ptr = m.search(target_name);
+	if (ptr != nullptr)
+	  ret.append(ptr->second);
+      }
+
     return ret;
   }
 

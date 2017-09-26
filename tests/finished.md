@@ -2212,3 +2212,21 @@
 - Comment      
 - Finished     
 
+## 370. uto debe usar uob sin calibrar en caso de tener coa
+- Created at   2017-09-19 17:48:24 -0400
+- Completed at 2017-09-26 16:51:43 -0400
+- Comment      
+- Finished     
+
+## 371. input opcion en tuner debe permitir poner varios arreglos de entrada
+- Created at   2017-09-10 10:51:58 -0400
+- Completed at 2017-09-26 16:53:10 -0400
+- Comment      
+- Finished     
+
+## 372. variables globales para propiedades; de ese modo evitaos macros
+- Created at   2017-07-14 15:35:47 -0400
+- Completed at 
+- Comment      
+- Finished     
+

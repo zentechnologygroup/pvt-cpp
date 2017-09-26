@@ -16,8 +16,8 @@ using namespace std;
 
 class CorrStat
 {
-  double mean;
-  double var;
+  double mean = 0;
+  double var = 0;
   size_t n = 0;
 
   const Array<double> y; // experimental data
@@ -26,7 +26,7 @@ class CorrStat
 
 public:
 
-  double r2(const Array<double> & yc) 
+  double r2(const Array<double> & yc) const
   {
     auto pearson_corr = gsl_stats_correlation(&y.base(), 1,
 					      &yc.base(), 1, y.size());

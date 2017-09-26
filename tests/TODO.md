@@ -29,55 +29,46 @@
 ## 10. eliminar entrada de bo
 - Created at   2017-06-20 14:54:33 -0400
 
-## 11. variables globales para propiedades; de ese modo evitaos macros
-- Created at   2017-07-14 15:35:47 -0400
-
-## 12. documentar más cplot
+## 11. documentar más cplot
 - Created at   2017-09-06 09:31:57 -0400
 
-## 13. grid pvt debe extrapolar
+## 12. grid pvt debe extrapolar
 - Created at   2017-09-08 18:29:26 -0400
 
-## 14. input opcion en tuner debe permitir poner varios arreglos de entrada
-- Created at   2017-09-10 10:51:58 -0400
-
-## 15. pbcal y uodcl deben estar en lcal
+## 13. pbcal y uodcl deben estar en lcal
 - Created at   2017-09-11 15:12:36 -0400
 
-## 16. en list corr coa va antes que boa
+## 14. en list corr coa va antes que boa
 - Created at   
 
-## 17. dry de put_pbuod_sample
+## 15. dry de put_pbuod_sample
 - Created at   2017-09-11 16:24:26 -0400
 
-## 18. put_pb_sample falta conversion
+## 16. put_pb_sample falta conversion
 - Created at   2017-09-11 16:53:37 -0400
 
-## 19. operación smooth grid en puntos de inflexión
+## 17. operación smooth grid en puntos de inflexión
 - Created at   2017-09-11 17:41:45 -0400
 
-## 20. test-grid debe recibir puntos exprimentales y calcular el error
+## 18. test-grid debe recibir puntos exprimentales y calcular el error
 - Created at   2017-09-13 10:11:06 -0400
 - Completed at 2017-09-17 20:57:35 -0400
 
-## 21. opcion de valores específicos para test-grid
+## 19. opcion de valores específicos para test-grid
 - Created at   2017-09-13 10:34:17 -0400
 
-## 22. probable bug en extrapolacion grid. revisar
+## 20. probable bug en extrapolacion grid. revisar
 - Created at   2017-09-13 14:57:58 -0400
 
-## 23. acelerar clot folding c-pb y m-pm-arg
+## 21. acelerar clot folding c-pb y m-pm-arg
 - Created at   2017-09-14 17:07:29 -0400
 
-## 24. lectura de grid pvt no acepta blancos y comas:
+## 22. lectura de grid pvt no acepta blancos y comas:
 - Created at   2017-09-15 11:29:16 -0400
 
-## 25. forzar a que regresion de uod de cero en ptos negativos
+## 23. forzar a que regresion de uod de cero en ptos negativos
 - Created at   2017-09-16 16:52:40 -0400
 
-## 26. uto debe usar uob sin calibrar en caso de tener coa
-- Created at   2017-09-19 17:48:24 -0400
-
-## 27. bounds de lazos en cplot
+## 24. bounds de lazos en cplot
 - Created at   2017-09-26 10:12:11 -0400
 
