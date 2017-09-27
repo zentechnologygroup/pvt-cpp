@@ -112,7 +112,7 @@ CoaPerezML::impl(const double & yg,
   const double cob = 2.856e-7 * pow(rsb, 0.69357) * pow(yg, 0.1885) *
     pow(api, 0.3272) * pow(t, 0.6729) * pow(pb, -0.5906);
   
-  const double co = cob * sqrt(p/pb);
+  const double co = cob * sqrt(pb/p);
 
   return co;
 }
