@@ -933,6 +933,46 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
   return VtlQuantity::null_quantity;
 }
 
+// Bounded compute
+template <typename ... Args> inline
+VtlQuantity bcompute(const Correlation * corr_ptr,
+		     double c, double m,
+		     const VtlQuantity & min_val,
+		     const VtlQuantity & max_val,
+		     bool check,
+		     ParList & pars_list, const Args & ... args)
+{
+  try
+    {
+      if (not insert_in_pars_list(pars_list, args...))
+	return VtlQuantity::null_quantity;
+
+      auto ret = corr_ptr->bounded_tuned_compute_by_names(pars_list,
+							  min_val, max_val,
+							  c, m, check);
+      remove_from_container(pars_list, args...);
+      return ret;
+    }
+  //catch (UnitConversionNotFound) {}
+  catch (exception & e)
+    {
+      if (report_exceptions)
+	store_exception(corr_ptr->name, e);
+   
+      remove_from_container(pars_list, args ...);
+    }
+  return VtlQuantity::null_quantity;
+}
+
+template <typename ... Args> inline
+VtlQuantity bcompute(const Correlation * corr_ptr, double c, double m,
+		     bool check, ParList & pars_list, const Args & ... args)
+{
+  const VtlQuantity min_val = corr_ptr->unit.min();
+  const VtlQuantity max_val = corr_ptr->unit.max();
+  return bcompute(corr_ptr, c, m, min_val, max_val, check, pars_list, args...);
+}
+
 template <typename ... Args> inline
 VtlQuantity compute(const Correlation * corr_ptr, bool check,
 		    ParList & pars_list, const Args & ... args)
@@ -1702,7 +1742,7 @@ void print_notranspose()
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
-  auto uod_val = tcompute(uod_corr, c_uod_arg.getValue(),		\
+  auto uod_val = bcompute(uod_corr, c_uod_arg.getValue(),		\
 			  m_uod_arg.getValue(), check, uod_pars,	\
 			  t_par, pb_par);				\
 									\
@@ -1980,7 +2020,7 @@ void generate_rows_blackoil()
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
-  auto uod_val = tcompute(uod_corr, c_uod_arg.getValue(),		\
+  auto uod_val = bcompute(uod_corr, c_uod_arg.getValue(),		\
 			  m_uod_arg.getValue(), check, uod_pars, t_par,	\
 			  pb_par);					\
 									\

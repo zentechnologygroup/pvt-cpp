@@ -672,7 +672,7 @@ ValueArg<BanList> ban = { "b", "ban",
 			  "ban correlation list for automatic calibration",
 			  false, BanList(), "banned correlation list", cmd };
 
-ValueArg<double> threshold = { "", "threshold", "auto threshold", false, 0.98,
+ValueArg<double> threshold = { "", "threshold", "auto threshold", false, 0.0,
 			"auto threshold", cmd };
 
 DynMapTree<string, PvtData::AutoApplyType> auto_map =
