@@ -2068,7 +2068,8 @@ void generate_rows_blackoil()
   auto coa = dcompute(co_corr, check, p_q, co_pars, p_par);		\
   auto coa_par = NPAR(coa);						\
   auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, coa_par); \
-  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par);	\
+  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par,	\
+		     npar("bob", bo));					\
   VtlQuantity z;							\
   if (p_q <= pb_q)							\
     z = tcompute(zfactor_corr, c_z, m_z, check, ppr_par, tpr_par);	\
