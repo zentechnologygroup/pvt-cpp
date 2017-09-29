@@ -2230,3 +2230,21 @@
 - Comment      
 - Finished     
 
+## 373. bounds de lazos en cplot
+- Created at   2017-09-26 10:12:11 -0400
+- Completed at 2017-09-29 15:53:11 -0400
+- Comment      
+- Finished     
+
+## 374. forzar a que regresion de uod de cero en ptos negativos
+- Created at   2017-09-16 16:52:40 -0400
+- Completed at 2017-09-29 14:51:21 -0400
+- Comment      
+- Finished     
+
+## 375. acelerar clot folding c-pb y m-pm-arg
+- Created at   2017-09-14 17:07:29 -0400
+- Completed at 2017-09-29 15:59:21 -0400
+- Comment      
+- Finished     
+

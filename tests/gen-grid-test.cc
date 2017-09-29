@@ -2,6 +2,7 @@
 # include <iostream>
 
 # include <ah-comb.H>
+# include <ah-dispatcher.H>
 
 # include <tclap-utils.H>
 # include <utils.H>
@@ -55,6 +56,8 @@ ValuesConstraint<string> allowed_output_types = output_types;
 ValueArg<string> output = { "", "output", "output type", false,
 			    "mat", &allowed_output_types, cmd };
 
+SwitchArg print = { "p", "print", "print grid", cmd };
+
 DynList<DynList<double>> gen_vals()
 {
   double k = ::k.getValue(), c0 = ::c0.getValue(), c1 = ::c1.getValue(),
@@ -77,10 +80,18 @@ DynList<DynList<double>> gen_vals()
   return ret;
 }
 
-ostream & gen_grid(const DynList<string> & names,
-		   const DynList<const Unit *> & units,
-		   const DynList<DynList<double>> & vals,
-		   ostream & out)
+DynList<DynList<double>> process_gen_arg()
+{
+  if (not gen_arg.isSet())
+    return DynList<DynList<double>>();
+
+  return gen_vals();
+}
+
+ostream & output_grid(const DynList<string> & names,
+		      const DynList<const Unit *> & units,
+		      const DynList<DynList<double>> & vals,
+		      ostream & out)
 {
   assert(names.size() == units.size());
   out << join(zip_maps<string>([] (auto t)
@@ -107,7 +118,7 @@ DynList<DynList<string>> convert_to_string(const DynList<DynList<double>> & vals
   return rows;
 }
 
-void process_gen_grid()
+void process_print_grid(const DynList<DynList<double>> & vals)
 {
   static auto print_mat = [] (const DynList<DynList<double>> & vals)
     {
@@ -133,13 +144,15 @@ void process_gen_grid()
 	  auto & p = it.get_curr();
 	  const string tname = to_string(int(p.first));
 	  const string pname = "p_" + tname;
-	  const string vname = "v_" + vname;
+	  const string vname = "v_" + tname;
 	  pnames.append(pname);
 	  vnames.append(vname);
 	  auto pv = transpose(p.second);
 	}
     };
-  auto vals = gen_vals();
+
+  static const AHDispatcher<string, void (*)(const DynList<DynList<double>> & vals)>
+    dispatcher("mat", print_mat, "csv", print_csv, "R", print_R);
 }
 
 PvtGrid load_grid(istream & in)
@@ -151,13 +164,15 @@ int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
 
-  stringstream s;
-  gen_grid({"t", "p", "c"}, { &Fahrenheit::get_instance(), &psia::get_instance(),
-	&TestUnit::get_instance()}, gen_vals(), s);
+  auto vals = process_gen_arg();
 
-  cout << s.str() << endl;
+  // stringstream s;
+  // gen_grid({"t", "p", "c"}, { &Fahrenheit::get_instance(), &psia::get_instance(),
+  // 	&TestUnit::get_instance()}, gen_vals(), s);
 
-  auto grid = load_grid(s);
+  // cout << s.str() << endl;
 
-  cout << grid << endl;
+  // auto grid = load_grid(s);
+
+  // cout << grid << endl;
 }

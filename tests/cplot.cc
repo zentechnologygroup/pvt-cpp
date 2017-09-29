@@ -17,6 +17,10 @@ using json = nlohmann::json;
 
 const UnitsInstancer & units_instancer = UnitsInstancer::init();
 
+// These values are used for bounding the maximum number of iterations
+constexpr size_t Max_Num_Of_Steps = 120;   // for --t --p --t_array and --p_array
+constexpr size_t Max_Num_of_Tp_Pairs = 10; // for --tp_pair multiarg
+
 # include <correlations/pvt-correlations.H>
 # include <correlations/defined-correlation.H>
 
@@ -474,6 +478,11 @@ struct ParRangeDesc
     if (n == 0)
       ZENTHROW(CommandLineError, ::to_string(n) + " n cannot be zero");
 
+    if (n > Max_Num_Of_Steps)
+      ZENTHROW(CommandLineError, "Number of steps " + to_string(n) + 
+	       " is greater than allowed maximum " + to_string(Max_Num_Of_Steps) +
+	       " (Max_Num_Of_Steps)");
+
     if (min > max)
       {
 	ostringstream s;
@@ -551,10 +560,16 @@ size_t set_range(const ParRangeDesc & range, const string & name,
 
 struct RowDesc
 {
+  static size_t n;
   double t, p; // temperature and pressure
 
   RowDesc & operator = (const string & str)
   {
+    if (n >= Max_Num_of_Tp_Pairs)
+      ZENTHROW(CommandLineError, "Number of steps " + to_string(n) + 
+	       " is greater than allowed maximum " + to_string(Max_Num_of_Tp_Pairs) +
+	       " (Max_Num_of_Tp_Pairs)");  
+
     istringstream iss(str);
     if (not (iss >> t >> p))
       ZENTHROW(CommandLineError, str + " is not of form \"t p\"");
@@ -562,6 +577,7 @@ struct RowDesc
     if (t <= 0 or p <= 0)
       ZENTHROW(CommandLineError, "t and p must be greater than zero");
 
+    ++n;
     return *this;
   }
 
@@ -570,6 +586,8 @@ struct RowDesc
     return os << d.t<< " " << d.p;
   }
 };
+
+size_t RowDesc::n = 0;
 
 namespace TCLAP
 {
@@ -584,6 +602,7 @@ SwitchArg permute = { "", "permute", "permute tp pairs", cmd };
 struct ArrayDesc
 {
   DynList<double> values;
+  size_t n = 0;
 
   ArrayDesc & operator = (const string & str)
   {
@@ -592,6 +611,11 @@ struct ArrayDesc
 
     while (iss >> data)
       {
+	if (++n > Max_Num_Of_Steps)
+	  ZENTHROW(CommandLineError, "Number of steps " + to_string(n) + 
+		   " is greater than allowed maximum " + to_string(Max_Num_Of_Steps) +
+		   " (Max_Num_Of_Steps)");
+
 	if (not is_double(data))
 	  ZENTHROW(CommandLineError, data + " is not a double");
 
@@ -619,7 +643,7 @@ size_t set_array(const ArrayDesc & rowset, const string & name,
   const auto & values = rowset.values;
   for (auto it = values.get_it(); it.has_curr(); it.next())
     l.append(make_tuple(true, name, it.get_curr(), &unit));
-  return values.size();
+  return rowset.n;
 }
 
 vector<string> sort_types = { "no_sort", "t", "p" };
@@ -1651,9 +1675,11 @@ void print_notranspose()
   set_sgo_corr();							\
   set_sgw_corr();							\
 									\
+  const double & c_pb = c_pb_arg.getValue();				\
+  const double & m_pb = m_pb_arg.getValue();				\
   const double & c_z = c_zfactor_arg.getValue();			\
   const double & m_z = m_zfactor_arg.getValue();			\
-									\
+  									\
   pressure = get<2>(p_values.get_first());				\
 									\
   /* Calculation of constants for Z */					\
@@ -1734,9 +1760,7 @@ void print_notranspose()
   CALL(Tpr, tpr, t_q, adjustedtpcm);					\
   auto tpr_par = NPAR(tpr);						\
 									\
-  VtlQuantity pb_q =							\
-    tcompute(pb_corr, c_pb_arg.getValue(), m_pb_arg.getValue(),         \
-	     check, pb_pars, t_par);					\
+  VtlQuantity pb_q = tcompute(pb_corr, c_pb, m_pb, check, pb_pars, t_par); \
   if (pb_q.is_null())							\
     continue;								\
   auto pb_par = npar("pb", pb_q);					\
@@ -1955,6 +1979,8 @@ void generate_rows_blackoil()
   set_adjustedtpcm_corr();						\
   set_zfactor_corr();							\
 									\
+  const double & c_pb = c_pb_arg.getValue();				\
+  const double & m_pb = m_pb_arg.getValue();				\
   const double & c_z = c_zfactor_arg.getValue();			\
   const double & m_z = m_zfactor_arg.getValue();			\
 									\
@@ -2012,9 +2038,7 @@ void generate_rows_blackoil()
   CALL(Tpr, tpr, t_q, adjustedtpcm);					\
   auto tpr_par = NPAR(tpr);						\
 									\
-  VtlQuantity pb_q =							\
-	   tcompute(pb_corr, c_pb_arg.getValue(), m_pb_arg.getValue(),	\
-		    check, pb_pars, t_par);				\
+  VtlQuantity pb_q = tcompute(pb_corr, c_pb, m_pb, check, pb_pars, t_par); \
   if (pb_q.is_null())							\
     continue;								\
   auto pb_par = npar("pb", pb_q);					\
