@@ -17,6 +17,10 @@ using json = nlohmann::json;
 
 const UnitsInstancer & units_instancer = UnitsInstancer::init();
 
+// These values are used for bounding the maximum number of iterations
+constexpr size_t Max_Num_Of_Steps = 120;   // for --t --p --t_array and --p_array
+constexpr size_t Max_Num_of_Tp_Pairs = 10; // for --tp_pair multiarg
+
 # include <correlations/pvt-correlations.H>
 # include <correlations/defined-correlation.H>
 
@@ -474,6 +478,11 @@ struct ParRangeDesc
     if (n == 0)
       ZENTHROW(CommandLineError, ::to_string(n) + " n cannot be zero");
 
+    if (n > Max_Num_Of_Steps)
+      ZENTHROW(CommandLineError, "Number of steps " + to_string(n) + 
+	       " is greater than allowed maximum " + to_string(Max_Num_Of_Steps) +
+	       " (Max_Num_Of_Steps)");
+
     if (min > max)
       {
 	ostringstream s;
@@ -551,10 +560,16 @@ size_t set_range(const ParRangeDesc & range, const string & name,
 
 struct RowDesc
 {
+  static size_t n;
   double t, p; // temperature and pressure
 
   RowDesc & operator = (const string & str)
   {
+    if (n >= Max_Num_of_Tp_Pairs)
+      ZENTHROW(CommandLineError, "Number of steps " + to_string(n) + 
+	       " is greater than allowed maximum " + to_string(Max_Num_of_Tp_Pairs) +
+	       " (Max_Num_of_Tp_Pairs)");  
+
     istringstream iss(str);
     if (not (iss >> t >> p))
       ZENTHROW(CommandLineError, str + " is not of form \"t p\"");
@@ -562,6 +577,7 @@ struct RowDesc
     if (t <= 0 or p <= 0)
       ZENTHROW(CommandLineError, "t and p must be greater than zero");
 
+    ++n;
     return *this;
   }
 
@@ -570,6 +586,8 @@ struct RowDesc
     return os << d.t<< " " << d.p;
   }
 };
+
+size_t RowDesc::n = 0;
 
 namespace TCLAP
 {
@@ -584,6 +602,7 @@ SwitchArg permute = { "", "permute", "permute tp pairs", cmd };
 struct ArrayDesc
 {
   DynList<double> values;
+  size_t n = 0;
 
   ArrayDesc & operator = (const string & str)
   {
@@ -592,6 +611,11 @@ struct ArrayDesc
 
     while (iss >> data)
       {
+	if (++n > Max_Num_Of_Steps)
+	  ZENTHROW(CommandLineError, "Number of steps " + to_string(n) + 
+		   " is greater than allowed maximum " + to_string(Max_Num_Of_Steps) +
+		   " (Max_Num_Of_Steps)");
+
 	if (not is_double(data))
 	  ZENTHROW(CommandLineError, data + " is not a double");
 
@@ -619,7 +643,7 @@ size_t set_array(const ArrayDesc & rowset, const string & name,
   const auto & values = rowset.values;
   for (auto it = values.get_it(); it.has_curr(); it.next())
     l.append(make_tuple(true, name, it.get_curr(), &unit));
-  return values.size();
+  return rowset.n;
 }
 
 vector<string> sort_types = { "no_sort", "t", "p" };
@@ -931,6 +955,46 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
       remove_from_container(pars_list, args ...);
     }
   return VtlQuantity::null_quantity;
+}
+
+// Bounded compute
+template <typename ... Args> inline
+VtlQuantity bcompute(const Correlation * corr_ptr,
+		     double c, double m,
+		     const VtlQuantity & min_val,
+		     const VtlQuantity & max_val,
+		     bool check,
+		     ParList & pars_list, const Args & ... args)
+{
+  try
+    {
+      if (not insert_in_pars_list(pars_list, args...))
+	return VtlQuantity::null_quantity;
+
+      auto ret = corr_ptr->bounded_tuned_compute_by_names(pars_list,
+							  min_val, max_val,
+							  c, m, check);
+      remove_from_container(pars_list, args...);
+      return ret;
+    }
+  //catch (UnitConversionNotFound) {}
+  catch (exception & e)
+    {
+      if (report_exceptions)
+	store_exception(corr_ptr->name, e);
+   
+      remove_from_container(pars_list, args ...);
+    }
+  return VtlQuantity::null_quantity;
+}
+
+template <typename ... Args> inline
+VtlQuantity bcompute(const Correlation * corr_ptr, double c, double m,
+		     bool check, ParList & pars_list, const Args & ... args)
+{
+  const VtlQuantity min_val = corr_ptr->unit.min();
+  const VtlQuantity max_val = corr_ptr->unit.max();
+  return bcompute(corr_ptr, c, m, min_val, max_val, check, pars_list, args...);
 }
 
 template <typename ... Args> inline
@@ -1611,9 +1675,11 @@ void print_notranspose()
   set_sgo_corr();							\
   set_sgw_corr();							\
 									\
+  const double & c_pb = c_pb_arg.getValue();				\
+  const double & m_pb = m_pb_arg.getValue();				\
   const double & c_z = c_zfactor_arg.getValue();			\
   const double & m_z = m_zfactor_arg.getValue();			\
-									\
+  									\
   pressure = get<2>(p_values.get_first());				\
 									\
   /* Calculation of constants for Z */					\
@@ -1694,15 +1760,13 @@ void print_notranspose()
   CALL(Tpr, tpr, t_q, adjustedtpcm);					\
   auto tpr_par = NPAR(tpr);						\
 									\
-  VtlQuantity pb_q =							\
-    tcompute(pb_corr, c_pb_arg.getValue(), m_pb_arg.getValue(),         \
-	     check, pb_pars, t_par);					\
+  VtlQuantity pb_q = tcompute(pb_corr, c_pb, m_pb, check, pb_pars, t_par); \
   if (pb_q.is_null())							\
     continue;								\
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
-  auto uod_val = tcompute(uod_corr, c_uod_arg.getValue(),		\
+  auto uod_val = bcompute(uod_corr, c_uod_arg.getValue(),		\
 			  m_uod_arg.getValue(), check, uod_pars,	\
 			  t_par, pb_par);				\
 									\
@@ -1915,6 +1979,8 @@ void generate_rows_blackoil()
   set_adjustedtpcm_corr();						\
   set_zfactor_corr();							\
 									\
+  const double & c_pb = c_pb_arg.getValue();				\
+  const double & m_pb = m_pb_arg.getValue();				\
   const double & c_z = c_zfactor_arg.getValue();			\
   const double & m_z = m_zfactor_arg.getValue();			\
 									\
@@ -1972,15 +2038,13 @@ void generate_rows_blackoil()
   CALL(Tpr, tpr, t_q, adjustedtpcm);					\
   auto tpr_par = NPAR(tpr);						\
 									\
-  VtlQuantity pb_q =							\
-	   tcompute(pb_corr, c_pb_arg.getValue(), m_pb_arg.getValue(),	\
-		    check, pb_pars, t_par);				\
+  VtlQuantity pb_q = tcompute(pb_corr, c_pb, m_pb, check, pb_pars, t_par); \
   if (pb_q.is_null())							\
     continue;								\
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
-  auto uod_val = tcompute(uod_corr, c_uod_arg.getValue(),		\
+  auto uod_val = bcompute(uod_corr, c_uod_arg.getValue(),		\
 			  m_uod_arg.getValue(), check, uod_pars, t_par,	\
 			  pb_par);					\
 									\
@@ -2028,7 +2092,8 @@ void generate_rows_blackoil()
   auto coa = dcompute(co_corr, check, p_q, co_pars, p_par);		\
   auto coa_par = NPAR(coa);						\
   auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, coa_par); \
-  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par);	\
+  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par,	\
+		     npar("bob", bo));					\
   VtlQuantity z;							\
   if (p_q <= pb_q)							\
     z = tcompute(zfactor_corr, c_z, m_z, check, ppr_par, tpr_par);	\

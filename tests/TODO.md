@@ -60,15 +60,9 @@
 ## 20. probable bug en extrapolacion grid. revisar
 - Created at   2017-09-13 14:57:58 -0400
 
-## 21. acelerar clot folding c-pb y m-pm-arg
-- Created at   2017-09-14 17:07:29 -0400
-
-## 22. lectura de grid pvt no acepta blancos y comas:
+## 21. lectura de grid pvt no acepta blancos y comas:
 - Created at   2017-09-15 11:29:16 -0400
 
-## 23. forzar a que regresion de uod de cero en ptos negativos
-- Created at   2017-09-16 16:52:40 -0400
-
-## 24. bounds de lazos en cplot
-- Created at   2017-09-26 10:12:11 -0400
+## 22. gen-grid-test debe mostrar lo generado y el grid
+- Created at   2017-09-29 17:00:28 -0400
 

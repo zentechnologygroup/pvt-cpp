@@ -1002,6 +1002,63 @@ public:
     return verify_result(VtlQuantity(unit, c + m*compute(pars, check))).raw();
   }
 
+  VtlQuantity
+  bounded_tuned_compute_by_names(const DynList<ParByName> & par_list,
+				 const VtlQuantity & min_val,
+				 const VtlQuantity & max_val,
+				 double c, double m, bool check = true) const
+  {
+    const double result = c + m*compute_by_names(par_list, check).raw();
+    if (result < min_val)
+      return min_val;
+    if (result > max_val)
+      return max_val;
+    return VtlQuantity(unit, result);
+  }
+
+  VtlQuantity
+  bounded_tuned_compute_by_names(const DynList<NamedPar> & par_list,
+				 const VtlQuantity & min_val,
+				 const VtlQuantity & max_val,
+				 double c, double m, bool check = true) const
+  {
+    const double result = c + m*compute_by_names(par_list, check).raw();
+     if (result < min_val)
+      return min_val;
+    if (result > max_val)
+      return max_val;
+    return VtlQuantity(unit, result);
+  }
+
+  VtlQuantity
+  bounded_tuned_compute_by_names(const ParList & par_list,
+				 const VtlQuantity & min_val,
+				 const VtlQuantity & max_val,
+				 double c, double m, bool check = true) const
+  {
+    const double result = c + m*compute_by_names(par_list, check).raw();
+    if (result < min_val)
+      return min_val;
+    if (result > max_val)
+      return max_val;
+    return VtlQuantity(unit, result);
+  }
+
+  double
+  bounded_tuned_compute_and_check(const DynList<double> & pars,
+				  const VtlQuantity & min_val,
+				  const VtlQuantity & max_val,
+				  double c, double m,
+				  bool check = true) const
+  {
+    const double result = c + m*compute(pars, check);
+    if (result < min_val)
+      return min_val.raw();
+    if (result > max_val)
+      return max_val.raw();
+    return verify_result(VtlQuantity(unit, result)).raw();
+  }
+
   /** return a list of validated and adequately converted correlation
       parameters
       

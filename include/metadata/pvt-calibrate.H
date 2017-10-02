@@ -1485,7 +1485,16 @@ struct PvtData
       : corr_ptr(__corr_ptr), d(d) {}
     AutoDesc(const Correlation * __corr_ptr) : corr_ptr(__corr_ptr) {}
     AutoDesc() {}
-    bool is_valid() const noexcept { return corr_ptr != nullptr; }
+    bool is_valid() const noexcept
+    {
+      return corr_ptr != nullptr and CorrStat::is_valid(d);
+    }
+    friend ostream & operator << (ostream & out, const AutoDesc & a)
+    {
+      return out << "  " << a.corr_ptr->name << endl
+		 << "  c = " << CorrStat::c(a.d) << endl
+		 << "  m = " << CorrStat::m(a.d);
+    }
   };
 
   enum class AutoApplyType { r2, mse, sigma, sumsq, c, m };
