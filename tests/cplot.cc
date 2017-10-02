@@ -1837,7 +1837,8 @@ void print_notranspose()
   auto rs_par = NPAR(rs);						\
   auto coa = dcompute(co_corr, check, p_q, co_pars, p_par);		\
   auto coa_par = NPAR(coa);						\
-  auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, coa_par); \
+  auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, pb_par,	\
+		     rs_par, coa_par);					\
   auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par,	\
 		     npar("bob", bo));					\
   auto po = dcompute(po_corr, check, p_q, po_pars, p_par, rs_par, coa_par, \
@@ -2069,12 +2070,12 @@ void generate_rows_blackoil()
 		       uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(), \
 		       uoa_corr, c_uoa_arg.getValue(), m_uoa_arg.getValue()); \
   									\
-  bo_pars.insert(t_par);						\
+  insert_in_container(bo_pars, t_par, pb_par);				\
   auto bobp = tcompute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(), \
-		       check, bo_pars, p_pb, rs_pb);			\
+		       check, bo_pars, rs_pb, p_pb);			\
 									\
   auto uobp = tcompute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(), \
-		       check, uo_pars, p_pb, rs_pb);			\
+		       check, uo_pars, p_pb, rs_pb, npar("bob", bobp));	\
 									\
   insert_in_container(bo_pars, pb_par, NPAR(bobp));			\
 									\

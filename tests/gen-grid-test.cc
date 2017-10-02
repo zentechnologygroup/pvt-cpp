@@ -56,7 +56,7 @@ ValuesConstraint<string> allowed_output_types = output_types;
 ValueArg<string> output = { "", "output", "output type", false,
 			    "mat", &allowed_output_types, cmd };
 
-SwitchArg print = { "p", "print", "print grid", cmd };
+SwitchArg print = { "P", "print", "print grid", cmd };
 
 DynList<DynList<double>> gen_vals()
 {
@@ -106,27 +106,78 @@ ostream & output_grid(const DynList<string> & names,
   return out;
 }
 
-DynList<DynList<string>> convert_to_string(const DynList<DynList<double>> & vals)
+struct ValsDesc
 {
-  DynList<string> header =
-    build_dynlist<string>("t " + Fahrenheit::get_instance().name,
-			  "p " + psia::get_instance().name,
-			  "v " + TestUnit::get_instance().name);
-  auto rows = vals.maps<DynList<string>>([] (auto & l)
-    { return l.template maps<string>([] (double v) { return to_str(v); }); });
-  rows.insert(header);
-  return rows;
+  double maxp = numeric_limits<double>::min();
+  double minp = numeric_limits<double>::max();
+  double maxv = numeric_limits<double>::min();
+  double minv = numeric_limits<double>::max();
+
+  size_t n = 0;
+  DynList<string> t;
+  DynList<string> p;
+  DynList<string> v;
+
+  size_t gn = 0;
+  DynList<string> tg;
+  DynList<string> pg;
+  DynList<string> vg;
+};
+
+ValsDesc
+convert_to_string(const DynList<DynList<double>> & vals,
+		  const DynList<DynList<double>> & grid)
+{
+  ValsDesc d; 
+  auto svals = vals.maps<DynList<string>>([&d] (auto & l)
+    {
+      auto & p = l.nth(1);
+      auto & v = l.get_last();
+      d.maxp = max(d.maxp, p);
+      d.minp = min(d.minp, p);
+      d.maxv = max(d.maxv, v);
+      d.minv = max(d.minv, v);
+      ++d.n;
+      return build_dynlist<string>(to_string(l.get_first()), to_string(p),
+				   to_string(v));
+    });
+
+  auto gvals = grid.maps<DynList<string>>([&d] (auto & l)
+    {
+      auto & p = l.nth(1);
+      auto & v = l.get_last();
+      d.maxp = max(d.maxp, p);
+      d.minp = min(d.minp, p);
+      d.maxv = max(d.maxv, v);
+      d.minv = max(d.minv, v);
+      ++d.gn;
+      return build_dynlist<string>(to_string(l.get_first()), to_string(p),
+				   to_string(v));
+    });
+
+  svals = transpose(svals);
+  gvals = transpose(gvals);
+
+  d.t = svals.remove();
+  d.p = move(svals.get_first());
+  d.v = move(svals.get_last());
+
+  d.tg = gvals.remove();
+  d.pg = move(gvals.get_first());
+  d.vg = move(gvals.get_last());
+
+  return d;
 }
 
-void process_print_grid(const DynList<DynList<double>> & vals)
+void process_print_grid(const ValsDesc & d)
 {
   static auto print_mat = [] (const DynList<DynList<double>> & vals)
     {
-      cout << to_string(format_string(convert_to_string(vals))) << endl;
+      cout << to_string(format_string(convert_to_string(vals)));
     };
   static auto print_csv = [] (const DynList<DynList<double>> & vals)
     {
-      cout << to_string(format_string_csv(convert_to_string(vals))) << endl;
+      cout << to_string(format_string_csv(convert_to_string(vals)));
     };
   static auto print_R = [] (const DynList<DynList<double>> & vals)
     {
@@ -153,10 +204,25 @@ void process_print_grid(const DynList<DynList<double>> & vals)
 
   static const AHDispatcher<string, void (*)(const DynList<DynList<double>> & vals)>
     dispatcher("mat", print_mat, "csv", print_csv, "R", print_R);
+
+  if (not print.isSet() or vals.is_empty())
+    return;
+
+  dispatcher.run(output.getValue(), vals);
 }
 
-PvtGrid load_grid(istream & in)
+PvtGrid load_grid()
 {
+  if (not file.isSet())
+    return PvtGrid();
+
+  const string & file_name = file.getValue();
+
+  if (not exists_file(file_name))
+    error_msg("file " + file_name +  " doesn't exist");
+
+  ifstream in(file_name);
+
   return PvtGrid(in);
 }
 
@@ -165,6 +231,10 @@ int main(int argc, char *argv[])
   cmd.parse(argc, argv);
 
   auto vals = process_gen_arg();
+
+  auto grid = load_grid();
+
+  process_print_grid(vals);
 
   // stringstream s;
   // gen_grid({"t", "p", "c"}, { &Fahrenheit::get_instance(), &psia::get_instance(),
