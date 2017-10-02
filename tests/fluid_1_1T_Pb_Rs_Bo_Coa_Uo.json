@@ -1,0 +1,199 @@
+{
+  "boa_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "bob_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "coa_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "constants": [
+    {
+      "name": "api",
+      "unit": "Api",
+      "value": 8.8
+    },
+    {
+      "name": "co2",
+      "unit": "MolePercent",
+      "value": 2.84
+    },
+    {
+      "name": "h2s",
+      "unit": "MolePercent",
+      "value": 0.0
+    },
+    {
+      "name": "n2",
+      "unit": "MolePercent",
+      "value": 0.52
+    },
+    {
+      "name": "nacl",
+      "unit": "Molality_NaCl",
+      "value": 0.0
+    },
+    {
+      "name": "psep",
+      "unit": "psia",
+      "value": 100.0
+    },
+    {
+      "name": "rsb",
+      "unit": "SCF_STB",
+      "value": 74.9
+    },
+    {
+      "name": "tsep",
+      "unit": "Fahrenheit",
+      "value": 100.0
+    },
+    {
+      "name": "yg",
+      "unit": "Sgg",
+      "value": 0.6927
+    }
+  ],
+  "pb_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "rs_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "uoa_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "uob_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "uod_corr": {
+    "c": 0.0,
+    "m": 1.0,
+    "name": "null"
+  },
+  "vectors": [
+    {
+      "bobp": 1.063,
+      "p": [
+        780.0,
+        880.0,
+        1170.0,
+        1480.0,
+        1750.0,
+        2080.0,
+        2480.0,
+        2670.0
+      ],
+      "pb": 780.0,
+      "punit": "psia",
+      "t": 126.0,
+      "target_name": "boa",
+      "target_unit": "RB_STB",
+      "uobp": -1.0,
+      "uod": -1.0,
+      "y": [
+        1.063,
+        1.0625,
+        1.0612,
+        1.06,
+        1.059,
+        1.0578,
+        1.0566,
+        1.0559
+      ]
+    },
+    {
+      "bobp": -1.0,
+      "p": [
+        830.0,
+        1025.0,
+        1325.0,
+        1615.0,
+        1915.0,
+        2280.0,
+        2575.0
+      ],
+      "pb": 780.0,
+      "punit": "psia",
+      "t": 126.0,
+      "target_name": "coa",
+      "target_unit": "psia_1",
+      "uobp": -1.0,
+      "uod": -1.0,
+      "y": [
+        5e-06,
+        4.29e-06,
+        3.82e-06,
+        3.43e-06,
+        3.2e-06,
+        3.05e-06,
+        2.93e-06
+      ]
+    },
+    {
+      "bobp": -1.0,
+      "p": [
+        780.0,
+        900.0,
+        1100.0,
+        1306.0,
+        1515.0,
+        1721.0,
+        2035.0
+      ],
+      "pb": 780.0,
+      "punit": "psia",
+      "t": 126.0,
+      "target_name": "uoa",
+      "target_unit": "CP",
+      "uobp": 2870.0,
+      "uod": 5904.97,
+      "y": [
+        2870.0,
+        2913.0,
+        2962.0,
+        3012.0,
+        3151.0,
+        3262.0,
+        3443.0
+      ]
+    },
+    {
+      "bobp": -1.0,
+      "p": [
+        337.0,
+        477.0,
+        706.0,
+        780.0
+      ],
+      "pb": 780.0,
+      "punit": "psia",
+      "t": 126.0,
+      "target_name": "uob",
+      "target_unit": "CP",
+      "uobp": -1.0,
+      "uod": 5904.97232409076,
+      "y": [
+        4810.0,
+        3557.0,
+        3004.0,
+        2870.0
+      ]
+    }
+  ]
+}
