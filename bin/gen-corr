@@ -7,6 +7,8 @@ require 'calculus.rb'
 
 pvtdir = ENV['PVT']
 
+fail 'PVT env var has not been defined' unless pvtdir
+
 load "#{pvtdir}/include/correlations/symbols"
 
 class CorrelationGen
