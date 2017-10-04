@@ -123,7 +123,7 @@ struct ValsDesc
 ValsDesc convert_to_valsdesc(const DynList<DynList<double>> & vals,
 			     const PvtGrid & grid)
 {
-  size_t vi = grid.property_index("v");
+  size_t vi = grid.is_valid() ? grid.property_index("v") : 0;
   ValsDesc d;
   for (auto it = vals.get_it(); it.has_curr(); it.next())
     {
@@ -154,13 +154,16 @@ DynList<DynList<string>> to_dynlist(const ValsDesc & d)
 {
   DynList<DynList<string>> rows;
 
-  DynList<string> header = build_dynlist<string>("t", "p", "v");
+  DynList<string> header =
+    build_dynlist<string>("t " + Fahrenheit::get_instance().name,
+			  "p " + psia::get_instance().name,
+			  "v " + TestUnit::get_instance().name); 
   if (not d.vg.is_empty())
     {
       header.append("vg");
       rows = zip_maps<DynList<string>>([] (auto t)
         {
-	  return build_dynlist<DynList<string>>
+	  return build_dynlist<string>
 	  (to_string(get<0>(t)), to_string(get<1>(t)),
            to_string(get<2>(t)), to_string(get<3>(t)));
 	}, d.t, d.p, d.v, d.vg);
@@ -168,7 +171,7 @@ DynList<DynList<string>> to_dynlist(const ValsDesc & d)
   else
     rows = zip_maps<DynList<string>>([] (auto t)
       {
-	return build_dynlist<DynList<string>>
+	return build_dynlist<string>
 	(to_string(get<0>(t)), to_string(get<1>(t)), to_string(get<2>(t)));
       }, d.t, d.p, d.v);
 

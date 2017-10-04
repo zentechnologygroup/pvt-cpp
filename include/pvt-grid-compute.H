@@ -249,16 +249,19 @@ private:
 
   RangeDesc search_presure(const T & desc, const double & p) const
   {
-    const Array<double> & pvals = get<1>(desc);
-    const double & fst_p = pvals.get_first();
-    const double & lst_p = pvals.get_last();
+    const Array<double> & pvals = get<1>(desc); // sorted pressure
+    const double & fst_p = pvals.get_first(); // minimum pressure
+    const double & lst_p = pvals.get_last();  // maximum pressure
+
+    assert(fst_p < lst_p);
+
     if (p < fst_p)
       return RangeDesc(0, 1, RangeDesc::Type::Left);
 
     if (p > lst_p)
       {
 	const size_t & n = pvals.size();
-	return RangeDesc(n - 1, n - 2, RangeDesc::Type::Right);
+	return RangeDesc(n - 2, n - 1, RangeDesc::Type::Right);
       }
     
     const long i = binary_search(pvals, p);
