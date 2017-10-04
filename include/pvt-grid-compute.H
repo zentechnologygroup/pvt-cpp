@@ -13,6 +13,7 @@ DEFINE_ZEN_EXCEPTION(UnsortedPressureValues, "pressure values are not sorted");
 
 class PvtGrid
 {
+  const bool valid = false;
   const Unit * tunit_ptr = nullptr;
   const Unit * punit_ptr = nullptr;
 
@@ -64,14 +65,17 @@ class PvtGrid
 
 public:
 
+  bool is_valid() const noexcept { return valid; }
+
   PvtGrid() {}
 
   PvtGrid(PvtGrid && grid)
-    : tunit_ptr(grid.tunit_ptr), punit_ptr(grid.punit_ptr),
+    : valid(true), tunit_ptr(grid.tunit_ptr), punit_ptr(grid.punit_ptr),
       var_names(move(grid.var_names)), temps(move(grid.temps)) {}
 
   PvtGrid & operator = (PvtGrid && grid)
   {
+    swap(valid, grid.valid);
     swap(tunit_ptr, grid.tunit_ptr);
     swap(punit_ptr, grid.punit_ptr);
     swap(var_names, grid.var_names);
@@ -79,7 +83,7 @@ public:
     return *this;
   }
 
-  PvtGrid(istream & in)
+  PvtGrid(istream & in) : valid(true)
   {
     Array<string> header = csv_read_row(in);
     if (not header.exists([] (auto & s)
