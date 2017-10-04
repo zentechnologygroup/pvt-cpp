@@ -160,14 +160,21 @@ DynList<DynList<string>> to_dynlist(const ValsDesc & d)
       header.append("vg");
       rows = zip_maps<DynList<string>>([] (auto t)
         {
-	  return build_dynlist<DynList<string>>(to_string(get<0>(t)),
-						to_string(get<1>(t)),
-                                                to_string(get<2>(t)),
-                                                 to_string(get<0>(t)));
-							  }
+	  return build_dynlist<DynList<string>>
+	  (to_string(get<0>(t)), to_string(get<1>(t)),
+           to_string(get<2>(t)), to_string(get<3>(t)));
+	}, d.t, d.p, d.v, d.vg);
+    }
+  else
+    rows = zip_maps<DynList<string>>([] (auto t)
+      {
+	return build_dynlist<DynList<string>>
+	(to_string(get<0>(t)), to_string(get<1>(t)), to_string(get<2>(t)));
+      }, d.t, d.p, d.v);
 
+  rows.insert(header);
 
-  
+  return rows;
 }
 
 void process_print_grid(const ValsDesc & d)

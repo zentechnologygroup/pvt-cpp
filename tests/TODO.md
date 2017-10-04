@@ -66,3 +66,9 @@
 ## 22. gen-grid-test debe mostrar lo generado y el grid
 - Created at   2017-09-29 17:00:28 -0400
 
+## 23. --ban CoaHanafy no está funcionando
+- Created at   
+
+## 24.  
+- Created at   2017-10-04 14:15:52 -0400
+

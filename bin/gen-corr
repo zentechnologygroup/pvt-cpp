@@ -5,7 +5,9 @@ require 'fileutils'
 require 'optparse'
 require 'calculus.rb'
 
-load 'symbols'
+pvtdir = ENV['PVT']
+
+load "#{pvtdir}/include/correlations/symbols"
 
 class CorrelationGen
 
@@ -539,7 +541,7 @@ $eq_dir = options[:dir] || '../eqs'
 fail 'correlations file not specified' if file.nil?
 
 require 'bibtex'
-$biblio = options[:biblio] || "refs.bib"
+$biblio = options[:biblio] || "#{pvtdir}/include/correlations/refs.bib"
 $bib_db = BibTeX.open($biblio)
 
 def add_ref(tag)
