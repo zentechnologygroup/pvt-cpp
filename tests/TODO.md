@@ -72,3 +72,6 @@
 ## 24.  
 - Created at   2017-10-04 14:15:52 -0400
 
+## 25. documentar formatos de property en tuner
+- Created at   2017-10-04 15:41:04 -0400
+

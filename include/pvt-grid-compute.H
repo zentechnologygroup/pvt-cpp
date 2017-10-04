@@ -13,7 +13,7 @@ DEFINE_ZEN_EXCEPTION(UnsortedPressureValues, "pressure values are not sorted");
 
 class PvtGrid
 {
-  const bool valid = false;
+  mutable bool valid = false;
   const Unit * tunit_ptr = nullptr;
   const Unit * punit_ptr = nullptr;
 

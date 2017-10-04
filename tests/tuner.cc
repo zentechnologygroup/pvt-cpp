@@ -219,17 +219,34 @@ struct ValuesArg
 	p_reversed = true;
       }
 
-    if (not compound_target and not
-	p.exists([this] (auto v) { return v == pb; }))
-      ZENTHROW(CommandLineError, "pb value " + to_string(pb) +
-	       " not found in pressures array");
+    bool uobp_required = false;
+    if (not compound_target and not p.exists([this] (auto v) { return v == pb; }))
+      if (target_name != "uob")
+	ZENTHROW(CommandLineError, "pb value " + to_string(pb) +
+		 " not found in pressures array");
+      else
+	uobp_required = true;
 
-    for (size_t i = 0; i < n/2; ++i, it.next())
+    const size_t num_samples = n/2;
+
+    for (size_t i = 0; i < num_samples; ++i, it.next())
       values.append(it.get_curr());
 
     if (p_reversed)
       values = values.rev();
 
+    if (uobp_required)
+      {
+	assert(target_name == "uob");
+	const double p1 = p.nth(num_samples - 2);
+	const double p2 = p.get_last();
+	const double uo1 = values.nth(num_samples - 2);
+	const double uo2 = values.get_last();
+	const double uobp = extrapolate_right(p1, p2, uo1, uo2, pb);
+	p.append(pb);
+	values.append(uobp);
+      }
+      
     if (target_name == "boa")
       bobp = unit_convert(*unit_ptr, values.get_first(), RB_STB::get_instance());
     if (target_name == "uoa")

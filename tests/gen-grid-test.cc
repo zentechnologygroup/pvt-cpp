@@ -120,8 +120,8 @@ struct ValsDesc
   DynList<double> vg;
 };
 
-ValsDesc convert_to_string(const DynList<DynList<double>> & vals,
-			   const PvtGrid & grid)
+ValsDesc convert_to_valsdesc(const DynList<DynList<double>> & vals,
+			     const PvtGrid & grid)
 {
   size_t vi = grid.property_index("v");
   ValsDesc d;
@@ -179,25 +179,32 @@ DynList<DynList<string>> to_dynlist(const ValsDesc & d)
 
 void process_print_grid(const ValsDesc & d)
 {
-  
   static auto print_mat = [] (const ValsDesc & d)
     {
-      cout << to_string(format_string(rows));
+      cout << to_string(format_string(to_dynlist(d)));
     };
-  static auto print_csv = [] (const ValsDesc & rows)
+  static auto print_csv = [] (const ValsDesc & d)
     {
-      cout << to_string(format_string_csv(rows));
+      cout << to_string(format_string_csv(to_dynlist(d)));
     };
-  static auto print_R = [] (const ValsDesc & vals)
-    {
+  static auto print_R = [] (const ValsDesc & d)
+    { //          temp    p, v and eventually vg
       DynMapTree<double, DynList<DynList<double>>> temps;
-      for (auto it = vals.get_it(); it.has_curr(); it.next())
-	{
-	  auto & l = it.get_curr();
-	  temps[l.get_first()].append(l.drop(1));
-	}
+      if (d.vg.is_empty())
+	for (auto it = zip_it(d.t, d.p, d.v); it.has_curr(); it.next())
+	  {
+	    auto t = it.get_curr();
+	    temps[get<0>(t)].append(build_dynlist<double>(get<1>(t), get<2>(t)));
+	  }
+      else
+	for (auto it = zip_it(d.t, d.p, d.v, d.vg); it.has_curr(); it.next())
+	  {
+	    auto t = it.get_curr();
+	    temps[get<0>(t)].append(build_dynlist<double>(get<1>(t), get<2>(t),
+							  get<3>(t)));
+	  }
 
-      DynList<string> pnames, vnames;
+      DynList<string> pnames, vnames, vgnames;
       ostringstream s;
       for (auto it = temps.get_it(); it.has_curr(); it.next())
 	{
@@ -205,19 +212,25 @@ void process_print_grid(const ValsDesc & d)
 	  const string tname = to_string(int(p.first));
 	  const string pname = "p_" + tname;
 	  const string vname = "v_" + tname;
+	  const string vgname = "vg_" + tname;
 	  pnames.append(pname);
 	  vnames.append(vname);
+	  vgnames.append(vgname);
 	  auto pv = transpose(p.second);
+	  cout << Rvector(pname, pv.get_first()) << endl
+	       << Rvector(vname, pv.nth(1)) << endl;
+	  if (not pv.get_last().is_empty())
+	    cout << Rvector(vgname, pv.get_last()) << endl;
 	}
     };
 
-  static const AHDispatcher<string, void (*)(const ValsDesc & vals)>
+  static const AHDispatcher<string, void (*)(const ValsDesc&)>
     dispatcher("mat", print_mat, "csv", print_csv, "R", print_R);
 
-  if (not print.isSet() or vals.is_empty())
+  if (not print.isSet())
     return;
 
-  dispatcher.run(output.getValue(), vals);
+  dispatcher.run(output.getValue(), d);
 }
 
 PvtGrid load_grid()
@@ -243,7 +256,7 @@ int main(int argc, char *argv[])
 
   auto grid = load_grid();
 
-  process_print_grid(vals);
+  process_print_grid(convert_to_valsdesc(vals, grid));
 
   // stringstream s;
   // gen_grid({"t", "p", "c"}, { &Fahrenheit::get_instance(), &psia::get_instance(),
