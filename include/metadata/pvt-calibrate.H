@@ -284,6 +284,12 @@ struct VectorDesc
     if (not is_sorted(uoa))
       ZENTHROW(SamplesUnsorted, "undersaturated region of uo is not increasing");
 
+    if (p_below.size() < 2)
+      ZENTHROW(CommandLineError, "Not enough point for estimating uob");
+
+    if (p_above.size() < 2)
+      ZENTHROW(CommandLineError, "Not enough point for estimating uoa");
+
     LFit lm_below(p_below, uob); 
     LFit lm_above(p_above, uoa); 
 
@@ -376,6 +382,23 @@ struct PvtData
   double c_uob = 0, m_uob = 1;    
   const Correlation * uoa_corr = nullptr;
   double c_uoa = 0, m_uoa = 1;
+
+  DynList<double> all_pressures() const
+  {
+    DynSetTree<double> pressures;
+    for (auto & v : vectors)
+      v.p.for_each([&pressures] (auto p) { pressures.insert(p); });
+    return pressures.keys();
+  }
+
+  DynList<double> all_pb() const
+  {
+    DynSetTree<double> pbs;
+    for (auto & v : vectors)
+      if (v.pb > 0)
+	pbs.insert(v.pb);
+    return pbs.keys();
+  }
 
   double pmin() const
   {
@@ -739,6 +762,10 @@ struct PvtData
 			   const string & target_name) const
   {
     DynList<Sample> ret;
+
+    if (ref_vectors.is_empty())
+      return ret;
+
     DynList<const VectorDesc*> samples = search_vectors(target_name);
     if (samples.is_empty())
       return ret;
@@ -806,8 +833,9 @@ struct PvtData
   {
     if (ban_list.has(corr_ptr))
       return false;
-    
-    auto ref_vectors = search_vectors(corr_ptr->target_name());
+
+    DynList<const VectorDesc*> ref_vectors = search_vectors(corr_ptr->target_name());
+
     for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
 	 it.next())
       {

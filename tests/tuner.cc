@@ -603,6 +603,10 @@ SwitchArg auto_arg = { "", "auto", "automatic calibration", cmd };
 SwitchArg Auto_arg =
   { "", "Auto", "set correlation given by automatic calibration", cmd };
 
+SwitchArg exp_arg = { "", "exp", "put experimental pressures", cmd };
+
+SwitchArg pbexp_arg = { "", "pbexp", "put experimental pb values", cmd };
+
 # define Corr_Arg(NAME)							\
   ValueArg<string> NAME##_corr_arg =					\
     { "", #NAME, "set " #NAME " correlation", false, "",		\
@@ -1000,8 +1004,7 @@ void process_apply()
 DynList<PvtData::AutoDesc> best_list()
 {
   const double & threshold = ::threshold.getValue();
-  // TODO validad threshold segun auto-type
-
+  
   return data.auto_apply(relax_names_tbl, ban.getValue().corr_list,
 			 threshold, auto_map[auto_type.getValue()]);
 }
@@ -1674,9 +1677,15 @@ string plot_cmd()
   s << "./cplot --grid simple " << data.cplot_consts() << data.cplot_corrs()
     << " --zfactor ZfactorDranchukAK --t_array \""
     << join(data.get_temperatures().maps<string>([] (auto v)
-						 { return to_string(v); })
-	    , " ") << "\" --p \""
-    << data.pmin() << " " << data.pmax() << " 100\"";
+						 { return to_string(v); }) , " ")
+    << "\" ";
+  if (exp_arg.getValue())
+    s << "--p_array \"" << join(data.all_pressures(), " ") << "\"";
+  else if (pbexp_arg.getValue())
+    s << "--p_array \"" << join(data.all_pb(), " ") << "\"";
+  else
+    s << "--p \""
+      << data.pmin() << " " << data.pmax() << " 100\"";
   return s.str();
 }
 
