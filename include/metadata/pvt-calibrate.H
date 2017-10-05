@@ -1585,7 +1585,7 @@ struct PvtData
 
     if (m.has("coa"))
       m["boa"] = AutoDesc(&BoaMcCain::get_instance());
-    else 
+    else if (m.has("boa"))
       {
 	auto & boa_desc = m["boa"];
 	auto boa_corr = boa_desc.corr_ptr;
