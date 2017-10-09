@@ -20,6 +20,5 @@ opcion de valores específicos para test-grid,2017-09-13 10:34:17 -0400,,
 probable bug en extrapolacion grid. revisar,2017-09-13 14:57:58 -0400,,
 lectura de grid pvt no acepta blancos y comas:,2017-09-15 11:29:16 -0400,,
 gen-grid-test debe mostrar lo generado y el grid,2017-09-29 17:00:28 -0400,,
---ban CoaHanafy no está funcionando
- ,2017-10-04 14:15:52 -0400,,
-documentar formatos de property en tuner,2017-10-04 15:41:04 -0400,,
+--ban CoaHanafy no está funcionando,,,
+documentar formatos de property en tuner,2017-10-04 15:41:04 -0400,2017-10-08 20:33:50 -0400,
