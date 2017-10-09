@@ -50,28 +50,19 @@
 ## 17. operación smooth grid en puntos de inflexión
 - Created at   2017-09-11 17:41:45 -0400
 
-## 18. test-grid debe recibir puntos exprimentales y calcular el error
-- Created at   2017-09-13 10:11:06 -0400
-- Completed at 2017-09-17 20:57:35 -0400
-
-## 19. opcion de valores específicos para test-grid
+## 18. opcion de valores específicos para test-grid
 - Created at   2017-09-13 10:34:17 -0400
 
-## 20. probable bug en extrapolacion grid. revisar
+## 19. probable bug en extrapolacion grid. revisar
 - Created at   2017-09-13 14:57:58 -0400
 
-## 21. lectura de grid pvt no acepta blancos y comas:
+## 20. lectura de grid pvt no acepta blancos y comas:
 - Created at   2017-09-15 11:29:16 -0400
 
-## 22. gen-grid-test debe mostrar lo generado y el grid
+## 21. gen-grid-test debe mostrar lo generado y el grid
 - Created at   2017-09-29 17:00:28 -0400
 
-## 23. --ban CoaHanafy no está funcionando
-- Created at   
-
-## 24.  
-- Created at   2017-10-04 14:15:52 -0400
-
-## 25. documentar formatos de property en tuner
+## 22. documentar formatos de property en tuner
 - Created at   2017-10-04 15:41:04 -0400
+- Completed at 2017-10-08 20:33:50 -0400
 

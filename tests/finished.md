@@ -2248,3 +2248,21 @@
 - Comment      
 - Finished     
 
+## 376.  
+- Created at   2017-10-04 14:15:52 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 377. test-grid debe recibir puntos exprimentales y calcular el error
+- Created at   2017-09-13 10:11:06 -0400
+- Completed at 2017-09-17 20:57:35 -0400
+- Comment      
+- Finished     
+
+## 378. --ban CoaHanafy no está funcionando
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+

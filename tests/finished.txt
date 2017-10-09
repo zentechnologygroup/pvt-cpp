@@ -373,3 +373,6 @@ variables globales para propiedades; de ese modo evitaos macros,2017-07-14 15:35
 bounds de lazos en cplot,2017-09-26 10:12:11 -0400,2017-09-29 15:53:11 -0400,,2017-09-29 15:53:14 -0400
 forzar a que regresion de uod de cero en ptos negativos,2017-09-16 16:52:40 -0400,2017-09-29 14:51:21 -0400,,2017-09-29 15:53:22 -0400
 acelerar clot folding c-pb y m-pm-arg,2017-09-14 17:07:29 -0400,2017-09-29 15:59:21 -0400,,2017-09-29 15:59:25 -0400
+ ,2017-10-04 14:15:52 -0400,,,2017-10-08 20:33:41 -0400
+test-grid debe recibir puntos exprimentales y calcular el error,2017-09-13 10:11:06 -0400,2017-09-17 20:57:35 -0400,,2017-10-08 20:35:35 -0400
+--ban CoaHanafy no está funcionando,,,,2017-10-08 20:36:00 -0400
