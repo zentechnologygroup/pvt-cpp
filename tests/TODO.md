@@ -66,3 +66,9 @@
 - Created at   2017-10-04 15:41:04 -0400
 - Completed at 2017-10-08 20:33:50 -0400
 
+## 23. tomar corr pb si stá definida para calibración de rs
+- Created at   2017-10-09 16:35:19 -0400
+
+## 24. cplot tuner ztuner test-corr deben atraar execpciones en main  e imprimir error
+- Created at   2017-10-09 17:05:38 -0400
+

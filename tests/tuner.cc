@@ -559,7 +559,7 @@ SwitchArg save = { "", "save", "save data to json", cmd };
 SwitchArg transpose_out = { "", "transpose", "transpose output", cmd };
 
 MultiArg<RmProperty> rm_property =
-  { "", "rm-property", "remove property t", false, "remove \"property t\"", cmd };
+  { "", "rm-property", "remove property t", false, "\"property-tag t\"", cmd };
 
 ValuesConstraint<string> allowed_consts = valid_consts;
 MultiArg<string> rm_const = { "", "rm-const", "remove const", false,

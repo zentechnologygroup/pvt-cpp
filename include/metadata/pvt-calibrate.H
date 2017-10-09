@@ -73,6 +73,12 @@ struct VectorDesc
       ZENTHROW(UnitNotFound, "unit for " + yname + " not found");
   }
 
+  bool is_valid() const noexcept
+  {
+    return t > 0 and pb > 0 and punit != nullptr and yunit != nullptr and
+      yname != "no-name" and p.size() > 1 and p.size() == y.size() and is_sorted(p);
+  }
+
   void validate()
   {
     if (p.size() <= 1)
@@ -90,12 +96,20 @@ struct VectorDesc
     : t(t), pb(pb), bobp(bobp), uod(uod), uobp(uobp), p(p), punit(punit),
       yname(yname), yunit(yunit), y(y)
   {
+    if (t <= 0)
+      ZENTHROW(InvalidRange, "t value " + ::to_string(t) + " less or equal to zero");
+    if (pb <= 0)
+      ZENTHROW(InvalidRange, "pb value " + ::to_string(pb) + " less or equal to zero");
     validate();
   }
 
   VectorDesc() {}
 
-  VectorDesc(double t, const string & name) : t(t), yname(name) {}
+  VectorDesc(double t, const string & name) : t(t), yname(name)
+  {
+    if (t <= 0)
+      ZENTHROW(InvalidRange, "t value " + ::to_string(t) + " less or equal to zero");
+  }
 
   CorrStat::Desc stats(const Array<double> & yc, const Unit * unit_ptr) const
   {
@@ -115,8 +129,8 @@ struct VectorDesc
   // share the same t values and p vectors
   bool has_same_tp(const VectorDesc & v) const noexcept
   {
-    return t == v.t and zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
-				p, v.p);
+    return t == v.t and
+      zip_all([] (auto t) { return get<0>(t) == get<1>(t); }, p, v.p);
   }
 
   bool is_parallel(const VectorDesc & v) const noexcept
@@ -1216,8 +1230,7 @@ struct PvtData
   iapply(const Correlation * corr_ptr) const
   {
     const string target_name = corr_ptr->target_name();
-    const DynList<const VectorDesc*> target_vectors =
-      search_vectors(target_name);
+    const DynList<const VectorDesc*> target_vectors = search_vectors(target_name);
     if (target_vectors.is_empty())
       ZENTHROW(VarNameNotFound, "Correlation target " + target_name +
 	       " not found in data set");
@@ -1249,6 +1262,8 @@ struct PvtData
 	const string & par_name = s_yname(desc);
 	assert(temp == ref_ptr->t);
 	pars.insert("t", temp, &Fahrenheit::get_instance());
+	// TODO: si hay correlaciones definidas entonces calcular las
+	// siguientes 4 propiedades mediante elllas
 	pars.insert("pb", pb, src_punit);
 	pars.insert("uod", uod, &CP::get_instance());
 	pars.insert("bobp", bobp, &RB_STB::get_instance());
