@@ -134,7 +134,7 @@ ValsDesc convert_to_valsdesc(const DynList<DynList<double>> & vals,
       d.maxp = max(d.maxp, p);
       d.minp = min(d.minp, p);
       d.maxv = max(d.maxv, v);
-      d.minv = max(d.minv, v);
+      d.minv = min(d.minv, v);
       ++d.n;
       d.t.append(t);
       d.p.append(p);
@@ -207,6 +207,7 @@ void process_print_grid(const ValsDesc & d)
 							  get<3>(t)));
 	  }
 
+      bool has_grid_values = false;
       DynList<string> pnames, vnames, vgnames;
       ostringstream s;
       for (auto it = temps.get_it(); it.has_curr(); it.next())
@@ -220,11 +221,50 @@ void process_print_grid(const ValsDesc & d)
 	  vnames.append(vname);
 	  vgnames.append(vgname);
 	  auto pv = transpose(p.second);
-	  cout << Rvector(pname, pv.get_first()) << endl
-	       << Rvector(vname, pv.nth(1)) << endl;
-	  if (not pv.get_last().is_empty())
-	    cout << Rvector(vgname, pv.get_last()) << endl;
+	  auto lit = pv.get_it();
+	  s << Rvector(pname, lit.get_curr()) << endl; lit.next();
+	  s << Rvector(vname, lit.get_curr()) << endl; lit.next();
+	  if (lit.has_curr())
+	    {
+	      s << Rvector(vgname, pv.get_last()) << endl;
+	      has_grid_values = true;
+	    }
 	}
+      s << "plot(0, type=\"n\", xlim=c(" << d.minp << "," << d.maxp
+      << "), ylim=c(" << d.minv << "," << d.maxv << "))" << endl;
+
+      size_t pch = 1;
+      size_t col = 1;
+      DynList<string> colnames;
+      DynList<int> colors;
+      DynList<string> ltys;
+      DynList<string> pchs;
+      for (auto it = temps.get_it(); it.has_curr(); it.next(), col++)
+	{
+	  auto & pp = it.get_curr();
+	  const string tname = to_string(int(pp.first));
+	  const string pname = "p_" + tname;
+	  const string vname = "v_" + tname;
+	  const string vgname = "vg_" + tname;
+	  s << "lines(" << pname << "," << vname << ",col=" << col << ")"
+	    << endl;
+	  if (has_grid_values) 
+	    s << "points(" << pname << "," << vgname << ",pch=" << pch
+	      << ", col=" << col << ")" << endl;
+	  colnames.append("\"" + tname + "\"");
+	  colors.append(col);
+	  pchs.append("NA");
+	  ltys.append("1");
+	}
+      s << Rvector("cnames", colnames) << endl
+        << Rvector("cols", colors) << endl
+        << Rvector("pchs", pchs) << endl
+        << Rvector("ltys", ltys) << endl
+        << "legend(\"topright\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
+        << endl;
+
+      cout << s.str() << endl;
+      execute_R_script(s.str());
     };
 
   static const AHDispatcher<string, void (*)(const ValsDesc&)>
@@ -260,14 +300,4 @@ int main(int argc, char *argv[])
   auto grid = load_grid();
 
   process_print_grid(convert_to_valsdesc(vals, grid));
-
-  // stringstream s;
-  // gen_grid({"t", "p", "c"}, { &Fahrenheit::get_instance(), &psia::get_instance(),
-  // 	&TestUnit::get_instance()}, gen_vals(), s);
-
-  // cout << s.str() << endl;
-
-  // auto grid = load_grid(s);
-
-  // cout << grid << endl;
 }
