@@ -72,15 +72,50 @@ TEST(VectorDesc, operator_less_than)
 
 TEST(VectorDesc, parallel)
 {
+  ASSERT_FALSE(VectorDesc(100, "rs").is_parallel(VectorDesc(200, "bob")));
+  ASSERT_TRUE(VectorDesc(100, "rs").is_parallel(VectorDesc(100, "bob")));
+
   VectorDesc d1(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30 }, &psia::get_instance(),
 		"rs", &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6 });
   VectorDesc d2(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30 }, &psia::get_instance(),
 		"rs", &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6 });
   VectorDesc d3(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30, 40 }, &psia::get_instance(),
 		"rs", &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6, 4e-6 });
+  VectorDesc d4(125, 820, 1.003, 1e5, 1e1, { 10, 21, 30, 40 }, &psia::get_instance(),
+		"rs", &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6, 4e-6 });
 
   ASSERT_TRUE(d1.is_parallel(d2));
   ASSERT_FALSE(d1.is_parallel(d3));
+  ASSERT_FALSE(d3.is_parallel(d4));
 }
 
-//struct SimpleVector : public
+struct SimpleVector : public Test
+{
+  VectorDesc v;
+  SimpleVector() : v(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30, 40, 50 },
+		     &psia::get_instance(), "rs",
+		     &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6, 4e-6, 5e-6 }) {}
+};
+
+TEST_F(SimpleVector, y_operations)
+{
+  ASSERT_THROW(v.get_yindex(0), ValueNotFound);
+  ASSERT_THROW(v.get_yindex(1), ValueNotFound);
+  ASSERT_EQ(v.get_yindex(1e-6), 0);
+  ASSERT_EQ(v.get_yindex(2e-6), 1);
+  ASSERT_EQ(v.get_yindex(3e-6), 2);
+  ASSERT_EQ(v.get_yindex(4e-6), 3);
+  ASSERT_EQ(v.get_yindex(5e-6), 4);
+
+  ASSERT_EQ(v.gety(10), 1e-6);
+  ASSERT_EQ(v.gety(20), 2e-6);
+  ASSERT_EQ(v.gety(30), 3e-6);
+  ASSERT_EQ(v.gety(40), 4e-6);
+  ASSERT_EQ(v.gety(50), 5e-6);
+
+  ASSERT_NEAR(v.gety(15), 1.5e-6, 1e-15); // interpolation test for gety
+
+  ASSERT_NEAR(v.gety(5), 0.5e-6, 1e-15); // extrapolation test by the left
+
+  ASSERT_NEAR(v.gety(55), 5.5e-6, 1e-15); // extrapolation test by the right
+}

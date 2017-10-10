@@ -138,11 +138,27 @@ struct VectorDesc
     return has_same_tp(v);
   }
 
-  size_t get_yindex(double yval) const noexcept
+  size_t get_yindex(double yval) const
   {
-    return y.find_index([yval] (auto v) { return v == yval; });
+    auto ret = y.find_index([yval] (auto v) { return v == yval; });
+    if (ret >= y.size())
+      ZENTHROW(ValueNotFound, "y value " + ::to_string(yval) + " not found");
+    return ret;
   }
 
+  /** Compute the y value according to input pressure pval. 
+      
+      The value of pval is searched in the p array. If this one is
+      found, then the parallel y value in the array y is
+      returned. Otherwise, we fall into the following cases:
+
+      1- pval belongs to [p[0], p[n-1]]. In this case y is computed by
+         interpolation between the two surrounding values to pval
+      2- pval is less than p[0]. In this case y is computed by
+         extrapolation between p[0] and p[1]
+      3- oval is greater than p[n-1]. In this case  is computed by
+         extrapolation between p[n-2] and p[n-1]     
+   */
   double gety(double pval) const
   {
     const long n = p.size();
@@ -1226,6 +1242,25 @@ struct PvtData
 	p(move(p)), y(move(y)), yc(move(yc)) {}
   };
 
+  ParPair pb_par(const VectorDesc & v, const Unit * punit_ptr) const
+  {
+    if (pb_corr == nullptr) // if pb_corr is not set then return experimental pb
+      return build_corrrelation_par("pb", v.pb, punit_ptr);
+
+    // otherwise, we will compute the pb that would generate cplot
+    ParList pars;
+    for (auto it = pb_corr->parameter_names().get_it(); it.has_curr(); it.next())
+      {
+	const string & par_name = it.get_curr();
+	auto const_ptr = search_const(par_name);
+	if (const_ptr != nullptr) // nullptr should be get with temp parameter
+	  pars.insert(par_name, const_ptr->value, const_ptr->unit_ptr);
+      }
+    pars.insert("t", v.t, &Fahrenheit::get_instance());
+    VtlQuantity ret = pb_corr->tuned_compute_by_names(pars, c_pb, m_pb);
+    return build_corrrelation_par("pb", ret.raw(), &ret.unit);
+  }
+
   tuple<const Unit*, const Unit*, DynList<CorrDesc>>
   iapply(const Correlation * corr_ptr) const
   {
@@ -1263,8 +1298,9 @@ struct PvtData
 	assert(temp == ref_ptr->t);
 	pars.insert("t", temp, &Fahrenheit::get_instance());
 	// TODO: si hay correlaciones definidas entonces calcular las
-	// siguientes 4 propiedades mediante elllas
-	pars.insert("pb", pb, src_punit);
+	// siguientes 4 propiedades mediante ellas
+	//pars.insert("pb", pb, src_punit);
+	pars.insert(pb_par(*ref_ptr, src_punit));
 	pars.insert("uod", uod, &CP::get_instance());
 	pars.insert("bobp", bobp, &RB_STB::get_instance());
 	pars.insert("uobp", uobp, &CP::get_instance());
@@ -1278,8 +1314,7 @@ struct PvtData
 	    const double & parval = get<1>(t);
 	    const double & y = get<2>(t);
 	    pars.insert("p", p, punit);
-	    pars.insert(par_name, parval, par_unit);
-	    
+	    pars.insert(par_name, parval, par_unit);	    
 	    try
 	      {
 		VtlQuantity result =

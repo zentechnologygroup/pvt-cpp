@@ -33,6 +33,12 @@ inline size_t second_par_hash(const ParPair & p)
   return snd_hash_fct(p.first);
 }
 
+inline ParPair build_corrrelation_par(const string & par_name, double par_val,
+				      const Unit * par_unit_ptr)
+{
+  return ParPair(par_name, ValPair(par_val, par_unit_ptr));
+}
+
 using HashParTbl = ODhashTable<ParPair, ParEqual>;
 
 class ParList
@@ -71,6 +77,11 @@ public:
 	       " has not been set");
     
     insert(get<1>(par), get<2>(par), get<3>(par));
+  }
+
+  void insert(const ParPair & par)
+  {
+    insert(par.first, par.second.first, par.second.second);
   }
 
   VtlQuantity search(const string & name) const
