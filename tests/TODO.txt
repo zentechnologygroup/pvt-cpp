@@ -24,3 +24,8 @@ tomar corr pb si stá definida para calibración de rs,2017-10-09 16:35:19 -0400
 cplot tuner ztuner test-corr deben atraar execpciones en main  e imprimir error,2017-10-09 17:05:38 -0400,,
 cambiar tupla Sample por struct,2017-10-10 09:11:07 -0400,,
 poner ptos experimentales en opción de Cplot,2017-10-10 09:25:30 -0400,,
+ptos experimentales en gráfica para plot-r,2017-10-10 16:23:34 -0400,,
+pb exp con auto,2017-10-10 16:27:25 -0400,,
+correlación que esté seteada no debe contar para auto,2017-10-10 16:27:53 -0400,,
+calibrar con vectores retornados por cascada de correlaciones,2017-10-10 16:51:44 -0400,,
+cplot como funcion de biblioteca,2017-10-10 16:52:41 -0400,,

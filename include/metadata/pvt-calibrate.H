@@ -222,59 +222,6 @@ struct VectorDesc
     return out << d.to_string();
   }
 
-  pair<VectorDesc, VectorDesc> split_bo() const
-  {
-    if (yname != "bo")
-      ZENTHROW(InvalidTargetName, "yname " + yname + " is not \"bo\"");
-
-    if (&yunit->physical_quantity != &FVFvolumeRatio::get_instance())
-      ZENTHROW(InvalidTargetUnit, "yunit " + yunit->name +
-	       " is not an unit for oil formation volume ratio");
-
-    size_t max_idx = 0;
-    double max_y = 0;
-    for (auto it = enum_zip_it(y); it.has_curr(); it.next())
-      {
-	auto curr = it.get_curr();
-	if (get<0>(curr) > max_y)
-	  {
-	    max_idx = get<1>(curr);
-	    max_y = get<0>(curr);
-	  }
-      }
-
-    Array<double> p_below = p.take(max_idx + 1);
-    Array<double> bob = y.take(max_idx + 1);
-    if (not is_sorted(bob))
-      ZENTHROW(SamplesUnsorted, "saturated region of bo is not increasing");
-
-    Array<double> p_above, boa;
-    p_above.append(nextafter(p_below.get_last(), numeric_limits<double>::max()));
-    boa.append(nextafter(bob.get_last(), 0));
-    for (size_t i = max_idx + 1; i < p.size(); ++i)
-      {
-	p_above.append(p(i));
-	boa.append(y(i));
-      }
-    
-    if (not is_inversely_sorted(boa))
-      ZENTHROW(SamplesUnsorted, "undersaturated region of bo is not decreasing");
-
-    LFit lm_below(p_below, bob); 
-    LFit lm_above(p_above, boa); 
-
-    const double & cb = lm_below.c, mb = lm_below.m,
-      ca = lm_above.c, ma = lm_above.m;
-
-    double pb = (ca - cb) / (mb - ma);
-    double bobp = (cb/mb - ca/ma) / (1/mb - 1/ma);
-
-    VectorDesc v_below(t, pb, bobp, -1, -1, p_below, punit, "bob", yunit, bob);
-    VectorDesc v_above(t, pb, bobp, -1, -1, p_above, punit, "boa", yunit, boa);
-
-    return make_pair(move(v_below), move(v_above));
-  }
-
   pair<VectorDesc, VectorDesc> split_uo() const
   {
     if (yname != "uo")

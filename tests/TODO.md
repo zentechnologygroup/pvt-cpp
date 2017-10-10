@@ -78,3 +78,18 @@
 ## 26. poner ptos experimentales en opción de Cplot
 - Created at   2017-10-10 09:25:30 -0400
 
+## 27. ptos experimentales en gráfica para plot-r
+- Created at   2017-10-10 16:23:34 -0400
+
+## 28. pb exp con auto
+- Created at   2017-10-10 16:27:25 -0400
+
+## 29. correlación que esté seteada no debe contar para auto
+- Created at   2017-10-10 16:27:53 -0400
+
+## 30. calibrar con vectores retornados por cascada de correlaciones
+- Created at   2017-10-10 16:51:44 -0400
+
+## 31. cplot como funcion de biblioteca
+- Created at   2017-10-10 16:52:41 -0400
+

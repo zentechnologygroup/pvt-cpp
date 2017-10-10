@@ -1,6 +1,8 @@
 
 # include <gmock/gmock.h>
 
+# include <ah-zip.H>
+
 # include <metadata/pvt-calibrate.H>
 
 using namespace std;
@@ -118,4 +120,20 @@ TEST_F(SimpleVector, y_operations)
   ASSERT_NEAR(v.gety(5), 0.5e-6, 1e-15); // extrapolation test by the left
 
   ASSERT_NEAR(v.gety(55), 5.5e-6, 1e-15); // extrapolation test by the right
+
+  // test gety on a container
+  const DynList<double> y = v.gety(build_dynlist<double>(5, 10, 15, 55));
+  const DynList<double> expected = { 0.5e-6, 1e-6, 1.5e-6, 5.5e-6 };
+  for (auto it = zip_it(y, expected); it.has_curr(); it.next())
+    {
+      auto t = it.get_curr();
+      ASSERT_NEAR(get<0>(t), get<1>(t), 1e-15);
+    }
 }
+
+TEST(VectorDesc, uo_split)
+{
+  VectorDesc v(200, 3000, double bobp, double uod, double uobp, const Array<double> &p, const Unit *punit, const std::string &yname, const Unit *yunit, const Array<double> &y)
+}
+
+
