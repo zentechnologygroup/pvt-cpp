@@ -72,3 +72,9 @@
 ## 24. cplot tuner ztuner test-corr deben atraar execpciones en main  e imprimir error
 - Created at   2017-10-09 17:05:38 -0400
 
+## 25. cambiar tupla Sample por struct
+- Created at   2017-10-10 09:11:07 -0400
+
+## 26. poner ptos experimentales en opción de Cplot
+- Created at   2017-10-10 09:25:30 -0400
+

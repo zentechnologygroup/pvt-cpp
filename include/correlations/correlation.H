@@ -852,6 +852,12 @@ public:
 
   using NamedPar = tuple<bool, string, double, const Unit*>;
 
+  static NamedPar
+  build_names_par(const string & name, double val, const Unit * uptr)
+  {
+    return NamedPar(true, name, val, uptr);
+  }
+
   VtlQuantity compute_by_names(const DynList<NamedPar> & pair_list,
 			       bool check = true) const
   {

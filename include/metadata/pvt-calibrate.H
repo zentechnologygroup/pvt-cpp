@@ -1226,6 +1226,25 @@ struct PvtData
 	p(move(p)), y(move(y)), yc(move(yc)) {}
   };
 
+  ParPair pb_par(const VectorDesc & v, const Unit * punit_ptr) const
+  {
+    if (pb_corr == nullptr) // if pb_corr is not set then return experimental pb
+      return build_corrrelation_par("pb", v.pb, punit_ptr);
+
+    // otherwise, we will compute the pb that would generate cplot
+    ParList pars;
+    for (auto it = pb_corr->parameter_names().get_it(); it.has_curr(); it.next())
+      {
+	const string & par_name = it.get_curr();
+	auto const_ptr = search_const(par_name);
+	if (const_ptr != nullptr) // nullptr should be get with temp parameter
+	  pars.insert(par_name, const_ptr->value, const_ptr->unit_ptr);
+      }
+    pars.insert("t", v.t, &Fahrenheit::get_instance());
+    VtlQuantity ret = pb_corr->tuned_compute_by_names(pars, c_pb, m_pb);
+    return build_corrrelation_par("pb", ret.raw(), &ret.unit);
+  }
+
   tuple<const Unit*, const Unit*, DynList<CorrDesc>>
   iapply(const Correlation * corr_ptr) const
   {
@@ -1263,8 +1282,9 @@ struct PvtData
 	assert(temp == ref_ptr->t);
 	pars.insert("t", temp, &Fahrenheit::get_instance());
 	// TODO: si hay correlaciones definidas entonces calcular las
-	// siguientes 4 propiedades mediante elllas
-	pars.insert("pb", pb, src_punit);
+	// siguientes 4 propiedades mediante ellas
+	//pars.insert("pb", pb, src_punit);
+	pars.insert(pb_par(*ref_ptr, src_punit));
 	pars.insert("uod", uod, &CP::get_instance());
 	pars.insert("bobp", bobp, &RB_STB::get_instance());
 	pars.insert("uobp", uobp, &CP::get_instance());
