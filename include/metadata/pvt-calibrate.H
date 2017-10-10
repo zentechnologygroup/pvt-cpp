@@ -138,11 +138,27 @@ struct VectorDesc
     return has_same_tp(v);
   }
 
-  size_t get_yindex(double yval) const noexcept
+  size_t get_yindex(double yval) const
   {
-    return y.find_index([yval] (auto v) { return v == yval; });
+    auto ret = y.find_index([yval] (auto v) { return v == yval; });
+    if (ret >= y.size())
+      ZENTHROW(ValueNotFound, "y value " + ::to_string(yval) + " not found");
+    return ret;
   }
 
+  /** Compute the y value according to input pressure pval. 
+      
+      The value of pval is searched in the p array. If this one is
+      found, then the parallel y value in the array y is
+      returned. Otherwise, we fall into the following cases:
+
+      1- pval belongs to [p[0], p[n-1]]. In this case y is computed by
+         interpolation between the two surrounding values to pval
+      2- pval is less than p[0]. In this case y is computed by
+         extrapolation between p[0] and p[1]
+      3- oval is greater than p[n-1]. In this case  is computed by
+         extrapolation between p[n-2] and p[n-1]     
+   */
   double gety(double pval) const
   {
     const long n = p.size();
@@ -1298,8 +1314,7 @@ struct PvtData
 	    const double & parval = get<1>(t);
 	    const double & y = get<2>(t);
 	    pars.insert("p", p, punit);
-	    pars.insert(par_name, parval, par_unit);
-	    
+	    pars.insert(par_name, parval, par_unit);	    
 	    try
 	      {
 		VtlQuantity result =
