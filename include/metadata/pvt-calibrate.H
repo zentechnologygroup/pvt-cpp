@@ -222,6 +222,14 @@ struct VectorDesc
     return out << d.to_string();
   }
 
+  /** Assuming that `this` contains values for viscosity (uo) in both
+      regions saturated and undersaturated, this method split uo in
+      two vector named uob and uob respectively. The bubble point and
+      uod values are computed.
+
+      For computing pb
+
+   */
   pair<VectorDesc, VectorDesc> split_uo() const
   {
     if (yname != "uo")
@@ -231,18 +239,19 @@ struct VectorDesc
       ZENTHROW(InvalidTargetUnit, "yunit " + yunit->name +
 	       " is not an unit for oil formation volume ratio");
 
+    // First, we must determine p,uo corresponding to the inflection point
     const double max_val = numeric_limits<double>::max();
     size_t min_idx = 0;
-    double min_y = numeric_limits<double>::max();
+    double min_uo = numeric_limits<double>::max();
     for (auto it = enum_zip_it(y); it.has_curr(); it.next())
       {
 	auto curr = it.get_curr();
-	if (get<0>(curr) < min_y)
+	if (get<0>(curr) < min_uo)
 	  {
 	    min_idx = get<1>(curr);
-	    min_y = get<0>(curr);
+	    min_uo = get<0>(curr);
 	  }
-      }
+      } // after this min_y is the index of minimum value of uo
     
     Array<double> p_below = p.take(min_idx + 1);
     Array<double> uob = y.take(min_idx + 1);
@@ -273,9 +282,39 @@ struct VectorDesc
     const double & cb = lm_below.c, mb = lm_below.m,
       ca = lm_above.c, ma = lm_above.m;
 
-    double pb = (ca - cb) / (mb - ma);
-    double uobp = (cb/mb - ca/ma) / (1/mb - 1/ma);
-    double uod = lm_below.predict(0).first;
+    const double pb = (ca - cb) / (mb - ma);
+    const double uobp = (cb/mb - ca/ma) / (1/mb - 1/ma);
+    const double uod = lm_below.predict(0).first;
+
+    assert(uobp < min_uo);
+
+    if (pb < p_below.get_last())
+      {
+	p_above.insert(p_below.remove_last());
+	uoa.insert(uob.remove_last());
+      }
+    else if (pb > p_above.get_first())
+      {
+	p_below.append(p_above.remove_first());
+	uob.append(uoa.remove_first());
+      }
+
+    p_below.insert(0);
+    uob.insert(uod);
+    p_below.append(pb);
+    uob.append(uobp);
+    p_above.insert(nextafter(pb, max_val));
+    uoa.insert(nextafter(uobp, max_val));
+
+    // assert(is_sorted(p_below));
+    // assert(is_sorted(p_above));
+    // assert(is_inversely_sorted(uob));
+    // assert(is_sorted(uoa));
+    // assert(p_below.get_last() == pb);
+    // assert(p_above.get_first() == nextafter(pb, max_val));
+    // assert(uob.get_first() == uod);
+    // assert(uob.get_last() == uobp);
+    // assert(uoa.get_first() == nextafter(pb, max_val));
 
     VectorDesc v_below(t, pb, -1, uod, uobp, p_below, punit, "uob", yunit, uob);
     VectorDesc v_above(t, pb, -1, uod, uobp, p_above, punit, "uoa", yunit, uoa);

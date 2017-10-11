@@ -133,7 +133,42 @@ TEST_F(SimpleVector, y_operations)
 
 TEST(VectorDesc, uo_split)
 {
-  VectorDesc v(200, 3000, double bobp, double uod, double uobp, const Array<double> &p, const Unit *punit, const std::string &yname, const Unit *yunit, const Array<double> &y)
+  VectorDesc
+    v(200, 3000, -1, -1, -1,
+      {200, 500, 800, 1000, 1100, 1300, 1500, 1800, 2100, 2400, 2700, 3000},
+      &psia::get_instance(), "uo", &CP::get_instance(),
+      {404.6, 345.3, 278, 256, 260, 270, 279.8, 302.4, 316.3, 335.0, 349.7, 370});
+
+  auto p = v.split_uo();
+  auto & p_below = p.first.p;
+  auto & uob = p.first.y;
+  auto & p_above = p.second.p;
+  auto & uoa = p.second.y;
+
+  ASSERT_EQ(p.first.pb, p.second.pb);
+  ASSERT_EQ(p.first.p.get_last(), p.first.pb);
+  ASSERT_EQ(p.first.uod, p.second.uod);
+  ASSERT_EQ(p.first.uobp, p.second.uobp);
+
+  auto & pb = p.first.pb;
+  auto & uod = p.first.uod;
+  auto & uobp = p.first.uobp;  
+
+  ASSERT_TRUE(is_sorted(p_below));
+  ASSERT_TRUE(is_sorted(p_above));
+  ASSERT_TRUE(is_inversely_sorted(uob));
+  ASSERT_TRUE(is_sorted(uoa));
+
+  const double max_val = numeric_limits<double>::max();
+  ASSERT_EQ(p_below.get_last(), pb);
+  ASSERT_EQ(p_above.get_first(), nextafter(pb, max_val));
+  ASSERT_EQ(uob.get_first(), uod);
+  ASSERT_EQ(uob.get_last(), uobp);
+  ASSERT_EQ(uoa.get_first(), nextafter(uobp, max_val));
 }
 
+
+// TODO: generar los tres casos de prueba para split_uo
+
+// TODO: generar pruebas aleatorias (al menos 40) para split_uo
 
