@@ -865,7 +865,12 @@ struct PvtData
     if (ban_list.has(corr_ptr))
       return false;
 
-    DynList<const VectorDesc*> ref_vectors = search_vectors(corr_ptr->target_name());
+    static DynSetTree<string> no_pressure__properties = { "pb", "uod" };
+
+    const string target_name = corr_ptr->target_name();
+    DynList<const VectorDesc*> ref_vectors = search_vectors(target_name);    
+    if (ref_vectors.is_empty() and not no_pressure__properties.has(target_name))
+      return false;
 
     for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
 	 it.next())
