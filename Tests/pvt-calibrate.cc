@@ -56,6 +56,15 @@ TEST(VectorDesc, simple_operations)
 			       &psia::get_instance(), "rs",
 			       &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6 }));
 
+    ASSERT_NO_THROW(VectorDesc(125, -1, 1.003, 1e5, 1e1, { 10, 20, 30 },
+			       &psia::get_instance(), "uo",
+			       &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6 }));
+
+    ASSERT_THROW(VectorDesc(125, -1, 1.003, 1e5, 1e1, { 10, 20, 30 },
+			    &psia::get_instance(), "rs",
+			    &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6 }),
+		 InvalidRange);
+
     ASSERT_FALSE(VectorDesc(100, "rs").is_valid());
   }
 }
@@ -223,28 +232,78 @@ static unique_ptr<gsl_rng, void(*)(gsl_rng*)> r(gsl_rng_alloc(gsl_rng_mt19937),
 
 struct UoTestDesc
 {
-  Array<double> p_below, p_above, uob, uoa;  
+  Array<double> p, uo;
+  UoTestDesc(const DynList<double> & __p, const DynList<double> & __uo)
+    : p(__p), uo(__uo) {}
 };
 
-UoTestDesc generate_random_uo()
+constexpr unsigned long seed = 0;
+constexpr unsigned long Max_Num_Points = 10;
+constexpr double Max_Pressure = 10000;
+constexpr double Max_uob = 30000;
+constexpr double Max_uoa = 30000;
+
+ArrayP generate_random_uo()
 {
-  //  unsigned long seed = atol(argv[1]);c
-  // 1: seleccionar al azar nuob y nuoa. Ambos deben ser mayores o iguales a 2
+  gsl_rng_set(r.get(), seed);
 
-  // 2: generar nuob + nuoa valores de presión
+  // select random nuob and nuoa. Both must be greater than or equal to 2
+  size_t nuob = 2 + gsl_rng_uniform_int(r.get(), Max_Num_Points);
+  size_t nuoa = 2 + gsl_rng_uniform_int(r.get(), Max_Num_Points);
 
-  // 3: ordenar la presión
+  // Generate nuob + nuoa pressure values
+  Array<double> p;
+  for (size_t i = 0; i < nuob + nuoa; ++i)
+    p.append(gsl_rng_uniform_pos(r.get())*Max_Pressure);
+  in_place_sort(p); // pressure must be sorted
 
-  // 4: seleccionar al azar un uobp pivote
+  // select a random uobp between uo_percentile and 2*uo_percentile
+  const double uo_percentile = 0.1*Max_Pressure;
+  const double uo_pivot =
+    uo_percentile + 2*uo_percentile*gsl_rng_uniform_pos(r.get());
+  assert(uo_pivot > uo_percentile and uo_pivot < 2*uo_percentile);
 
-  // 5: generar nuob valores de uo menores que uobp
+  // generate nuob random values inversely sorted
+  DynList<double> uob;
+  for (size_t i = 0; i < nuob; ++i)
+    uob.append(uo_pivot + (Max_uob - uo_pivot)*gsl_rng_uniform_pos(r.get()));
+  uob = sort(uob).rev();
 
-  // 6 ordenar descendentemente uob
+  // generate nuoa random values sorted
+  DynList<double> uoa;
+  for (size_t i = 0; i < nuoa; ++i)
+    uoa.append(uo_pivot + (Max_uoa - uo_pivot)*gsl_rng_uniform_pos(r.get()));
+  in_place_sort(uoa);
 
-  // 7: generar nuoa valores de uo mayores que uobp
+  cout << "uob ="; uob.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+  cout << "uoa ="; uoa.for_each([] (auto v) { cout << " " << v; }); cout << endl;
 
-  // 8: ordenar uoa
+  uob.append(uoa);
+  Array<double> uo = uob;
 
-  // retornar 
+  assert(p.size() == uo.size());
+
+  cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+  cout << "uo ="; uo.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+
+  return ArrayP(p, Array<double>(uo));
 }
 
+vector<ArrayP> uo_list =
+  to_vector(range(33).maps<ArrayP>([] (auto) { return generate_random_uo(); }));
+
+//INSTANTIATE_TEST_CASE_P(random_uo, UoBoundTest, Values(uo_list));
+
+INSTANTIATE_TEST_CASE_P(random_uo, UoBoundTest, ValuesIn(uo_list));
+
+
+// int main(int argc, char** argv)
+// {
+//   // Disables elapsed time by default.
+//   //::testing::GTEST_FLAG(print_time) = false;
+
+//   // This allows the user to override the flag on the command line.
+//   ::testing::InitGoogleTest(&argc, argv);
+
+//   return RUN_ALL_TESTS();
+// }

@@ -97,9 +97,11 @@ struct VectorDesc
       yname(yname), yunit(yunit), y(y)
   {
     if (t <= 0)
-      ZENTHROW(InvalidRange, "t value " + ::to_string(t) + " less or equal to zero");
+      ZENTHROW(InvalidRange, "t value " + ::to_string(t) +
+	       " less or equal to zero");
     if (pb <= 0 and yname != "uo")
-      ZENTHROW(InvalidRange, "pb value " + ::to_string(pb) + " less or equal to zero");
+      ZENTHROW(InvalidRange, "pb value " + ::to_string(pb) +
+	       " less or equal to zero");
     validate();
   }
 
@@ -286,7 +288,10 @@ struct VectorDesc
     const double uobp = (cb/mb - ca/ma) / (1/mb - 1/ma);
     const double uod = lm_below.predict(0).first;
 
-    assert(uobp < min_uo);
+    if (uobp > min_uo)
+      cout << "min_uo = " << min_uo << endl
+	   << "uobp = " << uobp << endl;
+    assert(uobp <= min_uo);
 
     if (pb < p_below.get_last())
       {
