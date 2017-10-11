@@ -98,7 +98,7 @@ struct VectorDesc
   {
     if (t <= 0)
       ZENTHROW(InvalidRange, "t value " + ::to_string(t) + " less or equal to zero");
-    if (pb <= 0)
+    if (pb <= 0 and yname != "uo")
       ZENTHROW(InvalidRange, "pb value " + ::to_string(pb) + " less or equal to zero");
     validate();
   }

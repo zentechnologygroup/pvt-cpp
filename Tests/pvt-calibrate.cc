@@ -218,16 +218,17 @@ INSTANTIATE_TEST_CASE_P
 		   ArrayP(build_array<double>(50, 100, 200, 300),
 			  build_array<double>(196.7, 173.33, 153.58, 160.72))));
 
-static gs
+static unique_ptr<gsl_rng, void(*)(gsl_rng*)> r(gsl_rng_alloc(gsl_rng_mt19937),
+						gsl_rng_free);
 
 struct UoTestDesc
 {
   Array<double> p_below, p_above, uob, uoa;  
 };
 
-UoTestDesc generate_random_uo(unsigned long seed = 0)
+UoTestDesc generate_random_uo()
 {
-  
+  //  unsigned long seed = atol(argv[1]);c
   // 1: seleccionar al azar nuob y nuoa. Ambos deben ser mayores o iguales a 2
 
   // 2: generar nuob + nuoa valores de presión
