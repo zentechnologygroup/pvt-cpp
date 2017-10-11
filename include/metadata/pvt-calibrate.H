@@ -293,11 +293,21 @@ struct VectorDesc
 	p_above.insert(p_below.remove_last());
 	uoa.insert(uob.remove_last());
       }
-    else if (pb > p_above.get_first())
+    else if (pb > p_above.get_first()) // revisar si es necesario el predicado
       {
 	p_below.append(p_above.remove_first());
 	uob.append(uoa.remove_first());
       }
+    
+    // p_below and p_above should be correctly sorted. However,
+    // extreme numeric cases could give a unsorted configuration for
+    // uob or uoa. So, we inspect the borders of each one in order to
+    // eventually correct them
+    const size_t nuob = uob.size();
+    if (uob(nuob -1) > uob(nuob-2))
+      swap(uob(nuob -1), uob(nuob-2));
+    if (uoa(0) > uoa(1))
+      swap(uoa(0), uoa(1));
 
     p_below.insert(0);
     uob.insert(uod);

@@ -167,8 +167,78 @@ TEST(VectorDesc, uo_split)
   ASSERT_EQ(uoa.get_first(), nextafter(uobp, max_val));
 }
 
+using ArrayP = pair<Array<double>, Array<double>>;
 
-// TODO: generar los tres casos de prueba para split_uo
+struct UoBoundTest : public TestWithParam<ArrayP>
+{
+  const pair<Array<double>, Array<double>> & p = GetParam();
+  const Array<double> & pressure = p.first;
+  const Array<double> & uo = p.second;
+  VectorDesc v;
+  UoBoundTest() : v(200, 3000, -1, -1, -1, pressure, &psia::get_instance(), "uo",
+		    &CP::get_instance(), uo) {}
+};
 
-// TODO: generar pruebas aleatorias (al menos 40) para split_uo
+TEST_P(UoBoundTest, uo_split)
+{
+  auto p = v.split_uo();
+  auto & p_below = p.first.p;
+  auto & uob = p.first.y;
+  auto & p_above = p.second.p;
+  auto & uoa = p.second.y;
+
+  EXPECT_EQ(p.first.pb, p.second.pb);
+  EXPECT_EQ(p.first.p.get_last(), p.first.pb);
+  EXPECT_EQ(p.first.uod, p.second.uod);
+  EXPECT_EQ(p.first.uobp, p.second.uobp);
+
+  auto & pb = p.first.pb;
+  auto & uod = p.first.uod;
+  auto & uobp = p.first.uobp;  
+
+  EXPECT_TRUE(is_sorted(p_below));
+  EXPECT_TRUE(is_sorted(p_above));
+  EXPECT_TRUE(is_inversely_sorted(uob));
+  EXPECT_TRUE(is_sorted(uoa));
+
+  const double max_val = numeric_limits<double>::max();
+  EXPECT_EQ(p_below.get_last(), pb);
+  EXPECT_EQ(p_above.get_first(), nextafter(pb, max_val));
+  EXPECT_EQ(uob.get_first(), uod);
+  EXPECT_EQ(uob.get_last(), uobp);
+  EXPECT_EQ(uoa.get_first(), nextafter(uobp, max_val));
+}
+
+INSTANTIATE_TEST_CASE_P
+(uo_bound_conditions, UoBoundTest,
+ ::testing::Values(ArrayP(build_array<double>(200, 500, 600, 900),
+			  build_array<double>(404.6, 345.3, 350, 390)),
+		   ArrayP(build_array<double>(50, 100, 200, 300),
+			  build_array<double>(196.7, 173.33, 153.58, 160.72))));
+
+struct UoTestDesc
+{
+  Array<double> p_below, p_above, uob, uoa;  
+};
+
+UoTestDesc generate_random_uo()
+{
+  // 1: seleccionar al azar nuob y nuoa. Ambos deben ser mayores o iguales a 2
+
+  // 2: generar nuob + nuoa valores de presión
+
+  // 3: ordenar la presión
+
+  // 4: seleccionar al azar un uobp pivote
+
+  // 5: generar nuob valores de uo menores que uobp
+
+  // 6 ordenar descendentemente uob
+
+  // 7: generar nuoa valores de uo mayores que uobp
+
+  // 8: ordenar uoa
+
+  // retornar 
+}
 
