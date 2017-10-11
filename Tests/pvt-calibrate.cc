@@ -1,6 +1,8 @@
 
 # include <gmock/gmock.h>
 
+# include <gsl/gsl_rng.h>
+
 # include <ah-zip.H>
 
 # include <metadata/pvt-calibrate.H>
@@ -216,13 +218,16 @@ INSTANTIATE_TEST_CASE_P
 		   ArrayP(build_array<double>(50, 100, 200, 300),
 			  build_array<double>(196.7, 173.33, 153.58, 160.72))));
 
+static gs
+
 struct UoTestDesc
 {
   Array<double> p_below, p_above, uob, uoa;  
 };
 
-UoTestDesc generate_random_uo()
+UoTestDesc generate_random_uo(unsigned long seed = 0)
 {
+  
   // 1: seleccionar al azar nuob y nuoa. Ambos deben ser mayores o iguales a 2
 
   // 2: generar nuob + nuoa valores de presión
