@@ -23,9 +23,9 @@ PbAlShammasi::impl(const double & yg,
   constexpr double c2 = -1.841408;
   constexpr double c3 = 0.783716;
 
-  const double r = pow(yo, c1) * exp(c2*yo*yg) * pow(rsb*(t + 460) * yg, c3);
+  const double pb = pow(yo, c1) * exp(c2*yo*yg) * pow(rsb*(t + 460) * yg, c3);
 
-  return r;
+  return pb;
 }
 
 inline double
