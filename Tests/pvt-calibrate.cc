@@ -222,10 +222,11 @@ TEST_P(UoBoundTest, uo_split)
 
 INSTANTIATE_TEST_CASE_P
 (uo_bound_conditions, UoBoundTest,
- ::testing::Values(ArrayP(build_array<double>(200, 500, 600, 900),
-			  build_array<double>(404.6, 345.3, 350, 390)),
-		   ArrayP(build_array<double>(50, 100, 200, 300),
-			  build_array<double>(196.7, 173.33, 153.58, 160.72))));
+ ::testing::Values
+ (ArrayP(build_array<double>(200, 500, 600, 900),
+	 build_array<double>(404.6, 345.3, 350, 390)),
+  ArrayP(build_array<double>(50, 100, 200, 300, 400),
+	 build_array<double>(196.7, 173.33, 153.58, 160.72, 200))));
 
 static unique_ptr<gsl_rng, void(*)(gsl_rng*)> r(gsl_rng_alloc(gsl_rng_mt19937),
 						gsl_rng_free);
@@ -275,16 +276,16 @@ ArrayP generate_random_uo()
     uoa.append(uo_pivot + (Max_uoa - uo_pivot)*gsl_rng_uniform_pos(r.get()));
   in_place_sort(uoa);
 
-  cout << "uob ="; uob.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-  cout << "uoa ="; uoa.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+  // cout << "uob ="; uob.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+  // cout << "uoa ="; uoa.for_each([] (auto v) { cout << " " << v; }); cout << endl;
 
   uob.append(uoa);
   Array<double> uo = uob;
 
   assert(p.size() == uo.size());
 
-  cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-  cout << "uo ="; uo.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+  // cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
+  // cout << "uo ="; uo.for_each([] (auto v) { cout << " " << v; }); cout << endl;
 
   return ArrayP(p, Array<double>(uo));
 }

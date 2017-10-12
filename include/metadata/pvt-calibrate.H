@@ -5,6 +5,7 @@
 # include <ah-stl-utils.H>
 # include <ah-dispatcher.H>
 
+# include <line.H>
 # include <lfit.H>
 
 # include <correlations/pvt-correlations.H>
@@ -241,6 +242,9 @@ struct VectorDesc
       ZENTHROW(InvalidTargetUnit, "yunit " + yunit->name +
 	       " is not an unit for oil formation volume ratio");
 
+    if (not is_sorted(p))
+      ZENTHROW(SamplesUnsorted, "split_uo(): pressure values are not sorted");
+
     // First, we must determine p,uo corresponding to the inflection point
     const double max_val = numeric_limits<double>::max();
     size_t min_idx = 0;
@@ -261,8 +265,6 @@ struct VectorDesc
       ZENTHROW(SamplesUnsorted, "saturated region of uo is not decreasing");
 
     Array<double> p_above, uoa;
-    p_above.append(nextafter(p_below.get_last(), max_val));
-    uoa.append(nextafter(uob.get_last(), max_val));
     for (size_t i = min_idx + 1; i < p.size(); ++i)
       {
 	p_above.append(p(i));
@@ -278,47 +280,55 @@ struct VectorDesc
     if (p_above.size() < 2)
       ZENTHROW(CommandLineError, "Not enough point for estimating uoa");
 
-    LFit lm_below(p_below, uob); 
-    LFit lm_above(p_above, uoa); 
+    // In this point (p_below,uob) contains the saturated uo and
+    // (p_above, uoa) the undersaturated one.
 
-    const double & cb = lm_below.c, mb = lm_below.m,
-      ca = lm_above.c, ma = lm_above.m;
+    // First step we compute uod by extrapolating the two first points
+    // of p_below,uob to the cut point p = 0
+    const double uod = extrapolate_left(p_below(0), p_below(1),
+					uob(0), uob(1), 0);
 
-    const double pb = (ca - cb) / (mb - ma);
-    const double uobp = (cb/mb - ca/ma) / (1/mb - 1/ma);
-    const double uod = lm_below.predict(0).first;
+    // Now we build two lines.
 
-    if (uobp > min_uo)
-      cout << "min_uo = " << min_uo << endl
-	   << "uobp = " << uobp << endl;
-    assert(uobp <= min_uo);
+    // The first line is compounded by the two last points of
+    // p_below,uob
+    const size_t & nb = p_below.size();
+    const LineEq lbelow =
+      { p_below(nb - 2), uob(nb - 2), p_below(nb - 1), uob(nb - 1) };
 
-    if (pb < p_below.get_last())
-      {
-	p_above.insert(p_below.remove_last());
-	uoa.insert(uob.remove_last());
-      }
-    else if (pb > p_above.get_first()) // revisar si es necesario el predicado
-      {
-	p_below.append(p_above.remove_first());
-	uob.append(uoa.remove_first());
-      }
-    
-    // p_below and p_above should be correctly sorted. However,
-    // extreme numeric cases could give a unsorted configuration for
-    // uob or uoa. So, we inspect the borders of each one in order to
-    // eventually correct them
-    const size_t nuob = uob.size();
-    if (uob(nuob -1) > uob(nuob-2))
-      swap(uob(nuob -1), uob(nuob-2));
-    if (uoa(0) > uoa(1))
-      swap(uoa(0), uoa(1));
+    // The second line is compounded by the two first points of p_above,uoa
+    const LineEq labove = { p_above(0), uoa(0), p_above(1), uoa(1) };
 
-    p_below.insert(0);
+    // Now the intersection between these lines will give us an
+    // approximation for the minimum uo, which would correspond to the
+    // bubble point and uobp
+
+    auto p = lbelow.intersection(labove);
+    const double & pb = p.first;
+    const double & uobp = p.second;
+
+    if (not (pb >= p_below.get_last() and pb <= p_above.get_first()) or
+	not (uobp <= uob.get_last() and uobp <= uoa.get_first()))
+      cout << "p_below last = " << p_below.get_last() << endl
+	   << "pb = " << pb << endl
+	   << "p_above first = " << p_above.get_first() << endl
+	   << "uob last = " << uob.get_last() << endl
+	   << "uobp = " << uobp << endl
+	   << "uoa first = " << uoa.get_first() << endl;
+    assert(pb >= p_below.get_last() and pb <= p_above.get_first());
+    assert(uobp <= uob.get_last() and uobp <= uoa.get_first());
+
+    p_below.insert(0); // (0,uod) at the beginning of the saturated
+		       // zone for better precision  
     uob.insert(uod);
-    p_below.append(pb);
+
+    p_below.append(pb); // (pb,uod) at the end of the saturated zone
+			// for better precision
     uob.append(uobp);
-    p_above.insert(nextafter(pb, max_val));
+
+    // and the point immediately next to pb,uobp at the beginning of
+    // undersaturated zone
+    p_above.insert(nextafter(pb, max_val)); 
     uoa.insert(nextafter(uobp, max_val));
 
     // assert(is_sorted(p_below));
