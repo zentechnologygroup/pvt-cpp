@@ -51,7 +51,7 @@ RsAlShammasiCalibration::impl(const double & yg,
   constexpr double c2 = -1.841408;
   constexpr double c3_inv = 1/0.783716;
 
-  double rs = pow(((p - c)/m)/(pow(yo, c1)*exp(c2*yo*yg)), c3_inv) / ((t + 460) * yg); 
+  double rs = pow(((m * p + c)/(pow(yo, c1)*exp(c2*yo*yg)), c3_inv) / ((t + 460) * yg); 
 
   rs = max(0.0, rs);
   return rs;

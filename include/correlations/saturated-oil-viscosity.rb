@@ -84,7 +84,7 @@ add_parameter("uod",  "CP", "Dead oil viscosity")
 add_parameter("rs", "SCF_STB", "Solution GOR",  38,  121)
 add_author("Pérez, Heny & Lago")
 add_ref("perez:2001")
-add_internal_note("The correlation could not be verified because the original reference is not available. Date: September 6 2016.")
+add_internal_note("The correlation was verified by using the original reference (Pérez, Heny & Lago, 2001). Date: October 02 2017.")
 #set_hidden()
 end_correlation()
 
