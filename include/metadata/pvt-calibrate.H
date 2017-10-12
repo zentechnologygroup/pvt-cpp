@@ -307,42 +307,30 @@ struct VectorDesc
     // bubble point and uobp
 
     auto p = lbelow.intersection(labove);
-    const double & pb = p.first;
-    const double & uobp = p.second;
+    double & pb = p.first;
+    double & uobp = p.second;
 
-    if (not (pb >= p_below.get_last() and pb <= p_above.get_first()) or
-	not (uobp <= uob.get_last() and uobp <= uoa.get_first()))
-      cout << "p_below last = " << p_below.get_last() << endl
-	   << "pb = " << pb << endl
-	   << "p_above first = " << p_above.get_first() << endl
-	   << "uob last = " << uob.get_last() << endl
-	   << "uobp = " << uobp << endl
-	   << "uoa first = " << uoa.get_first() << endl;
-    assert(pb >= p_below.get_last() and pb <= p_above.get_first());
-    assert(uobp <= uob.get_last() and uobp <= uoa.get_first());
-
+    if (pb <= p_below.get_last())
+      { // This is an improbable but possible case that would
+	// correspond to a bad model
+	pb = p_below.get_last();
+	uobp = uob.get_last();
+      }
+    else
+      {
+	p_below.append(pb); // (pb,uod) at the end of the saturated
+			    // zone for better precision 
+	uob.append(uobp);
+      }
+    
     p_below.insert(0); // (0,uod) at the beginning of the saturated
 		       // zone for better precision  
     uob.insert(uod);
-
-    p_below.append(pb); // (pb,uod) at the end of the saturated zone
-			// for better precision
-    uob.append(uobp);
 
     // and the point immediately next to pb,uobp at the beginning of
     // undersaturated zone
     p_above.insert(nextafter(pb, max_val)); 
     uoa.insert(nextafter(uobp, max_val));
-
-    // assert(is_sorted(p_below));
-    // assert(is_sorted(p_above));
-    // assert(is_inversely_sorted(uob));
-    // assert(is_sorted(uoa));
-    // assert(p_below.get_last() == pb);
-    // assert(p_above.get_first() == nextafter(pb, max_val));
-    // assert(uob.get_first() == uod);
-    // assert(uob.get_last() == uobp);
-    // assert(uoa.get_first() == nextafter(pb, max_val));
 
     VectorDesc v_below(t, pb, -1, uod, uobp, p_below, punit, "uob", yunit, uob);
     VectorDesc v_above(t, pb, -1, uod, uobp, p_above, punit, "uoa", yunit, uoa);
