@@ -280,6 +280,9 @@ struct VectorDesc
     if (p_above.size() < 2)
       ZENTHROW(CommandLineError, "Not enough point for estimating uoa");
 
+    assert(p_below.get_last() < p_above.get_first());
+    assert(uob.get_last() < uoa.get_first());
+
     // In this point (p_below,uob) contains the saturated uo and
     // (p_above, uoa) the undersaturated one.
 
