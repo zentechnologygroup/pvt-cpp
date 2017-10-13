@@ -21,7 +21,7 @@ struct VectorDesc
   const double bobp = -1; // in RB_STB
   const double uod = -1; // dead oil viscosity in cP
   const double uobp = -1; // oil viscosity at pb in cP
-  const Array<double> p;
+  mutable Array<double> p;
   const Unit * punit = nullptr;
 
   const string yname = "no-name";
@@ -91,11 +91,12 @@ struct VectorDesc
       ZENTHROW(SamplesUnsorted, "pressures are not sorted");
   }
 
-  VectorDesc(double t, double pb, double bobp, double uod, double uobp,
-	     const Array<double> & p, const Unit * punit,
-	     const string & yname, const Unit * yunit, const Array<double> & y)
-    : t(t), pb(pb), bobp(bobp), uod(uod), uobp(uobp), p(p), punit(punit),
-      yname(yname), yunit(yunit), y(y)
+  VectorDesc(double __t, double __pb, double __bobp, double __uod, double __uobp,
+	     const Array<double> & __p, const Unit * __punit,
+	     const string & __yname, const Unit * __yunit,
+	     const Array<double> & __y)
+    : t(__t), pb(__pb), bobp(__bobp), uod(__uod), uobp(__uobp), p(__p),
+      punit(__punit), yname(__yname), yunit(__yunit), y(__y)
   {
     if (t <= 0)
       ZENTHROW(InvalidRange, "t value " + ::to_string(t) +
@@ -103,6 +104,13 @@ struct VectorDesc
     if (pb <= 0 and yname != "uo")
       ZENTHROW(InvalidRange, "pb value " + ::to_string(pb) +
 	       " less or equal to zero");
+
+    if (is_inversely_sorted(p))
+      {
+	p.reverse();
+	y.reverse();
+      }
+
     validate();
   }
 
@@ -286,30 +294,28 @@ struct VectorDesc
     // In this point (p_below,uob) contains the saturated uo and
     // (p_above, uoa) the undersaturated one.
 
-    // First step we compute uod by extrapolating the two first points
-    // of p_below,uob to the cut point p = 0
+    // we compute uod by extrapolating the two first points of
+    // p_below,uob to the cut point p = 0
     const double uod = extrapolate_left(p_below(0), p_below(1),
 					uob(0), uob(1), 0);
 
-    // Now we build two lines.
+    // Now we build two lines:
 
-    // The first line is compounded by the two last points of
-    // p_below,uob
+        // The first line is compounded by the two last points of
+        // p_below,uob
     const size_t & nb = p_below.size();
     const LineEq lbelow =
       { p_below(nb - 2), uob(nb - 2), p_below(nb - 1), uob(nb - 1) };
 
-    // The second line is compounded by the two first points of p_above,uoa
+        // The second line is compounded by the two first points of p_above,uoa
     const LineEq labove = { p_above(0), uoa(0), p_above(1), uoa(1) };
 
     // Now the intersection between these lines will give us an
     // approximation for the minimum uo, which would correspond to the
     // bubble point and uobp
-
     auto p = lbelow.intersection(labove);
     double & pb = p.first;
     double & uobp = p.second;
-
     if (pb <= p_below.get_last())
       { // This is an improbable but possible case that would
 	// correspond to a bad model
@@ -645,6 +651,9 @@ struct PvtData
 
   void add_const(const ConstDesc & c)
   {
+    if (const_values.has(c))
+      ZENTHROW(DuplicatedConstName, "constant name " + c.name +
+	       " is already inserted");
     const_values.append(c);
     names.append(c.name);
   }
@@ -678,6 +687,10 @@ struct PvtData
 
   void add_vector(VectorDesc && v)
   {
+    if (vectors.has(v))
+      ZENTHROW(DuplicatedVarName, "add_vector(): name " + v.yname +
+	       " with t = " + ::to_string(v.t) + " is already defined");
+
     if (&v.punit->physical_quantity != &Pressure::get_instance())
       ZENTHROW(InvalidPressureUnit, v.punit->name + " is not for pressure");
 
@@ -1296,7 +1309,7 @@ struct PvtData
 	const VectorDesc * ref_ptr = get<1>(tt);
 	const Unit * src_punit = s_punit(desc);
 	const double & temp = s_t(desc);
-	const double & pb = ref_ptr->pb;
+	const double & pb = ref_ptr->pb; // atar a cálculo pb_par
 	const double & bobp = ref_ptr->bobp;
 	const double & uod = ref_ptr->uod;
 	const double & uobp = ref_ptr->uobp;
@@ -1319,6 +1332,10 @@ struct PvtData
 	    auto t = it.get_curr();
 	    const double & p = get<0>(t); // pressure from desc
 	    const double & parval = get<1>(t);
+	    // TODO: aquí revisar si hay una correlación definida para
+	    // yname. Si ese es el caso, entonces, en lugar de mirar
+	    // el valor experimental, calcular el valor de la
+	    // correlación en cadena
 	    const double & y = get<2>(t);
 	    pars.insert("p", p, punit);
 	    pars.insert(par_name, parval, par_unit);	    

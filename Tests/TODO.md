@@ -7,6 +7,7 @@
 
 ## 3. casos límites para split_uo pressiones o uo muy cercanas
 - Created at   2017-10-12 11:04:46 -0400
+- Completed at 2017-10-13 13:45:58 -0400
 
 ## 4. seed y num de pruebas por linea de comandos
 - Created at   2017-10-12 18:46:45 -0400

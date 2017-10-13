@@ -20,11 +20,21 @@ options_parser = OptionParser.new do |opts|
   opts.on('-f name', '--file name', 'prefix name of test spec') do |name|
     options[:name] = name
   end
+
+  opts.on('-n', '--num-tests [number]', 'number of tests') do |num_tests|
+    options[:num_tests] = num_tests
+  end
+
+  opts.on('-s', '--seed [seed]', 'number of tests') do |seed|
+    options[:seed] = seed
+  end
 end
 
 options_parser.parse!
 
 name = options[:name]
+n = options[:num_tests]
+seed = options[:seed]
 
 fail "option -f prefix test file has not been specified" unless name
 
@@ -57,6 +67,8 @@ compile_status = system(compile_line)
 fail "Test compilation failed" unless compile_status
 
 command_line = "./#{tgt_name}"
+command_line += " -n #{n}" if n
+command_line += " -s #{seed}" if seed
 
 puts "#{command_line}"
 test_status = system(command_line)
