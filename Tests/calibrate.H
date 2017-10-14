@@ -2,7 +2,7 @@
 #define CALIBRATE_H
 
 # include <gsl/gsl_rng.h>
-# include <metadata/pvt-calibrate.H>
+# include <metadata/pvt-tuner.H>
 
 using ArrayP = pair<Array<double>, Array<double>>;
 
@@ -29,7 +29,6 @@ ArrayP generate_random_uo()
   const double uo_percentile = 0.1*Max_Pressure;
   const double uo_pivot =
     uo_percentile + uo_percentile*gsl_rng_uniform_pos(r.get());
-  cout << uo_percentile << " " << uo_pivot << endl;
   assert(uo_pivot > uo_percentile and uo_pivot < 2*uo_percentile);
 
   // generate nuob random values inversely sorted
@@ -45,16 +44,10 @@ ArrayP generate_random_uo()
     uoa.append(uo_pivot + (Max_uoa - uo_pivot)*gsl_rng_uniform_pos(r.get()));
   in_place_sort(uoa);
 
-  // cout << "uob ="; uob.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-  // cout << "uoa ="; uoa.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-
   uob.append(uoa);
   Array<double> uo = uob;
 
   assert(p.size() == uo.size());
-
-  // cout << "p ="; p.for_each([] (auto v) { cout << " " << v; }); cout << endl;
-  // cout << "uo ="; uo.for_each([] (auto v) { cout << " " << v; }); cout << endl;
 
   return ArrayP(p, Array<double>(uo));
 }

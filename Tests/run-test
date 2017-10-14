@@ -28,6 +28,10 @@ options_parser = OptionParser.new do |opts|
   opts.on('-s', '--seed [seed]', 'number of tests') do |seed|
     options[:seed] = seed
   end
+
+  opts.on('-F', '--filter [filter]', 'number of tests') do |filter|
+    options[:filter] = filter
+  end
 end
 
 options_parser.parse!
@@ -35,6 +39,7 @@ options_parser.parse!
 name = options[:name]
 n = options[:num_tests]
 seed = options[:seed]
+filter = options[:filter]
 
 fail "option -f prefix test file has not been specified" unless name
 
@@ -69,6 +74,7 @@ fail "Test compilation failed" unless compile_status
 command_line = "./#{tgt_name}"
 command_line += " -n #{n}" if n
 command_line += " -s #{seed}" if seed
+command_line += " --gtest_filter=#{filter}" if filter
 
 puts "#{command_line}"
 test_status = system(command_line)

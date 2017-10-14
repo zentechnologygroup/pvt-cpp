@@ -3,8 +3,6 @@
 
 # include <ah-zip.H>
 
-# include <metadata/pvt-calibrate.H>
-
 # include "calibrate.H"
 
 using namespace std;
@@ -24,45 +22,45 @@ TEST(VectorDesc, simple_operations)
 
     // invalid temp
     ASSERT_THROW(VectorDesc(0, 820, 1.003, 1e5, 1e1, { 10, 20, 30 },
-			    &psia::get_instance(), "rs", &RB_STB::get_instance(),
-			    { 1e-6, 2e-6, 3e-6 }), InvalidRange);
+			    &psia::get_instance(), "rs", { 1e-6, 2e-6, 3e-6 },
+			    &SCF_STB::get_instance()), InvalidRange);
 
     // invalid pb
     ASSERT_THROW(VectorDesc(125, 0, 1.003, 1e5, 1e1, { 10, 20, 30 },
-			    &psia::get_instance(), "rs", &RB_STB::get_instance(),
-			    { 1e-6, 2e-6, 3e-6 }), InvalidRange);
+			    &psia::get_instance(), "rs", { 1e-6, 2e-6, 3e-6 },
+			    &SCF_STB::get_instance()), InvalidRange);
 
     // dimension of p array is greater than zero
     ASSERT_THROW(VectorDesc(125, 820, 1.003, 1e5, 1e1, { 10 },
-			    &psia::get_instance(), "rs", &RB_STB::get_instance(),
-			    { 1e-6, 2e-6, 3e-6 }), LengthMismatch);
+			    &psia::get_instance(), "rs", { 1e-6, 2e-6, 3e-6 },
+			    &SCF_STB::get_instance()), LengthMismatch);
 
     // dimension of p and y must be equal; p is incomplete
     ASSERT_THROW(VectorDesc(125, 820, 1.003, 1e5, 1e1, { 10, 20 },
-			    &psia::get_instance(), "rs", &RB_STB::get_instance(),
-			    { 1e-6, 2e-6, 3e-6 }), LengthMismatch);
+			    &psia::get_instance(), "rs", { 1e-6, 2e-6, 3e-6 },
+			    &SCF_STB::get_instance()), LengthMismatch);
 
     // dimension of p and y must be equal; y is incomplete
     ASSERT_THROW(VectorDesc(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30 },
-			    &psia::get_instance(), "rs", &RB_STB::get_instance(),
-			    { 1e-6, 2e-6 }), LengthMismatch);
+			    &psia::get_instance(), "rs", { 1e-6, 2e-6 },
+			     &SCF_STB::get_instance()), LengthMismatch);
 
     // p must be sorted
     ASSERT_THROW(VectorDesc(125, 820, 1.003, 1e5, 1e1, { 10, 30, 20 },
-			    &psia::get_instance(), "rs", &RB_STB::get_instance(),
-			    { 1e-6, 2e-6, 3e-6 }), SamplesUnsorted);
+			    &psia::get_instance(), "rs", { 1e-6, 2e-6, 3e-6 },
+			    &SCF_STB::get_instance()), SamplesUnsorted);
 
-    ASSERT_NO_THROW(VectorDesc(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30 },
+    ASSERT_NO_THROW(VectorDesc(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30, 820 },
 			       &psia::get_instance(), "rs",
-			       &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6 }));
+			       { 10-6, 20, 30, 40 }, &SCF_STB::get_instance()));
 
     ASSERT_NO_THROW(VectorDesc(125, -1, 1.003, 1e5, 1e1, { 10, 20, 30 },
 			       &psia::get_instance(), "uo",
-			       &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6 }));
+			       { 1e-6, 2e-6, 3e-6 }, &SCF_STB::get_instance()));
 
     ASSERT_THROW(VectorDesc(125, -1, 1.003, 1e5, 1e1, { 10, 20, 30 },
 			    &psia::get_instance(), "rs",
-			    &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6 }),
+			    { 1e-6, 2e-6, 3e-6 }, &SCF_STB::get_instance()),
 		 InvalidRange);
 
     ASSERT_FALSE(VectorDesc(100, "rs").is_valid());
@@ -89,15 +87,15 @@ TEST(VectorDesc, parallel)
   ASSERT_TRUE(VectorDesc(100, "rs").is_parallel(VectorDesc(100, "bob")));
 
   VectorDesc d1(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30 }, &psia::get_instance(),
-		"rs", &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6 });
+		"rs", { 1e-6, 2e-6, 3e-6 }, &RB_STB::get_instance());
   VectorDesc d2(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30 }, &psia::get_instance(),
-		"rs", &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6 });
+		"rs", { 1e-6, 2e-6, 3e-6 }, &RB_STB::get_instance());
   VectorDesc d3(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30, 40 },
-		&psia::get_instance(), "rs", &RB_STB::get_instance(),
-		{ 1e-6, 2e-6, 3e-6, 4e-6 });
+		&psia::get_instance(), "rs", { 1e-6, 2e-6, 3e-6, 4e-6 },
+		&RB_STB::get_instance());
   VectorDesc d4(125, 820, 1.003, 1e5, 1e1, { 10, 21, 30, 40 },
-		&psia::get_instance(), "rs", &RB_STB::get_instance(),
-		{ 1e-6, 2e-6, 3e-6, 4e-6 });
+		&psia::get_instance(), "rs",
+		{ 1e-6, 2e-6, 3e-6, 4e-6 }, &RB_STB::get_instance());
 
   ASSERT_TRUE(d1.is_parallel(d2));
   ASSERT_FALSE(d1.is_parallel(d3));
@@ -109,7 +107,7 @@ struct SimpleVector : public Test
   VectorDesc v;
   SimpleVector() : v(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30, 40, 50 },
 		     &psia::get_instance(), "rs",
-		     &RB_STB::get_instance(), { 1e-6, 2e-6, 3e-6, 4e-6, 5e-6 }) {}
+		     { 1e-6, 2e-6, 3e-6, 4e-6, 5e-6 }, &RB_STB::get_instance()) {}
 };
 
 TEST_F(SimpleVector, y_operations)
@@ -149,8 +147,9 @@ TEST(VectorDesc, uo_split)
   VectorDesc
     v(200, 3000, -1, -1, -1,
       {200, 500, 800, 1000, 1100, 1300, 1500, 1800, 2100, 2400, 2700, 3000},
-      &psia::get_instance(), "uo", &CP::get_instance(),
-      {404.6, 345.3, 278, 256, 260, 270, 279.8, 302.4, 316.3, 335.0, 349.7, 370});
+      &psia::get_instance(), "uo",
+      {404.6, 345.3, 278, 256, 260, 270, 279.8, 302.4, 316.3, 335.0, 349.7, 370},
+      &CP::get_instance());
 
   auto p = v.split_uo();
   auto & p_below = p.first.p;
@@ -186,8 +185,9 @@ struct UoBoundTest : public TestWithParam<ArrayP>
   const Array<double> & pressure = p.first;
   const Array<double> & uo = p.second;
   VectorDesc v;
-  UoBoundTest() : v(200, 3000, -1, -1, -1, pressure, &psia::get_instance(), "uo",
-		    &CP::get_instance(), uo) {}
+  UoBoundTest()
+    : v(200, 3000, -1, -1, -1, pressure, &psia::get_instance(), "uo",
+	uo, &CP::get_instance()) {}
 };
 
 TEST_P(UoBoundTest, uo_split)
@@ -240,3 +240,82 @@ vector<ArrayP> uo_list =
 
 INSTANTIATE_TEST_CASE_P(random_uo, UoBoundTest, ValuesIn(uo_list));
 
+TEST(VectorCtor, rs)
+{
+  // valid configurations
+  ASSERT_NO_THROW(VectorDesc(125, 820, -1, -1, -1, {820, 600, 450, 300, 15},
+			     &psia::get_instance(), "rs",
+			     {80, 62, 47, 35, 0}, &SCF_STB::get_instance()));
+
+  ASSERT_NO_THROW(VectorDesc(125, 820, -1, -1, -1, {15, 300, 450, 600, 820},
+			     &psia::get_instance(), "rs",
+			     {0, 35, 47, 62, 80}, &SCF_STB::get_instance()));
+
+  // Invalid configurations
+
+  // rs values are not sorted
+  ASSERT_THROW(VectorDesc(125, 820, -1, -1, -1, {15, 300, 450, 600, 820},
+			  &psia::get_instance(), "rs",
+			  {0, 47, 35, 62, 80}, &SCF_STB::get_instance()),
+	       SamplesUnsorted);
+
+  // pressure values are not sorted
+  ASSERT_THROW(VectorDesc(125, 820, -1, -1, -1, {15, 300, 600, 450, 820},
+			  &psia::get_instance(), "rs",
+			  {0, 35, 47, 62, 80}, &SCF_STB::get_instance()),
+	       SamplesUnsorted);
+
+  // last pressure value i p array is not the pb
+  ASSERT_THROW(VectorDesc(125, 820, -1, -1, -1, {15, 300, 450, 600, 820.1},
+			  &psia::get_instance(), "rs",
+			  {0, 35, 47, 62, 80}, &SCF_STB::get_instance()),
+	       PressureMismatch);
+
+  // a rs value is out of unit range
+  ASSERT_THROW(VectorDesc(125, 820, -1, -1, -1, {15, 300, 450, 600, 820},
+			  &psia::get_instance(), "rs",
+			  {-5.1e7, 35, 47, 62, 80}, &SCF_STB::get_instance()),
+	       OutOfUnitRange);
+
+  // a p value is out of unit range
+  ASSERT_THROW(VectorDesc(125, 35000, -1, -1, -1, {15, 300, 450, 600, 35000},
+			  &psia::get_instance(), "rs",
+			  {-5.1e7, 35, 47, 62, 80}, &SCF_STB::get_instance()),
+	       OutOfUnitRange);
+
+  // invalid unit for pressure
+  ASSERT_THROW(VectorDesc(125, 820, -1, -1, -1, {820, 600, 450, 300, 15},
+			  &psia_1::get_instance(), "rs",
+			  {80, 62, 47, 35, 0}, &SCF_STB::get_instance()),
+	       InvalidUnit);
+  // invalid unit for rs
+  ASSERT_THROW(VectorDesc(125, 820, -1, -1, -1, {15, 300, 450, 600, 820},
+			  &psia::get_instance(), "rs",
+			  {-5.1e7, 35, 47, 62, 80}, &STB_MMscf::get_instance()),
+	       InvalidUnit);
+}
+
+TEST(VectorCtor, bob)
+{
+
+}
+
+TEST(VectorCtor, coa)
+{
+
+}
+
+TEST(VectorCtor, boa)
+{
+
+}
+
+TEST(VectorCtor, uob)
+{
+
+}
+
+TEST(VectorCtor, uoa)
+{
+
+}

@@ -29,7 +29,7 @@ struct VectorDesc
   const double bobp = -1; // in RB_STB
   const double uod = -1; // dead oil viscosity in cP
   const double uobp = -1; // oil viscosity at pb in cP
-  const Array<double> p;
+  mutable Array<double> p;
   const Unit * punit = nullptr;
 
   const string yname = "no-name";
@@ -91,7 +91,9 @@ struct VectorDesc
 
   void validate()
   {
-    if (psia::get_instance().is_sibling(*punit))
+    if (punit == nullptr or yunit == nullptr)
+      ZENTHROW(InvalidUnit, "vector unit are not initialized");
+    if (not psia::get_instance().is_sibling(*punit))
       ZENTHROW(InvalidUnit, punit->name + " is not a valid pressure unit");
     if (p.size() <= 1)
       ZENTHROW(LengthMismatch, "Pressure array size is less or equal tan 1");
@@ -99,12 +101,17 @@ struct VectorDesc
       ZENTHROW(LengthMismatch, "pressure array and " + yname +
 	       " array have different sizes");
     if (not is_sorted(p))
+      {
+	p.reverse();
+	y.reverse();
+      }
+    if (not is_sorted(p))
       ZENTHROW(SamplesUnsorted, "pressures are not sorted");
   }
 
   VectorDesc(double t, double pb, double bobp, double uod, double uobp,
 	     const Array<double> & p, const Unit * punit,
-	     const string & yname, const Unit * yunit, const Array<double> & y)
+	     const string & yname, const Array<double> & y, const Unit * yunit)
     : t(t), pb(pb), bobp(bobp), uod(uod), uobp(uobp), p(p), punit(punit),
       yname(yname), yunit(yunit), y(y)
   {
@@ -118,7 +125,7 @@ struct VectorDesc
     static auto validate_pb = [] (VectorDesc* ptr)
       {
 	if (not BaseQuantity::is_valid(ptr->pb, *ptr->punit))
-	  ZENTHROW(OutOfRange, "pb is out of unit range");
+	  ZENTHROW(OutOfUnitRange, "pb is out of unit range");
       };
     static auto validate_pb_in_p = [] (VectorDesc* ptr, const string & target_name)
       {
@@ -131,26 +138,37 @@ struct VectorDesc
     {
       if (not RB_STB::get_instance().is_sibling(*ptr->yunit))
 	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for bo");
+      if (BaseQuantity::is_valid(ptr->bobp, *ptr->yunit))
+	ZENTHROW(OutOfUnitRange, "bobp value is out of unit range");
       if (not ptr->y.all([u = ptr->yunit] (auto b)
 			 { return BaseQuantity::is_valid(b, *u); }))
-	ZENTHROW(OutOfRange, "at least a bo value is out of its unit range");
+	ZENTHROW(OutOfUnitRange, "at least a bo value is out of its unit range");
     };
     static auto validate_uo = [] (VectorDesc* ptr)
     {
       if (not CP::get_instance().is_sibling(*ptr->yunit))
 	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
+      if (BaseQuantity::is_valid(ptr->uobp, *ptr->yunit))
+	ZENTHROW(OutOfUnitRange, "uobp value is out of unit range");
       if (not ptr->y.all([u = ptr->yunit] (auto b)
 			 { return BaseQuantity::is_valid(b, *u); }))
-	ZENTHROW(OutOfRange, "at least an uo value is out of its unit range");
+	ZENTHROW(OutOfUnitRange, "at least an uo value is out of its unit range");
     };    
     static auto pb_validate = [] (VectorDesc*) {};
     static auto rs_validate = [] (VectorDesc* ptr)
       {
 	validate_pb(ptr);
-	if (SCF_STB::get_instance().is_sibling(*ptr->yunit))
+	if (not SCF_STB::get_instance().is_sibling(*ptr->yunit))
 	  ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for coa");
+	if (ptr->p.get_last() != ptr->pb)
+	  ZENTHROW(PressureMismatch,
+		   "VectorDesc ctor (rs): last value of p is not pb");
 	if (not is_sorted(ptr->y))
 	  ZENTHROW(SamplesUnsorted, "VectorDesc ctor: rs samples are not sorted");
+	if (not ptr->y.all([u = ptr->yunit] (auto r)
+			   { return BaseQuantity::is_valid(r, *u); }))
+	  ZENTHROW(OutOfUnitRange,
+		   "at least a value of rs is out of its unit range");
       };
     static auto bob_validate = [] (VectorDesc* ptr)
       {
@@ -207,7 +225,7 @@ struct VectorDesc
 	  ZENTHROW(SamplesUnsorted,
 		   "VectorDesc ctor: uob samples are not inversely sorted");
 	if (BaseQuantity::is_valid(ptr->uod, CP::get_instance()))
-	  ZENTHROW(OutOfRange, "uod value is out of unit range");
+	  ZENTHROW(OutOfUnitRange, "uod value is out of unit range");
 	if (ptr->uod > ptr->y.get_first())
 	  ZENTHROW(SampleInvalid, "uod value is greater than first uob value");
 	if (ptr->y.get_first() != ptr->uod)
@@ -215,11 +233,23 @@ struct VectorDesc
 	    ptr->p.insert(0);
 	    ptr->y.insert(ptr->uod);
 	  }
+	if (ptr->y.get_last() < ptr->uobp)
+	  ZENTHROW(OutOfRange, "uobp is less than last value of uob");
       };
     static auto uoa_validate = [] (VectorDesc* ptr)
       {
 	validate_pb(ptr);
-	
+	validate_uo(ptr);
+	if (not is_sorted(ptr->y))
+	  ZENTHROW(SamplesUnsorted, "VectorDesc ctor: uob samples are not sorted");
+	if (ptr->y.get_first() < ptr->uobp)
+	  ZENTHROW(OutOfRange, "uobp value is less than first uoa");
+	if (ptr->y.get_first() != ptr->uobp)
+	  {
+	    auto vmax = numeric_limits<double>::max();
+	    ptr->p.insert(nextafter(ptr->pb, vmax));
+	    ptr->y.insert(nextafter(ptr->uobp, vmax));
+	  }
       };
     static auto uo_validate = [] (VectorDesc*) {};
     
@@ -229,6 +259,7 @@ struct VectorDesc
 	"uob", uob_validate, "uoa", uoa_validate, "uo", uo_validate };
 
     validate();
+    dispather.run(yname, this);
   }
 
   VectorDesc() {}
@@ -458,8 +489,8 @@ struct VectorDesc
     p_above.insert(nextafter(pb, max_val)); 
     uoa.insert(nextafter(uobp, max_val));
 
-    VectorDesc v_below(t, pb, -1, uod, uobp, p_below, punit, "uob", yunit, uob);
-    VectorDesc v_above(t, pb, -1, uod, uobp, p_above, punit, "uoa", yunit, uoa);
+    VectorDesc v_below(t, pb, -1, uod, uobp, p_below, punit, "uob", uob, yunit);
+    VectorDesc v_above(t, pb, -1, uod, uobp, p_above, punit, "uoa", uoa, yunit);
 
     return make_pair(move(v_below), move(v_above));
   }
@@ -876,7 +907,7 @@ struct PvtData
 	     const Array<double> & p, const Unit & punit,
 	     const string yname, const Array<double> & y, const Unit & yunit)
   {
-    add_vector(VectorDesc(t, pb, bobp, uod, uobp, p, &punit, yname, &yunit, y));
+    add_vector(VectorDesc(t, pb, bobp, uod, uobp, p, &punit, yname, y, &yunit));
   }
 
   PvtData() {}
@@ -1375,7 +1406,7 @@ struct PvtData
     assert(p.size() == vals.size());
     return VectorDesc(vector_ptr->t, vector_ptr->pb, vector_ptr->bobp,
 		      vector_ptr->uod, vector_ptr->uobp, pvals, punit,
-		      corr_ptr->target_name(), &corr_ptr->unit, vals);
+		      corr_ptr->target_name(), vals, &corr_ptr->unit);
   }
 
   struct CorrDesc
