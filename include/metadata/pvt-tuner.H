@@ -113,61 +113,76 @@ struct VectorDesc
       ZENTHROW(InvalidRange, "pb value " + ::to_string(pb) +
 	       " less or equal to zero");
 
-    static auto pb_process = [] (VectorDesc*) {};
-    static auto rs_process = [] (VectorDesc* ptr)
-      {
-	if (not is_sorted(ptr->y))
-	  ZENTHROW(SamplesUnsorted, "VectorDesc ctor: rs samples are not sorted");
-      };
-    static auto bob_process = [] (VectorDesc* ptr)
+    static auto validate_pb_in_p = [] (VectorDesc* ptr, const string & target_name)
       {
 	if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	  ZENTHROW(PressureMismatch,
-		   "VectorDesc ctor (bob): p vector does not contain pb");
-
+		   "VectorDesc ctor (" + target_name +
+		   "): p vector does not contain pb");
+      };
+    static auto validate_bo_unit = [] (VectorDesc* ptr)
+    {
+      if (not RB_STB::get_instance().is_sibling(*ptr->yunit))
+	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for bo");
+    };
+    static auto validate_uo_unit = [] (VectorDesc* ptr)
+    {
+      if (not CP::get_instance().is_sibling(*ptr->yunit))
+	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
+    };    
+    static auto pb_validate = [] (VectorDesc*) {};
+    static auto rs_validate = [] (VectorDesc* ptr)
+      {
+	if (SCF_STB::get_instance().is_sibling(*ptr->yunit))
+	  ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for coa");
+	if (not is_sorted(ptr->y))
+	  ZENTHROW(SamplesUnsorted, "VectorDesc ctor: rs samples are not sorted");
+      };
+    static auto bob_validate = [] (VectorDesc* ptr)
+      {
+	validate_pb_in_p(ptr, "bob");
+	validate_bo_unit(ptr);
 	if (not is_sorted(ptr->y))
 	  ZENTHROW(SamplesUnsorted,
 		   "VectorDesc ctor: bob samples are sorted");
-
 	if (not ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
 	  ZENTHROW(SampleInvalid,
 		   "VectorDesc ctor: bob samples does not have bobp");
-
 	if (ptr->p.get_last() != ptr->pb)
 	  ZENTHROW(PressureMismatch,
 		   "VectorDesc ctor (bob): last value of p is not pb");
-
 	if (ptr->y.get_last() != ptr->bobp)
 	  ZENTHROW(PressureMismatch,
 		   "VectorDesc ctor: last value of bob vector is not bobp");
       };
-    static auto coa_process = [] (VectorDesc* ptr)
+    static auto coa_validate = [] (VectorDesc* ptr)
       {
-	if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
-	  ZENTHROW(PressureMismatch,
-		   "VectorDesc ctor (coa): p vector does not contain pb");
-
+	validate_pb_in_p(ptr, "coa");
+	if (not psia_1::get_instance().is_sibling(*ptr->yunit))
+	  ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
 	if (not is_inversely_sorted(ptr->y))
 	  ZENTHROW(SamplesUnsorted,
-		   "VectorDesc ctor: coa samples are inversely sorted");
+		   "VectorDesc ctor: coa samples are not inversely sorted");
       };
-    static auto boa_process = [] (VectorDesc* ptr)
+    static auto boa_validate = [] (VectorDesc* ptr)
       {
-	if (not BaseQuantity::is_valid(ptr->bobp, *ptr->yunit))
-	  ZENTHROW(SampleOutOfRange, "bobp = " + ::to_string(bobp) + + 
+	validate_bo_unit(ptr);
+	if (not is_inversely_sorted(ptr->y))
+	  ZENTHROW(SamplesUnsorted,
+		   "VectorDesc ctor: boa samples are not inversely sorted");
 
 	if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	  ZENTHROW(PressureMismatch,
 		   "VectorDesc ctor (boa): p vector does not contain pb");
       };
-    static auto uod_process = [] (VectorDesc*) {};
-    static auto uob_process = [] (VectorDesc*) {};
-    static auto uoa_process = [] (VectorDesc*) {};
+    static auto uod_validate = [] (VectorDesc*) {};
+    static auto uob_validate = [] (VectorDesc*) {};
+    static auto uoa_validate = [] (VectorDesc*) {};
     
     static AHDispatcher<string, void (*)(VectorDesc*)> dispather =
-      { "pb", pb_process, "rs", rs_process, "bob", bob_process,
-	"coa", coa_process, "boa", boa_process, "uod", uod_process,
-	"uob", uob_process, "uoa", uoa_process };
+      { "pb", pb_validate, "rs", rs_validate, "bob", bob_validate,
+	"coa", coa_validate, "boa", boa_validate, "uod", uod_validate,
+	"uob", uob_validate, "uoa", uoa_validate };
 
     validate();
   }
