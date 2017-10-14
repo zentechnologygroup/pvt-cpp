@@ -91,6 +91,8 @@ struct VectorDesc
 
   void validate()
   {
+    if (psia::get_instance().is_sibling(*punit))
+      ZENTHROW(InvalidUnit, punit->name + " is not a valid pressure unit");
     if (p.size() <= 1)
       ZENTHROW(LengthMismatch, "Pressure array size is less or equal tan 1");
     if (p.size() != y.size())
@@ -113,6 +115,11 @@ struct VectorDesc
       ZENTHROW(InvalidRange, "pb value " + ::to_string(pb) +
 	       " less or equal to zero");
 
+    static auto validate_pb = [] (VectorDesc* ptr)
+      {
+	if (not BaseQuantity::is_valid(ptr->pb, *ptr->punit))
+	  ZENTHROW(OutOfRange, "pb is out of unit range");
+      };
     static auto validate_pb_in_p = [] (VectorDesc* ptr, const string & target_name)
       {
 	if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
@@ -120,19 +127,26 @@ struct VectorDesc
 		   "VectorDesc ctor (" + target_name +
 		   "): p vector does not contain pb");
       };
-    static auto validate_bo_unit = [] (VectorDesc* ptr)
+    static auto validate_bo = [] (VectorDesc* ptr)
     {
       if (not RB_STB::get_instance().is_sibling(*ptr->yunit))
 	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for bo");
+      if (not ptr->y.all([u = ptr->yunit] (auto b)
+			 { return BaseQuantity::is_valid(b, *u); }))
+	ZENTHROW(OutOfRange, "at least a bo value is out of its unit range");
     };
-    static auto validate_uo_unit = [] (VectorDesc* ptr)
+    static auto validate_uo = [] (VectorDesc* ptr)
     {
       if (not CP::get_instance().is_sibling(*ptr->yunit))
 	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
+      if (not ptr->y.all([u = ptr->yunit] (auto b)
+			 { return BaseQuantity::is_valid(b, *u); }))
+	ZENTHROW(OutOfRange, "at least an uo value is out of its unit range");
     };    
     static auto pb_validate = [] (VectorDesc*) {};
     static auto rs_validate = [] (VectorDesc* ptr)
       {
+	validate_pb(ptr);
 	if (SCF_STB::get_instance().is_sibling(*ptr->yunit))
 	  ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for coa");
 	if (not is_sorted(ptr->y))
@@ -140,8 +154,9 @@ struct VectorDesc
       };
     static auto bob_validate = [] (VectorDesc* ptr)
       {
+	validate_pb(ptr);
 	validate_pb_in_p(ptr, "bob");
-	validate_bo_unit(ptr);
+	validate_bo(ptr);
 	if (not is_sorted(ptr->y))
 	  ZENTHROW(SamplesUnsorted,
 		   "VectorDesc ctor: bob samples are sorted");
@@ -157,6 +172,7 @@ struct VectorDesc
       };
     static auto coa_validate = [] (VectorDesc* ptr)
       {
+	validate_pb(ptr);
 	validate_pb_in_p(ptr, "coa");
 	if (not psia_1::get_instance().is_sibling(*ptr->yunit))
 	  ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
@@ -166,23 +182,51 @@ struct VectorDesc
       };
     static auto boa_validate = [] (VectorDesc* ptr)
       {
-	validate_bo_unit(ptr);
+	validate_pb(ptr);
+	validate_bo(ptr);
 	if (not is_inversely_sorted(ptr->y))
 	  ZENTHROW(SamplesUnsorted,
 		   "VectorDesc ctor: boa samples are not inversely sorted");
+	if (ptr->y.get_first() != ptr->bobp)
+	  {
+	    ptr->p.insert(nextafter(ptr->pb, numeric_limits<double>::max()));
+	    ptr->y.insert(nextafter(ptr->bobp, numeric_limits<double>::min()));
+	  }
 
 	if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	  ZENTHROW(PressureMismatch,
 		   "VectorDesc ctor (boa): p vector does not contain pb");
       };
     static auto uod_validate = [] (VectorDesc*) {};
-    static auto uob_validate = [] (VectorDesc*) {};
-    static auto uoa_validate = [] (VectorDesc*) {};
+    static auto uob_validate = [] (VectorDesc* ptr)
+      {
+	validate_pb(ptr);
+	validate_pb_in_p(ptr, "uob");
+	validate_uo(ptr);
+	if (not is_inversely_sorted(ptr->y))
+	  ZENTHROW(SamplesUnsorted,
+		   "VectorDesc ctor: uob samples are not inversely sorted");
+	if (BaseQuantity::is_valid(ptr->uod, CP::get_instance()))
+	  ZENTHROW(OutOfRange, "uod value is out of unit range");
+	if (ptr->uod > ptr->y.get_first())
+	  ZENTHROW(SampleInvalid, "uod value is greater than first uob value");
+	if (ptr->y.get_first() != ptr->uod)
+	  {
+	    ptr->p.insert(0);
+	    ptr->y.insert(ptr->uod);
+	  }
+      };
+    static auto uoa_validate = [] (VectorDesc* ptr)
+      {
+	validate_pb(ptr);
+	
+      };
+    static auto uo_validate = [] (VectorDesc*) {};
     
     static AHDispatcher<string, void (*)(VectorDesc*)> dispather =
       { "pb", pb_validate, "rs", rs_validate, "bob", bob_validate,
 	"coa", coa_validate, "boa", boa_validate, "uod", uod_validate,
-	"uob", uob_validate, "uoa", uoa_validate };
+	"uob", uob_validate, "uoa", uoa_validate, "uo", uo_validate };
 
     validate();
   }
