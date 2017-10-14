@@ -84,12 +84,14 @@ TEST(PvtData, add_const)
   		      parray, vptr->p));
   ASSERT_TRUE(zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
   		      rs200, vptr->y));
+
+  // TODO: falta rm vector y const
 }
 
-struct Fluid5 : public Test
+struct FluidTest : public Test
 {
   PvtData data;
-  Fluid5()
+  FluidTest() // fluid5 
   {
     data.add_const("api", 8.3, Api::get_instance());
     data.add_const("co2", 0.86, MolePercent::get_instance());
@@ -105,12 +107,149 @@ struct Fluid5 : public Test
   }
 };
 
+TEST_F(FluidTest, get_pars)
+{
+
+}
+
+TEST_F(FluidTest, matches_with_pars)
+{
+
+}
+
+
+TEST_F(FluidTest, can_be_applied)
+{
+
+}
+
+
+TEST_F(FluidTest, list_restrictions)
+{
+
+}
+
+
+TEST_F(FluidTest, get_vectors)
+{
+
+}
+
+TEST_F(FluidTest, tp_sets)
+{
+
+}
+
+TEST_F(FluidTest, pbapply)
+{
+
+}
+
+TEST_F(FluidTest, rsapply)
+{
+
+}
+
+
+TEST_F(FluidTest, bobapply)
+{
+
+}
+
+TEST_F(FluidTest, coaapply)
+{
+
+}
+
+
+TEST_F(FluidTest, boaapply)
+{
+
+}
+
+
+TEST_F(FluidTest, uodapply)
+{
+
+}
+
+
+TEST_F(FluidTest, uobapply)
+{
+
+}
+
+
+TEST_F(FluidTest, uoaapply)
+{
+
+}
+
+TEST_F(FluidTest, build_samples) // Revisar si es necesaria
+{
+
+}
+
+TEST_F(FluidTest, iapply)
+{
+
+}
+
+TEST_F(FluidTest, pbstats)
+{
+
+}
+
+TEST_F(FluidTest, rsstats)
+{
+
+}
+
+TEST_F(FluidTest, bobstats)
+{
+
+}
+
+TEST_F(FluidTest, coastats)
+{
+
+}
+
+TEST_F(FluidTest, boastats)
+{
+
+}
+
+TEST_F(FluidTest, uodstats)
+{
+
+}
+
+TEST_F(FluidTest, uobstats)
+{
+
+}
+
+TEST_F(FluidTest, uoastats)
+{
+
+}
+
+TEST_F(FluidTest, istats)
+{
+
+}
+
+TEST_F(FluidTest, auto_apply)
+{
+
+}
+
+
+
 TEST(PvtData, are_all_correlations_defined_and_missing)
 {
 
 }
 
-TEST_F(Fluid5, simple_test)
-{
 
-}

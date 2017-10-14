@@ -796,22 +796,6 @@ struct PvtData
 	yvals(move(__yvals)), yunit(__yunit) {}
   };
 
-  // using Sample =
-  // tuple<double, double, double, double, double, // t, pb, bobp, uod, uobp
-  // 	const Unit*, DynList<double>, // pressure unit &values
-  // 	string, // property name
-  // 	const Unit*, DynList<double>>; // target unit & values
-  // static const double & s_t(Sample & s) { return get<0>(s); }
-  // static const double & s_pb(Sample & s) { return get<1>(s); }
-  // static const double & s_bobp(Sample & s) { return get<2>(s); }
-  // static const double & s_uod(Sample & s) { return get<3>(s); }
-  // static const double & s_uobp(Sample & s) { return get<4>(s); }
-  // static const Unit* s_punit(Sample & s) { return get<5>(s); }
-  // static DynList<double> & s_pvals(Sample & s) { return get<6>(s); }
-  // static string & s_yname(Sample & s) { return get<7>(s); }
-  // static const Unit* s_yunit(Sample & s) { return get<8>(s); }
-  // static DynList<double> & s_yvals(Sample & s) { return get<9>(s); }
-
   // given ref_vector which contains a property for different
   // temperatures, this routine searches for target_name and returns
   // the samples, probably interpolated, of the target_name property
