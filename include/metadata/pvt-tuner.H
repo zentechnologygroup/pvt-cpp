@@ -16,6 +16,14 @@ using Json = nlohmann::json;
 
 struct VectorDesc
 {
+  // contain these values "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa"
+  static const DynSetTree<string> valid_target_names;
+
+  bool is_valid_target_name(const string & target_name) const noexcept
+  {  
+    return valid_target_names.has(target_name);
+  }
+
   const double t = 0; //  unit will always be in Fahrenheit
   const double pb = -1; // bubble point pressure in the same unit that p
   const double bobp = -1; // in RB_STB
@@ -77,7 +85,8 @@ struct VectorDesc
   bool is_valid() const noexcept
   {
     return t > 0 and pb > 0 and punit != nullptr and yunit != nullptr and
-      yname != "no-name" and p.size() > 1 and p.size() == y.size() and is_sorted(p);
+      yname != "no-name" and p.size() > 1 and p.size() == y.size() and
+      is_sorted(p);
   }
 
   void validate()
@@ -103,6 +112,63 @@ struct VectorDesc
     if (pb <= 0 and yname != "uo")
       ZENTHROW(InvalidRange, "pb value " + ::to_string(pb) +
 	       " less or equal to zero");
+
+    static auto pb_process = [] (VectorDesc*) {};
+    static auto rs_process = [] (VectorDesc* ptr)
+      {
+	if (not is_sorted(ptr->y))
+	  ZENTHROW(SamplesUnsorted, "VectorDesc ctor: rs samples are not sorted");
+      };
+    static auto bob_process = [] (VectorDesc* ptr)
+      {
+	if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
+	  ZENTHROW(PressureMismatch,
+		   "VectorDesc ctor (bob): p vector does not contain pb");
+
+	if (not is_sorted(ptr->y))
+	  ZENTHROW(SamplesUnsorted,
+		   "VectorDesc ctor: bob samples are sorted");
+
+	if (not ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
+	  ZENTHROW(SampleInvalid,
+		   "VectorDesc ctor: bob samples does not have bobp");
+
+	if (ptr->p.get_last() != ptr->pb)
+	  ZENTHROW(PressureMismatch,
+		   "VectorDesc ctor (bob): last value of p is not pb");
+
+	if (ptr->y.get_last() != ptr->bobp)
+	  ZENTHROW(PressureMismatch,
+		   "VectorDesc ctor: last value of bob vector is not bobp");
+      };
+    static auto coa_process = [] (VectorDesc* ptr)
+      {
+	if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
+	  ZENTHROW(PressureMismatch,
+		   "VectorDesc ctor (coa): p vector does not contain pb");
+
+	if (not is_inversely_sorted(ptr->y))
+	  ZENTHROW(SamplesUnsorted,
+		   "VectorDesc ctor: coa samples are inversely sorted");
+      };
+    static auto boa_process = [] (VectorDesc* ptr)
+      {
+	if (not BaseQuantity::is_valid(ptr->bobp, *ptr->yunit))
+	  ZENTHROW(SampleOutOfRange, "bobp = " + ::to_string(bobp) + + 
+
+	if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
+	  ZENTHROW(PressureMismatch,
+		   "VectorDesc ctor (boa): p vector does not contain pb");
+      };
+    static auto uod_process = [] (VectorDesc*) {};
+    static auto uob_process = [] (VectorDesc*) {};
+    static auto uoa_process = [] (VectorDesc*) {};
+    
+    static AHDispatcher<string, void (*)(VectorDesc*)> dispather =
+      { "pb", pb_process, "rs", rs_process, "bob", bob_process,
+	"coa", coa_process, "boa", boa_process, "uod", uod_process,
+	"uob", uob_process, "uoa", uoa_process };
+
     validate();
   }
 
@@ -111,7 +177,8 @@ struct VectorDesc
   VectorDesc(double t, const string & name) : t(t), yname(name)
   {
     if (t <= 0)
-      ZENTHROW(InvalidRange, "t value " + ::to_string(t) + " less or equal to zero");
+      ZENTHROW(InvalidRange, "t value " + ::to_string(t) +
+	       " less or equal to zero");
   }
 
   CorrStat::Desc stats(const Array<double> & yc, const Unit * unit_ptr) const
@@ -796,15 +863,16 @@ struct PvtData
 	yvals(move(__yvals)), yunit(__yunit) {}
   };
 
-  // given ref_vector which contains a property for different
-  // temperatures, this routine searches for target_name and returns
-  // the samples, probably interpolated, of the target_name property
-  // according to pressure values ​​stored in ref_vectors 
+  /*
+    given ref_vector which contains a property for different
+    temperatures, this routine searches for target_name and returns
+    the samples, probably interpolated, of the target_name property
+    according to pressure values ​​stored in ref_vectors
+  */
   DynList<Sample> get_pars(const DynList<const VectorDesc*> & ref_vectors,
 			   const string & target_name) const
   {
     DynList<Sample> ret;
-
     if (ref_vectors.is_empty())
       return ret;
 
@@ -1104,7 +1172,8 @@ struct PvtData
 	    TpSet & t = ptr->second;
   	    if (t.pb > 0 and t.pb != p)
   	      {
-		cout << "Found two contradictory pairs t,pb: " << ptr->first << ","
+		cout << "Found two contradictory pairs t,pb: "
+		     << ptr->first << ","
 		     << t.pb << " != " << vdesc.t << "," << vdesc.pb << endl;
   		abort();
   	      }
@@ -1121,7 +1190,7 @@ struct PvtData
       }
 
     if (not is_sorted(tuples.values().
-		      maps<double>([] (auto & t) { return get<1>(t); })))
+		      maps<double>([] (auto & t) { return t.pb; })))
       ZENTHROW(PressureMismatch,
   	       "pb values are not sorted through temperatures");
 

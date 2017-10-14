@@ -11,7 +11,7 @@ CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
 .SUFFIXES: .rb .H .cc
 
-LIBSRCS = correlations-vars.cc
+LIBSRCS = correlations-vars.cc pvt-tuner.cc
 
 SRCS = $(LIBSRCS)
 OBJS = pvt.o
@@ -44,11 +44,12 @@ biblios.cc: $(TOP)/include/correlations/refs.bib $(TOP)/bin/biblio
 	$(RM) $*.cc; 	\	@@\
 	$(BIBLIO) -C -f $(CORRDIR)refs.bib | clang-format -style=Mozilla > $@
 
-pvt.cc: $(CALLS) $(HCORR) 				\
+pvt.cc: $(CALLS) $(HCORR) $(SRCS)				\
 	biblios.cc correlations-vars.cc	\
 	$(TOP)/include/correlations/pvt-correlations.H	\
 	$(TOP)/include/correlations/correlation.H
 	$(RM) -f $@;					\	@@\
+	cat pvt-tuner.cc >> $@;			\	@@\
 	cat biblio-vars.cc >> $@;			\	@@\
 	cat biblios.cc >> $@;				\	@@\
 	cat correlations-vars.cc >> $@;		\	@@\
