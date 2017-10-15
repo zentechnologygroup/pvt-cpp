@@ -89,7 +89,7 @@ struct VectorDesc
       is_sorted(p);
   }
 
-  void validate()
+  void pre_validate()
   {
     if (punit == nullptr or yunit == nullptr)
       ZENTHROW(InvalidUnit, "vector unit are not initialized");
@@ -97,9 +97,6 @@ struct VectorDesc
       ZENTHROW(InvalidUnit, punit->name + " is not a valid pressure unit");
     if (p.size() <= 1)
       ZENTHROW(LengthMismatch, "Pressure array size is less or equal tan 1");
-    if (p.size() != y.size())
-      ZENTHROW(LengthMismatch, "pressure array and " + yname +
-	       " array have different sizes");
     if (not is_sorted(p))
       {
 	p.reverse();
@@ -107,6 +104,13 @@ struct VectorDesc
       }
     if (not is_sorted(p))
       ZENTHROW(SamplesUnsorted, "pressures are not sorted");
+  }
+
+  void post_validate()
+  {
+    if (p.size() != y.size())
+      ZENTHROW(LengthMismatch, "pressure array and " + yname +
+	       " array have different sizes");
   }
 
   VectorDesc(double t, double pb, double bobp, double uod, double uobp,
@@ -138,7 +142,7 @@ struct VectorDesc
     {
       if (not RB_STB::get_instance().is_sibling(*ptr->yunit))
 	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for bo");
-      if (BaseQuantity::is_valid(ptr->bobp, *ptr->yunit))
+      if (not BaseQuantity::is_valid(ptr->bobp, *ptr->yunit))
 	ZENTHROW(OutOfUnitRange, "bobp value is out of unit range");
       if (not ptr->y.all([u = ptr->yunit] (auto b)
 			 { return BaseQuantity::is_valid(b, *u); }))
@@ -148,7 +152,7 @@ struct VectorDesc
     {
       if (not CP::get_instance().is_sibling(*ptr->yunit))
 	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
-      if (BaseQuantity::is_valid(ptr->uobp, *ptr->yunit))
+      if (not BaseQuantity::is_valid(ptr->uobp, *ptr->yunit))
 	ZENTHROW(OutOfUnitRange, "uobp value is out of unit range");
       if (not ptr->y.all([u = ptr->yunit] (auto b)
 			 { return BaseQuantity::is_valid(b, *u); }))
@@ -224,7 +228,7 @@ struct VectorDesc
 	if (not is_inversely_sorted(ptr->y))
 	  ZENTHROW(SamplesUnsorted,
 		   "VectorDesc ctor: uob samples are not inversely sorted");
-	if (BaseQuantity::is_valid(ptr->uod, CP::get_instance()))
+	if (not BaseQuantity::is_valid(ptr->uod, CP::get_instance()))
 	  ZENTHROW(OutOfUnitRange, "uod value is out of unit range");
 	if (ptr->uod > ptr->y.get_first())
 	  ZENTHROW(SampleInvalid, "uod value is greater than first uob value");
@@ -258,8 +262,9 @@ struct VectorDesc
 	"coa", coa_validate, "boa", boa_validate, "uod", uod_validate,
 	"uob", uob_validate, "uoa", uoa_validate, "uo", uo_validate };
 
-    validate();
+    pre_validate();
     dispather.run(yname, this);
+    post_validate(); // this method must be here, after the dispatcher!
   }
 
   VectorDesc() {}

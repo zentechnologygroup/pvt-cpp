@@ -14,7 +14,7 @@ TEST(VectorDesc, simple_operations)
   {
     VectorDesc d;
     ASSERT_FALSE(d.is_valid());
-    ASSERT_ANY_THROW(d.validate());
+    ASSERT_ANY_THROW(d.pre_validate());
   }
 
   {
@@ -297,12 +297,135 @@ TEST(VectorCtor, rs)
 
 TEST(VectorCtor, bob)
 {
+  // valid configurations
+  ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {820, 600, 450, 300, 15},
+			     &psia::get_instance(), "bob",
+			     {1.0919, 1.0865, 1.0790, 1.0713, 1.0228},
+			     &RB_STB::get_instance()));
 
+  ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {15, 300, 450, 600, 820},
+  			     &psia::get_instance(), "bob",
+  			     {1.0228, 1.0713, 1.0790, 1.0865, 1.0919},
+			     &RB_STB::get_instance()));
+
+  // Invalid configurations
+
+  // bob values are not sorted
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {15, 300, 450, 600, 820},
+  			  &psia::get_instance(), "bob",
+  			  {1.0228, 1.0713, 1.0865, 1.0790, 1.0919},
+			  &RB_STB::get_instance()), SamplesUnsorted);
+
+  // pressure values are not sorted
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {15, 300, 600, 450, 820},
+  			  &psia::get_instance(), "bob",
+  			  {1.0228, 1.0713, 1.0790, 1.0865, 1.0919},
+			  &RB_STB::get_instance()), SamplesUnsorted);
+
+  // last pressure value i p array is not the pb
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {15, 300, 450, 600, 820.1},
+  			  &psia::get_instance(), "bob",
+  			  {1.0228, 1.0713, 1.0790, 1.0865, 1.0919},
+			  &RB_STB::get_instance()), PressureMismatch);
+
+  // a bob value is out of unit range
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {15, 300, 450, 600, 820},
+  			  &psia::get_instance(), "bob",
+  			  {1.0228, 1.0713, 1.0790, 1.0865, 11.0919}, // <
+			  &RB_STB::get_instance()), OutOfUnitRange);
+
+  // a p value is out of unit range
+  ASSERT_THROW(VectorDesc(125, 35000, 1.0919, -1, -1, {15, 300, 450, 600, 35000},
+  			  &psia::get_instance(), "bob",
+  			  {-5.1e7, 35, 47, 62, 80}, &RB_STB::get_instance()),
+  	       OutOfUnitRange);
+
+  // invalid unit for pressure
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {820, 600, 450, 300, 15},
+  			  &psia_1::get_instance(), "bob",
+  			  {80, 62, 47, 35, 0}, &RB_STB::get_instance()),
+  	       InvalidUnit);
+  // invalid unit for bob
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {15, 300, 450, 600, 820},
+  			  &psia::get_instance(), "bob",
+  			  {-5.1e7, 35, 47, 62, 80}, &STB_MMscf::get_instance()),
+  	       InvalidUnit);
 }
 
 TEST(VectorCtor, coa)
 {
+  // valid configurations
 
+  try
+    {
+      // TODO: valores de presión son dobles porque se calcula el promedio. 
+      VectorDesc v(125, 820, -1, -1, -1,
+			     {3000, 2800, 2600, 2400, 2200, 2000, 1800,
+			      1600, 1400, 1200, 1000, 2800, 2600, 2400, 2200,
+			      2000, 1800, 1600, 1400, 1200, 1000, 820},
+			     &psia::get_instance(), "coa",
+			     {3.76E-06, 4.07E-06, 4.28E-06, 4.45E-06, 4.62E-06,
+			      4.76E-06, 4.86E-06, 5.24E-06, 5.51E-06, 5.61E-06,
+				 6.00E-06}, &RB_STB::get_instance());
+    }
+  catch (exception & e) { cout << e.what() << endl; }
+
+  ASSERT_NO_THROW(VectorDesc(125, 820, -1, -1, -1,
+			     {3000, 2800, 2600, 2400, 2200, 2000, 1800,
+			      1600, 1400, 1200, 1000, 2800, 2600, 2400, 2200,
+			      2000, 1800, 1600, 1400, 1200, 1000, 820},
+			     &psia::get_instance(), "coa",
+			     {3.76E-06, 4.07E-06, 4.28E-06, 4.45E-06, 4.62E-06,
+			      4.76E-06, 4.86E-06, 5.24E-06, 5.51E-06, 5.61E-06,
+			      6.00E-06}, &RB_STB::get_instance()));
+
+  ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {15, 300, 450, 600, 820},
+  			     &psia::get_instance(), "coa",
+  			     {1.0228, 1.0713, 1.0790, 1.0865, 1.0919},
+			     &RB_STB::get_instance()));
+
+  // Invalid configurations
+
+  // coa values are not sorted
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {15, 300, 450, 600, 820},
+  			  &psia::get_instance(), "coa",
+  			  {1.0228, 1.0713, 1.0865, 1.0790, 1.0919},
+			  &RB_STB::get_instance()), SamplesUnsorted);
+
+  // pressure values are not sorted
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {15, 300, 600, 450, 820},
+  			  &psia::get_instance(), "coa",
+  			  {1.0228, 1.0713, 1.0790, 1.0865, 1.0919},
+			  &RB_STB::get_instance()), SamplesUnsorted);
+
+  // last pressure value i p array is not the pb
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {15, 300, 450, 600, 820.1},
+  			  &psia::get_instance(), "coa",
+  			  {1.0228, 1.0713, 1.0790, 1.0865, 1.0919},
+			  &RB_STB::get_instance()), PressureMismatch);
+
+  // a coa value is out of unit range
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {15, 300, 450, 600, 820},
+  			  &psia::get_instance(), "coa",
+  			  {1.0228, 1.0713, 1.0790, 1.0865, 11.0919}, // <
+			  &RB_STB::get_instance()), OutOfUnitRange);
+
+  // a p value is out of unit range
+  ASSERT_THROW(VectorDesc(125, 35000, 1.0919, -1, -1, {15, 300, 450, 600, 35000},
+  			  &psia::get_instance(), "coa",
+  			  {-5.1e7, 35, 47, 62, 80}, &RB_STB::get_instance()),
+  	       OutOfUnitRange);
+
+  // invalid unit for pressure
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {820, 600, 450, 300, 15},
+  			  &psia_1::get_instance(), "coa",
+  			  {80, 62, 47, 35, 0}, &RB_STB::get_instance()),
+  	       InvalidUnit);
+  // invalid unit for coa
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, -1, -1, {15, 300, 450, 600, 820},
+  			  &psia::get_instance(), "coa",
+  			  {-5.1e7, 35, 47, 62, 80}, &STB_MMscf::get_instance()),
+  	       InvalidUnit);
 }
 
 TEST(VectorCtor, boa)
