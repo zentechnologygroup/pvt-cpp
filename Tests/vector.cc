@@ -1,6 +1,7 @@
 
 # include <gmock/gmock.h>
 
+# include <tclap/CmdLine.h>
 # include <ah-zip.H>
 
 # include "calibrate.H"
@@ -8,6 +9,7 @@
 using namespace std;
 using namespace testing;
 using namespace Aleph;
+using namespace TCLAP;
 
 TEST(VectorDesc, simple_operations)
 {
@@ -737,10 +739,106 @@ TEST(VectorCtor, uob)
 
 TEST(VectorCtor, uoa)
 {
+  // --property "uoa CP Fahrenheit 125 psia 820 30045.5  3000 2700 2400 2100 1800 1500 1200 1000 820 12891 11384 10377 9530 8762 8240 7869 7638 7500"
 
+  const Array<double> pressure = {3000, 2700, 2400, 2100, 1800, 1500, 1200, 1000};
+  const Array<double> uoa = {12891, 11384, 10377, 9530, 8762, 8240, 7869, 7638};
+
+  
+  
+  ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, 30000, 7500, 
+			     pressure, &psia::get_instance(), "uoa",
+			     uoa, &CP::get_instance()));
+
+  ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, 30000, 7500,
+			     pressure.rev(), &psia::get_instance(), "uoa",
+			     uoa.rev(), &CP::get_instance()));
+
+  // Invalid uod
+ ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, 7638.1,
+			 pressure.rev(), &psia::get_instance(), "uoa",
+			 uoa.rev(), &CP::get_instance()), OutOfUnitRange);
+
+ // Invalid uobp
+ ASSERT_THROW(VectorDesc(125, 820, 1.0919, 30000, 7638.1,
+			 pressure.rev(), &psia::get_instance(), "uoa",
+			 uoa.rev(), &CP::get_instance()), SampleInvalid); 
+
+  // uoa values are not sorted
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, 30000, 7500,
+			  {3000, 2700, 2400, 2100, 1800, 1500, 1200, 1000},
+  			  &psia::get_instance(), "uoa",
+			  {12891, 11384, 10377, 9530, 8240, 8762, 7869, 7638},
+			  &CP::get_instance()), SamplesUnsorted);
+
+  // pressure values are not sorted
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, 7500,
+			  {820, 550, 650, 450},
+  			  &psia::get_instance(), "uoa",
+  			  {7500, 11350, 14000, 18120},
+			  &CP::get_instance()), SamplesUnsorted);
+
+  // pressure array size is unexpected
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, 30000, 7500,
+			  {3000, 2700, 2400, 2100, 1500, 1200, 1000},
+  			  &psia::get_instance(), "uoa",
+			  {12891, 11384, 10377, 9530, 8762, 8240, 7869, 7638},
+			  &CP::get_instance()), LengthMismatch);
+
+  // a uoa value is out of unit range
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, 30000, 7500,
+			  {3000, 2700, 2400, 2100, 1800, 1500, 1200, 1000},
+  			  &psia::get_instance(), "uoa",
+			  {1e11, 11384, 10377, 9530, 8762, 8240, 7869, 7638},
+			  &CP::get_instance()), OutOfUnitRange);
+
+  // a p value is out of unit range
+  ASSERT_THROW(VectorDesc(125, 35000, 1.0919, 30000, 7500,
+			  {36000, 2700, 2400, 2100, 1800, 1500, 1200, 1000},
+  			  &psia::get_instance(), "uoa",
+			  {12891, 11384, 10377, 9530, 8762, 8240, 7869, 7638},
+			  &CP::get_instance()),
+  	       OutOfUnitRange);
+
+  // invalid unit for pressure
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, 30000, 7500,
+			  pressure, &CP::get_instance(), "uoa",
+			  uoa, &CP::get_instance()),
+  	       InvalidUnit);
+  
+  // invalid unit for uoa
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, 30000, 7500,
+			  pressure, &psia::get_instance(), "uoa",
+			  uoa, &psia::get_instance()),
+  	       InvalidUnit);
 }
 
 TEST(VectorCtor, uo)
 {
 
+}
+
+
+
+
+
+CmdLine cmd = { "vector", ' ', "0" };
+
+ValueArg<unsigned long> seed_arg = { "s", "seed", "seed", false, 0, "seed", cmd };
+ValueArg<size_t> num_tests =
+  { "n", "num-tests", "number of tests", false, 1000, "num", cmd };
+
+int main(int argc, char** argv)
+{
+  cmd.parse(argc, argv);
+
+  gsl_rng_set(r.get(), seed_arg.getValue());
+
+  uo_list = to_vector(range(num_tests.getValue()).maps<ArrayP>([] (auto)
+    {
+      return generate_random_uo();
+    }));
+  
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

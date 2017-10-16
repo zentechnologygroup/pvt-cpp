@@ -123,213 +123,10 @@ struct VectorDesc
 	       " array have different sizes");
   }
 
+  inline 
   VectorDesc(double t, double pb, double bobp, double uod, double uobp,
 	     const Array<double> & p, const Unit * punit,
-	     const string & yname, const Array<double> & y, const Unit * yunit)
-    : t(t), pb(pb), bobp(bobp), uod(uod), uobp(uobp), p(p), punit(punit),
-      yname(yname), yunit(yunit), y(y)
-  {
-    if (t <= 0)
-      ZENTHROW(InvalidRange, "t value " + ::to_string(t) +
-	       " less or equal to zero");
-    if (pb <= 0 and yname != "uo")
-      ZENTHROW(InvalidRange, "pb value " + ::to_string(pb) +
-	       " less or equal to zero");
-
-    static auto validate_pb = [] (VectorDesc* ptr)
-      {
-	if (not BaseQuantity::is_valid(ptr->pb, *ptr->punit))
-	  ZENTHROW(OutOfUnitRange, "pb is out of unit range");
-      };
-    static auto validate_pb_in_p =
-      [] (VectorDesc* ptr, const string & target_name)
-      {
-	if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
-	  ZENTHROW(PressureMismatch,
-		   "VectorDesc ctor (" + target_name +
-		   "): p vector does not contain pb");
-      };
-    static auto validate_bo = [] (VectorDesc* ptr)
-    {
-      if (not RB_STB::get_instance().is_sibling(*ptr->yunit))
-	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for bo");
-      if (not BaseQuantity::is_valid(ptr->bobp, *ptr->yunit))
-	ZENTHROW(OutOfUnitRange, "bobp value is out of unit range");
-      if (not ptr->y.all([u = ptr->yunit] (auto b)
-			 { return BaseQuantity::is_valid(b, *u); }))
-	ZENTHROW(OutOfUnitRange, "at least a bo value is out of its unit range");
-    };
-    static auto validate_uo = [] (VectorDesc* ptr)
-    {
-      if (not CP::get_instance().is_sibling(*ptr->yunit))
-	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
-      if (not BaseQuantity::is_valid(ptr->uobp, *ptr->yunit))
-	ZENTHROW(OutOfUnitRange, "uobp value is out of unit range");
-      if (not ptr->y.all([u = ptr->yunit] (auto b)
-			 { return BaseQuantity::is_valid(b, *u); }))
-	ZENTHROW(OutOfUnitRange, "at least an uo value is out of its unit range");
-    };    
-    static auto pb_validate = [] (VectorDesc*)
-      {
-	ZENTHROW(InvalidTargetName,
-		 "VectorDesc ctor (pb): pb cannot be a target name");
-      };
-    static auto rs_validate = [] (VectorDesc* ptr)
-      {
-	ptr->validate_sort();
-	validate_pb(ptr);
-	if (not SCF_STB::get_instance().is_sibling(*ptr->yunit))
-	  ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for coa");
-	if (ptr->p.get_last() != ptr->pb)
-	  ZENTHROW(PressureMismatch,
-		   "VectorDesc ctor (rs): last value of p is not pb");
-	if (not is_sorted(ptr->y))
-	  ZENTHROW(SamplesUnsorted,
-		   "VectorDesc ctor: rs samples are not sorted");
-	if (not ptr->y.all([u = ptr->yunit] (auto r)
-			   { return BaseQuantity::is_valid(r, *u); }))
-	  ZENTHROW(OutOfUnitRange,
-		   "at least a value of rs is out of its unit range");
-      };
-    static auto bob_validate = [] (VectorDesc* ptr)
-      {
-	ptr->validate_sort();
-	validate_pb(ptr);
-	validate_pb_in_p(ptr, "bob");
-	validate_bo(ptr);
-	if (not is_sorted(ptr->y))
-	  ZENTHROW(SamplesUnsorted,
-		   "VectorDesc ctor: bob samples are sorted");
-	if (not ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
-	  ZENTHROW(SampleInvalid,
-		   "VectorDesc ctor: bob samples does not have bobp");
-	if (ptr->p.get_last() != ptr->pb)
-	  ZENTHROW(PressureMismatch,
-		   "VectorDesc ctor (bob): last value of p is not pb");
-	if (ptr->y.get_last() != ptr->bobp)
-	  ZENTHROW(PressureMismatch,
-		   "VectorDesc ctor: last value of bob vector is not bobp");
-      };
-    static auto coa_validate = [] (VectorDesc* ptr)
-      {
-	validate_pb(ptr);
-	validate_pb_in_p(ptr, "coa");
-	if (not psia_1::get_instance().is_sibling(*ptr->yunit))
-	  ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
-	const size_t & n = ptr->p.size();
-	if ((n % 2) != 0)
-	  ZENTHROW(LengthMismatch, "pressure array size must be even");
-	if (n != 2*ptr->y.size())
-	  ZENTHROW(LengthMismatch, "pressure array must twice size than coa");
-	Array<double> pressures(n/2);
-	for (size_t i = 0, j = n/2; j < n; ++i, ++j)
-	  pressures.append((ptr->p(i) + ptr->p(j))/2);
-	ptr->p.swap(pressures);
-	ptr->validate_sort();
-	if (not is_inversely_sorted(ptr->y))
-	  ZENTHROW(SamplesUnsorted,
-		   "VectorDesc ctor: coa samples are not inversely sorted");
-	if (not ptr->y.all([u = ptr->yunit] (auto c)
-			   { return BaseQuantity::is_valid(c, *u); }))
-	  ZENTHROW(OutOfUnitRange,
-		   "at least a coa value is out of its unit range");
-      };
-    static auto boa_validate = [] (VectorDesc* ptr)
-      {
-	ptr->validate_sort();
-	validate_pb(ptr);
-	validate_bo(ptr);
-	if (not is_inversely_sorted(ptr->y))
-	  ZENTHROW(SamplesUnsorted,
-		   "VectorDesc ctor: boa samples are not inversely sorted");
-	if (ptr->y.get_first() != ptr->bobp)
-	  {
-	    ptr->p.insert(nextafter(ptr->pb, numeric_limits<double>::max()));
-	    ptr->y.insert(nextafter(ptr->bobp, numeric_limits<double>::min()));
-	  }
-
-	if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
-	  ZENTHROW(PressureMismatch,
-		   "VectorDesc ctor (boa): p vector does not contain pb");
-	if (not ptr->y.all([u = ptr->yunit] (auto b)
-			   { return BaseQuantity::is_valid(b, *u); }))
-	  ZENTHROW(OutOfUnitRange,
-		   "at least a boa value is out of its unit range");
-      };
-    static auto uod_validate = [] (VectorDesc*)
-      {
-	ZENTHROW(InvalidTargetName,
-		 "VectorDesc ctor (uod): uod cannot be a target name");
-      };
-    static auto uob_validate = [] (VectorDesc* ptr)
-      {
-	ptr->validate_sort();
-	validate_pb(ptr);
-	validate_pb_in_p(ptr, "uob");
-	validate_uo(ptr);
-	if (not is_inversely_sorted(ptr->y))
-	  ZENTHROW(SamplesUnsorted,
-		   "VectorDesc ctor: uob samples are not inversely sorted");
-	if (BaseQuantity::is_valid(ptr->uod, *ptr->yunit)) // was uod defined?
-	  { // yes ==> validate that first entries correspond to it
-	     if (ptr->y(0) != ptr->uod)
-	       ZENTHROW(SampleInvalid,
-			"uod sample is not the first value of uob");
-	     
-	     if (ptr->p(0) != 0)
-	       ZENTHROW(SampleInvalid, "first pressure value is not "
-			"zero given that uod value is present");
-	  } 
-	else
-	  { // uod value is not inside this set ==> we compute it
-	    LineEq l = { ptr->p(0), ptr->y(0), ptr->p(1), ptr->y(1) };
-	    ptr->p.insert(0);
-	    ptr->uod = l(0); // extrapolated to 0
-	    ptr->y.insert(ptr->uod); 
-	  }
-	if (ptr->p.get_first() != 0)
-	  ZENTHROW(SampleInvalid, "first pressure value is not zero");
-	if (ptr->uod > ptr->y.get_first())
-	  ZENTHROW(SampleInvalid, "uod value is greater than first uob value");
-	if (ptr->y.get_first() != ptr->uod)
-	  {
-	    ptr->p.insert(0);
-	    ptr->y.insert(ptr->uod);
-	  }
-	if (ptr->y.get_last() != ptr->uobp)
-	  ZENTHROW(OutOfRange, "uobp is not equal than last value of uob");
-      };
-    static auto uoa_validate = [] (VectorDesc* ptr)
-      {
-	ptr->validate_sort();
-	validate_pb(ptr);
-	validate_uo(ptr);
-	if (not is_sorted(ptr->y))
-	  ZENTHROW(SamplesUnsorted,
-		   "VectorDesc ctor: uob samples are not sorted");
-	if (ptr->y.get_first() < ptr->uobp)
-	  ZENTHROW(OutOfRange, "uobp value is less than first uoa");
-	if (ptr->y.get_first() != ptr->uobp)
-	  {
-	    auto vmax = numeric_limits<double>::max();
-	    ptr->p.insert(nextafter(ptr->pb, vmax));
-	    ptr->y.insert(nextafter(ptr->uobp, vmax));
-	  }
-      };
-    static auto uo_validate = [] (VectorDesc*)
-      {
-	// TODO efectuar las validaciones del caso
-      };
-    
-    static AHDispatcher<string, void (*)(VectorDesc*)> dispather =
-      { "pb", pb_validate, "rs", rs_validate, "bob", bob_validate,
-	"coa", coa_validate, "boa", boa_validate, "uod", uod_validate,
-	"uob", uob_validate, "uoa", uoa_validate, "uo", uo_validate };
-
-    pre_validate();
-    dispather.run(yname, this);
-    post_validate(); // this method must be here, after the dispatcher!
-  }
+	     const string & yname, const Array<double> & y, const Unit * yunit);
 
   VectorDesc() {}
 
@@ -1987,5 +1784,221 @@ struct PvtData
       }
   }
 };
+
+
+VectorDesc::VectorDesc(double t, double pb, double bobp,
+		       double uod, double uobp,
+		       const Array<double> & p, const Unit * punit,
+		       const string & yname,
+		       const Array<double> & y, const Unit * yunit)
+  : t(t), pb(pb), bobp(bobp), uod(uod), uobp(uobp), p(p), punit(punit),
+    yname(yname), yunit(yunit), y(y)
+{
+  if (t <= 0)
+    ZENTHROW(InvalidRange, "t value " + ::to_string(t) +
+	     " less or equal to zero");
+  if (pb <= 0 and yname != "uo")
+    ZENTHROW(InvalidRange, "pb value " + ::to_string(pb) +
+	     " less or equal to zero");
+
+  static auto validate_pb = [] (VectorDesc* ptr)
+    {
+      if (not BaseQuantity::is_valid(ptr->pb, *ptr->punit))
+	ZENTHROW(OutOfUnitRange, "pb is out of unit range");
+    };
+  static auto validate_pb_in_p =
+    [] (VectorDesc* ptr, const string & target_name)
+    {
+      if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
+	ZENTHROW(PressureMismatch,
+		 "VectorDesc ctor (" + target_name +
+		 "): p vector does not contain pb");
+    };
+  static auto validate_bo = [] (VectorDesc* ptr)
+    {
+      if (not RB_STB::get_instance().is_sibling(*ptr->yunit))
+	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for bo");
+      if (not BaseQuantity::is_valid(ptr->bobp, *ptr->yunit))
+	ZENTHROW(OutOfUnitRange, "bobp value is out of unit range");
+      if (not ptr->y.all([u = ptr->yunit] (auto b)
+			 { return BaseQuantity::is_valid(b, *u); }))
+	ZENTHROW(OutOfUnitRange, "at least a bo value is out of its unit range");
+    };
+  static auto validate_uo = [] (VectorDesc* ptr)
+    {
+      if (not CP::get_instance().is_sibling(*ptr->yunit))
+	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
+      if (not BaseQuantity::is_valid(ptr->uobp, *ptr->yunit))
+	ZENTHROW(OutOfUnitRange, "uobp value is out of unit range");
+      if (not ptr->y.all([u = ptr->yunit] (auto b)
+			 { return BaseQuantity::is_valid(b, *u); }))
+	ZENTHROW(OutOfUnitRange, "at least an uo value is out of its unit range");
+    };    
+  static auto pb_validate = [] (VectorDesc*)
+    {
+      ZENTHROW(InvalidTargetName,
+	       "VectorDesc ctor (pb): pb cannot be a target name");
+    };
+  static auto rs_validate = [] (VectorDesc* ptr)
+    {
+      ptr->validate_sort();
+      validate_pb(ptr);
+      if (not SCF_STB::get_instance().is_sibling(*ptr->yunit))
+	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for coa");
+      if (ptr->p.get_last() != ptr->pb)
+	ZENTHROW(PressureMismatch,
+		 "VectorDesc ctor (rs): last value of p is not pb");
+      if (not is_sorted(ptr->y))
+	ZENTHROW(SamplesUnsorted,
+		 "VectorDesc ctor: rs samples are not sorted");
+      if (not ptr->y.all([u = ptr->yunit] (auto r)
+			 { return BaseQuantity::is_valid(r, *u); }))
+	ZENTHROW(OutOfUnitRange,
+		 "at least a value of rs is out of its unit range");
+    };
+  static auto bob_validate = [] (VectorDesc* ptr)
+    {
+      ptr->validate_sort();
+      validate_pb(ptr);
+      validate_pb_in_p(ptr, "bob");
+      validate_bo(ptr);
+      if (not is_sorted(ptr->y))
+	ZENTHROW(SamplesUnsorted,
+		 "VectorDesc ctor: bob samples are sorted");
+      if (not ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
+	ZENTHROW(SampleInvalid,
+		 "VectorDesc ctor: bob samples does not have bobp");
+      if (ptr->p.get_last() != ptr->pb)
+	ZENTHROW(PressureMismatch,
+		 "VectorDesc ctor (bob): last value of p is not pb");
+      if (ptr->y.get_last() != ptr->bobp)
+	ZENTHROW(PressureMismatch,
+		 "VectorDesc ctor: last value of bob vector is not bobp");
+    };
+  static auto coa_validate = [] (VectorDesc* ptr)
+    {
+      validate_pb(ptr);
+      validate_pb_in_p(ptr, "coa");
+      if (not psia_1::get_instance().is_sibling(*ptr->yunit))
+	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
+      const size_t & n = ptr->p.size();
+      if ((n % 2) != 0)
+	ZENTHROW(LengthMismatch, "pressure array size must be even");
+      if (n != 2*ptr->y.size())
+	ZENTHROW(LengthMismatch, "pressure array must twice size than coa");
+      Array<double> pressures(n/2);
+      for (size_t i = 0, j = n/2; j < n; ++i, ++j)
+	pressures.append((ptr->p(i) + ptr->p(j))/2);
+      ptr->p.swap(pressures);
+      ptr->validate_sort();
+      if (not is_inversely_sorted(ptr->y))
+	ZENTHROW(SamplesUnsorted,
+		 "VectorDesc ctor: coa samples are not inversely sorted");
+      if (not ptr->y.all([u = ptr->yunit] (auto c)
+			 { return BaseQuantity::is_valid(c, *u); }))
+	ZENTHROW(OutOfUnitRange,
+		 "at least a coa value is out of its unit range");
+    };
+  static auto boa_validate = [] (VectorDesc* ptr)
+    {
+      ptr->validate_sort();
+      validate_pb(ptr);
+      validate_bo(ptr);
+      if (not is_inversely_sorted(ptr->y))
+	ZENTHROW(SamplesUnsorted,
+		 "VectorDesc ctor: boa samples are not inversely sorted");
+      if (ptr->y.get_first() != ptr->bobp)
+	{
+	  ptr->p.insert(nextafter(ptr->pb, numeric_limits<double>::max()));
+	  ptr->y.insert(nextafter(ptr->bobp, numeric_limits<double>::min()));
+	}
+
+      if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
+	ZENTHROW(PressureMismatch,
+		 "VectorDesc ctor (boa): p vector does not contain pb");
+      if (not ptr->y.all([u = ptr->yunit] (auto b)
+			 { return BaseQuantity::is_valid(b, *u); }))
+	ZENTHROW(OutOfUnitRange,
+		 "at least a boa value is out of its unit range");
+    };
+  static auto uod_validate = [] (VectorDesc*)
+    {
+      ZENTHROW(InvalidTargetName,
+	       "VectorDesc ctor (uod): uod cannot be a target name");
+    };
+  static auto uob_validate = [] (VectorDesc* ptr)
+    {
+      ptr->validate_sort();
+      validate_pb(ptr);
+      validate_pb_in_p(ptr, "uob");
+      validate_uo(ptr);
+      if (not is_inversely_sorted(ptr->y))
+	ZENTHROW(SamplesUnsorted,
+		 "VectorDesc ctor: uob samples are not inversely sorted");
+      if (BaseQuantity::is_valid(ptr->uod, *ptr->yunit)) // was uod defined?
+	{ // yes ==> validate that first entries correspond to it
+	  if (ptr->y(0) != ptr->uod)
+	    ZENTHROW(SampleInvalid,
+		     "uod sample is not the first value of uob");
+	     
+	  if (ptr->p(0) != 0)
+	    ZENTHROW(SampleInvalid, "first pressure value is not "
+		     "zero given that uod value is present");
+	} 
+      else
+	{ // uod value is not inside this set ==> we compute it
+	  LineEq l = { ptr->p(0), ptr->y(0), ptr->p(1), ptr->y(1) };
+	  ptr->p.insert(0);
+	  ptr->uod = l(0); // extrapolated to 0
+	  ptr->y.insert(ptr->uod); 
+	}
+      if (ptr->p.get_first() != 0)
+	ZENTHROW(SampleInvalid, "first pressure value is not zero");
+      if (ptr->uod > ptr->y.get_first())
+	ZENTHROW(SampleInvalid, "uod value is greater than first uob value");
+      if (ptr->y.get_first() != ptr->uod)
+	{
+	  ptr->p.insert(0);
+	  ptr->y.insert(ptr->uod);
+	}
+      if (ptr->y.get_last() != ptr->uobp)
+	ZENTHROW(OutOfRange, "uobp is not equal than last value of uob");
+    };
+  static auto uoa_validate = [] (VectorDesc* ptr)
+    {
+      ptr->validate_sort();
+      validate_pb(ptr);
+      if (not BaseQuantity::is_valid(ptr->uod, *ptr->yunit))
+	ZENTHROW(OutOfUnitRange, "uod value is out of its unit range");
+      if (ptr->p.get_first() < ptr->pb)
+	ZENTHROW(SampleInvalid, "first p value is greater or equal that pb");
+      if (ptr->uobp >= ptr->y.get_first())
+	ZENTHROW(SampleInvalid, "uobp es greater or equal that first uoa value");
+      validate_uo(ptr);
+      if (not is_sorted(ptr->y))
+	ZENTHROW(SamplesUnsorted,
+		 "VectorDesc ctor: uob samples are not sorted");
+      if (ptr->y.get_first() != ptr->uobp)
+	{
+	  auto vmax = numeric_limits<double>::max();
+	  ptr->p.insert(nextafter(ptr->pb, vmax));
+	  ptr->y.insert(nextafter(ptr->uobp, vmax));
+	}
+    };
+  static auto uo_validate = [] (VectorDesc*)
+    {
+      // TODO efectuar las validaciones del caso
+    };
+    
+  static AHDispatcher<string, void (*)(VectorDesc*)> dispather =
+    { "pb", pb_validate, "rs", rs_validate, "bob", bob_validate,
+      "coa", coa_validate, "boa", boa_validate, "uod", uod_validate,
+      "uob", uob_validate, "uoa", uoa_validate, "uo", uo_validate };
+
+  pre_validate();
+  dispather.run(yname, this);
+  post_validate(); // this method must be here, after the dispatcher!
+}
+
 
 # endif

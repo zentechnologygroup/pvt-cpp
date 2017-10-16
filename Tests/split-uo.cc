@@ -19,7 +19,7 @@ struct UoBoundTest : public TestWithParam<ArrayP>
   const Array<double> & uo = p.second;
   VectorDesc v;
   UoBoundTest() : v(200, 3000, -1, -1, -1, pressure, &psia::get_instance(), "uo",
-		    &CP::get_instance(), uo) { cout << "UoBoundTest" << endl; }
+		    uo, &CP::get_instance()) { cout << "UoBoundTest" << endl; }
 };
 
 TEST_P(UoBoundTest, uo_split)
@@ -73,11 +73,6 @@ ValueArg<size_t> num_tests =
 
 int main(int argc, char** argv)
 {
-//   // Disables elapsed time by default.
-//   //::testing::GTEST_FLAG(print_time) = false;
-
-  // This allows the user to override the flag on the command line.  
-
   cmd.parse(argc, argv);
 
   gsl_rng_set(r.get(), seed_arg.getValue());
@@ -86,6 +81,7 @@ int main(int argc, char** argv)
     {
       return generate_random_uo();
     }));
+  
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
