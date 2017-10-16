@@ -597,71 +597,140 @@ TEST(VectorCtor, boa)
 
 TEST(VectorCtor, uob)
 {
-  //--property "uob CP Fahrenheit 125 psia 820  820 650 550 450 7500 11350 14000 18120
-  // valid configurations
-  ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-			     {820, 650, 550, 450},
-			     &psia::get_instance(), "uob",
-			     {7500, 11350, 14000, 18120},
-			     &CP::get_instance()));
+  {
+    ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, 30000, 7500, 
+			       {820, 650, 550, 450, 0},
+			       &psia::get_instance(), "uob",
+			       {7500, 11350, 14000, 18120, 30000},
+			       &CP::get_instance()));
+        
+    VectorDesc v(125, 820, 1.0919, 30000, 7500,
+		 {820, 650, 550, 450, 0}, &psia::get_instance(), "uob",
+		 {7500, 11350, 14000, 18120, 30000}, &CP::get_instance());
+    ASSERT_EQ(v.uod, 30000);
+    ASSERT_EQ(v.uod, v.y.get_first());
+    ASSERT_EQ(v.p.get_first(), 0);
+    ASSERT_TRUE(eq(v.p, build_array<double>(820, 650, 550, 450, 0).rev()));
+    ASSERT_TRUE(eq(v.y, build_array<double>(7500, 11350, 14000, 18120, 30000).rev()));
+  }
 
-  ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-			     DynList<double>({820, 650, 550, 450}).rev(),
-			     &psia::get_instance(), "uob",
-		   DynList<double>({7500, 11350, 14000, 18120}).rev(),
-			     &CP::get_instance()));
+  {
+    ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, 30000, 7500,
+			       DynList<double>({820, 650, 550, 450, 0}).rev(),
+			       &psia::get_instance(), "uob",
+			       DynList<double>({7500, 11350, 14000, 18120, 30000}).rev(),
+			       &CP::get_instance()));
 
-  // todo casos con uod incluido
-  // Invalid configurations
+    VectorDesc v(125, 820, 1.0919, 30000, 7500,
+		 DynList<double>({820, 650, 550, 450, 0}).rev(),
+		 &psia::get_instance(), "uob",
+		 DynList<double>({7500, 11350, 14000, 18120, 30000}).rev(),
+		 &CP::get_instance());
+    ASSERT_EQ(v.uod, 30000);
+    ASSERT_EQ(v.uod, v.y.get_first());
+    ASSERT_EQ(v.p.get_first(), 0);
+    ASSERT_TRUE(eq(v.p, build_array<double>(820, 650, 550, 450, 0).rev()));
+    ASSERT_TRUE(eq(v.y, build_array<double>(7500, 11350, 14000, 18120, 30000).rev()));
+  }
+
+  // cases not specifying uod
+  {
+    ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, 7500, 
+			       {820, 650, 550, 450, 0},
+			       &psia::get_instance(), "uob",
+			       {7500, 11350, 14000, 18120, 30000},
+			       &CP::get_instance()));
+        
+    VectorDesc v(125, 820, 1.0919, PVT_INVALID_VALUE, 7500,
+		 {820, 650, 550, 450}, &psia::get_instance(), "uob",
+		 {7500, 11350, 14000, 18120}, &CP::get_instance());
+    ASSERT_EQ(v.uod, v.y.get_first());
+    ASSERT_EQ(v.p.get_first(), 0);
+    ASSERT_TRUE(eq(v.p, build_array<double>(820, 650, 550, 450, 0).rev()));
+    ASSERT_TRUE(eq(v.y, build_array<double>(7500, 11350, 14000, 18120, v.uod).rev()));
+  }
+
+  {
+    ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, 7500,
+			       DynList<double>({820, 650, 550, 450}).rev(),
+			       &psia::get_instance(), "uob",
+			       DynList<double>({7500, 11350, 14000, 18120}).rev(),
+			       &CP::get_instance()));
+
+    VectorDesc v(125, 820, 1.0919, PVT_INVALID_VALUE, 7500,
+		 DynList<double>({820, 650, 550, 450}).rev(),
+		 &psia::get_instance(), "uob",
+		 DynList<double>({7500, 11350, 14000, 18120}).rev(),
+		 &CP::get_instance());
+    ASSERT_EQ(v.uod, v.y.get_first());
+    ASSERT_EQ(v.p.get_first(), 0);
+    ASSERT_TRUE(eq(v.p, build_array<double>(820, 650, 550, 450, 0).rev()));
+    ASSERT_TRUE(eq(v.y, build_array<double>(7500, 11350, 14000, 18120, v.uod).rev()));
+  }
+
+  // Invalid uod
+ ASSERT_THROW(VectorDesc(125, 820, 1.0919, 17000, 7500,
+			 DynList<double>({820, 650, 550, 450}).rev(),
+			 &psia::get_instance(), "uob",
+			 DynList<double>({7500, 11350, 14000, 18120}).rev(),
+			 &CP::get_instance()), SampleInvalid);
+
+ // Invalid uobp
+ ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, 7500.1,
+			 DynList<double>({820, 650, 550, 450}).rev(),
+			 &psia::get_instance(), "uob",
+			 DynList<double>({7500, 11350, 14000, 18120}).rev(),
+			 &CP::get_instance()), OutOfRange); 
 
   // uob values are not sorted
-  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-			  {},
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, 7500,
+			  {820, 650, 550, 450},
   			  &psia::get_instance(), "uob",
-  			  {},
+  			  {7500, 14000, 11350, 18120},
 			  &CP::get_instance()), SamplesUnsorted);
 
   // pressure values are not sorted
-  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-			  {},
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, 7500,
+			  {820, 550, 650, 450},
   			  &psia::get_instance(), "uob",
-  			  {},
+  			  {7500, 11350, 14000, 18120},
 			  &CP::get_instance()), SamplesUnsorted);
 
   // pressure array size is unexpected
-  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-			  {},
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, 7500,
+			  {820, 550, 450},
   			  &psia::get_instance(), "uob",
-			  {},
+			  {7500, 11350, 14000, 18120},
 			  &CP::get_instance()), LengthMismatch);
 
   // a uob value is out of unit range
-  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-			  {},
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, 7500,
+			  {820, 650, 550, 450},
   			  &psia::get_instance(), "uob",
-			  /* this --> */ {}, 
+			  {7500, 11350, 14000, 1e11}, // <-- this
 			  &CP::get_instance()), OutOfUnitRange);
 
   // a p value is out of unit range
-  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-			  {},
+  ASSERT_THROW(VectorDesc(125, 35000, 1.0919, PVT_INVALID_VALUE, 7500,
+			  {35000, 650, 550, 450},
   			  &psia::get_instance(), "uob",
-  			  {}, 
+  			  {7500, 11350, 14000, 18120}, 
 			  &CP::get_instance()),
   	       OutOfUnitRange);
 
   // invalid unit for pressure
-  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-			  {},
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, 7500,
+			  {820, 650, 550, 450},
   			  &CP::get_instance(), "uob",
-  			  {},
+  			  {7500, 11350, 14000, 18120},
 			  &CP::get_instance()),
   	       InvalidUnit);
+  
   // invalid unit for uob
-  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-			  {},
+  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, 7500,
+			  {820, 650, 550, 450},
   			  &psia::get_instance(), "uob",
-  			  {},
+  			  {7500, 11350, 14000, 18120},
 			  &Fahrenheit::get_instance()),
   	       InvalidUnit);
 }

@@ -262,7 +262,7 @@ struct VectorDesc
 		 "VectorDesc ctor (uod): uod cannot be a target name");
       };
     static auto uob_validate = [] (VectorDesc* ptr)
-      {// TODO falta mirar valor de uod
+      {
 	ptr->validate_sort();
 	validate_pb(ptr);
 	validate_pb_in_p(ptr, "uob");
@@ -270,21 +270,25 @@ struct VectorDesc
 	if (not is_inversely_sorted(ptr->y))
 	  ZENTHROW(SamplesUnsorted,
 		   "VectorDesc ctor: uob samples are not inversely sorted");
-	// if (BaseQuantity::is_valid(ptr->uod, *ptr->yunit))
-	//   {
-	//     if (ptr->y(0) != ptr->uod)
-	//       ZENTHROW(type, msg)
-	      
-
-	if (ptr->p(0) != 0)
-	  { // uod value is not inside this set ==> we compute
+	if (BaseQuantity::is_valid(ptr->uod, *ptr->yunit)) // was uod defined?
+	  { // yes ==> validate that first entries correspond to it
+	     if (ptr->y(0) != ptr->uod)
+	       ZENTHROW(SampleInvalid,
+			"uod sample is not the first value of uob");
+	     
+	     if (ptr->p(0) != 0)
+	       ZENTHROW(SampleInvalid, "first pressure value is not "
+			"zero given that uod value is present");
+	  } 
+	else
+	  { // uod value is not inside this set ==> we compute it
 	    LineEq l = { ptr->p(0), ptr->y(0), ptr->p(1), ptr->y(1) };
 	    ptr->p.insert(0);
 	    ptr->uod = l(0); // extrapolated to 0
 	    ptr->y.insert(ptr->uod); 
 	  }
-	if (not BaseQuantity::is_valid(ptr->uod, CP::get_instance()))
-	  ZENTHROW(OutOfUnitRange, "uod value is out of unit range");
+	if (ptr->p.get_first() != 0)
+	  ZENTHROW(SampleInvalid, "first pressure value is not zero");
 	if (ptr->uod > ptr->y.get_first())
 	  ZENTHROW(SampleInvalid, "uod value is greater than first uob value");
 	if (ptr->y.get_first() != ptr->uod)
@@ -292,8 +296,8 @@ struct VectorDesc
 	    ptr->p.insert(0);
 	    ptr->y.insert(ptr->uod);
 	  }
-	if (ptr->y.get_last() < ptr->uobp)
-	  ZENTHROW(OutOfRange, "uobp is less than last value of uob");
+	if (ptr->y.get_last() != ptr->uobp)
+	  ZENTHROW(OutOfRange, "uobp is not equal than last value of uob");
       };
     static auto uoa_validate = [] (VectorDesc* ptr)
       {
