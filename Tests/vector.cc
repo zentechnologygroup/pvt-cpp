@@ -743,8 +743,6 @@ TEST(VectorCtor, uoa)
 
   const Array<double> pressure = {3000, 2700, 2400, 2100, 1800, 1500, 1200, 1000};
   const Array<double> uoa = {12891, 11384, 10377, 9530, 8762, 8240, 7869, 7638};
-
-  
   
   ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, 30000, 7500, 
 			     pressure, &psia::get_instance(), "uoa",
@@ -825,8 +823,8 @@ TEST(VectorCtor, uo)
 				 32.5, 37.1, 40.8, 44.5}, &CP::get_instance()));
 
   // Pressures unsorted
-  ASSERT_THROW(VectorDesc(125, 820, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-			  PVT_INVALID_VALUE,
+  ASSERT_THROW(VectorDesc(125, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+			  PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 			  {3000, 2700, 2400, 2100, 1500, 1800, 1200,
 			      900, 600, 400, 200}, &psia::get_instance(), "uo",
 			  {38.14, 36.77, 35.66, 34.42, 33.44, 32.19, 30.29,

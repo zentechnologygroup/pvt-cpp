@@ -678,6 +678,9 @@ struct PvtData
 
   void add_const(const ConstDesc & c)
   {
+    if (const_values.has(c))
+      ZENTHROW(DuplicatedConstName, "constant name " + c.name +
+	       " is already inserted");
     const_values.append(c);
     names.append(c.name);
   }
@@ -711,6 +714,10 @@ struct PvtData
 
   void add_vector(VectorDesc && v)
   {
+    if (vectors.has(v))
+      ZENTHROW(DuplicatedVarName, "add_vector(): name " + v.yname +
+	       " with t = " + ::to_string(v.t) + " is already defined");
+
     if (&v.punit->physical_quantity != &Pressure::get_instance())
       ZENTHROW(InvalidPressureUnit, v.punit->name + " is not for pressure");
 
@@ -734,6 +741,10 @@ struct PvtData
 
   void add_vector(const VectorDesc & v)
   {
+    if (vectors.has(v))
+      ZENTHROW(DuplicatedVarName, "add_vector(): name " + v.yname +
+	       " with t = " + ::to_string(v.t) + " is already defined");
+
     if (&v.punit->physical_quantity != &Pressure::get_instance())
       ZENTHROW(InvalidPressureUnit, v.punit->name + " is not for pressure");
 
@@ -771,7 +782,7 @@ struct PvtData
   }
 
   void
-  add_vector(double t, double pb, double uod, double bobp, double uobp,
+  add_vector(double t, double pb, double bobp, double uod, double uobp,
 	     const Array<double> & p, const Unit & punit,
 	     const string yname, const Array<double> & y, const Unit & yunit)
   {
