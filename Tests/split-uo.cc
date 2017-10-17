@@ -65,11 +65,12 @@ vector<ArrayP> uo_list;//  =
 
 INSTANTIATE_TEST_CASE_P(random_uo, UoBoundTest, ValuesIn(uo_list));
 
-CmdLine cmd = { "split-uo", ' ', "0" };
+CmdLine cmd = { "split-uo", '=', "0" };
 
 ValueArg<unsigned long> seed_arg = { "s", "seed", "seed", false, 0, "seed", cmd };
 ValueArg<size_t> num_tests =
   { "n", "num-tests", "number of tests", false, 1000, "num", cmd };
+ValueArg<string> filter = { "", "gtest_filter", "", false, "", "", cmd };
 
 int main(int argc, char** argv)
 {

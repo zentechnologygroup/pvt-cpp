@@ -11,4 +11,5 @@
 
 ## 4. seed y num de pruebas por linea de comandos
 - Created at   2017-10-12 18:46:45 -0400
+- Completed at 2017-10-17 13:06:35 -0400
 

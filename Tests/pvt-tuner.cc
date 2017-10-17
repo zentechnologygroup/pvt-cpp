@@ -84,8 +84,6 @@ TEST(PvtData, add_const)
   		      parray, vptr->p));
   ASSERT_TRUE(zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
   		      rs200, vptr->y));
-
-  // TODO: falta rm vector y const
 }
 
 struct FluidTest : public Test
@@ -109,6 +107,17 @@ struct FluidTest : public Test
 // const Array<double> &p, const Unit &punit, const std::string yname, const Array<double> &y, const Unit &yunit)
   }
 };
+
+
+TEST_F(FluidTest, rm_const)
+{
+
+}
+
+TEST_F(FluidTest, rm_vector)
+{
+
+}
 
 TEST_F(FluidTest, get_pars)
 {

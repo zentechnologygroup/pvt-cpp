@@ -1985,9 +1985,13 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	  ptr->y.insert(nextafter(ptr->uobp, vmax));
 	}
     };
-  static auto uo_validate = [] (VectorDesc*)
+  static auto uo_validate = [] (VectorDesc* ptr)
     {
-      // TODO efectuar las validaciones del caso
+      ptr->validate_sort();
+      if (not ptr->y.all([u = ptr->yunit] (auto uo)
+			 { return BaseQuantity::is_valid(uo, *u); }))
+	ZENTHROW(OutOfUnitRange,
+		 "at least an uo value is out of its unit range");
     };
     
   static AHDispatcher<string, void (*)(VectorDesc*)> dispather =

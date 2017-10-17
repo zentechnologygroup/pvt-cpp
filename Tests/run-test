@@ -72,8 +72,8 @@ compile_status = system(compile_line)
 fail "Test compilation failed" unless compile_status
 
 command_line = "./#{tgt_name}"
-command_line += " -n #{n}" if n
-command_line += " -s #{seed}" if seed
+command_line += " -n=#{n}" if n
+command_line += " -s=#{seed}" if seed
 command_line += " --gtest_filter=#{filter}" if filter
 
 puts "#{command_line}"
