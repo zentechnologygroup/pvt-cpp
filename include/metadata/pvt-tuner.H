@@ -314,6 +314,8 @@ struct VectorDesc
     const double uod = extrapolate_left(p_below(0), p_below(1),
 					uob(0), uob(1), 0);
 
+    // TODO: qué hacer cuando uod dé negativo
+
     // Now we build two lines.
 
     // The first line is compounded by the two last points of
@@ -832,10 +834,25 @@ struct PvtData
       : t(__t), pb(__pb), bobp(__bobp), uod(__uod), uobp(__uobp),
 	pvals(move(__pvals)), punit(__punit), name(__name),
 	yvals(move(__yvals)), yunit(__yunit) {}
+    friend ostream & operator << (ostream & out, const Sample & s)
+    {
+      out << "t    = " << s.t << endl
+	  << "pb   = " << s.pb << endl
+	  << "bobp = " << s.bobp << endl
+	  << "uod  = " << s.uod << endl
+	  << "uobp = " << s.uobp << endl
+	  << "name = " << s.name << endl
+	  << "p =";
+      s.pvals.for_each([&out] (auto p) { out << " " << p; });
+      out << endl
+	  << "y =";
+      s.yvals.for_each([&out] (auto y) { out << " " << y; });
+      return out;
+    }
   };
 
   /*
-    given ref_vector which contains a property for different
+    given ref_vector which contains a property for several
     temperatures, this routine searches for target_name and returns
     the samples, probably interpolated, of the target_name property
     according to pressure values ​​stored in ref_vectors
@@ -856,6 +873,9 @@ struct PvtData
     auto ptr = samples.get_first();
     const Unit * punit = ptr->punit;
     const Unit * yunit = ptr->yunit;
+
+    cout << "fst" << endl
+	 << *fst_vector << endl;
 
     ret.append(Sample(ptr->t, ptr->pb, ptr->bobp, ptr->uod, ptr->uobp, 
 		      to_dynlist(fst_vector->p), punit, target_name,
@@ -1959,6 +1979,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       else
 	{ // uod value is not inside this set ==> we compute it
 	  LineEq l = { ptr->p(0), ptr->y(0), ptr->p(1), ptr->y(1) };
+	      // TODO: qué hacer cuando uod dé negativo
 	  ptr->p.insert(0);
 	  ptr->uod = l(0); // extrapolated to 0
 	  ptr->y.insert(ptr->uod); 

@@ -226,13 +226,18 @@ TEST_F(FluidTest, rm_vector)
   ASSERT_FALSE(uo_list.exists([temp] (auto vptr) { return vptr->t == temp; }));
 }
 
-// TODO probar set de correlaciones
+// TODO 1ro debo programar inputing
 
 TEST_F(FluidTest, get_pars)
 {
+  auto l = data.get_pars(data.search_vectors("uob"), "rs"); 
+  l.for_each([] (auto & s) { cout << s << endl; });
+  // TODO: retorna repetido para 1er valor
   // TODO verificar estructura Sample 
   // TODO: quizá tet_pars() quue construya vectr a partir de correlaciones
 }
+
+// TODO probar set de correlaciones
 
 TEST_F(FluidTest, set_pb)
 {
