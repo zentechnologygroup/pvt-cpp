@@ -416,11 +416,15 @@ struct ConstDesc
   }
 };
 
+constexpr size_t Dim_Pars_List = 100;
+
 struct PvtData
 {
   DynSetTree<ConstDesc> const_values; // indexed and sorted by name
   DynSetTree<VectorDesc> vectors;
   DynSetTree<string> names;
+
+  ParList parameters = { Dim_Pars_List };
 
   const Correlation * pb_corr = nullptr;
   double c_pb = 0, m_pb = 1;    
@@ -682,6 +686,7 @@ struct PvtData
 	       " is already inserted");
     const_values.append(c);
     names.append(c.name);
+    parameters.insert(c.name, c.value, c.unit_ptr);
   }
 
   void add_const(const string & name, double v, const Unit & unit)
@@ -695,6 +700,7 @@ struct PvtData
       ZENTHROW(ConstNameNotFound, "const name " + name + " not found");
     const_values.remove(ConstDesc(name));
     names.remove(name);
+    parameters.remove(name);
   }
 
   DynList<const VectorDesc*> search_vectors(const string & name) const noexcept
@@ -862,6 +868,21 @@ struct PvtData
       return out;
     }
   };
+
+  /** Takes all the constant parameters and the values stored in the
+      vectors stored in vlist and returns a parallel list containing
+      the vector resulting of evaluating the correlation corr_ptr with
+      calibration parameters c and m respectively
+  */
+  DynList<VectorDesc> build_values(const Correlation * corr_ptr,
+				   double c, double m,
+				   const DynList<const VectorDesc*> & vlist) const
+  {
+
+  }
+
+  // TODO luego de aquí construir por cada propiedad build_rs_values
+  // ... según cascada que tendria el grid
 
   /*
     given ref_vector which contains a property for several

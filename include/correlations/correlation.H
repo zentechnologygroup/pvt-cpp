@@ -1137,6 +1137,22 @@ public:
 					    });
     return names.keys();
   }
+
+  /// Return all the parameter names associated to all correlations
+  /// involving target_name
+  static DynList<string> all_parameter_names(const string & target_name)
+  {
+    const DynList<const Correlation*> corr_list =
+      correlations_tbl.filter([&target_name] (auto ptr)
+			      {
+				return ptr->target_name() == target_name;
+			      });
+    DynSetTree<string> names;
+    for (auto i = corr_list.get_it(); i.has_curr(); i.next())
+      for (auto it = i.get_curr()->par_names.get_it(); it.has_curr(); it.next())
+	names.append(it.get_curr());
+    return names.keys();
+  }
 };
 
 inline Correlation::~Correlation() {}
