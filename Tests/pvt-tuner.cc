@@ -230,11 +230,83 @@ TEST_F(FluidTest, rm_vector)
 
 TEST_F(FluidTest, get_pars)
 {
-  auto l = data.get_pars(data.search_vectors("uob"), "rs"); 
-  l.for_each([] (auto & s) { cout << s << endl; });
-  // TODO: retorna repetido para 1er valor
-  // TODO verificar estructura Sample 
-  // TODO: quizá tet_pars() quue construya vectr a partir de correlaciones
+  {
+    const DynList<const VectorDesc*> uob_vectors = data.search_vectors("uob");
+    const DynList<PvtData::Sample> l = data.get_pars(uob_vectors, "rs");
+    for (auto it = zip_it(uob_vectors, l); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	const VectorDesc * vptr = get<0>(t);
+	const PvtData::Sample & sample = get<1>(t);
+	ASSERT_TRUE(eq(vptr->p, sample.pvals));
+      }
+  }
+
+  {
+    const DynList<const VectorDesc*> uo_vectors = data.search_vectors("uo");
+    const DynList<PvtData::Sample> l = data.get_pars(uo_vectors, "rs");
+    for (auto it = zip_it(uo_vectors, l); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	const VectorDesc * vptr = get<0>(t);
+	const PvtData::Sample & sample = get<1>(t);
+	ASSERT_TRUE(eq(vptr->p, sample.pvals));
+      }
+  }
+
+  {
+    const DynList<const VectorDesc*> uo_vectors = data.search_vectors("uoa");
+    const DynList<PvtData::Sample> l = data.get_pars(uo_vectors, "boa");
+    for (auto it = zip_it(uo_vectors, l); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	const VectorDesc * vptr = get<0>(t);
+	const PvtData::Sample & sample = get<1>(t);
+	ASSERT_TRUE(eq(vptr->p, sample.pvals));
+      }
+  
+    // l.for_each([] (auto & s) { cout << s << endl; });
+    // data.search_vectors("uoa").for_each([] (auto &v) { cout << *v << endl; });
+  } 
+}
+
+TEST_F(FluidTest, matches_with_pars)
+{
+  auto lbefore = data.matches_with_pars("rs");
+
+  auto api_ptr = data.search_const("api");
+  const auto api = *api_ptr;
+  data.rm_const("api");
+
+  ASSERT_EQ(data.search_const("api"), nullptr);
+
+  auto lafter = data.matches_with_pars("rs");
+
+  //  ASSERT_FALSE(eq(lbefore, lafter));
+
+  for (auto it = zip_it(lbefore, lafter); it.has_curr(); it.next())
+    {
+      auto t = it.get_curr();
+      cout << get<0>(t) << " == " << get<1>(t) << join(get<1>(t)->par_names, ",") << endl;
+    }
+}
+
+
+TEST_F(FluidTest, can_be_applied)
+{
+  auto l = data.can_be_applied("rs");
+  l.for_each([] (auto ptr) { cout << ptr->name << endl; });
+
+  cout << "****************************************************************" << endl;
+
+  Correlation::array().filter([] (auto ptr) { return ptr->target_name() == "rs"; }).
+    for_each([] (auto ptr) { cout << ptr->name << endl; });
+}
+
+
+TEST_F(FluidTest, list_restrictions)
+{
+
 }
 
 // TODO probar set de correlaciones
@@ -264,23 +336,6 @@ TEST_F(FluidTest, set_uob)
 
 }
 TEST_F(FluidTest, set_uoa)
-{
-
-}
-
-TEST_F(FluidTest, matches_with_pars)
-{
-
-}
-
-
-TEST_F(FluidTest, can_be_applied)
-{
-
-}
-
-
-TEST_F(FluidTest, list_restrictions)
 {
 
 }

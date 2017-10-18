@@ -314,8 +314,6 @@ struct VectorDesc
     const double uod = extrapolate_left(p_below(0), p_below(1),
 					uob(0), uob(1), 0);
 
-    // TODO: qué hacer cuando uod dé negativo
-
     // Now we build two lines.
 
     // The first line is compounded by the two last points of
@@ -334,9 +332,8 @@ struct VectorDesc
     auto p = lbelow.intersection(labove);
     double & pb = p.first;
     double & uobp = p.second;
-
-    if (pb <= p_below.get_last())
-      { // This is an improbable but possible case that would
+    if (uobp < 0 or pb <= p_below.get_last())
+      { // These are improbable but possible cases that would
 	// correspond to a bad model
 	pb = p_below.get_last();
 	uobp = uob.get_last();
@@ -697,6 +694,7 @@ struct PvtData
     if (search_const(name) == nullptr)
       ZENTHROW(ConstNameNotFound, "const name " + name + " not found");
     const_values.remove(ConstDesc(name));
+    names.remove(name);
   }
 
   DynList<const VectorDesc*> search_vectors(const string & name) const noexcept
@@ -856,6 +854,11 @@ struct PvtData
     temperatures, this routine searches for target_name and returns
     the samples, probably interpolated, of the target_name property
     according to pressure values ​​stored in ref_vectors
+
+    NOTE: THE MOST IMPORTANT OF THIS ROUTINE IS THE VECTOR OF
+    PRESSURES. IT SHOULD BE USED VERY CAREFULLY IF THE Y VECTOR IS
+    INTENDED TO BE USED AND, SINCE INTERPOLATION IS LIKELY TO GIVE
+    WRONG VALUES
   */
   DynList<Sample> get_pars(const DynList<const VectorDesc*> & ref_vectors,
 			   const string & target_name) const
@@ -873,9 +876,6 @@ struct PvtData
     auto ptr = samples.get_first();
     const Unit * punit = ptr->punit;
     const Unit * yunit = ptr->yunit;
-
-    cout << "fst" << endl
-	 << *fst_vector << endl;
 
     ret.append(Sample(ptr->t, ptr->pb, ptr->bobp, ptr->uod, ptr->uobp, 
 		      to_dynlist(fst_vector->p), punit, target_name,
@@ -1062,8 +1062,8 @@ struct PvtData
 
   DynList<const Correlation*>
   can_be_applied(const string & target_name,
-		 const DynSetTree<string> & relax_tbl,
-		 const DynSetTree<const Correlation*> & ban_list) const
+		 const DynSetTree<string> & relax_tbl = {},
+		 const DynSetTree<const Correlation*> & ban_list = {}) const
   {
     return Correlation::array().
       filter([&target_name, &relax_tbl, &ban_list, this] (auto ptr)
@@ -1976,10 +1976,11 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	    ZENTHROW(SampleInvalid, "first pressure value is not "
 		     "zero given that uod value is present");
 	} 
-      else
+      else if (ptr->p(0) == 0) /// is uod inside uob vector?
+	ptr->uod = ptr->y(0);
+      else 
 	{ // uod value is not inside this set ==> we compute it
 	  LineEq l = { ptr->p(0), ptr->y(0), ptr->p(1), ptr->y(1) };
-	      // TODO: qué hacer cuando uod dé negativo
 	  ptr->p.insert(0);
 	  ptr->uod = l(0); // extrapolated to 0
 	  ptr->y.insert(ptr->uod); 
