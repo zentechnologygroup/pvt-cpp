@@ -7,6 +7,12 @@ using namespace std;
 using namespace testing;
 using namespace std;
 
+constexpr double epsilon = 1e-9;
+static auto cmp_double = [] (double v1, double v2)
+{
+  return fabs(v1 - v2) <= epsilon;
+};
+
 TEST(EmptyPvtData, simple_ops)
 {
   PvtData d;
@@ -87,8 +93,72 @@ TEST(PvtData, add_const)
   		      rs200, vptr->y));
 }
 
+TEST(PvtData, split_uo)
+{
+  PvtData data;
+  data.add_const("api", 8.3, Api::get_instance());
+  data.add_const("co2", 0.86, MolePercent::get_instance());
+  data.add_const("n2", 0.19, MolePercent::get_instance());
+  data.add_const("psep", 100, psia::get_instance());
+  data.add_const("rsb", 79.5, SCF_STB::get_instance());
+  data.add_const("yg", 0.608, Sgg::get_instance());
+  data.add_const("tsep", 100, Fahrenheit::get_instance());
+
+  data.add_vector(125, 820, 1.0919, PVT_INVALID_VALUE, 7500, 
+		  {820, 650, 550, 450, 0}, psia::get_instance(), "uob",
+		  {7500, 11350, 14000, 18120, 30000}, CP::get_instance());
+  data.add_vector(125, 820, 1.0919, 30000, 7500, 
+		  {3000, 2700, 2400, 2100, 1800, 1500, 1200, 1000},
+		  psia::get_instance(), "uoa",
+		  {12891, 11384, 10377, 9530, 8762, 8240, 7869, 7638},
+		  CP::get_instance());
+  data.add_vector(200, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  {3000, 2700, 2400, 2100, 1800, 1500, 1200, 900, 600, 400, 200},
+		  psia::get_instance(), "uo",
+		  {38.14, 36.77, 35.66, 34.42, 33.44, 32.19, 30.29,
+		      32.5, 37.1, 40.8, 44.5}, CP::get_instance());
+  data.add_vector(300, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  {3000, 2700, 2400, 2100, 1800, 1500, 1300,
+		      1100, 1000, 800, 500, 200}, psia::get_instance(), "uo",
+		  {370, 349.7, 335, 316.3, 302.4, 279.8, 270, 260,
+		      256, 278, 345.3, 404.6}, CP::get_instance());
+
+  auto uo_list = data.search_vectors("uo");
+  ASSERT_EQ(uo_list.size(), 2);
+
+  auto uob_list = data.search_vectors("uob");
+  ASSERT_TRUE(uob_list.is_unitarian());
+
+  auto uoa_list = data.search_vectors("uoa");
+  ASSERT_TRUE(uoa_list.is_unitarian());
+
+  const DynList<double> t = {125, 200, 300};
+
+  data.split_uo();
+  uob_list = data.search_vectors("uob");
+  size_t k = 0;
+  for (auto it = zip_it(uob_list, t); it.has_curr(); it.next(), ++k)
+    {
+      auto t = it.get_curr();
+      ASSERT_EQ(get<0>(t)->t, get<1>(t));
+    }
+  ASSERT_GT(k, 0);
+
+  uoa_list = data.search_vectors("uoa");
+  k = 0;
+  for (auto it = zip_it(uoa_list, t); it.has_curr(); it.next(), ++k)
+    {
+      auto t = it.get_curr();
+      ASSERT_EQ(get<0>(t)->t, get<1>(t));
+    }
+  ASSERT_GT(k, 0);
+}
+
 struct FluidTest : public Test
 {
+  const DynList<double> temps = { 125, 200, 300};
   PvtData data;
   FluidTest() // fluid5 
   {
@@ -145,6 +215,7 @@ struct FluidTest : public Test
 			1100, 1000, 800, 500, 200}, psia::get_instance(), "uo",
 		    {370, 349.7, 335, 316.3, 302.4, 279.8, 270, 260,
 			256, 278, 345.3, 404.6}, CP::get_instance());
+    data.split_uo();
   }
 };
 
@@ -176,9 +247,6 @@ TEST_F(FluidTest, json)
       ASSERT_EQ(ptr1->unit_ptr, ptr2->unit_ptr);
     }
 
-  constexpr double epsilon = 1e-9;
-  static auto cmp = [] (double v1, double v2) { return fabs(v1 - v2) <= epsilon; };
-
   const DynList<string> property_names = { "rs", "bob", "coa", "boa", "uob", "uoa" };
   for (auto it = property_names.get_it(); it.has_curr(); it.next())
     {
@@ -197,8 +265,8 @@ TEST_F(FluidTest, json)
 	  ASSERT_NEAR(v1->uobp, v2->uobp, epsilon);
 	  ASSERT_EQ(v1->punit, v2->punit);
 	  ASSERT_EQ(v1->yunit, v2->yunit);
-	  ASSERT_TRUE(eq(v1->p, v2->p, cmp));
-	  ASSERT_TRUE(eq(v1->y, v2->y, cmp));
+	  ASSERT_TRUE(eq(v1->p, v2->p, cmp_double));
+	  ASSERT_TRUE(eq(v1->y, v2->y, cmp_double));
 	}
     }
 }
@@ -218,12 +286,16 @@ TEST_F(FluidTest, rm_vector)
   ASSERT_FALSE(uo_list.is_empty());
 
   auto fst_uo = uo_list.get_first();
-  const double temp = fst_uo->t;
   ASSERT_EQ(fst_uo->yname, "uo");
-  ASSERT_NO_THROW(data.rm_vector(temp, "uo"));
+  ASSERT_NO_THROW(data.rm_vector(200, "uo"));
 
   uo_list = data.search_vectors("uo");
-  ASSERT_FALSE(uo_list.exists([temp] (auto vptr) { return vptr->t == temp; }));
+  ASSERT_FALSE(uo_list.exists([] (auto vptr) { return vptr->t == 200; }));
+
+  ASSERT_NO_THROW(data.rm_vector(300, "uo"));
+
+  ASSERT_TRUE(data.search_vectors("uo").is_empty());
+  ASSERT_FALSE(data.names.has("uo"));
 }
 
 // TODO 1ro debo programar inputing
@@ -238,7 +310,7 @@ TEST_F(FluidTest, get_pars)
 	auto t = it.get_curr();
 	const VectorDesc * vptr = get<0>(t);
 	const PvtData::Sample & sample = get<1>(t);
-	ASSERT_TRUE(eq(vptr->p, sample.pvals));
+	ASSERT_TRUE(eq(vptr->p, sample.pvals, cmp_double));
       }
   }
 
@@ -250,7 +322,9 @@ TEST_F(FluidTest, get_pars)
 	auto t = it.get_curr();
 	const VectorDesc * vptr = get<0>(t);
 	const PvtData::Sample & sample = get<1>(t);
-	ASSERT_TRUE(eq(vptr->p, sample.pvals));
+	ASSERT_TRUE(eq(vptr->p, sample.pvals, cmp_double));
+	vptr->p.for_each([] (auto p) { cout << p << " "; }); cout << endl;
+	sample.pvals.for_each([] (auto p) { cout << p << " "; }); cout << endl;
       }
   }
 
@@ -262,12 +336,9 @@ TEST_F(FluidTest, get_pars)
 	auto t = it.get_curr();
 	const VectorDesc * vptr = get<0>(t);
 	const PvtData::Sample & sample = get<1>(t);
-	ASSERT_TRUE(eq(vptr->p, sample.pvals));
+	ASSERT_TRUE(eq(vptr->p, sample.pvals, cmp_double));
       }
-  
-    // l.for_each([] (auto & s) { cout << s << endl; });
-    // data.search_vectors("uoa").for_each([] (auto &v) { cout << *v << endl; });
-  } 
+    } 
 }
 
 TEST_F(FluidTest, matches_with_pars)
@@ -282,13 +353,9 @@ TEST_F(FluidTest, matches_with_pars)
 
   auto lafter = data.matches_with_pars("rs");
 
-  //  ASSERT_FALSE(eq(lbefore, lafter));
+  ASSERT_FALSE(eq(lbefore, lafter));
 
-  for (auto it = zip_it(lbefore, lafter); it.has_curr(); it.next())
-    {
-      auto t = it.get_curr();
-      cout << get<0>(t) << " == " << get<1>(t) << join(get<1>(t)->par_names, ",") << endl;
-    }
+  //data.add_const(const ConstDesc &c)
 }
 
 

@@ -789,6 +789,20 @@ struct PvtData
     add_vector(VectorDesc(t, pb, bobp, uod, uobp, p, &punit, yname, y, &yunit));
   }
 
+  void split_uo()
+  {
+    const DynList<const VectorDesc*> uo_vectors =  search_vectors("uo");
+    if (uo_vectors.is_empty())
+      ZENTHROW(VarNameNotFound, "data does not contain uo");
+    for (auto it = uo_vectors.get_it(); it.has_curr(); it.next())
+    {
+      auto uo_ptr = it.get_curr();
+      auto p = uo_ptr->split_uo();
+      add_vector(p.first);
+      add_vector(p.second);
+    }
+  }
+
   PvtData() {}
 
   PvtData(istream & input)
@@ -890,9 +904,8 @@ struct PvtData
 						    vector_ptr->p, *punit));
 	DynList<double> y = unit_convert(*sample_ptr->yunit,
 					 sample_ptr->gety(p), *yunit);
-	ret.append(Sample(sample_ptr->t, ptr->pb, ptr->bobp,
-			  ptr->uod, ptr->uobp, to_dynlist(p), punit,
-			  target_name, to_dynlist(y), yunit));
+	ret.append(Sample(sample_ptr->t, ptr->pb, ptr->bobp, ptr->uod,
+			  ptr->uobp, p, punit, target_name, y, yunit));
       }
 
     return ret;
