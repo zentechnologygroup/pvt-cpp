@@ -151,6 +151,11 @@ struct VectorDesc
     return yname < rhs.yname;
   }
 
+  bool has_same_t_pb(const VectorDesc & v) const noexcept
+  {
+    return t == v.t and pb == v.pb;
+  }
+
   // Return true if this is "parallel" to v; this is if this and v
   // share the same t values and p vectors
   bool has_same_tp(const VectorDesc & v) const noexcept
@@ -199,18 +204,35 @@ struct VectorDesc
     if (pval < pentry)
       --i;
 
+    double result = 0;
     if (i < 0)
-      return extrapolate_left(p(0), p(1), y(0), y(1), pval);
+      result = extrapolate_left(p(0), p(1), y(0), y(1), pval);
     else if (i >= n - 1)
-      return extrapolate_right(p(n - 2), p(n - 1), y(n - 2), y(n - 1), pval);
+      result = extrapolate_right(p(n - 2), p(n - 1), y(n - 2), y(n - 1), pval);
     else
-      return interpolate(p(i), p(i + 1), y(i), y(i + 1), pval);
+      result = interpolate(p(i), p(i + 1), y(i), y(i + 1), pval);
+
+    if (result < yunit->min_val)
+      return yunit->min_val;
+    if (result > yunit->max_val)
+      return yunit->max_val;
+    return result;
   }
 
   template <template <typename> class C>
   DynList<double> gety(const C<double> & pvals) const
   {
     return pvals.maps([this] (auto & v) { return this->gety(v); });
+  }
+
+  VectorDesc merge_with(const VectorDesc & y_vector) const
+  {
+    if (not has_same_t_pb(y_vector))
+      ZENTHROW(MetadataException,
+	       "vectors to be merged don't share same t and pb");
+    return VectorDesc(y_vector.t, y_vector.pb, y_vector.bobp, y_vector.uod,
+		      y_vector.uobp, p, punit, y_vector.yname,
+		      y_vector.gety(p), y_vector.yunit);
   }
 
   DynList<DynList<string>> to_dynlist() const
@@ -893,17 +915,40 @@ struct PvtData
   /** Takes the data set and return a list of list with the required
       input vector needed for computing corr_ptr
   */
-  // TODO debe retornar también la lista de listas de valores de
-  // presión que se deben aplicar
-  DynList<DynList<const VectorDesc *>>
+  struct CorrInput
+  {
+        // contains pressures on the which the correlation must be evaluated
+    const VectorDesc * p_ref = nullptr;
+
+    // contain another vectors which yname must be input to the
+    // correlation and that are parallel to p_ref
+    DynList<VectorDesc> vlist;
+    CorrInput() {}
+    CorrInput(const VectorDesc * __p_ref, DynList<VectorDesc> && __vlist)
+      : p_ref(__p_ref), vlist(move(__vlist)) {}
+    friend ostream & operator << (ostream & out, const CorrInput & ci)
+    {
+      out << *ci.p_ref << endl
+	  << "----" << endl;
+      ci.vlist.for_each([&out] (auto & v) { out << v << endl; });
+      return out;
+    }
+  };
+  
+  DynList<CorrInput>
   build_entries_for_correlation(const Correlation * corr_ptr) const
   {
     static DynSetTree<string> var_pars =
       { "p", "pb", "uod", "bobp", "uobp", "t" };
     const string target_name = corr_ptr->target_name();
 
-    DynMapTree<double, DynList<const VectorDesc*>> vtbl;
+    const DynList<const VectorDesc*> src_vectors =
+      search_vectors(corr_ptr->target_name());
 
+    // TODO si vacía exceci[on
+
+    DynMapTree<double, DynList<const VectorDesc*>> vtbl;
+   
     for (auto it = corr_ptr->get_preconditions().get_it();
 	 it.has_curr(); it.next())
       {
@@ -938,7 +983,7 @@ struct PvtData
 		   " was not found");
       }
 
-    // Here we grouped the vector by temperatures. Now, for each
+    // Here we grouped in vtbl the vectors by temperatures. Now, for each
     // temperature value, we build a list of parallel vectors required
     // for computing corr_ptr
 
@@ -966,7 +1011,29 @@ struct PvtData
 	// in the result
 	vals.append(move(vlist));
       }
-    return vals;
+
+    // Now we take src_vectors, which contains the vectors containing
+    // the pressures and target_name references and build the result
+    DynList<CorrInput> ret;
+    for (auto it = src_vectors.get_it(); it.has_curr(); it.next())
+      {
+	const VectorDesc * vptr = it.get_curr();
+	auto ptr = vtbl.search(vptr->t);
+	if (ptr == nullptr)
+	  continue;
+
+	ret.append(CorrInput(vptr,
+			     ptr->second.maps<VectorDesc>([vptr] (auto yptr)
+          {
+	    return vptr->merge_with(*yptr);
+	  })));
+      }
+    
+    if (ret.is_empty())
+      ZENTHROW(MetadataException,
+	       "It was not possible to build input data for " + corr_ptr->name);
+
+    return ret;
   }
 
   DynList<VectorDesc> compute_values(const Correlation * corr_ptr,

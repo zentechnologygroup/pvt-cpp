@@ -39,7 +39,8 @@ ArrayP generate_random_uo()
   for (size_t i = 0; i < nuob - 1; ++i)
     uob.append(uo_pivot + (Max_uob - uo_pivot)*gsl_rng_uniform_pos(r.get()));
   uob.append(uo_pivot);
-  uob = sort(uob).rev();
+  in_place_sort(uob);
+  uob.rev();
 
   // generate nuoa random values sorted
   DynList<double> uoa;

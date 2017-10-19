@@ -389,37 +389,21 @@ TEST_F(FluidTest, set_correlations)
   ASSERT_EQ(data.m_uoa, 0.99);
 }
 
+// TODO: probar merge_parallel pero en vector.cc
+
 TEST_F(FluidTest, build_entries_for_correlation)
 {
 
   {
     auto l = data.build_entries_for_correlation(&BobLopezCR::get_instance());
     for (auto it = l.get_it(); it.has_curr(); it.next())
-      {
-	auto & l = it.get_curr();
-	cout << "For t = " << l.get_first()->t << endl;
-	for (auto it = l.get_it(); it.has_curr(); it.next())
-	  {
-	    const VectorDesc * vptr = it.get_curr();
-	    cout << *vptr << endl;
-	  }
-	cout << endl;
-      }
+      cout << it.get_curr() << endl;
   }
 
   {
     auto l = data.build_entries_for_correlation(&UobBeggsRobinson::get_instance());
     for (auto it = l.get_it(); it.has_curr(); it.next())
-      {
-	auto & l = it.get_curr();
-	cout << "For t = " << l.get_first()->t << endl;
-	for (auto it = l.get_it(); it.has_curr(); it.next())
-	  {
-	    const VectorDesc * vptr = it.get_curr();
-	    cout << *vptr << endl;
-	  }
-	cout << endl;
-      }
+      cout << it.get_curr() << endl;
   }
 
 }

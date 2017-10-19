@@ -16,3 +16,6 @@
 ## 5. organizar los test por fluidos de prueba
 - Created at   2017-10-19 08:38:41 -0400
 
+## 6. test para merge_parallel
+- Created at   2017-10-19 18:06:54 -0400
+

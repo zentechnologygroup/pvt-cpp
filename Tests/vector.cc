@@ -144,6 +144,18 @@ TEST_F(SimpleVector, y_operations)
     }
 }
 
+TEST(VectorDesc, gety_limits)
+{
+  VectorDesc v(125, 29000, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+	       PVT_INVALID_VALUE, { 0, 29000 }, &psia::get_instance(), "rs",
+	       { 0, 1e9 }, &SCF_STB::get_instance());
+  const double low_p = nextafter(v.punit->min_val, numeric_limits<double>::min());
+  const double high_p = nextafter(v.punit->max_val, numeric_limits<double>::max());
+
+  ASSERT_NEAR(v.gety(low_p), v.yunit->min_val, 1e-20);
+  ASSERT_NEAR(v.gety(high_p), v.yunit->max_val, 1e-20);
+}
+
 TEST(VectorDesc, uo_split)
 {
   VectorDesc
@@ -477,10 +489,12 @@ TEST(VectorCtor, coa)
 			  &STB_MMscf::get_instance()),
   	       InvalidUnit);
 
-  DynList<double> pmax = build_dynlist<double>(3000, 2800, 2600, 2400, 2200, 2000, 1800,
-					       1600, 1400, 1200, 1000).rev();
-  DynList<double> pmin = build_dynlist<double>(2800, 2600, 2400, 2200, 2000, 1800,
-					       1600, 1400, 1200, 1000, 820).rev();
+  DynList<double> pmax =
+    reverse(build_dynlist<double>(3000, 2800, 2600, 2400, 2200, 2000, 1800,
+				  1600, 1400, 1200, 1000));
+  DynList<double> pmin =
+    reverse(build_dynlist<double>(2800, 2600, 2400, 2200, 2000, 1800,
+				  1600, 1400, 1200, 1000, 820));
   Array<double> pressures = pmax.append(pmin);
   Array<double> coa = build_array<double>(3.76E-06, 4.07E-06, 4.28E-06, 4.45E-06,
 					  4.62E-06, 4.76E-06, 4.86E-06, 5.24E-06,
