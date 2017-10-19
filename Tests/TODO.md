@@ -13,3 +13,6 @@
 - Created at   2017-10-12 18:46:45 -0400
 - Completed at 2017-10-17 13:06:35 -0400
 
+## 5. organizar los test por fluidos de prueba
+- Created at   2017-10-19 08:38:41 -0400
+

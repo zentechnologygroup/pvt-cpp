@@ -298,7 +298,137 @@ TEST_F(FluidTest, rm_vector)
   ASSERT_FALSE(data.names.has("uo"));
 }
 
+TEST_F(FluidTest, set_correlations)
+{
+  ASSERT_THROW(data.set_pb(&RsAlMarhoun::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_pb(&PbAlMarhoun::get_instance()));
+  ASSERT_EQ(data.pb_corr, &PbAlMarhoun::get_instance());
+  ASSERT_EQ(data.c_pb, 0);
+  ASSERT_EQ(data.m_pb, 1);
+
+  ASSERT_NO_THROW(data.set_pb(&PbAlShammasi::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.pb_corr, &PbAlShammasi::get_instance());
+  ASSERT_EQ(data.c_pb, 0.1);
+  ASSERT_EQ(data.m_pb, 0.99);
+
+  ASSERT_THROW(data.set_pb(&UodBeal::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_rs(&RsAlMarhoun::get_instance()));
+  ASSERT_EQ(data.rs_corr, &RsAlMarhoun::get_instance());
+  ASSERT_EQ(data.c_rs, 0);
+  ASSERT_EQ(data.m_rs, 1);
+
+  ASSERT_NO_THROW(data.set_rs(&RsPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.rs_corr, &RsPerezML::get_instance());
+  ASSERT_EQ(data.c_rs, 0.1);
+  ASSERT_EQ(data.m_rs, 0.99);
+
+  ASSERT_THROW(data.set_bob(&UodBeal::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_bob(&BobAlShammasi::get_instance()));
+  ASSERT_EQ(data.bob_corr, &BobAlShammasi::get_instance());
+  ASSERT_EQ(data.c_bob, 0);
+  ASSERT_EQ(data.m_bob, 1);
+
+  ASSERT_NO_THROW(data.set_bob(&BobPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.bob_corr, &BobPerezML::get_instance());
+  ASSERT_EQ(data.c_bob, 0.1);
+  ASSERT_EQ(data.m_bob, 0.99);
+
+  ASSERT_THROW(data.set_coa(&UodBeal::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_coa(&CoaDeGhetto::get_instance()));
+  ASSERT_EQ(data.coa_corr, &CoaDeGhetto::get_instance());
+  ASSERT_EQ(data.c_coa, 0);
+  ASSERT_EQ(data.m_coa, 1);
+
+  ASSERT_NO_THROW(data.set_coa(&CoaPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.coa_corr, &CoaPerezML::get_instance());
+  ASSERT_EQ(data.c_coa, 0.1);
+  ASSERT_EQ(data.m_coa, 0.99);
+
+  ASSERT_THROW(data.set_boa(&UodBeal::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_boa(&BoaDeGhetto::get_instance()));
+  ASSERT_EQ(data.boa_corr, &BoaDeGhetto::get_instance());
+  ASSERT_EQ(data.c_boa, 0);
+  ASSERT_EQ(data.m_boa, 1);
+
+  ASSERT_NO_THROW(data.set_boa(&BoaPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.boa_corr, &BoaPerezML::get_instance());
+  ASSERT_EQ(data.c_boa, 0.1);
+  ASSERT_EQ(data.m_boa, 0.99);
+
+  ASSERT_THROW(data.set_uod(&BobAlShammasi::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_uod(&UodBeal::get_instance()));
+  ASSERT_EQ(data.uod_corr, &UodBeal::get_instance());
+  ASSERT_EQ(data.c_uod, 0);
+  ASSERT_EQ(data.m_uod, 1);
+
+  ASSERT_NO_THROW(data.set_uod(&UodPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.uod_corr, &UodPerezML::get_instance());
+  ASSERT_EQ(data.c_uod, 0.1);
+  ASSERT_EQ(data.m_uod, 0.99);
+
+  ASSERT_THROW(data.set_uob(&BobAlShammasi::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_uob(&UobBeggsRobinson::get_instance()));
+  ASSERT_EQ(data.uob_corr, &UobBeggsRobinson::get_instance());
+  ASSERT_EQ(data.c_uob, 0);
+  ASSERT_EQ(data.m_uob, 1);
+
+  ASSERT_NO_THROW(data.set_uob(&UobPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.uob_corr, &UobPerezML::get_instance());
+  ASSERT_EQ(data.c_uob, 0.1);
+  ASSERT_EQ(data.m_uob, 0.99);
+
+  ASSERT_THROW(data.set_uoa(&BobAlShammasi::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_uoa(&UoaBeal::get_instance()));
+  ASSERT_EQ(data.uoa_corr, &UoaBeal::get_instance());
+  ASSERT_EQ(data.c_uoa, 0);
+  ASSERT_EQ(data.m_uoa, 1);
+
+  ASSERT_NO_THROW(data.set_uoa(&UoaPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.uoa_corr, &UoaPerezML::get_instance());
+  ASSERT_EQ(data.c_uoa, 0.1);
+  ASSERT_EQ(data.m_uoa, 0.99);
+}
+
+TEST_F(FluidTest, build_entries_for_correlation)
+{
+
+  {
+    auto l = data.build_entries_for_correlation(&BobLopezCR::get_instance());
+    for (auto it = l.get_it(); it.has_curr(); it.next())
+      {
+	auto & l = it.get_curr();
+	cout << "For t = " << l.get_first()->t << endl;
+	for (auto it = l.get_it(); it.has_curr(); it.next())
+	  {
+	    const VectorDesc * vptr = it.get_curr();
+	    cout << *vptr << endl;
+	  }
+	cout << endl;
+      }
+  }
+
+  {
+    auto l = data.build_entries_for_correlation(&UobBeggsRobinson::get_instance());
+    for (auto it = l.get_it(); it.has_curr(); it.next())
+      {
+	auto & l = it.get_curr();
+	cout << "For t = " << l.get_first()->t << endl;
+	for (auto it = l.get_it(); it.has_curr(); it.next())
+	  {
+	    const VectorDesc * vptr = it.get_curr();
+	    cout << *vptr << endl;
+	  }
+	cout << endl;
+      }
+  }
+
+}
+
+// TODO: parallel_vectors
+
 // TODO 1ro debo programar inputing
+
+// Luego debo verificar parallel vectors
 
 TEST_F(FluidTest, get_pars)
 {
@@ -372,37 +502,6 @@ TEST_F(FluidTest, can_be_applied)
 
 
 TEST_F(FluidTest, list_restrictions)
-{
-
-}
-
-// TODO probar set de correlaciones
-
-TEST_F(FluidTest, set_pb)
-{
-
-}
-TEST_F(FluidTest, set_rs)
-{
-
-}
-TEST_F(FluidTest, set_bob)
-{
-
-}
-TEST_F(FluidTest, set_coa)
-{
-
-}
-TEST_F(FluidTest, set_boa)
-{
-
-}
-TEST_F(FluidTest, set_uob)
-{
-
-}
-TEST_F(FluidTest, set_uoa)
 {
 
 }

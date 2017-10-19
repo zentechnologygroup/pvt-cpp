@@ -477,22 +477,6 @@ struct PvtData
 			 { return max(acu, v.pmax()); });
   }
 
-  /// Return a list with all parallel vector to v, included v
-  DynList<const VectorDesc*> parallel_vectors(const VectorDesc & v)
-    const noexcept
-  {
-    auto ret = build_dynlist<const VectorDesc*>(&v);
-    for (auto it = vectors.get_it(); it.has_curr(); it.next())
-      {
-	auto & curr_v = it.get_curr();
-	if (&curr_v == &v)
-	  continue;
-	if (v.is_parallel(curr_v))
-	  ret.append(&curr_v);
-      }
-    return ret;
-  }
-
   /// Return a sorted list of all seen temperatures
   DynList<double> get_temperatures() const
   {
@@ -869,18 +853,127 @@ struct PvtData
     }
   };
 
-  /** Takes all the constant parameters and the values stored in the
-      vectors stored in vlist and returns a parallel list containing
-      the vector resulting of evaluating the correlation corr_ptr with
-      calibration parameters c and m respectively
+# define SET_CORRRELATION(tgt_name)	\
+  void set_##tgt_name(const Correlation * corr_ptr, double c = 0, double m = 1)\
+  {									\
+    if (corr_ptr->target_name() != #tgt_name)				\
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +	\
+	       " is not for target " #tgt_name);			\
+    tgt_name##_corr = corr_ptr;						\
+    c_##tgt_name = c;							\
+    m_##tgt_name = m;							\
+  }
+
+  SET_CORRRELATION(pb);
+  SET_CORRRELATION(rs);
+  SET_CORRRELATION(bob);
+  SET_CORRRELATION(coa);
+  SET_CORRRELATION(boa);
+  SET_CORRRELATION(uod);
+  SET_CORRRELATION(uob);
+  SET_CORRRELATION(uoa);
+
+  /// Return a list with all parallel vectors to v, included v
+  // TODO"revisar y eventualmente reahcer
+  DynList<const VectorDesc*> parallel_vectors(const VectorDesc & v)
+    const noexcept
+  {
+    auto ret = build_dynlist<const VectorDesc*>(&v);
+    for (auto it = vectors.get_it(); it.has_curr(); it.next())
+      {
+	auto & curr_v = it.get_curr();
+	if (&curr_v == &v)
+	  continue;
+	if (v.is_parallel(curr_v))
+	  ret.append(&curr_v);
+      }
+    return ret;
+  }
+
+  /** Takes the data set and return a list of list with the required
+      input vector needed for computing corr_ptr
   */
-  DynList<VectorDesc> build_values(const Correlation * corr_ptr,
-				   double c, double m,
-				   const DynList<const VectorDesc*> & vlist) const
+  // TODO debe retornar también la lista de listas de valores de
+  // presión que se deben aplicar
+  DynList<DynList<const VectorDesc *>>
+  build_entries_for_correlation(const Correlation * corr_ptr) const
+  {
+    static DynSetTree<string> var_pars =
+      { "p", "pb", "uod", "bobp", "uobp", "t" };
+    const string target_name = corr_ptr->target_name();
+
+    DynMapTree<double, DynList<const VectorDesc*>> vtbl;
+
+    for (auto it = corr_ptr->get_preconditions().get_it();
+	 it.has_curr(); it.next())
+      {
+	const CorrelationPar & par = it.get_curr();
+	const auto & names_list =
+	  par.names().maps<string>([] (auto p) { return p.first; });
+
+	if (names_list.exists([this] (auto name) { return var_pars.has(name) or
+		search_const(name) != nullptr; }))
+	  continue;
+
+	bool name_found = false;
+	for (auto it = names_list.get_it(); it.has_curr(); it.next())
+	  {
+	    auto & name = it.get_curr();
+	    const DynList<const VectorDesc*> vlist = search_vectors(name);
+	    if (not vlist.is_empty())
+	      {
+		for (auto it = vlist.get_it(); it.has_curr(); it.next())
+		  {
+		    const VectorDesc * vptr = it.get_curr();
+		    vtbl[vptr->t].append(vptr);
+		  }
+		name_found = true;
+		break; 
+	      }
+	  }
+
+	if (not name_found)
+	  ZENTHROW(ParameterNameNotFound, "parameter " + par.name +
+		   " required for computing " + corr_ptr->name +
+		   " was not found");
+      }
+
+    // Here we grouped the vector by temperatures. Now, for each
+    // temperature value, we build a list of parallel vectors required
+    // for computing corr_ptr
+
+    DynList<DynList<const VectorDesc*>> vals;
+    for (auto it = vtbl.get_it(); it.has_curr(); it.next())
+      {
+	auto & p = it.get_curr();
+	const double & t = p.first;
+	const DynList<const VectorDesc*> & vlist = p.second;
+	const VectorDesc * fst_vptr = vlist.get_first();
+
+	// now we test if remaining vector are parallel to the first one
+	for (auto it = vlist.get_it(1); it.has_curr(); it.next())
+	  {
+	    auto curr_vptr = it.get_curr();
+	    if (not curr_vptr->is_parallel(*fst_vptr))
+	      {
+		ostringstream s;
+		s << "For temperature " << t << ": vector " << fst_vptr->yname
+		  << " is not parallel to " << curr_vptr->yname;
+		ZENTHROW(MetadataException, s.str());
+	      }
+	  }
+	// here all the vectors of vlist are parallel. So we put them
+	// in the result
+	vals.append(move(vlist));
+      }
+    return vals;
+  }
+
+  DynList<VectorDesc> compute_values(const Correlation * corr_ptr,
+				   double c, double m) const
   {
 
   }
-
   // TODO luego de aquí construir por cada propiedad build_rs_values
   // ... según cascada que tendria el grid
 
