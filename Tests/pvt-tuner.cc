@@ -415,6 +415,7 @@ TEST_F(FluidTest, compute_values_without_inputing)
   data.compute_values(&UobBeggsRobinson::get_instance());
 }
 
+// TODO probar construcción de CorrInput
 // TODO: probar en merge_with que valores de bobp uod y uobp den correctos
 // TODO: probar to_parpair en  vector
 // Todo: parallel_vectors
