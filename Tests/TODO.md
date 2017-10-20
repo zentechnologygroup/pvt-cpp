@@ -22,3 +22,6 @@
 ## 7. Orden: input luego programar tests de TODO: 
 - Created at   
 
+## 8. Revisar memory leak en test json
+- Created at   2017-10-20 16:12:17 -0400
+

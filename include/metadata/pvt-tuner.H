@@ -30,7 +30,7 @@ struct VectorDesc
   const double pb = PVT_INVALID_VALUE; // bubble point pressure in the
 				       // same unit that p 
   const double bobp = PVT_INVALID_VALUE; // in RB_STB
- mutable double uod = PVT_INVALID_VALUE; // dead oil viscosity in cP
+  mutable double uod = PVT_INVALID_VALUE; // dead oil viscosity in cP
   const double uobp = PVT_INVALID_VALUE; // oil viscosity at pb in cP
   mutable Array<double> p;
   const Unit * punit = nullptr;
@@ -936,8 +936,8 @@ struct PvtData
     double bobp = PVT_INVALID_VALUE, uod = PVT_INVALID_VALUE,
       uobp = PVT_INVALID_VALUE;
     CorrInput() {}
-    CorrInput(const VectorDesc * __p_ref, DynList<VectorDesc> && __vlist)
-      : p_ref(__p_ref), vlist(move(__vlist))
+    CorrInput(const VectorDesc * __p_ref, const DynList<VectorDesc> & __vlist)
+      : p_ref(__p_ref), vlist(__vlist)
     {
       for (auto it = vlist.get_it(); it.has_curr(); it.next())
 	{
@@ -965,11 +965,12 @@ struct PvtData
     static DynSetTree<string> var_pars =
       { "p", "pb", "uod", "bobp", "uobp", "t" };
     const string target_name = corr_ptr->target_name();
+    const bool is_static_target = target_name == "pb" or target_name == "uod";
 
     const DynList<const VectorDesc*> src_vectors =
       search_vectors(corr_ptr->target_name());
 
-    if (src_vectors.is_empty())
+    if (src_vectors.is_empty() and not is_static_target)
       ZENTHROW(MetadataException, "Not vectors found for target name " +
 	       corr_ptr->target_name());
 
@@ -983,7 +984,7 @@ struct PvtData
 	  par.names().maps<string>([] (auto p) { return p.first; });
 
 	if (names_list.exists([this] (auto name) { return var_pars.has(name) or
-		search_const(name) != nullptr; }))
+		this->search_const(name) != nullptr; }))
 	  continue;
 
 	bool name_found = false;
@@ -1039,23 +1040,23 @@ struct PvtData
       }
 
     // Now we take src_vectors, which contains the vectors containing
-    // the pressures and target_name references and build the result
+    // the pressures and target_name references and we build the result
     DynList<CorrInput> ret;
     for (auto it = src_vectors.get_it(); it.has_curr(); it.next())
       {
 	const VectorDesc * vptr = it.get_curr();
 	auto ptr = vtbl.search(vptr->t);
 	if (ptr == nullptr)
-	  continue;
-
-	ret.append(CorrInput(vptr,
+	  ret.append(CorrInput(vptr, {}));
+	else
+	  ret.append(CorrInput(vptr,
 			     ptr->second.maps<VectorDesc>([vptr] (auto yptr)
-          {
-	    return vptr->merge_with(*yptr);
-	  })));
+            {
+	      return vptr->merge_with(*yptr);
+	    })));
       }
     
-    if (ret.is_empty())
+    if (ret.is_empty() and not is_static_target)
       ZENTHROW(MetadataException,
 	       "It was not possible to build input data for " + corr_ptr->name);
 
@@ -1085,12 +1086,20 @@ struct PvtData
 	corr_inputs.insert(move(pressures));
 	corr_inputs = transpose(corr_inputs);
 
+	// TODO si para cualquiera de estos target_name hay una
+	// correlación definida ==> sustituir en la columna los
+	// valores calculados por los calculados mediante la
+	// correlación. Tiene que ser aquí porque
+	// build_input_for_correlation retorna punteros a vectores, no
+	// vectores en sí mismos
+
 	parameters.insert("t", pref.t, &Fahrenheit::get_instance());
-	// TODO si hay correlación ==> calcular
+	// TODO para cada uno de estos valores si hay correlación ==> calcular
 	parameters.insert("pb", pref.pb, pref.punit);
 	parameters.insert("bobp", in.bobp, &RB_STB::get_instance());
 	parameters.insert("uod", in.uod, &CP::get_instance());
 	parameters.insert("uobp", in.uobp, &CP::get_instance());
+
 	DynList<double> y;
 	for (auto it = corr_inputs.get_it(); it.has_curr(); it.next())
 	  {

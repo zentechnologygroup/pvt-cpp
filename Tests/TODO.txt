@@ -5,3 +5,4 @@ seed y num de pruebas por linea de comandos,2017-10-12 18:46:45 -0400,2017-10-17
 organizar los test por fluidos de prueba,2017-10-19 08:38:41 -0400,,
 test para merge_parallel,2017-10-19 18:06:54 -0400,,
 Orden: input luego programar tests de TODO: ,,,
+Revisar memory leak en test json,2017-10-20 16:12:17 -0400,,

@@ -8,7 +8,7 @@ using namespace testing;
 using namespace std;
 
 constexpr double epsilon = 1e-9;
-static auto cmp_double = [] (double v1, double v2)
+static auto near_cmp = [] (double v1, double v2)
 {
   return fabs(v1 - v2) <= epsilon;
 };
@@ -265,8 +265,8 @@ TEST_F(FluidTest, json)
 	  ASSERT_NEAR(v1->uobp, v2->uobp, epsilon);
 	  ASSERT_EQ(v1->punit, v2->punit);
 	  ASSERT_EQ(v1->yunit, v2->yunit);
-	  ASSERT_TRUE(eq(v1->p, v2->p, cmp_double));
-	  ASSERT_TRUE(eq(v1->y, v2->y, cmp_double));
+	  ASSERT_TRUE(eq(v1->p, v2->p, near_cmp));
+	  ASSERT_TRUE(eq(v1->y, v2->y, near_cmp));
 	}
     }
 }
@@ -389,23 +389,99 @@ TEST_F(FluidTest, set_correlations)
   ASSERT_EQ(data.m_uoa, 0.99);
 }
 
-TEST_F(FluidTest, build_entries_for_correlation)
+TEST_F(FluidTest, build_entries_for_correlation_without_inputing)
 {
-  /// TODO falta definir
-
-  /// verificar que las presiones en todos los arreglso sean las mismas
+  {
+    auto l = data.build_input_for_correlation(&PbAlShammasi::get_instance());
+    ASSERT_TRUE(l.is_empty()); // because does not require pressure 
+  }
+  {
+    auto l = data.build_input_for_correlation(&RsAlShammasi::get_instance());
+    ASSERT_FALSE(l.is_empty());
+    auto rs = data.search_vectors("rs");
+    size_t k = 0;
+    for (auto it = zip_it(l, rs); it.has_curr(); it.next(), ++k)
+      {
+	auto t = it.get_curr();
+	const PvtData::CorrInput & in = get<0>(t);
+	ASSERT_TRUE(in.vlist.is_empty());
+	ASSERT_EQ(in.p_ref, get<1>(t));
+      }
+    ASSERT_NE(k, 0);
+  }
   {
     auto l = data.build_input_for_correlation(&BobLopezCR::get_instance());
-    for (auto it = l.get_it(); it.has_curr(); it.next())
-      cout << it.get_curr() << endl;
+    ASSERT_FALSE(l.is_empty());
+    auto bob = data.search_vectors("bob");
+    auto rs = data.search_vectors("rs");
+    size_t k = 0;
+    for (auto it = zip_it(l, bob, rs); it.has_curr(); it.next(), ++k)
+      {
+	auto t = it.get_curr();
+	const PvtData::CorrInput & in = get<0>(t);
+	ASSERT_TRUE(in.vlist.is_unitarian());
+	ASSERT_EQ(in.p_ref, get<1>(t));
+	const VectorDesc & rs_v = in.vlist.get_first();
+	const VectorDesc * rs_ptr = get<2>(t);
+	ASSERT_FALSE(rs_v.p.is_empty());
+	ASSERT_FALSE(rs_ptr->p.is_empty());
+	ASSERT_FALSE(rs_v.y.is_empty());
+	ASSERT_FALSE(rs_ptr->y.is_empty());
+	ASSERT_TRUE(eq(rs_v.p, rs_ptr->p, near_cmp));
+	ASSERT_TRUE(eq(rs_v.y, rs_ptr->y, near_cmp));
+      }
+    ASSERT_NE(k, 0);
   }
-
+  {
+    auto l = data.build_input_for_correlation(&CoaPerezML::get_instance());
+    ASSERT_FALSE(l.is_empty());
+    auto coa = data.search_vectors("coa");
+    size_t k = 0;
+    for (auto it = zip_it(l, coa); it.has_curr(); it.next(), ++k)
+      {
+	auto t = it.get_curr();
+	const PvtData::CorrInput & in = get<0>(t);
+	ASSERT_TRUE(in.vlist.is_empty());
+	ASSERT_EQ(in.p_ref, get<1>(t));
+      }
+    ASSERT_NE(k, 0);
+  }
+  {
+    const auto l = data.build_input_for_correlation(&BoaMcCain::get_instance());
+    ASSERT_FALSE(l.is_empty());
+    auto boa = data.search_vectors("boa");
+    ASSERT_FALSE(boa.is_empty());
+    size_t k = 0;
+    for (auto it = zip_it(l, boa); it.has_curr(); it.next(), ++k)
+      {
+	auto t = it.get_curr();
+	const PvtData::CorrInput & in = get<0>(t);
+	ASSERT_TRUE(in.vlist.is_unitarian());
+	ASSERT_EQ(in.p_ref, get<1>(t));
+	const VectorDesc & coa_v = in.vlist.get_first();
+	ASSERT_EQ(coa_v.yname, "coa");
+	ASSERT_FALSE(coa_v.p.is_empty());
+	ASSERT_FALSE(coa_v.y.is_empty());
+      }
+    ASSERT_NE(k, 0);
+  }
+  {
+    auto l = data.build_input_for_correlation(&UodBeal::get_instance());
+    ASSERT_TRUE(l.is_empty());
+  }
   {
     auto l = data.build_input_for_correlation(&UobBeggsRobinson::get_instance());
     for (auto it = l.get_it(); it.has_curr(); it.next())
       cout << it.get_curr() << endl;
   }
+  cout << "PASED" << endl;
+    return;
 
+  {
+    auto l = data.build_input_for_correlation(&UoaBeal::get_instance());
+    for (auto it = l.get_it(); it.has_curr(); it.next())
+      cout << it.get_curr() << endl;
+  }
 }
 
 TEST_F(FluidTest, compute_values_without_inputing)
@@ -413,6 +489,16 @@ TEST_F(FluidTest, compute_values_without_inputing)
   data.compute_values(&BobLopezCR::get_instance());
 
   data.compute_values(&UobBeggsRobinson::get_instance());
+}
+
+TEST_F(FluidTest, build_entries_for_correlation_with_inputing)
+{
+
+}
+
+TEST_F(FluidTest, build_entries_for_correlation_with_correlations_defined)
+{
+
 }
 
 // TODO probar construcción de CorrInput
@@ -434,7 +520,7 @@ TEST_F(FluidTest, get_pars)
 	auto t = it.get_curr();
 	const VectorDesc * vptr = get<0>(t);
 	const PvtData::Sample & sample = get<1>(t);
-	ASSERT_TRUE(eq(vptr->p, sample.pvals, cmp_double));
+	ASSERT_TRUE(eq(vptr->p, sample.pvals, near_cmp));
       }
   }
 
@@ -446,7 +532,7 @@ TEST_F(FluidTest, get_pars)
 	auto t = it.get_curr();
 	const VectorDesc * vptr = get<0>(t);
 	const PvtData::Sample & sample = get<1>(t);
-	ASSERT_TRUE(eq(vptr->p, sample.pvals, cmp_double));
+	ASSERT_TRUE(eq(vptr->p, sample.pvals, near_cmp));
 	vptr->p.for_each([] (auto p) { cout << p << " "; }); cout << endl;
 	sample.pvals.for_each([] (auto p) { cout << p << " "; }); cout << endl;
       }
@@ -460,7 +546,7 @@ TEST_F(FluidTest, get_pars)
 	auto t = it.get_curr();
 	const VectorDesc * vptr = get<0>(t);
 	const PvtData::Sample & sample = get<1>(t);
-	ASSERT_TRUE(eq(vptr->p, sample.pvals, cmp_double));
+	ASSERT_TRUE(eq(vptr->p, sample.pvals, near_cmp));
       }
     } 
 }
