@@ -389,26 +389,35 @@ TEST_F(FluidTest, set_correlations)
   ASSERT_EQ(data.m_uoa, 0.99);
 }
 
-// TODO: probar merge_parallel pero en vector.cc
-
 TEST_F(FluidTest, build_entries_for_correlation)
 {
+  /// TODO falta definir
 
+  /// verificar que las presiones en todos los arreglso sean las mismas
   {
-    auto l = data.build_entries_for_correlation(&BobLopezCR::get_instance());
+    auto l = data.build_input_for_correlation(&BobLopezCR::get_instance());
     for (auto it = l.get_it(); it.has_curr(); it.next())
       cout << it.get_curr() << endl;
   }
 
   {
-    auto l = data.build_entries_for_correlation(&UobBeggsRobinson::get_instance());
+    auto l = data.build_input_for_correlation(&UobBeggsRobinson::get_instance());
     for (auto it = l.get_it(); it.has_curr(); it.next())
       cout << it.get_curr() << endl;
   }
 
 }
 
-// TODO: parallel_vectors
+TEST_F(FluidTest, compute_values_without_inputing)
+{
+  data.compute_values(&BobLopezCR::get_instance());
+
+  data.compute_values(&UobBeggsRobinson::get_instance());
+}
+
+// TODO: probar en merge_with que valores de bobp uod y uobp den correctos
+// TODO: probar to_parpair en  vector
+// Todo: parallel_vectors
 
 // TODO 1ro debo programar inputing
 

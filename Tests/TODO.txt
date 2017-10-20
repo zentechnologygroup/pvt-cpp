@@ -4,3 +4,4 @@ casos límites para split_uo pressiones o uo muy cercanas,2017-10-12 11:04:46 -0
 seed y num de pruebas por linea de comandos,2017-10-12 18:46:45 -0400,2017-10-17 13:06:35 -0400,
 organizar los test por fluidos de prueba,2017-10-19 08:38:41 -0400,,
 test para merge_parallel,2017-10-19 18:06:54 -0400,,
+Orden: input luego programar tests de TODO: ,,,

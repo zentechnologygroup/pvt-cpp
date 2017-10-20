@@ -30,7 +30,7 @@ struct VectorDesc
   const double pb = PVT_INVALID_VALUE; // bubble point pressure in the
 				       // same unit that p 
   const double bobp = PVT_INVALID_VALUE; // in RB_STB
-  mutable double uod = PVT_INVALID_VALUE; // dead oil viscosity in cP
+ mutable double uod = PVT_INVALID_VALUE; // dead oil viscosity in cP
   const double uobp = PVT_INVALID_VALUE; // oil viscosity at pb in cP
   mutable Array<double> p;
   const Unit * punit = nullptr;
@@ -230,9 +230,19 @@ struct VectorDesc
     if (not has_same_t_pb(y_vector))
       ZENTHROW(MetadataException,
 	       "vectors to be merged don't share same t and pb");
-    return VectorDesc(y_vector.t, y_vector.pb, y_vector.bobp, y_vector.uod,
-		      y_vector.uobp, p, punit, y_vector.yname,
+    Array<double> pressures = p; 
+    if (y_vector.yname == "coa")
+      pressures.append(pressures);
+    return VectorDesc(y_vector.t, y_vector.pb, max(bobp, y_vector.bobp),
+		      max(uod, y_vector.uod), max(uobp, y_vector.uobp),
+		      pressures, punit, y_vector.yname,
 		      y_vector.gety(p), y_vector.yunit);
+  }
+
+  DynList<ParPair> to_parpair() const
+  {
+    return y.maps<ParPair>([this] (auto y)
+			   { return ParPair(yname, ValPair(y, yunit)); });
   }
 
   DynList<DynList<string>> to_dynlist() const
@@ -275,7 +285,7 @@ struct VectorDesc
       two vector named uob and uob respectively. The bubble point and
       uod values are computed.
 
-      For computing pb
+      For computing pb TODO ...
 
    */
   pair<VectorDesc, VectorDesc> split_uo() const
@@ -923,9 +933,23 @@ struct PvtData
     // contain another vectors which yname must be input to the
     // correlation and that are parallel to p_ref
     DynList<VectorDesc> vlist;
+    double bobp = PVT_INVALID_VALUE, uod = PVT_INVALID_VALUE,
+      uobp = PVT_INVALID_VALUE;
     CorrInput() {}
     CorrInput(const VectorDesc * __p_ref, DynList<VectorDesc> && __vlist)
-      : p_ref(__p_ref), vlist(move(__vlist)) {}
+      : p_ref(__p_ref), vlist(move(__vlist))
+    {
+      for (auto it = vlist.get_it(); it.has_curr(); it.next())
+	{
+	  const VectorDesc & v = it.get_curr();
+	  if (v.bobp != PVT_INVALID_VALUE)
+	    bobp = v.bobp;
+	  if (v.uod != PVT_INVALID_VALUE)
+	    uod = v.uod;
+	  if (v.uobp != PVT_INVALID_VALUE)
+	    uobp = v.uobp;
+	}
+    }
     friend ostream & operator << (ostream & out, const CorrInput & ci)
     {
       out << *ci.p_ref << endl
@@ -936,7 +960,7 @@ struct PvtData
   };
   
   DynList<CorrInput>
-  build_entries_for_correlation(const Correlation * corr_ptr) const
+  build_input_for_correlation(const Correlation * corr_ptr) const
   {
     static DynSetTree<string> var_pars =
       { "p", "pb", "uod", "bobp", "uobp", "t" };
@@ -945,10 +969,12 @@ struct PvtData
     const DynList<const VectorDesc*> src_vectors =
       search_vectors(corr_ptr->target_name());
 
-    // TODO si vacía exceci[on
+    if (src_vectors.is_empty())
+      ZENTHROW(MetadataException, "Not vectors found for target name " +
+	       corr_ptr->target_name());
 
     DynMapTree<double, DynList<const VectorDesc*>> vtbl;
-   
+
     for (auto it = corr_ptr->get_preconditions().get_it();
 	 it.has_curr(); it.next())
       {
@@ -1037,10 +1063,68 @@ struct PvtData
   }
 
   DynList<VectorDesc> compute_values(const Correlation * corr_ptr,
-				   double c, double m) const
+				   double c = 0, double m = 1)
   {
+    DynList<VectorDesc> ret;
+    DynList<CorrInput> input = build_input_for_correlation(corr_ptr);
+    for (auto it = input.get_it(); it.has_curr(); it.next())
+      {
+	const CorrInput in = it.get_curr();
+	const VectorDesc & pref = *in.p_ref;
+	Array<double> p = pref.p;
+	DynList<ParPair> pressures =
+	  p.maps<ParPair>([u = in.p_ref->punit] (auto p)
+			  {
+			    return ParPair("p", ValPair(p, u));
+			  });
+	DynList<DynList<ParPair>> corr_inputs =
+	  in.vlist.maps<DynList<ParPair>>([] (auto & v)
+					  {
+					    return v.to_parpair();
+					  });
+	corr_inputs.insert(move(pressures));
+	corr_inputs = transpose(corr_inputs);
 
+	parameters.insert("t", pref.t, &Fahrenheit::get_instance());
+	parameters.insert("pb", pref.pb, pref.punit);
+	parameters.insert("bobp", in.bobp, &RB_STB::get_instance());
+	parameters.insert("uod", in.uod, &CP::get_instance());
+	parameters.insert("uobp", in.uobp, &CP::get_instance());
+	DynList<double> y;
+	for (auto it = corr_inputs.get_it(); it.has_curr(); it.next())
+	  {
+	    auto & l = it.get_curr();
+	    l.for_each([] (auto p)
+	    {
+	      cout << p.first << " " << p.second.first << " "
+		   << p.second.second->name << " ";
+	    });
+	    cout << endl;
+
+	    // insert in parameters list each required dynamic parameter
+	    it.get_curr().for_each([this] (auto & p) { parameters.insert(p); });
+	    VtlQuantity val =
+	      corr_ptr->tuned_compute_by_names(parameters, c, m, false);
+	    y.append(val.raw());
+	    it.get_curr().for_each([this] (auto & p) { parameters.remove(p); });
+	  }
+	parameters.remove("t");
+	parameters.remove("pb");
+	parameters.remove("bobp");
+	parameters.remove("uod");
+	parameters.remove("uobp");
+
+	cout << "p ="; p.for_each([] (auto p) { cout << " " << p; }); cout << endl;
+	cout << "y ="; y.for_each([] (auto y) { cout << " " << y; }); cout << endl;
+	//VectorDesc(pref.t, pref.pb, pref.
+
+      }
+    return ret;
   }
+
+  // TODO inputing aquí
+
+
   // TODO luego de aquí construir por cada propiedad build_rs_values
   // ... según cascada que tendria el grid
 

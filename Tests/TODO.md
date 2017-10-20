@@ -19,3 +19,6 @@
 ## 6. test para merge_parallel
 - Created at   2017-10-19 18:06:54 -0400
 
+## 7. Orden: input luego programar tests de TODO: 
+- Created at   
+

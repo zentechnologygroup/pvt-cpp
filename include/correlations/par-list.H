@@ -153,6 +153,11 @@ public:
   {
     remove(get<1>(par));
   }
+
+  void remove(const ParPair & par)
+  {
+    remove(par.first);
+  }
 };
 
 

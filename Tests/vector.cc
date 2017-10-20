@@ -156,6 +156,21 @@ TEST(VectorDesc, gety_limits)
   ASSERT_NEAR(v.gety(high_p), v.yunit->max_val, 1e-20);
 }
 
+TEST(VectorDesc, merge_with)
+{
+  VectorDesc v1(125, 29000, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		PVT_INVALID_VALUE, { 0, 100, 1000, 10000, 18000, 29000 },
+		&psia::get_instance(), "rs",
+		{ 0, 10, 1000, 10000, 18000, 34000}, &SCF_STB::get_instance());
+  VectorDesc v2(125, 29000, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		PVT_INVALID_VALUE, { 0, 140, 1040, 10800, 19000, 29000,
+		    100, 300, 2040, 15800, 24000, 29900},
+		&psia::get_instance(), "coa",
+		{ 1e-2, 5e-3, 4e-4, 3e-5, 2e-6, 1e-8 }, &psia_1::get_instance());
+
+  cout << v1.merge_with(v2) << endl;
+}
+
 TEST(VectorDesc, uo_split)
 {
   VectorDesc
