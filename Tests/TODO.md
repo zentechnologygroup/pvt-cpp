@@ -25,3 +25,6 @@
 ## 8. Revisar memory leak en test json
 - Created at   2017-10-20 16:12:17 -0400
 
+## 9. seg fault con gnu c++ por qué
+- Created at   2017-10-20 17:41:14 -0400
+
