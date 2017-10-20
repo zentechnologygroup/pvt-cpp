@@ -1086,6 +1086,7 @@ struct PvtData
 	corr_inputs = transpose(corr_inputs);
 
 	parameters.insert("t", pref.t, &Fahrenheit::get_instance());
+	// TODO si hay correlación ==> calcular
 	parameters.insert("pb", pref.pb, pref.punit);
 	parameters.insert("bobp", in.bobp, &RB_STB::get_instance());
 	parameters.insert("uod", in.uod, &CP::get_instance());
@@ -1102,6 +1103,7 @@ struct PvtData
 	    cout << endl;
 
 	    // insert in parameters list each required dynamic parameter
+	    // TODO: igual aquí: si hay correlación caluclar por ella
 	    it.get_curr().for_each([this] (auto & p) { parameters.insert(p); });
 	    VtlQuantity val =
 	      corr_ptr->tuned_compute_by_names(parameters, c, m, false);
