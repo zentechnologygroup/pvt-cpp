@@ -796,6 +796,17 @@ struct PvtData
       add_vector(p.first);
       add_vector(p.second);
     }
+    
+    try // Now we must be sure that the resulting spit vector are
+	// ordered by temperature and bubble point
+      {
+	tp_sets(); // this call would throw exceptions if the split uo
+		   // vector would be unsorted
+      }
+    catch (PressureMismatch)
+      {
+	ZENTHROW(PressureMismatch, "split_uo gives unsorted pb points");
+      }
   }
 
   PvtData() {}
@@ -949,11 +960,10 @@ struct PvtData
   	  }
       }
 
-    // TODO: revisar
-    // if (not is_sorted(tuples.values().
-    // 		      maps<double>([] (auto & t) { return t.pb; })))
-    //   ZENTHROW(PressureMismatch,
-    // 	       "pb values are not sorted through temperatures");
+     if (not is_sorted(tuples.values().
+		       maps<double>([] (auto & t) { return t.pb; })))
+       ZENTHROW(PressureMismatch,
+		"pb values are not sorted through temperatures");
 
     return tuples.maps<TpSet>([] (auto & p) { return p.second; });
   }
@@ -1130,7 +1140,8 @@ struct PvtData
     for (auto it = input.get_it(); it.has_curr(); it.next())
       {
 	const CorrInput in = it.get_curr();
-	const VectorDesc & pref = *in.p_ref;
+	const VectorDesc & pref = *in.p_ref; // TODO: ojo puede ser
+					     // nulo en pb y uod
 	Array<double> p = pref.p;
 	DynList<ParPair> pressures =
 	  p.maps<ParPair>([u = in.p_ref->punit] (auto p)

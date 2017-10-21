@@ -114,13 +114,13 @@ TEST(PvtData, split_uo)
 		  psia::get_instance(), "uoa",
 		  {12891, 11384, 10377, 9530, 8762, 8240, 7869, 7638},
 		  CP::get_instance());
-  data.add_vector(200, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+  data.add_vector(300, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 		  PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 		  {3000, 2700, 2400, 2100, 1800, 1500, 1200, 900, 600, 400, 200},
 		  psia::get_instance(), "uo",
 		  {38.14, 36.77, 35.66, 34.42, 33.44, 32.19, 30.29,
 		      32.5, 37.1, 40.8, 44.5}, CP::get_instance());
-  data.add_vector(300, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+  data.add_vector(200, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 		  PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 		  {3000, 2700, 2400, 2100, 1800, 1500, 1300,
 		      1100, 1000, 800, 500, 200}, psia::get_instance(), "uo",
@@ -139,6 +139,7 @@ TEST(PvtData, split_uo)
   const DynList<double> t = {125, 200, 300};
 
   data.split_uo();
+
   uob_list = data.search_vectors("uob");
   size_t k = 0;
   for (auto it = zip_it(uob_list, t); it.has_curr(); it.next(), ++k)
@@ -156,6 +157,31 @@ TEST(PvtData, split_uo)
       ASSERT_EQ(get<0>(t)->t, get<1>(t));
     }
   ASSERT_GT(k, 0);
+
+  // now we test a bad split
+  data.rm_vector(200, "uob");
+  data.rm_vector(200, "uoa");
+  data.rm_vector(300, "uob");
+  data.rm_vector(300, "uoa");
+  data.rm_vector(200, "uo");
+  data.rm_vector(300, "uo");
+
+  // these uo vectors are the same than above, excepts that the
+  // temperature is swapped. So, the split would cause a pb for 300
+  // degF less that the pb for 200 degF
+  data.add_vector(200, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  {3000, 2700, 2400, 2100, 1800, 1500, 1200, 900, 600, 400, 200},
+		  psia::get_instance(), "uo",
+		  {38.14, 36.77, 35.66, 34.42, 33.44, 32.19, 30.29,
+		      32.5, 37.1, 40.8, 44.5}, CP::get_instance());
+  data.add_vector(300, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  {3000, 2700, 2400, 2100, 1800, 1500, 1300,
+		      1100, 1000, 800, 500, 200}, psia::get_instance(), "uo",
+		  {370, 349.7, 335, 316.3, 302.4, 279.8, 270, 260,
+		      256, 278, 345.3, 404.6}, CP::get_instance());
+  ASSERT_THROW(data.split_uo(), PressureMismatch);
 }
 
 struct FluidTest : public Test
@@ -207,16 +233,16 @@ struct FluidTest : public Test
 		    CP::get_instance());
     data.add_vector(200, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 		    PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-		    {3000, 2700, 2400, 2100, 1800, 1500, 1200, 900, 600, 400, 200},
-		    psia::get_instance(), "uo",
-		    {38.14, 36.77, 35.66, 34.42, 33.44, 32.19, 30.29,
-			32.5, 37.1, 40.8, 44.5}, CP::get_instance());
-    data.add_vector(300, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-		    PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 		    {3000, 2700, 2400, 2100, 1800, 1500, 1300,
 			1100, 1000, 800, 500, 200}, psia::get_instance(), "uo",
 		    {370, 349.7, 335, 316.3, 302.4, 279.8, 270, 260,
 			256, 278, 345.3, 404.6}, CP::get_instance());
+    data.add_vector(300, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		    PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		    {3000, 2700, 2400, 2100, 1800, 1500, 1200, 900, 600, 400, 200},
+		    psia::get_instance(), "uo",
+		    {38.14, 36.77, 35.66, 34.42, 33.44, 32.19, 30.29,
+			32.5, 37.1, 40.8, 44.5}, CP::get_instance());
     data.split_uo();
   }
 };
@@ -483,7 +509,7 @@ TEST_F(FluidTest, build_entries_for_correlation_without_inputing)
   }
   {
     auto l = data.build_input_for_correlation(&UodBeal::get_instance());
-    ASSERT_TRUE(l.is_empty());    
+    ASSERT_FALSE(l.is_empty());    
     ASSERT_TRUE(l.all([] (auto & c) { return c.t != PVT_INVALID_VALUE and
 	    c.pb != PVT_INVALID_VALUE and c.uod != PVT_INVALID_VALUE; }));
   }
@@ -530,6 +556,12 @@ TEST_F(FluidTest, build_entries_for_correlation_without_inputing)
       }
     ASSERT_NE(k, 0);
   }
+}
+
+TEST_F(FluidTest, tp_sets)
+{
+  auto tp = data.tp_sets();
+  ASSERT_FALSE(tp.is_empty());
 }
 
 TEST_F(FluidTest, compute_values_without_inputing)
@@ -643,13 +675,7 @@ TEST_F(FluidTest, list_restrictions)
 
 }
 
-
 TEST_F(FluidTest, get_vectors)
-{
-
-}
-
-TEST_F(FluidTest, tp_sets)
 {
 
 }
@@ -664,7 +690,6 @@ TEST_F(FluidTest, rsapply)
 
 }
 
-
 TEST_F(FluidTest, bobapply)
 {
 
@@ -675,24 +700,20 @@ TEST_F(FluidTest, coaapply)
 
 }
 
-
 TEST_F(FluidTest, boaapply)
 {
 
 }
-
 
 TEST_F(FluidTest, uodapply)
 {
 
 }
 
-
 TEST_F(FluidTest, uobapply)
 {
 
 }
-
 
 TEST_F(FluidTest, uoaapply)
 {
