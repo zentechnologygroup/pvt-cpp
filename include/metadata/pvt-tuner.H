@@ -734,33 +734,6 @@ struct PvtData
     return make_pair(desc_ptr->punit, desc_ptr->yunit);
   }
 
-  void add_vector(VectorDesc && v)
-  {
-    if (vectors.has(v))
-      ZENTHROW(DuplicatedVarName, "add_vector(): name " + v.yname +
-	       " with t = " + ::to_string(v.t) + " is already defined");
-
-    if (&v.punit->physical_quantity != &Pressure::get_instance())
-      ZENTHROW(InvalidPressureUnit, v.punit->name + " is not for pressure");
-
-    if (not is_sorted(v.p))
-      ZENTHROW(SamplesUnsorted, "pressure values are not sorted");
-
-    auto sibling = search_vectors(v.yname);
-    if (not sibling.is_empty() and not sibling.all([&v] (auto & p)
-        { return p->yunit->is_sibling(*v.yunit); }))
-      ZENTHROW(InvalidTargetUnit, v.yunit->name + " is not sibling");
-
-    names.append("p");
-    names.append("pb");
-    names.append("t");
-    names.append("uod");
-    names.append("uobp");
-    names.append("bobp");
-    names.append(v.yname);
-    vectors.insert(move(v));
-  }
-
   void add_vector(const VectorDesc & v)
   {
     if (vectors.has(v))
@@ -922,6 +895,69 @@ struct PvtData
     return ret;
   }
 
+  struct TpSet
+  {
+    double t = PVT_INVALID_VALUE, pb = PVT_INVALID_VALUE,
+      uod = PVT_INVALID_VALUE;
+    TpSet() {}
+    TpSet(double __t, double __pb, double __uod)
+      : t(__t), pb(__pb), uod(__uod) {}
+  };
+
+  DynList<TpSet> tp_sets() const
+  { // key is temperature
+    DynMapTree<double, TpSet> tuples;
+    for (auto it = vectors.get_it(); it.has_curr(); it.next())
+      {
+  	const VectorDesc & vdesc = it.get_curr();
+	if (vdesc.yname == "uo")
+	  continue;
+  	auto ptr = tuples.search(vdesc.t);
+  	if (ptr == nullptr)
+	  if (vdesc.yname == "uob" or vdesc.yname == "uoa")
+	    tuples.insert(vdesc.t, TpSet(vdesc.t,
+					 unit_convert(*vdesc.punit, vdesc.pb,
+						      psia::get_instance()),
+					 unit_convert(*vdesc.yunit, vdesc.uod,
+						      CP::get_instance())));
+	  else
+	    tuples.insert(vdesc.t,
+			  TpSet(vdesc.t, unit_convert(*vdesc.punit, vdesc.pb,
+						      psia::get_instance()),
+				PVT_INVALID_VALUE));
+	else
+  	  {
+  	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
+  					  psia::get_instance());
+	    TpSet & t = ptr->second;
+  	    if (t.pb > 0 and t.pb != p)
+  	      {
+		cout << "Found two contradictory pairs t, pb: "
+		     << ptr->first << ","
+		     << t.pb << " != " << vdesc.t << "," << vdesc.pb << endl;
+  		abort();
+  	      }
+	    if (vdesc.yname == "uob" or vdesc.yname == "uoa")
+	      t.uod = unit_convert(*vdesc.yunit, vdesc.uod, CP::get_instance());
+	    else if (t.uod > 0 and t.uod != vdesc.uod)
+	      {
+  		cout << "Found two ambiguous uod values for t = " << vdesc.t
+		     << " pb = " << vdesc.pb << " " << t.uod << " != "
+		     << vdesc.uod << endl;
+		abort();
+	      }
+  	  }
+      }
+
+    // TODO: revisar
+    // if (not is_sorted(tuples.values().
+    // 		      maps<double>([] (auto & t) { return t.pb; })))
+    //   ZENTHROW(PressureMismatch,
+    // 	       "pb values are not sorted through temperatures");
+
+    return tuples.maps<TpSet>([] (auto & p) { return p.second; });
+  }
+
   /** Takes the data set and return a list of list with the required
       input vector needed for computing corr_ptr
   */
@@ -933,11 +969,15 @@ struct PvtData
     // contain another vectors which yname must be input to the
     // correlation and that are parallel to p_ref
     DynList<VectorDesc> vlist;
-    double bobp = PVT_INVALID_VALUE, uod = PVT_INVALID_VALUE,
+    double t = PVT_INVALID_VALUE, pb = PVT_INVALID_VALUE,
+      bobp = PVT_INVALID_VALUE, uod = PVT_INVALID_VALUE,
       uobp = PVT_INVALID_VALUE;
     CorrInput() {}
+    CorrInput(double __t, double __pb, double __uod)
+      : t(__t), pb(__pb), uod(__uod) {}
     CorrInput(const VectorDesc * __p_ref, const DynList<VectorDesc> & __vlist)
-      : p_ref(__p_ref), vlist(__vlist)
+      : p_ref(__p_ref), vlist(__vlist),
+	t(p_ref->t), pb(p_ref->pb), uod(p_ref->uod)
     {
       for (auto it = vlist.get_it(); it.has_curr(); it.next())
 	{
@@ -952,13 +992,16 @@ struct PvtData
     }
     friend ostream & operator << (ostream & out, const CorrInput & ci)
     {
-      out << *ci.p_ref << endl
-	  << "----" << endl;
+      out << "P: t = " << ci.t << " pb = " << ci.pb << " uod = " << ci.uod
+	  << endl
+	  << *ci.p_ref << endl
+	  << "additional properties:" << endl;
       ci.vlist.for_each([&out] (auto & v) { out << v << endl; });
+      cout << "================" << endl;
       return out;
     }
   };
-  
+
   DynList<CorrInput>
   build_input_for_correlation(const Correlation * corr_ptr) const
   {
@@ -966,6 +1009,13 @@ struct PvtData
       { "p", "pb", "uod", "bobp", "uobp", "t" };
     const string target_name = corr_ptr->target_name();
     const bool is_static_target = target_name == "pb" or target_name == "uod";
+
+    if (is_static_target)
+      {
+	return tp_sets().maps<CorrInput>([] (auto t)
+					 { return CorrInput(t.t, t.pb, t.uod); });
+	  
+      }
 
     const DynList<const VectorDesc*> src_vectors =
       search_vectors(corr_ptr->target_name());
@@ -983,8 +1033,10 @@ struct PvtData
 	const auto & names_list =
 	  par.names().maps<string>([] (auto p) { return p.first; });
 
-	if (names_list.exists([this] (auto name) { return var_pars.has(name) or
-		this->search_const(name) != nullptr; }))
+	if (names_list.exists([&] (auto name) { return var_pars.has(name); }))
+	  continue;
+	if (names_list.exists([this] (auto name)
+			      { return this->search_const(name) != nullptr; }))
 	  continue;
 
 	bool name_found = false;
@@ -1042,6 +1094,7 @@ struct PvtData
     // Now we take src_vectors, which contains the vectors containing
     // the pressures and target_name references and we build the result
     DynList<CorrInput> ret;
+    bool has_additional_vectors = false;
     for (auto it = src_vectors.get_it(); it.has_curr(); it.next())
       {
 	const VectorDesc * vptr = it.get_curr();
@@ -1049,16 +1102,22 @@ struct PvtData
 	if (ptr == nullptr)
 	  ret.append(CorrInput(vptr, {}));
 	else
-	  ret.append(CorrInput(vptr,
-			     ptr->second.maps<VectorDesc>([vptr] (auto yptr)
-            {
-	      return vptr->merge_with(*yptr);
-	    })));
+	  {
+	    has_additional_vectors = true;
+	    ret.append(CorrInput(vptr,
+				 ptr->second.maps<VectorDesc>([vptr] (auto yptr)
+              {
+		return vptr->merge_with(*yptr);
+	      })));
+	  }
       }
     
     if (ret.is_empty() and not is_static_target)
       ZENTHROW(MetadataException,
 	       "It was not possible to build input data for " + corr_ptr->name);
+
+    if (has_additional_vectors)
+      return ret.filter([] (auto & c) { return not c.vlist.is_empty(); });
 
     return ret;
   }
@@ -1416,71 +1475,6 @@ struct PvtData
 	  pars.insert(par.name, const_ptr->value, const_ptr->unit_ptr);
       }
   }
-
-  //                     t,     pb,     uod,
-  struct TpSet
-  {
-    double t = PVT_INVALID_VALUE, pb = PVT_INVALID_VALUE,
-      uod = PVT_INVALID_VALUE;
-    TpSet() {}
-    TpSet(double __t, double __pb, double __uod)
-      : t(__t), pb(__pb), uod(__uod) {}
-  };
-
-  DynList<TpSet> tp_sets() const
-  {
-    DynMapTree<double, TpSet> tuples;
-    for (auto it = vectors.get_it(); it.has_curr(); it.next())
-      {
-  	const VectorDesc & vdesc = it.get_curr();
-	if (vdesc.yname == "bo" or vdesc.yname == "uo")
-	  continue;
-	// TODO: aquí hay error
-  	auto ptr = tuples.search(vdesc.t);
-  	if (ptr == nullptr)
-	  if (vdesc.yname == "uob" or vdesc.yname == "uoa")
-	    tuples.insert(vdesc.t, TpSet(vdesc.t,
-					 unit_convert(*vdesc.punit, vdesc.pb,
-						      psia::get_instance()),
-					 unit_convert(*vdesc.yunit, vdesc.uod,
-						      CP::get_instance())));
-	  else
-	    tuples.insert(vdesc.t,
-			  TpSet(vdesc.t, unit_convert(*vdesc.punit, vdesc.pb,
-						      psia::get_instance()),
-				PVT_INVALID_VALUE));
-	else
-  	  {
-  	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
-  					  psia::get_instance());
-	    TpSet & t = ptr->second;
-  	    if (t.pb > 0 and t.pb != p)
-  	      {
-		cout << "Found two contradictory pairs t,pb: "
-		     << ptr->first << ","
-		     << t.pb << " != " << vdesc.t << "," << vdesc.pb << endl;
-  		abort();
-  	      }
-	    if (vdesc.yname == "uob" or vdesc.yname == "uoa")
-	      t.uod = unit_convert(*vdesc.yunit, vdesc.uod, CP::get_instance());
-	    else if (t.uod > 0 and t.uod != vdesc.uod)
-	      {
-  		cout << "Found two ambiguous uod values for t = " << vdesc.t
-		     << " pb = " << vdesc.pb << " " << t.uod << " != "
-		     << vdesc.uod << endl;
-		abort();
-	      }
-  	  }
-      }
-
-    if (not is_sorted(tuples.values().
-		      maps<double>([] (auto & t) { return t.pb; })))
-      ZENTHROW(PressureMismatch,
-  	       "pb values are not sorted through temperatures");
-
-    return tuples.maps<TpSet>([] (auto & p) { return p.second; });
-  }
-
   struct PbDesc
   {
     double t, pb_lab, pb_corr;
@@ -2104,7 +2098,6 @@ struct PvtData
       }
   }
 };
-
 
 VectorDesc::VectorDesc(double t, double pb, double bobp,
 		       double uod, double uobp,

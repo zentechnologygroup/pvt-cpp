@@ -28,3 +28,6 @@
 ## 9. seg fault con gnu c++ por qué
 - Created at   2017-10-20 17:41:14 -0400
 
+## 10. macro para instancias unidades
+- Created at   2017-10-20 18:27:50 -0400
+
