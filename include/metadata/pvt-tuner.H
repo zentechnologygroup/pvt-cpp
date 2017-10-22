@@ -1132,72 +1132,119 @@ struct PvtData
     return ret;
   }
 
-  DynList<VectorDesc> compute_values(const Correlation * corr_ptr,
-				   double c = 0, double m = 1)
+  struct CorrOutput
   {
-    DynList<VectorDesc> ret;
+    const Correlation * corr_ptr = nullptr;
+
+    DynList<double> t;
+
+    Array<double> p; // it is empty if target_name is pb or uod
+    const Unit * punit = nullptr;
+    Array<double> y;
+    
+    CorrOutput(double __t, double __y, const Correlation * __corr_ptr)
+      : t(__t), corr_ptr(__corr_ptr)
+    {
+      y.append(__y);
+    }
+    CorrOutput(double __t, Array<double> && __p, const Unit * __punit,
+	       Array<double> && __y, const Correlation * __corr_ptr)
+      : t(__t), p(move(__p)), punit(__punit), y(move(__y)), corr_ptr(__corr_ptr)
+    {}
+  };
+
+  DynList<CorrOutput> compute_values(const Correlation * corr_ptr,
+				     double c = 0, double m = 1)
+  {
+    DynList<CorrOutput> ret;
     DynList<CorrInput> input = build_input_for_correlation(corr_ptr);
     for (auto it = input.get_it(); it.has_curr(); it.next())
       {
-	const CorrInput in = it.get_curr();
-	const VectorDesc & pref = *in.p_ref; // TODO: ojo puede ser
-					     // nulo en pb y uod
-	Array<double> p = pref.p;
-	DynList<ParPair> pressures =
-	  p.maps<ParPair>([u = in.p_ref->punit] (auto p)
-			  {
-			    return ParPair("p", ValPair(p, u));
-			  });
-	DynList<DynList<ParPair>> corr_inputs =
-	  in.vlist.maps<DynList<ParPair>>([] (auto & v)
-					  {
-					    return v.to_parpair();
-					  });
-	corr_inputs.insert(move(pressures));
-	corr_inputs = transpose(corr_inputs);
-
-	// TODO si para cualquiera de estos target_name hay una
-	// correlación definida ==> sustituir en la columna los
-	// valores calculados por los calculados mediante la
-	// correlación. Tiene que ser aquí porque
-	// build_input_for_correlation retorna punteros a vectores, no
-	// vectores en sí mismos
-
-	parameters.insert("t", pref.t, &Fahrenheit::get_instance());
-	// TODO para cada uno de estos valores si hay correlación ==> calcular
-	parameters.insert("pb", pref.pb, pref.punit);
-	parameters.insert("bobp", in.bobp, &RB_STB::get_instance());
+	const CorrInput in = it.get_curr();	
+	parameters.insert("t", in.t, &Fahrenheit::get_instance());
+	// TODO for each one of this properties compute it if a
+	// correlation is defined 
+	parameters.insert("pb", in.pb, &psia::get_instance());
 	parameters.insert("uod", in.uod, &CP::get_instance());
-	parameters.insert("uobp", in.uobp, &CP::get_instance());
 
-	DynList<double> y;
-	for (auto it = corr_inputs.get_it(); it.has_curr(); it.next())
+	const bool dynamic_correlation = in.p_ref != nullptr;
+	DynList<double> x; // could be temperature or pressure if
+			   // dynamic_correlation 
+	DynList<double> y; // here are the computed values
+	if (not dynamic_correlation)
 	  {
-	    auto & l = it.get_curr();
-	    l.for_each([] (auto p)
-	    {
-	      cout << p.first << " " << p.second.first << " "
-		   << p.second.second->name << " ";
-	    });
-	    cout << endl;
-
-	    // insert in parameters list each required dynamic parameter
-	    // TODO: igual aquí: si hay correlación caluclar por ella
-	    it.get_curr().for_each([this] (auto & p) { parameters.insert(p); });
+	    x.append(in.t);
 	    VtlQuantity val =
 	      corr_ptr->tuned_compute_by_names(parameters, c, m, false);
 	    y.append(val.raw());
-	    it.get_curr().for_each([this] (auto & p) { parameters.remove(p); });
 	  }
+	else
+	  {
+	    const VectorDesc & pref = *in.p_ref; 
+	    parameters.insert("bobp", in.bobp, &RB_STB::get_instance());
+	    parameters.insert("uod", in.uod, &CP::get_instance());
+	    parameters.insert("uobp", in.uobp, &CP::get_instance());
+
+	    Array<double> p = pref.p;
+	    DynList<ParPair> pressures =
+	      p.maps<ParPair>([u = in.p_ref->punit] (auto p)
+			      {
+				return ParPair("p", ValPair(p, u));
+			      });
+	    DynList<DynList<ParPair>> corr_inputs =
+	      in.vlist.maps<DynList<ParPair>>([] (auto & v)
+					      {
+						return v.to_parpair();
+					      });
+	    corr_inputs.insert(move(pressures));
+	    corr_inputs = transpose(corr_inputs);
+
+	    // TODO si para cualquiera de estos target_name hay una
+	    // correlación definida ==> sustituir en la columna los
+	    // valores calculados por los calculados mediante la
+	    // correlación. Tiene que ser aquí porque
+	    // build_input_for_correlation retorna punteros a vectores, no
+	    // vectores en sí mismos
+	    for (auto it = corr_inputs.get_it(); it.has_curr(); it.next())
+	      {
+		auto & l = it.get_curr();
+		l.for_each([] (auto p)
+			   {
+			     cout << p.first << " " << p.second.first << " "
+				  << p.second.second->name << " ";
+			   });
+		cout << endl;
+
+		// insert in parameters list each required dynamic parameter
+		// TODO: igual aquí: si hay correlación caluclar por ella
+		it.get_curr().for_each([this] (auto & p) { parameters.insert(p); });
+		VtlQuantity val =
+		  corr_ptr->tuned_compute_by_names(parameters, c, m, false);
+		y.append(val.raw());
+		it.get_curr().for_each([this] (auto & p) { parameters.remove(p); });
+	      }
+	    x = to_dynlist(pref.p);
+	    parameters.remove("bobp");
+	    parameters.remove("uod");
+	    parameters.remove("uobp");
+	  }
+	
 	parameters.remove("t");
 	parameters.remove("pb");
-	parameters.remove("bobp");
 	parameters.remove("uod");
-	parameters.remove("uobp");
 
-	cout << "p ="; p.for_each([] (auto p) { cout << " " << p; }); cout << endl;
+	cout << "x ="; x.for_each([] (auto p) { cout << " " << p; }); cout << endl;
 	cout << "y ="; y.for_each([] (auto y) { cout << " " << y; }); cout << endl;
-	//VectorDesc(pref.t, pref.pb, pref.
+
+	if (dynamic_correlation)
+	  ret.append(CorrOutput(in.t, y, , const Correlation *__corr_ptr)
+
+(VectorDesc(in.t, in.t, in.p_ref->bobp, in.uod,
+	// 			in.p_ref->uobp, x, in.p_ref->punit,
+	// 			corr_ptr->target_name(), y, corr_ptr->unit));
+	// else
+	//   ret.append(VectorDesc(in.t, in.t, PVT_INVALID_VALUE, in.upd,
+	// 			PVT_
 
       }
     return ret;
