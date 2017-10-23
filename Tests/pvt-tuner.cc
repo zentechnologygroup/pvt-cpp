@@ -568,8 +568,7 @@ TEST_F(FluidTest, compute_values_without_inputing)
 {
   {
     auto ret = data.compute_values(&PbAlMarhoun::get_instance());
-
-    ret.for_each([] (auto & c) { cout << c << endl; });
+    cout << ret << endl;
     return;
   }
   {

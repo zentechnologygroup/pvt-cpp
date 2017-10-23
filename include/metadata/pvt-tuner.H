@@ -1135,32 +1135,27 @@ struct PvtData
   struct CorrOutput
   {
     const Correlation * corr_ptr = nullptr;
-
     DynList<double> t;
-
-    Array<double> p; // it is empty if target_name is pb or uod
-    const Unit * punit = nullptr;
-    Array<double> y;
-    
-    CorrOutput(double __t, double __y, const Correlation * __corr_ptr)
-      : t(__t), corr_ptr(__corr_ptr)
+    DynList<DynList<double>> p;
+    DynList<const Unit*> punits;
+    DynList<DynList<double>> y;
+    CorrOutput(const Correlation * __corr_ptr) : corr_ptr(__corr_ptr) {}
+    friend ostream & operator << (ostream & out, const CorrOutput & co)
     {
-      y.append(__y);
+      out << co.corr_ptr->name << endl;
+      //if (
+      return out;
     }
-    CorrOutput(double __t, Array<double> && __p, const Unit * __punit,
-	       Array<double> && __y, const Correlation * __corr_ptr)
-      : t(__t), p(move(__p)), punit(__punit), y(move(__y)), corr_ptr(__corr_ptr)
-    {}
   };
 
-  DynList<CorrOutput> compute_values(const Correlation * corr_ptr,
-				     double c = 0, double m = 1)
+  CorrOutput compute_values(const Correlation * corr_ptr,
+			    double c = 0, double m = 1)
   {
-    DynList<CorrOutput> ret;
+    CorrOutput ret(corr_ptr);
     DynList<CorrInput> input = build_input_for_correlation(corr_ptr);
     for (auto it = input.get_it(); it.has_curr(); it.next())
       {
-	const CorrInput in = it.get_curr();	
+	const CorrInput in = it.get_curr();
 	parameters.insert("t", in.t, &Fahrenheit::get_instance());
 	// TODO for each one of this properties compute it if a
 	// correlation is defined 
@@ -1168,12 +1163,9 @@ struct PvtData
 	parameters.insert("uod", in.uod, &CP::get_instance());
 
 	const bool dynamic_correlation = in.p_ref != nullptr;
-	DynList<double> x; // could be temperature or pressure if
-			   // dynamic_correlation 
 	DynList<double> y; // here are the computed values
 	if (not dynamic_correlation)
 	  {
-	    x.append(in.t);
 	    VtlQuantity val =
 	      corr_ptr->tuned_compute_by_names(parameters, c, m, false);
 	    y.append(val.raw());
@@ -1185,9 +1177,8 @@ struct PvtData
 	    parameters.insert("uod", in.uod, &CP::get_instance());
 	    parameters.insert("uobp", in.uobp, &CP::get_instance());
 
-	    Array<double> p = pref.p;
 	    DynList<ParPair> pressures =
-	      p.maps<ParPair>([u = in.p_ref->punit] (auto p)
+	      pref.p.maps<ParPair>([u = in.p_ref->punit] (auto p)
 			      {
 				return ParPair("p", ValPair(p, u));
 			      });
@@ -1223,7 +1214,6 @@ struct PvtData
 		y.append(val.raw());
 		it.get_curr().for_each([this] (auto & p) { parameters.remove(p); });
 	      }
-	    x = to_dynlist(pref.p);
 	    parameters.remove("bobp");
 	    parameters.remove("uod");
 	    parameters.remove("uobp");
@@ -1233,13 +1223,16 @@ struct PvtData
 	parameters.remove("pb");
 	parameters.remove("uod");
 
-	cout << "x ="; x.for_each([] (auto p) { cout << " " << p; }); cout << endl;
+	ret.t.append(in.t);
+	ret.y.append(y);
+	if (dynamic_correlation)
+	  {
+	    ret.p.append(to_dynlist(in.p_ref->p));
+	    ret.punits.append(in.p_ref->punit);
+	    cout << "x ="; in.p_ref->p.for_each([] (auto p) { cout << " " << p; }); cout << endl;
+	  }
 	cout << "y ="; y.for_each([] (auto y) { cout << " " << y; }); cout << endl;
 
-	if (dynamic_correlation)
-	  ret.append(CorrOutput(in.t, y, , const Correlation *__corr_ptr)
-
-(VectorDesc(in.t, in.t, in.p_ref->bobp, in.uod,
 	// 			in.p_ref->uobp, x, in.p_ref->punit,
 	// 			corr_ptr->target_name(), y, corr_ptr->unit));
 	// else
