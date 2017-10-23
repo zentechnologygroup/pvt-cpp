@@ -451,9 +451,7 @@ struct PvtData
   DynSetTree<VectorDesc> vectors;
   DynSetTree<string> names;
 
-  ParList parameters = { Dim_Pars_List };
-
-  const Correlation * pb_corr = nullptr;
+    const Correlation * pb_corr = nullptr;
   double c_pb = 0, m_pb = 1;    
   const Correlation * rs_corr = nullptr;
   double c_rs = 0, m_rs = 1;    
@@ -697,7 +695,6 @@ struct PvtData
 	       " is already inserted");
     const_values.append(c);
     names.append(c.name);
-    parameters.insert(c.name, c.value, c.unit_ptr);
   }
 
   void add_const(const string & name, double v, const Unit & unit)
@@ -711,7 +708,6 @@ struct PvtData
       ZENTHROW(ConstNameNotFound, "const name " + name + " not found");
     const_values.remove(ConstDesc(name));
     names.remove(name);
-    parameters.remove(name);
   }
 
   DynList<const VectorDesc*> search_vectors(const string & name) const noexcept
@@ -1169,9 +1165,76 @@ struct PvtData
     }
   };
 
-  CorrOutput compute_values(const Correlation * corr_ptr,
-			    double c = 0, double m = 1)
+  VtlQuantity get_pb(const VectorDesc & v) const
   {
+
+  }
+
+  VtlQuantity get_uod(const VectorDesc & v) const
+  {
+
+  }
+
+  VectorDesc compute_values(const VectorDesc & pref,
+			    const DynList<VectorDesc> & vlist,
+			    const Correlation * corr_ptr,
+			    double c, double m,
+			    ParList & parameters) const
+  {
+    // TODO cómo meter pb y uod?
+    // TODO: pb se obtiene por llamada a get_pb
+    // TODO: uod se obtien por llamada a get_uod 
+    parameters.insert("bobp", pref.bobp, &RB_STB::get_instance());
+    parameters.insert("uobp", pref.uobp, &CP::get_instance());
+    DynList<ParPair> pressures =
+      pref.p.maps<ParPair>([u = pref.punit] (auto p)
+			   {
+			     return ParPair("p", ValPair(p, u));
+			   });
+    DynList<DynList<ParPair>> corr_inputs =
+      vlist.maps<DynList<ParPair>>([] (auto & v) { return v.to_parpair(); });
+    corr_inputs.insert(move(pressures));
+    corr_inputs = transpose(corr_inputs);
+    // TODO si para cualquiera de estos target_name hay una
+    // correlación definida ==> sustituir en la columna los
+    // valores calculados por los calculados mediante la
+    // correlación. Tiene que ser aquí porque
+    // build_input_for_correlation retorna punteros a vectores, no
+    // vectores en sí mismos
+    DynList<double> y;
+    for (auto it = corr_inputs.get_it(); it.has_curr(); it.next())
+      {
+	auto & pars = it.get_curr();
+	// insert in parameters list each required dynamic parameter
+	// TODO: igual aquí: si hay correlación caluclar por ella
+	pars.for_each([&parameters] (auto & p) { parameters.insert(p); });
+	VtlQuantity val =
+	  corr_ptr->tuned_compute_by_names(parameters, c, m, false);
+	y.append(val.raw());
+	pars.for_each([&parameters] (auto & p) { parameters.remove(p); });
+      }
+    parameters.remove("bobp");
+    parameters.remove("uobp");
+
+    // TODO: cuadrar puntas bobp o uobo si target es bob, boba, uob, o uoa
+    const double bobp = pref.bobp;
+    const double uod = pref.uod;
+    const double uobp = pref.uobp;
+
+    return VectorDesc(pref.t, pref.pb, bobp, uod, uobp, pref.p, pref.punit,
+		      corr_ptr->target_name(), y, &corr_ptr->unit);
+  }
+
+  CorrOutput compute_values(const Correlation * corr_ptr,
+			    double c = 0, double m = 1) const
+  {
+    ParList parameters = { Dim_Pars_List };
+    for (auto it = const_values.get_it(); it.has_curr(); it.next())
+      {
+	const ConstDesc & desc = it.get_curr();
+	parameters.insert(desc.name, desc.value, desc.unit_ptr);
+      }
+
     CorrOutput ret(corr_ptr);
     DynList<CorrInput> input = build_input_for_correlation(corr_ptr);
     for (auto it = input.get_it(); it.has_curr(); it.next())
@@ -1219,11 +1282,11 @@ struct PvtData
 		auto & pars = it.get_curr();
 		// insert in parameters list each required dynamic parameter
 		// TODO: igual aquí: si hay correlación caluclar por ella
-		pars.for_each([this] (auto & p) { parameters.insert(p); });
+		pars.for_each([&parameters] (auto & p) { parameters.insert(p); });
 		VtlQuantity val =
 		  corr_ptr->tuned_compute_by_names(parameters, c, m, false);
 		y.append(val.raw());
-		pars.for_each([this] (auto & p) { parameters.remove(p); });
+		pars.for_each([&parameters] (auto & p) { parameters.remove(p); });
 	      }
 	    parameters.remove("bobp");
 	    parameters.remove("uobp");
