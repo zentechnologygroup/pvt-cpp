@@ -1244,6 +1244,16 @@ struct PvtData
 
   // TODO inputing aquí
 
+  DynList<VectorDesc>
+  inputing(const DynList<const VectorDesc*> in_vectors,
+	   const Correlation * corr_ptr)
+  {
+    DynList<VectorDesc> ret;
+
+
+
+    return ret;
+  }
 
   // TODO luego de aquí construir por cada propiedad build_rs_values
   // ... según cascada que tendria el grid

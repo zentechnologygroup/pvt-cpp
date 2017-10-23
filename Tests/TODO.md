@@ -39,3 +39,6 @@
 ## 13. revisar por qué valores del spliut se están repitiendo
 - Created at   2017-10-23 12:55:49 -0400
 
+## 14. lista de parámetos correlacion debe ser variable local y no miembro dato
+- Created at   2017-10-23 16:15:17 -0400
+
