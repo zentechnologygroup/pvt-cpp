@@ -29,9 +29,9 @@ struct VectorDesc
   const double t = 0; //  unit will always be in Fahrenheit
   const double pb = PVT_INVALID_VALUE; // bubble point pressure in the
 				       // same unit that p 
-  const double bobp = PVT_INVALID_VALUE; // in RB_STB
+  mutable double bobp = PVT_INVALID_VALUE; // in RB_STB
   mutable double uod = PVT_INVALID_VALUE; // dead oil viscosity in cP
-  const double uobp = PVT_INVALID_VALUE; // oil viscosity at pb in cP
+  mutable double uobp = PVT_INVALID_VALUE; // oil viscosity at pb in cP
   mutable Array<double> p;
   const Unit * punit = nullptr;
 
@@ -994,10 +994,15 @@ struct PvtData
 	  const VectorDesc & v = it.get_curr();
 	  if (v.bobp != PVT_INVALID_VALUE)
 	    bobp = v.bobp;
-	  if (v.uod != PVT_INVALID_VALUE)
-	    uod = v.uod;
+	  if (uod == PVT_INVALID_VALUE and v.uod != PVT_INVALID_VALUE)
+	    {
+	      assert(uobp == PVT_INVALID_VALUE);
+	      uod = v.uod;
+	      assert(v.uobp != PVT_INVALID_VALUE);
+	      uobp = v.uobp;
+	    }
 	  if (v.uobp != PVT_INVALID_VALUE)
-	    uobp = v.uobp;
+	    assert(uod != PVT_INVALID_VALUE);
 	}
     }
     friend ostream & operator << (ostream & out, const CorrInput & ci)
@@ -1192,8 +1197,8 @@ struct PvtData
 	else
 	  {
 	    const VectorDesc & pref = *in.p_ref; 
-	    parameters.insert("bobp", in.bobp, &RB_STB::get_instance());
-	    parameters.insert("uobp", in.uobp, &CP::get_instance());
+	    parameters.insert("bobp", pref.bobp, &RB_STB::get_instance());
+	    parameters.insert("uobp", pref.uobp, &CP::get_instance());
 	    DynList<ParPair> pressures =
 	      pref.p.maps<ParPair>([u = in.p_ref->punit] (auto p)
 			      {
@@ -1206,7 +1211,6 @@ struct PvtData
 					      });
 	    corr_inputs.insert(move(pressures));
 	    corr_inputs = transpose(corr_inputs);
-
 	    // TODO si para cualquiera de estos target_name hay una
 	    // correlación definida ==> sustituir en la columna los
 	    // valores calculados por los calculados mediante la
@@ -1236,16 +1240,7 @@ struct PvtData
 	  {
 	    ret.p.append(to_dynlist(in.p_ref->p));
 	    ret.punits.append(in.p_ref->punit);
-	    cout << "x ="; in.p_ref->p.for_each([] (auto p) { cout << " " << p; }); cout << endl;
 	  }
-	cout << "y ="; y.for_each([] (auto y) { cout << " " << y; }); cout << endl;
-
-	// 			in.p_ref->uobp, x, in.p_ref->punit,
-	// 			corr_ptr->target_name(), y, corr_ptr->unit));
-	// else
-	//   ret.append(VectorDesc(in.t, in.t, PVT_INVALID_VALUE, in.upd,
-	// 			PVT_
-
       }
     return ret;
   }
@@ -2191,6 +2186,13 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for bo");
       if (not BaseQuantity::is_valid(ptr->bobp, *ptr->yunit))
 	ZENTHROW(OutOfUnitRange, "bobp value is out of unit range");
+      if (ptr->yunit != & RB_STB::get_instance())
+	{
+	  mutable_unit_convert(*ptr->yunit, ptr->y, RB_STB::get_instance());
+	  ptr->bobp =
+	    unit_convert(*ptr->yunit, ptr->bobp, RB_STB::get_instance());
+	  ptr->yunit = &RB_STB::get_instance();
+	}
       if (not ptr->y.all([u = ptr->yunit] (auto b)
 			 { return BaseQuantity::is_valid(b, *u); }))
 	ZENTHROW(OutOfUnitRange, "at least a bo value is out of its unit range");
@@ -2204,6 +2206,13 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (not ptr->y.all([u = ptr->yunit] (auto b)
 			 { return BaseQuantity::is_valid(b, *u); }))
 	ZENTHROW(OutOfUnitRange, "at least an uo value is out of its unit range");
+      if (ptr->yunit != &CP::get_instance())
+	{
+	  mutable_unit_convert(*ptr->yunit, ptr->y, CP::get_instance());
+	  ptr->uobp = unit_convert(*ptr->yunit, ptr->uobp, CP::get_instance());
+	  ptr->uod = unit_convert(*ptr->yunit, ptr->uod, CP::get_instance());
+	  ptr->yunit = &CP::get_instance();
+	}
     };    
   static auto pb_validate = [] (VectorDesc*)
     {
@@ -2231,36 +2240,42 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
     {
       ptr->validate_sort();
       validate_pb(ptr);
-      validate_pb_in_p(ptr, "bob");
       validate_bo(ptr);
       if (not is_sorted(ptr->y))
 	ZENTHROW(SamplesUnsorted,
 		 "VectorDesc ctor: bob samples are sorted");
-      if (not ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
+      if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	ZENTHROW(SampleInvalid,
-		 "VectorDesc ctor: bob samples does not have bobp");
-      if (ptr->p.get_last() != ptr->pb)
+		 "VectorDesc ctor: p samples does has pb");
+      if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
+	ZENTHROW(SampleInvalid,
+		 "VectorDesc ctor: bob samples does has bobp");
+      ptr->p.append(ptr->pb);
+      ptr->y.append(ptr->bobp);
+      if (ptr->pb < ptr->p.get_last())
 	ZENTHROW(PressureMismatch,
-		 "VectorDesc ctor (bob): last value of p is not pb");
-      if (ptr->y.get_last() != ptr->bobp)
-	ZENTHROW(PressureMismatch,
-		 "VectorDesc ctor: last value of bob vector is not bobp");
+		 "VectorDesc ctor (bob): pb value is less than last value of p");
+      if (ptr->bobp < ptr->y.get_last())
+	ZENTHROW(SampleInvalid,
+		 "VectorDesc ctor: bobp is less than last value of bob");
     };
   static auto coa_validate = [] (VectorDesc* ptr)
     {
       validate_pb(ptr);
-      validate_pb_in_p(ptr, "coa");
       if (not psia_1::get_instance().is_sibling(*ptr->yunit))
 	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
       const size_t & n = ptr->p.size();
-      if ((n % 2) != 0)
-	ZENTHROW(LengthMismatch, "pressure array size must be even");
-      if (n != 2*ptr->y.size())
-	ZENTHROW(LengthMismatch, "pressure array must twice size than coa");
-      Array<double> pressures(n/2);
-      for (size_t i = 0, j = n/2; j < n; ++i, ++j)
-	pressures.append((ptr->p(i) + ptr->p(j))/2);
-      ptr->p.swap(pressures);
+      if (n == 2*ptr->y.size())
+	{
+	  Array<double> pressures(n/2);
+	  for (size_t i = 0, j = n/2; j < n; ++i, ++j)
+	    pressures.append((ptr->p(i) + ptr->p(j))/2);
+	  ptr->p.swap(pressures);
+	}
+      else if (n != ptr->y.size())
+	ZENTHROW(LengthMismatch,
+		 "pressure array must twice o same size than coa");
+      
       ptr->validate_sort();
       if (not is_inversely_sorted(ptr->y))
 	ZENTHROW(SamplesUnsorted,
@@ -2278,15 +2293,22 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (not is_inversely_sorted(ptr->y))
 	ZENTHROW(SamplesUnsorted,
 		 "VectorDesc ctor: boa samples are not inversely sorted");
-      if (ptr->y.get_first() != ptr->bobp)
-	{
-	  ptr->p.insert(nextafter(ptr->pb, numeric_limits<double>::max()));
-	  ptr->y.insert(nextafter(ptr->bobp, numeric_limits<double>::min()));
-	}
-
-      if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
+      if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
+	ZENTHROW(SampleInvalid, "p vector contains pb");
+      if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
+	ZENTHROW(SampleInvalid, "boa vector contains bobp");
+      ptr->p.insert(nextafter(ptr->pb, numeric_limits<double>::max()));
+      ptr->y.insert(nextafter(ptr->bobp, numeric_limits<double>::min()));
+      if (ptr->p(0) >= ptr->p(1))
 	ZENTHROW(PressureMismatch,
-		 "VectorDesc ctor (boa): p vector does not contain pb");
+		 "VectorDesc ctor (boa): pb next is greater than first p value");
+      if (ptr->y(0) < ptr->y(1))
+	{
+	  cout << ptr->y(0) << " < " << ptr->y(1) << endl;
+	  exit(0);
+	ZENTHROW(SampleInvalid,
+		 "VectorDesc ctor (boa):bobp next is less than first boa value");
+	}
       if (not ptr->y.all([u = ptr->yunit] (auto b)
 			 { return BaseQuantity::is_valid(b, *u); }))
 	ZENTHROW(OutOfUnitRange,
@@ -2361,10 +2383,17 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
   static auto uo_validate = [] (VectorDesc* ptr)
     {
       ptr->validate_sort();
+      if (not ptr->yunit->is_sibling(CP::get_instance()))
+	ZENTHROW(InvalidUnit, ptr->yunit->name + " is not sibling of CP");
       if (not ptr->y.all([u = ptr->yunit] (auto uo)
 			 { return BaseQuantity::is_valid(uo, *u); }))
 	ZENTHROW(OutOfUnitRange,
 		 "at least an uo value is out of its unit range");
+      if (ptr->yunit != &CP::get_instance())
+	{
+	  mutable_unit_convert(*ptr->yunit, ptr->y, CP::get_instance());
+	  ptr->yunit = &CP::get_instance();
+	}
     };
     
   static AHDispatcher<string, void (*)(VectorDesc*)> dispather =

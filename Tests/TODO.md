@@ -31,3 +31,9 @@
 ## 10. out de CorrOutput que no se confunda las unidades
 - Created at   2017-10-22 21:36:23 -0400
 
+## 11. en def de boa no debe ponerse en el arreglo bobp ni pb
+- Created at   2017-10-23 07:48:24 -0400
+
+## 12. documentar contructor de VectorDesc y tambien en backend
+- Created at   2017-10-23 08:23:53 -0400
+

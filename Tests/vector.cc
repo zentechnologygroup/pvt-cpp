@@ -56,9 +56,10 @@ TEST(VectorDesc, simple_operations)
 			       &psia::get_instance(), "rs",
 			       { 10-6, 20, 30, 40 }, &SCF_STB::get_instance()));
 
-    ASSERT_NO_THROW(VectorDesc(125, PVT_INVALID_VALUE, 1.003, 1e5, 1e1, { 10, 20, 30 },
-			       &psia::get_instance(), "uo",
-			       { 1e-6, 2e-6, 3e-6 }, &SCF_STB::get_instance()));
+    ASSERT_THROW(VectorDesc(125, PVT_INVALID_VALUE, 1.003, 1e5, 1e1,
+			    { 10, 20, 30 }, &psia::get_instance(), "uo",
+			    { 1e-6, 2e-6, 3e-6 }, &SCF_STB::get_instance()),
+		 InvalidUnit);
 
     ASSERT_THROW(VectorDesc(125, PVT_INVALID_VALUE, 1.003, 1e5, 1e1, { 10, 20, 30 },
 			    &psia::get_instance(), "rs",
@@ -88,10 +89,12 @@ TEST(VectorDesc, parallel)
   ASSERT_FALSE(VectorDesc(100, "rs").is_parallel(VectorDesc(200, "bob")));
   ASSERT_TRUE(VectorDesc(100, "rs").is_parallel(VectorDesc(100, "bob")));
 
-  VectorDesc d1(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30, 820 }, &psia::get_instance(),
-		"rs", { 1e-6, 2e-6, 3e-6, 4e-6 }, &SCF_STB::get_instance());
-  VectorDesc d2(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30, 820  }, &psia::get_instance(),
-		"rs", { 1e-6, 2e-6, 3e-6, 4e-6 }, &SCF_STB::get_instance());
+  VectorDesc d1(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30, 820 },
+		&psia::get_instance(), "rs", { 1e-6, 2e-6, 3e-6, 4e-6 },
+		&SCF_STB::get_instance());
+  VectorDesc d2(125, 820, 1.003, 1e5, 1e1, { 10, 20, 30, 820  },
+		&psia::get_instance(), "rs", { 1e-6, 2e-6, 3e-6, 4e-6 },
+		&SCF_STB::get_instance());
   VectorDesc d3(125, 820, 1.003, 1e5, 1e1, { 10, 20, 31, 820 },
 		&psia::get_instance(), "rs", { 1e-6, 2e-6, 3e-6, 4e-6 },
 		&SCF_STB::get_instance());
@@ -337,45 +340,38 @@ TEST(VectorCtor, bob)
 {
   // valid configurations
   ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
-			     PVT_INVALID_VALUE, {820, 600, 450, 300, 15},
+			     PVT_INVALID_VALUE, {600, 450, 300, 15},
 			     &psia::get_instance(), "bob",
-			     {1.0919, 1.0865, 1.0790, 1.0713, 1.0228},
+			     {1.0865, 1.0790, 1.0713, 1.0228},
 			     &RB_STB::get_instance()));
 
   ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
-			     PVT_INVALID_VALUE, {15, 300, 450, 600, 820},
+			     PVT_INVALID_VALUE, {15, 300, 450, 600},
   			     &psia::get_instance(), "bob",
-  			     {1.0228, 1.0713, 1.0790, 1.0865, 1.0919},
+  			     {1.0228, 1.0713, 1.0790, 1.0865},
 			     &RB_STB::get_instance()));
 
   // Invalid configurations
 
   // bob values are not sorted
   ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
-			  PVT_INVALID_VALUE, {15, 300, 450, 600, 820},
+			  PVT_INVALID_VALUE, {15, 300, 450, 600},
   			  &psia::get_instance(), "bob",
-  			  {1.0228, 1.0713, 1.0865, 1.0790, 1.0919},
+  			  {1.0228, 1.0713, 1.0865, 1.0790},
 			  &RB_STB::get_instance()), SamplesUnsorted);
 
   // pressure values are not sorted
   ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
-			  PVT_INVALID_VALUE, {15, 300, 600, 450, 820},
+			  PVT_INVALID_VALUE, {15, 300, 600, 450},
   			  &psia::get_instance(), "bob",
-  			  {1.0228, 1.0713, 1.0790, 1.0865, 1.0919},
+  			  {1.0228, 1.0713, 1.0790, 1.0865},
 			  &RB_STB::get_instance()), SamplesUnsorted);
-
-  // last pressure value i p array is not the pb
-  ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
-			  PVT_INVALID_VALUE, {15, 300, 450, 600, 820.1},
-  			  &psia::get_instance(), "bob",
-  			  {1.0228, 1.0713, 1.0790, 1.0865, 1.0919},
-			  &RB_STB::get_instance()), PressureMismatch);
 
   // a bob value is out of unit range
   ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
-			  PVT_INVALID_VALUE, {15, 300, 450, 600, 820},
+			  PVT_INVALID_VALUE, {15, 300, 450, 600},
   			  &psia::get_instance(), "bob",
-  			  {1.0228, 1.0713, 1.0790, 1.0865, 11.0919}, // <
+  			  {1.0228, 1.0713, 1.0790, 11.0919}, // <
 			  &RB_STB::get_instance()), OutOfUnitRange);
 
   // a p value is out of unit range
@@ -537,19 +533,19 @@ TEST(VectorCtor, boa)
   // valid configurations
   ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 			     {3000, 2800, 2600, 2400, 2200, 2000, 1800, 1600, 1400,
-				 1200, 1000, 820},
+				 1200, 1000},
 			     &psia::get_instance(), "boa",
 			     {1.0804, 1.0813, 1.0822, 1.0830, 1.0840, 1.0850,
-				 1.0861, 1.0872, 1.0883, 1.0895, 1.0907, 1.0919},
+				 1.0861, 1.0872, 1.0883, 1.0895, 1.0907},
 			     &RB_STB::get_instance()));
 
   ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-			     DynList<double>({3000, 2800, 2600, 2400, 2200, 2000, 1800,
-			 1600, 1400, 1200, 1000, 820}).rev(),
+			     DynList<double>({3000, 2800, 2600, 2400, 2200, 2000,
+				   1800, 1600, 1400, 1200, 1000}).rev(),
 			     &psia::get_instance(), "boa",
 		   DynList<double>({1.0804, 1.0813, 1.0822, 1.0830, 1.0840,
 			 1.0850, 1.0861, 1.0872, 1.0883, 1.0895,
-			 1.0907, 1.0919}).rev(), &RB_STB::get_instance()));
+			 1.0907}).rev(), &RB_STB::get_instance()));
 
   // Invalid configurations
 
@@ -576,11 +572,11 @@ TEST(VectorCtor, boa)
   // pressure array size is unexpected
   ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 			  {3000, 2800, 2600, 2400, 2200, 2000, 1800,
-			      1600, 1400, 1000, 820},
+			      1600, 1400, 1000},
   			  &psia::get_instance(), "boa",
 			  {1.0804, 1.0813, 1.0822, 1.0830, 1.0840,
 			      1.0850, 1.0861, 1.0872, 1.0883, 1.0895,
-			      1.0907, 1.0919},
+			      1.0907},
 			  &RB_STB::get_instance()), LengthMismatch);
 
   // a boa value is out of unit range

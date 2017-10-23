@@ -145,7 +145,10 @@ TEST(PvtData, split_uo)
   for (auto it = zip_it(uob_list, t); it.has_curr(); it.next(), ++k)
     {
       auto t = it.get_curr();
-      ASSERT_EQ(get<0>(t)->t, get<1>(t));
+      const VectorDesc * uob = get<0>(t);
+      ASSERT_EQ(uob->uod, uob->y(0));
+      ASSERT_EQ(uob->uobp, uob->y.get_last());
+      ASSERT_EQ(uob->t, get<1>(t));
     }
   ASSERT_GT(k, 0);
 
@@ -154,7 +157,11 @@ TEST(PvtData, split_uo)
   for (auto it = zip_it(uoa_list, t); it.has_curr(); it.next(), ++k)
     {
       auto t = it.get_curr();
-      ASSERT_EQ(get<0>(t)->t, get<1>(t));
+      const VectorDesc * uoa = get<0>(t);
+      ASSERT_NE(uoa->uod, PVT_INVALID_VALUE);
+      ASSERT_EQ(uoa->uobp, nextafter(uoa->y.get_first(),
+				     numeric_limits<double>::min()));
+      ASSERT_EQ(uoa->t, get<1>(t));
     }
   ASSERT_GT(k, 0);
 
@@ -203,9 +210,9 @@ struct FluidTest : public Test
 		    psia::get_instance(), "rs",
 		    {80, 62, 47, 35, 0}, SCF_STB::get_instance());
     data.add_vector(125, 820, 1.0919, PVT_INVALID_VALUE,
-		    PVT_INVALID_VALUE, {820, 600, 450, 300, 15},
+		    PVT_INVALID_VALUE, {600, 450, 300, 15},
 		    psia::get_instance(), "bob",
-		    {1.0919, 1.0865, 1.0790, 1.0713, 1.0228},
+		    {1.0865, 1.0790, 1.0713, 1.0228},
 		    RB_STB::get_instance());
     data.add_vector(125, 820, 1.0919, PVT_INVALID_VALUE,
 		    PVT_INVALID_VALUE,
@@ -218,10 +225,10 @@ struct FluidTest : public Test
 			6.00E-06}, psia_1::get_instance());
     data.add_vector(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 		    {3000, 2800, 2600, 2400, 2200, 2000, 1800, 1600, 1400,
-			1200, 1000, 820},
+			1200, 1000},
 		    psia::get_instance(), "boa",
 		    {1.0804, 1.0813, 1.0822, 1.0830, 1.0840, 1.0850,
-			1.0861, 1.0872, 1.0883, 1.0895, 1.0907, 1.0919},
+			1.0861, 1.0872, 1.0883, 1.0895, 1.0907},
 		    RB_STB::get_instance());
     data.add_vector(125, 820, 1.0919, PVT_INVALID_VALUE, 7500, 
 		    {820, 650, 550, 450, 0}, psia::get_instance(), "uob",
@@ -244,6 +251,19 @@ struct FluidTest : public Test
 		    {38.14, 36.77, 35.66, 34.42, 33.44, 32.19, 30.29,
 			32.5, 37.1, 40.8, 44.5}, CP::get_instance());
     data.split_uo();
+
+    {
+      auto uob_list = data.search_vectors("uob");
+      assert(not uob_list.is_empty());
+      assert(uob_list.all([] (auto & v) { return v->uod != PVT_INVALID_VALUE and
+	      v->uobp != PVT_INVALID_VALUE; }));
+    }
+    {
+      auto uoa_list = data.search_vectors("uoa");
+      assert(not uoa_list.is_empty());
+      assert(uoa_list.all([] (auto & v) { return v->uod != PVT_INVALID_VALUE and
+	      v->uobp != PVT_INVALID_VALUE; }));
+    }
   }
 };
 
@@ -575,7 +595,24 @@ TEST_F(FluidTest, compute_values_without_inputing)
     cout << ret << endl;
   }
   {
+    auto ret = data.compute_values(&CoaDeGhetto::get_instance());
+    cout << ret << endl;
+  }
+  {
+    auto ret = data.compute_values(&BoaMcCain::get_instance());
+    cout << ret << endl;
+  }
+  {
     auto ret = data.compute_values(&UobBeggsRobinson::get_instance());
+    cout << ret << endl;
+  }
+  {
+    auto ret = data.compute_values(&UobBeggsRobinson::get_instance());
+    cout << ret << endl;
+  }
+  {
+    auto ret = data.compute_values(&UoaAbedini::get_instance());
+    cout << ret << endl;
   }
 }
 
