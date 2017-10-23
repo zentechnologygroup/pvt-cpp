@@ -16,18 +16,18 @@
 ## 5. organizar los test por fluidos de prueba
 - Created at   2017-10-19 08:38:41 -0400
 
-## 6. test para merge_parallel
-- Created at   2017-10-19 18:06:54 -0400
-
-## 7. Orden: input luego programar tests de TODO: 
+## 6. Orden: input luego programar tests de TODO: 
 - Created at   
 
-## 8. Revisar memory leak en test json
+## 7. Revisar memory leak en test json
 - Created at   2017-10-20 16:12:17 -0400
 
-## 9. seg fault con gnu c++ por qué
+## 8. seg fault con gnu c++ por qué
 - Created at   2017-10-20 17:41:14 -0400
 
-## 10. macro para instancias unidades
+## 9. macro para instancias unidades
 - Created at   2017-10-20 18:27:50 -0400
+
+## 10. out de CorrOutput que no se confunda las unidades
+- Created at   2017-10-22 21:36:23 -0400
 

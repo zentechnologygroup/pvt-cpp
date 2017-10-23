@@ -1143,7 +1143,26 @@ struct PvtData
     friend ostream & operator << (ostream & out, const CorrOutput & co)
     {
       out << co.corr_ptr->name << endl;
-      //if (
+      if (co.p.is_empty())
+	for (auto it = zip_it(co.t, co.y); it.has_curr(); it.next())
+	  {
+	    auto t = it.get_curr();
+	    out << "t = " << get<0>(t) << " y " << get<1>(t).get_first()
+		<< endl;
+	  }
+      else
+	for (auto it = zip_it(co.t, co.p, co.punits, co.y); it.has_curr();
+	     it.next())
+	  {
+	    auto t = it.get_curr();
+	    out << "t = " << get<0>(t) << " " << get<2>(t)->name << endl
+		<< ::to_string(format_string(zip_maps<DynList<string>>
+					     ([] (auto t)
+              {
+		return build_dynlist<string>(::to_string(get<0>(t)),
+					     ::to_string(get<1>(t)));
+	      }, get<1>(t), get<3>(t)))) << endl;
+	  }
       return out;
     }
   };
@@ -1174,9 +1193,7 @@ struct PvtData
 	  {
 	    const VectorDesc & pref = *in.p_ref; 
 	    parameters.insert("bobp", in.bobp, &RB_STB::get_instance());
-	    parameters.insert("uod", in.uod, &CP::get_instance());
 	    parameters.insert("uobp", in.uobp, &CP::get_instance());
-
 	    DynList<ParPair> pressures =
 	      pref.p.maps<ParPair>([u = in.p_ref->punit] (auto p)
 			      {
@@ -1198,31 +1215,21 @@ struct PvtData
 	    // vectores en sí mismos
 	    for (auto it = corr_inputs.get_it(); it.has_curr(); it.next())
 	      {
-		auto & l = it.get_curr();
-		l.for_each([] (auto p)
-			   {
-			     cout << p.first << " " << p.second.first << " "
-				  << p.second.second->name << " ";
-			   });
-		cout << endl;
-
+		auto & pars = it.get_curr();
 		// insert in parameters list each required dynamic parameter
 		// TODO: igual aquí: si hay correlación caluclar por ella
-		it.get_curr().for_each([this] (auto & p) { parameters.insert(p); });
+		pars.for_each([this] (auto & p) { parameters.insert(p); });
 		VtlQuantity val =
 		  corr_ptr->tuned_compute_by_names(parameters, c, m, false);
 		y.append(val.raw());
-		it.get_curr().for_each([this] (auto & p) { parameters.remove(p); });
+		pars.for_each([this] (auto & p) { parameters.remove(p); });
 	      }
 	    parameters.remove("bobp");
-	    parameters.remove("uod");
 	    parameters.remove("uobp");
-	  }
-	
+	  }	
 	parameters.remove("t");
 	parameters.remove("pb");
 	parameters.remove("uod");
-
 	ret.t.append(in.t);
 	ret.y.append(y);
 	if (dynamic_correlation)

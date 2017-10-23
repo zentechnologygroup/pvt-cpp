@@ -10,3 +10,9 @@
 - Comment      
 - Finished     
 
+## 3. test para merge_parallel
+- Created at   2017-10-19 18:06:54 -0400
+- Completed at 2017-10-22 21:23:43 -0400
+- Comment      
+- Finished     
+

@@ -569,10 +569,10 @@ TEST_F(FluidTest, compute_values_without_inputing)
   {
     auto ret = data.compute_values(&PbAlMarhoun::get_instance());
     cout << ret << endl;
-    return;
   }
   {
     auto ret = data.compute_values(&BobLopezCR::get_instance());
+    cout << ret << endl;
   }
   {
     auto ret = data.compute_values(&UobBeggsRobinson::get_instance());
