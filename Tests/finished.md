@@ -16,3 +16,15 @@
 - Comment      
 - Finished     
 
+## 4. out de CorrOutput que no se confunda las unidades
+- Created at   2017-10-22 21:36:23 -0400
+- Completed at 2017-10-23 12:49:57 -0400
+- Comment      
+- Finished     
+
+## 5. seed y num de pruebas por linea de comandos
+- Created at   2017-10-12 18:46:45 -0400
+- Completed at 2017-10-17 13:06:35 -0400
+- Comment      
+- Finished     
+

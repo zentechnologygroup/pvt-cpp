@@ -1152,15 +1152,16 @@ struct PvtData
 	for (auto it = zip_it(co.t, co.y); it.has_curr(); it.next())
 	  {
 	    auto t = it.get_curr();
-	    out << "t = " << get<0>(t) << " y " << get<1>(t).get_first()
-		<< endl;
+	    out << "t = " << get<0>(t) << " degF y " << get<1>(t).get_first()
+		<< co.corr_ptr->unit.symbol << endl;
 	  }
       else
 	for (auto it = zip_it(co.t, co.p, co.punits, co.y); it.has_curr();
 	     it.next())
 	  {
 	    auto t = it.get_curr();
-	    out << "t = " << get<0>(t) << " " << get<2>(t)->name << endl
+	    out << "t = " << get<0>(t) << " degF (p in " << get<2>(t)->name
+		<< " and y in " << co.corr_ptr->unit.name << ")" << endl
 		<< ::to_string(format_string(zip_maps<DynList<string>>
 					     ([] (auto t)
               {

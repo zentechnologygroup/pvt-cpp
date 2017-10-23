@@ -9,31 +9,33 @@
 - Created at   2017-10-12 11:04:46 -0400
 - Completed at 2017-10-13 13:45:58 -0400
 
-## 4. seed y num de pruebas por linea de comandos
-- Created at   2017-10-12 18:46:45 -0400
-- Completed at 2017-10-17 13:06:35 -0400
-
-## 5. organizar los test por fluidos de prueba
+## 4. organizar los test por fluidos de prueba
 - Created at   2017-10-19 08:38:41 -0400
 
-## 6. Orden: input luego programar tests de TODO: 
+## 5. Orden: input luego programar tests de TODO: 
 - Created at   
 
-## 7. Revisar memory leak en test json
+## 6. Revisar memory leak en test json
 - Created at   2017-10-20 16:12:17 -0400
 
-## 8. seg fault con gnu c++ por qué
+## 7. seg fault con gnu c++ por qué
 - Created at   2017-10-20 17:41:14 -0400
 
-## 9. macro para instancias unidades
+## 8. macro para instancias unidades
 - Created at   2017-10-20 18:27:50 -0400
 
-## 10. out de CorrOutput que no se confunda las unidades
-- Created at   2017-10-22 21:36:23 -0400
-
-## 11. en def de boa no debe ponerse en el arreglo bobp ni pb
+## 9. en def de boa no debe ponerse en el arreglo bobp ni pb
 - Created at   2017-10-23 07:48:24 -0400
 
-## 12. documentar contructor de VectorDesc y tambien en backend
+## 10. documentar contructor de VectorDesc y tambien en backend
 - Created at   2017-10-23 08:23:53 -0400
+
+## 11. ahora programar inputing
+- Created at   2017-10-23 12:53:36 -0400
+
+## 12. imperativamente tiene que programarse el cálculo del error
+- Created at   2017-10-23 12:54:41 -0400
+
+## 13. revisar por qué valores del spliut se están repitiendo
+- Created at   2017-10-23 12:55:49 -0400
 
