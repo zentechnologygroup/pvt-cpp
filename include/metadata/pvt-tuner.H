@@ -381,11 +381,6 @@ struct VectorDesc
 		       // zone for better precision  
     uob.insert(uod);
 
-    // and the point immediately next to pb,uobp at the beginning of
-    // undersaturated zone
-    p_above.insert(nextafter(pb, max_val)); 
-    uoa.insert(nextafter(uobp, max_val));
-
     VectorDesc v_below(t, pb, PVT_INVALID_VALUE, uod, uobp,
 		       p_below, punit, "uob", uob, yunit);
     VectorDesc v_above(t, pb, PVT_INVALID_VALUE, uod, uobp,
@@ -1153,20 +1148,21 @@ struct PvtData
 	  {
 	    auto t = it.get_curr();
 	    out << "t = " << get<0>(t) << " degF y " << get<1>(t).get_first()
-		<< co.corr_ptr->unit.symbol << endl;
+		<< " " << co.corr_ptr->unit.symbol << endl;
 	  }
       else
 	for (auto it = zip_it(co.t, co.p, co.punits, co.y); it.has_curr();
 	     it.next())
 	  {
 	    auto t = it.get_curr();
+	    out.precision(10);
 	    out << "t = " << get<0>(t) << " degF (p in " << get<2>(t)->name
 		<< " and y in " << co.corr_ptr->unit.name << ")" << endl
 		<< ::to_string(format_string(zip_maps<DynList<string>>
 					     ([] (auto t)
               {
 		return build_dynlist<string>(::to_string(get<0>(t)),
-					     ::to_string(get<1>(t)));
+					     ::to_string(get<1>(t), 10));
 	      }, get<1>(t), get<3>(t)))) << endl;
 	  }
       return out;
