@@ -1237,7 +1237,31 @@ struct PvtData
       if (ylab.is_unitarian())
 	CorrStat::c(desc) = -CorrStat::c(desc);
     }
+    DynList<string> to_dynlist() const
+    {
+      return build_dynlist<string>(corr_ptr->name, ::to_string(CorrStat::r2(desc)),
+				   ::to_string(CorrStat::mse(desc)),
+				   ::to_string(CorrStat::sigma(desc)),
+				   ::to_string(CorrStat::sumsq(desc)),
+				   ::to_string(CorrStat::c(desc)),
+				   ::to_string(CorrStat::m(desc)),
+				   valid ? "true" : "false");
+    }
   };
+
+  ConstStats pb_stats(const Correlation * corr_ptr)
+  {
+    DynList<double> t, pb_lab, pb_corr;
+    auto tp = tp_sets();
+    for (auto it = tp.get_it(); it.has_curr(); it.next())
+      {
+	auto curr = it.get_curr();
+	t.append(curr.t);
+	pb_lab.append(curr.pb);
+	pb_corr.append(compute_pb(curr.t, corr_ptr).raw());
+      }
+    return ConstStats(corr_ptr, move(t), move(pb_lab), move(pb_corr));
+  }
 
   ParPair get_uod(const VectorDesc & v, const ParPair & pb_par) const
   {
@@ -1618,8 +1642,9 @@ struct PvtData
 		 const DynSetTree<string> & relax_tbl = {},
 		 const DynSetTree<const Correlation*> & ban_list = {}) const
   {
-    static DynSetTree<string> valid_targets =
-      { "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa" };
+    if (not VectorDesc::valid_target_names.has(target_name))
+      ZENTHROW(InvalidTargetName, target_name + " target name is not valid");
+    
     return Correlation::array().
       filter([&target_name, &relax_tbl, &ban_list, this] (auto ptr)
       {

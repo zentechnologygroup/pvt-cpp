@@ -759,6 +759,34 @@ TEST_F(FluidTest, compute_pb)
     }
 }
 
+TEST_F(FluidTest, pb_stats)
+{
+  const DynList<const Correlation*> pb_corrs = data.can_be_applied("pb");
+  ASSERT_FALSE(pb_corrs.is_empty());
+
+  auto stats = pb_corrs.maps<PvtData::ConstStats>
+    ([this] (auto ptr) { return data.pb_stats(ptr); });
+
+  auto str_list =
+    stats.maps<DynList<string>>([] (auto & c) { return c.to_dynlist(); });
+
+  cout << to_string(format_string(str_list)) << endl;
+
+  for (auto it = stats.get_it(); it.has_curr(); it.next())
+    {
+      auto & s = it.get_curr();
+      const double & c = CorrStat::c(s.desc);
+      const double & m = CorrStat::m(s.desc);
+      cout << s.corr_ptr->name << " c = " << c << " m = " << m << endl;
+      for (auto it = zip_it(s.t, s.ylab, s.ycorr); it.has_curr(); it.next())
+	{
+	  auto t = it.get_curr();
+	  cout << "  t = " << get<0>(t) << " pb = " << get<1>(t) << " pbcorr = "
+	       << get<2>(t) << " tuned = " << c + m*get<2>(t) << endl;
+	}
+    }
+}
+
 TEST_F(FluidTest, compute_uod)
 {
   const Correlation * uod_corr = &UodBeal::get_instance();
@@ -902,11 +930,6 @@ TEST_F(FluidTest, uobapply)
 }
 
 TEST_F(FluidTest, uoaapply)
-{
-
-}
-
-TEST_F(FluidTest, pbstats)
 {
 
 }
