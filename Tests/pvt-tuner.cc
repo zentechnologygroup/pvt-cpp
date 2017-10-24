@@ -602,6 +602,23 @@ TEST_F(FluidTest, compute_values_without_inputing)
       }
   }
   {
+    auto ret = data.compute_values(&RsAlMarhoun::get_instance());
+    ASSERT_EQ(ret.corr_ptr, &RsAlMarhoun::get_instance());
+    ASSERT_TRUE(ret.t.is_unitarian());
+    ASSERT_TRUE(ret.p.is_unitarian());
+    ASSERT_TRUE(ret.punits.is_unitarian());
+    DynList<double> p_r = {15, 300, 450, 600, 820 };
+    DynList<double> y_r = { 0.1242871314, 8.2004913732, 14.4574971593,
+			    21.6178535130, 33.4602142045 };
+    for (auto it = zip_it(ret.p.get_first(), ret.y.get_first(), p_r, y_r);
+	 it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	ASSERT_EQ(get<0>(t), get<2>(t));
+	ASSERT_NEAR(get<1>(t), get<3>(t), 1e-2);
+      }
+  }
+  {
     auto ret = data.compute_values(&BobLopezCR::get_instance());
     ASSERT_EQ(ret.corr_ptr, &BobLopezCR::get_instance());
     ASSERT_TRUE(ret.t.is_unitarian());

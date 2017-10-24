@@ -27,7 +27,7 @@ struct VectorDesc
   }
 
   const double t = 0; //  unit will always be in Fahrenheit
-  mutable double pb = PVT_INVALID_VALUE; // bubble point pressure in the
+  const double pb = PVT_INVALID_VALUE; // bubble point pressure in the
 				       // same unit that p 
   mutable double bobp = PVT_INVALID_VALUE; // in RB_STB
   mutable double uod = PVT_INVALID_VALUE; // dead oil viscosity in cP
@@ -114,12 +114,6 @@ struct VectorDesc
     if (not p.all([this] (auto p) { return BaseQuantity::is_valid(p, *punit); }))
       ZENTHROW(OutOfUnitRange,
 	       "at least a pressure value is out of its unit range");
-    if (punit != &psia::get_instance())
-      {
-	mutable_unit_convert(*punit, p, psia::get_instance());
-	pb = unit_convert(*punit, pb, psia::get_instance());
-	punit = &psia::get_instance();
-      }
   }
 
   void post_validate()
@@ -307,6 +301,7 @@ struct VectorDesc
       ZENTHROW(SamplesUnsorted, "split_uo(): pressure values are not sorted");
 
     // First, we must determine p,uo corresponding to the inflection point
+    const double max_val = numeric_limits<double>::max();
     size_t min_idx = 0;
     double min_uo = numeric_limits<double>::max();
     for (auto it = enum_zip_it(y); it.has_curr(); it.next())
@@ -1170,58 +1165,14 @@ struct PvtData
     }
   };
 
-  ParList build_correlation_pars() const 
+  VtlQuantity get_pb(const VectorDesc & v) const
   {
-    ParList pars(Dim_Pars_List);
-    for (auto it = const_values.get_it(); it.has_curr(); it.next())
-      {
-	const ConstDesc & desc = it.get_curr();
-	pars.insert(desc.name, desc.value, desc.unit_ptr);
-      }
-    return pars;
+
   }
 
-  ParPair get_pb(const VectorDesc & v) const
+  VtlQuantity get_uod(const VectorDesc & v) const
   {
-    if (pb_corr == nullptr)
-      return ParPair("pb", ValPair(v.pb, v.punit));
-    ParList pars = build_correlation_pars();
-    pars.insert("t", v.t, &Fahrenheit::get_instance());
-    VtlQuantity ret = pb_corr->tuned_compute_by_names(pars, c_pb, m_pb, false);
-    return ParPair("pb", ValPair(ret.raw(), &ret.unit));
-  }
 
-  ParPair get_uod(const VectorDesc & v, const ParPair & pb_par) const
-  {
-    if (uod_corr == nullptr)
-      return ParPair("uod", ValPair(v.pb, v.punit));
-    ParList pars = build_correlation_pars();
-    pars.insert("t", v.uod, &CP::get_instance());
-    pars.insert(pb_par);
-    VtlQuantity ret = uod_corr->tuned_compute_by_names(pars, c_uod, m_uod, false);
-    return ParPair("uod", ValPair(ret.raw(), &ret.unit));
-  }
-
-  VectorDesc compute_rs(const VectorDesc & pref,
-			const Correlation * corr_ptr,
-			double c, double m) const
-  {
-    if (pref.yname != "rs")
-      ZENTHROW(InvalidTargetName, "compute_rs(): input vector is not for rs");
-    if (corr_ptr->target_name() != "rs")
-      ZENTHROW(InvalidTargetName, "compute_rs(): correlation " + corr_ptr->name +
-	       " is not for rs");
-
-    ParList pars;
-    const ParPair pb_par = get_pb(pref);
-    const bool pb_is_tuned = pb_par.second.first != pref.pb;
-    VectorDesc in = pref;
-    if (pb_is_tuned)
-      in.p.get_last() = pb_par.second.first;
-
-    pars.insert("t", in.t, &Fahrenheit::get_instance());
-    pars.insert(pb_par);
-    
   }
 
   VectorDesc compute_values(const VectorDesc & pref,
@@ -1231,20 +1182,21 @@ struct PvtData
 			    ParList & parameters) const
   {
     parameters.insert("t", pref.t, &Fahrenheit::get_instance());
-    auto pb_par = get_pb(pref);
-    parameters.insert(pb_par);
-    parameters.insert(get_uod(pref, pb_par));
-
+    parameters.insert("pb", pref.pb, pref.punit);
+    parameters.insert("uod", pref.uod, &CP::get_instance());
+    // TODO cómo meter pb y uod?
+    // TODO: pb se obtiene por llamada a get_pb
+    // TODO: uod se obtien por llamada a get_uod 
     parameters.insert("bobp", pref.bobp, &RB_STB::get_instance());
     parameters.insert("uobp", pref.uobp, &CP::get_instance());
-    DynList<ParPair> p_pars =
+    DynList<ParPair> pressures =
       pref.p.maps<ParPair>([u = pref.punit] (auto p)
 			   {
 			     return ParPair("p", ValPair(p, u));
 			   });
     DynList<DynList<ParPair>> corr_inputs =
       vlist.maps<DynList<ParPair>>([] (auto & v) { return v.to_parpair(); });
-    corr_inputs.insert(move(p_pars));
+    corr_inputs.insert(move(pressures));
     corr_inputs = transpose(corr_inputs);
     // TODO si para cualquiera de estos target_name hay una
     // correlación definida ==> sustituir en la columna los
@@ -1269,8 +1221,6 @@ struct PvtData
     parameters.remove("pb");
     parameters.remove("uod");
     parameters.remove("t");
-
-    const string target_name = corr_ptr->target_name();
 
     // TODO: cuadrar puntas bobp o uobo si target es bob, boba, uob, o uoa
     const double bobp = pref.bobp;
@@ -2335,19 +2285,13 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	ZENTHROW(SamplesUnsorted,
 		 "VectorDesc ctor: bob samples are sorted");
       if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
-	{
-	  if (not ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
-	    ZENTHROW(SampleInvalid,
-		     "VectorDesc ctor: bob samples have not bobp");
-	}
-      else
-	{
-	  if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
-	    ZENTHROW(SampleInvalid,
-		     "VectorDesc ctor: bob samples have bobp but p not pb");
-	  ptr->p.append(ptr->pb);
-	  ptr->y.append(ptr->bobp);
-	}
+	ZENTHROW(SampleInvalid,
+		 "VectorDesc ctor: p samples has not pb");
+      if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
+	ZENTHROW(SampleInvalid,
+		 "VectorDesc ctor: bob samples has not bobp");
+      ptr->p.append(ptr->pb);
+      ptr->y.append(ptr->bobp);
       if (ptr->pb < ptr->p.get_last())
 	ZENTHROW(PressureMismatch,
 		 "VectorDesc ctor (bob): pb value is less than last value of p");

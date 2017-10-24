@@ -351,7 +351,47 @@ TEST(VectorCtor, bob)
   			     {1.0228, 1.0713, 1.0790, 1.0865},
 			     &RB_STB::get_instance()));
 
+   ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
+			      PVT_INVALID_VALUE, {820, 600, 450, 300, 15},
+			     &psia::get_instance(), "bob",
+			      {1.0919, 1.0865, 1.0790, 1.0713, 1.0228},
+			     &RB_STB::get_instance()));
+
+   ASSERT_NO_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
+			      PVT_INVALID_VALUE, {15, 300, 450, 600, 820},
+  			     &psia::get_instance(), "bob",
+			      {1.0228, 1.0713, 1.0790, 1.0865, 1.0919},
+			     &RB_STB::get_instance()));
+   
   // Invalid configurations
+
+   // samples has pb but not bobp
+   ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
+			   PVT_INVALID_VALUE, {15, 300, 450, 600, 820},
+			   &psia::get_instance(), "bob",
+			   {1.0228, 1.0713, 1.0790, 1.0865, 1.091},
+			   &RB_STB::get_instance()), SampleInvalid);
+
+   // samples has bobp but not pb
+   ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
+			   PVT_INVALID_VALUE, {15, 300, 450, 600, 820.1},
+			   &psia::get_instance(), "bob",
+			   {1.0228, 1.0713, 1.0790, 1.0865, 1.0919},
+			   &RB_STB::get_instance()), SampleInvalid);
+
+   // samples has bob greater than bobp 
+   ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
+			   PVT_INVALID_VALUE, {15, 300, 450, 600, 819, 820},
+			   &psia::get_instance(), "bob",
+			   {1.0228, 1.0713, 1.0790, 1.0865, 1.0919, 1.09191},
+			   &RB_STB::get_instance()), SampleInvalid);
+
+   // samples has pb greater than pb
+   ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
+			   PVT_INVALID_VALUE, {15, 300, 450, 600, 820, 830},
+			   &psia::get_instance(), "bob",
+			   {1.0228, 1.0713, 1.0790, 1.0865, 1.091, 1.0919},
+			   &RB_STB::get_instance()), PressureMismatch);
 
   // bob values are not sorted
   ASSERT_THROW(VectorDesc(125, 820, 1.0919, PVT_INVALID_VALUE,
