@@ -586,7 +586,6 @@ TEST_F(FluidTest, tp_sets)
 
 TEST_F(FluidTest, compute_values_without_inputing)
 {
-  return; // disabled. maybe removed later
   {
     auto ret = data.compute_values(&PbAlMarhoun::get_instance());
     ASSERT_EQ(ret.corr_ptr, &PbAlMarhoun::get_instance());
@@ -739,136 +738,109 @@ TEST_F(FluidTest, compute_values_without_inputing)
   }
 }
 
-TEST_F(FluidTest, compute_pb)
+TEST_F(FluidTest, build_entries_for_correlation_with_inputing)
 {
-  const Correlation * pb_corr = &PbAlMarhoun::get_instance();
-  const DynList<PvtData::TpSet> tp = data.tp_sets();
-  const DynList<double> expected = { 1522.54, 1786.91, 2154.86 };
-  for (auto it = zip_it(tp, expected); it.has_curr(); it.next())
-    {
-      auto t = it.get_curr();
-      ASSERT_NEAR(data.compute_pb(get<0>(t).t, pb_corr).raw(), get<1>(t), 1e-2);
-    }
-  
-  constexpr double c = 10, m = 0.98;
-  for (auto it = zip_it(tp, expected); it.has_curr(); it.next())
-    {
-      auto t = it.get_curr();
-      ASSERT_NEAR(data.compute_pb(get<0>(t).t, pb_corr, c, m).raw(),
-		  c + m*get<1>(t), 1e-1);
-    }
+
 }
 
-TEST_F(FluidTest, compute_uod)
+TEST_F(FluidTest, build_entries_for_correlation_with_correlations_defined)
 {
-  const Correlation * uod_corr = &UodBeal::get_instance();
-  const DynList<PvtData::TpSet> tp = data.tp_sets();
-  const DynList<double> expected = { 19838.5, 70.8092, 0.16593 };
-  for (auto it = zip_it(tp, expected); it.has_curr(); it.next())
-    {
-      auto t = it.get_curr();
-      ASSERT_NEAR(data.compute_uod(get<0>(t).t, get<0>(t).pb, uod_corr).raw(),
-		  get<1>(t), 1e-1);
-    }
 
-  constexpr double c = 10, m = 0.98;
-  for (auto it = zip_it(tp, expected); it.has_curr(); it.next())
-    {
-      auto t = it.get_curr();
-      ASSERT_NEAR(data.compute_uod(get<0>(t).t, get<0>(t).pb, uod_corr, c, m).raw(),
-		  c + m*get<1>(t), 1e-1);
-    }
-
-  data.set_pb(&PbAlMarhoun::get_instance(), 11, 0.97);
-  const DynList<double> pb = tp.maps<double>([this] (auto t)
-    {
-      return data.get_pb(t.t, t.pb).second.first;
-    });
-  for (auto it = zip_it(tp, pb); it.has_curr(); it.next())
-    {
-      auto t = it.get_curr();
-      ASSERT_NEAR(data.compute_uod(get<0>(t).t, get<0>(t).pb, uod_corr).raw(),
-		  data.compute_uod(get<0>(t).t, get<1>(t), uod_corr).raw(), 1e-6);
-    }
 }
 
-TEST_F(FluidTest, compute_rs)
-{
-  const Correlation * rs_corr = &RsSalazar::get_instance();
-  const DynList<const VectorDesc*> rs_lab = data.search_vectors("rs");
+// TODO probar construcción de CorrInput
+// TODO: probar en merge_with que valores de bobp uod y uobp den correctos
+// TODO: probar to_parpair en  vector
+// Todo: parallel_vectors
 
+// TODO 1ro debo programar inputing
+
+// Luego debo verificar parallel vectors
+
+TEST_F(FluidTest, get_pars)
+{
   {
-    const DynList<VectorDesc> rs_list = rs_lab.maps<VectorDesc>([&] (auto rs_ptr)
-      {
-	return data.compute_rs(*rs_ptr, rs_corr); 
-      });
-
-    ASSERT_TRUE(rs_list.is_unitarian());
-
-    auto rsv_lab = rs_lab.get_first();
-    auto rsv_corr = rs_list.get_first();
-    const DynList<double> rs =
-      { 4.825674, 28.030364, 40.243359, 52.456353, 70.368745 };
-
-    for (auto it = zip_it(rsv_lab->p, rsv_corr.p, rsv_corr.y, rs);
-	 it.has_curr(); it.next())
+    const DynList<const VectorDesc*> uob_vectors = data.search_vectors("uob");
+    const DynList<PvtData::Sample> l = data.get_pars(uob_vectors, "rs");
+    for (auto it = zip_it(uob_vectors, l); it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
-	ASSERT_EQ(get<0>(t), get<1>(t));
-	ASSERT_NEAR(get<2>(t), get<3>(t), 1e-6);
+	const VectorDesc * vptr = get<0>(t);
+	const PvtData::Sample & sample = get<1>(t);
+	ASSERT_TRUE(eq(vptr->p, sample.pvals, near_cmp));
       }
   }
 
-  data.set_pb(&PbAlShammasi::get_instance(), -544.171681, 1.299236);
-  constexpr double c = 0.652887, m = 1.134960;
-
   {
-    const DynList<VectorDesc> rs_list = rs_lab.maps<VectorDesc>([&] (auto rs_ptr)
-      {
-	return data.compute_rs(*rs_ptr, rs_corr, c, m); 
-      });
-
-    auto rsv_lab = rs_lab.get_first();
-    auto rsv_corr = rs_list.get_first();
-    ASSERT_EQ(rsv_corr.pb, data.get_pb(*rsv_lab).second.first);
-    const DynList<double> rs =
-      { 6.129834, 32.466229, 46.327489, 60.188750, 79.500000 };
-    for (auto it = zip_it(rsv_corr.y, rs); it.has_curr(); it.next())
+    const DynList<const VectorDesc*> uo_vectors = data.search_vectors("uo");
+    const DynList<PvtData::Sample> l = data.get_pars(uo_vectors, "rs");
+    for (auto it = zip_it(uo_vectors, l); it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
-	ASSERT_NEAR(get<0>(t), get<1>(t), 1e-6);
+	const VectorDesc * vptr = get<0>(t);
+	const PvtData::Sample & sample = get<1>(t);
+	ASSERT_TRUE(eq(vptr->p, sample.pvals, near_cmp));
+	vptr->p.for_each([] (auto p) { cout << p << " "; }); cout << endl;
+	sample.pvals.for_each([] (auto p) { cout << p << " "; }); cout << endl;
       }
   }
+
+  {
+    const DynList<const VectorDesc*> uo_vectors = data.search_vectors("uoa");
+    const DynList<PvtData::Sample> l = data.get_pars(uo_vectors, "boa");
+    for (auto it = zip_it(uo_vectors, l); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	const VectorDesc * vptr = get<0>(t);
+	const PvtData::Sample & sample = get<1>(t);
+	ASSERT_TRUE(eq(vptr->p, sample.pvals, near_cmp));
+      }
+    } 
 }
 
-TEST_F(FluidTest, compute_bob)
+TEST_F(FluidTest, matches_with_pars)
+{
+  auto lbefore = data.matches_with_pars("rs");
+
+  auto api_ptr = data.search_const("api");
+  const auto api = *api_ptr;
+  data.rm_const("api");
+
+  ASSERT_EQ(data.search_const("api"), nullptr);
+
+  auto lafter = data.matches_with_pars("rs");
+
+  ASSERT_FALSE(eq(lbefore, lafter));
+
+  //data.add_const(const ConstDesc &c)
+}
+
+
+TEST_F(FluidTest, can_be_applied)
+{
+  auto l = data.can_be_applied("rs");
+  l.for_each([] (auto ptr) { cout << ptr->name << endl; });
+
+  cout << "****************************************************************" << endl;
+
+  Correlation::array().filter([] (auto ptr) { return ptr->target_name() == "rs"; }).
+    for_each([] (auto ptr) { cout << ptr->name << endl; });
+}
+
+
+TEST_F(FluidTest, list_restrictions)
 {
 
 }
 
-TEST_F(FluidTest, compute_coa)
-{
-
-}
-
-TEST_F(FluidTest, compute_boa)
-{
-
-}
-
-TEST_F(FluidTest, compute_uob)
-{
-
-}
-
-TEST_F(FluidTest, compute_uoa)
+TEST_F(FluidTest, get_vectors)
 {
 
 }
 
 TEST_F(FluidTest, pbapply)
 {
-  
+
 }
 
 TEST_F(FluidTest, rsapply)
@@ -902,6 +874,16 @@ TEST_F(FluidTest, uobapply)
 }
 
 TEST_F(FluidTest, uoaapply)
+{
+
+}
+
+TEST_F(FluidTest, build_samples) // Revisar si es necesaria
+{
+
+}
+
+TEST_F(FluidTest, iapply)
 {
 
 }
@@ -942,73 +924,6 @@ TEST_F(FluidTest, uobstats)
 }
 
 TEST_F(FluidTest, uoastats)
-{
-
-}
-
-
-// TODO probar construcción de CorrInput
-// TODO: probar en merge_with que valores de bobp uod y uobp den correctos
-// TODO: probar to_parpair en  vector
-// Todo: parallel_vectors
-
-// TODO 1ro debo programar inputing
-
-// Luego debo verificar parallel vectors
-
-TEST_F(FluidTest, matches_with_pars)
-{
-  auto lbefore = data.matches_with_pars("rs");
-
-  auto api_ptr = data.search_const("api");
-  const auto api = *api_ptr;
-  data.rm_const("api");
-
-  ASSERT_EQ(data.search_const("api"), nullptr);
-
-  auto lafter = data.matches_with_pars("rs");
-
-  ASSERT_FALSE(eq(lbefore, lafter));
-
-  //data.add_const(const ConstDesc &c)
-}
-
-
-TEST_F(FluidTest, can_be_applied)
-{
-  {
-    auto l = data.can_be_applied("pb");
-  }
-  return;
-  {
-    auto l = data.can_be_applied("rs");
-    l.for_each([] (auto ptr) { cout << ptr->name << endl; });
-
-    cout << "****************************************************************" << endl;
-
-    Correlation::array().filter([] (auto ptr) { return ptr->target_name() == "rs"; }).
-      for_each([] (auto ptr) { cout << ptr->name << endl; });
-  }
-}
-
-
-TEST_F(FluidTest, list_restrictions)
-{
-
-}
-
-TEST_F(FluidTest, get_vectors)
-{
-
-}
-
-
-TEST_F(FluidTest, build_samples) // Revisar si es necesaria
-{
-
-}
-
-TEST_F(FluidTest, iapply)
 {
 
 }

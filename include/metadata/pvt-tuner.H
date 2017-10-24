@@ -1181,15 +1181,63 @@ struct PvtData
     return pars;
   }
 
-  ParPair get_pb(const VectorDesc & v) const
+  VtlQuantity compute_pb(double t, const Correlation * corr_ptr,
+			 double c = 0, double m = 1) const
+  {
+    if (corr_ptr->target_name() != "pb")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for pb");
+    ParList pars = build_correlation_pars();
+    pars.insert("t", t, &Fahrenheit::get_instance());
+    return corr_ptr->tuned_compute_by_names(pars, c, m, false); 
+  }
+
+  ParPair get_pb(double t, double pb) const
   {
     if (pb_corr == nullptr)
-      return ParPair("pb", ValPair(v.pb, v.punit));
-    ParList pars = build_correlation_pars();
-    pars.insert("t", v.t, &Fahrenheit::get_instance());
-    VtlQuantity ret = pb_corr->tuned_compute_by_names(pars, c_pb, m_pb, false);
+      return ParPair("pb", ValPair(pb, &psia::get_instance()));
+    VtlQuantity ret = compute_pb(t, pb_corr, c_pb, m_pb);
     return ParPair("pb", ValPair(ret.raw(), &ret.unit));
   }
+
+  ParPair get_pb(const VectorDesc & v) const
+  {
+    return get_pb(v.t, v.pb);
+  }
+
+  VtlQuantity compute_uod(double t, double pb,  const Correlation * corr_ptr,
+			 double c = 0, double m = 1) const
+  {
+    if (corr_ptr->target_name() != "uod")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for uod");
+    ParList pars = build_correlation_pars();
+    pars.insert("t", t, &Fahrenheit::get_instance());
+    pars.insert(get_pb(t, pb));
+    return corr_ptr->tuned_compute_by_names(pars, c, m, false); 
+  }
+
+  struct ConstStats
+  {
+    const Correlation * corr_ptr = nullptr;
+    DynList<double> t;
+    DynList<double> ylab;
+    DynList<double> ycorr;
+    CorrStat::Desc desc;
+    bool valid = false;
+    ConstStats(const Correlation * __corr_ptr, DynList<double> && __t,
+	    DynList<double> && __ylab, DynList<double> && __ycorr)
+      : corr_ptr(__corr_ptr), t(move(__t)), ylab(__ylab),
+	ycorr(__ycorr), desc(CorrStat(move(__ylab)).stats(move(__ycorr))),
+	valid(CorrStat::is_valid(desc))
+    {
+      assert(not t.is_empty());
+      assert(not ylab.is_empty());
+      assert(not ycorr.is_empty());
+      if (ylab.is_unitarian())
+	CorrStat::c(desc) = -CorrStat::c(desc);
+    }
+  };
 
   ParPair get_uod(const VectorDesc & v, const ParPair & pb_par) const
   {
@@ -1204,7 +1252,7 @@ struct PvtData
 
   VectorDesc compute_rs(const VectorDesc & pref,
 			const Correlation * corr_ptr,
-			double c, double m) const
+			double c = 0, double m = 1) const
   {
     if (pref.yname != "rs")
       ZENTHROW(InvalidTargetName, "compute_rs(): input vector is not for rs");
@@ -1212,16 +1260,30 @@ struct PvtData
       ZENTHROW(InvalidTargetName, "compute_rs(): correlation " + corr_ptr->name +
 	       " is not for rs");
 
-    ParList pars;
+    const ConstDesc * rsb_ptr = search_const("rsb");
+    if (rsb_ptr == nullptr)
+      ZENTHROW(ConstNameNotFound, "rsb has not been defined");
+    const double & rsb = rsb_ptr->value;
+    ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
-    const bool pb_is_tuned = pb_par.second.first != pref.pb;
+    const double pb = pb_par.second.first;
     VectorDesc in = pref;
-    if (pb_is_tuned)
-      in.p.get_last() = pb_par.second.first;
+    in.p.get_last() = pb; // eventually change pb for the tuned one
 
     pars.insert("t", in.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
-    
+    VectorDesc ret(in.t, "rs");
+    ret.pb = pb, ret.punit = in.punit, ret.yunit = &corr_ptr->unit;
+    for (auto it = in.p.get_it(); it.has_curr(); it.next())
+      {
+	const double p = it.get_curr();
+	pars.insert("p", p, in.punit);
+	const VtlQuantity rs = corr_ptr->tuned_compute_by_names(pars, c, m);
+	ret.p.append(p);
+	ret.y.append(min(rs.raw(), rsb));
+	pars.remove("p");
+      }
+    return ret;
   }
 
   VectorDesc compute_values(const VectorDesc & pref,
@@ -1556,47 +1618,14 @@ struct PvtData
 		 const DynSetTree<string> & relax_tbl = {},
 		 const DynSetTree<const Correlation*> & ban_list = {}) const
   {
+    static DynSetTree<string> valid_targets =
+      { "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa" };
     return Correlation::array().
       filter([&target_name, &relax_tbl, &ban_list, this] (auto ptr)
       {
 	return ptr->target_name() == target_name and
 	  this->can_be_applied(ptr, relax_tbl, ban_list);
       });
-  }
-
-  DynList<Sample> get_vectors(const Correlation * corr_ptr,
-			      const DynList<const VectorDesc*> target_vectors,
-			      ParList & pars) const
-  {
-    DynList<Sample> samples;
-    for (auto it = corr_ptr->get_preconditions().get_it(); it.has_curr();
-	 it.next())
-      {
-	auto & par = it.get_curr();
-	auto * ptr = par.names().find_ptr([this] (auto & p)
-					  { return names.has(p.first); });
-	if (ptr == nullptr)
-	  ZENTHROW(VarNameNotFound, "correlation parameter " + par.name +
-		   " not found in data set");
-
-	const string & name_in_data = ptr->first;
-	if (name_in_data == "t" or name_in_data == "p" or
-	    name_in_data == "pb" or name_in_data == "uod" or
-	    name_in_data == "uobp" or name_in_data == "bobp")
-	  continue;
-
-	const ConstDesc * const_ptr = search_const(name_in_data);
-	if (const_ptr)
-	  {
-	    pars.insert(par.name, const_ptr->value, const_ptr->unit_ptr);
-	    continue;
-	  }
-
-	auto s = get_pars(target_vectors, name_in_data);
-	samples.append(s);
-      }
-
-    return samples;
   }
 
   void load_consts(const Correlation * corr_ptr, ParList & pars) const
@@ -1681,65 +1710,6 @@ struct PvtData
     return ret;
   }
 
-  VectorDesc build_samples(const VectorDesc * vector_ptr,
-			   const Correlation * corr_ptr,
-			   double c, double m) const
-  {
-    bool is_rs = corr_ptr->target_name() == "rs";
-    const ConstDesc * rsb_ptr = search_const("rsb");
-    if (rsb_ptr == nullptr)
-      ZENTHROW(InvalidConst, "Data set does not contain rsb value");
-    VtlQuantity rsb = { *rsb_ptr->unit_ptr, rsb_ptr->value };
-    DynList<double> pvals;
-    DynList<double> vals;
-    ParList pars;
-    const Unit * punit = vector_ptr->punit;
-    pars.insert("t", vector_ptr->t, &Fahrenheit::get_instance());
-    pars.insert("pb", vector_ptr->pb, punit);
-    pars.insert("uod", vector_ptr->uod, &CP::get_instance());
-    pars.insert("bobp", vector_ptr->bobp, &RB_STB::get_instance());
-    pars.insert("uobp", vector_ptr->uobp, &CP::get_instance());
-    load_consts(corr_ptr, pars);
-
-    DynList<const VectorDesc*> par_vectors = parallel_vectors(*vector_ptr);
-    auto & p = par_vectors.get_first()->p;
-    using T = tuple<string, const Unit*, double>;
-    DynList<DynList<T>> vars;
-    vars.append(p.maps<T>([vector_ptr] (auto p)
-			  { return T("p", vector_ptr->punit, p); }));
-    if (not par_vectors.is_unitarian())
-      for (auto it = par_vectors.get_it(1); it.has_curr(); it.next())
-	{
-	  auto & curr = it.get_curr();
-	  DynList<T> l;
-	  for (auto it = curr->y.get_it(); it.has_curr(); it.next())
-	    l.append(T(curr->yname, curr->yunit, it.get_curr()));
-	  vars.append(move(l));
-	}
-    vars = transpose(vars);
-
-    for (auto it = vars.get_it(); it.has_curr(); it.next())
-      {
-	auto & curr = it.get_curr();
-	curr.for_each([&pars] (auto & t)
-		      { pars.insert(get<0>(t), get<2>(t), get<1>(t)); });
-	try
-	  {
-	    VtlQuantity r = corr_ptr->tuned_compute_by_names(pars, c, m, false);
-	    if (is_rs)
-	      r = min(r, rsb);
-	    pvals.append(get<2>(curr.get_first()));
-	    vals.append(r.raw());
-	  }
-	catch (exception & e) {}
-	curr.for_each([&pars] (auto & t) { pars.remove(get<0>(t)); });
-      }
-    assert(p.size() == vals.size());
-    return VectorDesc(vector_ptr->t, vector_ptr->pb, vector_ptr->bobp,
-		      vector_ptr->uod, vector_ptr->uobp, pvals, punit,
-		      corr_ptr->target_name(), vals, &corr_ptr->unit);
-  }
-
   struct CorrDesc
   {
     double t, pb, bobp, uod, uobp;
@@ -1749,497 +1719,6 @@ struct PvtData
       : t(t), pb(pb), bobp(bobp), uod(uod), uobp(uobp),
 	p(move(p)), y(move(y)), yc(move(yc)) {}
   };
-
-  ParPair pb_par(const VectorDesc & v, const Unit * punit_ptr) const
-  {
-    if (pb_corr == nullptr) // if pb_corr is not set then return experimental pb
-      return build_corrrelation_par("pb", v.pb, punit_ptr);
-
-    // otherwise, we will compute the pb that would generate cplot
-    ParList pars;
-    for (auto it = pb_corr->parameter_names().get_it(); it.has_curr(); it.next())
-      {
-	const string & par_name = it.get_curr();
-	auto const_ptr = search_const(par_name);
-	if (const_ptr != nullptr) // nullptr should be get with temp parameter
-	  pars.insert(par_name, const_ptr->value, const_ptr->unit_ptr);
-      }
-    pars.insert("t", v.t, &Fahrenheit::get_instance());
-    VtlQuantity ret = pb_corr->tuned_compute_by_names(pars, c_pb, m_pb);
-    return build_corrrelation_par("pb", ret.raw(), &ret.unit);
-  }
-
-  tuple<const Unit*, const Unit*, DynList<CorrDesc>>
-  iapply(const Correlation * corr_ptr) const
-  {
-    const string target_name = corr_ptr->target_name();
-    const DynList<const VectorDesc*> target_vectors =
-      search_vectors(target_name);
-    if (target_vectors.is_empty())
-      ZENTHROW(VarNameNotFound, "Correlation target " + target_name +
-	       " not found in data set");
-
-    auto first_sample_ptr = target_vectors.get_first();
-
-    ParList pars; // parameter to be passed to correlation corr_ptr
-    DynList<Sample> samples = get_vectors(corr_ptr, target_vectors, pars);
-    if (samples.is_empty())
-      samples.append(get_pars(target_vectors, target_name));
-
-    const Unit * punit = first_sample_ptr->punit;
-    const Unit * yunit = first_sample_ptr->yunit;
-  // Using TYPE = tuple<double, double, double, double, DynList<double>,
-  // 		      DynList<double>, DynList<double>>;
-    DynList<CorrDesc> ret;
-    for (auto it = zip_it(samples, target_vectors); it.has_curr(); it.next())
-      {
-	auto tt = it.get_curr();
-	Sample & desc = get<0>(tt);
-	const VectorDesc * ref_ptr = get<1>(tt);
-	const Unit * src_punit = desc.punit;
-	const double & temp = desc.t;
-	const double & pb = ref_ptr->pb;
-	const double & bobp = ref_ptr->bobp;
-	const double & uod = ref_ptr->uod;
-	const double & uobp = ref_ptr->uobp;
-	const Unit * par_unit = desc.yunit;
-	const string & par_name = desc.name;
-	assert(temp == ref_ptr->t);
-	pars.insert("t", temp, &Fahrenheit::get_instance());
-	// TODO: si hay correlaciones definidas entonces calcular las
-	// siguientes 4 propiedades mediante ellas
-	//pars.insert("pb", pb, src_punit);
-	pars.insert(pb_par(*ref_ptr, src_punit));
-	pars.insert("uod", uod, &CP::get_instance());
-	pars.insert("bobp", bobp, &RB_STB::get_instance());
-	pars.insert("uobp", uobp, &CP::get_instance());
-	DynList<double> pvals = unit_convert(*src_punit, desc.pvals, *punit);
-	DynList<double> yvals = desc.yvals;
-	DynList<double> plist, ylist, yclist;
-	for (auto it = zip_it(pvals, yvals, ref_ptr->y); it.has_curr(); it.next())
-	  {
-	    auto t = it.get_curr();
-	    const double & p = get<0>(t); // pressure from desc
-	    const double & parval = get<1>(t);
-	    const double & y = get<2>(t);
-	    pars.insert("p", p, punit);
-	    pars.insert(par_name, parval, par_unit);	    
-	    try
-	      {
-		VtlQuantity result =
-		  VtlQuantity(*yunit, corr_ptr->compute_by_names(pars, false));
-
-		plist.append(p);
-		ylist.append(y);
-		yclist.append(result.raw());
-	      }
-	    catch (exception & e) {}
-	    pars.remove("p");
-	    pars.remove(par_name);
-	  }
-	ret.append(CorrDesc(temp, bobp, pb, uod, uobp, plist, ylist, yclist));
-	pars.remove("t");
-	pars.remove("pb");
-	pars.remove("uod");
-	pars.remove("uobp");
-	pars.remove("bobp");
-      }
-
-    return make_tuple(punit, yunit, ret);
-  }
-
-  struct PbStats
-  {
-    const Correlation * corr_ptr = nullptr;
-    DynList<double> t;
-    DynList<double> pb_lab;
-    DynList<double> pb_corr;
-    CorrStat::Desc desc;
-    bool valid;
-    PbStats(const Correlation * corr_ptr, DynList<double> && t,
-	    DynList<double> && pb_lab, DynList<double> && pb_corr)
-      : corr_ptr(corr_ptr), t(move(t)), pb_lab(pb_lab),
-	pb_corr(pb_corr), desc(CorrStat(move(pb_lab)).stats(move(pb_corr)))
-    {
-      assert(not this->pb_lab.is_empty());
-      assert(not this->pb_corr.is_empty());
-
-      if (this->pb_lab.is_unitarian())
-	{
-	  assert(this->pb_corr.is_unitarian());
-	  CorrStat::c(desc) = -CorrStat::c(desc);
-	}
-    }
-    PbStats(const Correlation * corr_ptr) : corr_ptr(corr_ptr), valid(false) {}
-  };
-
-  PbStats pbstats(const Correlation * corr_ptr) const
-  {
-    if (corr_ptr->target_name() != "pb")
-      ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
-	       " is not for pb");
-    try
-      {
-	auto vals = pbapply(corr_ptr);
-	return PbStats(corr_ptr, vals.maps<double>([] (auto & d) { return d.t; }),
-		       vals.maps<double>([] (auto & d) { return d.pb_lab; }),
-		       vals.maps<double>([] (auto & d) { return d.pb_corr; }));
-      }
-    catch (exception & e)
-      {
-	return PbStats(corr_ptr);
-      }
-  }
-
-  struct UodStats
-  {
-    const Correlation * corr_ptr = nullptr;
-    DynList<double> t;
-    DynList<double> uod_lab;
-    DynList<double> uod_corr;
-    CorrStat::Desc desc;
-    bool valid;
-    UodStats(const Correlation * corr_ptr, DynList<double> && t,
-	    DynList<double> && uod_lab, DynList<double> && uod_corr)
-      : corr_ptr(corr_ptr), t(move(t)), uod_lab(uod_lab),
-	uod_corr(uod_corr), desc(CorrStat(move(uod_lab)).stats(move(uod_corr)))
-    {
-      assert(not this->uod_lab.is_empty());
-      assert(not this->uod_corr.is_empty());
-
-      if (this->uod_lab.is_unitarian())
-	{
-	  assert(this->uod_corr.is_unitarian());
-	  CorrStat::c(desc) = -CorrStat::c(desc);
-	}
-    }
-    UodStats(const Correlation * corr_ptr) : corr_ptr(corr_ptr), valid(false) {}
-  };
-  
-  UodStats uodstats(const Correlation * corr_ptr) const
-  {
-    if (corr_ptr->target_name() != "uod")
-      ZENTHROW(InvalidProperty, "correlation " + corr_ptr->name +
-	       " is not for uod");
-    try
-      {
-	auto vals = uodapply(corr_ptr);
-	return UodStats(corr_ptr, vals.maps<double>([] (auto & d) { return d.t; }),
-			vals.maps<double>([] (auto & d) { return d.uod_lab; }),
-			vals.maps<double>([] (auto & d) { return d.uod_corr; }));
-      }
-    catch (exception & e)
-      {
-	return UodStats(corr_ptr);
-      }
-  }
-
-  struct StatsDesc
-  {
-    const Correlation * corr_ptr = nullptr;
-    CorrStat::Desc desc;
-    DynList<double> ylab; // experimental values
-    DynList<double> ycorr; // values obtained from corr_ptr
-    bool valid;
-
-    StatsDesc(PbStats && stats)
-      : corr_ptr(stats.corr_ptr), desc(stats.desc), ylab(move(stats.pb_lab)),
-	ycorr(move(stats.pb_corr)), valid(stats.valid) {}
-
-    StatsDesc(UodStats && stats)
-      : corr_ptr(stats.corr_ptr), desc(stats.desc), ylab(move(stats.uod_lab)),
-	ycorr(move(stats.uod_corr)), valid(stats.valid) {}
-
-    StatsDesc(const Correlation * corr_ptr, DynList<double> & ylab,
-	      DynList<double> & ycorr)
-      : corr_ptr(corr_ptr), desc(CorrStat(ylab).stats(ycorr)),
-	ylab(move(ylab)), ycorr(move(ycorr)), valid(true) {}
-
-    StatsDesc(const Correlation * corr_ptr) : corr_ptr(corr_ptr), valid(false) {}
-  };
-
-  /* Given corr_ptr, this routine builds a linear regression as follows:
-
-     values given by corr_ptr
-     ^
-     |
-     x                                              o
-     |
-     |
-     |
-     x
-     |
-     |
-     x                                    o
-     |
-     |
-     x                         o
-     |
-     |
-     x           o
-     |
-     |
-     x    o
-     |
-     |
-     |
-     -----x------x------x------x----------x---------x-------> ylab 
-     (these values are sorted by pressure)              (experimental values)       
-
-     The line 
-      
-        c + m Correlation(pars) 
-
-     best fitting is computed.
-
-     So, the calibrated way would be
-
-     Calibrated(corr pars) = c + m Correlation(corr pars)
-   */
-  StatsDesc istats(const Correlation * corr_ptr) const
-  {
-    try
-      {
-	auto vals = iapply(corr_ptr);
-	using Trio = tuple<double, double, double>;
-	DynList<Trio> l;
-	for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
-	  {
-	    CorrDesc & t = it.get_curr();
-	    l.append(t_zip(move(t.p), move(t.y), move(t.yc)));
-	  }
-
-	in_place_sort(l, [] (const Trio & t1, const Trio & t2)
-		      { // sorting by pressure
-			return get<0>(t1) < get<0>(t2);
-		      });
-
-	//           y,          p,       yc
-	DynMapTree<double, pair<double, double>> ptbl;
-	for (auto it = l.get_it(); it.has_curr(); it.next())
-	  {
-	    const auto & t = it.get_curr();
-	    const double & p = get<0>(t);
-	    const double & y = get<1>(t);
-	    const double & yc = get<2>(t);
-	    auto ptr = ptbl.search(y);
-	    if (ptr == nullptr)
-	      ptbl.append(y, make_pair(p, yc));
-	    else if (yc > ptr->second.second)
-	      ptr->second = make_pair(p, yc);
-	  }
-
-	DynList<double> p, y, yc;
-	for (auto it = ptbl.get_it(); it.has_curr(); it.next())
-	  {
-	    auto pp = it.get_curr();
-	    auto & second = pp.second;
-	    p.append(second.first);
-	    y.append(pp.first);
-	    yc.append(second.second);
-	  }
-
-	return StatsDesc(corr_ptr, y, yc);
-      }
-    catch (exception &e)
-      {
-	return StatsDesc(corr_ptr);
-      }
-  }
-
-  StatsDesc stats(const Correlation * corr_ptr) const
-  {
-    const string tgt_name = corr_ptr->target_name();
-    if (tgt_name == "pb")
-      return StatsDesc(pbstats(corr_ptr));
-    else if (tgt_name == "uod")
-      return StatsDesc(uodstats(corr_ptr));
-    else
-      return istats(corr_ptr);
-  }
-
-  pair<double, double> cm(const Correlation * corr_ptr) const
-  {
-    const StatsDesc s = stats(corr_ptr);
-    return make_pair(CorrStat::c(s.desc), CorrStat::m(s.desc));
-  }
-
-  struct AutoDesc
-  {
-    const Correlation * corr_ptr = nullptr;
-    CorrStat::Desc d;
-    AutoDesc(const Correlation * __corr_ptr, const CorrStat::Desc & d)
-      : corr_ptr(__corr_ptr), d(d) {}
-    AutoDesc(const Correlation * __corr_ptr) : corr_ptr(__corr_ptr) {}
-    AutoDesc() {}
-    bool is_valid() const noexcept
-    {
-      return corr_ptr != nullptr and CorrStat::is_valid(d);
-    }
-    friend ostream & operator << (ostream & out, const AutoDesc & a)
-    {
-      return out << "  " << a.corr_ptr->name << endl
-		 << "  c = " << CorrStat::c(a.d) << endl
-		 << "  m = " << CorrStat::m(a.d);
-    }
-  };
-
-  enum class AutoApplyType { r2, mse, sigma, sumsq, c, m };
-
-# define AUTO_FILT(__name)			\
-  static auto __name##__filter = [] (const DynList<AutoDesc> & l,	\
-				     double threshold)			\
-  {									\
-    return sort(l.filter([threshold] (auto & a)				\
-    {									\
-      return CorrStat::is_valid(a.d) and CorrStat::__name(a.d) >= threshold; \
-    }), cmp_##__name);							\
-  }
-  
-# define AUTO_FILTER(__name) AUTO_FILT(__name, cmp_##__name)
-
-  AutoDesc auto_apply(const string & target_name,
-		      const DynSetTree<string> & relax_tbl,
-		      const DynSetTree<const Correlation*> & ban_list,
-		      const double threshold,
-		      const AutoApplyType & type = AutoApplyType::r2) const
-  {
-    static auto cmp_r2 = [] (auto & a1, auto & a2) 
-      {
-	return fabs(1 - CorrStat::r2(a1.d)) < fabs(1 - CorrStat::r2(a2.d));
-      };
-    static auto cmp_mse = [] (auto & a1, auto & a2)
-      {
-	return CorrStat::mse(a1.d) < CorrStat::mse(a2.d);
-      };
-    static auto cmp_sigma = [] (auto & a1, auto & a2)
-      {
-	return CorrStat::sigma(a1.d) < CorrStat::sigma(a2.d);
-      };
-    static auto cmp_sumsq = [] (auto & a1, auto & a2)
-      {
-	return CorrStat::sumsq(a1.d) < CorrStat::sumsq(a2.d);
-      };
-    static auto cmp_c = [] (auto & a1, auto & a2)
-      {
-	return CorrStat::c(a1.d) < CorrStat::c(a2.d);
-      };
-    static auto cmp_m = [] (auto & a1, auto & a2)
-      {
-	return CorrStat::m(a1.d) < CorrStat::m(a2.d);
-      };
-    AUTO_FILT(r2);
-    AUTO_FILT(mse);
-    AUTO_FILT(sigma);
-    AUTO_FILT(sumsq);
-    AUTO_FILT(c);
-    AUTO_FILT(m);
-    static AHDispatcher<AutoApplyType,
-     			DynList<AutoDesc> (*)(const DynList<AutoDesc>&, double)>
-      dispatcher(AutoApplyType::r2, r2__filter,
-		 AutoApplyType::mse, mse__filter,
-		 AutoApplyType::sigma, sigma__filter,
-		 AutoApplyType::sumsq, sumsq__filter,
-		 AutoApplyType::c, c__filter,
-		 AutoApplyType::m, m__filter);      
-
-    auto corr_list = can_be_applied(target_name, relax_tbl, ban_list);
-    auto auto_list = corr_list.maps<AutoDesc>([this] (auto ptr)
-      {
-	return AutoDesc(ptr, this->stats(ptr).desc);
-      });
-    auto ret_list = dispatcher.run(type, auto_list, threshold);
-    return ret_list.is_empty() ? AutoDesc() : ret_list.get_first();
-  }    
-
-  DynList<AutoDesc>
-  auto_apply(const DynSetTree<string> & relax_tbl,
-	     const DynSetTree<const Correlation*> & banned_list,
-	     const double threshold,
-	     const AutoApplyType & type = AutoApplyType::r2) const
-  {
-    static DynList<string> properties =
-      { "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa" };
-
-    DynMapTree<string, AutoDesc> m;
-    for (auto & target_name : properties)
-      {
-	auto a =
-	  auto_apply(target_name, relax_tbl, banned_list, threshold, type);
-	if (a.is_valid())
-	  m[target_name] = a;
-      }
-
-    if (m.has("coa"))
-      m["boa"] = AutoDesc(&BoaMcCain::get_instance());
-    else if (m.has("boa"))
-      {
-	auto & boa_desc = m["boa"];
-	auto boa_corr = boa_desc.corr_ptr;
-	if (boa_corr != &BoaMcCain::get_instance())
-	  {
-	    const string author = boa_corr->author_name();
-	        // Select coa correlation involving to boa
-	    auto coa_corr_ptr = Correlation::array().find_ptr([&author] (auto ptr)
-              {
-		return ptr->target_name() == "coa" and
-		  contains(ptr->name, author);
-	      });
-	    assert(coa_corr_ptr != nullptr);
-	    m["coa"] = AutoDesc(*coa_corr_ptr);
-	    boa_desc.corr_ptr = &BoaMcCain::get_instance();
-	    assert(m["boa"].corr_ptr == &BoaMcCain::get_instance());
-	    assert(CorrStat::c(m["boa"].d) == CorrStat::c(boa_desc.d));
-	    assert(CorrStat::m(m["boa"].d) == CorrStat::m(boa_desc.d));
-	  }
-      }
-
-        // Through this last pass we assure the same order than properties
-    DynList<AutoDesc> ret;
-    for (auto & target_name : properties)
-      {
-	auto ptr = m.search(target_name);
-	if (ptr != nullptr)
-	  ret.append(ptr->second);
-      }
-
-    return ret;
-  }
-
-# define Declare_Set_Corr(NAME)						\
-  static auto set_##NAME =						\
-			[] (PvtData * pvtdata, const AutoDesc & a)	\
-  {									\
-    pvtdata->NAME##_corr = a.corr_ptr;					\
-    pvtdata->c_##NAME = CorrStat::c(a.d);				\
-    pvtdata->m_##NAME = CorrStat::m(a.d);				\
-  }
-
-  void set_correlation(const AutoDesc & d)
-  {
-    Declare_Set_Corr(pb);
-    Declare_Set_Corr(rs);
-    Declare_Set_Corr(bob);
-    Declare_Set_Corr(coa);
-    Declare_Set_Corr(boa);
-    Declare_Set_Corr(uod);
-    Declare_Set_Corr(uob);
-    Declare_Set_Corr(uoa);
-    static const AHDispatcher<string, void (*)(PvtData*, const AutoDesc&)>
-      dispatcher("pb", set_pb, "rs", set_rs, "bob", set_bob, "coa", set_coa,
-		 "boa", set_boa, "uod", set_uod, "uob", set_uob, "uoa", set_uoa);
-
-    const string target_name = d.corr_ptr->target_name();
-    try
-      {
-	dispatcher.run(target_name, this, d);
-      }
-    catch (exception & e)
-      {
-	ZENTHROW(CorrelationNotApplicable,
-		 "Invalid target for correlation " + target_name);
-      }
-  }
 };
 
 VectorDesc::VectorDesc(double t, double pb, double bobp,
