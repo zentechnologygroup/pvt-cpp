@@ -42,3 +42,9 @@
 ## 14. lista de parámetos correlacion debe ser variable local y no miembro dato
 - Created at   2017-10-23 16:15:17 -0400
 
+## 15. dry de patron para name_stats
+- Created at   2017-10-25 11:16:01 -0400
+
+## 16. reahacer compute_rs
+- Created at   2017-10-25 11:59:42 -0400
+

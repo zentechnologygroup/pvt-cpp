@@ -208,7 +208,7 @@ struct FluidTest : public Test
     data.add_vector(125, 820, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 		    PVT_INVALID_VALUE, {820, 600, 450, 300, 15},
 		    psia::get_instance(), "rs",
-		    {80, 62, 47, 35, 0}, SCF_STB::get_instance());
+		    {79.5, 62, 47, 35, 0}, SCF_STB::get_instance());
     data.add_vector(125, 820, 1.0919, PVT_INVALID_VALUE,
 		    PVT_INVALID_VALUE, {600, 450, 300, 15},
 		    psia::get_instance(), "bob",
@@ -778,11 +778,11 @@ TEST_F(FluidTest, pb_stats)
       const double & c = CorrStat::c(s.desc);
       const double & m = CorrStat::m(s.desc);
       cout << s.corr_ptr->name << " c = " << c << " m = " << m << endl;
-      for (auto it = zip_it(s.t, s.ylab, s.ycorr); it.has_curr(); it.next())
+      for (auto it = zip_it(s.t, s.ylab, s.ycorr, s.ytuned); it.has_curr(); it.next())
 	{
 	  auto t = it.get_curr();
 	  cout << "  t = " << get<0>(t) << " pb = " << get<1>(t) << " pbcorr = "
-	       << get<2>(t) << " tuned = " << c + m*get<2>(t) << endl;
+	       << get<2>(t) << " tuned = " << get<3>(t) << endl;
 	}
     }
 }
@@ -869,14 +869,158 @@ TEST_F(FluidTest, compute_rs)
   }
 }
 
+TEST_F(FluidTest, rs_stats)
+{
+  const DynList<const Correlation*> rs_list = data.can_be_applied("rs");
+
+  const DynList<PvtData::VectorStats> rs_stats = rs_list.
+    maps<PvtData::VectorStats>([this] (auto ptr) { return data.rs_stats(ptr); });
+
+  data.set_pb(&PbAlShammasi::get_instance(), -544.171681, 1.299236);
+
+  auto str_list = rs_stats.maps<DynList<string>>([] (auto & s)
+						 { return s.to_dynlist(); });
+  cout << to_string(format_string(str_list)) << endl;
+
+  for (auto it = rs_stats.get_it(); it.has_curr(); it.next())
+    {
+      auto & s = it.get_curr();
+      cout << s.corr_ptr->name << endl;
+      for (auto it = s.temps.get_it(); it.has_curr(); it.next())
+	{
+	  auto p = it.get_curr();
+	  auto & t = p.second;
+	  cout << "  t = " << p.first << endl;
+	  auto l = zip_maps<DynList<string>>([] (auto t)
+            {
+	      return build_dynlist<string>(to_string(get<0>(t)),
+					   to_string(get<1>(t)),
+					   to_string(get<2>(t)),
+					   to_string(get<3>(t)));
+	    }, t.p, t.ylab, t.ycorr, t.ytuned); 
+	  l.insert(DynList<string>({"p", "ylab", "ycorr", "tuned"}));
+	  cout << shift_lines_to_left(to_string(format_string(l)), 4) << endl
+	       << endl;
+	}
+    }
+}
+
 TEST_F(FluidTest, compute_bob)
 {
+  auto bob_list = data.search_vectors("bob");
+  ASSERT_TRUE(bob_list.is_unitarian());
 
+  auto bob = data.compute_bob(*bob_list.get_first(), &BobTotalCFP::get_instance());
+
+  cout << bob << endl;
+
+  data.set_pb(&PbAlShammasi::get_instance(), -544.171681, 1.299236);
+  data.set_rs(&RsPerezML::get_instance(), -1.094461, 1.034336);
+
+  bob = data.compute_bob(*bob_list.get_first(), &BobSalazar::get_instance());
+
+  cout << bob << endl;
+}
+
+TEST_F(FluidTest, bob_stats)
+{
+  auto bob_corrs = data.can_be_applied("bob");
+  auto stats = bob_corrs.maps<PvtData::VectorStats>
+    ([this] (auto ptr) { return data.bob_stats(ptr); });
+  auto str = stats.maps<DynList<string>>([] (auto & s) { return s.to_dynlist(); });
+  cout << to_string(format_string(str)) << endl
+       << endl;
+
+  data.set_pb(&PbAlShammasi::get_instance(), -544.171681, 1.299236);
+  data.set_rs(&RsSalazar::get_instance(), -2.572312, 1.206391);
+
+  stats = bob_corrs.maps<PvtData::VectorStats>
+    ([this] (auto ptr) { return data.bob_stats(ptr); });
+  str = stats.maps<DynList<string>>([] (auto & s) { return s.to_dynlist(); });
+  cout << to_string(format_string(str)) << endl
+       << endl;
+
+  for (auto it = stats.get_it(); it.has_curr(); it.next())
+    {
+      auto & s = it.get_curr();
+      cout << s.corr_ptr->name << endl;
+      for (auto it = s.temps.get_it(); it.has_curr(); it.next())
+	{
+	  auto p = it.get_curr();
+	  auto & t = p.second;
+	  cout << "  t = " << p.first << endl;
+	  auto l = zip_maps<DynList<string>>([] (auto t)
+            {
+	      return build_dynlist<string>(to_string(get<0>(t)),
+					   to_string(get<1>(t)),
+					   to_string(get<2>(t)),
+					   to_string(get<3>(t)));
+	    }, t.p, t.ylab, t.ycorr, t.ytuned); 
+	  l.insert(DynList<string>({"p", "ylab", "ycorr", "tuned"}));
+	  cout << shift_lines_to_left(to_string(format_string(l)), 4) << endl
+	       << endl;
+	}
+    }
 }
 
 TEST_F(FluidTest, compute_coa)
 {
+  auto coa_list = data.search_vectors("coa");
+  ASSERT_TRUE(coa_list.is_unitarian());
 
+  auto coa_v = *coa_list.get_first();
+
+  auto coa = data.compute_coa(coa_v, &CoaPerezML::get_instance());
+
+  cout << coa << endl
+       << endl;
+
+  data.set_pb(&PbAlShammasi::get_instance(), -544.171681, 1.299236);
+
+  coa = data.compute_coa(coa_v, &CoaPerezML::get_instance());
+
+  cout << coa << endl
+       << endl;
+}
+
+TEST_F(FluidTest, coa_stats)
+{
+  auto coa_corrs = data.can_be_applied("coa");
+  auto stats = coa_corrs.maps<PvtData::VectorStats>
+    ([this] (auto ptr) { return data.coa_stats(ptr); });
+  auto str = stats.maps<DynList<string>>([] (auto & s) { return s.to_dynlist(); });
+  cout << to_string(format_string(str)) << endl
+       << endl;
+
+  data.set_pb(&PbAlShammasi::get_instance(), -544.171681, 1.299236);
+
+  stats = coa_corrs.maps<PvtData::VectorStats>
+    ([this] (auto ptr) { return data.coa_stats(ptr); });
+  str = stats.maps<DynList<string>>([] (auto & s) { return s.to_dynlist(); });
+  cout << to_string(format_string(str)) << endl
+       << endl;
+
+  for (auto it = stats.get_it(); it.has_curr(); it.next())
+    {
+      auto & s = it.get_curr();
+      cout << s.corr_ptr->name << endl;
+      for (auto it = s.temps.get_it(); it.has_curr(); it.next())
+	{
+	  auto p = it.get_curr();
+	  auto & t = p.second;
+	  cout << "  t = " << p.first << endl;
+	  auto l = zip_maps<DynList<string>>([] (auto t)
+            {
+	      return build_dynlist<string>(to_string(get<0>(t), 10),
+					   to_string(get<1>(t), 10),
+					   to_string(get<2>(t), 10),
+					   to_string(get<3>(t), 10));
+	    }, t.p, t.ylab, t.ycorr, t.ytuned); 
+	  l.insert(DynList<string>({"p", "ylab", "ycorr", "tuned"}));
+	  cout << shift_lines_to_left(to_string(format_string(l)), 4) << endl
+	       << endl;
+	}
+    }
 }
 
 TEST_F(FluidTest, compute_boa)
@@ -930,21 +1074,6 @@ TEST_F(FluidTest, uobapply)
 }
 
 TEST_F(FluidTest, uoaapply)
-{
-
-}
-
-TEST_F(FluidTest, rsstats)
-{
-
-}
-
-TEST_F(FluidTest, bobstats)
-{
-
-}
-
-TEST_F(FluidTest, coastats)
 {
 
 }

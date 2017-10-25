@@ -26,7 +26,7 @@ struct VectorDesc
     return valid_target_names.has(target_name);
   }
 
-  const double t = 0; //  unit will always be in Fahrenheit
+  mutable double t = 0; //  unit will always be in Fahrenheit
   mutable double pb = PVT_INVALID_VALUE; // bubble point pressure in the
 				       // same unit that p 
   mutable double bobp = PVT_INVALID_VALUE; // in RB_STB
@@ -35,7 +35,7 @@ struct VectorDesc
   mutable Array<double> p;
   const Unit * punit = nullptr;
 
-  const string yname = "no-name";
+  mutable string yname = "no-name";
   const Unit * yunit = nullptr;
   mutable Array<double> y;
 
@@ -256,7 +256,7 @@ struct VectorDesc
     DynList<DynList<string>> ret = zip_maps<DynList<string>>([] (auto t)
       {
 	return build_dynlist<string>(::to_string(get<0>(t)),
-				     ::to_string(get<1>(t)));
+				     ::to_string(get<1>(t), 10));
 			       
       }, p, y);
     ret.insert(build_dynlist<string>("p " + punit->name,
@@ -1223,6 +1223,7 @@ struct PvtData
     DynList<double> t;
     DynList<double> ylab;
     DynList<double> ycorr;
+    DynList<double> ytuned;
     CorrStat::Desc desc;
     bool valid = false;
     ConstStats(const Correlation * __corr_ptr, DynList<double> && __t,
@@ -1236,6 +1237,12 @@ struct PvtData
       assert(not ycorr.is_empty());
       if (ylab.is_unitarian())
 	CorrStat::c(desc) = -CorrStat::c(desc);
+      if (valid)
+	{
+	  const double & c = CorrStat::c(desc);
+	  const double & m = CorrStat::m(desc);
+	  ytuned = ycorr.maps([c, m] (auto y) { return c + m*y; });
+	}
     }
     DynList<string> to_dynlist() const
     {
@@ -1308,6 +1315,265 @@ struct PvtData
 	pars.remove("p");
       }
     return ret;
+  }
+
+  struct VectorStats
+  {
+    struct Trio
+    {
+      DynList<double> p, ylab, ycorr, ytuned;
+      Trio(DynList<double> && __p,
+	   DynList<double> && __ylab, DynList<double> && __ycorr)
+	: p(move(__p)), ylab(move(__ylab)), ycorr(move(__ycorr))
+      {
+	assert(not p.is_empty());
+	assert(not ylab.is_empty());
+	assert(not ycorr.is_empty());
+	assert(equal_length(p, ylab, ycorr));
+      }
+      Trio() {}
+    };
+    DynMapTree<double, Trio> temps;
+    const Correlation * corr_ptr = nullptr;
+    mutable CorrStat::Desc desc;
+    mutable bool valid = false, closed = false;
+    VectorStats(const Correlation * __corr_ptr) : corr_ptr(__corr_ptr) {}
+    void add(double t, DynList<double> && p,
+	     DynList<double> && ylab, DynList<double> && ycorr)
+    {
+      if (closed)
+	ZENTHROW(MetadataException, "VectorStats is already closed");
+      temps.insert(t, Trio(move(p), move(ylab), move(ycorr)));
+    }
+    void close()
+    {
+      if (closed)
+	ZENTHROW(MetadataException, "VectorStats is already closed");
+      DynList<double> p, ylab, ycorr;
+      for (auto it = temps.get_it(); it.has_curr(); it.next())
+	{
+	  const Trio & pp = it.get_curr().second;
+	  p.append(pp.p);
+	  ylab.append(pp.ylab);
+	  ycorr.append(pp.ycorr);
+	}
+      auto l = sort(t_zip(p, ylab, ycorr), [] (auto & t1, auto & t2)
+		    { return get<0>(t1) < get<0>(t2); });
+      auto t = t_unzip(l);
+      desc = CorrStat(get<1>(t)).stats(get<2>(t));
+      valid = CorrStat::is_valid(desc);
+      closed = true;
+    }
+    DynList<string> to_dynlist() const
+    {
+      if (not closed)
+	ZENTHROW(MetadataException, "VectorStats is not closed");
+      return build_dynlist<string>(corr_ptr->name, ::to_string(CorrStat::r2(desc)),
+				   ::to_string(CorrStat::mse(desc)),
+				   ::to_string(CorrStat::sigma(desc)),
+				   ::to_string(CorrStat::sumsq(desc)),
+				   ::to_string(CorrStat::c(desc)),
+				   ::to_string(CorrStat::m(desc)),
+				   valid ? "true" : "false");
+    }
+  };
+
+  VectorStats rs_stats(const Correlation * corr_ptr) const
+  {
+    if (corr_ptr->target_name() != "rs")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for rs");
+
+    DynList<const VectorDesc*> rs_lab = search_vectors("rs");
+    if (rs_lab.is_empty())
+      ZENTHROW(VarNameNotFound, "rs data is not found in this data set");
+
+    VectorStats stats(corr_ptr);
+    for (auto it = rs_lab.get_it(); it.has_curr(); it.next())
+      {
+	auto rs_ptr = it.get_curr();
+	VectorDesc rs_corr = compute_rs(*rs_ptr, corr_ptr);
+	stats.add(rs_corr.t, to_dynlist(rs_corr.p), to_dynlist(rs_ptr->y),
+		  to_dynlist(rs_corr.y));
+      }
+    stats.close();
+    if (stats.valid)
+      {
+	auto rsb_ptr = search_const("rsb");
+	if (rsb_ptr == nullptr)
+	  ZENTHROW(ConstNameNotFound, "data set does not contain rsb");
+	const double rsb = VtlQuantity(*rsb_ptr->unit_ptr, rsb_ptr->value).raw();
+	const double & c = CorrStat::c(stats.desc);
+	const double & m = CorrStat::m(stats.desc);
+	for (auto it = stats.temps.get_it(); it.has_curr(); it.next())
+	  {
+	    auto & p = it.get_curr();
+	    p.second.ytuned = p.second.ycorr.maps<double>([c, m, rsb] (auto rs)
+              {
+		return min(max(.0, c + m*rs), rsb);
+	      });
+	  }
+      }
+    return stats;
+  }
+
+  VectorDesc compute_bob(const VectorDesc & pref,
+			 const Correlation * corr_ptr,
+			 double c = 0, double m = 1) const
+  {
+    if (pref.yname != "bob")
+      ZENTHROW(InvalidTargetName, "compute_bob(): input vector is not for bob");
+    if (corr_ptr->target_name() != "bob")
+      ZENTHROW(InvalidTargetName, "compute_bob(): correlation " + corr_ptr->name +
+	       " is not for bob");
+
+    ParList pars = build_correlation_pars();
+    const ParPair pb_par = get_pb(pref);
+    const double pb = pb_par.second.first;
+    VectorDesc in = pref;
+    in.p.get_last() = pb; // eventually change pb for the tuned one
+
+    pars.insert("t", in.t, &Fahrenheit::get_instance());
+    pars.insert(pb_par);
+
+    auto rs_list = search_vectors("rs");
+    if (rs_list.is_empty())
+      ZENTHROW(VarNameNotFound, "rs vector not found");
+    auto rs_ptr =
+      rs_list.find_ptr([t = in.t] (auto ptr) { return ptr->t == t; });
+    if (rs_ptr == nullptr)
+      ZENTHROW(VarNameNotFound, "rs vector for t = " + ::to_string(in.t) +
+	       " not found");
+    VectorDesc rs = **rs_ptr;
+    if (rs_corr != nullptr)
+      rs = compute_rs(rs, rs_corr, c_rs, m_rs);
+
+    DynList<double> rs_vals = in.gety(rs.y), p_list, bob_list;
+    for (auto it = zip_it(in.p, rs_vals); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	const double & p = get<0>(t);
+	const double & rs_val = get<1>(t);
+	pars.insert("p", p, in.punit);
+	pars.insert("rs", rs_val, rs.yunit);
+	const VtlQuantity bob = corr_ptr->tuned_compute_by_names(pars, c, m);
+	p_list.append(p);
+	bob_list.append(bob.raw());
+	pars.remove("p");
+	pars.remove("rs");
+      }
+
+    return VectorDesc(in.t, pb, bob_list.get_last(), PVT_INVALID_VALUE,
+		      PVT_INVALID_VALUE, p_list, in.punit, "bob", bob_list,
+		      &corr_ptr->unit);
+  }
+
+  VectorStats bob_stats(const Correlation * corr_ptr) const
+  {
+    if (corr_ptr->target_name() != "bob")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for bob");
+
+    DynList<const VectorDesc*> bob_lab = search_vectors("bob");
+    if (bob_lab.is_empty())
+      ZENTHROW(VarNameNotFound, "bob data is not found in this data set");
+
+    VectorStats stats(corr_ptr);
+    for (auto it = bob_lab.get_it(); it.has_curr(); it.next())
+      {
+	auto bob_ptr = it.get_curr();
+	VectorDesc bob_corr = compute_bob(*bob_ptr, corr_ptr);
+	stats.add(bob_corr.t, to_dynlist(bob_corr.p), to_dynlist(bob_ptr->y),
+		  to_dynlist(bob_corr.y));
+      }
+    stats.close();
+    if (stats.valid)
+      {
+	const double & c = CorrStat::c(stats.desc);
+	const double & m = CorrStat::m(stats.desc);
+	const double & bmin = corr_ptr->unit.min_val;
+	const double & bmax = corr_ptr->unit.max_val;
+	for (auto it = stats.temps.get_it(); it.has_curr(); it.next())
+	  {
+	    auto & p = it.get_curr();
+	    p.second.ytuned = p.
+	      second.ycorr.maps<double>([c, m, bmin, bmax] (auto rs)
+					{
+					  return min(max(bmin, c + m*rs), bmax);
+					});
+	  }
+      }
+    return stats;
+  }
+
+  VectorDesc compute_coa(const VectorDesc & pref,
+			 const Correlation * corr_ptr,
+			 double c = 0, double m = 1) const
+  {
+    if (pref.yname != "coa")
+      ZENTHROW(InvalidTargetName, "compute_coa(): input vector is not for coa");
+    if (corr_ptr->target_name() != "coa")
+      ZENTHROW(InvalidTargetName, "compute_coa(): correlation " + corr_ptr->name +
+	       " is not for coa");
+
+    ParList pars = build_correlation_pars();
+    const ParPair pb_par = get_pb(pref);
+    const double pb = pb_par.second.first;
+
+    pars.insert("t", pref.t, &Fahrenheit::get_instance());
+    pars.insert(pb_par);
+
+    DynList<double> p_list, coa_list;
+    for (auto it = pref.p.get_it(); it.has_curr(); it.next())
+      {
+	const double p = it.get_curr();
+	pars.insert("p", p, pref.punit);
+	const VtlQuantity coa = corr_ptr->tuned_compute_by_names(pars, c, m);
+	p_list.append(p);
+	coa_list.append(coa.raw());
+	pars.remove("p");
+      }
+    return VectorDesc(pref.t, pb, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		      PVT_INVALID_VALUE, p_list, pref.punit, "coa", coa_list,
+		      &corr_ptr->unit);
+  }
+
+  VectorStats coa_stats(const Correlation * corr_ptr) const
+  {
+    if (corr_ptr->target_name() != "coa")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for coa");
+
+    DynList<const VectorDesc*> coa_lab = search_vectors("coa");
+    if (coa_lab.is_empty())
+      ZENTHROW(VarNameNotFound, "coa data is not found in this data set");
+
+    VectorStats stats(corr_ptr);
+    for (auto it = coa_lab.get_it(); it.has_curr(); it.next())
+      {
+	auto coa_ptr = it.get_curr();
+	VectorDesc coa_corr = compute_coa(*coa_ptr, corr_ptr);
+	stats.add(coa_corr.t, to_dynlist(coa_corr.p), to_dynlist(coa_ptr->y),
+		  to_dynlist(coa_corr.y));
+      }
+    stats.close();
+    if (stats.valid)
+      {
+	const double & c = CorrStat::c(stats.desc);
+	const double & m = CorrStat::m(stats.desc);
+	const double & bmin = corr_ptr->unit.min_val;
+	const double & bmax = corr_ptr->unit.max_val;
+	for (auto it = stats.temps.get_it(); it.has_curr(); it.next())
+	  {
+	    auto & p = it.get_curr();
+	    p.second.ytuned = p.
+	      second.ycorr.maps<double>([c, m, bmin, bmax] (auto rs)
+					{
+					  return min(max(bmin, c + m*rs), bmax);
+					});
+	  }
+      }
+    return stats;
   }
 
   VectorDesc compute_values(const VectorDesc & pref,
