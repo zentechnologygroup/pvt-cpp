@@ -1025,7 +1025,20 @@ TEST_F(FluidTest, coa_stats)
 
 TEST_F(FluidTest, compute_boa)
 {
+  data.set_pb(&PbSalazar::get_instance(), -107.106998, 1.004085);
+  data.set_rs(&RsSalazar::get_instance(), -2.572312, 1.206391);
+  data.set_bob(&BobTotalCFP::get_instance(), -10581.594506, 10367.715650);
+  data.set_coa(&CoaPerezML::get_instance(), 0.000001, 0.953269);
 
+  // TODO probar más
+
+  auto boa_list = data.search_vectors("boa");
+  ASSERT_TRUE(boa_list.is_unitarian());
+
+  auto boav = *boa_list.get_first();
+
+  auto boa = data.compute_boa(boav, &BoaMcCain::get_instance());
+  cout << boa << endl;
 }
 
 TEST_F(FluidTest, compute_uob)
