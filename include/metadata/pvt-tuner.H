@@ -1354,7 +1354,7 @@ struct PvtData
       {
 	const double p = it.get_curr();
 	pars.insert("p", p, in.punit);
-	const VtlQuantity rs = corr_ptr->tuned_compute_by_names(pars, c, m);
+	const VtlQuantity rs = corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	ret.p.append(p);
 	ret.y.append(min(rs.raw(), rsb));
 	pars.remove("p");
@@ -1501,7 +1501,7 @@ struct PvtData
 	const double & rs_val = get<1>(t);
 	pars.insert("p", p, in.punit);
 	pars.insert("rs", rs_val, rs.yunit);
-	const VtlQuantity bob = corr_ptr->tuned_compute_by_names(pars, c, m);
+	const VtlQuantity bob = corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p);
 	bob_list.append(bob.raw());
 	pars.remove("p");
@@ -1573,7 +1573,7 @@ struct PvtData
       {
 	const double p = it.get_curr();
 	pars.insert("p", p, pref.punit);
-	const VtlQuantity coa = corr_ptr->tuned_compute_by_names(pars, c, m);
+	const VtlQuantity coa = corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p);
 	coa_list.append(coa.raw());
 	pars.remove("p");
@@ -1706,7 +1706,7 @@ struct PvtData
 	const double & coa_val = get<1>(t);
 	pars.insert("p", p_val, pref.punit);
 	pars.insert("coa", coa_val, coa.yunit);
-	const VtlQuantity coa = corr_ptr->tuned_compute_by_names(pars, c, m);
+	const VtlQuantity coa = corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p_val);
 	boa_list.append(coa.raw());
 	pars.remove("p");
@@ -1849,7 +1849,7 @@ struct PvtData
 	pars.insert("bob", bob_val, bob.yunit);
 	cout << "p = " << p_val << " rs = " << rs_val << " bob = " << bob_val
 	     << endl;
-	const VtlQuantity uob = corr_ptr->tuned_compute_by_names(pars, c, m);
+	const VtlQuantity uob = corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	cout << "uob = " << uob << endl;
 	p_list.append(p_val);
 	uob_list.append(uob.raw());
