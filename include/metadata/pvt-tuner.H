@@ -231,12 +231,19 @@ struct VectorDesc
     return pvals.maps([this] (auto & v) { return this->gety(v); });
   }
 
-  VectorDesc make_parallel(const VectorDesc & src) const
+  // Transform pressures of this to pressures of src and computes new
+  // values for y through interpolation
+  VectorDesc & make_parallel(const VectorDesc & src)
   {
-    VectorDesc ret;
-    ret.p = src.p;
-    ret.y = gety(src.p);
-    return ret;
+    if (t != src.t)
+      ZENTHROW(MetadataException,
+	       "trying to do parallel two vector of different t");
+    if (is_parallel(src))
+      return *this;
+    Array<double> newy = gety(src.p);
+    p = src.p;
+    y = move(newy);
+    return *this;
   }
 
   VectorDesc merge_with(const VectorDesc & y_vector) const
@@ -765,19 +772,22 @@ struct PvtData
     vectors.insert(v);
   }
 
-  void rm_vector(double t, const string & target_name)
+  VectorDesc rm_vector(double t, const string & target_name)
   {
     auto l = search_vectors(target_name);
     if (l.is_empty())
       ZENTHROW(VarNameNotFound, "variable " + target_name + " not found");
-    if (not l.exists([&target_name, &t] (auto & ptr)
-		     { return ptr->yname == target_name and ptr->t == t; }))
+    auto ptr = l.find_ptr([&target_name, &t] (auto & ptr)
+			  { return ptr->yname == target_name and ptr->t == t; });
+    if (ptr == nullptr)
       ZENTHROW(VarNameNotFound, "variable " + target_name +
 	       " is to associated to t = " + ::to_string(t));
+    VectorDesc ret = **ptr;
     vectors.remove(VectorDesc(t, target_name));
     if (not vectors.exists([&target_name, &t] (auto &v)
 			   { return v.yname == target_name and v.t == t; }))
       names.remove(target_name);
+    return ret;
   }
 
   void
@@ -882,6 +892,13 @@ struct PvtData
     tgt_name##_corr = corr_ptr;						\
     c_##tgt_name = c;							\
     m_##tgt_name = m;							\
+  }									\
+									\
+  void rm_##tgt_name##_correlation()					\
+  {									\
+    tgt_name##_corr = nullptr;						\
+    c_##tgt_name = 0;							\
+    m_##tgt_name = 1;							\
   }
 
   SET_CORRRELATION(pb);
@@ -1266,6 +1283,9 @@ struct PvtData
 
   ConstStats pb_stats(const Correlation * corr_ptr)
   {
+    if (corr_ptr->target_name() != "pb")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for pb");
     DynList<double> t, pb_lab, pb_corr;
     auto tp = tp_sets();
     for (auto it = tp.get_it(); it.has_curr(); it.next())
@@ -1278,12 +1298,29 @@ struct PvtData
     return ConstStats(corr_ptr, move(t), move(pb_lab), move(pb_corr));
   }
 
+  ConstStats uod_stats(const Correlation * corr_ptr)
+  {
+    if (corr_ptr->target_name() != "uod")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for uod");
+    DynList<double> t, pb_lab, pb_corr;
+    auto tp = tp_sets();
+    for (auto it = tp.get_it(); it.has_curr(); it.next())
+      {
+	auto curr = it.get_curr();
+	t.append(curr.t);
+	pb_lab.append(curr.pb);
+	pb_corr.append(compute_uod(curr.t, curr.pb, corr_ptr).raw());
+      }
+    return ConstStats(corr_ptr, move(t), move(pb_lab), move(pb_corr));
+  }
+
   ParPair get_uod(const VectorDesc & v, const ParPair & pb_par) const
   {
     if (uod_corr == nullptr)
-      return ParPair("uod", ValPair(v.pb, v.punit));
+      return ParPair("uod", ValPair(v.uod, &CP::get_instance()));
     ParList pars = build_correlation_pars();
-    pars.insert("t", v.uod, &CP::get_instance());
+    pars.insert("t", v.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
     VtlQuantity ret = uod_corr->tuned_compute_by_names(pars, c_uod, m_uod, false);
     return ParPair("uod", ValPair(ret.raw(), &ret.unit));
@@ -1593,9 +1630,6 @@ struct PvtData
     if (corr_ptr->target_name() != "boa")
       ZENTHROW(InvalidTargetName, "compute_boa(): correlation " + corr_ptr->name +
 	       " is not for boa");
-    if (corr_ptr != &BoaMcCain::get_instance())
-      ZENTHROW(CorrelationNotApplicable, corr_ptr->name +
-	       " correlation is not allowed for boa");
 
     VectorDesc coa;
     bool exist_coa = false;
@@ -1642,36 +1676,36 @@ struct PvtData
       {
 	auto fake_coa = in;
 	fake_coa.yname = "coa"; // in this way compute_coa will accept it
-	coa = compute_coa(fake_coa, coa_corr, c_coa, m_coa).make_parallel(in);
+	coa = compute_coa(fake_coa, coa_corr, c_coa, m_coa);
       }
-    else
-      coa = coa.make_parallel(in);
+    // else coa is already defined
+    coa = coa.make_parallel(in);
 
     if (exist_bob and bob_corr != nullptr)
-      bob = compute_bob(bob, bob_corr, c_bob, m_bob);
+      bob = compute_bob(bob, bob_corr, c_bob, m_bob).make_parallel(in);
     else if (bob_corr != nullptr)
       {
 	auto fake_bob = in;
 	fake_bob.yname = "bob";
 	bob = compute_bob(fake_bob, bob_corr, c_bob, m_bob).make_parallel(in);
       }
-    else
-      bob = bob.make_parallel(in);
+    // else bob is already defined
+    bob = bob.make_parallel(in);
 
     const double & bobp = bob.y.get_last();
     pars.insert("t", pref.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
     pars.insert("bobp", bobp, bob.yunit);
-
+    
     DynList<double> p_list, boa_list;
-    for (auto it = zip_it(in.p, coa.y); it.has_curr(); it.next())
+    // Start from 1 (not 0) because bobp point must not be included
+    for (auto it = zip_it_pos(1, in.p, coa.y); it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
 	const double & p_val = get<0>(t);
 	const double & coa_val = get<1>(t);
 	pars.insert("p", p_val, pref.punit);
 	pars.insert("coa", coa_val, coa.yunit);
-	cout << "p = " << p_val << " coa = " << coa_val << endl;
 	const VtlQuantity coa = corr_ptr->tuned_compute_by_names(pars, c, m);
 	p_list.append(p_val);
 	boa_list.append(coa.raw());
@@ -1679,8 +1713,152 @@ struct PvtData
 	pars.remove("coa");
       }
     return VectorDesc(pref.t, pb, bobp, PVT_INVALID_VALUE,
-		      PVT_INVALID_VALUE, p_list, pref.punit, "boa", boa_list,
-		      &corr_ptr->unit);
+		      PVT_INVALID_VALUE, p_list, pref.punit, "boa",
+		      boa_list, &corr_ptr->unit);
+  }
+
+  VectorStats boa_stats(const Correlation * corr_ptr) const
+  {
+    if (corr_ptr->target_name() != "boa")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for boa");
+
+    DynList<const VectorDesc*> boa_lab = search_vectors("boa");
+    if (boa_lab.is_empty())
+      ZENTHROW(VarNameNotFound, "boa data is not found in this data set");
+
+    VectorStats stats(corr_ptr);
+    for (auto it = boa_lab.get_it(); it.has_curr(); it.next())
+      {
+	auto boa_ptr = it.get_curr();
+	VectorDesc boa_corr = compute_boa(*boa_ptr, corr_ptr);
+	stats.add(boa_corr.t, to_dynlist(boa_corr.p), to_dynlist(boa_ptr->y),
+		  to_dynlist(boa_corr.y));
+      }
+    stats.close();
+    if (stats.valid)
+      {
+	const double & c = CorrStat::c(stats.desc);
+	const double & m = CorrStat::m(stats.desc);
+	const double & bmin = corr_ptr->unit.min_val;
+	const double & bmax = corr_ptr->unit.max_val;
+	for (auto it = stats.temps.get_it(); it.has_curr(); it.next())
+	  {
+	    auto & p = it.get_curr();
+	    p.second.ytuned = p.
+	      second.ycorr.maps<double>([c, m, bmin, bmax] (auto rs)
+					{
+					  return min(max(bmin, c + m*rs), bmax);
+					});
+	  }
+      }
+    return stats;
+  }
+
+  VectorDesc compute_uob(const VectorDesc & pref, const Correlation * corr_ptr,
+			 double c = 0, double m = 1) const
+  {
+    if (pref.yname != "uob")
+      ZENTHROW(InvalidTargetName, "compute_uod(): input vector is not for uod");
+    if (corr_ptr->target_name() != "uob")
+      ZENTHROW(InvalidTargetName, "compute_uod(): correlation " + corr_ptr->name +
+	       " is not for uod");
+
+    VectorDesc rs;
+    bool exist_rs = false;
+    {
+      const DynList<const VectorDesc*> rs_list = search_vectors("rs");
+      if (not rs_list.is_empty())
+	{
+	  auto ptr =
+	    rs_list.find_ptr([t = pref.t] (auto ptr) { return ptr->t == t; });
+	  if (ptr != nullptr)
+	    {
+	      rs = **ptr;
+	      exist_rs = true;
+	    }
+	}
+    }
+    if (not exist_rs and rs_corr == nullptr)
+      ZENTHROW(VarNameNotFound,
+	       "Not found experimental data neither correlation for rs");
+
+    VectorDesc bob;
+    bool exist_bob = false;
+    {
+      const DynList<const VectorDesc*> bob_list = search_vectors("bob");
+      auto ptr =
+	bob_list.find_ptr([t = pref.t] (auto ptr) { return ptr->t == t; });
+      if (ptr != nullptr)
+	{
+	  bob = **ptr;
+	  exist_bob = true;
+	}
+    }
+    
+    VectorDesc in = pref;
+    ParList pars = build_correlation_pars();
+    const ParPair pb_par = get_pb(pref);
+    const ParPair uod_par = get_uod(pref, pb_par);
+    const double & pb = pb_par.second.first;
+    const double & uod = uod_par.second.first;
+    in.p.get_last() = pb;
+
+    if (exist_rs and rs_corr != nullptr)
+      // in this case coa is already parallel to in
+      rs = compute_rs(rs, rs_corr, c_rs, m_rs);
+    else if (rs_corr != nullptr)
+      {
+	auto fake_rs = in;
+	fake_rs.yname = "rs"; // in this way compute_coa will accept it
+	rs = compute_coa(fake_rs, rs_corr, c_rs, m_rs);
+      }
+    // else rs is already defined
+    rs = rs.make_parallel(in);
+
+    if (exist_bob and bob_corr != nullptr)
+      bob = compute_bob(bob, bob_corr, c_bob, m_bob).make_parallel(in);
+    else if (bob_corr != nullptr)
+      {
+	auto fake_bob = in;
+	fake_bob.yname = "bob";
+	bob = compute_bob(fake_bob, bob_corr, c_bob, m_bob).make_parallel(in);
+      }
+    // else bob is already defined
+    bob = bob.make_parallel(in);
+
+    pars.insert("t", pref.t, &Fahrenheit::get_instance());
+    pars.insert(pb_par);
+    pars.insert(uod_par);
+
+    cout << pref << endl
+	 << in << endl
+	 << rs << endl
+	 << bob << endl;      
+    
+    DynList<double> p_list, uob_list;
+    // Start from 1 (not 0) because bobp point must not be included
+    for (auto it = zip_it(in.p, rs.y, bob.y); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	const double & p_val = get<0>(t);
+	const double & rs_val = get<1>(t);
+	const double & bob_val = get<2>(t);
+	pars.insert("p", p_val, pref.punit);
+	pars.insert("rs", rs_val, rs.yunit);
+	pars.insert("bob", bob_val, bob.yunit);
+	cout << "p = " << p_val << " rs = " << rs_val << " bob = " << bob_val
+	     << endl;
+	const VtlQuantity uob = corr_ptr->tuned_compute_by_names(pars, c, m);
+	cout << "uob = " << uob << endl;
+	p_list.append(p_val);
+	uob_list.append(uob.raw());
+	pars.remove("p");
+	pars.remove("rs");
+	pars.remove("bob");
+      }
+    return VectorDesc(pref.t, pb, PVT_INVALID_VALUE, uod, PVT_INVALID_VALUE,
+		      p_list, pref.punit, "uob", uob_list, &corr_ptr->unit);
   }
 
   VectorDesc compute_values(const VectorDesc & pref,

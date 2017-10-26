@@ -1030,8 +1030,6 @@ TEST_F(FluidTest, compute_boa)
   data.set_bob(&BobTotalCFP::get_instance(), -10581.594506, 10367.715650);
   data.set_coa(&CoaPerezML::get_instance(), 0.000001, 0.953269);
 
-  // TODO probar más
-
   auto boa_list = data.search_vectors("boa");
   ASSERT_TRUE(boa_list.is_unitarian());
 
@@ -1039,11 +1037,141 @@ TEST_F(FluidTest, compute_boa)
 
   auto boa = data.compute_boa(boav, &BoaMcCain::get_instance());
   cout << boa << endl;
+
+  auto coa = data.rm_vector(125, "coa");
+
+  cout << data.compute_boa(boav, &BoaMcCain::get_instance()) << endl;
+
+  data.rm_coa_correlation();
+
+  ASSERT_THROW(data.compute_boa(boav, &BoaMcCain::get_instance()),
+	       VarNameNotFound);
+
+  data.add_vector(coa);
+
+  cout << data.compute_boa(boav, &BoaMcCain::get_instance()) << endl;
+}
+
+
+TEST_F(FluidTest, boa_stats)
+{
+  auto boa_corrs = data.can_be_applied("boa");
+  auto stats = boa_corrs.maps<PvtData::VectorStats>
+    ([this] (auto ptr) { return data.boa_stats(ptr); });
+  auto str = stats.maps<DynList<string>>([] (auto & s) { return s.to_dynlist(); });
+  cout << to_string(format_string(str)) << endl
+       << endl;
+
+  data.set_pb(&PbSalazar::get_instance(), -107.106998, 1.004085);
+  data.set_rs(&RsSalazar::get_instance(), -2.572312, 1.206391);
+  data.set_bob(&BobTotalCFP::get_instance(), -10581.594506, 10367.715650);
+  data.set_coa(&CoaPerezML::get_instance(), 0.000001, 0.953269);
+
+  stats = boa_corrs.maps<PvtData::VectorStats>
+    ([this] (auto ptr) { return data.boa_stats(ptr); });
+  str = stats.maps<DynList<string>>([] (auto & s) { return s.to_dynlist(); });
+  cout << to_string(format_string(str)) << endl
+       << endl;
+
+  for (auto it = stats.get_it(); it.has_curr(); it.next())
+    {
+      auto & s = it.get_curr();
+      cout << s.corr_ptr->name << endl;
+      for (auto it = s.temps.get_it(); it.has_curr(); it.next())
+	{
+	  auto p = it.get_curr();
+	  auto & t = p.second;
+	  cout << "  t = " << p.first << endl;
+	  auto l = zip_maps<DynList<string>>([] (auto t)
+            {
+	      return build_dynlist<string>(to_string(get<0>(t), 10),
+					   to_string(get<1>(t), 10),
+					   to_string(get<2>(t), 10),
+					   to_string(get<3>(t), 10));
+	    }, t.p, t.ylab, t.ycorr, t.ytuned); 
+	  l.insert(DynList<string>({"p", "ylab", "ycorr", "tuned"}));
+	  cout << shift_lines_to_left(to_string(format_string(l)), 4) << endl
+	       << endl;
+	}
+    }
+}
+
+TEST_F(FluidTest, uod_stats)
+{
+  auto uod_corrs = data.can_be_applied("uod");
+  auto s = uod_corrs.maps<PvtData::ConstStats>([this] (auto ptr)
+					       { return data.uod_stats(ptr); });
+  auto str = s.maps<DynList<string>>([] (auto & s) { return s.to_dynlist(); });
+
+  cout << to_string(format_string(str)) << endl
+       << endl;
+
+  for (auto it = s.get_it(); it.has_curr(); it.next())
+    {
+      auto & s = it.get_curr();
+      const double & c = CorrStat::c(s.desc);
+      const double & m = CorrStat::m(s.desc);
+      cout << s.corr_ptr->name << " c = " << c << " m = " << m << endl;
+      for (auto it = zip_it(s.t, s.ylab, s.ycorr, s.ytuned); it.has_curr(); it.next())
+	{
+	  auto t = it.get_curr();
+	  cout << "  t = " << get<0>(t) << " uod = " << get<1>(t) << " uodcorr = "
+	       << get<2>(t) << " tuned = " << get<3>(t) << endl;
+	}
+    }
+
+  data.set_pb(&PbSalazar::get_instance(), -107.106998, 1.004085);
+  s = uod_corrs.maps<PvtData::ConstStats>([this] (auto ptr)
+					       { return data.uod_stats(ptr); });
+  str = s.maps<DynList<string>>([] (auto & s) { return s.to_dynlist(); });
+
+  cout << to_string(format_string(str)) << endl
+       << endl;
+
+  for (auto it = s.get_it(); it.has_curr(); it.next())
+    {
+      auto & s = it.get_curr();
+      const double & c = CorrStat::c(s.desc);
+      const double & m = CorrStat::m(s.desc);
+      cout << s.corr_ptr->name << " c = " << c << " m = " << m << endl;
+      for (auto it = zip_it(s.t, s.ylab, s.ycorr, s.ytuned); it.has_curr(); it.next())
+	{
+	  auto t = it.get_curr();
+	  cout << "  t = " << get<0>(t) << " uod = " << get<1>(t) << " uodcorr = "
+	       << get<2>(t) << " tuned = " << get<3>(t) << endl;
+	}
+    }
 }
 
 TEST_F(FluidTest, compute_uob)
 {
+  data.set_pb(&PbSalazar::get_instance(), -107.106998, 1.004085);
+  data.set_rs(&RsSalazar::get_instance(), -2.572312, 1.206391);
+  data.set_bob(&BobTotalCFP::get_instance(), -10581.594506, 10367.715650);
+  data.set_coa(&CoaPerezML::get_instance(), 0.000001, 0.953269);
 
+  auto uob_list = data.search_vectors("uob");
+  ASSERT_EQ(uob_list.size(), 3);
+
+  auto uobv = *uob_list.get_first();
+
+  auto uob = data.compute_uob(uobv, &UobPerezML::get_instance());
+  cout << uob << endl;
+
+  /*
+  auto coa = data.rm_vector(125, "coa");
+
+  cout << data.compute_boa(boav, &BoaMcCain::get_instance()) << endl;
+
+  data.rm_coa_correlation();
+
+  ASSERT_THROW(data.compute_boa(boav, &BoaMcCain::get_instance()),
+	       VarNameNotFound);
+
+  data.add_vector(coa);
+
+  cout << data.compute_boa(boav, &BoaMcCain::get_instance()) << endl;
+  */
 }
 
 TEST_F(FluidTest, compute_uoa)
@@ -1087,16 +1215,6 @@ TEST_F(FluidTest, uobapply)
 }
 
 TEST_F(FluidTest, uoaapply)
-{
-
-}
-
-TEST_F(FluidTest, boastats)
-{
-
-}
-
-TEST_F(FluidTest, uodstats)
 {
 
 }

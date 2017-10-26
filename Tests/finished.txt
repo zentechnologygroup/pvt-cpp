@@ -3,3 +3,7 @@ test,2017-10-09 11:23:52 -0400,2017-10-09 11:24:03 -0400,,2017-10-09 11:24:09 -0
 test para merge_parallel,2017-10-19 18:06:54 -0400,2017-10-22 21:23:43 -0400,,2017-10-22 21:23:47 -0400
 out de CorrOutput que no se confunda las unidades,2017-10-22 21:36:23 -0400,2017-10-23 12:49:57 -0400,,2017-10-23 12:50:00 -0400
 seed y num de pruebas por linea de comandos,2017-10-12 18:46:45 -0400,2017-10-17 13:06:35 -0400,,2017-10-23 12:50:09 -0400
+revisar por qué valores del spliut se están repitiendo,2017-10-23 12:55:49 -0400,2017-10-25 17:54:08 -0400,,2017-10-25 17:54:12 -0400
+casos límites para split_uo pressiones o uo muy cercanas,2017-10-12 11:04:46 -0400,2017-10-13 13:45:58 -0400,,2017-10-25 17:54:23 -0400
+en def de boa no debe ponerse en el arreglo bobp ni pb,2017-10-23 07:48:24 -0400,2017-10-25 17:54:39 -0400,,2017-10-25 17:54:42 -0400
+coa debe ser paralelo a boa en compute_boa,2017-10-25 17:53:55 -0400,2017-10-26 10:00:07 -0400,,2017-10-26 10:00:10 -0400

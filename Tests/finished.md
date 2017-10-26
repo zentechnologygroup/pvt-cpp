@@ -28,3 +28,27 @@
 - Comment      
 - Finished     
 
+## 6. revisar por qué valores del spliut se están repitiendo
+- Created at   2017-10-23 12:55:49 -0400
+- Completed at 2017-10-25 17:54:08 -0400
+- Comment      
+- Finished     
+
+## 7. casos límites para split_uo pressiones o uo muy cercanas
+- Created at   2017-10-12 11:04:46 -0400
+- Completed at 2017-10-13 13:45:58 -0400
+- Comment      
+- Finished     
+
+## 8. en def de boa no debe ponerse en el arreglo bobp ni pb
+- Created at   2017-10-23 07:48:24 -0400
+- Completed at 2017-10-25 17:54:39 -0400
+- Comment      
+- Finished     
+
+## 9. coa debe ser paralelo a boa en compute_boa
+- Created at   2017-10-25 17:53:55 -0400
+- Completed at 2017-10-26 10:00:07 -0400
+- Comment      
+- Finished     
+
