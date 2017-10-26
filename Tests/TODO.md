@@ -41,3 +41,6 @@
 ## 14. dry de prefix_stats y uod pb stats
 - Created at   2017-10-26 09:59:59 -0400
 
+## 15. en familia _stats poner manejador de excepciones
+- Created at   2017-10-26 12:50:43 -0400
+

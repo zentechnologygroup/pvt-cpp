@@ -12,3 +12,4 @@ lista de parámetos correlacion debe ser variable local y no miembro dato,2017-1
 dry de patron para name_stats,2017-10-25 11:16:01 -0400,,
 reahacer compute_rs,2017-10-25 11:59:42 -0400,,
 dry de prefix_stats y uod pb stats,2017-10-26 09:59:59 -0400,,
+en familia _stats poner manejador de excepciones,2017-10-26 12:50:43 -0400,,
