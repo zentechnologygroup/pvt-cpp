@@ -44,3 +44,12 @@
 ## 15. en familia _stats poner manejador de excepciones
 - Created at   2017-10-26 12:50:43 -0400
 
+## 16. revisar todos los compute si no hay data pero hay crrelacion calcular
+- Created at   2017-10-26 15:57:48 -0400
+
+## 17. capturar excepiones e ignorr en stats
+- Created at   2017-10-26 17:25:45 -0400
+
+## 18. verbose mode para tuner
+- Created at   2017-10-26 17:41:26 -0400
+

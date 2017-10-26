@@ -1147,7 +1147,7 @@ TEST_F(FluidTest, compute_uob)
 {
   data.set_pb(&PbSalazar::get_instance(), -107.106998, 1.004085);
   data.set_rs(&RsSalazar::get_instance(), -2.572312, 1.206391);
-  data.set_bob(&BobTotalCFP::get_instance(), -10581.594506, 10367.715650);
+  data.set_bob(&BobTotalCFP::get_instance(), -0.768736, 1.764331);
   data.set_coa(&CoaPerezML::get_instance(), 0.000001, 0.953269);
 
   auto uob_list = data.search_vectors("uob");
@@ -1156,22 +1156,46 @@ TEST_F(FluidTest, compute_uob)
   auto uobv = *uob_list.get_first();
 
   auto uob = data.compute_uob(uobv, &UobPerezML::get_instance());
-  cout << uob << endl;
+  cout << "uob completo" << endl
+       << uob << endl
+       << endl;
 
-  /*
-  auto coa = data.rm_vector(125, "coa");
+  auto rs = data.rm_vector(125, "rs");
 
-  cout << data.compute_boa(boav, &BoaMcCain::get_instance()) << endl;
+  cout << "uob sin rs pero usando correlación" << endl
+       << data.compute_uob(uobv, &UobPerezML::get_instance()) << endl
+       << endl;
 
-  data.rm_coa_correlation();
+  data.rm_rs_correlation();
 
-  ASSERT_THROW(data.compute_boa(boav, &BoaMcCain::get_instance()),
+  ASSERT_THROW(data.compute_uob(uobv, &UobPerezML::get_instance()),
 	       VarNameNotFound);
 
-  data.add_vector(coa);
+    data.set_rs(&RsSalazar::get_instance(), -2.572312, 1.206391);
 
-  cout << data.compute_boa(boav, &BoaMcCain::get_instance()) << endl;
-  */
+  auto bob = data.rm_vector(125, "bob");
+
+  cout << "uob sin rs y sin bob pero usando correlaciones" << endl
+       << data.compute_uob(uobv, &UobPerezML::get_instance()) << endl
+       << endl;
+
+  data.rm_bob_correlation();
+
+  ASSERT_THROW(data.compute_uob(uobv, &UobPerezML::get_instance()),
+	       VarNameNotFound);
+}
+
+TEST_F(FluidTest, uob_stats)
+{
+  auto uob_corrs = data.can_be_applied("uob");
+
+  auto s = uob_corrs.maps<PvtData::VectorStats>([this] (auto ptr)
+						{ return data.uob_stats(ptr); });
+
+  auto str = s.maps<DynList<string>>([] (auto & s) { return s.to_dynlist(); });
+
+  cout << to_string(format_string(str)) << endl;						    
+						
 }
 
 TEST_F(FluidTest, compute_uoa)
@@ -1215,11 +1239,6 @@ TEST_F(FluidTest, uobapply)
 }
 
 TEST_F(FluidTest, uoaapply)
-{
-
-}
-
-TEST_F(FluidTest, uobstats)
 {
 
 }

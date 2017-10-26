@@ -225,10 +225,12 @@ struct VectorDesc
     return result;
   }
 
+  /// Compute the y values corresponding to pressure values in pvals
+  /// through interpolation
   template <template <typename> class C>
   DynList<double> gety(const C<double> & pvals) const
   {
-    return pvals.maps([this] (auto & v) { return this->gety(v); });
+    return pvals.maps([this] (auto & p) { return this->gety(p); });
   }
 
   // Transform pressures of this to pressures of src and computes new
@@ -1288,13 +1290,26 @@ struct PvtData
 	       " is not for pb");
     DynList<double> t, pb_lab, pb_corr;
     auto tp = tp_sets();
+    size_t k = 0;
     for (auto it = tp.get_it(); it.has_curr(); it.next())
       {
 	auto curr = it.get_curr();
-	t.append(curr.t);
-	pb_lab.append(curr.pb);
-	pb_corr.append(compute_pb(curr.t, corr_ptr).raw());
+	try
+	  {
+	    t.append(curr.t);
+	    pb_lab.append(curr.pb);
+	    pb_corr.append(compute_pb(curr.t, corr_ptr).raw());
+	    ++k;
+	  }
+	catch (...)
+	  {
+	    // ignore it
+	  }
       }
+
+    if (k == 0)
+      ZENTHROW(MetadataException, "cannot compute any pb value");
+
     return ConstStats(corr_ptr, move(t), move(pb_lab), move(pb_corr));
   }
 
@@ -1481,20 +1496,36 @@ struct PvtData
     pars.insert("t", in.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
 
+    VectorDesc rs;
+    bool exist_rs = false;
     auto rs_list = search_vectors("rs");
-    if (rs_list.is_empty())
-      ZENTHROW(VarNameNotFound, "rs vector not found");
-    auto rs_ptr =
-      rs_list.find_ptr([t = in.t] (auto ptr) { return ptr->t == t; });
-    if (rs_ptr == nullptr)
-      ZENTHROW(VarNameNotFound, "rs vector for t = " + ::to_string(in.t) +
-	       " not found");
-    VectorDesc rs = **rs_ptr;
-    if (rs_corr != nullptr)
-      rs = compute_rs(rs, rs_corr, c_rs, m_rs);
+    if (not rs_list.is_empty())
+      {
+	auto rs_ptr =
+	  rs_list.find_ptr([t = in.t] (auto ptr) { return ptr->t == t; });
+	if (rs_ptr != nullptr)
+	  {
+	    exist_rs = true;
+	    rs = **rs_ptr;
+	  }
+      }
 
-    DynList<double> rs_vals = in.gety(rs.y), p_list, bob_list;
-    for (auto it = zip_it(in.p, rs_vals); it.has_curr(); it.next())
+    if (not exist_rs and rs_corr == nullptr)
+      ZENTHROW(VarNameNotFound, "Not found rs vector neither correlation");
+
+    if (exist_rs and rs_corr != nullptr)
+      rs = compute_rs(rs, rs_corr, c_rs, m_rs);
+    else if (rs_corr != nullptr)
+      {
+	VectorDesc fake_rs = in;
+	fake_rs.yname = "rs"; // in this way compute_coa will accept it
+	rs = compute_rs(fake_rs, rs_corr, c_rs, m_rs);
+      }
+    // else r is alredy defined
+    rs.make_parallel(in);
+
+    DynList<double> p_list, bob_list;
+    for (auto it = zip_it(in.p, rs.y); it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
 	const double & p = get<0>(t);
@@ -1782,7 +1813,7 @@ struct PvtData
     if (not exist_rs and rs_corr == nullptr)
       ZENTHROW(VarNameNotFound,
 	       "Not found experimental data neither correlation for rs");
-
+    
     VectorDesc bob;
     bool exist_bob = false;
     {
@@ -1795,7 +1826,11 @@ struct PvtData
 	  exist_bob = true;
 	}
     }
-    
+
+    if (not exist_bob and bob_corr == nullptr)
+      ZENTHROW(VarNameNotFound,
+	       "Not found experimental data neither correlation for bob");
+
     VectorDesc in = pref;
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
@@ -1803,6 +1838,7 @@ struct PvtData
     const double & pb = pb_par.second.first;
     const double & uod = uod_par.second.first;
     in.p.get_last() = pb;
+    in.y.get_first() = in.uod = uod;
 
     if (exist_rs and rs_corr != nullptr)
       // in this case coa is already parallel to in
@@ -1811,7 +1847,7 @@ struct PvtData
       {
 	auto fake_rs = in;
 	fake_rs.yname = "rs"; // in this way compute_coa will accept it
-	rs = compute_coa(fake_rs, rs_corr, c_rs, m_rs);
+	rs = compute_rs(fake_rs, rs_corr, c_rs, m_rs);
       }
     // else rs is already defined
     rs = rs.make_parallel(in);
@@ -1831,11 +1867,6 @@ struct PvtData
     pars.insert(pb_par);
     pars.insert(uod_par);
 
-    cout << pref << endl
-	 << in << endl
-	 << rs << endl
-	 << bob << endl;      
-    
     DynList<double> p_list, uob_list;
     // Start from 1 (not 0) because bobp point must not be included
     for (auto it = zip_it(in.p, rs.y, bob.y); it.has_curr(); it.next())
@@ -1847,18 +1878,54 @@ struct PvtData
 	pars.insert("p", p_val, pref.punit);
 	pars.insert("rs", rs_val, rs.yunit);
 	pars.insert("bob", bob_val, bob.yunit);
-	cout << "p = " << p_val << " rs = " << rs_val << " bob = " << bob_val
-	     << endl;
 	const VtlQuantity uob = corr_ptr->tuned_compute_by_names(pars, c, m, false);
-	cout << "uob = " << uob << endl;
 	p_list.append(p_val);
 	uob_list.append(uob.raw());
 	pars.remove("p");
 	pars.remove("rs");
 	pars.remove("bob");
       }
-    return VectorDesc(pref.t, pb, PVT_INVALID_VALUE, uod, PVT_INVALID_VALUE,
-		      p_list, pref.punit, "uob", uob_list, &corr_ptr->unit);
+    return VectorDesc(pref.t, pb, PVT_INVALID_VALUE, uob_list.get_first(),
+		      uob_list.get_last(), p_list, pref.punit, "uob",
+		      uob_list, &corr_ptr->unit);
+  }
+
+  VectorStats uob_stats(const Correlation * corr_ptr) const
+  {
+    if (corr_ptr->target_name() != "uob")
+      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+	       " is not for uob");
+
+    DynList<const VectorDesc*> uob_lab = search_vectors("uob");
+    if (uob_lab.is_empty())
+      ZENTHROW(VarNameNotFound, "uob data is not found in this data set");
+
+    VectorStats stats(corr_ptr);
+    for (auto it = uob_lab.get_it(); it.has_curr(); it.next())
+      {
+	auto uob_ptr = it.get_curr();
+	VectorDesc uob_corr = compute_uob(*uob_ptr, corr_ptr);
+	stats.add(uob_corr.t, to_dynlist(uob_corr.p), to_dynlist(uob_ptr->y),
+		  to_dynlist(uob_corr.y));
+      }
+    stats.close();
+    if (stats.valid)
+      {
+	const double & c = CorrStat::c(stats.desc);
+	const double & m = CorrStat::m(stats.desc);
+	const double & bmin = corr_ptr->unit.min_val;
+	const double & bmax = corr_ptr->unit.max_val;
+	for (auto it = stats.temps.get_it(); it.has_curr(); it.next())
+	  {
+	    auto & p = it.get_curr();
+	    p.second.ytuned = p.
+	      second.ycorr.maps<double>([c, m, bmin, bmax] (auto rs)
+					{
+					  return min(max(bmin, c + m*rs), bmax);
+					});
+	  }
+      }
+    return stats;
   }
 
   VectorDesc compute_values(const VectorDesc & pref,
