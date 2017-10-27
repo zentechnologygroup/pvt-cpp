@@ -22,25 +22,41 @@ PvtData data;
 
 CmdLine cmd = { "ttuner", ' ', "0" };
 
-struct ValuesArg
+struct Property
 {
+  const string target_name = "invalid";
   const Unit * tunit = nullptr;
   const Unit * punit = nullptr;
   const Unit * yunit = nullptr;
   double t = PVT_INVALID_VALUE, pb = PVT_INVALID_VALUE;
   DynList<double> values;
 
-  ValuesArg() {}
-  ValuesArg(const string & target_name) {}
+  Property(const string & __target_name) : target_name(__target_name) {}
+  void read_header(istringstream & iss)
+  {
+    
+  }
+};
+
+struct Rs : public Property
+{
+  Rs() : Property("rs") {}
+  Rs & operator = (const string & str)
+  {
+    istringstream s;
+
+
+    return *this;
+  }
 };
 
 namespace TCLAP
 {
-  template<> struct ArgTraits<ValuesArg> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<Rs> { typedef StringLike ValueCategory; };
 }
 
-MultiArg<ValuesArg> rs_arg = { "", "rs", "rs", false,
-			       "tunit punit rs_unit t pb p-vals rs-vals", cmd};
+MultiArg<Rs> rs_arg = { "", "rs", "rs", false,
+			"tunit punit rs_unit t pb p-vals rs-vals", cmd};
 
 int main(int argc, char *argv[])
 {
