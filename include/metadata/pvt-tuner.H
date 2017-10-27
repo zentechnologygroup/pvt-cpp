@@ -1301,10 +1301,7 @@ struct PvtData
 	    pb_corr.append(compute_pb(curr.t, corr_ptr).raw());
 	    ++k;
 	  }
-	catch (...)
-	  {
-	    // ignore it
-	  }
+	catch (...) { /* ignore it */ }
       }
 
     if (k == 0)
@@ -1438,43 +1435,88 @@ struct PvtData
     }
   };
 
-  VectorStats rs_stats(const Correlation * corr_ptr) const
+private:
+
+  DynList<const VectorDesc*> stats_prologue(const string & target_name,
+					    const Correlation * corr_ptr) const
   {
-    if (corr_ptr->target_name() != "rs")
+    if (corr_ptr->target_name() != target_name)
       ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
-	       " is not for rs");
+	       " is not for " + target_name);
 
-    DynList<const VectorDesc*> rs_lab = search_vectors("rs");
-    if (rs_lab.is_empty())
-      ZENTHROW(VarNameNotFound, "rs data is not found in this data set");
+    DynList<const VectorDesc*> ret_lab = search_vectors(target_name);
+    if (ret_lab.is_empty())
+      ZENTHROW(VarNameNotFound, target_name +
+	       " data is not found in this data set");
+    return ret_lab;
+  }
 
+  VectorStats compute_stats
+  (const DynList<const VectorDesc*> & lab_data,
+   const Correlation * corr_ptr,
+   VectorDesc (PvtData::*compute_ptr)(const VectorDesc & pref,
+				      const Correlation * corr_ptr,
+				      double c, double m) const) const
+  {
     VectorStats stats(corr_ptr);
-    for (auto it = rs_lab.get_it(); it.has_curr(); it.next())
+    size_t k = 0;
+    for (auto it = lab_data.get_it(); it.has_curr(); it.next())
       {
-	auto rs_ptr = it.get_curr();
-	VectorDesc rs_corr = compute_rs(*rs_ptr, corr_ptr);
-	stats.add(rs_corr.t, to_dynlist(rs_corr.p), to_dynlist(rs_ptr->y),
-		  to_dynlist(rs_corr.y));
-      }
-    stats.close();
-    if (stats.valid)
-      {
-	auto rsb_ptr = search_const("rsb");
-	if (rsb_ptr == nullptr)
-	  ZENTHROW(ConstNameNotFound, "data set does not contain rsb");
-	const double rsb = VtlQuantity(*rsb_ptr->unit_ptr, rsb_ptr->value).raw();
-	const double & c = CorrStat::c(stats.desc);
-	const double & m = CorrStat::m(stats.desc);
-	for (auto it = stats.temps.get_it(); it.has_curr(); it.next())
+	auto lab_ptr = it.get_curr();
+	try
 	  {
-	    auto & p = it.get_curr();
-	    p.second.ytuned = p.second.ycorr.maps<double>([c, m, rsb] (auto rs)
-              {
-		return min(max(.0, c + m*rs), rsb);
-	      });
+	    VectorDesc corr_data = (this->*compute_ptr)(*lab_ptr, corr_ptr, 0, 1);
+	    stats.add(corr_data.t, to_dynlist(corr_data.p),
+		      to_dynlist(lab_ptr->y), to_dynlist(corr_data.y));
+	    ++k;
 	  }
+	catch (...) { /* ignore it */ }
+      }
+    if (k == 0)
+      ZENTHROW(MetadataException, "cannot compute any statistics for " +
+	       corr_ptr->name);
+    stats.close();
+    return stats;
+  }
+
+  VectorStats & stats_epilogue(VectorStats & stats, double max_val) const
+  {
+    if (not stats.valid)
+      return stats;
+    
+    const double & c = CorrStat::c(stats.desc);
+    const double & m = CorrStat::m(stats.desc);
+    const double & min_val = stats.corr_ptr->unit.min_val;
+    for (auto it = stats.temps.get_it(); it.has_curr(); it.next())
+      {
+	auto & p = it.get_curr();
+	p.second.ytuned =
+	  p.second.ycorr.maps<double>([c, m, min_val, max_val] (auto val)
+          {
+	    return min(max(min_val, c + m*val), max_val);
+	  });
       }
     return stats;
+  }
+
+  VectorStats & stats_epilogue(VectorStats & stats) const
+  {
+    const double max_val = stats.corr_ptr->unit.max_val;
+    return stats_epilogue(stats, max_val);
+  }
+
+public:
+
+  VectorStats rs_stats(const Correlation * corr_ptr) const
+  {
+    const DynList<const VectorDesc*> rs_lab = stats_prologue("rs", corr_ptr);
+    VectorStats stats = compute_stats(rs_lab, corr_ptr, &PvtData::compute_rs);
+    auto rsb_ptr = search_const("rsb");
+    if (rsb_ptr == nullptr)
+      ZENTHROW(ConstNameNotFound, "data set does not contain rsb");
+    const double rsb = VtlQuantity(*rsb_ptr->unit_ptr, rsb_ptr->value).raw();
+
+    return stats_epilogue(stats, rsb);
   }
 
   VectorDesc compute_bob(const VectorDesc & pref,
@@ -1546,40 +1588,9 @@ struct PvtData
 
   VectorStats bob_stats(const Correlation * corr_ptr) const
   {
-    if (corr_ptr->target_name() != "bob")
-      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
-	       " is not for bob");
-
-    DynList<const VectorDesc*> bob_lab = search_vectors("bob");
-    if (bob_lab.is_empty())
-      ZENTHROW(VarNameNotFound, "bob data is not found in this data set");
-
-    VectorStats stats(corr_ptr);
-    for (auto it = bob_lab.get_it(); it.has_curr(); it.next())
-      {
-	auto bob_ptr = it.get_curr();
-	VectorDesc bob_corr = compute_bob(*bob_ptr, corr_ptr);
-	stats.add(bob_corr.t, to_dynlist(bob_corr.p), to_dynlist(bob_ptr->y),
-		  to_dynlist(bob_corr.y));
-      }
-    stats.close();
-    if (stats.valid)
-      {
-	const double & c = CorrStat::c(stats.desc);
-	const double & m = CorrStat::m(stats.desc);
-	const double & bmin = corr_ptr->unit.min_val;
-	const double & bmax = corr_ptr->unit.max_val;
-	for (auto it = stats.temps.get_it(); it.has_curr(); it.next())
-	  {
-	    auto & p = it.get_curr();
-	    p.second.ytuned = p.
-	      second.ycorr.maps<double>([c, m, bmin, bmax] (auto rs)
-					{
-					  return min(max(bmin, c + m*rs), bmax);
-					});
-	  }
-      }
-    return stats;
+    DynList<const VectorDesc*> bob_lab = stats_prologue("bob", corr_ptr);
+    VectorStats stats = compute_stats(bob_lab, corr_ptr, &PvtData::compute_bob);
+    return stats_epilogue(stats);
   }
 
   VectorDesc compute_coa(const VectorDesc & pref,
@@ -1616,40 +1627,9 @@ struct PvtData
 
   VectorStats coa_stats(const Correlation * corr_ptr) const
   {
-    if (corr_ptr->target_name() != "coa")
-      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
-	       " is not for coa");
-
-    DynList<const VectorDesc*> coa_lab = search_vectors("coa");
-    if (coa_lab.is_empty())
-      ZENTHROW(VarNameNotFound, "coa data is not found in this data set");
-
-    VectorStats stats(corr_ptr);
-    for (auto it = coa_lab.get_it(); it.has_curr(); it.next())
-      {
-	auto coa_ptr = it.get_curr();
-	VectorDesc coa_corr = compute_coa(*coa_ptr, corr_ptr);
-	stats.add(coa_corr.t, to_dynlist(coa_corr.p), to_dynlist(coa_ptr->y),
-		  to_dynlist(coa_corr.y));
-      }
-    stats.close();
-    if (stats.valid)
-      {
-	const double & c = CorrStat::c(stats.desc);
-	const double & m = CorrStat::m(stats.desc);
-	const double & bmin = corr_ptr->unit.min_val;
-	const double & bmax = corr_ptr->unit.max_val;
-	for (auto it = stats.temps.get_it(); it.has_curr(); it.next())
-	  {
-	    auto & p = it.get_curr();
-	    p.second.ytuned = p.
-	      second.ycorr.maps<double>([c, m, bmin, bmax] (auto rs)
-					{
-					  return min(max(bmin, c + m*rs), bmax);
-					});
-	  }
-      }
-    return stats;
+    DynList<const VectorDesc*> coa_lab = stats_prologue("coa", corr_ptr);
+    VectorStats stats = compute_stats(coa_lab, corr_ptr, &PvtData::compute_coa);
+    return stats_epilogue(stats);
   }
 
   // In this case we return a pair with the result and the used coa correlation
@@ -1750,40 +1730,9 @@ struct PvtData
 
   VectorStats boa_stats(const Correlation * corr_ptr) const
   {
-    if (corr_ptr->target_name() != "boa")
-      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
-	       " is not for boa");
-
-    DynList<const VectorDesc*> boa_lab = search_vectors("boa");
-    if (boa_lab.is_empty())
-      ZENTHROW(VarNameNotFound, "boa data is not found in this data set");
-
-    VectorStats stats(corr_ptr);
-    for (auto it = boa_lab.get_it(); it.has_curr(); it.next())
-      {
-	auto boa_ptr = it.get_curr();
-	VectorDesc boa_corr = compute_boa(*boa_ptr, corr_ptr);
-	stats.add(boa_corr.t, to_dynlist(boa_corr.p), to_dynlist(boa_ptr->y),
-		  to_dynlist(boa_corr.y));
-      }
-    stats.close();
-    if (stats.valid)
-      {
-	const double & c = CorrStat::c(stats.desc);
-	const double & m = CorrStat::m(stats.desc);
-	const double & bmin = corr_ptr->unit.min_val;
-	const double & bmax = corr_ptr->unit.max_val;
-	for (auto it = stats.temps.get_it(); it.has_curr(); it.next())
-	  {
-	    auto & p = it.get_curr();
-	    p.second.ytuned = p.
-	      second.ycorr.maps<double>([c, m, bmin, bmax] (auto rs)
-					{
-					  return min(max(bmin, c + m*rs), bmax);
-					});
-	  }
-      }
-    return stats;
+    DynList<const VectorDesc*> boa_lab = stats_prologue("boa", corr_ptr);
+    VectorStats stats = compute_stats(boa_lab, corr_ptr, &PvtData::compute_boa);
+    return stats_epilogue(stats);
   }
 
   VectorDesc compute_uob(const VectorDesc & pref, const Correlation * corr_ptr,
@@ -1878,7 +1827,8 @@ struct PvtData
 	pars.insert("p", p_val, pref.punit);
 	pars.insert("rs", rs_val, rs.yunit);
 	pars.insert("bob", bob_val, bob.yunit);
-	const VtlQuantity uob = corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	const VtlQuantity uob =
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p_val);
 	uob_list.append(uob.raw());
 	pars.remove("p");
@@ -1892,40 +1842,9 @@ struct PvtData
 
   VectorStats uob_stats(const Correlation * corr_ptr) const
   {
-    if (corr_ptr->target_name() != "uob")
-      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
-	       " is not for uob");
-
-    DynList<const VectorDesc*> uob_lab = search_vectors("uob");
-    if (uob_lab.is_empty())
-      ZENTHROW(VarNameNotFound, "uob data is not found in this data set");
-
-    VectorStats stats(corr_ptr);
-    for (auto it = uob_lab.get_it(); it.has_curr(); it.next())
-      {
-	auto uob_ptr = it.get_curr();
-	VectorDesc uob_corr = compute_uob(*uob_ptr, corr_ptr);
-	stats.add(uob_corr.t, to_dynlist(uob_corr.p), to_dynlist(uob_ptr->y),
-		  to_dynlist(uob_corr.y));
-      }
-    stats.close();
-    if (stats.valid)
-      {
-	const double & c = CorrStat::c(stats.desc);
-	const double & m = CorrStat::m(stats.desc);
-	const double & bmin = corr_ptr->unit.min_val;
-	const double & bmax = corr_ptr->unit.max_val;
-	for (auto it = stats.temps.get_it(); it.has_curr(); it.next())
-	  {
-	    auto & p = it.get_curr();
-	    p.second.ytuned = p.
-	      second.ycorr.maps<double>([c, m, bmin, bmax] (auto rs)
-					{
-					  return min(max(bmin, c + m*rs), bmax);
-					});
-	  }
-      }
-    return stats;
+    DynList<const VectorDesc*> uob_lab = stats_prologue("uob", corr_ptr);
+    VectorStats stats = compute_stats(uob_lab, corr_ptr, &PvtData::compute_uob);
+    return stats_epilogue(stats);
   }
 
   VectorDesc compute_values(const VectorDesc & pref,
