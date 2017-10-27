@@ -1027,7 +1027,7 @@ TEST_F(FluidTest, compute_boa)
 {
   data.set_pb(&PbSalazar::get_instance(), -107.106998, 1.004085);
   data.set_rs(&RsSalazar::get_instance(), -2.572312, 1.206391);
-  data.set_bob(&BobTotalCFP::get_instance(), -10581.594506, 10367.715650);
+  data.set_bob(&BobTotalCFP::get_instance(), -0.768736, 1.764331);
   data.set_coa(&CoaPerezML::get_instance(), 0.000001, 0.953269);
 
   auto boa_list = data.search_vectors("boa");
@@ -1064,7 +1064,7 @@ TEST_F(FluidTest, boa_stats)
 
   data.set_pb(&PbSalazar::get_instance(), -107.106998, 1.004085);
   data.set_rs(&RsSalazar::get_instance(), -2.572312, 1.206391);
-  data.set_bob(&BobTotalCFP::get_instance(), -10581.594506, 10367.715650);
+  data.set_bob(&BobTotalCFP::get_instance(), -0.768736, 1.764331);
   data.set_coa(&CoaPerezML::get_instance(), 0.000001, 0.953269);
 
   stats = boa_corrs.maps<PvtData::VectorStats>
@@ -1194,13 +1194,26 @@ TEST_F(FluidTest, uob_stats)
 
   auto str = s.maps<DynList<string>>([] (auto & s) { return s.to_dynlist(); });
 
-  cout << to_string(format_string(str)) << endl;						    
-						
+  cout << to_string(format_string(str)) << endl;
 }
 
 TEST_F(FluidTest, compute_uoa)
 {
+  auto uoa_list = data.search_vectors("uoa");
+  ASSERT_EQ(uoa_list.size(), 3);
 
+  for (auto it = uoa_list.get_it(); it.has_curr(); it.next())
+    {
+      auto uoa = it.get_curr();
+      cout << *uoa << endl
+	   << endl;
+      ASSERT_GT(uoa->y.get_first(), uoa->uobp);
+      auto uoa_corr = data.compute_uoa(*uoa, &UoaDeGhettoEtAl::get_instance(),
+				       32.567066, 0.890956);
+
+      cout << "By correlation" << endl
+	   << uoa_corr << endl;
+    }
 }
 
 TEST_F(FluidTest, pbapply)

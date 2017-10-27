@@ -1338,15 +1338,31 @@ struct PvtData
     return ParPair("uod", ValPair(ret.raw(), &ret.unit));
   }
 
+private:
+
+  void compute_prologue(const string & target_name, 
+			const VectorDesc & pref,
+			const Correlation * corr_ptr) const
+  {
+    if (pref.yname != target_name)
+      ZENTHROW(InvalidTargetName, "compute_" + target_name +
+	       "(): input vector is not for " + target_name);
+    if (corr_ptr->target_name() != target_name)
+      ZENTHROW(InvalidTargetName, "compute_" + target_name +
+	       "rs(): correlation " + corr_ptr->name + " is not for " +
+	       target_name);
+    if (not pref.yunit->is_sibling(corr_ptr->unit))
+      ZENTHROW(MetadataException, "yunit " + pref.yunit->name +
+	       " is not sibling of " + corr_ptr->unit.name);
+  }
+
+public:
+
   VectorDesc compute_rs(const VectorDesc & pref,
 			const Correlation * corr_ptr,
 			double c = 0, double m = 1) const
   {
-    if (pref.yname != "rs")
-      ZENTHROW(InvalidTargetName, "compute_rs(): input vector is not for rs");
-    if (corr_ptr->target_name() != "rs")
-      ZENTHROW(InvalidTargetName, "compute_rs(): correlation " + corr_ptr->name +
-	       " is not for rs");
+    compute_prologue("rs", pref, corr_ptr);
 
     const ConstDesc * rsb_ptr = search_const("rsb");
     if (rsb_ptr == nullptr)
@@ -1523,11 +1539,7 @@ public:
 			 const Correlation * corr_ptr,
 			 double c = 0, double m = 1) const
   {
-    if (pref.yname != "bob")
-      ZENTHROW(InvalidTargetName, "compute_bob(): input vector is not for bob");
-    if (corr_ptr->target_name() != "bob")
-      ZENTHROW(InvalidTargetName, "compute_bob(): correlation " + corr_ptr->name +
-	       " is not for bob");
+    compute_prologue("bob", pref, corr_ptr);
 
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
@@ -1597,11 +1609,7 @@ public:
 			 const Correlation * corr_ptr,
 			 double c = 0, double m = 1) const
   {
-    if (pref.yname != "coa")
-      ZENTHROW(InvalidTargetName, "compute_coa(): input vector is not for coa");
-    if (corr_ptr->target_name() != "coa")
-      ZENTHROW(InvalidTargetName, "compute_coa(): correlation " + corr_ptr->name +
-	       " is not for coa");
+    compute_prologue("coa", pref, corr_ptr);
 
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
@@ -1678,7 +1686,7 @@ public:
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
     const double pb = pb_par.second.first;
-    in.p.get_first() = pb;
+    in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
 
     if (exist_coa and coa_corr != nullptr)
       // in this case coa is already parallel to in
@@ -1738,11 +1746,7 @@ public:
   VectorDesc compute_uob(const VectorDesc & pref, const Correlation * corr_ptr,
 			 double c = 0, double m = 1) const
   {
-    if (pref.yname != "uob")
-      ZENTHROW(InvalidTargetName, "compute_uod(): input vector is not for uod");
-    if (corr_ptr->target_name() != "uob")
-      ZENTHROW(InvalidTargetName, "compute_uod(): correlation " + corr_ptr->name +
-	       " is not for uod");
+    compute_prologue("uob", pref, corr_ptr);
 
     VectorDesc rs;
     bool exist_rs = false;
@@ -1845,6 +1849,50 @@ public:
     DynList<const VectorDesc*> uob_lab = stats_prologue("uob", corr_ptr);
     VectorStats stats = compute_stats(uob_lab, corr_ptr, &PvtData::compute_uob);
     return stats_epilogue(stats);
+  }
+
+  VectorDesc compute_uoa(const VectorDesc & pref, const Correlation * corr_ptr,
+			 double c = 0, double m = 1) const
+  {
+    compute_prologue("uoa", pref, corr_ptr);
+
+    ParList pars = build_correlation_pars();
+    
+    const ParPair pb_par = get_pb(pref);
+    const double & pb = pb_par.second.first;
+    VectorDesc in = pref;
+    in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+
+    const ParPair uod_par = get_uod(pref, pb_par);
+    const double & uod = uod_par.second.first;
+    in.y.get_first() = in.uod = uod;
+
+    pars.insert("t", in.t, &Fahrenheit::get_instance());
+    pars.insert(pb_par);
+    pars.insert(uod_par);
+    pars.insert("uobp", in.uobp, in.yunit);
+    DynList<double> p_list, uoa_list;
+    for (auto it = in.p.get_it(); it.has_curr(); it.next())
+      {
+	const double p = it.get_curr();
+	pars.insert("p", p, in.punit);
+	const VtlQuantity uoa =
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	p_list.append(p);
+	uoa_list.append(uoa.raw());
+	pars.remove("p");
+      }
+
+    zip_for_each([] (auto t)
+		 { cout << "(" << get<0>(t) << ", " << get<1>(t) << ")"; },
+		 p_list, uoa_list);
+
+    // thus we assure than uobp value es less that first uoa
+    const double uobp = nextafter(uoa_list.get_first(),
+				  numeric_limits<double>::min());
+
+    return VectorDesc(in.t, pb, in.bobp, uod, uobp, p_list, in.punit,
+		      "uoa", uoa_list, &corr_ptr->unit);
   }
 
   VectorDesc compute_values(const VectorDesc & pref,
