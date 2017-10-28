@@ -95,7 +95,7 @@ struct Property
   {
     if (n % 2 != 0)
       ZENTHROW(CommandLineError,
-	       "number of pressure plus property values is not even");
+	       "number of pressure values plus property values is not even");
     for (size_t i = 0; i < n/2; ++i)
       p.append(values.remove_first());
     for (size_t i = 0; i < n/2; ++i)
@@ -107,11 +107,11 @@ struct Property
      out << "t = " << p.t << ", pb = " << p.pb << " " << p.punit->name
 	 << ", yname = " << p.target_name;
      if (p.bobp != PVT_INVALID_VALUE)
-       cout << " bobp = " << p.bobp;
+       out << " , bobp = " << p.bobp;
      if (p.uod != PVT_INVALID_VALUE)
-       cout << " uod = " << p.uod;
+       out << " , uod = " << p.uod;
      if (p.uobp != PVT_INVALID_VALUE)
-       cout << " uobp = " << p.uobp;
+       out << " , uobp = " << p.uobp;
      return out << " (" << p.yunit->name << ")" << endl
 		<< "p =" << join(p.p, ", ") << endl
 		<< "y =" << join(p.y, ", ") << endl;
@@ -257,8 +257,8 @@ namespace TCLAP
 MultiArg<Rs> rs_arg = { "", "rs", "rs", false,
 			"tunit punit rs_unit t pb p-vals rs-vals", cmd};
 
-MultiArg<Rs> coa_arg = { "", "coa", "coa", false,
-			"tunit punit rs_unit t pb p-vals coa-vals", cmd};
+MultiArg<Coa> coa_arg = { "", "coa", "coa", false,
+			  "tunit punit rs_unit t pb p-vals coa-vals", cmd};
 
 MultiArg<Bob> bob_arg = { "", "bob", "bob", false,
 			  "tunit punit bob_unit t pb bobp p-vals bob-vals", cmd};
@@ -388,6 +388,9 @@ void build_pvt_data()
 
   for (auto bob : bob_arg.getValue())
     cout << bob << endl;
+
+  for (auto coa : coa_arg.getValue())
+    cout << coa << endl;
     // data.add_vector(rs.t, rs.pb, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
     // 		    PVT_INVALID_VALUE, rs.p, *a.punit_ptr,
     // 		    a.target_name, a.values, *a.unit_ptr);
