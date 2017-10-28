@@ -354,6 +354,11 @@ const Unit * test_unit(const string & par_name, const Unit & dft_unit)
   return ret;
 }
 
+# define READ_PROPERTY_DEF(name)					\
+  for (auto name : name##_arg.getValue())				\
+    data.add_vector(name.t, name.pb, name.bobp, name.uod, name.uobp,	\
+		    name.p, *name.punit, #name, name.y, *name.yunit);
+
 void build_pvt_data()
 {
   if (api.isSet())
@@ -383,17 +388,84 @@ void build_pvt_data()
     data.add_const("nacl", nacl.getValue(),
 		   *test_unit("nacl", Molality_NaCl::get_instance()));
 
-  for (auto rs : rs_arg.getValue())
-    cout << rs << endl;
+  READ_PROPERTY_DEF(rs);
+  READ_PROPERTY_DEF(bob);
+  READ_PROPERTY_DEF(coa);
+  READ_PROPERTY_DEF(boa);
+  READ_PROPERTY_DEF(uob);
+  READ_PROPERTY_DEF(uoa);
+}
 
-  for (auto bob : bob_arg.getValue())
-    cout << bob << endl;
+SwitchArg eol { "", "eol", "add to output an end of line", cmd };
+SwitchArg print = { "", "print", "print stored data", cmd };
+SwitchArg json = { "", "json", "generate json of data", cmd };
+SwitchArg save = { "", "save", "save data to json", cmd };
+ValueArg<string> file = { "f", "file", "load json", false, "", "load json", cmd };
+ValueArg<string> Print = { "P", "Print", "print stored data", false, "",
+			   "constants|correlations|property-name", cmd };
 
-  for (auto coa : coa_arg.getValue())
-    cout << coa << endl;
-    // data.add_vector(rs.t, rs.pb, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
-    // 		    PVT_INVALID_VALUE, rs.p, *a.punit_ptr,
-    // 		    a.target_name, a.values, *a.unit_ptr);
+void terminate_app()
+{
+  if (eol.getValue())
+    cout << endl;
+  exit(0);
+}
+void process_print_data()
+{
+  if (not print.getValue())
+    return;
+  if (json.getValue())
+    cout << data.to_json().dump(2) << endl;
+  else 
+    cout << data << endl;
+  terminate_app();
+}
+
+void process_Print_data()
+{
+  if (not Print.isSet())
+    return;
+
+  const string & type = Print.getValue();
+  if (type == "constants")
+    cout << "Constants:" << endl
+	 << shift_lines_to_left(data.const_list(), 2) << endl;
+  else if (type == "correlations")
+    cout << "Correlations:" << endl
+	 << shift_lines_to_left(data.corr_list(), 2) << endl;
+  else
+    {
+      auto vectors = data.search_vectors(type);
+      if (vectors.is_empty())
+	cout << "Property " << type << " not found in data set" << endl;
+      else
+	{
+	  cout << type << ":" << endl;
+	  for (auto it = vectors.get_it(); it.has_curr(); it.next())
+	    cout << shift_lines_to_left(it.get_curr()->to_string(), 2) << endl;
+	}
+    }
+  terminate_app();
+}
+
+void test_load_file()
+{
+  if (not file.isSet())
+    return;
+  
+  ifstream in(file.getValue());
+  if (in)
+    {
+      try
+	{
+	  data = PvtData(in);
+	}
+      catch (exception & e)
+	{
+	  if (not save.getValue())
+	    ZENTHROW(InvalidJson, "reading json: " + string(e.what()));
+	}
+    }
 }
 
 int main(int argc, char *argv[])
@@ -401,7 +473,11 @@ int main(int argc, char *argv[])
   cmd.parse(argc, argv);
   try
     {
+      test_load_file();
       build_pvt_data();
+
+      process_print_data();
+      process_Print_data();
     }
   catch (exception & e)
     {
