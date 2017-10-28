@@ -404,6 +404,54 @@ ValueArg<string> file = { "f", "file", "load json", false, "", "load json", cmd 
 ValueArg<string> Print = { "P", "Print", "print stored data", false, "",
 			   "constants|correlations|property-name", cmd };
 
+# define Corr_Arg(NAME)							\
+  ValueArg<string> NAME##_corr_arg =					\
+    { "", #NAME, "set " #NAME " correlation", false, "",		\
+      "set " #NAME " correlation", cmd };				\
+									\
+  ValueArg<string> NAME##_cal_corr_arg =				\
+    { "", #NAME "-cal", "set calibrated " #NAME " correlation", false,	\
+      "", "set calibrated " #NAME " correlation", cmd };		\
+									\
+  const Correlation * NAME##_corr = nullptr;				\
+  double c_##NAME = 0;							\
+  double m_##NAME = 1;							\
+									\
+  void set_##NAME##_corr()						\
+  {									\
+    if (not NAME##_corr_arg.isSet() and not NAME##_cal_corr_arg.isSet()) \
+      return;								\
+    if (NAME##_corr_arg.isSet() and NAME##_cal_corr_arg.isSet())	\
+      ZENTHROW(CommandLineError, "options " + NAME##_corr_arg.getName() + \
+	       NAME##_cal_corr_arg.getName() + " cannot be used together"); \
+    const bool calibrated = NAME##_cal_corr_arg.isSet();		\
+    const string corr_name = calibrated ? NAME##_cal_corr_arg.getValue() : \
+      NAME##_corr_arg.getValue();					\
+    auto corr_ptr = Correlation::search_by_name(corr_name);		\
+    if (corr_ptr == nullptr)						\
+      ZENTHROW(CommandLineError, "correlation " + corr_name + " not found"); \
+    if (corr_ptr->target_name() != #NAME)				\
+      ZENTHROW(CommandLineError, "correlation " + corr_ptr->name +	\
+	       " is not for " #NAME);					\
+    data.NAME##_corr = corr_ptr;					\
+    if (calibrated)							\
+      {									\
+	const PvtData::StatsDesc s = data.stats(corr_ptr);		\
+	data.c_##NAME = CorrStat::c(s.desc);				\
+	data.m_##NAME = CorrStat::m(s.desc);				\
+      }									\
+  }
+
+Corr_Arg(pb);
+Corr_Arg(rs);
+Corr_Arg(bob);
+Corr_Arg(boa);
+Corr_Arg(uob);
+Corr_Arg(uoa);
+Corr_Arg(uod);
+Corr_Arg(coa);
+
+
 void terminate_app()
 {
   if (eol.getValue())
