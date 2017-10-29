@@ -1501,8 +1501,29 @@ private:
 	try
 	  {
 	    VectorDesc corr_data = (this->*compute_ptr)(*lab_ptr, corr_ptr, 0, 1);
-	    stats.add(corr_data.t, to_dynlist(corr_data.p),
-		      to_dynlist(lab_ptr->y), to_dynlist(corr_data.y));
+	    DynList<double> p, ylab, ycorr;
+	    for (auto lab_it = zip_it(lab_ptr->p, lab_ptr->y),
+		   corr_it = zip_it(corr_data.p, corr_data.y);
+		 lab_it.has_curr() and corr_it.has_curr();)
+	      {
+		auto tlab = lab_it.get_curr();
+		auto tcorr = corr_it.get_curr();
+		const double & p_lab = get<0>(tlab);
+		const double & p_corr = get<0>(tcorr);
+		if (p_lab < p_corr)
+		  lab_it.next();
+		else if (p_lab > p_corr)
+		  corr_it.next();
+		{
+		  p.append(p_lab);
+		  ylab.append(get<1>(tlab));
+		  ycorr.append(get<1>(tcorr));
+		  lab_it.next();
+		  corr_it.next();
+		}
+	      }
+	    // TODO aqui emparejar lab_ptr con corr_data
+	    stats.add(corr_data.t, move(p), move(ylab), move(ycorr));
 	    ++k;
 	  }
 	catch (...) { /* ignore it */ }

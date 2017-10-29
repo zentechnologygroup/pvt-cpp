@@ -53,3 +53,6 @@
 ## 18. verbose mode para tuner
 - Created at   2017-10-26 17:41:26 -0400
 
+## 19. verificar que valores estadisticos estén en la misma unidad del vector
+- Created at   2017-10-28 21:13:18 -0400
+
