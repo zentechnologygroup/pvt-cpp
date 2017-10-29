@@ -1417,13 +1417,7 @@ public:
       if (closed)
 	ZENTHROW(MetadataException, "VectorStats is already closed");
       if (not equal_length(p, ylab, ycorr))
-	{
-	  cout << corr_ptr->name << endl;
-	  p.for_each([] (auto p) { cout << " " << p; }); cout << endl;
-	  ylab.for_each([] (auto p) { cout << " " << p; }); cout << endl;
-	  ycorr.for_each([] (auto p) { cout << " " << p; }); cout << endl;
-	  dirty = true;
-	}
+	dirty = true;
       else
 	temps.insert(t, Trio(move(p), move(ylab), move(ycorr)));
     }
@@ -1448,13 +1442,8 @@ public:
       auto l = sort(t_zip(p, ylab, ycorr), [] (auto & t1, auto & t2)
 		    { return get<0>(t1) < get<0>(t2); });
       auto t = t_unzip(l);
-      // if (not dirty)
-      // 	{
-	  desc = CorrStat(get<1>(t)).stats(get<2>(t));
-	  valid = CorrStat::is_valid(desc);
-      // 	}
-      // else
-      // 	valid = false;
+      desc = CorrStat(get<1>(t)).stats(get<2>(t));
+      valid = CorrStat::is_valid(desc);
     }
     DynList<string> to_dynlist() const
     {
@@ -1913,22 +1902,18 @@ public:
     pars.insert("uobp", in.uobp, in.yunit);
     DynList<double> p_list, uoa_list;
 
-    cout << in << endl;
     for (auto it = in.p.get_it(); it.has_curr(); it.next())
       {
 	const double p = it.get_curr();
 	pars.insert("p", p, in.punit);
-	try
-	  {
+	// try
+	//   {
 	    const VtlQuantity uoa =
 	      corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	    p_list.append(p);
 	    uoa_list.append(uoa.raw());
-	  }
-	catch (exception & e)
-	  {
-	    cout << corr_ptr->name << " " << e.what() << endl;
-	  }
+	//   }
+	// catch (exception & e) { /* ignore it */ }
 	pars.remove("p");
       }
 
