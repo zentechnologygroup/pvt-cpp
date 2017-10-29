@@ -96,3 +96,6 @@
 ## 32. UodKartoatmodjoSchmidt puede arrojar valores egativos
 - Created at   2017-10-28 19:08:51 -0400
 
+## 33. asegurar que unidades de stats sean iguales
+- Created at   2017-10-29 17:15:32 -0400
+

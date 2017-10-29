@@ -1014,17 +1014,41 @@ void process_local_calibration()
 
   auto & corr_list = cal.getValue().corr_list;
 
+  auto stats = corr_list.maps<PvtData::StatsDesc>([] (auto ptr)
+						  { return data.apply(ptr); });
+
   const auto & mode = mode_type.getValue();
+  DynList<string> header;
+  DynList<DynList<double>> mat;
+  const string target_name = corr_list.get_first()->target_name();
+  if (target_name == "pb" or target_name == "uod")
+    {
+
+    }
+  else
+    {
+
+    }
+  // caso 1: pb o oud
+  // caso 2: todas las otras
+
+  // auto header = corr_list.maps<string>([mode] (auto ptr)
+  //   {
+      
+
   
+
+  /*
+
   DynList<pair<double, double>> comb; // coefficients c and m
 
   // First we must verify that each read correlation applies to the data set
   for (auto it = corr_list.get_it(); it.has_curr(); it.next())
     {
+      auto stats = data.apply(corr_ptr);
       auto corr_ptr = it.get_curr();
       if (mode != "single")
 	{
-	  auto stats = data.apply(corr_ptr);
 	  comb.append(make_pair(CorrStat::c(stats.desc),
 				CorrStat::m(stats.desc)));
 	}
@@ -1032,6 +1056,9 @@ void process_local_calibration()
 	comb.append(make_pair(0, 1));
     }
 
+  */
+
+  /*
   auto fst_corr = corr_list.get_first();
   auto target_name = fst_corr->target_name();
   auto fst = data.iapply(fst_corr);
@@ -1090,6 +1117,7 @@ void process_local_calibration()
   assert(equal_length(rows, header));
 
   cout << print_dispatcher.run(output.getValue(), result) << endl;
+  */
   terminate_app();
 }
 

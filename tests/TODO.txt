@@ -30,3 +30,4 @@ correlación que esté seteada no debe contar para auto,2017-10-10 16:27:53 -040
 calibrar con vectores retornados por cascada de correlaciones,2017-10-10 16:51:44 -0400,,
 cplot como funcion de biblioteca,2017-10-10 16:52:41 -0400,,
 UodKartoatmodjoSchmidt puede arrojar valores egativos,2017-10-28 19:08:51 -0400,,
+asegurar que unidades de stats sean iguales,2017-10-29 17:15:32 -0400,,

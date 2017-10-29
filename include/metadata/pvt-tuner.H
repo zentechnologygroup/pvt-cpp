@@ -1360,6 +1360,14 @@ private:
 	       " is not sibling of " + corr_ptr->unit.name);
   }
 
+  VectorDesc & compute_epilogue(const VectorDesc & pref,
+				VectorDesc & result) const
+  {
+    if (pref.yunit != result.yunit)
+      mutable_unit_convert(*result.yunit, result.y, *pref.yunit);
+    return result;
+  }  
+
 public:
 
   VectorDesc compute_rs(const VectorDesc & pref,
@@ -1390,9 +1398,10 @@ public:
 	rs_list.append(min(rs.raw(), rsb));
 	pars.remove("p");
       }
-    return VectorDesc(in.t, pb, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+    VectorDesc result(in.t, pb, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 		      PVT_INVALID_VALUE, p_list, in.punit, "rs", rs_list,
 		      in.yunit);
+    return compute_epilogue(pref, result);
   }
 
   struct VectorStats
@@ -1651,9 +1660,10 @@ public:
 	pars.remove("rs");
       }
 
-    return VectorDesc(in.t, pb, bob_list.get_last(), PVT_INVALID_VALUE,
+    VectorDesc result(in.t, pb, bob_list.get_last(), PVT_INVALID_VALUE,
 		      PVT_INVALID_VALUE, p_list, in.punit, "bob", bob_list,
 		      &corr_ptr->unit);
+    return compute_epilogue(pref, result);
   }
 
   VectorStats bob_stats(const Correlation * corr_ptr) const
@@ -1686,9 +1696,11 @@ public:
 	coa_list.append(coa.raw());
 	pars.remove("p");
       }
-    return VectorDesc(pref.t, pb, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+
+    VectorDesc result(pref.t, pb, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
 		      PVT_INVALID_VALUE, p_list, pref.punit, "coa", coa_list,
 		      &corr_ptr->unit);
+    return compute_epilogue(pref, result);
   }
 
   VectorStats coa_stats(const Correlation * corr_ptr) const
@@ -1791,9 +1803,11 @@ public:
 	pars.remove("p");
 	pars.remove("coa");
       }
-    return VectorDesc(pref.t, pb, bobp, PVT_INVALID_VALUE,
+
+    VectorDesc result(pref.t, pb, bobp, PVT_INVALID_VALUE,
 		      PVT_INVALID_VALUE, p_list, pref.punit, "boa",
 		      boa_list, &corr_ptr->unit);
+    return compute_epilogue(pref, result);
   }
 
   VectorStats boa_stats(const Correlation * corr_ptr) const
@@ -1904,8 +1918,9 @@ public:
     if (p_list.get_first() == 0)
       uod = uob_list.get_first();
 
-    return VectorDesc(pref.t, pb, PVT_INVALID_VALUE, uod, uob_list.get_last(),
+    VectorDesc result(pref.t, pb, PVT_INVALID_VALUE, uod, uob_list.get_last(),
 		      p_list, pref.punit, "uob", uob_list, &corr_ptr->unit);
+    return compute_epilogue(pref, result);
   }
 
   VectorStats uob_stats(const Correlation * corr_ptr) const
@@ -1952,10 +1967,9 @@ public:
     const double uobp = nextafter(uoa_list.get_first(),
 				  numeric_limits<double>::min());
 
-    // TODO: aquí hay un problema. uoa puede añadir valores, lo que
-    // hace que no cuadre el arreglo de laboratorio
-    return VectorDesc(in.t, pb, in.bobp, uod, uobp, p_list, in.punit,
+    VectorDesc result(in.t, pb, in.bobp, uod, uobp, p_list, in.punit,
 		      "uoa", uoa_list, &corr_ptr->unit);
+    return compute_epilogue(pref, result);
   }
 
   VectorStats uoa_stats(const Correlation * corr_ptr) const
