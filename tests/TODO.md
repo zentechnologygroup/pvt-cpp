@@ -93,3 +93,6 @@
 ## 31. cplot como funcion de biblioteca
 - Created at   2017-10-10 16:52:41 -0400
 
+## 32. UodKartoatmodjoSchmidt puede arrojar valores egativos
+- Created at   2017-10-28 19:08:51 -0400
+

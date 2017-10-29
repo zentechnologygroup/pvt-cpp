@@ -1216,6 +1216,18 @@ TEST_F(FluidTest, compute_uoa)
     }
 }
 
+TEST_F(FluidTest, uoa_stats)
+{
+  auto uoa_corrs = data.can_be_applied("uoa");
+
+  auto s = uoa_corrs.maps<PvtData::VectorStats>([this] (auto ptr)
+						{ return data.uoa_stats(ptr); });
+
+  auto str = s.maps<DynList<string>>([] (auto & s) { return s.to_dynlist(); });
+
+  cout << to_string(format_string(str)) << endl;
+}
+
 TEST_F(FluidTest, pbapply)
 {
   
@@ -1255,12 +1267,6 @@ TEST_F(FluidTest, uoaapply)
 {
 
 }
-
-TEST_F(FluidTest, uoastats)
-{
-
-}
-
 
 // TODO probar construcción de CorrInput
 // TODO: probar en merge_with que valores de bobp uod y uobp den correctos

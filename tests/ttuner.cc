@@ -436,7 +436,7 @@ ValueArg<string> Print = { "P", "Print", "print stored data", false, "",
     data.NAME##_corr = corr_ptr;					\
     if (calibrated)							\
       {									\
-	const PvtData::StatsDesc s = data.stats(corr_ptr);		\
+	const auto s = data.NAME##_stats(corr_ptr);			\
 	data.c_##NAME = CorrStat::c(s.desc);				\
 	data.m_##NAME = CorrStat::m(s.desc);				\
       }									\

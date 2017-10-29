@@ -158,6 +158,17 @@ public:
   {
     remove(par.first);
   }
+
+  friend ostream & operator << (ostream & out, const ParList & pars)
+  {
+    for (auto it = pars.tbl.get_it(); it.has_curr(); it.next())
+      {
+	auto p = it.get_curr();
+	out << "(" << p.first << " = " << p.second.first << " "
+	    << p.second.second->name << ")";
+      }
+    return out;
+  }
 };
 
 

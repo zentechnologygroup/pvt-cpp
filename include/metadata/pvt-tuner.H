@@ -1409,19 +1409,34 @@ public:
     DynMapTree<double, Trio> temps;
     const Correlation * corr_ptr = nullptr;
     mutable CorrStat::Desc desc;
-    mutable bool valid = false, closed = false;
+    mutable bool valid = false, closed = false, dirty = false;
     VectorStats(const Correlation * __corr_ptr) : corr_ptr(__corr_ptr) {}
     void add(double t, DynList<double> && p,
 	     DynList<double> && ylab, DynList<double> && ycorr)
     {
       if (closed)
 	ZENTHROW(MetadataException, "VectorStats is already closed");
-      temps.insert(t, Trio(move(p), move(ylab), move(ycorr)));
+      if (not equal_length(p, ylab, ycorr))
+	{
+	  cout << corr_ptr->name << endl;
+	  p.for_each([] (auto p) { cout << " " << p; }); cout << endl;
+	  ylab.for_each([] (auto p) { cout << " " << p; }); cout << endl;
+	  ycorr.for_each([] (auto p) { cout << " " << p; }); cout << endl;
+	  dirty = true;
+	}
+      else
+	temps.insert(t, Trio(move(p), move(ylab), move(ycorr)));
     }
     void close()
     {
       if (closed)
 	ZENTHROW(MetadataException, "VectorStats is already closed");
+
+      closed = true;
+
+      if (temps.is_empty())
+	return;
+
       DynList<double> p, ylab, ycorr;
       for (auto it = temps.get_it(); it.has_curr(); it.next())
 	{
@@ -1433,9 +1448,13 @@ public:
       auto l = sort(t_zip(p, ylab, ycorr), [] (auto & t1, auto & t2)
 		    { return get<0>(t1) < get<0>(t2); });
       auto t = t_unzip(l);
-      desc = CorrStat(get<1>(t)).stats(get<2>(t));
-      valid = CorrStat::is_valid(desc);
-      closed = true;
+      // if (not dirty)
+      // 	{
+	  desc = CorrStat(get<1>(t)).stats(get<2>(t));
+	  valid = CorrStat::is_valid(desc);
+      // 	}
+      // else
+      // 	valid = false;
     }
     DynList<string> to_dynlist() const
     {
@@ -1872,27 +1891,41 @@ public:
     pars.insert(uod_par);
     pars.insert("uobp", in.uobp, in.yunit);
     DynList<double> p_list, uoa_list;
+
+    cout << in << endl;
     for (auto it = in.p.get_it(); it.has_curr(); it.next())
       {
 	const double p = it.get_curr();
 	pars.insert("p", p, in.punit);
-	const VtlQuantity uoa =
-	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
-	p_list.append(p);
-	uoa_list.append(uoa.raw());
+	try
+	  {
+	    const VtlQuantity uoa =
+	      corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	    p_list.append(p);
+	    uoa_list.append(uoa.raw());
+	  }
+	catch (exception & e)
+	  {
+	    cout << corr_ptr->name << " " << e.what() << endl;
+	  }
 	pars.remove("p");
       }
-
-    zip_for_each([] (auto t)
-		 { cout << "(" << get<0>(t) << ", " << get<1>(t) << ")"; },
-		 p_list, uoa_list);
 
     // thus we assure than uobp value es less that first uoa
     const double uobp = nextafter(uoa_list.get_first(),
 				  numeric_limits<double>::min());
 
+    // TODO: aquí hay un problema. uoa puede añadir valores, lo que
+    // hace que no cuadre el arreglo de laboratorio
     return VectorDesc(in.t, pb, in.bobp, uod, uobp, p_list, in.punit,
 		      "uoa", uoa_list, &corr_ptr->unit);
+  }
+
+  VectorStats uoa_stats(const Correlation * corr_ptr) const
+  {
+    DynList<const VectorDesc*> uoa_lab = stats_prologue("uoa", corr_ptr);
+    VectorStats stats = compute_stats(uoa_lab, corr_ptr, &PvtData::compute_uoa);
+    return stats_epilogue(stats);
   }
 
   VectorDesc compute_values(const VectorDesc & pref,
@@ -1951,6 +1984,8 @@ public:
     return VectorDesc(pref.t, pref.pb, bobp, uod, uobp, pref.p, pref.punit,
 		      corr_ptr->target_name(), y, &corr_ptr->unit);
   }
+
+  
 
   CorrOutput compute_values(const Correlation * corr_ptr,
 			    double c = 0, double m = 1) const
@@ -2564,6 +2599,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	  ptr->p.insert(nextafter(ptr->pb, vmax));
 	  ptr->y.insert(nextafter(ptr->uobp, vmax));
 	}
+      cout << "ptr" << endl
+      << *ptr << endl;
     };
   static auto uo_validate = [] (VectorDesc* ptr)
     {
