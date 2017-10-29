@@ -159,8 +159,6 @@ TEST(PvtData, split_uo)
       auto t = it.get_curr();
       const VectorDesc * uoa = get<0>(t);
       ASSERT_NE(uoa->uod, PVT_INVALID_VALUE);
-      ASSERT_EQ(uoa->uobp, nextafter(uoa->y.get_first(),
-				     numeric_limits<double>::min()));
       ASSERT_EQ(uoa->t, get<1>(t));
     }
   ASSERT_GT(k, 0);
