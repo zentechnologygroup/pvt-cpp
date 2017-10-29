@@ -1503,15 +1503,15 @@ private:
 		  lab_it.next();
 		else if (p_lab > p_corr)
 		  corr_it.next();
-		{
-		  p.append(p_lab);
-		  ylab.append(get<1>(tlab));
-		  ycorr.append(get<1>(tcorr));
-		  lab_it.next();
-		  corr_it.next();
-		}
+		else
+		  {
+		    p.append(p_lab);
+		    ylab.append(get<1>(tlab));
+		    ycorr.append(get<1>(tcorr));
+		    lab_it.next();
+		    corr_it.next();
+		  }
 	      }
-	    // TODO aqui emparejar lab_ptr con corr_data
 	    stats.add(corr_data.t, move(p), move(ylab), move(ycorr));
 	    ++k;
 	  }
@@ -1906,14 +1906,10 @@ public:
       {
 	const double p = it.get_curr();
 	pars.insert("p", p, in.punit);
-	// try
-	//   {
-	    const VtlQuantity uoa =
-	      corr_ptr->tuned_compute_by_names(pars, c, m, false);
-	    p_list.append(p);
-	    uoa_list.append(uoa.raw());
-	//   }
-	// catch (exception & e) { /* ignore it */ }
+	const VtlQuantity uoa =
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	p_list.append(p);
+	uoa_list.append(uoa.raw());
 	pars.remove("p");
       }
 
@@ -2529,12 +2525,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	ZENTHROW(PressureMismatch,
 		 "VectorDesc ctor (boa): pb next is greater than first p value");
       if (ptr->y(0) < ptr->y(1))
-	{
-	  cout << ptr->y(0) << " < " << ptr->y(1) << endl;
-	  exit(0);
 	ZENTHROW(SampleInvalid,
 		 "VectorDesc ctor (boa):bobp next is less than first boa value");
-	}
       if (not ptr->y.all([u = ptr->yunit] (auto b)
 			 { return BaseQuantity::is_valid(b, *u); }))
 	ZENTHROW(OutOfUnitRange,
@@ -2605,8 +2597,6 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	  ptr->p.insert(nextafter(ptr->pb, vmax));
 	  ptr->y.insert(nextafter(ptr->uobp, vmax));
 	}
-      cout << "ptr" << endl
-      << *ptr << endl;
     };
   static auto uo_validate = [] (VectorDesc* ptr)
     {

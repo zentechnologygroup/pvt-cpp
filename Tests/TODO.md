@@ -60,3 +60,6 @@
 ## 20. capturar excepciones en todos los compute_property
 - Created at   2017-10-28 21:29:34 -0400
 
+## 21. cuandoi se calibra uob poniendo corrs se elimina la ultima fila
+- Created at   2017-10-28 22:38:47 -0400
+

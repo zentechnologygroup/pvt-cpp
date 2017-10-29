@@ -18,3 +18,4 @@ capturar excepiones e ignorr en stats,2017-10-26 17:25:45 -0400,2017-10-28 21:29
 verbose mode para tuner,2017-10-26 17:41:26 -0400,,
 verificar que valores estadisticos estén en la misma unidad del vector,2017-10-28 21:13:18 -0400,,
 capturar excepciones en todos los compute_property,2017-10-28 21:29:34 -0400,,
+cuandoi se calibra uob poniendo corrs se elimina la ultima fila,2017-10-28 22:38:47 -0400,,
