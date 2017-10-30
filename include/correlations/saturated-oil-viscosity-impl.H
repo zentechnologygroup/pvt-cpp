@@ -13,6 +13,7 @@ UobBeggsRobinson::impl(const double & uod,
 
   const double uob = a * pow(uod, b);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -25,6 +26,7 @@ UobChewConnally::impl(const double & uod,
     0.062/ pow(10, 3.74e-3*rs);
   const double uob = a * pow(uod, b);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -58,6 +60,7 @@ UobKhan::impl(const double & rsb,
 
   const double uob = uo_bubble * pow(p/pb,-0.14) * exp(-2.5e-4*(p - pb));
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -73,6 +76,7 @@ UobKartoatmodjoSchmidt::impl(const double & uod,
         
   const double uob = -0.06821 + 0.9824*f + 0.0004034*f*f;
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -84,6 +88,7 @@ UobPetroskyFarshad::impl(const double & uod,
   const double b = 0.5131 + 0.5109 * pow(10, -1.1831e-3*rs);
   const double uob = a * pow(uod, b);
   
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -95,6 +100,7 @@ UobPerezML::impl(const double & uod,
         
   const double uob = pow(uod, b);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -107,6 +113,7 @@ UobGilFonseca::impl(const double & uod,
         
   const double uob = a*pow(uod, b);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -131,6 +138,7 @@ UobDeGhettoEtAl::impl(const double & uod,
       uob = -0.6311 + 1.078*f + 0.003653*f*f;
     }
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -155,6 +163,7 @@ UobDindorukChristman::impl(const double & uod,
         
   const double uob = a * pow(uod, b);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -172,6 +181,7 @@ UobLopezCR::impl(const double & rs,
    
   const double uob = exp(a1 +  a2 * t + a3 * p + a4 * rs + a5 * api);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -189,6 +199,7 @@ UobLopezCRHigherT::impl(const double & rs,
    
   const double uob = exp(a1 +  a2 * t + a3 * p + a4 * rs + a5 * api);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -206,6 +217,7 @@ UobSalazar::impl(const double & bob,
    
   const double uob = exp(a1 +  a2 * p + a3 * t + a4 * bob + a5 * api);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
