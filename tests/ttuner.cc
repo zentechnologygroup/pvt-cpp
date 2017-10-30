@@ -37,8 +37,8 @@ struct Property
   Array<double> p, y;
 
   Property(const string & __target_name) : target_name(__target_name) {}
-  
-  void read_header(istringstream & iss, const Unit & y_ref_unit)
+
+  void read_units_and_temp(istringstream & iss, const Unit & y_ref_unit)
   {
     string data;
     if (not (iss >> data))
@@ -72,7 +72,12 @@ struct Property
       ZENTHROW(CommandLineError, data + " for t value is not numeric");
     Quantity<Fahrenheit> tq = VtlQuantity(*tunit, atof(data));
     t = tq.raw();
+  }
 
+  void read_header(istringstream & iss, const Unit & y_ref_unit)
+  {
+    read_units_and_temp(iss, y_ref_unit);
+    string data;
     if (not (iss >> data))
       ZENTHROW(CommandLineError, "cannot read pb value");
     if (not is_double(data))
@@ -198,18 +203,39 @@ struct Uo : public Property
   Uo & operator = (const string & str)
   {
     istringstream iss(str);
-    read_header(iss, CP::get_instance());
-
-    string data;
-    if (not (iss >> data))
-      ZENTHROW(CommandLineError, "cannot read uobp value");
-    if (not is_double(data))
-      ZENTHROW(CommandLineError, data + " is not a double");
-    uobp = atof(data);
-
+    read_units_and_temp(iss, CP::get_instance()); 
     read_values(iss);
     separate();
     return *this;
+  }
+  void read_pb_uod_and_uobp(istringstream & iss)
+  {
+    string data;
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read pb value");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "pb is not numeric");
+    pb = atof(data);
+    
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read uod value");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "uod is not numeric");
+    uod = atof(data);
+    
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read uobp value");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "uobp is not numeric");
+    uobp = atof(data);
+  }
+  void read_zone(const string & str)
+  {
+    istringstream iss(str);
+    read_units_and_temp(iss, CP::get_instance());
+    read_pb_uod_and_uobp(iss);
+    read_values(iss);
+    separate();
   }
 };
 
@@ -218,7 +244,7 @@ struct Uob : public Uo
   Uob() : Uo("uob") {}
   Uob & operator = (const string & str)
   {
-    *static_cast<Uo*>(this) = str;
+    read_zone(str);
     return *this;
   }
 };
@@ -228,8 +254,8 @@ struct Uoa : public Uo
   Uoa() : Uo("uoa") {}
   Uoa & operator = (const string & str)
   {
-    *static_cast<Uo*>(this) = str;
-    return *this = str;
+    read_zone(str);
+    return *this;
   }  
 };
 
@@ -238,7 +264,9 @@ struct Uosplit : public Property
   Uosplit() : Property("uo") {}
   Uosplit & operator = (const string & str)
   {
-    return *this = str;
+    istringstream iss(str);
+    read_units_and_temp(iss, CP::get_instance());
+    return *this;
   }  
 };
 
@@ -1049,7 +1077,7 @@ void process_local_calibration()
 	return s.both_matrix();
       }
     };
-  
+
   const auto & mode = mode_type.getValue();
   for (auto it = stats.get_it(); it.has_curr(); it.next())
     mat.append(mode_dispatch.run(mode, it.get_curr(), &header));

@@ -398,9 +398,9 @@ struct VectorDesc
 			    // zone for better precision 
 	uob.append(uobp);
       }
-    
-    p_below.insert(0); // (0,uod) at the beginning of the saturated
-		       // zone for better precision  
+
+    // (0,uod) at the beginning of the saturated zone for better precision  
+    p_below.insert(VtlQuantity(*punit, Quantity<psig>(0)).raw());
     uob.insert(uod);
 
     const auto vmax = numeric_limits<double>::max();
@@ -2337,13 +2337,11 @@ public:
       for (auto it = s.temps.get_it(); it.has_curr(); it.next())
 	{
 	  auto & pp = it.get_curr();
-	  const double & temp = pp.first;
 	  auto & tr = pp.second;
 	  for (auto it = zip_it(tr.p, tr.ylab, tr.ycorr, tr.ytuned); it.has_curr();
 	       it.next())
 	    {
 	      auto tu = it.get_curr();
-	      t.append(temp);
 	      p.append(get<0>(tu));
 	      ylab.append(get<1>(tu));
 	      ycorr.append(get<2>(tu));
@@ -2604,8 +2602,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	  if (ptr->y(0) != ptr->uod)
 	    ZENTHROW(SampleInvalid,
 		     "uod sample is not the first value of uob");
-	     
-	  if (ptr->p(0) != 0)
+
+	  if (Quantity<psia>(ptr->p(0)) != Quantity<psig>(0))
 	    ZENTHROW(SampleInvalid, "first pressure value is not "
 		     "zero given that uod value is present");
 	} 
@@ -2630,9 +2628,9 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (not BaseQuantity::is_valid(ptr->uod, *ptr->yunit))
 	ZENTHROW(OutOfUnitRange, "uod value is out of its unit range");
       if (ptr->p.get_first() < ptr->pb)
-	ZENTHROW(SampleInvalid, "first p value is greater or equal that pb");
+	ZENTHROW(SampleInvalid, "first p value is less than pb");
       if (ptr->uobp >= ptr->y.get_first())
-	ZENTHROW(SampleInvalid, "uobp es greater or equal that first uoa value");
+	ZENTHROW(SampleInvalid, "uobp es greater or equal than first uoa value");
       validate_uo(ptr);
       if (not is_sorted(ptr->y))
 	ZENTHROW(SamplesUnsorted,

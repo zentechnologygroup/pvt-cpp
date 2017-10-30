@@ -16,7 +16,7 @@ DEPLIBS	= $(TOP)/lib/libpvt-op.a
 
 LOCAL_LIBRARIES = $(TOP)/lib/libpvt-op.a
 
-TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot.cc cplot.cc \
+TESTSRCS = test-conversion.cc test-corr.cc ttuner.cc plot.cc cplot.cc \
 	vector-conversion.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
@@ -41,9 +41,9 @@ backend-cplot: cplot
 	$(RM) backend-cplot; 	\	@@\
 	$(CP) cplot backend-cplot;
 
-backend-calibrate: test-calibrate
-	$(RM) backend-calibrate; 	\	@@\
-	$(CP) test-calibrate backend-calibrate
+backend-calibrate: ttuner
+	$(RM) backend-ttuner; 	\	@@\
+	$(CP) ttuner backend-ttuner
 
 backend-vector-conversion: vector-conversion
 	$(RM) backend-vector-conversion; 	\	@@\
@@ -58,8 +58,8 @@ NormalProgramTarget(vector-conversion,vector-conversion.o,$(DEPLIBS),$(LOCAL_LIB
 AllTarget(test-corr)
 NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
-AllTarget(test-calibrate)
-NormalProgramTarget(test-calibrate,test-calibrate.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+AllTarget(ttuner)
+NormalProgramTarget(ttuner,ttuner.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(plot)
 NormalProgramTarget(plot,plot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))

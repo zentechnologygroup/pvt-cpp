@@ -102,3 +102,6 @@
 ## 34. precision en matriz
 - Created at   2017-10-30 08:43:57 -0400
 
+## 35. predicado is_near en unidades
+- Created at   2017-10-30 14:43:39 -0400
+
