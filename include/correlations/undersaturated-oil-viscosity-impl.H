@@ -25,6 +25,8 @@ UoaKartoatmodjoSchmidt::impl(const double & uobp,
   const double p_pb = p - pb;
   const double uoa = 1.00081*uobp +
     0.001127*p_pb*(-0.006517*pow(uobp, 1.8148) + 0.038*pow(uobp,  1.59));
+  
+  uoa = max(0.0, uoa);
   return uoa;
 }
 
@@ -59,6 +61,7 @@ UoaDeGhettoEtAl::impl(const double & uobp,
     uoa = 0.9886*uobp + 0.002763*(p - pb) *
       (-0.01153 * pow(uobp, 1.7933) + 0.0316 * pow(uobp, 1.5939));
 
+  uoa = max(0.0, uoa);
   return uoa;
 }
 
@@ -80,6 +83,8 @@ UoaBeal::impl(const double & uobp,
 {
   const double uoa = uobp + 0.001*(p - pb) *
     (0.024*pow(uobp, 1.6) + 0.038 * pow(uobp, 0.56));
+
+  uoa = max(0.0, uoa);
   return uoa;
 }
 
@@ -109,6 +114,7 @@ UoaVasquezBeggs::impl(const double & uobp,
 
   const double uoa = uobp * pow(p/pb, m);
 
+  uoa = max(0.0, uoa);
   return uoa;
 }
 
@@ -129,6 +135,7 @@ UoaKhan::impl(const double & uobp,
 	      const double & pb) noexcept
 {
   const double uoa = uobp * exp(9.6e-5*(p - pb));
+  uoa = max(0.0, uoa);
   return uoa;
 }
 
@@ -156,6 +163,7 @@ UoaPetroskyFarshad::impl(const double & uobp,
   
   const double uoa = uobp + 1.3449e-3*(p - pb)*pow(10, a);
 
+  uoa = max(0.0, uoa);
   return uoa;
 }
 
@@ -183,6 +191,7 @@ UoaAbedini::impl(const double & uobp,
 		    -0.07734*pow(pb, -0.29981) +
 		    -0.42436*pow(pb, -0.1946) +
 		    -1.64149*pow(pb, -0.31339));
+  uoa = max(0.0, uoa);
   return uoa;
 }
 
@@ -203,6 +212,7 @@ UoaPerezML::impl(const double & uobp,
 		 const double & pb) noexcept
 {
   const double uoa = uobp * (1 + 3.181e-4 * (p - pb));
+  uoa = max(0.0, uoa);
   return uoa;
 }
 
@@ -247,6 +257,7 @@ UoaDindorukChristman::impl(const double & uobp,
         
   const double uoa = uobp + a6*p_pb*pow(10, a);
         
+  uoa = max(0.0, uoa);
   return uoa;
 }
 
