@@ -906,7 +906,7 @@ void process_local_calibration()
       };
       auto cols = transpose(l).maps<DynList<string>>([] (auto & l)
         {
-	  return l.filter([] (auto & s) { return s.size(); });
+	  return l.filter([] (auto & s) { return s.size() > 0; });
 	}); // first contains column name
 
       //         temp    all other stuff related to temp value
@@ -1017,110 +1017,54 @@ void process_local_calibration()
   auto stats = corr_list.maps<PvtData::StatsDesc>([] (auto ptr)
 						  { return data.apply(ptr); });
 
-  const auto & mode = mode_type.getValue();
-  DynList<string> header;
-  DynList<DynList<double>> mat;
   const string target_name = corr_list.get_first()->target_name();
-  if (target_name == "pb" or target_name == "uod")
+  DynList<string> header = { "t", target_name };
+  auto fst_s = stats.get_first();
+  DynList<DynList<double>> mat = { fst_s.t, fst_s.ylab };
+  if (not (target_name == "pb" or target_name == "uod"))
     {
-
-    }
-  else
-    {
-
-    }
-  // caso 1: pb o oud
-  // caso 2: todas las otras
-
-  // auto header = corr_list.maps<string>([mode] (auto ptr)
-  //   {
-      
-
+      header.append("p");
+      mat.append(fst_s.p);
+    }  
   
-
-  /*
-
-  DynList<pair<double, double>> comb; // coefficients c and m
-
-  // First we must verify that each read correlation applies to the data set
-  for (auto it = corr_list.get_it(); it.has_curr(); it.next())
+  static AHDispatcher<string,
+		      DynList<DynList<double>> (*)(const PvtData::StatsDesc&,
+						   DynList<string>*)>
+    mode_dispatch =
     {
-      auto stats = data.apply(corr_ptr);
-      auto corr_ptr = it.get_curr();
-      if (mode != "single")
-	{
-	  comb.append(make_pair(CorrStat::c(stats.desc),
-				CorrStat::m(stats.desc)));
-	}
-      else
-	comb.append(make_pair(0, 1));
-    }
+      "single", [] (const PvtData::StatsDesc& s, DynList<string> * header)
+      {
+	header->append(s.corr_ptr->name);
+	return s.simple_matrix();
+      },
+      "calibrated", [] (const PvtData::StatsDesc& s, DynList<string> * header)
+      {
+	header->append(s.corr_ptr->name + "_cal");
+	return s.cal_matrix();
+      },
+      "both", [] (const PvtData::StatsDesc& s, DynList<string> * header)
+      {
+	header->append(s.corr_ptr->name);
+	header->append(s.corr_ptr->name + "_cal");
+	return s.both_matrix();
+      }
+    };
+  
+  const auto & mode = mode_type.getValue();
+  for (auto it = stats.get_it(); it.has_curr(); it.next())
+    mat.append(mode_dispatch.run(mode, it.get_curr(), &header));
 
-  */
-
-  /*
-  auto fst_corr = corr_list.get_first();
-  auto target_name = fst_corr->target_name();
-  auto fst = data.iapply(fst_corr);
-  const Unit * punit = get<0>(fst);
-  const Unit * yunit = get<1>(fst);
-
-  // First correlation here because the pressure and lab values are
-  // the same through all correlations
-  DynList<DynList<double>> rows;
-  DynList<string> header;
-
-  for (auto it = get<2>(fst).get_it(); it.has_curr(); it.next())
+  auto rows = mat.maps<DynList<string>>([] (auto & row)
     {
-      PvtData::CorrDesc & vals = it.get_curr();
-      const Unit * out_p_unit = test_p_out_unit(punit);
-      mutable_unit_convert(*punit, vals.p, *out_p_unit);
-
-      const Unit * out_y_unit = test_y_out_unit(yunit);
-      mutable_unit_convert(*yunit, vals.y, *out_y_unit);
-      
-      const string t_tag = ::to_string((int) vals.t);
-      header.append(build_dynlist<string>("p_" + t_tag,
-					  target_name + "_" + t_tag));
-      rows.append(build_dynlist<DynList<double>>(move(vals.p), move(vals.y)));
-    }
-
-  for (auto it = zip_it(corr_list, comb); it.has_curr(); it.next())
-    {
-      auto curr = it.get_curr();
-      const Correlation * corr_ptr = get<0>(curr);
-      auto vals = data.iapply(corr_ptr);
-      const Unit * yunit = get<1>(vals);
-
-      const auto & cm = get<1>(curr);
-      const double & c = cm.first;
-      const double & m = cm.second;
-      for (auto it = get<2>(vals).get_it(); it.has_curr(); it.next())
-	{
-	  PvtData::CorrDesc & curr = it.get_curr();
-	  put_sample(corr_ptr, rows, header, curr.t, yunit, curr.yc, c, m);
-	}
-    }
-
-  auto row_str = rows.maps<DynList<string>>([] (auto & l)
-    {
-      return l.template maps<string>([] (auto v) { return to_str(v); });
+      return row.template maps<string>([] (auto v) { return to_string(v); });
     });
-
-  DynList<DynList<string>> result =
-    transpose(rows.maps<DynList<string>>([] (auto & l)
-    {
-      return l.template maps<string>([] (auto v) { return to_str(v); });
-    }));
+  auto result = transpose(rows);
   result.insert(header);
 
-  assert(equal_length(rows, header));
-
   cout << print_dispatcher.run(output.getValue(), result) << endl;
-  */
+
   terminate_app();
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -1163,7 +1107,7 @@ int main(int argc, char *argv[])
       // process_auto();
       process_apply();
       process_napply();
-      // process_local_calibration();
+      process_local_calibration();
       // process_pb_calibration();
       // process_uod_calibration();
       // process_R();

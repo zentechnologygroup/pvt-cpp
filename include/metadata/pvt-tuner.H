@@ -2351,6 +2351,18 @@ public:
 	    }
 	}
     }
+    DynList<DynList<double>> both_matrix() const
+    {
+      return transpose(zip_lists(ycorr, ytuned));
+    }
+    DynList<DynList<double>> simple_matrix() const // without ytuned
+    {
+      return transpose(zip_lists(ycorr));
+    }
+     DynList<DynList<double>> cal_matrix() const // without ycorr
+    {
+      return transpose(zip_lists(ytuned));
+    }
   };
 
   StatsDesc apply(const Correlation * corr_ptr) const

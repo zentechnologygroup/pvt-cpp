@@ -99,3 +99,6 @@
 ## 33. asegurar que unidades de stats sean iguales
 - Created at   2017-10-29 17:15:32 -0400
 
+## 34. precision en matriz
+- Created at   2017-10-30 08:43:57 -0400
+
