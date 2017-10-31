@@ -924,117 +924,78 @@ void process_napply()
 
 void process_local_calibration() 
 {
-  static auto print_R = [] (const DynList<DynList<string>> & l) -> string
+  static auto to_str = [] (const DynList<string> & header,
+		      const DynList<DynList<double>> & vals)
+    {
+      auto l = vals.maps<DynList<string>>([] (auto & row)
+        {
+	  return row.template maps<string>([] (auto v) { return to_string(v); });
+	});
+      l.insert(header);
+      return l;
+    };
+  static auto print_R = [] (const DynList<string>& header,
+			    const DynList<DynList<double>> & vals) -> string
     {
       struct Tmp
       {
-	DynList<string> p;
-	DynList<string> y;
-	DynList<DynList<string>> yc;
+	DynList<double> p, y;
+	//           name,    list of vals which is parallel to p and y
+	DynMapTree<string, DynList<double>> yc;
       };
-      auto cols = transpose(l).maps<DynList<string>>([] (auto & l)
-        {
-	  return l.filter([] (auto & s) { return s.size() > 0; });
-	}); // first contains column name
 
-      //         temp    all other stuff related to temp value
-      DynMapTree<string, Tmp> temps;
-      for (auto it = cols.get_it(); it.has_curr(); it.next())
+      // first pass: to know temperatures
+      DynMapTree<double, Tmp> tset;
+      vals.for_each([&tset] (auto & l) { tset.insert(l.get_first(), Tmp()); });
+
+      // Second pass: to know the names
+      {
+	const DynList<string> names = header.drop(3);
+	for (auto it = tset.get_it(); it.has_curr(); it.next())
+	  {
+	    auto & p = it.get_curr();
+	    auto & yc = p.second.yc;
+	    for (auto it = names.get_it(); it.has_curr(); it.next())
+	      yc.insert(it.get_curr(), {} );
+	  }
+      }
+
+      tset.for_each([] (auto & p)
+      {
+	cout << p.first << " ";
+	p.second.yc.for_each([] (auto p) { cout << p.first << " "; });
+	cout << endl;
+      });
+      cout << endl;
+
+      for (auto it = zip_it(vals, header); it.has_curr(); it.next())
 	{
-	  DynList<string> & col = it.get_curr();
-	  const string & header = col.get_first();
-	  auto header_parts = split(header, '_');
-	  const string prefix = header_parts[0];
-	  const string type = header_parts[1];
-	  if (prefix == "p")
-	    temps[type].p = move(col);
-	  else if (islower(prefix[0])) // is a Correlation name
-	    temps[type].y = move(col);
-	  else
-	    temps[type].yc.append(move(col));
+	  auto t = it.get_curr();
+	  
 	}
 
-      double xmin = numeric_limits<double>::max(), ymin = xmin;
-      double xmax = 0, ymax = 0;
-
-      ostringstream s;
-      for (auto it = temps.get_it(); it.has_curr(); it.next())
-	{
-	  auto & p = it.get_curr();
-	  const Tmp & tmp = p.second;
-	  tmp.p.each(1, 1, [&xmin, &xmax] (auto v)
-		     { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
-	  tmp.y.each(1, 1, [&ymin, &ymax] (auto v)
-		     { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
-	  s << Rvector(tmp.p.get_first(), tmp.p.drop(1)) << endl
-	    << Rvector(tmp.y.get_first(), tmp.y.drop(1)) << endl;
-	  for (auto it = tmp.yc.get_it(); it.has_curr(); it.next())
-	    {
-	      const DynList<string> & col = it.get_curr();
-	      col.each(1, 1, [&ymin, &ymax] (auto v)
-		       { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
-	      s << Rvector(col.get_first(), col.drop(1)) << endl;
-	    }
-	}
-
-      s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
-        << ymin << "," << ymax << "))" << endl;
-
-      size_t pch = 1;
-      size_t col = 1;
-      DynList<string> colnames;
-      DynList<int> colors;
-      DynList<string> ltys;
-      DynList<string> pchs;
-      for (auto it = temps.get_it(); it.has_curr(); it.next())
-	{
-	  auto & pp = it.get_curr();
-	  const Tmp & tmp = pp.second;
-	  const auto & pname = tmp.p.get_first();
-	  const string & name = tmp.y.get_first();
-	  colnames.append("\"" + name + "\"");
-	  colors.append(1);
-	  ltys.append("NA");
-	  pchs.append(to_string(pch));
-	  s << "points(" << pname << "," << name << ",pch=" << pch++ << ")"
-	    << endl;
-	  for (auto it = tmp.yc.get_it(); it.has_curr(); it.next(), ++col)
-	    {
-	      const string & name = it.get_curr().get_first();
-	      s << "lines(" << pname << "," << name << ",col=" << col << ")"
-		<< endl;
-	      colnames.append("\"" + name + "\"");
-	      colors.append(col);
-	      pchs.append("NA");
-	      ltys.append("1");
-	    }
-	}
-      s << Rvector("cnames", colnames) << endl
-        << Rvector("cols", colors) << endl
-        << Rvector("pchs", pchs) << endl
-        << Rvector("ltys", ltys) << endl
-        << "legend(\"topright\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
-        << endl;
-
-      execute_R_script(s.str());
-
-      return s.str();
+      return ""; // TODO
     };
 
-  static auto print_csv = [] (const DynList<DynList<string>> & l)
+  static auto print_csv = [] (const DynList<string>& header,
+			      const DynList<DynList<double>> & vals)
   {
+    auto l = to_str(header, vals);
     if (transpose_out.getValue())
       return to_string(format_string_csv(transpose(l)));
     else
       return to_string(format_string_csv(l));
   };
 
-  static auto print_mat = [] (const DynList<DynList<string>> & l)
+  static auto print_mat = [] (const DynList<string>& header,
+			      const DynList<DynList<double>> & vals)
   {
+    auto l = to_str(header, vals);
     return to_string(format_string(l));
   };
 
-  static AHDispatcher<string, string (*)(const DynList<DynList<string>>&)>
+  static AHDispatcher<string, string (*)(const DynList<string>&,
+					 const DynList<DynList<double>>&)>
     print_dispatcher = { "R", print_R, "csv", print_csv, "mat", print_mat };
 
   if (not cal.isSet())
@@ -1082,19 +1043,7 @@ void process_local_calibration()
   for (auto it = stats.get_it(); it.has_curr(); it.next())
     mat.append(mode_dispatch.run(mode, it.get_curr(), &header));
 
-  auto rows = mat.maps<DynList<string>>([] (auto & row)
-    {
-      return row.template maps<string>([] (auto v) { return to_string(v); });
-    });
-
-  DynMapTree<double, DynList<DynList<double>>> tmap;
-  
-
-
-  auto result = transpose(rows);
-  result.insert(header);
-
-  cout << print_dispatcher.run(output.getValue(), result) << endl;
+  cout << print_dispatcher.run(output.getValue(), header, transpose(mat)) << endl;
 
   terminate_app();
 }
