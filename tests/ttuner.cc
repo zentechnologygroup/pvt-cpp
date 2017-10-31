@@ -868,7 +868,7 @@ void process_apply()
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {
       DynList<string> ret = build_dynlist<string>(t.corr_ptr->name);
-      auto stats = t.is_valid() ? CorrStat::desc_to_dynlist(t.desc) :
+      auto stats = t.valid ? CorrStat::desc_to_dynlist(t.desc) :
         CorrStat::invalid_desc_to_dynlist();
       ret.append(stats);
       return ret;
@@ -1088,6 +1088,9 @@ void process_local_calibration()
     });
   auto result = transpose(rows);
   result.insert(header);
+
+  for (auto it = result.get_it(); it.has_curr(); it.next())
+    cout << join(it.get_curr(), ", ") << endl;
 
   cout << print_dispatcher.run(output.getValue(), result) << endl;
 

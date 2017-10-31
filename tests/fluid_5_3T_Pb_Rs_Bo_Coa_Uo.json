@@ -104,7 +104,7 @@
         3000.0
       ],
       "pb": 820.0,
-      "punit": "psia",
+      "punit": "psig",
       "t": 125.0,
       "target_name": "boa",
       "target_unit": "RB_STB",
@@ -135,7 +135,7 @@
         820.0
       ],
       "pb": 820.0,
-      "punit": "psia",
+      "punit": "psig",
       "t": 125.0,
       "target_name": "bob",
       "target_unit": "RB_STB",
@@ -165,7 +165,7 @@
         2900.0
       ],
       "pb": 820.0,
-      "punit": "psia",
+      "punit": "psig",
       "t": 125.0,
       "target_name": "coa",
       "target_unit": "psia_1",
@@ -195,7 +195,7 @@
         820.0
       ],
       "pb": 820.0,
-      "punit": "psia",
+      "punit": "psig",
       "t": 125.0,
       "target_name": "rs",
       "target_unit": "SCF_STB",
@@ -297,7 +297,7 @@
         3000.0
       ],
       "pb": 820.0,
-      "punit": "psia",
+      "punit": "psig",
       "t": 125.0,
       "target_name": "uoa",
       "target_unit": "CP",
@@ -318,14 +318,14 @@
     {
       "bobp": -1.0,
 	"p": [
-	    14.6959,
+	    0,
         450.0,
         550.0,
         650.0,
         820.0
       ],
       "pb": 820.0,
-      "punit": "psia",
+      "punit": "psig",
       "t": 125.0,
       "target_name": "uob",
       "target_unit": "CP",
