@@ -23,7 +23,7 @@ UoaKartoatmodjoSchmidt::impl(const double & uobp,
 			     const double & p) noexcept
 {
   const double p_pb = p - pb;
-  const double uoa = 1.00081*uobp +
+  double uoa = 1.00081*uobp +
     0.001127*p_pb*(-0.006517*pow(uobp, 1.8148) + 0.038*pow(uobp,  1.59));
   
   uoa = max(0.0, uoa);
@@ -81,7 +81,7 @@ UoaBeal::impl(const double & uobp,
 	      const double & p,
 	      const double & pb) noexcept
 {
-  const double uoa = uobp + 0.001*(p - pb) *
+   double uoa = uobp + 0.001*(p - pb) *
     (0.024*pow(uobp, 1.6) + 0.038 * pow(uobp, 0.56));
 
   uoa = max(0.0, uoa);
@@ -112,7 +112,7 @@ UoaVasquezBeggs::impl(const double & uobp,
 
   const double m = c1 * pow(p, c2) * exp(c3 + c4*p);
 
-  const double uoa = uobp * pow(p/pb, m);
+  double uoa = uobp * pow(p/pb, m);
 
   uoa = max(0.0, uoa);
   return uoa;
@@ -134,7 +134,7 @@ UoaKhan::impl(const double & uobp,
 	      const double & p,
 	      const double & pb) noexcept
 {
-  const double uoa = uobp * exp(9.6e-5*(p - pb));
+  double uoa = uobp * exp(9.6e-5*(p - pb));
   uoa = max(0.0, uoa);
   return uoa;
 }
@@ -161,7 +161,7 @@ UoaPetroskyFarshad::impl(const double & uobp,
   const double a = -1.0146 + 1.3322*log_uobp - 0.4876*log_uobp_2 -
     1.15036*log_uobp_2*log_uobp;
   
-  const double uoa = uobp + 1.3449e-3*(p - pb)*pow(10, a);
+  double uoa = uobp + 1.3449e-3*(p - pb)*pow(10, a);
 
   uoa = max(0.0, uoa);
   return uoa;
@@ -183,7 +183,7 @@ UoaAbedini::impl(const double & uobp,
 		 const double & p,
 		 const double & pb) noexcept
 {
-  const double uoa = uobp +
+  double uoa = uobp +
     0.001*(p - pb)*((0.05601*pow(uobp, 1.45198)) +
 		    (0.47557 * pow(uobp, 0.35997)) +
 		    -0.2257*pow(uobp, 0.86389) +
@@ -211,7 +211,7 @@ UoaPerezML::impl(const double & uobp,
 		 const double & p,
 		 const double & pb) noexcept
 {
-  const double uoa = uobp * (1 + 3.181e-4 * (p - pb));
+  double uoa = uobp * (1 + 3.181e-4 * (p - pb));
   uoa = max(0.0, uoa);
   return uoa;
 }
@@ -255,7 +255,7 @@ UoaDindorukChristman::impl(const double & uobp,
   const double a = a1 + a2*log10(uobp) + a3*log10(rsb) + a4*uobp*log10(rsb) +
     a5*p_pb;
         
-  const double uoa = uobp + a6*p_pb*pow(10, a);
+  double uoa = uobp + a6*p_pb*pow(10, a);
         
   uoa = max(0.0, uoa);
   return uoa;

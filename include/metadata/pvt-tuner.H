@@ -1915,7 +1915,7 @@ public:
 	pars.remove("bob");
       }
 
-    if (p_list.get_first() == 0)
+    if (p_list.get_first() == 0) // TODO near
       uod = uob_list.get_first();
 
     VectorDesc result(pref.t, pb, PVT_INVALID_VALUE, uod, uob_list.get_last(),
@@ -2599,12 +2599,18 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 		 "VectorDesc ctor: uob samples are not inversely sorted");
       if (BaseQuantity::is_valid(ptr->uod, *ptr->yunit)) // was uod defined?
 	{ // yes ==> validate that first entries correspond to it
+	  cout << *ptr << endl;
 	  if (ptr->y(0) != ptr->uod)
 	    ZENTHROW(SampleInvalid,
 		     "uod sample is not the first value of uob");
 
 	  if (Quantity<psia>(ptr->p(0)) != Quantity<psig>(0))
-	    ZENTHROW(SampleInvalid, "first pressure value is not "
+	    cout << "first pressure value "
+		 << Quantity<psia>(ptr->p(0)).to_string()
+		 << " is not zero given that uod value is present" << endl;
+	  if (Quantity<psia>(ptr->p(0)) != Quantity<psig>(0))
+	    ZENTHROW(SampleInvalid, "first pressure value " +
+		     Quantity<psia>(ptr->p(0)).to_string() + " is not "
 		     "zero given that uod value is present");
 	} 
       else if (ptr->p(0) == 0) /// is uod inside uob vector?
