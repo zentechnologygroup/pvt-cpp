@@ -2345,11 +2345,13 @@ public:
       for (auto it = s.temps.get_it(); it.has_curr(); it.next())
 	{
 	  auto & pp = it.get_curr();
+	  const double & temp = pp.first;
 	  auto & tr = pp.second;
 	  for (auto it = zip_it(tr.p, tr.ylab, tr.ycorr, tr.ytuned); it.has_curr();
 	       it.next())
 	    {
 	      auto tu = it.get_curr();
+	      t.append(temp);
 	      p.append(get<0>(tu));
 	      ylab.append(get<1>(tu));
 	      ycorr.append(get<2>(tu));

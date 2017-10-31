@@ -2266,3 +2266,57 @@
 - Comment      
 - Finished     
 
+## 379. predicado is_near en unidades
+- Created at   2017-10-30 14:43:39 -0400
+- Completed at 2017-10-31 12:04:00 -0400
+- Comment      
+- Finished     
+
+## 380. en list corr coa va antes que boa
+- Created at   
+- Completed at 2017-10-31 12:12:28 -0400
+- Comment      
+- Finished     
+
+## 381. calibración global
+- Created at   2017-04-26 16:38:18 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 382. dry de process_uod_calibration y process_pb_calibration
+- Created at   2017-05-08 16:14:55 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 383. UodKartoatmodjoSchmidt puede arrojar valores egativos
+- Created at   2017-10-28 19:08:51 -0400
+- Completed at 2017-10-31 12:15:09 -0400
+- Comment      
+- Finished     
+
+## 384. pb exp con auto
+- Created at   2017-10-10 16:27:25 -0400
+- Completed at 2017-10-31 12:34:08 -0400
+- Comment      
+- Finished     
+
+## 385. pbcal y uodcl deben estar en lcal
+- Created at   2017-09-11 15:12:36 -0400
+- Completed at 2017-10-31 12:34:18 -0400
+- Comment      
+- Finished     
+
+## 386. cambiar tupla Sample por struct
+- Created at   2017-10-10 09:11:07 -0400
+- Completed at 2017-10-31 12:34:37 -0400
+- Comment      
+- Finished     
+
+## 387. documentar formatos de property en tuner
+- Created at   2017-10-04 15:41:04 -0400
+- Completed at 2017-10-08 20:33:50 -0400
+- Comment      
+- Finished     
+

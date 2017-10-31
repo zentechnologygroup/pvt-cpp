@@ -1086,11 +1086,13 @@ void process_local_calibration()
     {
       return row.template maps<string>([] (auto v) { return to_string(v); });
     });
+
+  DynMapTree<double, DynList<DynList<double>>> tmap;
+  
+
+
   auto result = transpose(rows);
   result.insert(header);
-
-  for (auto it = result.get_it(); it.has_curr(); it.next())
-    cout << join(it.get_curr(), ", ") << endl;
 
   cout << print_dispatcher.run(output.getValue(), result) << endl;
 
