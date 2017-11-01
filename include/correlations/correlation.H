@@ -1050,6 +1050,14 @@ public:
     return VtlQuantity(unit, result);
   }
 
+  VtlQuantity
+  bounded_tuned_compute_by_names(const ParList & par_list,
+				 double c, double m, bool check = true) const
+  {
+    return bounded_tuned_compute_by_names(par_list, unit.min(), unit.max(),
+					  c, m, check);
+  }
+
   double
   bounded_tuned_compute_and_check(const DynList<double> & pars,
 				  const VtlQuantity & min_val,

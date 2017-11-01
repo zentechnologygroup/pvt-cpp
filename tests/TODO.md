@@ -80,3 +80,9 @@
 ## 27. unificar unidades en estadísticas lcal
 - Created at   2017-10-31 12:36:52 -0400
 
+## 28. valores calibrados deben estar dentro de rangos de unidad
+- Created at   2017-11-01 15:27:36 -0400
+
+## 29. ojo con el pb max: podría calibarse por debajo
+- Created at   2017-11-01 17:20:28 -0400
+
