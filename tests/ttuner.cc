@@ -949,16 +949,26 @@ void process_local_calibration()
       vals.for_each([&tset] (auto & l) { tset.insert(l.get_first(), Tmp()); });
 
       // Second pass: to know the names
-      {
-	const DynList<string> names = header.drop(3);
-	for (auto it = tset.get_it(); it.has_curr(); it.next())
-	  {
-	    auto & p = it.get_curr();
-	    auto & yc = p.second.yc;
-	    for (auto it = names.get_it(); it.has_curr(); it.next())
-	      yc.insert(it.get_curr(), {} );
-	  }
-      }
+      const DynList<string> names = header.drop(3);
+      for (auto it = tset.get_it(); it.has_curr(); it.next())
+	{
+	  auto & p = it.get_curr();
+	  auto & yc = p.second.yc;
+	  for (auto it = names.get_it(); it.has_curr(); it.next())
+	    yc.insert(it.get_curr(), {} );
+	}
+
+      for (auto it = vals.get_it(); it.has_curr(); it.next())
+	{
+	  auto & row = it.get_curr();
+	  auto t = row.remove_first();
+	  Tmp & tmp = tset[t];
+	  tmp.y.append(row.remove_first());
+	  tmp.p.append(row.remove_first());
+	  for (auto it = names.get_it(); it.has_curr(); it.next())
+	    tmp.yc[it.get_curr()].append(row.remove_first());
+	  assert(row.is_empty());
+	}
 
       tset.for_each([] (auto & p)
       {
