@@ -1075,7 +1075,7 @@ struct PvtData
 	const auto & names_list =
 	  par.names().maps<string>([] (auto p) { return p.first; });
 
-	if (names_list.exists([&] (auto name) { return var_pars.has(name); }))
+	if (names_list.exists([&] (auto &  name) { return var_pars.has(name); }))
 	  continue;
 	if (names_list.exists([this] (auto name)
 			      { return this->search_const(name) != nullptr; }))
