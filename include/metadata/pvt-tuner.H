@@ -1044,11 +1044,15 @@ struct PvtData
     }
   };
 
+private:
+  
+  static const DynSetTree<string> var_pars;
+
+public:
+  
   DynList<CorrInput>
   build_input_for_correlation(const Correlation * corr_ptr) const
   {
-    static DynSetTree<string> var_pars =
-      { "p", "pb", "uod", "bobp", "uobp", "t" };
     const string target_name = corr_ptr->target_name();
     const bool is_static_target = target_name == "pb" or target_name == "uod";
 
@@ -1075,7 +1079,7 @@ struct PvtData
 	const auto & names_list =
 	  par.names().maps<string>([] (auto p) { return p.first; });
 
-	if (names_list.exists([&] (auto name) { return var_pars.has(name); }))
+	if (names_list.exists([] (auto name) { return var_pars.has(name); }))
 	  continue;
 	if (names_list.exists([this] (auto name)
 			      { return this->search_const(name) != nullptr; }))
