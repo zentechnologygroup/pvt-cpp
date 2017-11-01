@@ -107,18 +107,18 @@ struct VectorDesc
   {
     if (punit == nullptr or yunit == nullptr)
       ZENTHROW(InvalidUnit, "vector unit are not initialized");
-    if (not psia::get_instance().is_sibling(*punit))
+    if (not psig::get_instance().is_sibling(*punit))
       ZENTHROW(InvalidUnit, punit->name + " is not a valid pressure unit");
     if (p.size() <= 1)
       ZENTHROW(LengthMismatch, "Pressure array size is less or equal tan 1");
     if (not p.all([this] (auto p) { return BaseQuantity::is_valid(p, *punit); }))
       ZENTHROW(OutOfUnitRange,
 	       "at least a pressure value is out of its unit range");
-    if (punit != &psia::get_instance())
+    if (punit != &psig::get_instance())
       {
-	mutable_unit_convert(*punit, p, psia::get_instance());
-	pb = unit_convert(*punit, pb, psia::get_instance());
-	punit = &psia::get_instance();
+	mutable_unit_convert(*punit, p, psig::get_instance());
+	pb = unit_convert(*punit, pb, psig::get_instance());
+	punit = &psig::get_instance();
       }
   }
 
@@ -398,9 +398,9 @@ struct VectorDesc
 			    // zone for better precision 
 	uob.append(uobp);
       }
-    
-    p_below.insert(0); // (0,uod) at the beginning of the saturated
-		       // zone for better precision  
+
+    // (0,uod) at the beginning of the saturated zone for better precision  
+    p_below.insert(VtlQuantity(*punit, Quantity<psig>(0)).raw());
     uob.insert(uod);
 
     const auto vmax = numeric_limits<double>::max();
@@ -955,18 +955,18 @@ struct PvtData
 	  if (vdesc.yname == "uob" or vdesc.yname == "uoa")
 	    tuples.insert(vdesc.t, TpSet(vdesc.t,
 					 unit_convert(*vdesc.punit, vdesc.pb,
-						      psia::get_instance()),
+						      psig::get_instance()),
 					 unit_convert(*vdesc.yunit, vdesc.uod,
 						      CP::get_instance())));
 	  else
 	    tuples.insert(vdesc.t,
 			  TpSet(vdesc.t, unit_convert(*vdesc.punit, vdesc.pb,
-						      psia::get_instance()),
+						      psig::get_instance()),
 				PVT_INVALID_VALUE));
 	else
   	  {
   	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
-  					  psia::get_instance());
+  					  psig::get_instance());
 	    TpSet & t = ptr->second;
   	    if (t.pb > 0 and t.pb != p)
   	      {
@@ -1044,11 +1044,15 @@ struct PvtData
     }
   };
 
+private:
+  
+  static const DynSetTree<string> var_pars;
+
+public:
+  
   DynList<CorrInput>
   build_input_for_correlation(const Correlation * corr_ptr) const
   {
-    static DynSetTree<string> var_pars =
-      { "p", "pb", "uod", "bobp", "uobp", "t" };
     const string target_name = corr_ptr->target_name();
     const bool is_static_target = target_name == "pb" or target_name == "uod";
 
@@ -1075,7 +1079,7 @@ struct PvtData
 	const auto & names_list =
 	  par.names().maps<string>([] (auto p) { return p.first; });
 
-	if (names_list.exists([&] (auto &  name) { return var_pars.has(name); }))
+	if (names_list.exists([] (auto name) { return var_pars.has(name); }))
 	  continue;
 	if (names_list.exists([this] (auto name)
 			      { return this->search_const(name) != nullptr; }))
@@ -1226,7 +1230,7 @@ struct PvtData
   ParPair get_pb(double t, double pb) const
   {
     if (pb_corr == nullptr)
-      return ParPair("pb", ValPair(pb, &psia::get_instance()));
+      return ParPair("pb", ValPair(pb, &psig::get_instance()));
     VtlQuantity ret = compute_pb(t, pb_corr, c_pb, m_pb);
     return ParPair("pb", ValPair(ret.raw(), &ret.unit));
   }
@@ -1444,7 +1448,10 @@ public:
       closed = true;
 
       if (temps.is_empty())
-	return;
+	{
+	  valid = false;
+	  return;
+	}
 
       DynList<double> p, ylab, ycorr;
       for (auto it = temps.get_it(); it.has_curr(); it.next())
@@ -1552,11 +1559,14 @@ private:
 		      to_dynlist(lab_ptr->y), to_dynlist(corr_data.y));
 	    ++k;
 	  }
-	catch (...) { /* ignore it */ }
+	catch (exception & e)
+	  {
+	    cout << corr_ptr->name << e.what() << endl;
+	  }
       }
-    if (k == 0)
-      ZENTHROW(MetadataException, "cannot compute any statistics for " +
-	       corr_ptr->name);
+    // if (k == 0)
+    //   ZENTHROW(MetadataException, "cannot compute any statistics for " +
+    // 	       corr_ptr->name);
     stats.close();
     return stats;
   }
@@ -1915,7 +1925,7 @@ public:
 	pars.remove("bob");
       }
 
-    if (p_list.get_first() == 0)
+    if (Quantity<psig>(p_list.get_first()).is_near(0, 1e-1))
       uod = uob_list.get_first();
 
     VectorDesc result(pref.t, pb, PVT_INVALID_VALUE, uod, uob_list.get_last(),
@@ -2058,7 +2068,7 @@ public:
 	if (not dynamic_correlation)
 	  {
 	    parameters.insert("t", in.t, &Fahrenheit::get_instance());
-	    parameters.insert("pb", in.pb, &psia::get_instance());
+	    parameters.insert("pb", in.pb, &psig::get_instance());
 	    parameters.insert("uod", in.uod, &CP::get_instance());
 	    VtlQuantity val =
 	      corr_ptr->tuned_compute_by_names(parameters, c, m, false);
@@ -2325,14 +2335,16 @@ public:
   struct StatsDesc
   {
     const Correlation * corr_ptr = nullptr;
-    CorrStat::Desc desc;
-    DynList<double> t, p, ylab, ycorr, ytuned;
-    bool is_valid() const noexcept { return CorrStat::is_valid(desc); }
+    const CorrStat::Desc desc;
+    mutable DynList<double> t, p, ylab, ycorr, ytuned;
+    const bool valid = false;
     StatsDesc(ConstStats & s)
       : corr_ptr(s.corr_ptr), desc(s.desc), t(move(s.t)),
-	ylab(move(s.ylab)), ycorr(move(s.ycorr)), ytuned(move(s.ytuned)) {}
+	ylab(move(s.ylab)), ycorr(move(s.ycorr)), ytuned(move(s.ytuned)),
+	valid(s.valid and CorrStat::is_valid(desc)) {}
     StatsDesc(VectorStats & s)
-      : corr_ptr(s.corr_ptr), desc(s.desc)
+      : corr_ptr(s.corr_ptr), desc(s.desc),
+	valid(s.valid and CorrStat::is_valid(desc))
     {
       for (auto it = s.temps.get_it(); it.has_curr(); it.next())
 	{
@@ -2601,12 +2613,15 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 		 "VectorDesc ctor: uob samples are not inversely sorted");
       if (BaseQuantity::is_valid(ptr->uod, *ptr->yunit)) // was uod defined?
 	{ // yes ==> validate that first entries correspond to it
-	  if (ptr->y(0) != ptr->uod)
+	  if (not VtlQuantity(*ptr->yunit, ptr->y(0)).is_near(ptr->uod, 1))
 	    ZENTHROW(SampleInvalid,
-		     "uod sample is not the first value of uob");
-	     
-	  if (ptr->p(0) != 0)
-	    ZENTHROW(SampleInvalid, "first pressure value is not "
+		     "uod sample " + ::to_string(ptr->uod) +
+		     " is not near of first value of uob " +
+		     ::to_string(ptr->y(0)));
+
+	  if (not Quantity<psig>(ptr->p(0)).is_near(0, 1))
+	    ZENTHROW(SampleInvalid, "first pressure value " +
+		     Quantity<psig>(ptr->p(0)).to_string() + " is not "
 		     "zero given that uod value is present");
 	} 
       else if (ptr->p(0) == 0) /// is uod inside uob vector?
@@ -2630,9 +2645,9 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (not BaseQuantity::is_valid(ptr->uod, *ptr->yunit))
 	ZENTHROW(OutOfUnitRange, "uod value is out of its unit range");
       if (ptr->p.get_first() < ptr->pb)
-	ZENTHROW(SampleInvalid, "first p value is greater or equal that pb");
+	ZENTHROW(SampleInvalid, "first p value is less than pb");
       if (ptr->uobp >= ptr->y.get_first())
-	ZENTHROW(SampleInvalid, "uobp es greater or equal that first uoa value");
+	ZENTHROW(SampleInvalid, "uobp es greater or equal than first uoa value");
       validate_uo(ptr);
       if (not is_sorted(ptr->y))
 	ZENTHROW(SamplesUnsorted,

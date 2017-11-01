@@ -37,8 +37,8 @@ struct Property
   Array<double> p, y;
 
   Property(const string & __target_name) : target_name(__target_name) {}
-  
-  void read_header(istringstream & iss, const Unit & y_ref_unit)
+
+  void read_units_and_temp(istringstream & iss, const Unit & y_ref_unit)
   {
     string data;
     if (not (iss >> data))
@@ -72,7 +72,12 @@ struct Property
       ZENTHROW(CommandLineError, data + " for t value is not numeric");
     Quantity<Fahrenheit> tq = VtlQuantity(*tunit, atof(data));
     t = tq.raw();
+  }
 
+  void read_header(istringstream & iss, const Unit & y_ref_unit)
+  {
+    read_units_and_temp(iss, y_ref_unit);
+    string data;
     if (not (iss >> data))
       ZENTHROW(CommandLineError, "cannot read pb value");
     if (not is_double(data))
@@ -198,18 +203,39 @@ struct Uo : public Property
   Uo & operator = (const string & str)
   {
     istringstream iss(str);
-    read_header(iss, CP::get_instance());
-
-    string data;
-    if (not (iss >> data))
-      ZENTHROW(CommandLineError, "cannot read uobp value");
-    if (not is_double(data))
-      ZENTHROW(CommandLineError, data + " is not a double");
-    uobp = atof(data);
-
+    read_units_and_temp(iss, CP::get_instance()); 
     read_values(iss);
     separate();
     return *this;
+  }
+  void read_pb_uod_and_uobp(istringstream & iss)
+  {
+    string data;
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read pb value");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "pb is not numeric");
+    pb = atof(data);
+    
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read uod value");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "uod is not numeric");
+    uod = atof(data);
+    
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read uobp value");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, "uobp is not numeric");
+    uobp = atof(data);
+  }
+  void read_zone(const string & str)
+  {
+    istringstream iss(str);
+    read_units_and_temp(iss, CP::get_instance());
+    read_pb_uod_and_uobp(iss);
+    read_values(iss);
+    separate();
   }
 };
 
@@ -218,7 +244,7 @@ struct Uob : public Uo
   Uob() : Uo("uob") {}
   Uob & operator = (const string & str)
   {
-    *static_cast<Uo*>(this) = str;
+    read_zone(str);
     return *this;
   }
 };
@@ -228,8 +254,8 @@ struct Uoa : public Uo
   Uoa() : Uo("uoa") {}
   Uoa & operator = (const string & str)
   {
-    *static_cast<Uo*>(this) = str;
-    return *this = str;
+    read_zone(str);
+    return *this;
   }  
 };
 
@@ -238,7 +264,9 @@ struct Uosplit : public Property
   Uosplit() : Property("uo") {}
   Uosplit & operator = (const string & str)
   {
-    return *this = str;
+    istringstream iss(str);
+    read_units_and_temp(iss, CP::get_instance());
+    return *this;
   }  
 };
 
@@ -638,6 +666,35 @@ ValueArg<string> napply =
 ValueArg<CorrArgs> cal = { "", "lcal", "calibrate correlations", false,
 			   CorrArgs(), "calibrate correlation-list", cmd };
 
+ValueArg<RangeDesc> t = { "t", "t", "t range", false, RangeDesc(),
+			  "t min max n", cmd };
+
+ValueArg<RangeDesc> p = { "p", "p", "p range", false, RangeDesc(),
+			  "p min max n", cmd };
+
+ValueArg<ArrayDesc> tarray = { "", "t_array", "t array", false, ArrayDesc(),
+			       "list-t-values", cmd };
+
+ValueArg<ArrayDesc> parray = { "", "p_array", "p array", false, ArrayDesc(),
+			       "list-p-values", cmd };
+
+SwitchArg Cplot = { "", "Cplot", "generate simple cplot command", cmd };
+
+vector<string> r_types = { "rs", "co", "bo", "uo" };
+ValuesConstraint<string> allowed_r_types = r_types;
+ValueArg<string> R = { "R", "R", "direct R output", false, "",
+		       &allowed_r_types, cmd };
+SwitchArg cplot = { "", "cplot", "generate cplot command", cmd };
+
+SwitchArg auto_arg = { "", "auto", "automatic calibration", cmd };
+
+SwitchArg Auto_arg =
+  { "", "Auto", "set correlation given by automatic calibration", cmd };
+
+SwitchArg exp_arg = { "", "exp", "put experimental pressures", cmd };
+
+SwitchArg pbexp_arg = { "", "pbexp", "put experimental pb values", cmd };
+
 void terminate_app()
 {
   if (eol.getValue())
@@ -840,7 +897,7 @@ void process_apply()
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {
       DynList<string> ret = build_dynlist<string>(t.corr_ptr->name);
-      auto stats = t.is_valid() ? CorrStat::desc_to_dynlist(t.desc) :
+      auto stats = t.valid ? CorrStat::desc_to_dynlist(t.desc) :
         CorrStat::invalid_desc_to_dynlist();
       ret.append(stats);
       return ret;
@@ -896,60 +953,141 @@ void process_napply()
 
 void process_local_calibration() 
 {
-  static auto print_R = [] (const DynList<DynList<string>> & l) -> string
+  static auto to_str = [] (const DynList<string> & header,
+		      const DynList<DynList<double>> & vals)
+    {
+      auto l = vals.maps<DynList<string>>([] (auto & row)
+        {
+	  return row.template maps<string>([] (auto v) { return to_string(v); });
+	});
+      l.insert(header);
+      return l;
+    };
+  static auto print_simple = [] (const DynList<string>& header,
+				 const DynList<DynList<double>> & vals,
+				 const string & name) -> string
+    {
+      auto cols = t_zip(header, transpose(vals));
+      double ymin = numeric_limits<double>::max(), ymax = 0;
+      double tmin = get<1>(cols.get_first()).foldl(numeric_limits<double>::max(),
+						   [] (auto m, auto v)
+        {
+	  return min(m, v);
+	});
+      double tmax = get<1>(cols.get_first()).foldl(0.0, [] (auto m, auto v)
+        {
+	  return max(m, v);
+	});
+
+      ostringstream s;
+      auto tvector = cols.remove();
+      s << Rvector(get<0>(tvector), get<1>(tvector)) << endl;
+
+      for (auto it = cols.get_it(); it.has_curr(); it.next())
+	{
+	  auto & t = it.get_curr();
+	  auto & name = get<0>(t);
+	  auto & yc = get<1>(t);
+	  s << Rvector(name, yc) << endl;
+	  ymin = yc.foldl(ymin, [] (auto m, auto y) { return min(m, y); });
+	  ymax = yc.foldl(ymax, [] (auto m, auto y) { return max(m, y); });
+	}
+
+      s << "plot(0, type=\"n\", xlim=c(" << tmin << "," << tmax << "), ylim=c("
+      << ymin << "," << ymax << "))" << endl
+      << "points(t, pb)" << endl;
+
+      size_t col = 1;
+      DynList<string> colnames;
+      DynList<int> colors;
+      for (auto it = cols.get_it(2); it.has_curr(); it.next(), ++col)
+	{
+	  auto & t = it.get_curr();
+	  const auto & pname = get<0>(t);
+	  s << "lines(t," << pname << ",col=" << col << ")" << endl;
+	  colnames.append("\"" + pname + "\"");
+	  colors.append(col);
+	}
+      s << Rvector("cnames", colnames) << endl
+      << Rvector("cols", colors) << endl
+      <<  "legend(\"topright\", legend=cnames, col=cols, lty=1)"
+      << endl;
+
+      execute_R_script(s.str());
+
+      return s.str();
+    };
+  static auto print_complex = [] (const DynList<string>& header,
+				  const DynList<DynList<double>> & vals,
+				  const string & name) -> string
     {
       struct Tmp
       {
-	DynList<string> p;
-	DynList<string> y;
-	DynList<DynList<string>> yc;
-      };
-      auto cols = transpose(l).maps<DynList<string>>([] (auto & l)
-        {
-	  return l.filter([] (auto & s) { return s.size() > 0; });
-	}); // first contains column name
+	DynList<double> p, y;
+	//           name,    list of vals which is parallel to p and y
+	DynMapTree<string, DynList<double>> yc;
+      };      
 
-      //         temp    all other stuff related to temp value
-      DynMapTree<string, Tmp> temps;
-      for (auto it = cols.get_it(); it.has_curr(); it.next())
-	{
-	  DynList<string> & col = it.get_curr();
-	  const string & header = col.get_first();
-	  auto header_parts = split(header, '_');
-	  const string prefix = header_parts[0];
-	  const string type = header_parts[1];
-	  if (prefix == "p")
-	    temps[type].p = move(col);
-	  else if (islower(prefix[0])) // is a Correlation name
-	    temps[type].y = move(col);
-	  else
-	    temps[type].yc.append(move(col));
-	}
+      // first pass: to know temperatures
+      DynMapTree<double, Tmp> tset;
+      vals.for_each([&tset] (auto & l) { tset.insert(l.get_first(), Tmp()); });
 
-      double xmin = numeric_limits<double>::max(), ymin = xmin;
-      double xmax = 0, ymax = 0;
-
-      ostringstream s;
-      for (auto it = temps.get_it(); it.has_curr(); it.next())
+      // Second pass: to know the names
+      const DynList<string> names = header.drop(3);
+      for (auto it = tset.get_it(); it.has_curr(); it.next())
 	{
 	  auto & p = it.get_curr();
-	  const Tmp & tmp = p.second;
-	  tmp.p.each(1, 1, [&xmin, &xmax] (auto v)
-		     { xmin = min(xmin, atof(v)); xmax = max(xmax, atof(v)); });
-	  tmp.y.each(1, 1, [&ymin, &ymax] (auto v)
-		     { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
-	  s << Rvector(tmp.p.get_first(), tmp.p.drop(1)) << endl
-	    << Rvector(tmp.y.get_first(), tmp.y.drop(1)) << endl;
+	  auto & yc = p.second.yc;
+	  for (auto it = names.get_it(); it.has_curr(); it.next())
+	    yc.insert(it.get_curr(), {} );
+	}
+
+      double pmin = numeric_limits<double>::max(), ymin = pmin;
+      double pmax = 0, ymax = 0;
+
+      // Third pass: put the values 
+      for (auto it = vals.get_it(); it.has_curr(); it.next())
+	{
+	  auto & row = it.get_curr();
+	  auto t = row.remove_first();
+	  Tmp & tmp = tset[t];
+	  const double y = row.remove_first();
+	  const double p = row.remove_first();
+	  tmp.y.append(y);
+	  tmp.p.append(p);
+	  pmin = min(pmin, p);
+	  pmax = max(pmax, p);
+	  ymin = min(ymin, y);
+	  ymax = max(ymax, y);
+	  for (auto it = names.get_it(); it.has_curr(); it.next())
+	    {
+	      const double yc = row.remove_first();
+	      ymin = min(ymin, yc);
+	      ymax = max(ymax, yc);
+	      tmp.yc[it.get_curr()].append(yc);
+	    }
+	  assert(row.is_empty());
+	}
+
+      cout << pmin << " " << pmax << endl;
+
+      ostringstream s;
+      for (auto it = tset.get_it(); it.has_curr(); it.next())
+	{
+	  auto & p = it.get_curr();
+	  auto & t = p.first;
+	  auto & tmp = p.second;
+	  const string suffix = "_" + to_string(int(t));
+	  s << Rvector("p" + suffix, tmp.p) << endl
+	    << Rvector(name + suffix, tmp.y) << endl;
 	  for (auto it = tmp.yc.get_it(); it.has_curr(); it.next())
 	    {
-	      const DynList<string> & col = it.get_curr();
-	      col.each(1, 1, [&ymin, &ymax] (auto v)
-		       { ymin = min(ymin, atof(v)); ymax = max(ymax, atof(v)); });
-	      s << Rvector(col.get_first(), col.drop(1)) << endl;
+	      auto & p = it.get_curr();
+	      s << Rvector(p.first + suffix, p.second) << endl;
 	    }
 	}
 
-      s << "plot(0, type=\"n\", xlim=c(" << xmin << "," << xmax << "), ylim=c("
+      s << "plot(0, type=\"n\", xlim=c(" << pmin << "," << pmax << "), ylim=c("
         << ymin << "," << ymax << "))" << endl;
 
       size_t pch = 1;
@@ -958,56 +1096,69 @@ void process_local_calibration()
       DynList<int> colors;
       DynList<string> ltys;
       DynList<string> pchs;
-      for (auto it = temps.get_it(); it.has_curr(); it.next())
+      for (auto it = tset.get_it(); it.has_curr(); it.next())
 	{
-	  auto & pp = it.get_curr();
-	  const Tmp & tmp = pp.second;
-	  const auto & pname = tmp.p.get_first();
-	  const string & name = tmp.y.get_first();
-	  colnames.append("\"" + name + "\"");
+	  auto & p = it.get_curr();
+	  auto & t = p.first;
+	  auto & tmp = p.second;
+	  const string suffix = "_" + to_string(int(t));
+	  const string pname = "p" + suffix;
+	  const string yname = name + suffix;
+	  colnames.append("\"" + yname + "\"");
 	  colors.append(1);
 	  ltys.append("NA");
 	  pchs.append(to_string(pch));
-	  s << "points(" << pname << "," << name << ",pch=" << pch++ << ")"
+	  s << "points(" << pname << "," << yname << ",pch=" << pch++ << ")"
 	    << endl;
 	  for (auto it = tmp.yc.get_it(); it.has_curr(); it.next(), ++col)
 	    {
-	      const string & name = it.get_curr().get_first();
-	      s << "lines(" << pname << "," << name << ",col=" << col << ")"
+	      auto & p = it.get_curr();
+	      const string yname = p.first + suffix;
+	      s << "lines(" << pname << "," << yname << ",col=" << col << ")"
 		<< endl;
-	      colnames.append("\"" + name + "\"");
+	      colnames.append("\"" + yname + "\"");
 	      colors.append(col);
 	      pchs.append("NA");
 	      ltys.append("1");
 	    }
 	}
       s << Rvector("cnames", colnames) << endl
-        << Rvector("cols", colors) << endl
-        << Rvector("pchs", pchs) << endl
-        << Rvector("ltys", ltys) << endl
-        << "legend(\"topright\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
-        << endl;
+      << Rvector("cols", colors) << endl
+      << Rvector("pchs", pchs) << endl
+      << Rvector("ltys", ltys) << endl
+      << "legend(\"topright\", legend=cnames, col=cols, pch=pchs, lty=ltys)"
+      << endl;
 
       execute_R_script(s.str());
 
       return s.str();
     };
+  static auto print_R = [] (const DynList<string>& header,
+			    const DynList<DynList<double>> & vals,
+			    const string & name) -> string
+    {
+      const bool has_p = not (name == "pb" or name == "uod");
+      if (has_p)
+	return print_complex(header, vals, name);
+      return print_simple(header, vals, name);
+    };
 
-  static auto print_csv = [] (const DynList<DynList<string>> & l)
+  static auto print_csv = [] (const DynList<string>& header,
+			      const DynList<DynList<double>> & vals)
   {
+    auto l = to_str(header, vals);
     if (transpose_out.getValue())
       return to_string(format_string_csv(transpose(l)));
     else
       return to_string(format_string_csv(l));
   };
 
-  static auto print_mat = [] (const DynList<DynList<string>> & l)
+  static auto print_mat = [] (const DynList<string>& header,
+			      const DynList<DynList<double>> & vals)
   {
+    auto l = to_str(header, vals);
     return to_string(format_string(l));
   };
-
-  static AHDispatcher<string, string (*)(const DynList<DynList<string>>&)>
-    print_dispatcher = { "R", print_R, "csv", print_csv, "mat", print_mat };
 
   if (not cal.isSet())
     return;
@@ -1049,21 +1200,92 @@ void process_local_calibration()
 	return s.both_matrix();
       }
     };
-  
+
   const auto & mode = mode_type.getValue();
   for (auto it = stats.get_it(); it.has_curr(); it.next())
     mat.append(mode_dispatch.run(mode, it.get_curr(), &header));
 
-  auto rows = mat.maps<DynList<string>>([] (auto & row)
-    {
-      return row.template maps<string>([] (auto v) { return to_string(v); });
-    });
-  auto result = transpose(rows);
-  result.insert(header);
-
-  cout << print_dispatcher.run(output.getValue(), result) << endl;
+  const string & out = output.getValue();
+  if (out == "csv")
+    cout << print_csv(header, transpose(mat)) << endl;
+  else if (out == "mat")
+    cout << print_mat(header, transpose(mat)) << endl;
+  else
+    cout << print_R(header, transpose(mat), target_name) << endl;
 
   terminate_app();
+}
+
+void process_cplot()
+{
+  if (not cplot.getValue())
+    return;
+  
+  cout << "./cplot --grid simple " << data.cplot_consts() << data.cplot_corrs()
+       << " --zfactor ZfactorDranchukAK ";
+  if (t.isSet())
+    {
+      const RangeDesc & val = t.getValue();
+      cout << "--t \"" << val.min << " " << val.max << " " << val.n << "\" ";
+    }
+  if (p.isSet())
+    {
+      const RangeDesc & val = p.getValue();
+      cout << "--p \"" << val.min << " " << val.max << " " << val.n << "\" ";
+    }
+  if (tarray.isSet())
+    {
+      cout << "--t_array \"";
+      tarray.getValue().values.for_each([] (auto v) { cout << " " << v; });
+      cout << "\" ";
+    }
+  if (parray.isSet())
+    {
+      cout << "--p_array \"";
+      parray.getValue().values.for_each([] (auto v) { cout << " " << v; });
+      cout << "\" ";
+    }
+  terminate_app();
+}
+
+string plot_cmd()
+{
+  ostringstream s;
+  s << "./cplot --grid simple " << data.cplot_consts() << data.cplot_corrs()
+    << " --zfactor ZfactorDranchukAK --t_array \""
+    << join(data.get_temperatures().maps<string>([] (auto v)
+						 { return to_string(v); }) , " ")
+    << "\" ";
+  if (exp_arg.getValue())
+    s << "--p_array \"" << join(data.all_pressures(), " ") << "\"";
+  else if (pbexp_arg.getValue())
+    s << "--p_array \"" << join(data.all_pb(), " ") << "\"";
+  else
+    s << "--p \""
+      << data.pmin() << " " << data.pmax() << " 100\"";
+  return s.str();
+}
+
+void process_CPLOT()
+{
+  if (not Cplot.getValue())
+    return;
+
+  cout << plot_cmd() << endl;
+  terminate_app();
+}
+
+void process_R()
+{
+  if (not R.isSet())
+    return;
+
+  const string plot = plot_cmd() + " > tmp.csv";
+  system(plot.c_str());
+  cout << plot << endl;
+
+  const string plotr = "./plot-r -f tmp.csv -P " + R.getValue() + " -R";
+  system(plotr.c_str());
 }
 
 int main(int argc, char *argv[])
@@ -1108,11 +1330,9 @@ int main(int argc, char *argv[])
       process_apply();
       process_napply();
       process_local_calibration();
-      // process_pb_calibration();
-      // process_uod_calibration();
-      // process_R();
-      // process_CPLOT();
-      // process_cplot();
+      process_R();
+      process_CPLOT();
+      process_cplot();
 
       cout << "Not given action" << endl;
     }

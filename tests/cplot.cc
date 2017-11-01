@@ -2623,19 +2623,25 @@ int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
 
-  if (transpose_par.isSet() and catch_exceptions.isSet())
-    error_msg("--transpose and --exceptions cannot be set together"
-	      " (due to performance reasons)");
+  try
+    {
+      if (transpose_par.isSet() and catch_exceptions.isSet())
+	error_msg("--transpose and --exceptions cannot be set together"
+		  " (due to performance reasons)");
 
-  if (print_types.getValue())
-    print_fluid_types();
+      if (print_types.getValue())
+	print_fluid_types();
 
-  process_property_unit_changes();
+      process_property_unit_changes();
 
-  if (grid.isSet())
-    generate_grid(grid.getValue());
+      if (grid.isSet())
+	generate_grid(grid.getValue());
 
-  cout << "No " << grid.getName() << " or " << print_types.getName()
-       << " have been set" << endl;
-  abort();
+      cout << "No " << grid.getName() << " or " << print_types.getName()
+	   << " have been set" << endl;
+    }
+  catch (exception & e)
+    {
+      cout << e.what() << endl;
+    }
 }
