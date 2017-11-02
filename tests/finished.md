@@ -2320,3 +2320,81 @@
 - Comment      
 - Finished     
 
+## 388. scripts ruby
+- Created at   2017-11-02 09:55:44 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 389. scripts ruby
+- Created at   2017-11-02 10:13:36 -0400
+- Completed at 2017-11-02 10:51:42 -0400
+- Comment      
+- Finished     
+
+## 390. valores calibrados deben estar dentro de rangos de unidad
+- Created at   2017-11-01 15:27:36 -0400
+- Completed at 2017-11-02 10:51:51 -0400
+- Comment      
+- Finished     
+
+## 391. asegurar que unidades de stats sean iguales
+- Created at   2017-10-29 17:15:32 -0400
+- Completed at 2017-11-02 10:53:31 -0400
+- Comment      
+- Finished     
+
+## 392. calibrar con vectores retornados por cascada de correlaciones
+- Created at   2017-10-10 16:51:44 -0400
+- Completed at 2017-11-02 10:53:52 -0400
+- Comment      
+- Finished     
+
+## 393. eliminar entrada de bo
+- Created at   2017-06-20 14:54:33 -0400
+- Completed at 2017-11-02 10:54:13 -0400
+- Comment      
+- Finished     
+
+## 394. poner ptos experimentales en opción de Cplot
+- Created at   2017-10-10 09:25:30 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 395. put_pb_sample falta conversion
+- Created at   2017-09-11 16:53:37 -0400
+- Completed at 2017-11-02 10:55:32 -0400
+- Comment      
+- Finished     
+
+## 396. documentar más cplot
+- Created at   2017-09-06 09:31:57 -0400
+- Completed at 2017-11-02 10:55:44 -0400
+- Comment      
+- Finished     
+
+## 397. grid pvt debe extrapolar
+- Created at   2017-09-08 18:29:26 -0400
+- Completed at 2017-11-02 11:02:44 -0400
+- Comment      
+- Finished     
+
+## 398. dry de put_pbuod_sample
+- Created at   2017-09-11 16:24:26 -0400
+- Completed at 2017-11-02 11:02:31 -0400
+- Comment      
+- Finished     
+
+## 399. correlaciones pueden agruparsepor subtipo
+- Created at   2017-03-23 12:25:40 -0400
+- Completed at 2017-11-02 11:02:58 -0400
+- Comment      
+- Finished     
+
+## 400. tomar corr pb si stá definida para calibración de rs
+- Created at   2017-10-09 16:35:19 -0400
+- Completed at 2017-11-02 11:03:24 -0400
+- Comment      
+- Finished     
+

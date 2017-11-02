@@ -1229,7 +1229,7 @@ public:
 	       " is not for pb");
     ParList pars = build_correlation_pars();
     pars.insert("t", t, &Fahrenheit::get_instance());
-    return corr_ptr->bounded_tuned_compute_by_names(pars, c, m, false); 
+    return corr_ptr->tuned_compute_by_names(pars, c, m, false); 
   }
 
   ParPair get_pb(double t, double pb) const
@@ -1254,7 +1254,7 @@ public:
     ParList pars = build_correlation_pars();
     pars.insert("t", t, &Fahrenheit::get_instance());
     pars.insert(get_pb(t, pb));
-    return corr_ptr->bounded_tuned_compute_by_names(pars, c, m, false); 
+    return corr_ptr->tuned_compute_by_names(pars, c, m, false); 
   }
 
   struct ConstStats
@@ -1348,7 +1348,7 @@ public:
     pars.insert("t", v.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
     VtlQuantity ret =
-      uod_corr->bounded_tuned_compute_by_names(pars, c_uod, m_uod, false);
+      uod_corr->tuned_compute_by_names(pars, c_uod, m_uod, false);
     return ParPair("uod", ValPair(ret.raw(), &ret.unit));
   }
 
@@ -1404,7 +1404,7 @@ public:
 	const double p = it.get_curr();
 	pars.insert("p", p, in.punit);
 	const VtlQuantity rs =
-	  corr_ptr->bounded_tuned_compute_by_names(pars, c, m, false);
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p);
 	rs_list.append(min(rs.raw(), rsb));
 	pars.remove("p");
@@ -1644,7 +1644,7 @@ public:
 	pars.insert("p", p, in.punit);
 	pars.insert("rs", rs_val, rs.yunit);
 	const VtlQuantity bob =
-	  corr_ptr->bounded_tuned_compute_by_names(pars, c, m, false);
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p);
 	bob_list.append(bob.raw());
 	pars.remove("p");
@@ -1683,7 +1683,7 @@ public:
 	const double p = it.get_curr();
 	pars.insert("p", p, pref.punit);
 	const VtlQuantity coa =
-	  corr_ptr->bounded_tuned_compute_by_names(pars, c, m, false);
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p);
 	coa_list.append(coa.raw());
 	pars.remove("p");
@@ -1790,7 +1790,7 @@ public:
 	pars.insert("p", p_val, pref.punit);
 	pars.insert("coa", coa_val, coa.yunit);
 	const VtlQuantity coa =
-	  corr_ptr->bounded_tuned_compute_by_names(pars, c, m, false);
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p_val);
 	boa_list.append(coa.raw());
 	pars.remove("p");
@@ -1900,7 +1900,7 @@ public:
 	pars.insert("rs", rs_val, rs.yunit);
 	pars.insert("bob", bob_val, bob.yunit);
 	const VtlQuantity uob =
-	  corr_ptr->bounded_tuned_compute_by_names(pars, c, m, false);
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p_val);
 	uob_list.append(uob.raw());
 	pars.remove("p");
@@ -1950,7 +1950,7 @@ public:
 	const double p = it.get_curr();
 	pars.insert("p", p, in.punit);
 	const VtlQuantity uoa =
-	  corr_ptr->bounded_tuned_compute_by_names(pars, c, m, false);
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p);
 	uoa_list.append(uoa.raw());
 	pars.remove("p");
@@ -2008,7 +2008,7 @@ public:
 	// TODO: igual aquí: si hay correlación caluclar por ella
 	pars.for_each([&parameters] (auto & p) { parameters.insert(p); });
 	VtlQuantity val =
-	  corr_ptr->bounded_tuned_compute_by_names(parameters, c, m, false);
+	  corr_ptr->tuned_compute_by_names(parameters, c, m, false);
 	y.append(val.raw());
 	pars.for_each([&parameters] (auto & p) { parameters.remove(p); });
       }
@@ -2054,7 +2054,7 @@ public:
 	    parameters.insert("pb", in.pb, &psig::get_instance());
 	    parameters.insert("uod", in.uod, &CP::get_instance());
 	    VtlQuantity val =
-	      corr_ptr->bounded_tuned_compute_by_names(parameters, c, m, false);
+	      corr_ptr->tuned_compute_by_names(parameters, c, m, false);
 	    y.append(val.raw());
 	    parameters.remove("pb");
 	    parameters.remove("uod");

@@ -957,7 +957,7 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
   return VtlQuantity::null_quantity;
 }
 
-// Bounded compute
+// Bounded compute (not used in this version)
 template <typename ... Args> inline
 VtlQuantity bcompute(const Correlation * corr_ptr,
 		     double c, double m,
@@ -1766,7 +1766,7 @@ void print_notranspose()
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
-  auto uod_val = bcompute(uod_corr, c_uod_arg.getValue(),		\
+  auto uod_val = tcompute(uod_corr, c_uod_arg.getValue(),		\
 			  m_uod_arg.getValue(), check, uod_pars,	\
 			  t_par, pb_par);				\
 									\
@@ -2045,7 +2045,7 @@ void generate_rows_blackoil()
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
-  auto uod_val = bcompute(uod_corr, c_uod_arg.getValue(),		\
+  auto uod_val = tcompute(uod_corr, c_uod_arg.getValue(),		\
 			  m_uod_arg.getValue(), check, uod_pars, t_par,	\
 			  pb_par);					\
 									\
