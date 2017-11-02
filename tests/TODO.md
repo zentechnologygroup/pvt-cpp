@@ -53,3 +53,6 @@
 ## 18. ojo con el pb max: podría calibarse por debajo
 - Created at   2017-11-01 17:20:28 -0400
 
+## 19. asegurar que uod siempre esté en C
+- Created at   2017-11-02 15:33:25 -0400
+

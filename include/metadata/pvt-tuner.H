@@ -110,7 +110,7 @@ struct VectorDesc
     if (not psig::get_instance().is_sibling(*punit))
       ZENTHROW(InvalidUnit, punit->name + " is not a valid pressure unit");
     if (p.size() <= 1)
-      ZENTHROW(LengthMismatch, "Pressure array size is less or equal tan 1");
+      ZENTHROW(LengthMismatch, "Pressure array size is less or equal than 1");
     if (not p.all([this] (auto p) { return BaseQuantity::is_valid(p, *punit); }))
       ZENTHROW(OutOfUnitRange,
 	       "at least a pressure value is out of its unit range");
@@ -1221,6 +1221,7 @@ public:
     return pars;
   }
 
+  // compute pb but assures that unit is psig
   VtlQuantity compute_pb(double t, const Correlation * corr_ptr,
 			 double c = 0, double m = 1) const
   {
@@ -1229,7 +1230,8 @@ public:
 	       " is not for pb");
     ParList pars = build_correlation_pars();
     pars.insert("t", t, &Fahrenheit::get_instance());
-    return corr_ptr->tuned_compute_by_names(pars, c, m, false); 
+    return VtlQuantity(psig::get_instance(), 
+		       corr_ptr->tuned_compute_by_names(pars, c, m, false));
   }
 
   ParPair get_pb(double t, double pb) const
@@ -1237,6 +1239,7 @@ public:
     if (pb_corr == nullptr)
       return ParPair("pb", ValPair(pb, &psig::get_instance()));
     VtlQuantity ret = compute_pb(t, pb_corr, c_pb, m_pb);
+    assert(&ret.unit == &psig::get_instance());
     return ParPair("pb", ValPair(ret.raw(), &ret.unit));
   }
 
@@ -1376,7 +1379,7 @@ private:
     if (pref.yunit != result.yunit)
       mutable_unit_convert(*result.yunit, result.y, *pref.yunit);
     return result;
-  }  
+  }
 
 public:
 
@@ -1747,8 +1750,8 @@ public:
     VectorDesc in = pref;
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
-    const double pb = pb_par.second.first;
-    in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+    const double pb = pb_par.second.first; // its unit is pb_par.second.second
+     in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
 
     if (exist_coa and coa_corr != nullptr)
       // in this case coa is already parallel to in
@@ -1855,7 +1858,7 @@ public:
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
     const ParPair uod_par = get_uod(pref, pb_par);
-    const double & pb = max(pb_par.second.first, in.p.get_last());
+    const double pb = max(pb_par.second.first, in.p.get_last());
     double uod = uod_par.second.first;
     in.p.get_last() = pb;
     in.y.get_first() = in.uod = uod;
@@ -1931,8 +1934,8 @@ public:
     ParList pars = build_correlation_pars();
     
     const ParPair pb_par = get_pb(pref);
-    const double & pb = pb_par.second.first;
     VectorDesc in = pref;
+    const double pb = pb_par.second.first; // its unit is pb_par.second.second
     in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
 
     const ParPair uod_par = get_uod(pref, pb_par);
