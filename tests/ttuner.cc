@@ -199,6 +199,7 @@ struct Boa : public Bo
 
 struct Uo : public Property
 {
+  Uo() : Property("uo") {}
   Uo(const string & target_name) : Property(target_name) {}
   Uo & operator = (const string & str)
   {
@@ -233,7 +234,6 @@ struct Uo : public Property
   {
     istringstream iss(str);
     read_units_and_temp(iss, CP::get_instance());
-    read_pb_uod_and_uobp(iss);
     read_values(iss);
     separate();
   }
@@ -448,6 +448,7 @@ namespace TCLAP
   template<> struct ArgTraits<Coa> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<Bob> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<Boa> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<Uo> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<Uob> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<Uoa> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<Uosplit> { typedef StringLike ValueCategory; };
@@ -478,8 +479,8 @@ MultiArg<Uob> uob_arg = { "", "uob_data", "uob", false,
 MultiArg<Uoa> uoa_arg = { "", "uoa_data", "uoa", false,
 			  "tunit punit uoa_unit t pb uobp p-vals uoa-vals", cmd};
 
-MultiArg<Uosplit> uo_arg = { "", "uo_data", "uo", false,
-			     "tunit punit uo_unit t pb p-vals uo-vals", cmd};
+MultiArg<Uo> uo_arg = { "", "uo_data", "uo", false,
+			"tunit punit uo_unit t pb p-vals uo-vals", cmd};
 
 // Constant parameters
 ValueArg<double> api = { "", "api", "api", false, 0, "api", cmd };
@@ -566,6 +567,7 @@ void build_pvt_data()
   READ_PROPERTY_DEF(boa);
   READ_PROPERTY_DEF(uob);
   READ_PROPERTY_DEF(uoa);
+  READ_PROPERTY_DEF(uo);
 }
 
 SwitchArg eol { "", "eol", "add to output an end of line", cmd };
