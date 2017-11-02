@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'optparse'
+
+options = {}
+options_parser = OptionParser.new do |opts|
+  opts.on('', '--p1 val', 'first pressure') do |p1|
+    options[:p1] = p1
+  end
+  opts.on('', '--p2 val', 'second pressure') do |p2|
+    options[:p2] = p2
+  end
+  opts.on('', '--pb val', 'second pressure') do |pb|
+    options[:pb] = pb
+  end
+  opts.on('', '--uob1 val', 'first first') do |uob1|
+    options[:uob1] = uob1
+  end
+  opts.on('', '--uob2 val', 'second uob') do |uob2|
+    options[:uob2] = uob2
+  end
+end
+
+options_parser.parse!
+
+p1 = options[:p1] 
+p2 = options[:p2] 
+pb = options[:pb] 
+uob1 = options[:uob1]
+uob2 = options[:uob2]
+
+fail "p1 not given" unless p1
+fail "p2 not given" unless p2
+fail "pb not given" unless pb
+fail "uob1 not given" unless uob1
+fail "uob2 not given" unless uob2
+
+def float?(string)
+  true if Float(string) rescue false
+end
+
+fail "p1 is not numeric" unless float?(p1)
+fail "p2 is not numeric" unless float?(p2)
+fail "pb is not numeric" unless float?(pb)
+fail "uob1 is not numeric" unless float?(uob1)
+fail "uob2 is not numeric" unless float?(uob2)
+
+p1 = p1.to_f
+p2 = p2.to_f
+pb = pb.to_f
+uob1 = uob1.to_f
+uob2 = uob2.to_f
+
+fail "p1 is not less than p2" unless p1 < p2
+fail "pb is not greater than p2" unless pb > p2
+fail "uob1 is not greater than uob2" unless uob1 > uob2
+
+puts (uob2 - uob1)*(pb - p1)/(p2 - p1) + uob1

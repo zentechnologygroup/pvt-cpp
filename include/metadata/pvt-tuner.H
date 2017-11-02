@@ -89,18 +89,18 @@ struct VectorDesc
   {
     return t > 0 and pb > 0 and punit != nullptr and yunit != nullptr and
       yname != "no-name" and p.size() > 1 and p.size() == y.size() and
-      is_sorted(p);
+      is_sorted(p, std::less_equal<double>());
   }
 
   void validate_sort()
   {
-    if (not is_sorted(p))
+    if (not is_sorted(p, std::less_equal<double>()))
       {
 	p.reverse();
 	y.reverse();
       }
-    if (not is_sorted(p))
-      ZENTHROW(SamplesUnsorted, "pressures are not sorted");
+    if (not is_sorted(p, std::less_equal<double>()))
+      ZENTHROW(SamplesUnsorted, "pressures are not sorted " + join(p, " "));
   }
 
   void pre_validate()
@@ -320,8 +320,9 @@ struct VectorDesc
       ZENTHROW(InvalidTargetUnit, "yunit " + yunit->name +
 	       " is not an unit for oil formation volume ratio");
 
-    if (not is_sorted(p))
-      ZENTHROW(SamplesUnsorted, "split_uo(): pressure values are not sorted");
+    if (not is_sorted(p, std::less_equal<double>()))
+      ZENTHROW(SamplesUnsorted, "split_uo(): pressure values are not sorted " +
+	       join(p, " "));
 
     // First, we must determine p,uo corresponding to the inflection point
     size_t min_idx = 0;
@@ -339,7 +340,8 @@ struct VectorDesc
     Array<double> p_below = p.take(min_idx + 1);
     Array<double> uob = y.take(min_idx + 1);
     if (not is_inversely_sorted(uob))
-      ZENTHROW(SamplesUnsorted, "saturated region of uo is not decreasing");
+      ZENTHROW(SamplesUnsorted, "saturated region of uo is not decreasing " +
+	       join(uob, " "));
 
     Array<double> p_above, uoa;
     for (size_t i = min_idx + 1; i < p.size(); ++i)
@@ -348,8 +350,9 @@ struct VectorDesc
 	uoa.append(y(i));
       }
 
-    if (not is_sorted(uoa))
-      ZENTHROW(SamplesUnsorted, "undersaturated region of uo is not increasing");
+    if (not is_sorted(uoa, std::less_equal<double>()))
+      ZENTHROW(SamplesUnsorted, "undersaturated region of uo is not increasing " +
+	       join(uoa, " "));
 
     if (p_below.size() < 2)
       ZENTHROW(CommandLineError, "Not enough point for estimating uob");
@@ -477,7 +480,7 @@ struct PvtData
   DynSetTree<VectorDesc> vectors;
   DynSetTree<string> names;
 
-    const Correlation * pb_corr = nullptr;
+  const Correlation * pb_corr = nullptr;
   double c_pb = 0, m_pb = 1;    
   const Correlation * rs_corr = nullptr;
   double c_rs = 0, m_rs = 1;    
@@ -760,8 +763,9 @@ struct PvtData
     if (&v.punit->physical_quantity != &Pressure::get_instance())
       ZENTHROW(InvalidPressureUnit, v.punit->name + " is not for pressure");
 
-    if (not is_sorted(v.p))
-      ZENTHROW(SamplesUnsorted, "pressure values are not sorted");
+    if (not is_sorted(v.p, std::less_equal<double>()))
+      ZENTHROW(SamplesUnsorted, "pressure values are not sorted " +
+	       join(v.p, " "));
 
     auto sibling = search_vectors(v.yname);
     if (not sibling.is_empty() and not sibling.all([&v] (auto & p)
@@ -988,7 +992,8 @@ struct PvtData
       }
 
      if (not is_sorted(tuples.values().
-		       maps<double>([] (auto & t) { return t.pb; })))
+		       maps<double>([] (auto & t) { return t.pb; }),
+		       std::less_equal<double>()))
        ZENTHROW(PressureMismatch,
 		"pb values are not sorted through temperatures");
 
@@ -1342,7 +1347,8 @@ public:
     ParList pars = build_correlation_pars();
     pars.insert("t", v.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
-    VtlQuantity ret = uod_corr->tuned_compute_by_names(pars, c_uod, m_uod, false);
+    VtlQuantity ret =
+      uod_corr->tuned_compute_by_names(pars, c_uod, m_uod, false);
     return ParPair("uod", ValPair(ret.raw(), &ret.unit));
   }
 
@@ -1383,12 +1389,12 @@ public:
     const ConstDesc * rsb_ptr = search_const("rsb");
     if (rsb_ptr == nullptr)
       ZENTHROW(ConstNameNotFound, "rsb has not been defined");
+    VectorDesc in = pref;
     const double & rsb = rsb_ptr->value;
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
-    const double pb = pb_par.second.first;
-    VectorDesc in = pref;
-    in.p.get_last() = pb; // eventually change pb for the tuned one
+    const double pb = max(in.p.get_last(), pb_par.second.first);
+    in.p.get_last() = pb; // eventually pb for the tuned one
 
     pars.insert("t", in.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
@@ -1397,7 +1403,8 @@ public:
       {
 	const double p = it.get_curr();
 	pars.insert("p", p, in.punit);
-	const VtlQuantity rs = corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	const VtlQuantity rs =
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p);
 	rs_list.append(min(rs.raw(), rsb));
 	pars.remove("p");
@@ -1516,30 +1523,6 @@ private:
     return ret_lab;
   }
 
-   // DynList<double> p, ylab, ycorr;
-   // 	    for (auto lab_it = zip_it(lab_ptr->p, lab_ptr->y),
-   // 		   corr_it = zip_it(corr_data.p, corr_data.y);
-   // 		 lab_it.has_curr() and corr_it.has_curr();)
-   // 	      {
-   // 		auto tlab = lab_it.get_curr();
-   // 		auto tcorr = corr_it.get_curr();
-   // 		const double & p_lab = get<0>(tlab);
-   // 		const double & p_corr = get<0>(tcorr);
-   // 		// if (p_lab < p_corr)
-   // 		//   lab_it.next();
-   // 		// else if (p_lab > p_corr)
-   // 		//   corr_it.next();
-   // 		// else
-   // 		  {
-   // 		    p.append(p_corr);
-   // 		    ylab.append(get<1>(tlab));
-   // 		    ycorr.append(get<1>(tcorr));
-   // 		    lab_it.next();
-   // 		    corr_it.next();
-   // 		  }
-   // 	      }
-   // 	    stats.add(corr_data.t, move(p), move(ylab), move(ycorr));
-
   VectorStats compute_stats
   (const DynList<const VectorDesc*> & lab_data,
    const Correlation * corr_ptr,
@@ -1564,9 +1547,6 @@ private:
 	    cout << corr_ptr->name << e.what() << endl;
 	  }
       }
-    // if (k == 0)
-    //   ZENTHROW(MetadataException, "cannot compute any statistics for " +
-    // 	       corr_ptr->name);
     stats.close();
     return stats;
   }
@@ -1618,10 +1598,10 @@ public:
     compute_prologue("bob", pref, corr_ptr);
 
     ParList pars = build_correlation_pars();
-    const ParPair pb_par = get_pb(pref);
-    const double pb = pb_par.second.first;
     VectorDesc in = pref;
-    in.p.get_last() = pb; // eventually change pb for the tuned one
+    const ParPair pb_par = get_pb(pref);
+    const double pb = max(pb_par.second.first, in.p.get_last());
+    in.p.get_last() = pb; // pb for the tuned one
 
     pars.insert("t", in.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
@@ -1663,7 +1643,8 @@ public:
 	const double & rs_val = get<1>(t);
 	pars.insert("p", p, in.punit);
 	pars.insert("rs", rs_val, rs.yunit);
-	const VtlQuantity bob = corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	const VtlQuantity bob =
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p);
 	bob_list.append(bob.raw());
 	pars.remove("p");
@@ -1701,7 +1682,8 @@ public:
       {
 	const double p = it.get_curr();
 	pars.insert("p", p, pref.punit);
-	const VtlQuantity coa = corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	const VtlQuantity coa =
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p);
 	coa_list.append(coa.raw());
 	pars.remove("p");
@@ -1807,7 +1789,8 @@ public:
 	const double & coa_val = get<1>(t);
 	pars.insert("p", p_val, pref.punit);
 	pars.insert("coa", coa_val, coa.yunit);
-	const VtlQuantity coa = corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	const VtlQuantity coa =
+	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
 	p_list.append(p_val);
 	boa_list.append(coa.raw());
 	pars.remove("p");
@@ -1872,7 +1855,7 @@ public:
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
     const ParPair uod_par = get_uod(pref, pb_par);
-    const double & pb = pb_par.second.first;
+    const double & pb = max(pb_par.second.first, in.p.get_last());
     double uod = uod_par.second.first;
     in.p.get_last() = pb;
     in.y.get_first() = in.uod = uod;
@@ -2509,9 +2492,10 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (ptr->p.get_last() != ptr->pb)
 	ZENTHROW(PressureMismatch,
 		 "VectorDesc ctor (rs): last value of p is not pb");
-      if (not is_sorted(ptr->y))
+      if (not is_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: rs samples are not sorted");
+		 "VectorDesc ctor: rs samples are not sorted " +
+		 join(ptr->y, " "));
       if (not ptr->y.all([u = ptr->yunit] (auto r)
 			 { return BaseQuantity::is_valid(r, *u); }))
 	ZENTHROW(OutOfUnitRange,
@@ -2522,9 +2506,9 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       ptr->validate_sort();
       validate_pb(ptr);
       validate_bo(ptr);
-      if (not is_sorted(ptr->y))
+      if (not is_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: bob samples are sorted");
+		 "VectorDesc ctor: bob samples are sorted " + join(ptr->y, " "));
       if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	{
 	  if (not ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
@@ -2533,9 +2517,9 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	}
       else
 	{
-	  if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
-	    ZENTHROW(SampleInvalid,
-		     "VectorDesc ctor: bob samples have bobp but p not pb");
+	  // if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
+	  //   ZENTHROW(SampleInvalid,
+	  // 	     "VectorDesc ctor: bob samples have bobp but p not pb");
 	  ptr->p.append(ptr->pb);
 	  ptr->y.append(ptr->bobp);
 	}
@@ -2566,7 +2550,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       ptr->validate_sort();
       if (not is_inversely_sorted(ptr->y))
 	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: coa samples are not inversely sorted");
+		 "VectorDesc ctor: coa samples are not inversely sorted " +
+		 join(ptr->y, " "));
       if (not ptr->y.all([u = ptr->yunit] (auto c)
 			 { return BaseQuantity::is_valid(c, *u); }))
 	ZENTHROW(OutOfUnitRange,
@@ -2579,7 +2564,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       validate_bo(ptr);
       if (not is_inversely_sorted(ptr->y))
 	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: boa samples are not inversely sorted");
+		 "VectorDesc ctor: boa samples are not inversely sorted " +
+		 join(ptr->y, " "));
       if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	ZENTHROW(SampleInvalid, "p vector contains pb");
       if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
@@ -2608,9 +2594,10 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       validate_pb(ptr);
       validate_pb_in_p(ptr, "uob");
       validate_uo(ptr);
-      if (not is_inversely_sorted(ptr->y))
+      if (not is_inversely_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: uob samples are not inversely sorted");
+		 "VectorDesc ctor: uob samples are not inversely sorted " +
+		 join(ptr->y, " "));
       if (BaseQuantity::is_valid(ptr->uod, *ptr->yunit)) // was uod defined?
 	{ // yes ==> validate that first entries correspond to it
 	  if (not VtlQuantity(*ptr->yunit, ptr->y(0)).is_near(ptr->uod, 1))
@@ -2649,9 +2636,10 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (ptr->uobp >= ptr->y.get_first())
 	ZENTHROW(SampleInvalid, "uobp es greater or equal than first uoa value");
       validate_uo(ptr);
-      if (not is_sorted(ptr->y))
+      if (not is_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: uob samples are not sorted");
+		 "VectorDesc ctor: uob samples are not sorted " +
+		 join(ptr->y, " "));
     };
   static auto uo_validate = [] (VectorDesc* ptr)
     {
