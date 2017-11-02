@@ -2324,6 +2324,7 @@ public:
     const CorrStat::Desc desc;
     mutable DynList<double> t, p, ylab, ycorr, ytuned;
     const bool valid = false;
+    StatsDesc() {}
     StatsDesc(ConstStats & s)
       : corr_ptr(s.corr_ptr), desc(s.desc), t(move(s.t)),
 	ylab(move(s.ylab)), ycorr(move(s.ycorr)), ytuned(move(s.ytuned)),
@@ -2416,6 +2417,170 @@ public:
 	VectorStats s = d.run(target_name, this, corr_ptr);
 	return StatsDesc(s);
       }
+  }
+
+  enum class AutoApplyType { r2, mse, sigma, sumsq, c, m };
+
+# define AUTO_FILT(__name)						\
+  static auto __name##__filter = [] (const DynList<StatsDesc> & l,	\
+				     double threshold)			\
+  {									\
+    return sort(l.filter([threshold] (auto & s)				\
+    {									\
+      return s.valid and CorrStat::__name(s.desc) >= threshold; \
+    }), cmp_##__name);							\
+  }
+  
+# define AUTO_FILTER(__name) AUTO_FILT(__name, cmp_##__name)
+
+  StatsDesc auto_apply(const string & target_name,
+		       const DynSetTree<string> & relax_tbl,
+		       const DynSetTree<const Correlation*> & ban_list,
+		       const double threshold,
+		       const AutoApplyType & type) const
+  {
+    static auto cmp_r2 = [] (auto & s1, auto & s2) 
+      {
+	return fabs(1 - CorrStat::r2(s1.desc)) < fabs(1 - CorrStat::r2(s2.desc));
+      };
+    static auto cmp_mse = [] (auto & s1, auto & s2)
+      {
+	return CorrStat::mse(s1.desc) < CorrStat::mse(s2.desc);
+      };
+    static auto cmp_sigma = [] (auto & s1, auto & s2)
+      {
+	return CorrStat::sigma(s1.desc) < CorrStat::sigma(s2.desc);
+      };
+    static auto cmp_sumsq = [] (auto & s1, auto & s2)
+      {
+	return CorrStat::sumsq(s1.desc) < CorrStat::sumsq(s2.desc);
+      };
+    static auto cmp_c = [] (auto & s1, auto & s2)
+      {
+	return CorrStat::c(s1.desc) < CorrStat::c(s2.desc);
+      };
+    static auto cmp_m = [] (auto & s1, auto & s2)
+      {
+	return CorrStat::m(s1.desc) < CorrStat::m(s2.desc);
+      };
+    AUTO_FILT(r2);
+    AUTO_FILT(mse);
+    AUTO_FILT(sigma);
+    AUTO_FILT(sumsq);
+    AUTO_FILT(c);
+    AUTO_FILT(m);
+    static AHDispatcher<AutoApplyType,
+     			DynList<StatsDesc> (*)(const DynList<StatsDesc>&, double)>
+      dispatcher(AutoApplyType::r2, r2__filter,
+		 AutoApplyType::mse, mse__filter,
+		 AutoApplyType::sigma, sigma__filter,
+		 AutoApplyType::sumsq, sumsq__filter,
+		 AutoApplyType::c, c__filter,
+		 AutoApplyType::m, m__filter);      
+
+    auto corr_list = can_be_applied(target_name, relax_tbl, ban_list);
+    auto auto_list = corr_list.maps<StatsDesc>([this] (auto ptr)
+      {
+	return this->apply(ptr);
+      });
+    auto ret_list = dispatcher.run(type, auto_list, threshold);
+    return ret_list.is_empty() ? StatsDesc() : ret_list.get_first();
+  }
+
+private:
+
+  static void test_successful_apply(const string & target_name, const StatsDesc & s)
+  {
+    if (not s.valid)
+      ZENTHROW(CannotApply, "cannot find correlation for " + target_name);
+  }
+
+# define ADD_AUTO(name, s)			\
+  test_successful_apply(#name, s);		\
+  ret.append(s);				\
+  name##_corr = s.corr_ptr;			\
+  c_##name = CorrStat::c(s.desc);		\
+  m_##name = CorrStat::m(s.desc);
+
+public:
+  
+  DynList<StatsDesc>
+  auto_apply(const DynSetTree<string> & relax_tbl,
+	     const DynSetTree<const Correlation*> & ban_list,
+	     const double threshold, const AutoApplyType & type) 
+  {
+    DynList<StatsDesc> ret;
+    if (pb_corr == nullptr)
+      {
+	auto tpset = tp_sets();
+	StatsDesc s = tpset.is_unitarian() ?
+	  auto_apply("pb", relax_tbl, ban_list, threshold, AutoApplyType::c) :
+	  auto_apply("pb", relax_tbl, ban_list, threshold, AutoApplyType::r2);
+	ADD_AUTO(pb, s);
+      }
+    else
+      ret.append(apply(pb_corr));
+
+    if (rs_corr == nullptr)
+      {
+	StatsDesc s = auto_apply("rs", relax_tbl, ban_list, threshold, type);
+	ADD_AUTO(rs, s);
+      }
+    else
+      ret.append(apply(rs_corr));
+	
+    if (bob_corr == nullptr)
+      {
+	StatsDesc s = auto_apply("bob", relax_tbl, ban_list, threshold, type);
+	ADD_AUTO(bob, s);
+      }
+    else
+      ret.append(apply(bob_corr));
+
+    if (coa_corr == nullptr)
+      {
+	StatsDesc s = auto_apply("coa", relax_tbl, ban_list, threshold, type);
+	ADD_AUTO(coa, s);
+      }
+    else
+      ret.append(apply(coa_corr));
+
+    if (boa_corr == nullptr)
+      {
+	StatsDesc s = auto_apply("boa", relax_tbl, ban_list, threshold, type);
+	ADD_AUTO(boa, s);
+      }
+    else
+      ret.append(apply(boa_corr));
+
+    if (uod_corr == nullptr)
+      {
+	auto tpset = tp_sets();
+	StatsDesc s = tpset.is_unitarian() ?
+	  auto_apply("uod", relax_tbl, ban_list, threshold, AutoApplyType::c) :
+	  auto_apply("uod", relax_tbl, ban_list, threshold, AutoApplyType::r2);
+	ADD_AUTO(uod, s);
+      }
+    else
+      ret.append(apply(uod_corr));
+
+    if (uob_corr == nullptr)
+      {
+	StatsDesc s = auto_apply("uob", relax_tbl, ban_list, threshold, type);
+	ADD_AUTO(uob, s);
+      }
+    else
+      ret.append(apply(bob_corr));
+
+    if (uoa_corr == nullptr)
+      {
+	StatsDesc s = auto_apply("uoa", relax_tbl, ban_list, threshold, type);
+	ADD_AUTO(uoa, s);
+      }
+    else
+      ret.append(apply(boa_corr));
+
+    return ret;
   }
 };
 
