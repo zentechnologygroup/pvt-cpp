@@ -339,7 +339,7 @@ struct VectorDesc
     
     Array<double> p_below = p.take(min_idx + 1);
     Array<double> uob = y.take(min_idx + 1);
-    if (not is_inversely_sorted(uob))
+    if (not is_inversely_sorted(uob, std::less_equal<double>()))
       ZENTHROW(SamplesUnsorted, "saturated region of uo is not decreasing " +
 	       join(uob, " "));
 
@@ -995,7 +995,10 @@ struct PvtData
 		       maps<double>([] (auto & t) { return t.pb; }),
 		       std::less_equal<double>()))
        ZENTHROW(PressureMismatch,
-		"pb values are not sorted through temperatures");
+		"pb values are not sorted through temperatures " +
+		join(tuples.values().maps<string>
+		     ([] (auto & t) { return "(" + ::to_string(t.t)
+			 + "," + ::to_string(t.pb); }), ", "));
 
     return tuples.maps<TpSet>([] (auto & p) { return p.second; });
   }
@@ -2716,7 +2719,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 		 "pressure array must twice o same size than coa");
       
       ptr->validate_sort();
-      if (not is_inversely_sorted(ptr->y))
+      if (not is_inversely_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
 		 "VectorDesc ctor: coa samples are not inversely sorted " +
 		 join(ptr->y, " "));
@@ -2730,7 +2733,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       ptr->validate_sort();
       validate_pb(ptr);
       validate_bo(ptr);
-      if (not is_inversely_sorted(ptr->y))
+      if (not is_inversely_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
 		 "VectorDesc ctor: boa samples are not inversely sorted " +
 		 join(ptr->y, " "));
