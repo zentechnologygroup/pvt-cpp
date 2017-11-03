@@ -59,3 +59,6 @@
 ## 20. considerar eliminar precondicion en CoaPerezML
 - Created at   2017-11-03 12:32:20 -0400
 
+## 21. evaluar correlación si llamara precondiciones (desde ruby)
+- Created at   2017-11-03 16:13:52 -0400
+
