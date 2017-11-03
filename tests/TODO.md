@@ -56,3 +56,6 @@
 ## 19. asegurar que uod siempre esté en C
 - Created at   2017-11-02 15:33:25 -0400
 
+## 20. considerar eliminar precondicion en CoaPerezML
+- Created at   2017-11-03 12:32:20 -0400
+
