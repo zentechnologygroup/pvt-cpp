@@ -701,6 +701,9 @@ SwitchArg auto_arg = { "", "auto", "automatic calibration", cmd };
 SwitchArg Auto_arg =
   { "", "Auto", "set correlation given by automatic calibration", cmd };
 
+ValueArg<size_t> auto_n = { "", "auto-n", "number of iteration in auto mode",
+			    false, 1, "number of iterations", cmd };
+
 SwitchArg exp_arg = { "", "exp", "put experimental pressures", cmd };
 
 SwitchArg pbexp_arg = { "", "pbexp", "put experimental pb values", cmd };
@@ -1315,7 +1318,8 @@ void process_auto()
 
   auto corr_list = data.auto_apply(relax_names_tbl, ban.getValue().corr_list,
 				   threshold.getValue(),
-				   auto_map[auto_type.getValue()]);
+				   auto_map[auto_type.getValue()],
+				   auto_n.getValue());
 
   DynList<DynList<string>> rows = corr_list.maps<DynList<string>>([] (auto & s)
     {
