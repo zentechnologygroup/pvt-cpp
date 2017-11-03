@@ -1361,6 +1361,7 @@ private:
 			const VectorDesc & pref,
 			const Correlation * corr_ptr) const
   {
+    assert(pref.punit == &psig::get_instance());
     if (pref.yname != target_name)
       ZENTHROW(InvalidTargetName, "compute_" + target_name +
 	       "(): input vector is not for " + target_name);
