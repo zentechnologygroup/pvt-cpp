@@ -645,6 +645,14 @@ ValueArg<string> mode_type = { "", "mode", "mode", false, "both",
 ValueArg<BanList> ban = { "b", "ban",
 			  "ban correlation list for automatic calibration",
 			  false, BanList(), "banned correlation list", cmd };
+ValueArg<double> threshold = { "", "threshold", "auto threshold", false, 0.0,
+			"auto threshold", cmd };
+
+vector<string> auto_types = { "r2", "mse", "sigma", "sumsq", "c", "m" };
+ValuesConstraint<string> allowed_auto_types = auto_types;
+ValueArg<string> auto_type = { "", "auto-type", "auto triage type", false, "r2",
+		       &allowed_auto_types, cmd };
+
 MultiArg<RmProperty> rm_property =
   { "", "rm-property", "remove property t", false, "\"property-tag t\"", cmd };
 vector<string> valid_consts = to_vector(const_name_tbl);
@@ -967,7 +975,7 @@ void process_local_calibration()
     };
   static auto print_simple = [] (const DynList<string>& header,
 				 const DynList<DynList<double>> & vals,
-				 const string & name) -> string
+				 const string&) -> string
     {
       auto cols = t_zip(header, transpose(vals));
       double ymin = numeric_limits<double>::max(), ymax = 0;
@@ -1290,6 +1298,45 @@ void process_R()
   system(plotr.c_str());
 }
 
+void process_auto()
+{
+  if (not auto_arg.isSet())
+    return;
+
+  static DynMapTree<string, PvtData::AutoApplyType> auto_map =
+    {
+      { "r2", PvtData::AutoApplyType::r2 },
+      { "mse", PvtData::AutoApplyType::mse },
+      { "sigma", PvtData::AutoApplyType::sigma },
+      { "sumsq", PvtData::AutoApplyType::sumsq },
+      { "c", PvtData::AutoApplyType::c },
+      { "m", PvtData::AutoApplyType::m }
+    };
+
+  auto corr_list = data.auto_apply(relax_names_tbl, ban.getValue().corr_list,
+				   threshold.getValue(),
+				   auto_map[auto_type.getValue()]);
+
+  DynList<DynList<string>> rows = corr_list.maps<DynList<string>>([] (auto & s)
+    {
+      DynList<string> ret = build_dynlist<string>(s.corr_ptr->name);
+      ret.append(CorrStat::desc_to_dynlist(s.desc));
+      return ret;
+    });
+  
+  DynList<string> header = build_dynlist<string>("Correlation");
+  header.append(CorrStat::stats_header());
+  rows.insert(header);
+
+  const auto & out_type = output.getValue();
+  if (out_type == "csv")
+    cout << Aleph::to_string(format_string_csv(rows)) << endl;
+  else
+    cout << Aleph::to_string(format_string(rows)) << endl;
+
+  terminate_app();
+}
+
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
@@ -1328,7 +1375,7 @@ int main(int argc, char *argv[])
 
       process_list();
       process_match();
-      // process_auto();
+      process_auto();
       process_apply();
       process_napply();
       process_local_calibration();

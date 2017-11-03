@@ -37,6 +37,7 @@ DEFINE_ZEN_EXCEPTION(SampleContainsTargetName, "sample contains target name");
 DEFINE_ZEN_EXCEPTION(SampleInvalid, "invalid sample value");
 DEFINE_ZEN_EXCEPTION(InvalidTargetName, "invalid correlation target")
 DEFINE_ZEN_EXCEPTION(InvalidJson, "Invalid json");
+DEFINE_ZEN_EXCEPTION(CannotApply, "cannot apply");
 DEFINE_ZEN_EXCEPTION(MetadataException, "metadata data exception");
 
 # endif
