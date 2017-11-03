@@ -1917,6 +1917,8 @@ public:
     if (Quantity<psig>(p_list.get_first()).is_near(0, 1e-1))
       uod = uob_list.get_first();
 
+    //TODO asegutar que uod est;e bien cuando p(0) exista dentro de in
+
     VectorDesc result(pref.t, pb, PVT_INVALID_VALUE, uod, uob_list.get_last(),
 		      p_list, pref.punit, "uob", uob_list, &corr_ptr->unit);
     return compute_epilogue(pref, result);
@@ -2507,12 +2509,49 @@ private:
 
 public:
   
+# define Declare_Set_Corr(NAME)						\
+  static auto set_##NAME =						\
+			[] (PvtData * pvtdata, const StatsDesc & s)	\
+  {									\
+    pvtdata->NAME##_corr = s.corr_ptr;					\
+    pvtdata->c_##NAME = CorrStat::c(s.desc);				\
+    pvtdata->m_##NAME = CorrStat::m(s.desc);				\
+  }
+
+  void set_correlation(const StatsDesc & s)
+  {
+    Declare_Set_Corr(pb);
+    Declare_Set_Corr(rs);
+    Declare_Set_Corr(bob);
+    Declare_Set_Corr(coa);
+    Declare_Set_Corr(boa);
+    Declare_Set_Corr(uod);
+    Declare_Set_Corr(uob);
+    Declare_Set_Corr(uoa);
+    static const AHDispatcher<string, void (*)(PvtData*, const StatsDesc&)>
+      dispatcher("pb", set_pb, "rs", set_rs, "bob", set_bob, "coa", set_coa,
+		 "boa", set_boa, "uod", set_uod, "uob", set_uob, "uoa", set_uoa);
+
+    const string target_name = s.corr_ptr->target_name();
+    try
+      {
+	dispatcher.run(target_name, this, s);
+      }
+    catch (exception & e)
+      {
+	ZENTHROW(CorrelationNotApplicable,
+		 "Invalid target for correlation " + target_name);
+      }
+  }
+
   DynList<StatsDesc>
   auto_apply(const DynSetTree<string> & relax_tbl,
 	     const DynSetTree<const Correlation*> & ban_list,
-	     const double threshold, const AutoApplyType & type) 
+	     const double threshold, const AutoApplyType & type,
+	     const size_t n = 1) 
   {
     DynList<StatsDesc> ret;
+
     if (pb_corr == nullptr)
       {
 	auto tpset = tp_sets();
@@ -2583,6 +2622,41 @@ public:
     else
       ret.append(apply(boa_corr));
 
+    for (size_t i = 1; i < n; ++i)
+      {
+	assert(pb_corr);
+	assert(rs_corr);
+	assert(bob_corr);
+	assert(coa_corr);
+	assert(boa_corr);
+	assert(uod_corr);
+	assert(uob_corr);
+	assert(uoa_corr);
+	static const DynList<string> static_names = { "pb", "uod" };
+	static const DynList<string> dynamic_names =
+	  { "rs", "bob", "coa", "boa", "uob", "uoa" };
+
+	for (auto target_name : static_names)
+	  {
+	    auto stats = auto_apply(target_name, relax_tbl, ban_list,
+				    0, PvtData::AutoApplyType::c);
+	    if (not stats.valid)
+	      ZENTHROW(MetadataException, "cannot compute automatic correlation for "
+		       + target_name + " in iteration " + ::to_string(i));
+	    set_correlation(stats);
+	  }
+
+	for (auto target_name : dynamic_names)
+	  {
+	    auto stats = auto_apply(target_name, relax_tbl, ban_list,
+				    threshold, type);
+	    if (not stats.valid)
+	      ZENTHROW(MetadataException, "cannot compute automatic correlation for "
+		       + target_name + " in iteration " + ::to_string(i));
+	    set_correlation(stats);
+	  }
+      }
+    
     return ret;
   }
 };
