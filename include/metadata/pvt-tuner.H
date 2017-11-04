@@ -2290,7 +2290,8 @@ public:
 		    const DynSetTree<string> & relax_tbl,
 		    const DynSetTree<const Correlation*> & ban_list) const
   {
-    if (search_vectors(target_name) == nullptr)
+    if (target_name != "pb" and target_name != "uod" and
+	search_vectors(target_name).is_empty())
       ZENTHROW(VarNameNotFound, target_name + " does not exist in this data set");
 
     auto corr_list =
@@ -2319,7 +2320,8 @@ public:
     if (not VectorDesc::valid_target_names.has(target_name))
       ZENTHROW(InvalidTargetName, target_name + " target name is not valid");
 
-    if (search_vectors(target_name) == nullptr)
+    if (target_name != "pb" and target_name != "uod" and
+	search_vectors(target_name).is_empty())
       ZENTHROW(VarNameNotFound, target_name + " does not exist in this data set");
     
     return Correlation::array().
@@ -2629,6 +2631,7 @@ public:
     else
       ret.append(apply(boa_corr));
 
+    // TODO: falta actualizar ret si se entra en este lazo
     for (size_t i = 1; i < n; ++i)
       {
 	assert(pb_corr);

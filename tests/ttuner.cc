@@ -244,7 +244,11 @@ struct Uob : public Uo
   Uob() : Uo("uob") {}
   Uob & operator = (const string & str)
   {
-    read_zone(str);
+    istringstream iss(str);
+    read_units_and_temp(iss, CP::get_instance());
+    read_pb_uod_and_uobp(iss);
+    read_values(iss);
+    separate();
     return *this;
   }
 };
@@ -254,7 +258,11 @@ struct Uoa : public Uo
   Uoa() : Uo("uoa") {}
   Uoa & operator = (const string & str)
   {
-    read_zone(str);
+    istringstream iss(str);
+    read_units_and_temp(iss, CP::get_instance());
+    read_pb_uod_and_uobp(iss);
+    read_values(iss);
+    separate();
     return *this;
   }  
 };
@@ -938,7 +946,8 @@ void process_napply()
   auto property_name = napply.getValue();
   if (not valid_targets.contains(property_name) and property_name != "pb" and
       property_name != "uod")
-    ZENTHROW(CommandLineError, "target name " + property_name + " is not valid");
+    ZENTHROW(CommandLineError, "target name " + property_name +
+	     " is not valid");
 
   auto missing_list = data.list_restrictions(property_name, relax_names_tbl,
 					     ban.getValue().corr_list);
