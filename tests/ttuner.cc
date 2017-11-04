@@ -987,7 +987,7 @@ void process_local_calibration()
     };
   static auto print_simple = [] (const DynList<string>& header,
 				 const DynList<DynList<double>> & vals,
-				 const string&) -> string
+				 const string& name) -> string
     {
       auto cols = t_zip(header, transpose(vals));
       double ymin = numeric_limits<double>::max(), ymax = 0;
@@ -1017,7 +1017,7 @@ void process_local_calibration()
 
       s << "plot(0, type=\"n\", xlim=c(" << tmin << "," << tmax << "), ylim=c("
       << ymin << "," << ymax << "))" << endl
-      << "points(t, pb)" << endl;
+      << "points(t, " << name << ")" << endl;
 
       size_t col = 1;
       DynList<string> colnames;
@@ -1302,28 +1302,69 @@ void process_R()
   if (not R.isSet())
     return;
 
+  static auto get_points = [] (const string & target_name)
+    {
+      auto rsv = data.search_vectors(target_name);
+      DynList<double> ret;
+      for (auto it = rsv.get_it(); it.has_curr(); it.next())
+        {
+	  auto vptr = it.get_curr();
+	  zip_for_each([&ret] (auto t)
+		       {
+			 ret.append(get<0>(t));
+			 ret.append(get<1>(t));
+		       }, vptr->p, vptr->y);
+	}
+      return ret;
+    };
+  static auto rs_points = [] () { return get_points("rs"); };
+  static auto co_points = [] () { return get_points("coa"); };
+  static auto bo_points = [] ()
+    {
+      auto ret = get_points("bob");
+      return ret.append(get_points("boa"));
+    };
+  static auto uo_points = [] ()
+    {
+      auto ret = get_points("uob");
+      return ret.append(get_points("uoa"));
+    };
+  static AHDispatcher<string, DynList<double> (*)()> points_dispatcher =
+    { "rs", rs_points, "co", co_points, "bo", bo_points, "uo", uo_points };  
+
   const string plot = plot_cmd() + " > tmp.csv";
   system(plot.c_str());
   cout << plot << endl;
 
-  const string plotr = "./plot-r -f tmp.csv -P " + R.getValue() + " -R";
+  const string & type = R.getValue();
+  const string plotr = "./plot-r -f tmp.csv -P " + type + " -R -D \"" +
+    join(points_dispatcher.run(type), " ") + "\"";
+
+  // cout << endl
+  //      << "P = " << join(points_dispatcher.run(type), " ") << endl;
+  // terminate_app();
+
+  cout << endl
+       << plotr << endl;
+
   system(plotr.c_str());
+  terminate_app();
 }
+
+static DynMapTree<string, PvtData::AutoApplyType> auto_map =
+  {
+    { "r2", PvtData::AutoApplyType::r2 },
+    { "mse", PvtData::AutoApplyType::mse },
+    { "sigma", PvtData::AutoApplyType::sigma },
+    { "sumsq", PvtData::AutoApplyType::sumsq },
+    { "c", PvtData::AutoApplyType::c },
+    { "m", PvtData::AutoApplyType::m }
+  };
 
 void process_auto()
 {
   if (not auto_arg.isSet())
     return;
-
-  static DynMapTree<string, PvtData::AutoApplyType> auto_map =
-    {
-      { "r2", PvtData::AutoApplyType::r2 },
-      { "mse", PvtData::AutoApplyType::mse },
-      { "sigma", PvtData::AutoApplyType::sigma },
-      { "sumsq", PvtData::AutoApplyType::sumsq },
-      { "c", PvtData::AutoApplyType::c },
-      { "m", PvtData::AutoApplyType::m }
-    };
 
   auto corr_list = data.auto_apply(relax_names_tbl, ban.getValue().corr_list,
 				   threshold.getValue(),
@@ -1350,6 +1391,23 @@ void process_auto()
   terminate_app();
 }
 
+void process_Auto()
+{
+  if (not Auto_arg.isSet())
+    return;
+
+  if (not Cplot.isSet() and not cplot.isSet() and not print.isSet() and
+      not Print.isSet())
+    error_msg("Option " + Auto_arg.getName() + " must be used in combination "
+	      "with " + cplot.getName() + " or " + Cplot.getName() + " or " +
+	      print.getName() + " or " + Print.getName());
+
+   auto corr_list = data.auto_apply(relax_names_tbl, ban.getValue().corr_list,
+				   threshold.getValue(),
+				   auto_map[auto_type.getValue()],
+				   auto_n.getValue());
+}
+
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
@@ -1370,7 +1428,7 @@ int main(int argc, char *argv[])
       if (not data.defined())
 	error_msg("data is not defined");
 
-      //process_Auto();
+      process_Auto();
       process_print_data();
       process_Print_data();
 

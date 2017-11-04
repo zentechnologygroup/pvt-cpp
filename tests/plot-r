@@ -70,14 +70,19 @@ class Table
   end
 end
 
-def execute_R_script(scr, file_name = 'tmp.R')
+def execute_R_script(scr, points, file_name = 'tmp.R')
   str = "#!/usr/bin/Rscript\n"\
         "\n"\
         "X11()\n"\
-        "#{scr}\n"\
-        "message(\"Press Return To Continue\")\n"\
-        "invisible(readLines(\"stdin\", n=1))\n"
-  #puts str
+        "#{scr}\n"
+  if points
+    x, y = points.split.each_slice(2).map{|x,y| [x,y]}.transpose
+    str += "xx <- c(#{x.join(',')})\n"\
+           "yy <- c(#{y.join(',')})\n"\
+           "points(xx, yy)\n"
+  end
+  str += "message(\"Press Return To Continue\")\n"\
+         "invisible(readLines(\"stdin\", n=1))\n"
   file = File.new(file_name, 'w')
   file << str
   file.close
@@ -97,6 +102,11 @@ options_parser = OptionParser.new do |opts|
   opts.on('-R', '--R', 'direct execution of R script') do
     options[:R] = true
   end
+
+  opts.on('-D xy-list', '--data xy-pair-list',
+          'list of experimental points') do |list|
+    options[:points] = list
+  end
 end
 
 options_parser.parse!
@@ -111,7 +121,8 @@ fail 'Property not defined (option -P PROPERTY)' unless property
 fail "Invalid property #{property}" unless data.is_valid_property_name property
 
 if options[:R]
-  execute_R_script(data.plot_pressure(property, data.get_property(property)))
+  execute_R_script(data.plot_pressure(property, data.get_property(property)),
+                   options[:points])
 else
   puts data.plot_pressure(property, data.get_property(property))
 end

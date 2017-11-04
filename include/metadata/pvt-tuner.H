@@ -1334,16 +1334,16 @@ public:
     if (corr_ptr->target_name() != "uod")
       ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for uod");
-    DynList<double> t, pb_lab, pb_corr;
+    DynList<double> t, uod_lab, uod_corr;
     auto tp = tp_sets();
     for (auto it = tp.get_it(); it.has_curr(); it.next())
       {
 	auto curr = it.get_curr();
 	t.append(curr.t);
-	pb_lab.append(curr.pb);
-	pb_corr.append(compute_uod(curr.t, curr.pb, corr_ptr).raw());
+	uod_lab.append(curr.uod);
+	uod_corr.append(compute_uod(curr.t, curr.pb, corr_ptr).raw());
       }
-    return ConstStats(corr_ptr, move(t), move(pb_lab), move(pb_corr));
+    return ConstStats(corr_ptr, move(t), move(uod_lab), move(uod_corr));
   }
 
   ParPair get_uod(const VectorDesc & v, const ParPair & pb_par) const
@@ -2335,9 +2335,9 @@ public:
   struct StatsDesc
   {
     const Correlation * corr_ptr = nullptr;
-    const CorrStat::Desc desc;
+    mutable CorrStat::Desc desc;
     mutable DynList<double> t, p, ylab, ycorr, ytuned;
-    const bool valid = false;
+    mutable bool valid = false;
     StatsDesc() {}
     StatsDesc(ConstStats & s)
       : corr_ptr(s.corr_ptr), desc(s.desc), t(move(s.t)),
@@ -2511,7 +2511,7 @@ private:
 
 # define ADD_AUTO(name, s)			\
   test_successful_apply(#name, s);		\
-  ret.append(s);				\
+  corr_map.insert(#name, s);			\
   name##_corr = s.corr_ptr;			\
   c_##name = CorrStat::c(s.desc);		\
   m_##name = CorrStat::m(s.desc);
@@ -2559,7 +2559,7 @@ public:
 	     const double threshold, const AutoApplyType & type,
 	     const size_t n = 1) 
   {
-    DynList<StatsDesc> ret;
+    DynMapTree<string, StatsDesc> corr_map;
 
     if (pb_corr == nullptr)
       {
@@ -2570,7 +2570,7 @@ public:
 	ADD_AUTO(pb, s);
       }
     else
-      ret.append(apply(pb_corr));
+      corr_map.insert("pb", apply(pb_corr));
 
     if (rs_corr == nullptr)
       {
@@ -2578,7 +2578,7 @@ public:
 	ADD_AUTO(rs, s);
       }
     else
-      ret.append(apply(rs_corr));
+      corr_map.insert("rs", apply(rs_corr));
 	
     if (bob_corr == nullptr)
       {
@@ -2586,7 +2586,7 @@ public:
 	ADD_AUTO(bob, s);
       }
     else
-      ret.append(apply(bob_corr));
+      corr_map.insert("rs", apply(bob_corr));
 
     if (coa_corr == nullptr)
       {
@@ -2594,15 +2594,23 @@ public:
 	ADD_AUTO(coa, s);
       }
     else
-      ret.append(apply(coa_corr));
+      corr_map.insert("coa", apply(coa_corr));
 
-    if (boa_corr == nullptr)
-      {
-	StatsDesc s = auto_apply("boa", relax_tbl, ban_list, threshold, type);
-	ADD_AUTO(boa, s);
-      }
-    else
-      ret.append(apply(boa_corr));
+    // if (boa_corr == nullptr)
+    //   {
+    // 	StatsDesc s = auto_apply("boa", relax_tbl, ban_list, threshold, type);
+    // 	ADD_AUTO(boa, s);
+    //   }
+    // else
+    //   corr_map.insert("boa", apply(boa_corr));
+    {
+      auto st = boa_stats(&BoaMcCain::get_instance());
+      StatsDesc s = { st };
+      CorrStat::c(s.desc) = 0;
+      CorrStat::m(s.desc) = 1;
+      s.ytuned = s.ycorr;
+      ADD_AUTO(boa, s);
+    }
 
     if (uod_corr == nullptr)
       {
@@ -2613,7 +2621,7 @@ public:
 	ADD_AUTO(uod, s);
       }
     else
-      ret.append(apply(uod_corr));
+      corr_map.insert("uod", apply(uod_corr));
 
     if (uob_corr == nullptr)
       {
@@ -2621,7 +2629,7 @@ public:
 	ADD_AUTO(uob, s);
       }
     else
-      ret.append(apply(bob_corr));
+      corr_map.insert("uob", apply(uod_corr));
 
     if (uoa_corr == nullptr)
       {
@@ -2629,7 +2637,7 @@ public:
 	ADD_AUTO(uoa, s);
       }
     else
-      ret.append(apply(boa_corr));
+      corr_map.insert("uoa", apply(uoa_corr));
 
     // TODO: falta actualizar ret si se entra en este lazo
     for (size_t i = 1; i < n; ++i)
@@ -2644,7 +2652,8 @@ public:
 	assert(uoa_corr);
 	static const DynList<string> static_names = { "pb", "uod" };
 	static const DynList<string> dynamic_names =
-	  { "rs", "bob", "coa", "boa", "uob", "uoa" };
+	  { "rs", "bob", "coa", // "boa",
+	    "uob", "uoa" };
 
 	for (auto target_name : static_names)
 	  {
@@ -2654,6 +2663,7 @@ public:
 	      ZENTHROW(MetadataException, "cannot compute automatic correlation for "
 		       + target_name + " in iteration " + ::to_string(i));
 	    set_correlation(stats);
+	    corr_map[target_name] = stats;
 	  }
 
 	for (auto target_name : dynamic_names)
@@ -2664,10 +2674,11 @@ public:
 	      ZENTHROW(MetadataException, "cannot compute automatic correlation for "
 		       + target_name + " in iteration " + ::to_string(i));
 	    set_correlation(stats);
+	    corr_map[target_name] = stats;
 	  }
       }
     
-    return ret;
+    return corr_map.values();
   }
 };
 

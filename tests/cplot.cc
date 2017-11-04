@@ -613,8 +613,8 @@ struct ArrayDesc
       {
 	if (++n > Max_Num_Of_Steps)
 	  ZENTHROW(CommandLineError, "Number of steps " + to_string(n) + 
-		   " is greater than allowed maximum " + to_string(Max_Num_Of_Steps) +
-		   " (Max_Num_Of_Steps)");
+		   " is greater than allowed maximum " +
+		   to_string(Max_Num_Of_Steps) + " (Max_Num_Of_Steps)");
 
 	if (not is_double(data))
 	  ZENTHROW(CommandLineError, data + " is not a double");
@@ -634,7 +634,11 @@ struct ArrayDesc
 namespace TCLAP
 {
   template<> struct ArgTraits<ArrayDesc> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<ValList> { typedef StringLike ValueCategory; };
 }
+
+ValueArg<ValList> points = { "", "points", "list of exp points", false,
+			     ValList(), "exp-points", cmd };
 
 size_t set_array(const ArrayDesc & rowset, const string & name,
 		 const Unit & unit, DynList<Correlation::NamedPar> & l)

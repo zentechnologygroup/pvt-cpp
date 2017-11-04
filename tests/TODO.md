@@ -62,3 +62,6 @@
 ## 21. evaluar correlación si llamara precondiciones (desde ruby)
 - Created at   2017-11-03 16:13:52 -0400
 
+## 22. añadir un modo de lista de excepciones para ttuner
+- Created at   2017-11-04 13:32:58 -0400
+
