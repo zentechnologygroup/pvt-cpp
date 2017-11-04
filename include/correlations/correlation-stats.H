@@ -172,12 +172,14 @@ public:
   static double & sigma(Desc & d) { return get<2>(d); }
   static double & sumsq(Desc & d) { return get<3>(d).sumsq; }
   static double & c(Desc & d) { return get<3>(d).c; }
+  static double cabs(Desc & d) { return fabs(get<3>(d).c); }
   static double & m(Desc & d) { return get<3>(d).m; }
   static double r2(const Desc & d) { return get<0>(d); }
   static double mse(const Desc & d) { return get<1>(d); }
   static double sigma(const Desc & d) { return get<2>(d); }
   static double sumsq(const Desc & d) { return get<3>(d).sumsq; }
   static double c(const Desc & d) { return get<3>(d).c; }
+  static double cabs(const Desc & d) { return fabs(get<3>(d).c); }
   static double m(const Desc & d) { return get<3>(d).m; }
   static bool is_valid(const Desc & d)
   {

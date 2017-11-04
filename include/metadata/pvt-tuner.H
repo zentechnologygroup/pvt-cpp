@@ -2290,6 +2290,9 @@ public:
 		    const DynSetTree<string> & relax_tbl,
 		    const DynSetTree<const Correlation*> & ban_list) const
   {
+    if (search_vectors(target_name) == nullptr)
+      ZENTHROW(VarNameNotFound, target_name + " does not exist in this data set");
+
     auto corr_list =
       Correlation::array().filter([&target_name, &ban_list] (auto ptr)
       {
@@ -2315,6 +2318,9 @@ public:
   {
     if (not VectorDesc::valid_target_names.has(target_name))
       ZENTHROW(InvalidTargetName, target_name + " target name is not valid");
+
+    if (search_vectors(target_name) == nullptr)
+      ZENTHROW(VarNameNotFound, target_name + " does not exist in this data set");
     
     return Correlation::array().
       filter([&target_name, &relax_tbl, &ban_list, this] (auto ptr)
@@ -2433,7 +2439,7 @@ public:
   {									\
     return sort(l.filter([threshold] (auto & s)				\
     {									\
-      return s.valid and CorrStat::__name(s.desc) >= threshold; \
+      return s.valid and CorrStat::__name(s.desc) >= threshold;		\
     }), cmp_##__name);							\
   }
   
@@ -2461,9 +2467,9 @@ public:
       {
 	return CorrStat::sumsq(s1.desc) < CorrStat::sumsq(s2.desc);
       };
-    static auto cmp_c = [] (auto & s1, auto & s2)
+    static auto cmp_cabs = [] (auto & s1, auto & s2) 
       {
-	return CorrStat::c(s1.desc) < CorrStat::c(s2.desc);
+	return CorrStat::cabs(s1.desc) < CorrStat::cabs(s2.desc);
       };
     static auto cmp_m = [] (auto & s1, auto & s2)
       {
@@ -2473,7 +2479,7 @@ public:
     AUTO_FILT(mse);
     AUTO_FILT(sigma);
     AUTO_FILT(sumsq);
-    AUTO_FILT(c);
+    AUTO_FILT(cabs);
     AUTO_FILT(m);
     static AHDispatcher<AutoApplyType,
      			DynList<StatsDesc> (*)(const DynList<StatsDesc>&, double)>
@@ -2481,7 +2487,7 @@ public:
 		 AutoApplyType::mse, mse__filter,
 		 AutoApplyType::sigma, sigma__filter,
 		 AutoApplyType::sumsq, sumsq__filter,
-		 AutoApplyType::c, c__filter,
+		 AutoApplyType::c, cabs__filter,
 		 AutoApplyType::m, m__filter);      
 
     auto corr_list = can_be_applied(target_name, relax_tbl, ban_list);

@@ -2398,3 +2398,9 @@
 - Comment      
 - Finished     
 
+## 401. validar en auto cuando auto_apply retorne lista vacía
+- Created at   2017-11-03 18:15:43 -0400
+- Completed at 2017-11-03 19:01:27 -0400
+- Comment      
+- Finished     
+
