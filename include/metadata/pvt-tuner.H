@@ -1868,11 +1868,15 @@ public:
 
   DynList<VectorDesc>
   inputing(const DynList<const VectorDesc*> in_vectors,
-	   const Correlation * corr_ptr)
+	   const Correlation * corr_ptr, double c, double m)
   {
+    const string target_name = corr_ptr->name;
     DynList<VectorDesc> ret;
-
-
+    for (auto it = in_vectors.get_it(); it.has_curr(); it.next())
+      {
+	auto ptr = it.get_curr();
+	
+      }
 
     return ret;
   }
