@@ -1826,6 +1826,26 @@ public:
     return stats_epilogue(stats);
   }
 
+  VectorStats stats(const Correlation * corr_ptr) const
+  {
+# define DECLARE_STATS(name)				\
+  static auto name##_call = [] (const PvtData * ptr, const Correlation * corr_ptr) \
+  {									\
+    return ptr->name##_stats(corr_ptr);					\
+  };
+    DECLARE_STATS(rs);
+    DECLARE_STATS(bob);
+    DECLARE_STATS(coa);
+    DECLARE_STATS(boa);
+    DECLARE_STATS(uob);
+    DECLARE_STATS(uoa);
+    static AHDispatcher<string, VectorStats (*)(const PvtData *,
+						const Correlation * corr_ptr)>
+      dispather = { "rs", rs_call, "bob", bob_call, "coa", coa_call,
+		    "boa", boa_call, "uob", uob_call, "uoa", uoa_call };
+    return dispather.run(corr_ptr->target_name(), this, corr_ptr);
+  }
+
   VectorDesc compute_values(const VectorDesc & pref,
 			    const Correlation * corr_ptr,
 			    double c, double m) const
@@ -1871,11 +1891,17 @@ public:
 	   const Correlation * corr_ptr, double c, double m)
   {
     const string target_name = corr_ptr->name;
+    const DynList<const VectorDesc*> tgt_vectors = search_vectors(target_name);
+
     DynList<VectorDesc> ret;
     for (auto it = in_vectors.get_it(); it.has_curr(); it.next())
       {
-	auto ptr = it.get_curr();
-	
+	auto curr = it.get_curr();
+	auto ptr = tgt_vectors.find_ptr([&curr] (auto ptr)
+					{ return ptr->t == curr->t; });
+	if (ptr != nullptr)
+	  continue;
+	ret.append(inputing(*curr, corr_ptr, c, m));
       }
 
     return ret;
@@ -2138,8 +2164,8 @@ public:
 	  auto & pp = it.get_curr();
 	  const double & temp = pp.first;
 	  auto & tr = pp.second;
-	  for (auto it = zip_it(tr.p, tr.ylab, tr.ycorr, tr.ytuned); it.has_curr();
-	       it.next())
+	  for (auto it = zip_it(tr.p, tr.ylab, tr.ycorr, tr.ytuned);
+	       it.has_curr(); it.next())
 	    {
 	      auto tu = it.get_curr();
 	      t.append(temp);
@@ -2161,6 +2187,12 @@ public:
      DynList<DynList<double>> cal_matrix() const // without ycorr
     {
       return transpose(zip_lists(ytuned));
+    }
+    friend ostream & operator << (ostream & o, const StatsDesc & s)
+    {
+      o << s.corr_ptr->name << endl
+	<< s.desc << endl;
+	
     }
   };
 
@@ -2204,24 +2236,21 @@ public:
 
   enum class AutoApplyType { r2, mse, sigma, sumsq, c, m };
 
-# define AUTO_FILT(__name)						\
-  static auto __name##__filter = [] (const DynList<StatsDesc> & l,	\
-				     double threshold)			\
-  {									\
-    return sort(l.filter([threshold] (auto & s)				\
-    {									\
-      return s.valid and CorrStat::__name(s.desc) >= threshold;		\
-    }), cmp_##__name);							\
-  }
-  
-# define AUTO_FILTER(__name) AUTO_FILT(__name, cmp_##__name)
-
   StatsDesc auto_apply(const string & target_name,
 		       const DynSetTree<string> & relax_tbl,
 		       const DynSetTree<const Correlation*> & ban_list,
 		       const double threshold,
 		       const AutoApplyType & type) const
   {
+# define AUTO_FILT(__name)						\
+    static auto __name##__filter = [] (const DynList<StatsDesc> & l,	\
+				       double threshold)		\
+      {									\
+	return sort(l.filter([threshold] (auto & s)			\
+         {								\
+	   return s.valid and CorrStat::__name(s.desc) >= threshold;	\
+	 }), cmp_##__name);						\
+      }  
     static auto cmp_r2 = [] (auto & s1, auto & s2) 
       {
 	return fabs(1 - CorrStat::r2(s1.desc)) < fabs(1 - CorrStat::r2(s2.desc));
@@ -2545,10 +2574,12 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       validate_bo(ptr);
       if (not is_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: bob samples are sorted " + join(ptr->y, " "));
+		 "VectorDesc ctor: bob samples are sorted " +
+		 join(ptr->y, " "));
       if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	{
-	  if (not ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
+	  if (not ptr->y.exists([bobp = ptr->bobp] (auto v)
+				{ return v == bobp; }))
 	    ZENTHROW(SampleInvalid,
 		     "VectorDesc ctor: bob samples have not bobp");
 	}

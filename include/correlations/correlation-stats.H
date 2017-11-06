@@ -189,6 +189,10 @@ public:
     return not invalid;
   }
 
+  // friend ostream & operator << (ostream & o, const CorrStat & s)
+  // {
+  //   return o << r2(s) << end
+
   Desc stats(const Array<double> & yc) const
   {
     if (yc.size() != y.size())

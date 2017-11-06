@@ -634,7 +634,6 @@ struct ArrayDesc
 namespace TCLAP
 {
   template<> struct ArgTraits<ArrayDesc> { typedef StringLike ValueCategory; };
-  template<> struct ArgTraits<ValList> { typedef StringLike ValueCategory; };
 }
 
 ValueArg<ValList> points = { "", "points", "list of exp points", false,

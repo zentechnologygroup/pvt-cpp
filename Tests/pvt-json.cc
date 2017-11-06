@@ -43,3 +43,19 @@ TEST_F(FluidTest, ctor)
 {
   ASSERT_TRUE(data.search_vectors("rs").is_unitarian());
 }
+
+auto cmp_r2 = [] (const PvtData::StatsDesc & s1, const PvtData::StatsDesc & s2)
+{
+  return fabs(1 - CorrStat::r2(s1.desc)) < fabs(1 - CorrStat::r2(s2.desc));
+};
+
+TEST_F(FluidTest, inputing_rs)
+{
+  auto rs_corr_list = data.can_be_applied("rs");
+  auto rs_stats = sort(rs_corr_list.maps<PvtData::StatsDesc>([this] (auto ptr)
+    {
+      return data.apply(ptr);
+    }), cmp_r2);
+
+  rs_stats.for_each([] (auto & s) { cout << s << endl; });
+}
