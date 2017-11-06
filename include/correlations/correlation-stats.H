@@ -189,9 +189,9 @@ public:
     return not invalid;
   }
 
-  // friend ostream & operator << (ostream & o, const CorrStat & s)
+  // friend ostream & operator << (ostream & o, const CorrStat::Desc & )
   // {
-  //   return o << r2(s) << end
+  //   return o << 
 
   Desc stats(const Array<double> & yc) const
   {

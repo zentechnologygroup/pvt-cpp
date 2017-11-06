@@ -684,6 +684,12 @@ ValueArg<string> napply =
 ValueArg<CorrArgs> cal = { "", "lcal", "calibrate correlations", false,
 			   CorrArgs(), "calibrate correlation-list", cmd };
 
+ValueArg<string> punit_arg = { "", "punit", "pressure unit", false, "psig",
+			       "pressure unit", cmd };
+
+ValueArg<size_t> precision_arg = { "", "precision", " precision for property",
+				   false, 6, "precision in digits", cmd };
+
 ValueArg<RangeDesc> t = { "t", "t", "t range", false, RangeDesc(),
 			  "t min max n", cmd };
 
@@ -980,7 +986,8 @@ void process_local_calibration()
     {
       auto l = vals.maps<DynList<string>>([] (auto & row)
         {
-	  return row.template maps<string>([] (auto v) { return to_string(v); });
+	  return row.template maps<string>([] (auto v)
+	{ return to_string(v, precision_arg.getValue()); });
 	});
       l.insert(header);
       return l;
@@ -1189,6 +1196,17 @@ void process_local_calibration()
 
   auto stats = corr_list.maps<PvtData::StatsDesc>([] (auto ptr)
 						  { return data.apply(ptr); });
+  if (punit_arg.isSet())
+    {
+      const Unit * punit = Unit::search(punit_arg.getValue());
+      if (punit == nullptr)
+	ZENTHROW(UnitNotFound, "pressure unit " + punit_arg.getValue() +
+		 " not found");
+      if (not punit->is_sibling(psig::get_instance()))
+	ZENTHROW(UnitNotFound, punit_arg.getValue() + " is not a unit for pressure");
+      stats.for_each([punit] (auto & s)
+		     { mutable_unit_convert(psig::get_instance(), s.p, *punit); });
+    }
 
   const string target_name = corr_list.get_first()->target_name();
   DynList<string> header = { "t", target_name };

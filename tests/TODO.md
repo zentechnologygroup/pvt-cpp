@@ -65,3 +65,6 @@
 ## 22. añadir un modo de lista de excepciones para ttuner
 - Created at   2017-11-04 13:32:58 -0400
 
+## 23. reporte de lcal debe estar en la mism unidad de datos
+- Created at   2017-11-06 15:03:46 -0400
+
