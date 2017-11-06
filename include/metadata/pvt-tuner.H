@@ -2491,8 +2491,13 @@ public:
 	    corr_map[target_name] = stats;
 	  }
       }
-    
-    return corr_map.values();
+
+    static DynList<string> name_order = { "pb", "rs", "boa", "coa", "boa",
+					  "uod", "uob", "uoa" };
+    return name_order.maps<StatsDesc>([&corr_map] (const auto & name)
+      {
+	return corr_map[name]; 
+      });
   }
 };
 
