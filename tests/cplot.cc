@@ -636,9 +636,6 @@ namespace TCLAP
   template<> struct ArgTraits<ArrayDesc> { typedef StringLike ValueCategory; };
 }
 
-ValueArg<ValList> points = { "", "points", "list of exp points", false,
-			     ValList(), "exp-points", cmd };
-
 size_t set_array(const ArrayDesc & rowset, const string & name,
 		 const Unit & unit, DynList<Correlation::NamedPar> & l)
 {

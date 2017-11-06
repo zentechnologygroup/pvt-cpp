@@ -2190,8 +2190,8 @@ public:
     }
     friend ostream & operator << (ostream & o, const StatsDesc & s)
     {
-      o << s.corr_ptr->name << endl
-	<< s.desc << endl;
+      // o << s.corr_ptr->name << endl
+      // 	<< s.desc << endl;
 	
     }
   };
