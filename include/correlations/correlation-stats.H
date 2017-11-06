@@ -189,10 +189,16 @@ public:
     return not invalid;
   }
 
-  // friend ostream & operator << (ostream & o, const CorrStat::Desc & )
-  // {
-  //   return o << 
-
+  friend ostream & operator << (ostream & o, const CorrStat::Desc & d)
+  {
+    return o << "r2    = " << r2(d) << endl
+	     << "mse   = " << mse(d) << endl
+	     << "sigma = " << sigma(d) << endl
+	     << "sumsq = " << sumsq(d) << endl
+	     << "c     = " << c(d) << endl
+	     << "m     = " << m(d);
+  }
+      
   Desc stats(const Array<double> & yc) const
   {
     if (yc.size() != y.size())

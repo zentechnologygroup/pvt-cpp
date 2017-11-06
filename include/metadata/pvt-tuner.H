@@ -972,7 +972,7 @@ struct PvtData
   	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
   					  psig::get_instance());
 	    TpSet & t = ptr->second;
-  	    if (t.pb > 0 and t.pb != p)
+  	    if (t.pb > 0 and not are_near(t.pb, p, 1e-5))
   	      {
 		cout << "Found two contradictory pairs t, pb: "
 		     << ptr->first << ","
@@ -2190,9 +2190,23 @@ public:
     }
     friend ostream & operator << (ostream & o, const StatsDesc & s)
     {
-      // o << s.corr_ptr->name << endl
-      // 	<< s.desc << endl;
-	
+      o << s.corr_ptr->name << endl
+       	<< s.desc << endl
+	<<  "t =";
+      s.t.for_each([&o] (auto v) { o << " " << v; });
+      o << endl
+	<< "p =";
+      s.p.for_each([&o] (auto v) { o << " " << v; });
+      o << endl
+	<< "ylab =";
+      s.ylab.for_each([&o] (auto v) { o << " " << v; });
+      o << endl
+	<< "ycorr =";
+      s.ycorr.for_each([&o] (auto v) { o << " " << v; });
+      o << endl
+	<< "ytuned =";
+      s.ytuned.for_each([&o] (auto v) { o << " " << v; });
+      return o;
     }
   };
 
