@@ -1883,6 +1883,7 @@ public:
     
     VectorDesc in = v;
     in.yname = corr_ptr->target_name();
+    // TODO resolver yunit
     return compute_values(in, corr_ptr, c, m);
   }
 
@@ -2184,9 +2185,14 @@ public:
     {
       return transpose(zip_lists(ycorr));
     }
-     DynList<DynList<double>> cal_matrix() const // without ycorr
+    DynList<DynList<double>> cal_matrix() const // without ycorr
     {
       return transpose(zip_lists(ytuned));
+    }
+    DynList<string> to_dynlist() const
+    {
+      DynList<string> ret = build_dynlist<string>(corr_ptr->name);
+      return ret.append(CorrStat::desc_to_dynlist(desc));
     }
     friend ostream & operator << (ostream & o, const StatsDesc & s)
     {
@@ -2725,7 +2731,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       validate_uo(ptr);
       if (not is_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: uob samples are not sorted " +
+		 "VectorDesc ctor: uoa samples are not sorted " +
 		 join(ptr->y, " "));
     };
   static auto uo_validate = [] (VectorDesc* ptr)
