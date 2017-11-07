@@ -57,5 +57,14 @@ TEST_F(FluidTest, inputing_rs)
       return data.apply(ptr);
     }), cmp_r2);
 
-  rs_stats.for_each([] (auto & s) { cout << s << endl; });
+  cout << to_string(format_string(rs_stats.maps<DynList<string>>
+				  ([] (auto & s) { return s.to_dynlist(); })))
+       << endl;
+
+  auto rs_stat = rs_stats.get_first();
+
+  auto rs_in = data.inputing(data.search_vectors("boa"), rs_stat.corr_ptr,
+			     CorrStat::c(rs_stat.desc), CorrStat::m(rs_stat.desc));
+
+  rs_in.for_each([] (auto & v) { cout << v << endl; });
 }

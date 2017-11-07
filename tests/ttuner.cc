@@ -658,8 +658,8 @@ ValueArg<double> threshold = { "", "threshold", "auto threshold", false, 0.0,
 
 vector<string> auto_types = { "r2", "mse", "sigma", "sumsq", "c", "m" };
 ValuesConstraint<string> allowed_auto_types = auto_types;
-ValueArg<string> auto_type = { "", "auto-type", "auto triage type", false, "r2",
-		       &allowed_auto_types, cmd };
+ValueArg<string> auto_type = { "", "auto-type", "auto triage type", false,
+			       "r2", &allowed_auto_types, cmd };
 
 MultiArg<RmProperty> rm_property =
   { "", "rm-property", "remove property t", false, "\"property-tag t\"", cmd };
@@ -671,11 +671,11 @@ MultiArg<string> rm_const = { "", "rm-const", "remove const", false,
 ValueArg<string> list_corr = { "l", "list", "list correlations", false, "",
 			       "property-name", cmd };
 
-ValueArg<string> match = { "m", "match", "print matching correlations", false, "",
-			   "property-name", cmd };
+ValueArg<string> match = { "m", "match", "print matching correlations", false,
+			   "", "property-name", cmd };
 
-ValueArg<string> apply = { "a", "apply", "print applying correlations", false, "",
-			   "property-name", cmd };
+ValueArg<string> apply = { "a", "apply", "print applying correlations", false,
+			   "", "property-name", cmd };
 
 ValueArg<string> napply =
   { "n", "napply", "print non applying correlations and reasons", false, "",
@@ -885,7 +885,8 @@ using T = PvtData::StatsDesc;
 # define Define_1_Cmp(name)						\
   auto cmp_##name = [] (const T & d1, const T & d2)			\
   {									\
-    return fabs(1 - CorrStat::name(d1.desc)) < fabs(1 - CorrStat::name(d2.desc)); \
+    return fabs(1 - CorrStat::name(d1.desc)) <				\
+    fabs(1 - CorrStat::name(d2.desc));					\
   }
 
 Define_1_Cmp(r2);
@@ -1203,9 +1204,11 @@ void process_local_calibration()
 	ZENTHROW(UnitNotFound, "pressure unit " + punit_arg.getValue() +
 		 " not found");
       if (not punit->is_sibling(psig::get_instance()))
-	ZENTHROW(UnitNotFound, punit_arg.getValue() + " is not a unit for pressure");
+	ZENTHROW(UnitNotFound, punit_arg.getValue() +
+		 " is not a unit for pressure");
       stats.for_each([punit] (auto & s)
-		     { mutable_unit_convert(psig::get_instance(), s.p, *punit); });
+		     { mutable_unit_convert(psig::get_instance(),
+					    s.p, *punit); });
     }
 
   const string target_name = corr_list.get_first()->target_name();
@@ -1303,6 +1306,7 @@ string plot_cmd()
   else
     s << "--p \""
       << data.pmin() << " " << data.pmax() << " 100\"";
+  s << " --unit \"p psig\"";
   return s.str();
 }
 
@@ -1391,9 +1395,7 @@ void process_auto()
 
   DynList<DynList<string>> rows = corr_list.maps<DynList<string>>([] (auto & s)
     {
-      DynList<string> ret = build_dynlist<string>(s.corr_ptr->name);
-      ret.append(CorrStat::desc_to_dynlist(s.desc));
-      return ret;
+      return s.to_dynlist();
     });
   
   DynList<string> header = build_dynlist<string>("Correlation");
