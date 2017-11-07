@@ -68,3 +68,6 @@
 ## 23. reporte de lcal debe estar en la mism unidad de datos
 - Created at   2017-11-06 15:03:46 -0400
 
+## 24. can_be_applied y list_restrictions deben considerar bobp y uobp
+- Created at   2017-11-07 15:38:46 -0400
+

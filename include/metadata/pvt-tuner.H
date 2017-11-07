@@ -303,6 +303,12 @@ struct VectorDesc
     return out << d.to_string();
   }
 
+  string py_string() const
+  {
+    return join(zip_maps<string>([] (auto t) { return "(" + ::to_string(get<0>(t))
+	    + ", " + ::to_string(get<1>(t)) + ")"; }, p, y), ", ");
+  }
+
   /** Assuming that `this` contains values for viscosity (uo) in both
       regions saturated and undersaturated, this method split uo in
       two vector named uob and uob respectively. The bubble point and
@@ -341,7 +347,7 @@ struct VectorDesc
     Array<double> uob = y.take(min_idx + 1);
     if (not is_inversely_sorted(uob, std::less_equal<double>()))
       ZENTHROW(SamplesUnsorted, "saturated region of uo is not decreasing " +
-	       join(uob, " "));
+	       py_string());
 
     Array<double> p_above, uoa;
     for (size_t i = min_idx + 1; i < p.size(); ++i)
@@ -352,7 +358,7 @@ struct VectorDesc
 
     if (not is_sorted(uoa, std::less_equal<double>()))
       ZENTHROW(SamplesUnsorted, "undersaturated region of uo is not increasing " +
-	       join(uoa, " "));
+	       py_string());
 
     if (p_below.size() < 2)
       ZENTHROW(CommandLineError, "Not enough point for estimating uob");
@@ -1982,6 +1988,38 @@ public:
       });
   }
 
+private:
+
+  DynList<Quantity<CP>> uobp_vals() const
+  {
+    auto vlist = vectors.filter([] (auto & v)
+      { return is_inside(v.yname, {"uob", "uoa"}); });
+
+    DynSetTree<Quantity<CP>> vals;
+    for (auto it = vlist.get_it(); it.has_curr(); it.next())
+      {
+	auto & v = it.get_curr();
+	vals.insert(VtlQuantity(*v.yunit, v.uobp));
+      }
+    return vals.keys();
+  }
+
+  DynList<Quantity<RB_STB>> bobp_vals() const
+  {
+    auto vlist = vectors.filter([] (auto & v)
+      { return is_inside(v.yname, {"bob", "boa"}); });
+
+    DynSetTree<Quantity<RB_STB>> vals;
+    for (auto it = vlist.get_it(); it.has_curr(); it.next())
+      {
+	auto & v = it.get_curr();
+	vals.insert(VtlQuantity(*v.yunit, v.bobp));
+      }
+    return vals.keys();
+  }
+
+public:
+
   enum class Type { NotFound, Constant, Vector };
 
   //                   name  , true if it is a constant
@@ -2032,13 +2070,20 @@ public:
 	    continue;
 	  }
 
+	if (name_in_data == "uobp" and
+	    (not uobp_vals().all([&par] (auto uobp) { return par.check(uobp); })))
+	  return false;
+	if (name_in_data == "bobp" and
+	    (not bobp_vals().all([&par] (auto bobp) { return par.check(bobp); })))
+	  return false;	
+
 	auto pars_list = get_pars(ref_vectors, name_in_data);
 	if (not pars_list.all([&par] (auto & s)
              {
 	       return s.yvals.all([&par, yunit = s.yunit] (auto v)
-				{
-				  return par.check(VtlQuantity(*yunit, v));
-				});
+				  {
+				    return par.check(VtlQuantity(*yunit, v));
+				  });
 	     }))
 	  return false;
       }
@@ -2083,6 +2128,13 @@ public:
 	      ret.append(make_pair(name_in_data, true));
 	    continue;
 	  }
+
+	if (name_in_data == "uobp" and
+	    (not uobp_vals().all([&par] (auto uobp) { return par.check(uobp); })))
+	  ret.append(make_pair(name_in_data, true));
+	if (name_in_data == "bobp" and
+	    (not bobp_vals().all([&par] (auto bobp) { return par.check(bobp); })))
+	  ret.append(make_pair(name_in_data, true));
 
 	auto pars_list = get_pars(ref_vectors, name_in_data);
 	if (not pars_list.all([&par] (auto & s)
@@ -2585,8 +2637,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 		 "VectorDesc ctor (rs): last value of p is not pb");
       if (not is_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: rs samples are not sorted " +
-		 join(ptr->y, " "));
+		 "VectorDesc ctor: rs samples are not sorted " + ptr->py_string());
       if (not ptr->y.all([u = ptr->yunit] (auto r)
 			 { return BaseQuantity::is_valid(r, *u); }))
 	ZENTHROW(OutOfUnitRange,
@@ -2599,8 +2650,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       validate_bo(ptr);
       if (not is_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: bob samples are sorted " +
-		 join(ptr->y, " "));
+		 "VectorDesc ctor: bob samples are sorted " + ptr->py_string());
+
       if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	{
 	  if (not ptr->y.exists([bobp = ptr->bobp] (auto v)
@@ -2610,9 +2661,6 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	}
       else
 	{
-	  // if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
-	  //   ZENTHROW(SampleInvalid,
-	  // 	     "VectorDesc ctor: bob samples have bobp but p not pb");
 	  ptr->p.append(ptr->pb);
 	  ptr->y.append(ptr->bobp);
 	}
@@ -2644,7 +2692,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (not is_inversely_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
 		 "VectorDesc ctor: coa samples are not inversely sorted " +
-		 join(ptr->y, " "));
+		 ptr->py_string());
       if (not ptr->y.all([u = ptr->yunit] (auto c)
 			 { return BaseQuantity::is_valid(c, *u); }))
 	ZENTHROW(OutOfUnitRange,
@@ -2658,7 +2706,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (not is_inversely_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
 		 "VectorDesc ctor: boa samples are not inversely sorted " +
-		 join(ptr->y, " "));
+		 ptr->py_string());
       if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	ZENTHROW(SampleInvalid, "p vector contains pb");
       if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
@@ -2690,7 +2738,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (not is_inversely_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
 		 "VectorDesc ctor: uob samples are not inversely sorted " +
-		 join(ptr->y, " "));
+		 ptr->py_string());
       if (BaseQuantity::is_valid(ptr->uod, *ptr->yunit)) // was uod defined?
 	{ // yes ==> validate that first entries correspond to it
 	  if (not VtlQuantity(*ptr->yunit, ptr->y(0)).is_near(ptr->uod, 1))
@@ -2704,7 +2752,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 		     Quantity<psig>(ptr->p(0)).to_string() + " is not "
 		     "zero given that uod value is present");
 	} 
-      else if (ptr->p(0) == 0) /// is uod inside uob vector?
+      else if (are_near(ptr->p(0), 0, 1e-1)) /// is uod inside uob vector?
 	ptr->uod = ptr->y(0);
       else
 	ZENTHROW(SampleInvalid, "first pressure value is not zero");
@@ -2732,7 +2780,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (not is_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
 		 "VectorDesc ctor: uoa samples are not sorted " +
-		 join(ptr->y, " "));
+		 ptr->py_string());
+		 
     };
   static auto uo_validate = [] (VectorDesc* ptr)
     {
