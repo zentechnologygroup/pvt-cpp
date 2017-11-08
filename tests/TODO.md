@@ -35,39 +35,21 @@
 ## 12. cplot tuner ztuner test-corr deben atraar execpciones en main  e imprimir error
 - Created at   2017-10-09 17:05:38 -0400
 
-## 13. ptos experimentales en gráfica para plot-r
-- Created at   2017-10-10 16:23:34 -0400
-
-## 14. correlación que esté seteada no debe contar para auto
+## 13. correlación que esté seteada no debe contar para auto
 - Created at   2017-10-10 16:27:53 -0400
 
-## 15. cplot como funcion de biblioteca
+## 14. cplot como funcion de biblioteca
 - Created at   2017-10-10 16:52:41 -0400
 
-## 16. precision en matriz
+## 15. precision en matriz
 - Created at   2017-10-30 08:43:57 -0400
 
-## 17. unificar unidades en estadísticas lcal
+## 16. unificar unidades en estadísticas lcal
 - Created at   2017-10-31 12:36:52 -0400
 
-## 18. ojo con el pb max: podría calibarse por debajo
-- Created at   2017-11-01 17:20:28 -0400
-
-## 19. asegurar que uod siempre esté en C
-- Created at   2017-11-02 15:33:25 -0400
-
-## 20. considerar eliminar precondicion en CoaPerezML
-- Created at   2017-11-03 12:32:20 -0400
-
-## 21. evaluar correlación si llamara precondiciones (desde ruby)
-- Created at   2017-11-03 16:13:52 -0400
-
-## 22. añadir un modo de lista de excepciones para ttuner
+## 17. añadir un modo de lista de excepciones para ttuner
 - Created at   2017-11-04 13:32:58 -0400
 
-## 23. reporte de lcal debe estar en la mism unidad de datos
-- Created at   2017-11-06 15:03:46 -0400
-
-## 24. can_be_applied y list_restrictions deben considerar bobp y uobp
-- Created at   2017-11-07 15:38:46 -0400
+## 18. auto con autoinputing
+- Created at   2017-11-08 09:54:36 -0400
 

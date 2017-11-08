@@ -450,6 +450,38 @@ struct ArrayDesc
   }
 };
 
+struct Input
+{
+  string target_name = "No-defined";
+  string src_name = "No-defined";
+  friend ostream & operator << (ostream & out, const Input & i)
+  {
+    return out << "Target name = " << i.target_name << endl
+	       << "Source name = " << i.src_name;
+  }
+  Input() {}
+  Input & operator = (const string & str)
+  {
+    static const DynSetTree<string> properties =
+      { "rs", "bob", "coa", "boa", "uob", "uoa" };
+    istringstream iss(str);
+    if (not (iss >> target_name))
+      ZENTHROW(CommandLineError, "Cannot read target name property");
+    if (not properties.contains(target_name))
+      ZENTHROW(CommandLineError, target_name +  " is not a valid target name");
+
+    if (not (iss >> src_name))
+      ZENTHROW(CommandLineError, "Cannot read source name property");
+    if (not properties.contains(src_name))
+      ZENTHROW(CommandLineError, src_name +  " is not a valid source name");
+
+    if (target_name == src_name)
+      ZENTHROW(CommandLineError, "target name is the same than the source one");
+
+    return *this;
+  }
+};
+
 namespace TCLAP
 {
   template<> struct ArgTraits<Rs> { typedef StringLike ValueCategory; };
@@ -466,6 +498,7 @@ namespace TCLAP
   template<> struct ArgTraits<CorrArgs> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<RangeDesc> { typedef StringLike ValueCategory; };
   template<> struct ArgTraits<ArrayDesc> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<Input> { typedef StringLike ValueCategory; };
 }
 
 // Vector paramaters
@@ -634,6 +667,9 @@ Corr_Arg(uob);
 Corr_Arg(uoa);
 Corr_Arg(uod);
 Corr_Arg(coa);
+
+MultiArg<Input> input = { "", "input", "input from correlation", false,
+			  "tgt src", cmd };
 				  
 vector<string> output_types = { "R", "csv", "mat" };
 ValuesConstraint<string> allowed_output_types = output_types;
@@ -1426,6 +1462,33 @@ void process_Auto()
 				   threshold.getValue(),
 				   auto_map[auto_type.getValue()],
 				   auto_n.getValue());
+}
+
+void input_data(const Input & in)
+{
+  DynList<const VectorDesc*> src_vectors = data.search_vectors(in.src_name);
+  if (src_vectors.is_empty())
+    ZENTHROW(CommandLineError, "target name " + in.target_name +
+	     " not found in data set");
+
+  auto corr_pars = data.get_corr(in.target_name);
+  const Correlation * corr_ptr = get<0>(corr_pars);
+  if (corr_ptr == nullptr)
+    ZENTHROW(CommandLineError, "Correlation for target " + in.target_name +
+	     " has not been set");
+      
+  const double & c = get<1>(corr_pars);
+  const double & m = get<2>(corr_pars);
+
+  DynList<VectorDesc> out_list = data.inputing(src_vectors, corr_ptr, c, m);
+  for (auto it = out_list.get_it(); it.has_curr(); it.next())
+    data.add_vector(it.get_curr());
+}
+
+void input_data()
+{
+  for (auto & d : input.getValue())
+    input_data(d);
 }
 
 int main(int argc, char *argv[])

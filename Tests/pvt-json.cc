@@ -63,7 +63,7 @@ TEST_F(FluidTest, inputing_rs)
 
   auto rs_stat = rs_stats.get_first();
 
-  auto rs_in = data.inputing(data.search_vectors("boa"), rs_stat.corr_ptr,
+  auto rs_in = data.inputing(data.search_vectors("uob"), rs_stat.corr_ptr,
 			     CorrStat::c(rs_stat.desc), CorrStat::m(rs_stat.desc));
 
   rs_in.for_each([] (auto & v) { cout << v << endl; });

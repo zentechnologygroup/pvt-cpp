@@ -1883,24 +1883,35 @@ public:
     return dispatcher.run(corr_ptr->target_name(), this, pref, corr_ptr, c, m);
   }
 
+  /** Return a new vector result of inputing the pressure values
+      contained in `v` and executing the correlation `corr_ptr`. The
+      result is expressed in `out_unit`
+   */
   VectorDesc inputing(const VectorDesc & v, const Correlation * corr_ptr,
-		      double c, double m) const
-  {
-    
+		      double c, double m,
+		      const Unit * out_unit) const
+  {    
     VectorDesc in = v;
     in.yname = corr_ptr->target_name();
-    // TODO resolver yunit
-    return compute_values(in, corr_ptr, c, m);
+    in.yunit = &corr_ptr->unit;
+    VectorDesc ret = compute_values(in, corr_ptr, c, m);
+    mutable_unit_convert(*in.yunit, ret.y, *out_unit);
+    return ret;
   }
 
   DynList<VectorDesc>
   inputing(const DynList<const VectorDesc*> in_vectors,
 	   const Correlation * corr_ptr, double c, double m)
   {
-    const string target_name = corr_ptr->name;
-    const DynList<const VectorDesc*> tgt_vectors = search_vectors(target_name);
-
     DynList<VectorDesc> ret;
+    
+    const string target_name = corr_ptr->target_name();
+    const DynList<const VectorDesc*> tgt_vectors = search_vectors(target_name);
+    if (tgt_vectors.is_empty())
+      return ret;
+
+    const Unit * out_unit = tgt_vectors.get_first()->yunit;
+
     for (auto it = in_vectors.get_it(); it.has_curr(); it.next())
       {
 	auto curr = it.get_curr();
@@ -1908,14 +1919,11 @@ public:
 					{ return ptr->t == curr->t; });
 	if (ptr != nullptr)
 	  continue;
-	ret.append(inputing(*curr, corr_ptr, c, m));
+	ret.append(inputing(*curr, corr_ptr, c, m, out_unit));
       }
 
     return ret;
   }
-
-  // TODO luego de aquí construir por cada propiedad build_rs_values
-  // ... según cascada que tendria el grid
 
   /*
     given ref_vector which contains a property for several
@@ -2270,20 +2278,20 @@ public:
 
   StatsDesc apply(const Correlation * corr_ptr) const
   {
-# define DECLARE_STATS(name)						\
+# define DECLARE_STAT(name)						\
     static auto name##_s = [] (const PvtData * pvt_ptr,			\
 			       const Correlation * corr_ptr)		\
       {									\
 	return pvt_ptr->name##_stats(corr_ptr);				\
       };
-    DECLARE_STATS(pb);
-    DECLARE_STATS(uod);
-    DECLARE_STATS(rs);
-    DECLARE_STATS(bob);
-    DECLARE_STATS(coa);
-    DECLARE_STATS(boa);
-    DECLARE_STATS(uob);
-    DECLARE_STATS(uoa);
+    DECLARE_STAT(pb);
+    DECLARE_STAT(uod);
+    DECLARE_STAT(rs);
+    DECLARE_STAT(bob);
+    DECLARE_STAT(coa);
+    DECLARE_STAT(boa);
+    DECLARE_STAT(uob);
+    DECLARE_STAT(uoa);
     
     const string target_name = corr_ptr->target_name();
     if (target_name == "pb" or target_name == "uod")

@@ -52,3 +52,21 @@
 - Comment      
 - Finished     
 
+## 10. reahacer compute_rs
+- Created at   2017-10-25 11:59:42 -0400
+- Completed at 2017-11-08 08:45:52 -0400
+- Comment      
+- Finished     
+
+## 11. Orden: input luego programar tests de TODO: 
+- Created at   
+- Completed at 2017-11-08 08:46:11 -0400
+- Comment      
+- Finished     
+
+## 12. capturar excepiones e ignorr en stats
+- Created at   2017-10-26 17:25:45 -0400
+- Completed at 2017-10-28 21:29:13 -0400
+- Comment      
+- Finished     
+

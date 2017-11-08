@@ -2404,3 +2404,45 @@
 - Comment      
 - Finished     
 
+## 402. can_be_applied y list_restrictions deben considerar bobp y uobp
+- Created at   2017-11-07 15:38:46 -0400
+- Completed at 2017-11-07 20:47:54 -0400
+- Comment      
+- Finished     
+
+## 403. reporte de lcal debe estar en la mism unidad de datos
+- Created at   2017-11-06 15:03:46 -0400
+- Completed at 2017-11-07 20:47:58 -0400
+- Comment      
+- Finished     
+
+## 404. evaluar correlación si llamara precondiciones (desde ruby)
+- Created at   2017-11-03 16:13:52 -0400
+- Completed at 2017-11-07 20:48:04 -0400
+- Comment      
+- Finished     
+
+## 405. considerar eliminar precondicion en CoaPerezML
+- Created at   2017-11-03 12:32:20 -0400
+- Completed at 2017-11-07 20:48:08 -0400
+- Comment      
+- Finished     
+
+## 406. ojo con el pb max: podría calibarse por debajo
+- Created at   2017-11-01 17:20:28 -0400
+- Completed at 2017-11-07 20:48:19 -0400
+- Comment      
+- Finished     
+
+## 407. ptos experimentales en gráfica para plot-r
+- Created at   2017-10-10 16:23:34 -0400
+- Completed at 2017-11-08 08:44:34 -0400
+- Comment      
+- Finished     
+
+## 408. asegurar que uod siempre esté en C
+- Created at   2017-11-02 15:33:25 -0400
+- Completed at 2017-11-08 08:44:48 -0400
+- Comment      
+- Finished     
+
