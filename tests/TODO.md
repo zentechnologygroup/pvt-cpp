@@ -59,3 +59,12 @@
 ## 20. colorear puntos según tempreatura en opcion R de ttuner
 - Created at   2017-11-08 10:30:55 -0400
 
+## 21. auto inputing dada t
+- Created at   2017-11-08 19:30:07 -0400
+
+## 22. ttuner tauto option
+- Created at   2017-11-08 19:42:04 -0400
+
+## 23. ttuner auto input option
+- Created at   2017-11-08 19:42:15 -0400
+
