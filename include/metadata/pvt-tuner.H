@@ -492,7 +492,7 @@ struct PvtData
   double c_rs = 0, m_rs = 1;    
   const Correlation * bob_corr = nullptr;
   double c_bob = 0, m_bob = 1;    
-  const Correlation * boa_corr = &BoaMcCain::get_instance();
+  const Correlation * boa_corr = nullptr;
   double c_boa = 0, m_boa = 1;    
   const Correlation * coa_corr = nullptr;
   double c_coa = 0, m_coa = 1;    
@@ -2518,7 +2518,7 @@ public:
 	assert(uob_corr);
 	assert(uoa_corr);
 	// revisar los vectores donde haya distintas temperaturas y
-	// efectuar inputing
+	// efectuar inputing 
       }
 
     for (size_t i = 1; i < n; ++i)
