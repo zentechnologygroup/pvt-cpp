@@ -1925,6 +1925,23 @@ public:
     return ret;
   }
 
+  /** For each different temperature found in the data set, builds
+      missing properties through the set correlations 
+  */
+  DynList<VectorDesc> auto_inputing()
+  {
+    auto tpset = tp_sets();
+
+    auto rs_v = search_vectors("rs");
+    if (rs_corr == nullptr)
+      ZENTHROW(CorrelationNotFound, "Not set correlation for rs");
+    DynList<VectorDesc> ret = inputing(rs_v, rs_corr, c_rs, m_rs);
+
+    auto bob_v = search_vectors("bob");
+    
+    return ret;
+  }
+
   /*
     given ref_vector which contains a property for several
     temperatures, this routine searches for target_name and returns

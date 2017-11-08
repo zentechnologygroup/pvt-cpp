@@ -1506,7 +1506,7 @@ int main(int argc, char *argv[])
 
       set_correlations();
       set_relax_names();
-      //input_data();
+      input_data();
 
       if (not data.defined())
 	error_msg("data is not defined");
