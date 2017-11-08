@@ -1951,6 +1951,17 @@ public:
     return ret;
   }
 
+  DynList<VectorDesc> auto_inputing(const Quantity<Fahrenheit> & t,
+				    const string & target_name) const
+  {
+    
+  }
+
+  DynList<VectorDesc> auto_inputing(const Quantity<Fahrenheit> & t) const
+  {
+    
+  }
+
   /*
     given ref_vector which contains a property for several
     temperatures, this routine searches for target_name and returns
