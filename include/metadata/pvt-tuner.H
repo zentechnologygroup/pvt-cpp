@@ -1901,7 +1901,7 @@ public:
 
   DynList<VectorDesc>
   inputing(const DynList<const VectorDesc*> in_vectors,
-	   const Correlation * corr_ptr, double c, double m)
+	   const Correlation * corr_ptr, double c, double m) const
   {
     DynList<VectorDesc> ret;
     
@@ -1925,20 +1925,29 @@ public:
     return ret;
   }
 
+private:
+
+  void auto_inputing(DynList<VectorDesc> & result, const string & target_name) const
+  {
+    CorrDesc corr_desc = search_corr(target_name);
+    if (corr_desc.corr_ptr == nullptr)
+      ZENTHROW(CorrelationNotFound, "Not set correlation for target_name " +
+	       target_name);
+    result.append(inputing(search_vectors(target_name), corr_desc.corr_ptr,
+			   corr_desc.c, corr_desc.m));
+  }
+
+public:
+
   /** For each different temperature found in the data set, builds
       missing properties through the set correlations 
   */
-  DynList<VectorDesc> auto_inputing()
+  DynList<VectorDesc> auto_inputing() const
   {
-    auto tpset = tp_sets();
-
-    auto rs_v = search_vectors("rs");
-    if (rs_corr == nullptr)
-      ZENTHROW(CorrelationNotFound, "Not set correlation for rs");
-    DynList<VectorDesc> ret = inputing(rs_v, rs_corr, c_rs, m_rs);
-
-    auto bob_v = search_vectors("bob");
-    
+    DynList<VectorDesc> ret;
+    for (auto it = VectorDesc::valid_target_names.get_it();
+	 it.has_curr(); it.next())
+      auto_inputing(ret, it.get_curr()); 
     return ret;
   }
 
@@ -2446,6 +2455,34 @@ public:
 	ZENTHROW(CorrelationNotApplicable,
 		 "Invalid target for correlation " + target_name);
       }
+  }
+
+  struct CorrDesc
+  {
+    const Correlation * corr_ptr = nullptr;
+    double c = 0, m = 1;
+    CorrDesc(const Correlation * __corr_ptr, double __c = 0, double __m = 1)
+      : corr_ptr(__corr_ptr), c(__c), m(__m) {}
+  };
+
+  CorrDesc search_corr(const string & target_name) const
+  {
+# define GET_CORR(name)							\
+    static auto name##_c = [] (const PvtData * ptr)				\
+      { return CorrDesc(ptr->name##_corr, ptr->c_##name, ptr->m_##name); };
+# define CPAIR(name) #name, name##_c
+    GET_CORR(pb);
+    GET_CORR(rs);
+    GET_CORR(bob);
+    GET_CORR(coa);
+    GET_CORR(boa);
+    GET_CORR(uod);
+    GET_CORR(uob);
+    GET_CORR(uoa);
+    static AHDispatcher<string, CorrDesc (*)(const PvtData*)> dispatcher =
+      { CPAIR(pb), CPAIR(rs), CPAIR(bob), CPAIR(coa), CPAIR(boa), CPAIR(uod),
+	CPAIR(uob), CPAIR(uoa) };
+    return dispatcher.run(target_name, this);
   }
 
   DynList<StatsDesc>
