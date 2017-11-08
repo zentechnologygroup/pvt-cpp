@@ -53,3 +53,6 @@
 ## 18. cuandoi se calibra uob poniendo corrs se elimina la ultima fila
 - Created at   2017-10-28 22:38:47 -0400
 
+## 19. ttuner opcion que añada varias temperaturas de inputing
+- Created at   2017-11-08 11:07:04 -0400
+

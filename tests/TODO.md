@@ -53,3 +53,9 @@
 ## 18. auto con autoinputing
 - Created at   2017-11-08 09:54:36 -0400
 
+## 19. opcion que salve en nuevo archivo
+- Created at   2017-11-08 10:29:03 -0400
+
+## 20. colorear puntos según tempreatura en opcion R de ttuner
+- Created at   2017-11-08 10:30:55 -0400
+

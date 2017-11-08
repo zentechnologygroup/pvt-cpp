@@ -492,7 +492,7 @@ struct PvtData
   double c_rs = 0, m_rs = 1;    
   const Correlation * bob_corr = nullptr;
   double c_bob = 0, m_bob = 1;    
-  const Correlation * boa_corr = nullptr;
+  const Correlation * boa_corr = &BoaMcCain::get_instance();
   double c_boa = 0, m_boa = 1;    
   const Correlation * coa_corr = nullptr;
   double c_coa = 0, m_coa = 1;    
@@ -2474,21 +2474,9 @@ public:
     else
       corr_map.insert("coa", apply(coa_corr));
 
-    // if (boa_corr == nullptr)
-    //   {
-    // 	StatsDesc s = auto_apply("boa", relax_tbl, ban_list, threshold, type);
-    // 	ADD_AUTO(boa, s);
-    //   }
-    // else
-    //   corr_map.insert("boa", apply(boa_corr));
-    {
-      auto st = boa_stats(&BoaMcCain::get_instance());
-      StatsDesc s = { st };
-      CorrStat::c(s.desc) = 0;
-      CorrStat::m(s.desc) = 1;
-      s.ytuned = s.ycorr;
-      ADD_AUTO(boa, s);
-    }
+    boa_corr = &BoaMcCain::get_instance();
+    c_boa = 0;
+    m_boa = 1;
 
     if (uod_corr == nullptr)
       {
@@ -2517,8 +2505,9 @@ public:
     else
       corr_map.insert("uoa", apply(uoa_corr));
 
-    // TODO: falta actualizar ret si se entra en este lazo
-    for (size_t i = 1; i < n; ++i)
+    static const DynList<string> dynamic_names =
+      { "rs", "bob", "coa", "uob", "uoa" };
+    if (n > 1)
       {
 	assert(pb_corr);
 	assert(rs_corr);
@@ -2528,10 +2517,14 @@ public:
 	assert(uod_corr);
 	assert(uob_corr);
 	assert(uoa_corr);
+	// revisar los vectores donde haya distintas temperaturas y
+	// efectuar inputing
+      }
+
+    for (size_t i = 1; i < n; ++i)
+      {
+	
 	static const DynList<string> static_names = { "pb", "uod" };
-	static const DynList<string> dynamic_names =
-	  { "rs", "bob", "coa", // "boa",
-	    "uob", "uoa" };
 
 	for (auto target_name : static_names)
 	  {
@@ -2558,7 +2551,7 @@ public:
 	  }
       }
 
-    static DynList<string> name_order = { "pb", "rs", "boa", "coa", "boa",
+    static DynList<string> name_order = { "pb", "rs", "boa", "coa",
 					  "uod", "uob", "uoa" };
     return name_order.maps<StatsDesc>([&corr_map] (const auto & name)
       {
