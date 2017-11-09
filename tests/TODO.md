@@ -74,3 +74,9 @@
 ## 25. los arreglos de partida en inputing son uob y uoa
 - Created at   2017-11-09 12:44:04 -0400
 
+## 26. verificar que yunit siempre sea la misma cuando hay varios arreglos
+- Created at   2017-11-09 15:45:13 -0400
+
+## 27. cuando haya más de un vector para la misma propiedad la unidad es la misma
+- Created at   2017-11-09 15:47:52 -0400
+

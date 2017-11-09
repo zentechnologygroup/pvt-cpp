@@ -786,9 +786,16 @@ struct PvtData
 	       join(v.p, " "));
 
     auto sibling = search_vectors(v.yname);
-    if (not sibling.is_empty() and not sibling.all([&v] (auto & p)
-        { return p->yunit->is_sibling(*v.yunit); }))
-      ZENTHROW(InvalidTargetUnit, v.yunit->name + " is not sibling");
+    if (not sibling.is_empty())
+      {
+	auto fst = sibling.get_first();
+	if (not sibling.all([&v] (auto & p)
+			    { return p->yunit->is_sibling(*v.yunit); }))
+	  ZENTHROW(InvalidTargetUnit, v.yunit->name + " is not sibling of " +
+		   fst->yunit->name);
+	if (v.yunit != fst->yunit)
+	  mutable_unit_convert(*v.yunit, v.y, *fst->yunit);
+      }
 
     names.append("p");
     names.append("pb");
@@ -1136,7 +1143,7 @@ public:
     CorrStat::Desc desc;
     bool valid = false;
     ConstStats(const Correlation * __corr_ptr, DynList<double> && __t,
-	    DynList<double> && __ylab, DynList<double> && __ycorr)
+	       DynList<double> && __ylab, DynList<double> && __ycorr)
       : corr_ptr(__corr_ptr), t(move(__t)), ylab(__ylab),
 	ycorr(__ycorr), desc(CorrStat(move(__ylab)).stats(move(__ycorr))),
 	valid(CorrStat::is_valid(desc))
@@ -1290,15 +1297,17 @@ public:
     struct Trio
     {
       double t = PVT_INVALID_VALUE;
-      DynList<double> p, ylab, ycorr, ytuned;
-      Trio(double __t, DynList<double> && __p,
+      DynList<double> plab, p, ylab, ycorr, ytuned;
+      Trio(double __t, DynList<double> && __plab, DynList<double> && __p,
 	   DynList<double> && __ylab, DynList<double> && __ycorr)
-	: t(__t), p(move(__p)), ylab(move(__ylab)), ycorr(move(__ycorr))
+	: t(__t), plab(move(__plab)), p(move(__p)), ylab(move(__ylab)),
+	  ycorr(move(__ycorr))
       {
+	assert(not plab.is_empty());
 	assert(not p.is_empty());
 	assert(not ylab.is_empty());
 	assert(not ycorr.is_empty());
-	assert(equal_length(p, ylab, ycorr));
+	assert(equal_length(plab, p, ylab, ycorr));
       }
       Trio() {}
     };
@@ -1307,15 +1316,15 @@ public:
     mutable CorrStat::Desc desc;
     mutable bool valid = false, closed = false, dirty = false;
     VectorStats(const Correlation * __corr_ptr) : corr_ptr(__corr_ptr) {}
-    void add(double t, DynList<double> && p,
+    void add(double t, DynList<double> && plab, DynList<double> && p,
 	     DynList<double> && ylab, DynList<double> && ycorr)
     {
       if (closed)
 	ZENTHROW(MetadataException, "VectorStats is already closed");
-      if (not equal_length(p, ylab, ycorr))
+      if (not equal_length(plab, p, ylab, ycorr))
 	dirty = true;
       else
-	temps.insert(t, Trio(t, move(p), move(ylab), move(ycorr)));
+	temps.insert(t, Trio(t, move(plab), move(p), move(ylab), move(ycorr)));
     }
     void close()
     {
@@ -1330,18 +1339,20 @@ public:
 	  return;
 	}
 
-      DynList<double> p, ylab, ycorr;
+      DynList<double> plab, p, ylab, ycorr;
       for (auto it = temps.get_it(); it.has_curr(); it.next())
 	{
 	  const Trio & pp = it.get_curr().second;
+	  plab.append(pp.plab);
 	  p.append(pp.p);
 	  ylab.append(pp.ylab);
 	  ycorr.append(pp.ycorr);
 	}
-      auto l = sort(t_zip(p, ylab, ycorr), [] (auto & t1, auto & t2)
-		    { return get<0>(t1) < get<0>(t2); });
+      // order in x axis for regression is p array
+      auto l = sort(t_zip(plab, p, ylab, ycorr), [] (auto & t1, auto & t2)
+		    { return get<1>(t1) < get<1>(t2); });
       auto t = t_unzip(l);
-      desc = CorrStat(get<1>(t)).stats(get<2>(t));
+      desc = CorrStat(get<2>(t)).stats(get<3>(t));
       valid = CorrStat::is_valid(desc);
     }
     DynList<string> to_dynlist() const
@@ -1369,8 +1380,8 @@ public:
 	    zip_maps<DynList<double>>([temp = q.t] (auto t)
             {
 	      return build_dynlist<double>(temp, get<0>(t), get<1>(t), get<2>(t),
-					   get<3>(t));
-	    }, q.p, q.ylab, q.ycorr, q.ytuned);
+					   get<3>(t), get<4>(t));
+	    }, q.plab, q.p, q.ylab, q.ycorr, q.ytuned);
 	  ret.append(move(m));
 	}
       return ret;
@@ -1396,9 +1407,8 @@ private:
   VectorStats compute_stats
   (const DynList<const VectorDesc*> & lab_data,
    const Correlation * corr_ptr,
-   VectorDesc (PvtData::*compute_ptr)(const VectorDesc & pref,
-				      const Correlation * corr_ptr,
-				      double c, double m) const) const
+   VectorDesc (PvtData::*compute_ptr)(const VectorDesc &, const Correlation*,
+				      double, double) const) const
   {
     VectorStats stats(corr_ptr);
     size_t k = 0;
@@ -1408,7 +1418,7 @@ private:
 	try
 	  {
 	    VectorDesc corr_data = (this->*compute_ptr)(*lab_ptr, corr_ptr, 0, 1);
-	    stats.add(corr_data.t, to_dynlist(corr_data.p),
+	    stats.add(corr_data.t, to_dynlist(lab_ptr->p), to_dynlist(corr_data.p),
 		      to_dynlist(lab_ptr->y), to_dynlist(corr_data.y));
 	    ++k;
 	  }
@@ -2286,7 +2296,7 @@ public:
   {
     const Correlation * corr_ptr = nullptr;
     mutable CorrStat::Desc desc;
-    mutable DynList<double> t, p, ylab, ycorr, ytuned;
+    mutable DynList<double> t, plab, p, ylab, ycorr, ytuned;
     mutable bool valid = false;
     StatsDesc() {}
     StatsDesc(ConstStats & s)
@@ -2302,15 +2312,16 @@ public:
 	  auto & pp = it.get_curr();
 	  const double & temp = pp.first;
 	  auto & tr = pp.second;
-	  for (auto it = zip_it(tr.p, tr.ylab, tr.ycorr, tr.ytuned);
+	  for (auto it = zip_it(tr.plab, tr.p, tr.ylab, tr.ycorr, tr.ytuned);
 	       it.has_curr(); it.next())
 	    {
 	      auto tu = it.get_curr();
 	      t.append(temp);
-	      p.append(get<0>(tu));
-	      ylab.append(get<1>(tu));
-	      ycorr.append(get<2>(tu));
-	      ytuned.append(get<3>(tu));
+	      plab.append(get<0>(tu));
+	      p.append(get<1>(tu));
+	      ylab.append(get<2>(tu));
+	      ycorr.append(get<3>(tu));
+	      ytuned.append(get<4>(tu));
 	    }
 	}
     }

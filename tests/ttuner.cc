@@ -1238,9 +1238,10 @@ void process_local_calibration()
     return;
 
   auto & corr_list = cal.getValue().corr_list;
-
   auto stats = corr_list.maps<PvtData::StatsDesc>([] (auto ptr)
 						  { return data.apply(ptr); });
+  const string target_name = corr_list.get_first()->target_name();
+ 
   if (punit_arg.isSet())
     {
       const Unit * punit = Unit::search(punit_arg.getValue());
@@ -1258,7 +1259,7 @@ void process_local_calibration()
     {
       const Unit * tunit = Unit::search(tunit_arg.getValue());
       if (tunit == nullptr)
-	ZENTHROW(UnitNotFound, "temperature unit " + punit_arg.getValue() +
+	ZENTHROW(UnitNotFound, "temperature unit " + yunit_arg.getValue() +
 		 " not found");
       if (not tunit->is_sibling(Fahrenheit::get_instance()))
 	ZENTHROW(UnitNotFound, punit_arg.getValue() +
@@ -1267,28 +1268,33 @@ void process_local_calibration()
 		     { mutable_unit_convert(Fahrenheit::get_instance(),
 					    s.t, *tunit); });
     }
-  // if (yunit_arg.isSet())
-  // {
-  //     const Unit * yunit = Unit::search(yunit_arg.getValue());
-  //     if (yunit == nullptr)
-  // 	ZENTHROW(UnitNotFound, "unit " + punit_arg.getValue() + " not found");
-  //     if (not yunit->is_sibling(
-  // 	ZENTHROW(UnitNotFound, punit_arg.getValue() +
-  // 		 " is not a unit for pressure");
-  //     stats.for_each([yunit] (auto & s)
-  // 		     { mutable_unit_convert(psig::get_instance(),
-  // 					    s.p, *tunit); });
-  //   }
-  const string target_name = corr_list.get_first()->target_name();
-  DynList<string> header = { "t", target_name };
-  auto fst_s = stats.get_first();
-  DynList<DynList<double>> mat = { fst_s.t, fst_s.ylab };
-  if (not (target_name == "pb" or target_name == "uod"))
-    {
-      header.append("p");
-      mat.append(fst_s.p);
-    }  
-  
+  if (yunit_arg.isSet())
+  {
+      const Unit * yunit = Unit::search(yunit_arg.getValue());
+      if (yunit == nullptr)
+  	ZENTHROW(UnitNotFound, "unit " + yunit_arg.getValue() + " not found");
+      const Unit * src_unit = nullptr;
+      if (target_name == "pb")
+	src_unit = &psig::get_instance();
+      else if (target_name == "uod")
+	src_unit = &CP::get_instance();
+      else
+	{
+	  const DynList<const VectorDesc*> vlist = data.search_vectors(target_name);
+	  assert(not vlist.is_empty());
+	  src_unit = vlist.get_first()->yunit;
+	}
+      if (not yunit->is_sibling(*src_unit))
+  	ZENTHROW(UnitNotFound, yunit_arg.getValue() + " is not a unit sibling of " +
+		 src_unit->name);
+      stats.for_each([yunit, src_unit] (auto & s)
+  		     { mutable_unit_convert(*src_unit, s.ylab, *yunit); });
+      stats.for_each([yunit, src_unit] (auto & s)
+  		     { mutable_unit_convert(*src_unit, s.ycorr, *yunit); });
+      stats.for_each([yunit, src_unit] (auto & s)
+  		     { mutable_unit_convert(*src_unit, s.ytuned, *yunit); });
+    }
+
   static AHDispatcher<string,
 		      DynList<DynList<double>> (*)(const PvtData::StatsDesc&,
 						   DynList<string>*)>
@@ -1312,6 +1318,17 @@ void process_local_calibration()
       }
     };
 
+  DynList<string> header = { "t", target_name };
+  auto fst_s = stats.get_first();
+  DynList<DynList<double>> mat = { fst_s.t, fst_s.ylab };
+  if (not (target_name == "pb" or target_name == "uod"))
+    {
+      header.append("plab");
+      header.append("p");
+      mat.append(fst_s.plab);
+      mat.append(fst_s.p);
+    }  
+  
   const auto & mode = mode_type.getValue();
   for (auto it = stats.get_it(); it.has_curr(); it.next())
     mat.append(mode_dispatch.run(mode, it.get_curr(), &header));
