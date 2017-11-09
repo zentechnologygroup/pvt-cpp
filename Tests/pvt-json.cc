@@ -57,14 +57,16 @@ TEST_F(FluidTest, inputing_rs)
       return data.apply(ptr);
     }), cmp_r2);
 
-  cout << to_string(format_string(rs_stats.maps<DynList<string>>
-				  ([] (auto & s) { return s.to_dynlist(); })))
-       << endl;
+  ASSERT_FALSE(rs_stats.is_empty());
 
   auto rs_stat = rs_stats.get_first();
 
   auto rs_in = data.inputing(data.search_vectors("uob"), rs_stat.corr_ptr,
-			     CorrStat::c(rs_stat.desc), CorrStat::m(rs_stat.desc));
+			     CorrStat::c(rs_stat.desc),
+			     CorrStat::m(rs_stat.desc));
+
+  cout << "new rs inputs fron" << rs_stat.corr_ptr->name << endl;
+  rs_in.for_each([] (auto & v) { cout << v << endl; }); cout << endl;
 
   rs_in.for_each([this] (auto & v) { data.add_vector(v); });
 
@@ -74,3 +76,24 @@ TEST_F(FluidTest, inputing_rs)
   ASSERT_TRUE(rs_in.is_empty());
 }
 
+TEST_F(FluidTest, inputing_t_rs)
+{
+  auto rs_corr_list = data.can_be_applied("rs");
+  auto rs_stats = sort(rs_corr_list.maps<PvtData::StatsDesc>([this] (auto ptr)
+    {
+      return data.apply(ptr);
+    }), cmp_r2);
+  ASSERT_FALSE(rs_stats.is_empty());
+
+  auto stat = rs_stats.get_first();
+  data.set_correlation(stat);
+
+  auto rs_vectors = data.search_vectors("rs");
+  ASSERT_TRUE(rs_vectors.is_unitarian());
+
+  auto rs = rs_vectors.get_first();
+
+  auto rs_200 = data.auto_inputing(200, rs->get_pressures(), "rs");
+  cout << "rs 200" << endl
+       << rs_200 << endl;
+}

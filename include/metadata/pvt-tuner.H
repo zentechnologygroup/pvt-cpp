@@ -39,6 +39,18 @@ struct VectorDesc
   const Unit * yunit = nullptr;
   mutable Array<double> y;
 
+  DynList<Quantity<psig>> get_pressures() const
+  {
+    return p.maps<Quantity<psig>>([this] (auto v)
+		  { return Quantity<psig>(VtlQuantity(*punit, v)); });
+  }
+
+  DynList<VtlQuantity> get_y() const
+  {
+    return y.maps<VtlQuantity>([this] (auto v)
+			       { return VtlQuantity(*yunit, v); });
+  } 
+
   double pmin() const
   {
     assert(p.get_first() < p.get_last());
@@ -1835,7 +1847,8 @@ public:
   VectorStats stats(const Correlation * corr_ptr) const
   {
 # define DECLARE_STATS(name)				\
-  static auto name##_call = [] (const PvtData * ptr, const Correlation * corr_ptr) \
+    static auto name##_call = [] (const PvtData * ptr,			\
+				  const Correlation * corr_ptr)		\
   {									\
     return ptr->name##_stats(corr_ptr);					\
   };
@@ -1858,7 +1871,8 @@ public:
   {
 # define DECLARE_CALL(name)						\
     static auto name##_call = [] (const PvtData * ptr, const VectorDesc & pref,	\
-				  const Correlation * corr_ptr, double c, double m) \
+				  const Correlation * corr_ptr,		\
+				  double c, double m)			\
       {									\
 	return ptr->compute_##name(pref, corr_ptr, c, m);		\
       };
@@ -1885,8 +1899,7 @@ public:
 
   /** Return a new vector result of inputing the pressure values
       contained in `v` and executing the correlation `corr_ptr`. The
-      result is expressed in `out_unit`
-   */
+      result is expressed in `out_unit` */
   VectorDesc inputing(const VectorDesc & v, const Correlation * corr_ptr,
 		      double c, double m,
 		      const Unit * out_unit) const
@@ -1927,7 +1940,8 @@ public:
 
 private:
 
-  void auto_inputing(DynList<VectorDesc> & result, const string & target_name) const
+  void auto_inputing(DynList<VectorDesc> & result,
+		     const string & target_name) const
   {
     CorrDesc corr_desc = search_corr(target_name);
     if (corr_desc.corr_ptr == nullptr)
@@ -1945,21 +1959,44 @@ public:
   DynList<VectorDesc> auto_inputing() const
   {
     DynList<VectorDesc> ret;
-    for (auto it = VectorDesc::valid_target_names.get_it();
-	 it.has_curr(); it.next())
-      auto_inputing(ret, it.get_curr()); 
+    for (auto & name : { "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa"})
+      auto_inputing(ret, name); 
+    return ret;
+  }
+
+  VectorDesc auto_inputing(const Quantity<Fahrenheit> & t,
+			   const DynList<Quantity<psig>> & p,
+			   const string & target_name) const
+  {
+    CorrDesc desc = search_corr(target_name);
+    if (desc.corr_ptr == nullptr)
+      ZENTHROW(CorrelationNotFound, "Not set correlation for target_name " +
+	       target_name);
+    VectorDesc pref(t.raw(), target_name);
+    pref.p = p.maps<double>([] (auto & q) { return q.raw(); });
+    pref.punit = &psig::get_instance();
+    pref.yunit = &desc.corr_ptr->unit;
+
+    VectorDesc ret = compute_values(pref, desc.corr_ptr, desc.c, desc.m);
+
+    const DynList<const VectorDesc*> other_list = search_vectors(target_name);
+    if (not other_list.is_empty())
+      {
+	auto tgt_unit = other_list.get_first()->yunit;
+	mutable_unit_convert(*ret.yunit, ret.y, *tgt_unit);
+	ret.yunit = tgt_unit;
+      }
+
     return ret;
   }
 
   DynList<VectorDesc> auto_inputing(const Quantity<Fahrenheit> & t,
-				    const string & target_name) const
+				    const DynList<Quantity<psig>> & p) const
   {
-    
-  }
-
-  DynList<VectorDesc> auto_inputing(const Quantity<Fahrenheit> & t) const
-  {
-    
+    DynList<VectorDesc> ret;
+    for (auto & name : { "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa"})
+      ret.append(auto_inputing(t, p, name));
+    return ret;
   }
 
   /*
@@ -2616,7 +2653,7 @@ public:
 	  }
       }
 
-    static DynList<string> name_order = { "pb", "rs", "boa", "coa",
+    static DynList<string> name_order = { "pb", "rs", "bob", "coa",
 					  "uod", "uob", "uoa" };
     return name_order.maps<StatsDesc>([&corr_map] (const auto & name)
       {

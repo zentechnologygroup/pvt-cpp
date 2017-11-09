@@ -670,6 +670,8 @@ Corr_Arg(coa);
 
 MultiArg<Input> input = { "", "input", "input from correlation", false,
 			  "tgt src", cmd };
+
+SwitchArg auto_input = { "", "auto-input", "auto inputing", cmd };
 				  
 vector<string> output_types = { "R", "csv", "mat" };
 ValuesConstraint<string> allowed_output_types = output_types;
@@ -1444,7 +1446,7 @@ void process_auto()
   else
     cout << Aleph::to_string(format_string(rows)) << endl;
 
-  terminate_app();
+  terminate_app(); 
 }
 
 void process_Auto()
@@ -1491,6 +1493,18 @@ void input_data()
     input_data(d);
 }
 
+void process_auto_input()
+{
+  // TODO correr auto primero
+  if (not auto_arg.isSet() and not Auto_arg.isSet())
+    error_msg("auto-input option must be used in combination with "
+	      "--auto or --Auto");
+
+  auto auto_list = data.auto_inputing();
+  auto_list.for_each([] (auto & v) { cout << v << endl; });
+  exit(0);
+}
+
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
@@ -1512,6 +1526,8 @@ int main(int argc, char *argv[])
 	error_msg("data is not defined");
 
       process_Auto();
+      process_auto();
+      process_auto_input();
       process_print_data();
       process_Print_data();
 
@@ -1529,7 +1545,6 @@ int main(int argc, char *argv[])
 
       process_list();
       process_match();
-      process_auto();
       process_apply();
       process_napply();
       process_local_calibration();

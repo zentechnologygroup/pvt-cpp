@@ -47,24 +47,27 @@
 ## 16. unificar unidades en estadísticas lcal
 - Created at   2017-10-31 12:36:52 -0400
 
-## 17. añadir un modo de lista de excepciones para ttuner
-- Created at   2017-11-04 13:32:58 -0400
-
-## 18. auto con autoinputing
+## 17. auto con autoinputing
 - Created at   2017-11-08 09:54:36 -0400
 
-## 19. opcion que salve en nuevo archivo
+## 18. opcion que salve en nuevo archivo
 - Created at   2017-11-08 10:29:03 -0400
 
-## 20. colorear puntos según tempreatura en opcion R de ttuner
+## 19. colorear puntos según tempreatura en opcion R de ttuner
 - Created at   2017-11-08 10:30:55 -0400
 
-## 21. auto inputing dada t
+## 20. auto inputing dada t
 - Created at   2017-11-08 19:30:07 -0400
 
-## 22. ttuner tauto option
+## 21. ttuner tauto option
 - Created at   2017-11-08 19:42:04 -0400
 
-## 23. ttuner auto input option
+## 22. ttuner auto input option
 - Created at   2017-11-08 19:42:15 -0400
+
+## 23. poner columna adicional en lcal con consulta al vector de presión
+- Created at   2017-11-09 10:19:38 -0400
+
+## 24. auto inputu con t debe tener todas las correlaciones definidas
+- Created at   2017-11-09 10:30:28 -0400
 

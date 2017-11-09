@@ -2446,3 +2446,9 @@
 - Comment      
 - Finished     
 
+## 409. añadir un modo de lista de excepciones para ttuner
+- Created at   2017-11-04 13:32:58 -0400
+- Completed at 
+- Comment      
+- Finished     
+
