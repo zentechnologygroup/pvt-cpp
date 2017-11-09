@@ -722,8 +722,14 @@ ValueArg<string> napply =
 ValueArg<CorrArgs> cal = { "", "lcal", "calibrate correlations", false,
 			   CorrArgs(), "calibrate correlation-list", cmd };
 
+ValueArg<string> tunit_arg = { "", "tunit", "temperature unit", false, "",
+			       "unit", cmd };
+
+ValueArg<string> yunit_arg = { "", "yunit", "property unit", false, "",
+			       "unit", cmd };
+
 ValueArg<string> punit_arg = { "", "punit", "pressure unit", false, "psig",
-			       "pressure unit", cmd };
+			       "unit", cmd };
 
 ValueArg<size_t> precision_arg = { "", "precision", " precision for property",
 				   false, 6, "precision in digits", cmd };
@@ -1248,7 +1254,31 @@ void process_local_calibration()
 		     { mutable_unit_convert(psig::get_instance(),
 					    s.p, *punit); });
     }
-
+  if (tunit_arg.isSet())
+    {
+      const Unit * tunit = Unit::search(tunit_arg.getValue());
+      if (tunit == nullptr)
+	ZENTHROW(UnitNotFound, "temperature unit " + punit_arg.getValue() +
+		 " not found");
+      if (not tunit->is_sibling(Fahrenheit::get_instance()))
+	ZENTHROW(UnitNotFound, punit_arg.getValue() +
+		 " is not a unit for temperature");
+      stats.for_each([tunit] (auto & s)
+		     { mutable_unit_convert(Fahrenheit::get_instance(),
+					    s.t, *tunit); });
+    }
+  // if (yunit_arg.isSet())
+  // {
+  //     const Unit * yunit = Unit::search(yunit_arg.getValue());
+  //     if (yunit == nullptr)
+  // 	ZENTHROW(UnitNotFound, "unit " + punit_arg.getValue() + " not found");
+  //     if (not yunit->is_sibling(
+  // 	ZENTHROW(UnitNotFound, punit_arg.getValue() +
+  // 		 " is not a unit for pressure");
+  //     stats.for_each([yunit] (auto & s)
+  // 		     { mutable_unit_convert(psig::get_instance(),
+  // 					    s.p, *tunit); });
+  //   }
   const string target_name = corr_list.get_first()->target_name();
   DynList<string> header = { "t", target_name };
   auto fst_s = stats.get_first();
@@ -1446,7 +1476,8 @@ void process_auto()
   else
     cout << Aleph::to_string(format_string(rows)) << endl;
 
-  terminate_app(); 
+  if (not auto_input.isSet())
+    terminate_app(); 
 }
 
 void process_Auto()
@@ -1495,11 +1526,10 @@ void input_data()
 
 void process_auto_input()
 {
-  // TODO correr auto primero
-  if (not auto_arg.isSet() and not Auto_arg.isSet())
-    error_msg("auto-input option must be used in combination with "
-	      "--auto or --Auto");
-
+  if (not auto_input.isSet())
+    return;
+  // TODO solo auto o Auto están definidas
+  error_msg("Not yet");
   auto auto_list = data.auto_inputing();
   auto_list.for_each([] (auto & v) { cout << v << endl; });
   exit(0);

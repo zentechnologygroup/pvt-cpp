@@ -1958,6 +1958,9 @@ public:
   */
   DynList<VectorDesc> auto_inputing() const
   {
+    if (not are_all_correlations_defined())
+      ZENTHROW(CorrelationNotFound, "correlations for " +
+       	       join(missing_correlations(), " ") +  " are not defined");
     DynList<VectorDesc> ret;
     for (auto & name : { "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa"})
       auto_inputing(ret, name); 
