@@ -65,18 +65,18 @@
 ## 22. ttuner auto input option
 - Created at   2017-11-08 19:42:15 -0400
 
-## 23. poner columna adicional en lcal con consulta al vector de presión
-- Created at   2017-11-09 10:19:38 -0400
-
-## 24. auto inputu con t debe tener todas las correlaciones definidas
+## 23. auto inputu con t debe tener todas las correlaciones definidas
 - Created at   2017-11-09 10:30:28 -0400
 
-## 25. los arreglos de partida en inputing son uob y uoa
+## 24. los arreglos de partida en inputing son uob y uoa
 - Created at   2017-11-09 12:44:04 -0400
 
-## 26. verificar que yunit siempre sea la misma cuando hay varios arreglos
+## 25. verificar que yunit siempre sea la misma cuando hay varios arreglos
 - Created at   2017-11-09 15:45:13 -0400
 
-## 27. cuando haya más de un vector para la misma propiedad la unidad es la misma
-- Created at   2017-11-09 15:47:52 -0400
+## 26. cplot unidades de caliracion para rs bob boa coa uob y uoa
+- Created at   2017-11-09 21:24:16 -0400
+
+## 27. casar unidades de vectores a las de la propiedad
+- Created at   2017-11-09 21:40:24 -0400
 

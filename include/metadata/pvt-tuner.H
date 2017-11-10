@@ -14,7 +14,7 @@
 
 using Json = nlohmann::json;
 
-# define PVT_INVALID_VALUE (-1) 
+# define PVT_INVALID_VALUE UNIT_INVALID_VALUE
 
 struct VectorDesc
 {
@@ -1104,7 +1104,9 @@ public:
     ParList pars = build_correlation_pars();
     pars.insert("t", t, &Fahrenheit::get_instance());
     return VtlQuantity(psig::get_instance(), 
-		       corr_ptr->tuned_compute_by_names(pars, c, m, false));
+		       corr_ptr->tuned_compute_by_names(pars, c, m,
+							psig::get_instance(),
+							false));
   }
 
   ParPair get_pb(double t, double pb) const
@@ -1130,7 +1132,7 @@ public:
     ParList pars = build_correlation_pars();
     pars.insert("t", t, &Fahrenheit::get_instance());
     pars.insert(get_pb(t, pb));
-    return corr_ptr->tuned_compute_by_names(pars, c, m, false); 
+    return corr_ptr->tuned_compute_by_names(pars, c, m, CP::get_instance(), false);
   }
 
   struct ConstStats
@@ -1224,7 +1226,8 @@ public:
     pars.insert("t", v.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
     VtlQuantity ret =
-      uod_corr->tuned_compute_by_names(pars, c_uod, m_uod, false);
+      uod_corr->tuned_compute_by_names(pars, c_uod, m_uod,
+				       CP::get_instance(), false);
     return ParPair("uod", ValPair(ret.raw(), &ret.unit));
   }
 
@@ -1281,7 +1284,7 @@ public:
 	const double p = it.get_curr();
 	pars.insert("p", p, in.punit);
 	const VtlQuantity rs =
-	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	  corr_ptr->tuned_compute_by_names(pars, c, m, *in.yunit, false);
 	p_list.append(p);
 	rs_list.append(min(rs.raw(), rsb));
 	pars.remove("p");
@@ -1524,7 +1527,7 @@ public:
 	pars.insert("p", p, in.punit);
 	pars.insert("rs", rs_val, rs.yunit);
 	const VtlQuantity bob =
-	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	  corr_ptr->tuned_compute_by_names(pars, c, m, *in.yunit, false);
 	p_list.append(p);
 	bob_list.append(bob.raw());
 	pars.remove("p");
@@ -1563,7 +1566,7 @@ public:
 	const double p = it.get_curr();
 	pars.insert("p", p, pref.punit);
 	const VtlQuantity coa =
-	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	  corr_ptr->tuned_compute_by_names(pars, c, m, *pref.yunit, false);
 	p_list.append(p);
 	coa_list.append(coa.raw());
 	pars.remove("p");
@@ -1670,7 +1673,7 @@ public:
 	pars.insert("p", p_val, pref.punit);
 	pars.insert("coa", coa_val, coa.yunit);
 	const VtlQuantity coa =
-	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	  corr_ptr->tuned_compute_by_names(pars, c, m, *in.yunit, false);
 	p_list.append(p_val);
 	boa_list.append(coa.raw());
 	pars.remove("p");
@@ -1780,7 +1783,7 @@ public:
 	pars.insert("rs", rs_val, rs.yunit);
 	pars.insert("bob", bob_val, bob.yunit);
 	const VtlQuantity uob =
-	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	  corr_ptr->tuned_compute_by_names(pars, c, m, *in.yunit, false);
 	p_list.append(p_val);
 	uob_list.append(uob.raw());
 	pars.remove("p");
@@ -1832,7 +1835,7 @@ public:
 	const double p = it.get_curr();
 	pars.insert("p", p, in.punit);
 	const VtlQuantity uoa =
-	  corr_ptr->tuned_compute_by_names(pars, c, m, false);
+	  corr_ptr->tuned_compute_by_names(pars, c, m, *in.yunit, false);
 	p_list.append(p);
 	uoa_list.append(uoa.raw());
 	pars.remove("p");
@@ -2339,6 +2342,7 @@ public:
     }
     DynList<string> to_dynlist() const
     {
+      assert(corr_ptr);
       DynList<string> ret = build_dynlist<string>(corr_ptr->name);
       return ret.append(CorrStat::desc_to_dynlist(desc));
     }
@@ -2580,7 +2584,7 @@ public:
 	ADD_AUTO(bob, s);
       }
     else
-      corr_map.insert("rs", apply(bob_corr));
+      corr_map.insert("bob", apply(bob_corr));
 
     if (coa_corr == nullptr)
       {

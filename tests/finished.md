@@ -2452,3 +2452,21 @@
 - Comment      
 - Finished     
 
+## 410. cplot unidades de caliracion para rs
+- Created at    bob
+- Completed at  boa
+- Comment       coa
+- Finished      coa
+
+## 411. cuando haya más de un vector para la misma propiedad la unidad es la misma
+- Created at   2017-11-09 15:47:52 -0400
+- Completed at 2017-11-09 21:33:10 -0400
+- Comment      
+- Finished     
+
+## 412. poner columna adicional en lcal con consulta al vector de presión
+- Created at   2017-11-09 10:19:38 -0400
+- Completed at 2017-11-09 21:33:24 -0400
+- Comment      
+- Finished     
+

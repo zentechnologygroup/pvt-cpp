@@ -13,9 +13,26 @@
 
 using json = nlohmann::json;
 
-# include <units.H>
+# include <pvt-units.H>
 
 const UnitsInstancer & units_instancer = UnitsInstancer::init();
+
+const Unit * pb_unit = nullptr;
+const Unit * rs_unit = nullptr;
+const Unit * bo_unit = nullptr;
+const Unit * co_unit = nullptr;
+const Unit * uo_unit = nullptr;
+const Unit * z_unit = nullptr;
+
+void set_ttuner_units()
+{
+  pb_unit = &psig::get_instance();
+  rs_unit = &SCF_STB::get_instance();
+  bo_unit = &RB_STB::get_instance();
+  co_unit = &psia_1::get_instance();
+  uo_unit = &CP::get_instance();
+  z_unit  = &Zfactor::get_instance();
+}
 
 // These values are used for bounding the maximum number of iterations
 constexpr size_t Max_Num_Of_Steps = 120;   // for --t --p --t_array and --p_array
@@ -838,14 +855,14 @@ void set_ranges()
 DefinedCorrelation
 define_correlation(const VtlQuantity & pb,
 		   const Correlation * below_corr_ptr, double cb, double mb,
+		   const Unit & bunit,
 		   const Correlation * above_corr_ptr,
-		   double ca = 0, double ma = 1)
+		   double ca, double ma, const Unit & aunit)
 {
   DefinedCorrelation ret("p", pb.unit);
-  ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min(), pb,
-			    cb, mb);
+  ret.add_tuned_correlation(below_corr_ptr, pb_unit->min(), pb, cb, mb, bunit);
   ret.add_tuned_correlation(above_corr_ptr, pb.next(),
-			    psia::get_instance().max(), ca, ma);
+			    pb_unit->max(), ca, ma, aunit);
   return ret;
 }
 
@@ -855,10 +872,8 @@ define_correlation(const VtlQuantity & pb,
 		   const Correlation * above_corr_ptr)
 {
   DefinedCorrelation ret("p", pb.unit);
-  ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min(), pb,
-			    0, 1);
-  ret.add_tuned_correlation(above_corr_ptr, pb.next(),
-			    psia::get_instance().max(), 0, 1);
+  ret.add_correlation(below_corr_ptr, pb_unit->min(), pb);
+  ret.add_correlation(above_corr_ptr, pb.next(), pb_unit->max());
   return ret;
 }
 
@@ -934,7 +949,7 @@ bool insert_in_pars_list(ParList & pars_list,
 */
 template <typename ... Args> inline
 VtlQuantity tcompute(const Correlation * corr_ptr,
-		     double c, double m, bool check,
+		     double c, double m, const Unit & tuned_unit, bool check,
 		     ParList & pars_list, const Args & ... args)
 {
   try
@@ -942,7 +957,8 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
       if (not insert_in_pars_list(pars_list, args...))
 	return VtlQuantity::null_quantity;
 
-      auto ret = corr_ptr->tuned_compute_by_names(pars_list, c, m, check);
+      auto ret =
+	corr_ptr->tuned_compute_by_names(pars_list, c, m, tuned_unit, check);
       remove_from_container(pars_list, args...);
       return ret;
     }
@@ -960,7 +976,7 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
 // Bounded compute (not used in this version)
 template <typename ... Args> inline
 VtlQuantity bcompute(const Correlation * corr_ptr,
-		     double c, double m,
+		     double c, double m, const Unit & tuned_unit,
 		     const VtlQuantity & min_val,
 		     const VtlQuantity & max_val,
 		     bool check,
@@ -973,7 +989,8 @@ VtlQuantity bcompute(const Correlation * corr_ptr,
 
       auto ret = corr_ptr->bounded_tuned_compute_by_names(pars_list,
 							  min_val, max_val,
-							  c, m, check);
+							  c, m, tuned_unit,
+							  check);
       remove_from_container(pars_list, args...);
       return ret;
     }
@@ -989,12 +1006,14 @@ VtlQuantity bcompute(const Correlation * corr_ptr,
 }
 
 template <typename ... Args> inline
-VtlQuantity bcompute(const Correlation * corr_ptr, double c, double m,
+VtlQuantity bcompute(const Correlation * corr_ptr,
+		     double c, double m, const Unit & tuned_unit,
 		     bool check, ParList & pars_list, const Args & ... args)
 {
   const VtlQuantity min_val = corr_ptr->unit.min();
   const VtlQuantity max_val = corr_ptr->unit.max();
-  return bcompute(corr_ptr, c, m, min_val, max_val, check, pars_list, args...);
+  return bcompute(corr_ptr, c, m, tuned_unit, min_val, max_val,
+		  check, pars_list, args...);
 }
 
 template <typename ... Args> inline
@@ -1155,12 +1174,13 @@ VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
 
 template <typename ... Args> inline
 VtlQuantity tcompute(const Correlation * corr_ptr,
-		     double c, double m, bool check, const Args & ... args)
+		     double c, double m, const Unit & tuned_unit,
+		     bool check, const Args & ... args)
 { // static for creating it once and thus to gain time. But beware!
   // The function is not reentrant and can not be used in a
   // multithreaded environment
   static ParList pars_list;
-  return tcompute(corr_ptr, c, m, check, pars_list, args...);
+  return tcompute(corr_ptr, c, m, tuned_unit, check, pars_list, args...);
 }
 
 template <typename ... Args> inline
@@ -1760,36 +1780,38 @@ void print_notranspose()
   CALL(Tpr, tpr, t_q, adjustedtpcm);					\
   auto tpr_par = NPAR(tpr);						\
 									\
-  VtlQuantity pb_q = tcompute(pb_corr, c_pb, m_pb, check, pb_pars, t_par); \
+  VtlQuantity pb_q = tcompute(pb_corr, c_pb, m_pb, *pb_unit, check,	\
+			      pb_pars, t_par);				\
   if (pb_q.is_null())							\
     continue;								\
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
   auto uod_val = tcompute(uod_corr, c_uod_arg.getValue(),		\
-			  m_uod_arg.getValue(), check, uod_pars,	\
-			  t_par, pb_par);				\
+			  m_uod_arg.getValue(), *uo_unit, check,	\
+			  uod_pars, t_par, pb_par);			\
 									\
   insert_in_container(rs_pars, t_par, pb_par);				\
   auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(), \
-				      m_rs_arg.getValue(),		\
-				      &RsAbovePb::get_instance());	\
+				    m_rs_arg.getValue(), *rs_unit,	\
+				    &RsAbovePb::get_instance(), 0, 1,	\
+				    *rs_unit);				\
 									\
   insert_in_container(co_pars, t_par, pb_par);				\
-  auto co_corr =							\
-    define_correlation(pb_q,	\
-		       cob_corr, c_cob_arg.getValue(), m_cob_arg.getValue(), \
-		       coa_corr, c_coa_arg.getValue(), m_coa_arg.getValue()); \
-  auto bo_corr =							\
-    define_correlation(pb_q,	\
-		       bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(), \
-		       boa_corr, c_boa_arg.getValue(), m_boa_arg.getValue()); \
+  auto co_corr = define_correlation(pb_q, cob_corr, c_cob_arg.getValue(), \
+				    m_cob_arg.getValue(), *co_unit,	\
+				    coa_corr, c_coa_arg.getValue(),	\
+				    m_coa_arg.getValue(), *co_unit);	\
+  auto bo_corr = define_correlation(pb_q, bob_corr, c_bob_arg.getValue(),\
+				    m_bob_arg.getValue(), *bo_unit,	\
+				    boa_corr, c_boa_arg.getValue(),	\
+				    m_boa_arg.getValue(), *bo_unit);	\
 									\
   insert_in_container(uo_pars, t_par, pb_par, npar("uod", uod_val));	\
-  auto uo_corr =							\
-    define_correlation(pb_q,	\
-		       uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(), \
-		       uoa_corr, c_uoa_arg.getValue(), m_uoa_arg.getValue()); \
+  auto uo_corr = define_correlation(pb_q, uob_corr, c_uob_arg.getValue(), \
+				    m_uob_arg.getValue(), *uo_unit,	\
+				    uoa_corr, c_uoa_arg.getValue(),	\
+				    m_uoa_arg.getValue(), *uo_unit);	\
   									\
   auto po_corr = define_correlation(pb_q, &PobBradley::get_instance(),	\
 				    &PoaBradley::get_instance());	\
@@ -1800,10 +1822,11 @@ void print_notranspose()
 									\
   insert_in_container(bo_pars, t_par, pb_par);				\
   auto bobp = tcompute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(), \
-		       check, bo_pars, p_pb, rs_pb);			\
+		       *bo_unit, check, bo_pars, p_pb, rs_pb);		\
 									\
   auto uobp = tcompute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(), \
-		       check, uo_pars, p_pb, rs_pb, npar("bob", bobp));	\
+		       *uo_unit, check,					\
+		       uo_pars, p_pb, rs_pb, npar("bob", bobp));	\
 									\
   bo_pars.insert(NPAR(bobp));						\
 									\
@@ -1845,7 +1868,7 @@ void print_notranspose()
 		     npar("bob", bo));					\
   VtlQuantity z;							\
   if (p_q <= pb_q)							\
-    z = tcompute(zfactor_corr, c_z, m_z, check, ppr_par, tpr_par);	\
+    z = tcompute(zfactor_corr, c_z, m_z, *z_unit, check, ppr_par, tpr_par); \
   auto z_par = NPAR(z);							\
   auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);		\
   CALL(Bg, bg, t_q, p_q, z);						\
@@ -2039,43 +2062,50 @@ void generate_rows_blackoil()
   CALL(Tpr, tpr, t_q, adjustedtpcm);					\
   auto tpr_par = NPAR(tpr);						\
 									\
-  VtlQuantity pb_q = tcompute(pb_corr, c_pb, m_pb, check, pb_pars, t_par); \
+  VtlQuantity pb_q = tcompute(pb_corr, c_pb, m_pb, *pb_unit, check,	\
+			      pb_pars, t_par);				\
   if (pb_q.is_null())							\
     continue;								\
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
   auto uod_val = tcompute(uod_corr, c_uod_arg.getValue(),		\
-			  m_uod_arg.getValue(), check, uod_pars, t_par,	\
-			  pb_par);					\
+			  m_uod_arg.getValue(), *uo_unit, check,	\
+			  uod_pars, t_par, pb_par);			\
 									\
   insert_in_container(rs_pars, t_par, pb_par);				\
   auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(), \
-				      m_rs_arg.getValue(),		\
-				      &RsAbovePb::get_instance());	\
+				    m_rs_arg.getValue(), *rs_unit,	\
+				    &RsAbovePb::get_instance(), 0, 1,	\
+				    *rs_unit);				\
 									\
   insert_in_container(co_pars, t_par, pb_par);				\
   auto co_corr =							\
-    define_correlation(pb_q,	\
-		       cob_corr, c_cob_arg.getValue(), m_cob_arg.getValue(), \
-		       coa_corr, c_coa_arg.getValue(), m_coa_arg.getValue()); \
+	   define_correlation(pb_q, cob_corr, c_cob_arg.getValue(),	\
+			      m_cob_arg.getValue(), *co_unit,		\
+			      coa_corr, c_coa_arg.getValue(),		\
+			      m_coa_arg.getValue(), *co_unit);		\
   auto bo_corr =							\
-    define_correlation(pb_q,	\
-		       bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(), \
-		       boa_corr, c_boa_arg.getValue(), m_boa_arg.getValue()); \
+	   define_correlation(pb_q, bob_corr, c_bob_arg.getValue(),	\
+			      m_bob_arg.getValue(), *bo_unit,		\
+			      boa_corr, c_boa_arg.getValue(),		\
+			      m_boa_arg.getValue(), *bo_unit);		\
 									\
   insert_in_container(uo_pars, t_par, pb_par, npar("uod", uod_val));	\
   auto uo_corr =							\
-    define_correlation(pb_q,	\
-		       uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(), \
-		       uoa_corr, c_uoa_arg.getValue(), m_uoa_arg.getValue()); \
+	   define_correlation(pb_q, uob_corr, c_uob_arg.getValue(),	\
+			      m_uob_arg.getValue(), *uo_unit,		\
+			      uoa_corr, c_uoa_arg.getValue(),		\
+			      m_uoa_arg.getValue(), *uo_unit);		\
   									\
   insert_in_container(bo_pars, t_par, pb_par);				\
-  auto bobp = tcompute(bob_corr, c_bob_arg.getValue(), m_bob_arg.getValue(), \
-		       check, bo_pars, rs_pb, p_pb);			\
+  auto bobp = tcompute(bob_corr, c_bob_arg.getValue(),			\
+		       m_bob_arg.getValue(), *bo_unit, check,		\
+		       bo_pars, rs_pb, p_pb);				\
 									\
-  auto uobp = tcompute(uob_corr, c_uob_arg.getValue(), m_uob_arg.getValue(), \
-		       check, uo_pars, p_pb, rs_pb, npar("bob", bobp));	\
+  auto uobp = tcompute(uob_corr, c_uob_arg.getValue(),			\
+		       m_uob_arg.getValue(), *uo_unit, check,		\
+		       uo_pars, p_pb, rs_pb, npar("bob", bobp));	\
 									\
   insert_in_container(bo_pars, pb_par, NPAR(bobp));			\
 									\
@@ -2097,7 +2127,7 @@ void generate_rows_blackoil()
 		     npar("bob", bo));					\
   VtlQuantity z;							\
   if (p_q <= pb_q)							\
-    z = tcompute(zfactor_corr, c_z, m_z, check, ppr_par, tpr_par);	\
+    z = tcompute(zfactor_corr, c_z, m_z, *z_unit, check, ppr_par, tpr_par); \
   auto z_par = NPAR(z);							\
 									\
   size_t n = insert_in_row(row, p_q, rs, coa, bo, uo, z);
@@ -2625,6 +2655,7 @@ int main(int argc, char *argv[])
 
   try
     {
+      set_ttuner_units();
       if (transpose_par.isSet() and catch_exceptions.isSet())
 	error_msg("--transpose and --exceptions cannot be set together"
 		  " (due to performance reasons)");

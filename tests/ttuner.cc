@@ -29,7 +29,7 @@ struct Property
   const Unit * punit = nullptr;
   const Unit * yunit = nullptr;
   double t = PVT_INVALID_VALUE, // t is in Fahrenheit
-    pb = PVT_INVALID_VALUE; // pb is in psia
+    pb = PVT_INVALID_VALUE; // pb is in psig
   double bobp = PVT_INVALID_VALUE, uod = PVT_INVALID_VALUE,
     uobp = PVT_INVALID_VALUE;
   DynList<double> values;
@@ -1493,8 +1493,7 @@ void process_auto()
   else
     cout << Aleph::to_string(format_string(rows)) << endl;
 
-  if (not auto_input.isSet())
-    terminate_app(); 
+  corr_list.for_each([] (auto & s) { data.set_correlation(s); });
 }
 
 void process_Auto()
@@ -1598,8 +1597,6 @@ int main(int argc, char *argv[])
       process_R();
       process_CPLOT();
       process_cplot();
-
-      cout << "Not given action" << endl;
     }
   catch (exception & e)
     {
