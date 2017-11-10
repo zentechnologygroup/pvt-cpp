@@ -14,7 +14,7 @@
 
 using Json = nlohmann::json;
 
-# define PVT_INVALID_VALUE (-1) 
+# define PVT_INVALID_VALUE UNIT_INVALID_VALUE
 
 struct VectorDesc
 {
@@ -2342,6 +2342,7 @@ public:
     }
     DynList<string> to_dynlist() const
     {
+      assert(corr_ptr);
       DynList<string> ret = build_dynlist<string>(corr_ptr->name);
       return ret.append(CorrStat::desc_to_dynlist(desc));
     }
@@ -2583,7 +2584,7 @@ public:
 	ADD_AUTO(bob, s);
       }
     else
-      corr_map.insert("rs", apply(bob_corr));
+      corr_map.insert("bob", apply(bob_corr));
 
     if (coa_corr == nullptr)
       {
