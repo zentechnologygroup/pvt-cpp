@@ -2480,13 +2480,6 @@ private:
       ZENTHROW(CannotApply, "cannot find correlation for " + target_name);
   }
 
-# define ADD_AUTO(name, s)			\
-  test_successful_apply(#name, s);		\
-  corr_map.insert(#name, s);			\
-  name##_corr = s.corr_ptr;			\
-  c_##name = CorrStat::c(s.desc);		\
-  m_##name = CorrStat::m(s.desc);
-
 public:
   
   void set_correlation(const StatsDesc & s)
@@ -2557,6 +2550,13 @@ public:
 	     const double threshold, const AutoApplyType & type,
 	     const size_t n = 1) 
   {
+# define ADD_AUTO(name, s)			\
+  test_successful_apply(#name, s);		\
+  corr_map.insert(#name, s);			\
+  name##_corr = s.corr_ptr;			\
+  c_##name = CorrStat::c(s.desc);		\
+  m_##name = CorrStat::m(s.desc);
+
     DynMapTree<string, StatsDesc> corr_map;
 
     if (pb_corr == nullptr)
@@ -2642,10 +2642,8 @@ public:
       }
 
     for (size_t i = 1; i < n; ++i)
-      {
-	
+      {	
 	static const DynList<string> static_names = { "pb", "uod" };
-
 	for (auto target_name : static_names)
 	  {
 	    auto stats = auto_apply(target_name, relax_tbl, ban_list,
