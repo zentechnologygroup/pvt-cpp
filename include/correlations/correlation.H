@@ -924,41 +924,33 @@ public:
 	remove_from_container(par_list, args...);
       }
   }
-  
+
+  static VtlQuantity tune(const VtlQuantity & val,
+			  double c, double m, const Unit & tuned_unit)
+  {
+    double r = bind_to_unit_limits(c + m*VtlQuantity(tuned_unit, val).raw(),
+				   tuned_unit);
+    return VtlQuantity(val.unit, VtlQuantity(tuned_unit, r));
+    
+  }
+
   VtlQuantity tuned_compute_and_check(const DynList<VtlQuantity> & pars,
-				      double c, double m,
+				      double c, double m, const Unit & tuned_unit,
 				      bool check = true) const
   {
-    double ret = c + m*compute(pars, check).raw();
-    return verify_result(VtlQuantity(unit, bind_to_unit_limits(ret, unit)));
+    return tune(compute(pars, check), c, m, tuned_unit);
   }
 
   tuple<double, string, bool, string>
-  tuned_execute(DynList<VtlQuantity> & pars,
-		double c, double m,
-		bool check = true) const
+  tuned_execute(DynList<VtlQuantity> & pars, double c, double m,
+		const Unit & tuned_unit, bool check = true) const
   {
-    try
-      {
-	double result = bind_to_unit_limits(c + m*compute(pars, check).raw(), unit);
-	
-	auto status = check_result(VtlQuantity(unit, result));
-	if (status)
-	  return make_tuple(result, unit.name, true, "");
-
-	ostringstream s;
-	s << "Correlation result " << result << " is out of range ["
-	  << min_val << ", " << max_val << "]";
-	return make_tuple(result, unit.name, false, s.str());
-      }
-    catch (exception &e)
-      {
-	return make_tuple(0, unit.name, false, e.what());
-      }
+    VtlQuantity r = VtlQuantity(tuned_unit, compute(pars, check));    
+    return make_tuple(r.raw(), unit.name, true, "");
   }
 
   double tuned_compute(const DynList<double> & values, double c, double m,
-		       bool check = true) const
+		       const Unit & tuned_unit, bool check = true) const
   {
     DynList<VtlQuantity> pars;
     auto it = get_pair_it(preconditions, values);
@@ -978,53 +970,54 @@ public:
 	ZENTHROW(InvalidNumberOfParameters, s.str());
       }
 
-    VtlQuantity ret =
-      { unit, bind_to_unit_limits(c + m*compute(pars, check).raw(), unit) };
+    VtlQuantity ret = tune(compute(pars, check), c, m, tuned_unit);
     return ret.raw();
   }
 
   VtlQuantity
   tuned_compute_by_names(const DynList<ParByName> & pair_list,
-			 double c, double m, bool check = true) const
+			 double c, double m, const Unit & tuned_unit,
+			 bool check = true) const
   {
-    double ret =
-      bind_to_unit_limits(c + m*compute_by_names(pair_list, check).raw(), unit);
-    return VtlQuantity(unit, ret);
+    return tune(compute_by_names(pair_list, check), c, m, tuned_unit);
   }
 
   VtlQuantity
   tuned_compute_by_names(const DynList<NamedPar> & pair_list,
-			 double c, double m, bool check = true) const
+			 double c, double m, const Unit & tuned_unit,
+			 bool check = true) const
   {
-    double ret =
-      bind_to_unit_limits(c + m*compute_by_names(pair_list, check).raw(), unit);
-    return VtlQuantity(unit, ret);
+    return tune(compute_by_names(pair_list, check), c, m, tuned_unit);
   }
 
   VtlQuantity
   tuned_compute_by_names(const ParList & par_list,
-			 double c, double m, bool check = true) const
+			 double c, double m, const Unit & tuned_unit,
+			 bool check = true) const
   {
-    double ret =
-      bind_to_unit_limits(c + m*compute_by_names(par_list, check).raw(), unit);
-    return VtlQuantity(unit, ret);
+    return tune(compute_by_names(par_list, check), c, m, tuned_unit);
   }
 
-  double
-  tuned_compute_and_check(const DynList<double> & pars, double c, double m,
-			  bool check = true) const
-  {
-    double ret = bind_to_unit_limits(c + m*compute(pars, check), unit);
-    return verify_result(VtlQuantity(unit, ret)).raw();
-  }
+  // TODO: borrar
+  // double
+  // tuned_compute_and_check(const DynList<double> & pars, double c, double m,
+  // 			  const Unit & tuned_unit, bool check = true) const
+  // {
+  //   //auto r = compute_by_names(const DynList<Correlation::ParByName> &pair_list)
+  //   return tune(compute_by_names(pars, check), c, m, tuned_unit));
+  //   double ret = bind_to_unit_limits(c + m*compute(pars, check), unit);
+  //   return verify_result(VtlQuantity(unit, ret)).raw();
+  // }
 
   VtlQuantity
   bounded_tuned_compute_by_names(const DynList<ParByName> & par_list,
 				 const VtlQuantity & min_val,
 				 const VtlQuantity & max_val,
-				 double c, double m, bool check = true) const
+				 double c, double m, const Unit & tuned_unit,
+				 bool check = true) const
   {
-    const double result = c + m*compute_by_names(par_list, check).raw();
+    const double result =
+      tune(compute_by_names(par_list, check), c, m, tuned_unit).raw();
     if (result < min_val)
       return min_val;
     if (result > max_val)
@@ -1036,9 +1029,11 @@ public:
   bounded_tuned_compute_by_names(const DynList<NamedPar> & par_list,
 				 const VtlQuantity & min_val,
 				 const VtlQuantity & max_val,
-				 double c, double m, bool check = true) const
+				 double c, double m, const Unit & tuned_unit,
+				 bool check = true) const
   {
-    const double result = c + m*compute_by_names(par_list, check).raw();
+    const double result =
+      tune(compute_by_names(par_list, check), c, m, tuned_unit).raw();
      if (result < min_val)
       return min_val;
     if (result > max_val)
@@ -1050,9 +1045,11 @@ public:
   bounded_tuned_compute_by_names(const ParList & par_list,
 				 const VtlQuantity & min_val,
 				 const VtlQuantity & max_val,
-				 double c, double m, bool check = true) const
+				 double c, double m, const Unit & tuned_unit,
+				 bool check = true) const
   {
-    const double result = c + m*compute_by_names(par_list, check).raw();
+    const double result =
+      tune(compute_by_names(par_list, check), c, m, tuned_unit).raw();
     if (result < min_val)
       return min_val;
     if (result > max_val)
@@ -1062,26 +1059,28 @@ public:
 
   VtlQuantity
   bounded_tuned_compute_by_names(const ParList & par_list,
-				 double c, double m, bool check = true) const
+				 double c, double m, const Unit & tuned_unit,
+				 bool check = true) const
   {
     return bounded_tuned_compute_by_names(par_list, unit.min(), unit.max(),
-					  c, m, check);
+					  c, m, tuned_unit, check);
   }
 
-  double
-  bounded_tuned_compute_and_check(const DynList<double> & pars,
-				  const VtlQuantity & min_val,
-				  const VtlQuantity & max_val,
-				  double c, double m,
-				  bool check = true) const
-  {
-    const double result = c + m*compute(pars, check);
-    if (result < min_val)
-      return min_val.raw();
-    if (result > max_val)
-      return max_val.raw();
-    return verify_result(VtlQuantity(unit, result)).raw();
-  }
+  // TODO: borrar
+  // double
+  // bounded_tuned_compute_and_check(const DynList<double> & pars,
+  // 				  const VtlQuantity & min_val,
+  // 				  const VtlQuantity & max_val,
+  // 				  double c, double m,
+  // 				  bool check = true) const
+  // {
+  //   const double result = c + m*compute(pars, check);
+  //   if (result < min_val)
+  //     return min_val.raw();
+  //   if (result > max_val)
+  //     return max_val.raw();
+  //   return verify_result(VtlQuantity(unit, result)).raw();
+  // }
 
   /** return a list of validated and adequately converted correlation
       parameters

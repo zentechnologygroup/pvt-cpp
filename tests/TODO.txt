@@ -25,3 +25,4 @@ auto inputu con t debe tener todas las correlaciones definidas,2017-11-09 10:30:
 los arreglos de partida en inputing son uob y uoa,2017-11-09 12:44:04 -0400,,
 verificar que yunit siempre sea la misma cuando hay varios arreglos,2017-11-09 15:45:13 -0400,,
 cuando haya más de un vector para la misma propiedad la unidad es la misma,2017-11-09 15:47:52 -0400,,
+cplot unidades de caliracion para rs bob boa coa uob y uoa,2017-11-09 21:24:16 -0400,,

@@ -80,3 +80,6 @@
 ## 27. cuando haya más de un vector para la misma propiedad la unidad es la misma
 - Created at   2017-11-09 15:47:52 -0400
 
+## 28. cplot unidades de caliracion para rs bob boa coa uob y uoa
+- Created at   2017-11-09 21:24:16 -0400
+

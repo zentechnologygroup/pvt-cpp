@@ -838,14 +838,15 @@ void set_ranges()
 DefinedCorrelation
 define_correlation(const VtlQuantity & pb,
 		   const Correlation * below_corr_ptr, double cb, double mb,
+		   const Unit & bunit,
 		   const Correlation * above_corr_ptr,
-		   double ca = 0, double ma = 1)
+		   double ca, double ma, const Unit & aunit)
 {
   DefinedCorrelation ret("p", pb.unit);
-  ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min(), pb,
-			    cb, mb);
+  ret.add_tuned_correlation(below_corr_ptr, psig::get_instance().min(), pb,
+			    cb, mb, bunit);
   ret.add_tuned_correlation(above_corr_ptr, pb.next(),
-			    psia::get_instance().max(), ca, ma);
+			    psig::get_instance().max(), ca, ma, aunit);
   return ret;
 }
 
@@ -855,10 +856,8 @@ define_correlation(const VtlQuantity & pb,
 		   const Correlation * above_corr_ptr)
 {
   DefinedCorrelation ret("p", pb.unit);
-  ret.add_tuned_correlation(below_corr_ptr, psia::get_instance().min(), pb,
-			    0, 1);
-  ret.add_tuned_correlation(above_corr_ptr, pb.next(),
-			    psia::get_instance().max(), 0, 1);
+  ret.add_correlation(below_corr_ptr, psia::get_instance().min(), pb);
+  ret.add_correlation(above_corr_ptr, pb.next(), psia::get_instance().max());
   return ret;
 }
 
@@ -934,7 +933,7 @@ bool insert_in_pars_list(ParList & pars_list,
 */
 template <typename ... Args> inline
 VtlQuantity tcompute(const Correlation * corr_ptr,
-		     double c, double m, bool check,
+		     double c, double m, const Unit & tuned_unit, bool check,
 		     ParList & pars_list, const Args & ... args)
 {
   try
@@ -942,7 +941,8 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
       if (not insert_in_pars_list(pars_list, args...))
 	return VtlQuantity::null_quantity;
 
-      auto ret = corr_ptr->tuned_compute_by_names(pars_list, c, m, check);
+      auto ret =
+	corr_ptr->tuned_compute_by_names(pars_list, c, m, tuned_unit, check);
       remove_from_container(pars_list, args...);
       return ret;
     }
@@ -960,7 +960,7 @@ VtlQuantity tcompute(const Correlation * corr_ptr,
 // Bounded compute (not used in this version)
 template <typename ... Args> inline
 VtlQuantity bcompute(const Correlation * corr_ptr,
-		     double c, double m,
+		     double c, double m, const Unit & tuned_unit,
 		     const VtlQuantity & min_val,
 		     const VtlQuantity & max_val,
 		     bool check,
@@ -973,7 +973,8 @@ VtlQuantity bcompute(const Correlation * corr_ptr,
 
       auto ret = corr_ptr->bounded_tuned_compute_by_names(pars_list,
 							  min_val, max_val,
-							  c, m, check);
+							  c, m, tuned_unit,
+							  check);
       remove_from_container(pars_list, args...);
       return ret;
     }
@@ -989,12 +990,14 @@ VtlQuantity bcompute(const Correlation * corr_ptr,
 }
 
 template <typename ... Args> inline
-VtlQuantity bcompute(const Correlation * corr_ptr, double c, double m,
+VtlQuantity bcompute(const Correlation * corr_ptr,
+		     double c, double m, const Unit & tuned_unit,
 		     bool check, ParList & pars_list, const Args & ... args)
 {
   const VtlQuantity min_val = corr_ptr->unit.min();
   const VtlQuantity max_val = corr_ptr->unit.max();
-  return bcompute(corr_ptr, c, m, min_val, max_val, check, pars_list, args...);
+  return bcompute(corr_ptr, c, m, tuned_unit, min_val, max_val,
+		  check, pars_list, args...);
 }
 
 template <typename ... Args> inline
@@ -1155,12 +1158,13 @@ VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
 
 template <typename ... Args> inline
 VtlQuantity tcompute(const Correlation * corr_ptr,
-		     double c, double m, bool check, const Args & ... args)
+		     double c, double m, const Unit & tuned_unit,
+		     bool check, const Args & ... args)
 { // static for creating it once and thus to gain time. But beware!
   // The function is not reentrant and can not be used in a
   // multithreaded environment
   static ParList pars_list;
-  return tcompute(corr_ptr, c, m, check, pars_list, args...);
+  return tcompute(corr_ptr, c, m, tuned_unit, check, pars_list, args...);
 }
 
 template <typename ... Args> inline

@@ -16,6 +16,7 @@ class DefinedCorrelation
     bool tuned = false;
 
     const Unit * result_unit = nullptr;
+    const Unit * tuned_unit = nullptr;
 
     Interval() {}
 
@@ -32,12 +33,13 @@ class DefinedCorrelation
     }
 
     Interval(const Correlation * ptr, double start, double end,
-	     double c, double m)
+	     double c, double m, const Unit & tuned_unit)
       : Interval(ptr, start, end)
     {
       tuned = true;
       this->c = c;
       this->m = m;
+      this->tuned_unit = &tuned_unit;
     }
 
     VtlQuantity to_result_unit(const VtlQuantity & val) const
@@ -52,7 +54,7 @@ class DefinedCorrelation
 		      bool check = true) const
     {
       auto val = tuned ?
-	correlation_ptr->tuned_compute_and_check(pars, c, m, check) :
+	correlation_ptr->tuned_compute_and_check(pars, c, m, *tuned_unit, check) :
 	correlation_ptr->compute_and_check(pars, check);
       return to_result_unit(val);
     }
@@ -61,7 +63,7 @@ class DefinedCorrelation
 			bool check = true) const
     {
       auto val = tuned ?
-	correlation_ptr->tuned_compute_by_names(pars, c, m, check) :
+	correlation_ptr->tuned_compute_by_names(pars, c, m, *tuned_unit, check) :
 	correlation_ptr->compute_by_names(pars, check);
       return to_result_unit(val);
     }
@@ -70,7 +72,7 @@ class DefinedCorrelation
 			bool check = true) const
     {
       auto val = tuned ?
-	correlation_ptr->tuned_compute_by_names(pars, c, m, check) :
+	correlation_ptr->tuned_compute_by_names(pars, c, m, *tuned_unit, check) :
 	correlation_ptr->compute_by_names(pars, check);
       return to_result_unit(val);
     }
@@ -78,7 +80,7 @@ class DefinedCorrelation
     VtlQuantity compute(const ParList & pars, bool check = true) const
     {
       auto val = tuned ?
-	correlation_ptr->tuned_compute_by_names(pars, c, m, check) :
+	correlation_ptr->tuned_compute_by_names(pars, c, m, *tuned_unit, check) :
 	correlation_ptr->compute_by_names(pars, check);
       return to_result_unit(val);
     }
@@ -214,9 +216,10 @@ public:
 
   void add_tuned_correlation(const Correlation * correlation_ptr,
 			     double start, double end,
-			     double c, double m)
+			     double c, double m, const Unit & tuned_unit)
   {
-    auto result = intervals.insert(Interval(correlation_ptr, start, end, c, m));
+    auto result =
+      intervals.insert(Interval(correlation_ptr, start, end, c, m, tuned_unit));
     if (result)
       {
 	if (result_unit == nullptr)
@@ -236,16 +239,16 @@ public:
 
   void add_tuned_correlation(const Correlation * correlation_ptr,
 			     const VtlQuantity & start, const VtlQuantity & end,
-			     double c, double m)
+			     double c, double m, const Unit & tuned_unit)
   {
     add_tuned_correlation(correlation_ptr, VtlQuantity(unit, start).raw(),
-			  VtlQuantity(unit, end).raw(), c, m);
+			  VtlQuantity(unit, end).raw(), c, m, tuned_unit);
   }
 
   void add_correlation(const Correlation * correlation_ptr,
 		       double start, double end)
   {
-    intervals.insert(Interval(correlation_ptr, start, end, 0, 1));
+    intervals.insert(Interval(correlation_ptr, start, end));
   }
 
   void add_correlation(const Correlation * correlation_ptr,
