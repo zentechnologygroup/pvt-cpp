@@ -1545,10 +1545,10 @@ void process_auto_input()
   if (not auto_input.isSet())
     return;
   // TODO solo auto o Auto están definidas
-  error_msg("Not yet");
+  //error_msg("Not yet");
   auto auto_list = data.auto_inputing();
   auto_list.for_each([] (auto & v) { cout << v << endl; });
-  exit(0);
+  //exit(0);
 }
 
 int main(int argc, char *argv[])
