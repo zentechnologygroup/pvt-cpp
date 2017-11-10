@@ -1468,16 +1468,8 @@ static DynMapTree<string, PvtData::AutoApplyType> auto_map =
     { "m", PvtData::AutoApplyType::m }
   };
 
-void process_auto()
+void report_top_stats(const DynList<PvtData::StatsDesc> & corr_list)
 {
-  if (not auto_arg.isSet())
-    return;
-
-  auto corr_list = data.auto_apply(relax_names_tbl, ban.getValue().corr_list,
-				   threshold.getValue(),
-				   auto_map[auto_type.getValue()],
-				   auto_n.getValue());
-
   DynList<DynList<string>> rows = corr_list.maps<DynList<string>>([] (auto & s)
     {
       return s.to_dynlist();
@@ -1494,6 +1486,22 @@ void process_auto()
     cout << Aleph::to_string(format_string(rows)) << endl;
 
   corr_list.for_each([] (auto & s) { data.set_correlation(s); });
+}
+
+void process_auto()
+{
+  if (not auto_arg.isSet())
+    return;
+
+  auto corr_list = data.auto_apply(relax_names_tbl, ban.getValue().corr_list,
+				   threshold.getValue(),
+				   auto_map[auto_type.getValue()],
+				   auto_n.getValue());
+
+  if (auto_input.isSet())
+    return;
+
+  report_top_stats(corr_list);
 }
 
 void process_Auto()
@@ -1544,11 +1552,7 @@ void process_auto_input()
 {
   if (not auto_input.isSet())
     return;
-  // TODO solo auto o Auto están definidas
-  //error_msg("Not yet");
-  auto auto_list = data.auto_inputing();
-  auto_list.for_each([] (auto & v) { cout << v << endl; });
-  //exit(0);
+  data.auto_inputing().for_each([] (auto & v) { data.add_vector(v); });
 }
 
 int main(int argc, char *argv[])

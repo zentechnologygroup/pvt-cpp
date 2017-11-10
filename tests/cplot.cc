@@ -13,26 +13,9 @@
 
 using json = nlohmann::json;
 
-# include <pvt-units.H>
+# include <metadata/ttuner-units.H>
 
 const UnitsInstancer & units_instancer = UnitsInstancer::init();
-
-const Unit * pb_unit = nullptr;
-const Unit * rs_unit = nullptr;
-const Unit * bo_unit = nullptr;
-const Unit * co_unit = nullptr;
-const Unit * uo_unit = nullptr;
-const Unit * z_unit = nullptr;
-
-void set_ttuner_units()
-{
-  pb_unit = &psig::get_instance();
-  rs_unit = &SCF_STB::get_instance();
-  bo_unit = &RB_STB::get_instance();
-  co_unit = &psia_1::get_instance();
-  uo_unit = &CP::get_instance();
-  z_unit  = &Zfactor::get_instance();
-}
 
 // These values are used for bounding the maximum number of iterations
 constexpr size_t Max_Num_Of_Steps = 120;   // for --t --p --t_array and --p_array

@@ -1554,14 +1554,22 @@ public:
     compute_prologue("coa", pref, corr_ptr);
 
     ParList pars = build_correlation_pars();
-    const ParPair pb_par = get_pb(pref);
-    const double pb = pb_par.second.first;
+    ParPair pb_par = get_pb(pref);
+    double pb = pb_par.second.first;
+
+    VectorDesc in = pref;
+    if (pb >= in.p.get_first())
+      {
+	pb = nextafter(in.p.get_first(), numeric_limits<double>::min());
+	pb_par.second.first = pb;
+	in.pb = pb;
+      }
 
     pars.insert("t", pref.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
 
     DynList<double> p_list, coa_list;
-    for (auto it = pref.p.get_it(); it.has_curr(); it.next())
+    for (auto it = in.p.get_it(); it.has_curr(); it.next())
       {
 	const double p = it.get_curr();
 	pars.insert("p", p, pref.punit);
@@ -1925,6 +1933,8 @@ public:
     return ret;
   }
 
+  /** Generate new vectors for `corr_ptr` taking temperature and
+      pressure values from `in_vectors` */
   DynList<VectorDesc>
   inputing(const DynList<const VectorDesc*> in_vectors,
 	   const Correlation * corr_ptr, double c, double m) const
@@ -1951,32 +1961,51 @@ public:
     return ret;
   }
 
-private:
-
-  void auto_inputing(DynList<VectorDesc> & result,
-		     const string & target_name) const
-  {
-    CorrDesc corr_desc = search_corr(target_name);
-    if (corr_desc.corr_ptr == nullptr)
-      ZENTHROW(CorrelationNotFound, "Not set correlation for target_name " +
-	       target_name);
-    result.append(inputing(search_vectors(target_name), corr_desc.corr_ptr,
-			   corr_desc.c, corr_desc.m));
-  }
-
-public:
-
   /** For each different temperature found in the data set, builds
-      missing properties through the set correlations 
-  */
+      missing properties through the set correlations */
   DynList<VectorDesc> auto_inputing() const
   {
-    if (not are_all_correlations_defined())
-      ZENTHROW(CorrelationNotFound, "correlations for " +
-       	       join(missing_correlations(), " ") +  " are not defined");
+    PvtData data = *this; // do a copy because the resulting vectors
+			  // will be added
     DynList<VectorDesc> ret;
-    for (auto & name : { "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa"})
-      auto_inputing(ret, name); 
+
+    auto uob_v = data.search_vectors("uob");
+
+    if (rs_corr == nullptr)
+      ZENTHROW(CorrelationNotFound, "Correlation for rs is not set");
+    else
+      {
+	auto rs_list = inputing(uob_v, rs_corr, c_rs, m_rs);
+	ret.append(rs_list);
+	rs_list.for_each([&data] (auto & v) { data.add_vector(v); });
+      }
+
+    if (bob_corr == nullptr)
+      ZENTHROW(CorrelationNotFound, "Correlation for bob is not set");
+    else
+      {
+	auto bob_list = inputing(data.search_vectors("rs"), bob_corr, c_bob, m_bob);
+	ret.append(bob_list);
+	bob_list.for_each([&data] (auto & v) { data.add_vector(v); });
+      }
+      
+    if (coa_corr == nullptr)
+      ZENTHROW(CorrelationNotFound, "Correlation for coa is not set");
+    else
+      {
+	auto coa_list = inputing(data.search_vectors("uoa"), coa_corr, c_coa, m_coa);
+	ret.append(coa_list);
+	coa_list.for_each([&data] (auto & v) { data.add_vector(v); });
+      }
+      
+    if (boa_corr == nullptr)
+      ZENTHROW(CorrelationNotFound, "Correlation for boa is not set");
+    else
+      {
+	auto boa_list = inputing(data.search_vectors("coa"), boa_corr, c_boa, m_boa);
+	ret.append(boa_list);
+	boa_list.for_each([&data] (auto & v) { data.add_vector(v); });
+      }
     return ret;
   }
 
