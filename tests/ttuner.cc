@@ -1552,7 +1552,8 @@ void process_auto_input()
 {
   if (not auto_input.isSet())
     return;
-  data.auto_inputing().for_each([] (auto & v) { data.add_vector(v); });
+  data.auto_inputing().for_each([] (auto & v) { cout << v << endl; });
+  exit(0);
 }
 
 int main(int argc, char *argv[])

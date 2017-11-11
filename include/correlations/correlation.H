@@ -945,7 +945,7 @@ public:
   tuned_execute(DynList<VtlQuantity> & pars, double c, double m,
 		const Unit & tuned_unit, bool check = true) const
   {
-    VtlQuantity r = VtlQuantity(tuned_unit, compute(pars, check));    
+    VtlQuantity r = VtlQuantity(tuned_unit, c + m*compute(pars, check).raw());
     return make_tuple(r.raw(), unit.name, true, "");
   }
 

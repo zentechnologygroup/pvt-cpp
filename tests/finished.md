@@ -2470,3 +2470,33 @@
 - Comment      
 - Finished     
 
+## 413. casar unidades de vectores a las de la propiedad
+- Created at   2017-11-09 21:40:24 -0400
+- Completed at 2017-11-11 11:30:54 -0400
+- Comment      
+- Finished     
+
+## 414. los arreglos de partida en inputing son uob y uoa
+- Created at   2017-11-09 12:44:04 -0400
+- Completed at 2017-11-11 11:31:35 -0400
+- Comment      
+- Finished     
+
+## 415. cplot unidades de caliracion para rs bob boa coa uob y uoa
+- Created at   2017-11-09 21:24:16 -0400
+- Completed at 2017-11-11 11:34:30 -0400
+- Comment      
+- Finished     
+
+## 416. verificar que yunit siempre sea la misma cuando hay varios arreglos
+- Created at   2017-11-09 15:45:13 -0400
+- Completed at 2017-11-11 11:40:57 -0400
+- Comment      
+- Finished     
+
+## 417. unificar unidades en estadísticas lcal
+- Created at   2017-10-31 12:36:52 -0400
+- Completed at 2017-11-11 12:09:03 -0400
+- Comment      
+- Finished     
+

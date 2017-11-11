@@ -11,6 +11,7 @@
 # include <correlations/pvt-correlations.H>
 # include <correlations/correlation-stats.H>
 # include "metadata-exceptions.H"
+# include "ttuner-units.H"
 
 using Json = nlohmann::json;
 
@@ -858,10 +859,11 @@ struct PvtData
       }
   }
 
-  PvtData() {}
+  PvtData() { set_ttuner_units(); }
 
   PvtData(istream & input)
   {
+    set_ttuner_units(); 
     Json j = Json::parse(input);
     load_corr_from_json(j["pb_corr"], pb_corr, c_pb, m_pb, "pb");
     load_corr_from_json(j["rs_corr"], rs_corr, c_rs, m_rs, "rs");
@@ -2044,17 +2046,45 @@ public:
     return ret;
   }
 
-  /*
-    given ref_vector which contains a property for several
-    temperatures, this routine searches for target_name and returns
-    the samples, probably interpolated, of the target_name property
-    according to pressure values ​​stored in ref_vectors
+  /** Inspect all the vectors and guarantees that it exists only a pb
+      by each different temperature */
+  void stabilize_pb()
+  {
+    if (pb_corr == nullptr)
+      ZENTHROW(CorrelationNotFound, "correlation for pb is not set");
+    
+    DynSetTree<double> temps =
+      set_unify<double>(vectors, [] (auto & v) { return v.t; });
+    DynMapTree<double, double> t_pb = map_unify<double>(temps, [this] (auto t)
+      {
+	return this->compute_pb(t, pb_corr, c_pb, m_pb).raw();
+      });
 
-    NOTE: THE MOST IMPORTANT OF THIS ROUTINE IS THE VECTOR OF
-    PRESSURES. IT SHOULD BE USED VERY CAREFULLY IF THE Y VECTOR IS
-    INTENDED TO BE USED AND, SINCE INTERPOLATION IS LIKELY TO GIVE
-    WRONG VALUES
-  */
+    static auto rs_stable = [] (VectorDesc & v, double pb)
+      {
+	assert(v.yname == "rs");
+	if (v.pb == pb)
+	  return;
+	v.pb = v.p.get_last() = pb;
+      };
+     static auto bob_stable = [] (VectorDesc & v, double pb)
+      {
+	assert(v.yname == "bob");
+	if (v.pb == pb)
+	  return;
+	v.pb = v.p.get_last() = pb;
+      };
+  }
+
+  /* given ref_vector which contains a property for several
+     temperatures, this routine searches for target_name and returns
+     samples, probably interpolated, of the target_name property
+     according to pressure values ​​stored in ref_vectors
+
+     NOTE: THE MOST IMPORTANT OF THIS ROUTINE IS THE VECTOR OF
+     PRESSURES. IT SHOULD BE USED VERY CAREFULLY IF THE Y VECTOR IS
+     INTENDED TO BE USED AND, SINCE INTERPOLATION IS LIKELY TO GIVE
+     WRONG VALUES */
   DynList<Sample> get_pars(const DynList<const VectorDesc*> & ref_vectors,
 			   const string & target_name) const
   {
@@ -2790,6 +2820,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 			 { return BaseQuantity::is_valid(r, *u); }))
 	ZENTHROW(OutOfUnitRange,
 		 "at least a value of rs is out of its unit range");
+      mutable_unit_convert(*ptr->yunit, ptr->y, *rs_unit);
+      ptr->yunit = rs_unit;
     };
   static auto bob_validate = [] (VectorDesc* ptr)
     {
@@ -2818,6 +2850,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (ptr->bobp < ptr->y.get_last())
 	ZENTHROW(SampleInvalid,
 		 "VectorDesc ctor: bobp is less than last value of bob");
+      mutable_unit_convert(*ptr->yunit, ptr->y, *bo_unit);
+      ptr->yunit = bo_unit;
     };
   static auto coa_validate = [] (VectorDesc* ptr)
     {
@@ -2845,6 +2879,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 			 { return BaseQuantity::is_valid(c, *u); }))
 	ZENTHROW(OutOfUnitRange,
 		 "at least a coa value is out of its unit range");
+      mutable_unit_convert(*ptr->yunit, ptr->y, *co_unit);
+      ptr->yunit = co_unit;
     };
   static auto boa_validate = [] (VectorDesc* ptr)
     {
@@ -2871,6 +2907,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 			 { return BaseQuantity::is_valid(b, *u); }))
 	ZENTHROW(OutOfUnitRange,
 		 "at least a boa value is out of its unit range");
+      mutable_unit_convert(*ptr->yunit, ptr->y, *bo_unit);
+      ptr->yunit = bo_unit;
     };
   static auto uod_validate = [] (VectorDesc*)
     {
@@ -2913,6 +2951,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	}
       if (ptr->y.get_last() != ptr->uobp)
 	ZENTHROW(OutOfRange, "uobp is not equal than last value of uob");
+      mutable_unit_convert(*ptr->yunit, ptr->y, *uo_unit);
+      ptr->yunit = uo_unit;
     };
   static auto uoa_validate = [] (VectorDesc* ptr)
     {
@@ -2929,7 +2969,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	ZENTHROW(SamplesUnsorted,
 		 "VectorDesc ctor: uoa samples are not sorted " +
 		 ptr->py_string());
-		 
+      mutable_unit_convert(*ptr->yunit, ptr->y, *uo_unit);
+      ptr->yunit = uo_unit;
     };
   static auto uo_validate = [] (VectorDesc* ptr)
     {
@@ -2945,6 +2986,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	  mutable_unit_convert(*ptr->yunit, ptr->y, CP::get_instance());
 	  ptr->yunit = &CP::get_instance();
 	}
+      mutable_unit_convert(*ptr->yunit, ptr->y, *uo_unit);
+      ptr->yunit = uo_unit;
     };
     
   static AHDispatcher<string, void (*)(VectorDesc*)> dispather =

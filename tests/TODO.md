@@ -44,39 +44,24 @@
 ## 15. precision en matriz
 - Created at   2017-10-30 08:43:57 -0400
 
-## 16. unificar unidades en estadísticas lcal
-- Created at   2017-10-31 12:36:52 -0400
-
-## 17. auto con autoinputing
+## 16. auto con autoinputing
 - Created at   2017-11-08 09:54:36 -0400
 
-## 18. opcion que salve en nuevo archivo
+## 17. opcion que salve en nuevo archivo
 - Created at   2017-11-08 10:29:03 -0400
 
-## 19. colorear puntos según tempreatura en opcion R de ttuner
+## 18. colorear puntos según tempreatura en opcion R de ttuner
 - Created at   2017-11-08 10:30:55 -0400
 
-## 20. auto inputing dada t
+## 19. auto inputing dada t
 - Created at   2017-11-08 19:30:07 -0400
 
-## 21. ttuner tauto option
+## 20. ttuner tauto option
 - Created at   2017-11-08 19:42:04 -0400
 
-## 22. ttuner auto input option
+## 21. ttuner auto input option
 - Created at   2017-11-08 19:42:15 -0400
 
-## 23. auto inputu con t debe tener todas las correlaciones definidas
+## 22. auto inputu con t debe tener todas las correlaciones definidas
 - Created at   2017-11-09 10:30:28 -0400
-
-## 24. los arreglos de partida en inputing son uob y uoa
-- Created at   2017-11-09 12:44:04 -0400
-
-## 25. verificar que yunit siempre sea la misma cuando hay varios arreglos
-- Created at   2017-11-09 15:45:13 -0400
-
-## 26. cplot unidades de caliracion para rs bob boa coa uob y uoa
-- Created at   2017-11-09 21:24:16 -0400
-
-## 27. casar unidades de vectores a las de la propiedad
-- Created at   2017-11-09 21:40:24 -0400
 
