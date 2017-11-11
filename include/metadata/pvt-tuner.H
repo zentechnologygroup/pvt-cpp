@@ -2050,6 +2050,58 @@ public:
       by each different temperature */
   void stabilize_pb()
   {
+    static auto rs_stable = [] (VectorDesc & v, double pb)
+      {
+	assert(v.yname == "rs");
+	if (v.pb == pb)
+	  return;
+	v.pb = v.p.get_last() = pb;
+      };
+    static auto bob_stable = [] (VectorDesc & v, double pb)
+      {
+	assert(v.yname == "bob");
+	if (v.pb == pb)
+	  return;
+	v.pb = v.p.get_last() = pb;
+      };
+    static auto coa_stable = [] (VectorDesc & v, double pb)
+      {
+	assert(v.yname == "coa");
+	if (v.pb == pb)
+	  return;
+	v.pb = pb;
+	if (v.p.get_first() <= pb)
+	  v.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+      };
+    static auto boa_stable = [] (VectorDesc & v, double pb)
+      {
+	assert(v.yname == "boa");
+	if (v.pb == pb)
+	  return;
+	v.pb = pb;
+	if (v.p.get_first() <= pb)
+	  v.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+      };
+    static auto uob_stable = [] (VectorDesc & v, double pb)
+      {
+	assert(v.yname == "uob");
+	if (v.pb == pb)
+	  return;
+	v.pb = v.p.get_last() = pb;
+      };
+    static auto uoa_stable = [] (VectorDesc & v, double pb)
+      {
+	assert(v.yname == "boa");
+	if (v.pb == pb)
+	  return;
+	v.pb = pb;
+	if (v.p.get_first() <= pb)
+	  v.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+      };
+    static AHDispatcher<string, void (*)(VectorDesc&, double)> dispatcher =
+      { "rs", rs_stable, "bob", bob_stable, "coa", coa_stable, "boa", boa_stable,
+	"uob", uob_stable, "uoa", uoa_stable };
+
     if (pb_corr == nullptr)
       ZENTHROW(CorrelationNotFound, "correlation for pb is not set");
     
@@ -2060,29 +2112,8 @@ public:
 	return this->compute_pb(t, pb_corr, c_pb, m_pb).raw();
       });
 
-    static auto rs_stable = [] (VectorDesc & v, double pb)
-      {
-	assert(v.yname == "rs");
-	if (v.pb == pb)
-	  return;
-	v.pb = v.p.get_last() = pb;
-      };
-     static auto bob_stable = [] (VectorDesc & v, double pb)
-      {
-	assert(v.yname == "bob");
-	if (v.pb == pb)
-	  return;
-	v.pb = v.p.get_last() = pb;
-      };
-     static auto coa_stable = [] (VectorDesc & v, double pb)
-      {
-	assert(v.yname == "coa");
-	if (v.pb == pb)
-	  return;
-	v.pb = pb;
-      };
-
-
+    for (auto & v : vectors)
+      dispatcher.run(v.yname, v, t_pb[v.t]);
   }
 
   /* given ref_vector which contains a property for several
