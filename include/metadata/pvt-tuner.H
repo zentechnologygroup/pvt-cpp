@@ -2074,6 +2074,15 @@ public:
 	  return;
 	v.pb = v.p.get_last() = pb;
       };
+     static auto coa_stable = [] (VectorDesc & v, double pb)
+      {
+	assert(v.yname == "coa");
+	if (v.pb == pb)
+	  return;
+	v.pb = pb;
+      };
+
+
   }
 
   /* given ref_vector which contains a property for several
