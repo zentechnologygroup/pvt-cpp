@@ -36,10 +36,10 @@ class DefinedCorrelation
 	     double c, double m, const Unit & tuned_unit)
       : Interval(ptr, start, end)
     {
-      tuned = true;
       this->c = c;
       this->m = m;
       this->tuned_unit = &tuned_unit;
+      tuned = this->c != 0 and this->m != 1;
     }
 
     VtlQuantity to_result_unit(const VtlQuantity & val) const
