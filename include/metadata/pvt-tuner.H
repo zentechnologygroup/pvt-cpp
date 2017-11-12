@@ -298,13 +298,13 @@ struct VectorDesc
   {
     ostringstream s;
     s << "For t = " << t << " " << Fahrenheit::get_instance().name;
-    if (pb > 0)
+    if (pb >= 0)
       s << " pb = " << pb << " " << punit->name;
-    if (uod > 0)
+    if (uod >= 0)
       s << " uod = " << uod << " " << CP::get_instance().name;
-    if (bobp > 0)
+    if (bobp >= 0)
       s << " bobp = " << bobp << " " << RB_STB::get_instance().name;
-    if (uobp > 0)
+    if (uobp >= 0)
       s << " uobp = " << uobp << " " << CP::get_instance().name;
     s << " :" << endl
       << shift_lines_to_left(Aleph::to_string(format_string(to_dynlist())), 2);
@@ -2098,6 +2098,7 @@ public:
 	if (v->pb == ptr->pb)
 	  return;
 	v->pb = v->p.get_last() = ptr->pb;
+	v->uod = v->y.get_first() = ptr->uod;
       };
     static auto uoa_stable = [] (const VectorDesc * v, const PbUod * ptr)
       {
@@ -2105,6 +2106,7 @@ public:
 	if (v->pb == ptr->pb)
 	  return;
 	v->pb = ptr->pb;
+	v->uod = ptr->uod;
 	if (v->p.get_first() <= ptr->pb)
 	  v->p.get_first() = nextafter(ptr->pb, numeric_limits<double>::max());
       };
@@ -2125,6 +2127,10 @@ public:
 	double uod = this->compute_uod(t, pb, uod_corr, c_uod, m_uod).raw();
 	return PbUod(pb, uod);
       });
+
+    t_pb.for_each([] (auto p) { cout << "t = " << p.first << " pb = "
+				     << p.second.pb << " uod " << p.second.uod
+				     << endl; });
 
     for (auto & v : vectors)
       dispatcher.run(v.yname, &v, &t_pb[v.t]);

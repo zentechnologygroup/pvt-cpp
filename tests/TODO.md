@@ -65,3 +65,6 @@
 ## 22. stabilize debe tomatr en cuenta el uod
 - Created at   2017-11-12 14:01:04 -0400
 
+## 23. ojo con el limite inferiro de unidad viscosidad
+- Created at   2017-11-12 18:14:01 -0400
+
