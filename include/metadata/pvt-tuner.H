@@ -2054,71 +2054,80 @@ public:
       generated correlation by each different temperature */
   void stabilize_pb()
   {
-    static auto rs_stable = [] (const VectorDesc * v, double pb)
+    struct PbUod
+    {
+      double pb, uod;
+      PbUod() {}
+      PbUod(double __pb, double __uod) : pb(__pb), uod(__uod) {}
+    };
+    static auto rs_stable = [] (const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "rs");
-	if (v->pb == pb)
+	if (v->pb == ptr->pb)
 	  return;
-	v->pb = v->p.get_last() = pb;
+	v->pb = v->p.get_last() = ptr->pb;
       };
-    static auto bob_stable = [] (const VectorDesc * v, double pb)
+    static auto bob_stable = [] (const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "bob");
-	if (v->pb == pb)
+	if (v->pb == ptr->pb)
 	  return;
-	v->pb = v->p.get_last() = pb;
+	v->pb = v->p.get_last() = ptr->pb;
       };
-    static auto coa_stable = [] (const VectorDesc * v, double pb)
+    static auto coa_stable = [] (const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "coa");
-	if (v->pb == pb)
+	if (v->pb == ptr->pb)
 	  return;
-	v->pb = pb;
-	if (v->p.get_first() <= pb)
-	  v->p.get_first() = nextafter(pb, numeric_limits<double>::max());
+	v->pb = ptr->pb;
+	if (v->p.get_first() <= ptr->pb)
+	  v->p.get_first() = nextafter(ptr->pb, numeric_limits<double>::max());
       };
-    static auto boa_stable = [] (const VectorDesc * v, double pb)
+    static auto boa_stable = [] (const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "boa");
-	if (v->pb == pb)
+	if (v->pb == ptr->pb)
 	  return;
-	v->pb = pb;
-	if (v->p.get_first() <= pb)
-	  v->p.get_first() = nextafter(pb, numeric_limits<double>::max());
+	v->pb = ptr->pb;
+	if (v->p.get_first() <= ptr->pb)
+	  v->p.get_first() = nextafter(ptr->pb, numeric_limits<double>::max());
       };
-    static auto uob_stable = [] (const VectorDesc * v, double pb)
+    static auto uob_stable = [] (const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "uob");
-	if (v->pb == pb)
+	if (v->pb == ptr->pb)
 	  return;
-	v->pb = v->p.get_last() = pb;
+	v->pb = v->p.get_last() = ptr->pb;
       };
-    static auto uoa_stable = [] (const VectorDesc * v, double pb)
+    static auto uoa_stable = [] (const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "uoa");
-	if (v->pb == pb)
+	if (v->pb == ptr->pb)
 	  return;
-	v->pb = pb;
-	if (v->p.get_first() <= pb)
-	  v->p.get_first() = nextafter(pb, numeric_limits<double>::max());
+	v->pb = ptr->pb;
+	if (v->p.get_first() <= ptr->pb)
+	  v->p.get_first() = nextafter(ptr->pb, numeric_limits<double>::max());
       };
-    static auto uo_stable = [] (const VectorDesc *, double) {};
-    static AHDispatcher<string, void (*)(const VectorDesc*, double)> dispatcher =
+    static auto uo_stable = [] (const VectorDesc *, const PbUod *) {};
+    static AHDispatcher<string,
+			void (*)(const VectorDesc*, const PbUod *)> dispatcher =
       { "rs", rs_stable, "bob", bob_stable, "coa", coa_stable, "boa", boa_stable,
 	"uob", uob_stable, "uoa", uoa_stable, "uo", uo_stable };
 
     if (pb_corr == nullptr)
       ZENTHROW(CorrelationNotFound, "correlation for pb is not set");
-    
+
     DynSetTree<double> temps =
       set_unify<double>(vectors, [] (auto & v) { return v.t; });
-    DynMapTree<double, double> t_pb = map_unify<double>(temps, [this] (auto t)
+    DynMapTree<double, PbUod> t_pb = map_unify<PbUod>(temps, [this] (auto t)
       {
-	return this->compute_pb(t, pb_corr, c_pb, m_pb).raw();
+	double pb = this->compute_pb(t, pb_corr, c_pb, m_pb).raw();
+	double uod = this->compute_uod(t, pb, uod_corr, c_uod, m_uod).raw();
+	return PbUod(pb, uod);
       });
 
     for (auto & v : vectors)
-      dispatcher.run(v.yname, &v, t_pb[v.t]);
+      dispatcher.run(v.yname, &v, &t_pb[v.t]);
   }
 
   /* given ref_vector which contains a property for several
