@@ -35,33 +35,30 @@
 ## 12. cplot tuner ztuner test-corr deben atraar execpciones en main  e imprimir error
 - Created at   2017-10-09 17:05:38 -0400
 
-## 13. correlación que esté seteada no debe contar para auto
-- Created at   2017-10-10 16:27:53 -0400
-
-## 14. cplot como funcion de biblioteca
+## 13. cplot como funcion de biblioteca
 - Created at   2017-10-10 16:52:41 -0400
 
-## 15. precision en matriz
+## 14. precision en matriz
 - Created at   2017-10-30 08:43:57 -0400
 
-## 16. auto con autoinputing
+## 15. auto con autoinputing
 - Created at   2017-11-08 09:54:36 -0400
 
-## 17. opcion que salve en nuevo archivo
+## 16. opcion que salve en nuevo archivo
 - Created at   2017-11-08 10:29:03 -0400
 
-## 18. colorear puntos según tempreatura en opcion R de ttuner
+## 17. colorear puntos según tempreatura en opcion R de ttuner
 - Created at   2017-11-08 10:30:55 -0400
 
-## 19. auto inputing dada t
+## 18. auto inputing dada t
 - Created at   2017-11-08 19:30:07 -0400
 
-## 20. ttuner tauto option
+## 19. ttuner tauto option
 - Created at   2017-11-08 19:42:04 -0400
 
-## 21. ttuner auto input option
+## 20. ttuner auto input option
 - Created at   2017-11-08 19:42:15 -0400
 
-## 22. auto inputu con t debe tener todas las correlaciones definidas
+## 21. auto inputu con t debe tener todas las correlaciones definidas
 - Created at   2017-11-09 10:30:28 -0400
 

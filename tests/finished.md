@@ -2500,3 +2500,9 @@
 - Comment      
 - Finished     
 
+## 418. correlación que esté seteada no debe contar para auto
+- Created at   2017-10-10 16:27:53 -0400
+- Completed at 2017-11-12 11:08:30 -0400
+- Comment      
+- Finished     
+

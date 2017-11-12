@@ -1965,7 +1965,7 @@ public:
 
   /** For each different temperature found in the data set, builds
       missing properties through the set correlations */
-  DynList<VectorDesc> auto_inputing() const
+  DynList<VectorDesc> auto_inputing()
   {
     PvtData data = *this; // do a copy because the resulting vectors
 			  // will be added
@@ -2008,6 +2008,10 @@ public:
 	ret.append(boa_list);
 	boa_list.for_each([&data] (auto & v) { data.add_vector(v); });
       }
+
+    ret.for_each([this] (auto & v) { this->add_vector(v); });
+    stabilize_pb();
+
     return ret;
   }
 
@@ -2047,60 +2051,61 @@ public:
   }
 
   /** Inspect all the vectors and guarantees that it exists only a pb
-      by each different temperature */
+      generated correlation by each different temperature */
   void stabilize_pb()
   {
-    static auto rs_stable = [] (VectorDesc & v, double pb)
+    static auto rs_stable = [] (const VectorDesc * v, double pb)
       {
-	assert(v.yname == "rs");
-	if (v.pb == pb)
+	assert(v->yname == "rs");
+	if (v->pb == pb)
 	  return;
-	v.pb = v.p.get_last() = pb;
+	v->pb = v->p.get_last() = pb;
       };
-    static auto bob_stable = [] (VectorDesc & v, double pb)
+    static auto bob_stable = [] (const VectorDesc * v, double pb)
       {
-	assert(v.yname == "bob");
-	if (v.pb == pb)
+	assert(v->yname == "bob");
+	if (v->pb == pb)
 	  return;
-	v.pb = v.p.get_last() = pb;
+	v->pb = v->p.get_last() = pb;
       };
-    static auto coa_stable = [] (VectorDesc & v, double pb)
+    static auto coa_stable = [] (const VectorDesc * v, double pb)
       {
-	assert(v.yname == "coa");
-	if (v.pb == pb)
+	assert(v->yname == "coa");
+	if (v->pb == pb)
 	  return;
-	v.pb = pb;
-	if (v.p.get_first() <= pb)
-	  v.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+	v->pb = pb;
+	if (v->p.get_first() <= pb)
+	  v->p.get_first() = nextafter(pb, numeric_limits<double>::max());
       };
-    static auto boa_stable = [] (VectorDesc & v, double pb)
+    static auto boa_stable = [] (const VectorDesc * v, double pb)
       {
-	assert(v.yname == "boa");
-	if (v.pb == pb)
+	assert(v->yname == "boa");
+	if (v->pb == pb)
 	  return;
-	v.pb = pb;
-	if (v.p.get_first() <= pb)
-	  v.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+	v->pb = pb;
+	if (v->p.get_first() <= pb)
+	  v->p.get_first() = nextafter(pb, numeric_limits<double>::max());
       };
-    static auto uob_stable = [] (VectorDesc & v, double pb)
+    static auto uob_stable = [] (const VectorDesc * v, double pb)
       {
-	assert(v.yname == "uob");
-	if (v.pb == pb)
+	assert(v->yname == "uob");
+	if (v->pb == pb)
 	  return;
-	v.pb = v.p.get_last() = pb;
+	v->pb = v->p.get_last() = pb;
       };
-    static auto uoa_stable = [] (VectorDesc & v, double pb)
+    static auto uoa_stable = [] (const VectorDesc * v, double pb)
       {
-	assert(v.yname == "boa");
-	if (v.pb == pb)
+	assert(v->yname == "uoa");
+	if (v->pb == pb)
 	  return;
-	v.pb = pb;
-	if (v.p.get_first() <= pb)
-	  v.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+	v->pb = pb;
+	if (v->p.get_first() <= pb)
+	  v->p.get_first() = nextafter(pb, numeric_limits<double>::max());
       };
-    static AHDispatcher<string, void (*)(VectorDesc&, double)> dispatcher =
+    static auto uo_stable = [] (const VectorDesc *, double) {};
+    static AHDispatcher<string, void (*)(const VectorDesc*, double)> dispatcher =
       { "rs", rs_stable, "bob", bob_stable, "coa", coa_stable, "boa", boa_stable,
-	"uob", uob_stable, "uoa", uoa_stable };
+	"uob", uob_stable, "uoa", uoa_stable, "uo", uo_stable };
 
     if (pb_corr == nullptr)
       ZENTHROW(CorrelationNotFound, "correlation for pb is not set");
@@ -2113,7 +2118,7 @@ public:
       });
 
     for (auto & v : vectors)
-      dispatcher.run(v.yname, v, t_pb[v.t]);
+      dispatcher.run(v.yname, &v, t_pb[v.t]);
   }
 
   /* given ref_vector which contains a property for several
