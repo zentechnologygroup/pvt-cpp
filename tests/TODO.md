@@ -62,3 +62,6 @@
 ## 21. auto inputu con t debe tener todas las correlaciones definidas
 - Created at   2017-11-09 10:30:28 -0400
 
+## 22. stabilize debe tomatr en cuenta el uod
+- Created at   2017-11-12 14:01:04 -0400
+
