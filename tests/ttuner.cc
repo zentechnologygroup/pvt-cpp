@@ -1291,6 +1291,9 @@ void process_local_calibration()
 		 " is not a unit for pressure");
       stats.for_each([punit] (auto & s)
 		     { mutable_unit_convert(psig::get_instance(),
+					    s.plab, *punit); });
+      stats.for_each([punit] (auto & s)
+		     { mutable_unit_convert(psig::get_instance(),
 					    s.p, *punit); });
     }
   if (tunit_arg.isSet())
