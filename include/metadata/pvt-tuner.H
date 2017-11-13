@@ -1429,7 +1429,7 @@ private:
 	  }
 	catch (exception & e)
 	  {
-	    cout << corr_ptr->name << e.what() << endl;
+	    cout << corr_ptr->name << ": " << e.what() << endl;
 	  }
       }
     stats.close();
@@ -1986,7 +1986,8 @@ public:
       ZENTHROW(CorrelationNotFound, "Correlation for bob is not set");
     else
       {
-	auto bob_list = inputing(data.search_vectors("rs"), bob_corr, c_bob, m_bob);
+	auto bob_list =
+	  inputing(data.search_vectors("rs"), bob_corr, c_bob, m_bob);
 	ret.append(bob_list);
 	bob_list.for_each([&data] (auto & v) { data.add_vector(v); });
       }
@@ -1995,7 +1996,8 @@ public:
       ZENTHROW(CorrelationNotFound, "Correlation for coa is not set");
     else
       {
-	auto coa_list = inputing(data.search_vectors("uoa"), coa_corr, c_coa, m_coa);
+	auto coa_list =
+	  inputing(data.search_vectors("uoa"), coa_corr, c_coa, m_coa);
 	ret.append(coa_list);
 	coa_list.for_each([&data] (auto & v) { data.add_vector(v); });
       }
@@ -2004,7 +2006,8 @@ public:
       ZENTHROW(CorrelationNotFound, "Correlation for boa is not set");
     else
       {
-	auto boa_list = inputing(data.search_vectors("coa"), boa_corr, c_boa, m_boa);
+	auto boa_list =
+	  inputing(data.search_vectors("coa"), boa_corr, c_boa, m_boa);
 	ret.append(boa_list);
 	boa_list.for_each([&data] (auto & v) { data.add_vector(v); });
       }
@@ -2420,7 +2423,7 @@ public:
     mutable CorrStat::Desc desc;
     mutable DynList<double> t, plab, p, ylab, ycorr, ytuned;
     mutable bool valid = false;
-    StatsDesc() {}
+    StatsDesc(const Correlation * __corr_ptr = nullptr) : corr_ptr(__corr_ptr) {}
     StatsDesc(ConstStats & s)
       : corr_ptr(s.corr_ptr), desc(s.desc), t(move(s.t)),
 	ylab(move(s.ylab)), ycorr(move(s.ycorr)), ytuned(move(s.ytuned)),
@@ -2584,7 +2587,15 @@ public:
     auto corr_list = can_be_applied(target_name, relax_tbl, ban_list);
     auto auto_list = corr_list.maps<StatsDesc>([this] (auto ptr)
       {
-	return this->apply(ptr);
+	try
+	  {
+	    return this->apply(ptr);
+	  }
+	catch (exception & e)
+	  {
+	    cout << ptr->name << ": " << e.what() << endl;
+	    return StatsDesc(ptr);
+	  }
       });
     auto ret_list = dispatcher.run(type, auto_list, threshold);
     return ret_list.is_empty() ? StatsDesc() : ret_list.get_first();
@@ -2756,8 +2767,7 @@ public:
 	assert(uod_corr);
 	assert(uob_corr);
 	assert(uoa_corr);
-	// revisar los vectores donde haya distintas temperaturas y
-	// efectuar inputing 
+	auto_inputing();
       }
 
     for (size_t i = 1; i < n; ++i)

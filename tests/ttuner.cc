@@ -482,6 +482,44 @@ struct Input
   }
 };
 
+struct Tinput
+{
+  double t = PVT_INVALID_VALUE;
+  DynList<double> p;
+  size_t n = 0;
+  Tinput() {}
+  Tinput & operator = (const string & str)
+  {
+    istringstream iss(str);
+    string data;
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read temperature unit");
+    const Unit * tunit = Unit::search(data);
+    if (tunit == nullptr)
+      ZENTHROW(CommandLineError, data + " not found as temperature unit");
+    if (not tunit->is_sibling(Fahrenheit::get_instance()))
+      ZENTHROW(CommandLineError, data + " is not a temperature unit");
+
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read temperature value");
+    if (not is_double(data))
+      ZENTHROW(CommandLineError, data + " is not a double");
+    t = tunit == &Fahrenheit::get_instance() ? atof(data) :
+      unit_convert(*tunit, atof(data), Fahrenheit::get_instance());
+
+    if (not (iss >> data))
+      ZENTHROW(CommandLineError, "cannot read pressure unit");
+    const Unit * punit = Unit::search(data);
+
+    for (; not (iss >> data); ++n)
+      {
+	if (not is_double(data))
+	  ZENTHROW(CommandLineError, data + " is not a double");
+	p.append(atof(data));
+      }
+  }
+};
+
 namespace TCLAP
 {
   template<> struct ArgTraits<Rs> { typedef StringLike ValueCategory; };
