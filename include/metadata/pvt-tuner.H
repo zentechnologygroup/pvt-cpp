@@ -1565,9 +1565,11 @@ public:
     VectorDesc in = pref;
     if (pb >= in.p.get_first())
       {
-	pb = nextafter(in.p.get_first(), numeric_limits<double>::min());
-	pb_par.second.first = pb;
-	in.pb = pb;
+	LineEq l(in.p(0), in.y(0), in.p(1), in.y(0));
+	double p = nextafter(in.p.get_first(), numeric_limits<double>::min());
+	pb_par.second.first = in.pb;
+	in.p(0) = p;
+	in.y(0) = l(p);
       }
 
     pars.insert("t", pref.t, &Fahrenheit::get_instance());
@@ -1644,7 +1646,7 @@ public:
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
     const double pb = pb_par.second.first; // its unit is pb_par.second.second
-     in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+    in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
 
     if (exist_coa and coa_corr != nullptr)
       // in this case coa is already parallel to in
@@ -1672,13 +1674,15 @@ public:
     bob = bob.make_parallel(in);
 
     const double & bobp = bob.y.get_last();
+    in.y.get_first() = nextafter(bobp, numeric_limits<double>::min());
+    //in.bobp = bobp;
     pars.insert("t", pref.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
     pars.insert("bobp", bobp, bob.yunit);
     
     DynList<double> p_list, boa_list;
     // Start from 1 (not 0) because bobp point must not be included
-    for (auto it = zip_it_pos(1, in.p, coa.y); it.has_curr(); it.next())
+    for (auto it = zip_it(in.p, coa.y); it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
 	const double & p_val = get<0>(t);
@@ -2966,20 +2970,20 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 		 ptr->py_string());
       if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	ZENTHROW(SampleInvalid, "p vector contains pb");
-      if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
-	ZENTHROW(SampleInvalid, "boa vector contains bobp");
+      // if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
+      // 	ZENTHROW(SampleInvalid, "boa vector contains bobp");
       ptr->p.insert(nextafter(ptr->pb, numeric_limits<double>::max()));
       ptr->y.insert(nextafter(ptr->bobp, numeric_limits<double>::min()));
-      if (ptr->p(0) >= ptr->p(1))
-	ZENTHROW(PressureMismatch,
-		 "VectorDesc ctor (boa): pb next is greater than first p value");
-      if (ptr->y(0) < ptr->y(1))
-	ZENTHROW(SampleInvalid,
-		 "VectorDesc ctor (boa):bobp next is less than first boa value");
-      if (not ptr->y.all([u = ptr->yunit] (auto b)
-			 { return BaseQuantity::is_valid(b, *u); }))
-	ZENTHROW(OutOfUnitRange,
-		 "at least a boa value is out of its unit range");
+      // if (ptr->p(0) >= ptr->p(1))
+      // 	ZENTHROW(PressureMismatch,
+      // 		 "VectorDesc ctor (boa): pb next is greater than first p value");
+      // if (ptr->y(0) < ptr->y(1))
+      // 	ZENTHROW(SampleInvalid,
+      // 		 "VectorDesc ctor (boa):bobp next is less than first boa value");
+      // if (not ptr->y.all([u = ptr->yunit] (auto b)
+      // 			 { return BaseQuantity::is_valid(b, *u); }))
+      // 	ZENTHROW(OutOfUnitRange,
+      // 		 "at least a boa value is out of its unit range");
       mutable_unit_convert(*ptr->yunit, ptr->y, *bo_unit);
       ptr->yunit = bo_unit;
     };
