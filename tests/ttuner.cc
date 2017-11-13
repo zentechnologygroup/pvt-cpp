@@ -1007,7 +1007,8 @@ void process_apply()
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {
       DynList<string> ret = build_dynlist<string>(t.corr_ptr->name);
-      auto stats = t.valid ? CorrStat::desc_to_dynlist(t.desc) :
+      auto stats = t.valid ?
+        CorrStat::desc_to_dynlist(t.desc, precision_arg.getValue()) :
         CorrStat::invalid_desc_to_dynlist();
       ret.append(stats);
       return ret;

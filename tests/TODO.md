@@ -68,3 +68,6 @@
 ## 23. ojo con el limite inferiro de unidad viscosidad
 - Created at   2017-11-12 18:14:01 -0400
 
+## 24. mas decimales en apply
+- Created at   2017-11-13 15:18:36 -0400
+

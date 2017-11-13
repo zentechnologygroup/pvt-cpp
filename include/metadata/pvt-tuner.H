@@ -281,12 +281,13 @@ struct VectorDesc
 			   { return ParPair(yname, ValPair(y, yunit)); });
   }
 
-  DynList<DynList<string>> to_dynlist() const
+  DynList<DynList<string>> to_dynlist(size_t precision = 17) const
   {
-    DynList<DynList<string>> ret = zip_maps<DynList<string>>([] (auto t)
+    DynList<DynList<string>> ret =
+      zip_maps<DynList<string>>([precision] (auto t)
       {
 	return build_dynlist<string>(::to_string(get<0>(t)),
-				     ::to_string(get<1>(t), 10));
+				     ::to_string(get<1>(t), precision));
 			       
       }, p, y);
     ret.insert(build_dynlist<string>("p " + punit->name,
@@ -1164,15 +1165,16 @@ public:
 	  ytuned = ycorr.maps([c, m] (auto y) { return c + m*y; });
 	}
     }
-    DynList<string> to_dynlist() const
+    DynList<string> to_dynlist(size_t precision) const
     {
-      return build_dynlist<string>(corr_ptr->name, ::to_string(CorrStat::r2(desc)),
-				   ::to_string(CorrStat::mse(desc)),
-				   ::to_string(CorrStat::sigma(desc)),
-				   ::to_string(CorrStat::sumsq(desc)),
-				   ::to_string(CorrStat::c(desc)),
-				   ::to_string(CorrStat::m(desc)),
-				   valid ? "true" : "false");
+      return build_dynlist<string>
+	(corr_ptr->name, ::to_string(CorrStat::r2(desc)),
+	 ::to_string(CorrStat::mse(desc)),
+	 ::to_string(CorrStat::sigma(desc)),
+	 ::to_string(CorrStat::sumsq(desc)),
+	 ::to_string(CorrStat::c(desc), precision),
+	 ::to_string(CorrStat::m(desc)),
+	 valid ? "true" : "false");
     }
   };
 
@@ -1353,14 +1355,15 @@ public:
 	  ylab.append(pp.ylab);
 	  ycorr.append(pp.ycorr);
 	}
+
       // order in x axis for regression is p array
       auto l = sort(t_zip(plab, p, ylab, ycorr), [] (auto & t1, auto & t2)
 		    { return get<1>(t1) < get<1>(t2); });
       auto t = t_unzip(l);
-      desc = CorrStat(get<2>(t)).stats(get<3>(t));
+      desc = CorrStat(get<2>(t)).stats(get<3>(t)); // here regression is done!
       valid = CorrStat::is_valid(desc);
     }
-    DynList<string> to_dynlist() const
+    DynList<string> to_dynlist(size_t precision = 10) const
     {
       if (not closed)
 	ZENTHROW(MetadataException, "VectorStats is not closed");
@@ -1368,8 +1371,8 @@ public:
 				   ::to_string(CorrStat::mse(desc)),
 				   ::to_string(CorrStat::sigma(desc)),
 				   ::to_string(CorrStat::sumsq(desc)),
-				   ::to_string(CorrStat::c(desc)),
-				   ::to_string(CorrStat::m(desc)),
+				   ::to_string(CorrStat::c(desc), precision),
+				   ::to_string(CorrStat::m(desc), precision),
 				   valid ? "true" : "false");
     }
 
@@ -1440,7 +1443,7 @@ private:
   {
     if (not stats.valid)
       return stats;
-    
+
     const double & c = CorrStat::c(stats.desc);
     const double & m = CorrStat::m(stats.desc);
     const double & min_val = stats.corr_ptr->unit.min_val;
