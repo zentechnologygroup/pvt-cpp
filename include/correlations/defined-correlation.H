@@ -12,7 +12,7 @@ class DefinedCorrelation
     double start, end;
     const DynSetTree<string> * par_names = nullptr;
 
-    double c, m; // set if the correlation is tuned
+    double c = 0, m = 1; // set if the correlation is tuned
     bool tuned = false;
 
     const Unit * result_unit = nullptr;
