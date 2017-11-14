@@ -212,11 +212,12 @@ public:
     return make_tuple(r2, mse, sigma, fit);
   }
 
-  static DynList<string> desc_to_dynlist(const Desc & d)
+  static DynList<string> desc_to_dynlist(const Desc & d, size_t precision = 17)
   {
     return build_dynlist<string>(::to_string(r2(d)), ::to_string(mse(d)),
 				 ::to_string(sigma(d)), ::to_string(sumsq(d)),
-				 ::to_string(c(d)), ::to_string(m(d)),
+				 ::to_string(c(d), precision),
+				 ::to_string(m(d), precision),
 				 is_valid(d) ? "valid" : "invalid");
   }
 

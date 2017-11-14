@@ -281,12 +281,13 @@ struct VectorDesc
 			   { return ParPair(yname, ValPair(y, yunit)); });
   }
 
-  DynList<DynList<string>> to_dynlist() const
+  DynList<DynList<string>> to_dynlist(size_t precision = 17) const
   {
-    DynList<DynList<string>> ret = zip_maps<DynList<string>>([] (auto t)
+    DynList<DynList<string>> ret =
+      zip_maps<DynList<string>>([precision] (auto t)
       {
 	return build_dynlist<string>(::to_string(get<0>(t)),
-				     ::to_string(get<1>(t), 10));
+				     ::to_string(get<1>(t), precision));
 			       
       }, p, y);
     ret.insert(build_dynlist<string>("p " + punit->name,
@@ -1164,15 +1165,16 @@ public:
 	  ytuned = ycorr.maps([c, m] (auto y) { return c + m*y; });
 	}
     }
-    DynList<string> to_dynlist() const
+    DynList<string> to_dynlist(size_t precision) const
     {
-      return build_dynlist<string>(corr_ptr->name, ::to_string(CorrStat::r2(desc)),
-				   ::to_string(CorrStat::mse(desc)),
-				   ::to_string(CorrStat::sigma(desc)),
-				   ::to_string(CorrStat::sumsq(desc)),
-				   ::to_string(CorrStat::c(desc)),
-				   ::to_string(CorrStat::m(desc)),
-				   valid ? "true" : "false");
+      return build_dynlist<string>
+	(corr_ptr->name, ::to_string(CorrStat::r2(desc)),
+	 ::to_string(CorrStat::mse(desc)),
+	 ::to_string(CorrStat::sigma(desc)),
+	 ::to_string(CorrStat::sumsq(desc)),
+	 ::to_string(CorrStat::c(desc), precision),
+	 ::to_string(CorrStat::m(desc)),
+	 valid ? "true" : "false");
     }
   };
 
@@ -1276,7 +1278,7 @@ public:
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
     const double pb = pb_par.second.first;
-    in.p.get_last() = pb; // eventually pb for the tuned one
+    in.p.get_last() = pb; // pb for the tuned one
 
     pars.insert("t", in.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
@@ -1353,14 +1355,15 @@ public:
 	  ylab.append(pp.ylab);
 	  ycorr.append(pp.ycorr);
 	}
+
       // order in x axis for regression is p array
       auto l = sort(t_zip(plab, p, ylab, ycorr), [] (auto & t1, auto & t2)
 		    { return get<1>(t1) < get<1>(t2); });
       auto t = t_unzip(l);
-      desc = CorrStat(get<2>(t)).stats(get<3>(t));
+      desc = CorrStat(get<2>(t)).stats(get<3>(t)); // here regression is done!
       valid = CorrStat::is_valid(desc);
     }
-    DynList<string> to_dynlist() const
+    DynList<string> to_dynlist(size_t precision = 10) const
     {
       if (not closed)
 	ZENTHROW(MetadataException, "VectorStats is not closed");
@@ -1368,8 +1371,8 @@ public:
 				   ::to_string(CorrStat::mse(desc)),
 				   ::to_string(CorrStat::sigma(desc)),
 				   ::to_string(CorrStat::sumsq(desc)),
-				   ::to_string(CorrStat::c(desc)),
-				   ::to_string(CorrStat::m(desc)),
+				   ::to_string(CorrStat::c(desc), precision),
+				   ::to_string(CorrStat::m(desc), precision),
 				   valid ? "true" : "false");
     }
 
@@ -1423,6 +1426,7 @@ private:
 	try
 	  {
 	    VectorDesc corr_data = (this->*compute_ptr)(*lab_ptr, corr_ptr, 0, 1);
+	    // TODO hacer paralelo con lab_data
 	    stats.add(corr_data.t, to_dynlist(lab_ptr->p), to_dynlist(corr_data.p),
 		      to_dynlist(lab_ptr->y), to_dynlist(corr_data.y));
 	    ++k;
@@ -1440,7 +1444,7 @@ private:
   {
     if (not stats.valid)
       return stats;
-    
+
     const double & c = CorrStat::c(stats.desc);
     const double & m = CorrStat::m(stats.desc);
     const double & min_val = stats.corr_ptr->unit.min_val;
@@ -1592,6 +1596,19 @@ public:
     return stats_epilogue(stats);
   }
 
+  VtlQuantity compute_bobp(const double t) const
+  {
+    const DynList<const VectorDesc*> bob_vectors = search_vectors("bob");
+    auto ptr = bob_vectors.find_ptr([t] (auto vptr) { return vptr->t == t; });
+    if (ptr == nullptr)
+      ZENTHROW(VarNameNotFound, "Not found data for bob");
+    const VectorDesc * v_ptr = *ptr;
+    if (bob_corr == nullptr)
+      return VtlQuantity(*v_ptr->yunit, v_ptr->bobp);
+    VectorDesc bob = compute_bob(*v_ptr, bob_corr, c_bob, m_bob);
+    return VtlQuantity(*bob.yunit, bob.y.get_last());
+  }
+
   // In this case we return a pair with the result and the used coa correlation
   VectorDesc compute_boa(const VectorDesc & pref, const Correlation * corr_ptr,
 			 double c = 0, double m = 1) const
@@ -1621,28 +1638,15 @@ public:
       ZENTHROW(VarNameNotFound,
 	       "Not found experimental data neither correlation for coa");
 
-    VectorDesc bob;
-    bool exist_bob = false;
-    {
-      const DynList<const VectorDesc*> bob_list = search_vectors("bob");
-      auto ptr =
-	bob_list.find_ptr([t = pref.t] (auto ptr) { return ptr->t == t; });
-      if (ptr != nullptr)
-	{
-	  bob = **ptr;
-	  exist_bob = true;
-	}
-    }
-    
     VectorDesc in = pref;
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
     const double pb = pb_par.second.first; // its unit is pb_par.second.second
-     in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+    in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
 
     if (exist_coa and coa_corr != nullptr)
       // in this case coa is already parallel to in
-	coa = compute_coa(coa, coa_corr, c_coa, m_coa);
+      coa = compute_coa(coa, coa_corr, c_coa, m_coa);
     else if (coa_corr != nullptr)
       {
 	auto fake_coa = in;
@@ -1653,22 +1657,12 @@ public:
     // else coa is already defined
     coa = coa.make_parallel(in);
 
-    if (exist_bob and bob_corr != nullptr)
-      bob = compute_bob(bob, bob_corr, c_bob, m_bob).make_parallel(in);
-    else if (bob_corr != nullptr)
-      {
-	auto fake_bob = in;
-	fake_bob.yname = "bob";
-	fake_bob.yunit = &bob_corr->unit;
-	bob = compute_bob(fake_bob, bob_corr, c_bob, m_bob).make_parallel(in);
-      }
-    // else bob is already defined
-    bob = bob.make_parallel(in);
-
-    const double & bobp = bob.y.get_last();
+    const VtlQuantity bobp = compute_bobp(in.t);
+    //in.y.get_first() = nextafter(bobp, numeric_limits<double>::min());
+    in.bobp = bobp.raw();
     pars.insert("t", pref.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
-    pars.insert("bobp", bobp, bob.yunit);
+    pars.insert("bobp", bobp);
     
     DynList<double> p_list, boa_list;
     // Start from 1 (not 0) because bobp point must not be included
@@ -1679,15 +1673,15 @@ public:
 	const double & coa_val = get<1>(t);
 	pars.insert("p", p_val, pref.punit);
 	pars.insert("coa", coa_val, coa.yunit);
-	const VtlQuantity coa =
+	const VtlQuantity boa =
 	  corr_ptr->tuned_compute_by_names(pars, c, m, *in.yunit, false);
 	p_list.append(p_val);
-	boa_list.append(coa.raw());
+	boa_list.append(boa.raw());
 	pars.remove("p");
 	pars.remove("coa");
       }
 
-    VectorDesc result(pref.t, pb, bobp, PVT_INVALID_VALUE,
+    VectorDesc result(pref.t, pb, bobp.raw(), PVT_INVALID_VALUE,
 		      PVT_INVALID_VALUE, p_list, pref.punit, "boa",
 		      boa_list, &corr_ptr->unit);
     return compute_epilogue(pref, result);
@@ -1815,6 +1809,19 @@ public:
     return stats_epilogue(stats);
   }
 
+  VtlQuantity compute_uobp(const double t) const
+  {
+    const DynList<const VectorDesc*> uob_vectors = search_vectors("uob");
+    auto ptr = uob_vectors.find_ptr([t] (auto vptr) { return vptr->t == t; });
+    if (ptr == nullptr)
+      ZENTHROW(VarNameNotFound, "Not found data for uob");
+    const VectorDesc * v_ptr = *ptr;
+    if (uob_corr == nullptr)
+      return VtlQuantity(*v_ptr->yunit, v_ptr->uobp);
+    VectorDesc uob = compute_uob(*v_ptr, uob_corr, c_uob, m_uob);
+    return VtlQuantity(*uob.yunit, uob.y.get_last());
+  }
+
   VectorDesc compute_uoa(const VectorDesc & pref, const Correlation * corr_ptr,
 			 double c = 0, double m = 1) const
   {
@@ -1834,7 +1841,9 @@ public:
     pars.insert("t", in.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
     pars.insert(uod_par);
-    pars.insert("uobp", in.uobp, in.yunit);
+
+    const VtlQuantity uobp = compute_uobp(in.t);
+    pars.insert("uobp", uobp);
     DynList<double> p_list, uoa_list;
 
     for (auto it = in.p.get_it(); it.has_curr(); it.next())
@@ -1848,9 +1857,9 @@ public:
 	pars.remove("p");
       }
 
-    // thus we assure than uobp value es less that first uoa
-    const double uobp = nextafter(uoa_list.get_first(),
-				  numeric_limits<double>::min());
+    // // thus we assure than uobp value es less that first uoa
+    // const double uobp = nextafter(uoa_list.get_first(),
+    // 				  numeric_limits<double>::min());
 
     VectorDesc result(in.t, pb, in.bobp, uod, uobp, p_list, in.punit,
 		      "uoa", uoa_list, &corr_ptr->unit);
@@ -2961,19 +2970,19 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	ZENTHROW(SampleInvalid, "p vector contains pb");
       if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
-	ZENTHROW(SampleInvalid, "boa vector contains bobp");
+       	ZENTHROW(SampleInvalid, "boa vector contains bobp");
       ptr->p.insert(nextafter(ptr->pb, numeric_limits<double>::max()));
       ptr->y.insert(nextafter(ptr->bobp, numeric_limits<double>::min()));
       if (ptr->p(0) >= ptr->p(1))
-	ZENTHROW(PressureMismatch,
-		 "VectorDesc ctor (boa): pb next is greater than first p value");
+      	ZENTHROW(PressureMismatch,
+      		 "VectorDesc ctor (boa): pb next is greater than first p value");
       if (ptr->y(0) < ptr->y(1))
-	ZENTHROW(SampleInvalid,
-		 "VectorDesc ctor (boa):bobp next is less than first boa value");
+      	ZENTHROW(SampleInvalid,
+      		 "VectorDesc ctor (boa):bobp next is less than first boa value");
       if (not ptr->y.all([u = ptr->yunit] (auto b)
-			 { return BaseQuantity::is_valid(b, *u); }))
-	ZENTHROW(OutOfUnitRange,
-		 "at least a boa value is out of its unit range");
+      			 { return BaseQuantity::is_valid(b, *u); }))
+      	ZENTHROW(OutOfUnitRange,
+      		 "at least a boa value is out of its unit range");
       mutable_unit_convert(*ptr->yunit, ptr->y, *bo_unit);
       ptr->yunit = bo_unit;
     };
