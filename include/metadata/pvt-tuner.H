@@ -1564,9 +1564,9 @@ public:
     double pb = pb_par.second.first;
 
     VectorDesc in = pref;
-    pb = nextafter(in.p.get_first(), numeric_limits<double>::min());
-    pb_par.second.first = pb;
     in.pb = pb;
+    if (pb >= in.p.get_first())
+      in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
 
     pars.insert("t", pref.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
@@ -1605,15 +1605,16 @@ public:
     const VectorDesc * v_ptr = *ptr;
     if (bob_corr == nullptr)
       return VtlQuantity(*v_ptr->yunit, v_ptr->bobp);
+    
     ParPair pb_par = get_pb(v_ptr->t, v_ptr->pb);
     auto rsb = search_const("rsb");
     if (rsb == nullptr)
       ZENTHROW(ConstNameNotFound, "rsb not found");
-    ParPair rs_par = ParPair("rs", ValPair(rsb->value, rsb->unit_ptr));
-    ParPair t_par = ParPair("t", ValPair(t, &Fahrenheit::get_instance()));
-    ParPair p_par = ParPair("p", ValPair(pb_par.second.first, pb_par.second.second));
     ParList pars = build_correlation_pars();
-    insert_in_container(pars, pb_par, rs_par, t_par, p_par);
+    insert_in_container(pars, pb_par,
+			ParPair("rs", ValPair(rsb->value, rsb->unit_ptr)),
+			ParPair("t", ValPair(t, &Fahrenheit::get_instance())),
+			ParPair("p", pb_par.second));
     VtlQuantity bobp =
       bob_corr->tuned_compute_by_names(pars, c_bob, m_bob, *bo_unit, false);
     return bobp;
@@ -1668,7 +1669,6 @@ public:
     coa = coa.make_parallel(in);
 
     const VtlQuantity bobp = compute_bobp(in.t);
-    //in.y.get_first() = nextafter(bobp, numeric_limits<double>::min());
     in.bobp = bobp.raw();
     pars.insert("t", pref.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
@@ -1746,12 +1746,11 @@ public:
 	       "Not found experimental data neither correlation for bob");
 
     VectorDesc in = pref;
-    ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
     const ParPair uod_par = get_uod(pref, pb_par);
     const double pb = max(pb_par.second.first, in.p.get_last());
-    double uod = uod_par.second.first;
-    in.p.get_last() = pb;
+    const double uod = uod_par.second.first;
+    in.pb = in.p.get_last() = pb;
     in.uod = uod;
 
     if (exist_rs and rs_corr != nullptr)
@@ -1768,17 +1767,18 @@ public:
     rs = rs.make_parallel(in);
 
     if (exist_bob and bob_corr != nullptr)
-      bob = compute_bob(bob, bob_corr, c_bob, m_bob).make_parallel(in);
+      bob = compute_bob(bob, bob_corr, c_bob, m_bob);
     else if (bob_corr != nullptr)
       {
 	auto fake_bob = in;
 	fake_bob.yname = "bob";
 	fake_bob.yunit = &bob_corr->unit;
-	bob = compute_bob(fake_bob, bob_corr, c_bob, m_bob).make_parallel(in);
+	bob = compute_bob(fake_bob, bob_corr, c_bob, m_bob);
       }
     // else bob is already defined
     bob = bob.make_parallel(in);
 
+    ParList pars = build_correlation_pars();
     pars.insert("t", pref.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
     pars.insert(uod_par);
@@ -1799,13 +1799,12 @@ public:
 	  corr_ptr->tuned_compute_by_names(pars, c, m, *in.yunit, false);
 	p_list.append(p_val);
 	uob_list.append(uob.raw());
-	pars.remove("p");
-	pars.remove("rs");
-	pars.remove("bob");
+	remove_from_container(pars, "p", "rs", "bob");
       }
 
-    VectorDesc result(pref.t, pb, PVT_INVALID_VALUE, uod, uob_list.get_last(),
-		      p_list, pref.punit, "uob", uob_list, &corr_ptr->unit);
+    VectorDesc result(pref.t, pb, PVT_INVALID_VALUE, uob_list.get_first(),
+		      uob_list.get_last(), p_list, pref.punit, "uob", uob_list,
+		      &corr_ptr->unit);
     return compute_epilogue(pref, result);
   }
 
@@ -1825,8 +1824,20 @@ public:
     const VectorDesc * v_ptr = *ptr;
     if (uob_corr == nullptr)
       return VtlQuantity(*v_ptr->yunit, v_ptr->uobp);
-    VectorDesc uob = compute_uob(*v_ptr, uob_corr, c_uob, m_uob);
-    return VtlQuantity(*uob.yunit, uob.y.get_last());
+
+    const ParPair pb_par = get_pb(v_ptr->t, v_ptr->pb);
+    const ParPair uod_par = get_uod(*v_ptr, pb_par);
+
+    auto rsb = search_const("rsb");
+    if (rsb == nullptr)
+      ZENTHROW(ConstNameNotFound, "rsb not found");
+    ParList pars = build_correlation_pars();
+    insert_in_container(pars, pb_par, uod_par,
+			ParPair("rs", ValPair(rsb->value, rsb->unit_ptr)),
+			ParPair("t", ValPair(t, &Fahrenheit::get_instance())),
+			ParPair("p", pb_par.second));
+
+    return uob_corr->tuned_compute_by_names(pars, c_uob, m_uob, *uo_unit, false);
   }
 
   VectorDesc compute_uoa(const VectorDesc & pref, const Correlation * corr_ptr,
@@ -1834,31 +1845,25 @@ public:
   {
     compute_prologue("uoa", pref, corr_ptr);
 
-    ParList pars = build_correlation_pars();
-    
-    const ParPair pb_par = get_pb(pref);
     VectorDesc in = pref;
+    const ParPair pb_par = get_pb(pref);
     const double pb = pb_par.second.first; // its unit is pb_par.second.second
     in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
-
-    cout << corr_ptr->name << endl
-	 << in << endl;
 
     const ParPair uod_par = get_uod(pref, pb_par);
     const double & uod = uod_par.second.first;
     in.uod = uod;
 
+    ParList pars = build_correlation_pars();    
     pars.insert("t", in.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
     pars.insert(uod_par);
 
     const VtlQuantity uobp = compute_uobp(in.t);
-
-    cout << "t = " << in.t << " uobp = " << uobp << endl;
-
+    in.uobp = uobp.raw();
     pars.insert("uobp", uobp);
     DynList<double> p_list, uoa_list;
-    for (auto it = in.p.get_it(); it.has_curr(); it.next())
+    for (auto it = in.p.get_it(1); it.has_curr(); it.next())
       {
 	const double p = it.get_curr();
 	pars.insert("p", p, in.punit);
@@ -1869,7 +1874,7 @@ public:
 	pars.remove("p");
       }
 
-    // thus we assure than uobp value es less that first uoa
+    // // thus we assure than uobp value es less that first uoa
     const double fake_uobp = nextafter(uoa_list.get_first(),
 				       numeric_limits<double>::min());
     cout << "uobp   = " << uobp << endl
@@ -3051,9 +3056,12 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (not BaseQuantity::is_valid(ptr->uod, *ptr->yunit))
 	ZENTHROW(OutOfUnitRange, "uod value is out of its unit range");
       if (ptr->p.get_first() < ptr->pb)
-	ZENTHROW(SampleInvalid, "first p value is less than pb");
+	ZENTHROW(SampleInvalid, "first p = " + ::to_string(ptr->p.get_first()) +
+		 " is less than pb = " + ::to_string(ptr->pb));
       if (ptr->uobp >= ptr->y.get_first())
-	ZENTHROW(SampleInvalid, "uobp es greater or equal than first uoa value");
+	ZENTHROW(SampleInvalid, "uobp = " + ::to_string(ptr->uobp) + 
+		 " is greater or equal than first uoa = " +
+		 ::to_string(ptr->y.get_first()));
       validate_uo(ptr);
       if (not is_sorted(ptr->y, std::less_equal<double>()))
 	ZENTHROW(SamplesUnsorted,
