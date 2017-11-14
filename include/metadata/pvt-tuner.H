@@ -1275,7 +1275,7 @@ public:
     const double & rsb = rsb_ptr->value;
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
-    const double pb = max(in.p.get_last(), pb_par.second.first);
+    const double pb = pb_par.second.first;
     in.p.get_last() = pb; // eventually pb for the tuned one
 
     pars.insert("t", in.t, &Fahrenheit::get_instance());
@@ -1485,7 +1485,7 @@ public:
     ParList pars = build_correlation_pars();
     VectorDesc in = pref;
     const ParPair pb_par = get_pb(pref);
-    const double pb = max(pb_par.second.first, in.p.get_last());
+    const double pb = pb_par.second.first;
     in.p.get_last() = pb; // pb for the tuned one
 
     pars.insert("t", in.t, &Fahrenheit::get_instance());
@@ -1560,12 +1560,9 @@ public:
     double pb = pb_par.second.first;
 
     VectorDesc in = pref;
-    if (pb >= in.p.get_first())
-      {
-	pb = nextafter(in.p.get_first(), numeric_limits<double>::min());
-	pb_par.second.first = pb;
-	in.pb = pb;
-      }
+    pb = nextafter(in.p.get_first(), numeric_limits<double>::min());
+    pb_par.second.first = pb;
+    in.pb = pb;
 
     pars.insert("t", pref.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
