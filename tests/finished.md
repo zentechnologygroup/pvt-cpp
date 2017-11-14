@@ -2506,3 +2506,9 @@
 - Comment      
 - Finished     
 
+## 419. mas decimales en apply
+- Created at   2017-11-13 15:18:36 -0400
+- Completed at 2017-11-14 11:59:27 -0400
+- Comment      
+- Finished     
+

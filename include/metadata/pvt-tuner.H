@@ -1605,8 +1605,18 @@ public:
     const VectorDesc * v_ptr = *ptr;
     if (bob_corr == nullptr)
       return VtlQuantity(*v_ptr->yunit, v_ptr->bobp);
-    VectorDesc bob = compute_bob(*v_ptr, bob_corr, c_bob, m_bob);
-    return VtlQuantity(*bob.yunit, bob.y.get_last());
+    ParPair pb_par = get_pb(v_ptr->t, v_ptr->pb);
+    auto rsb = search_const("rsb");
+    if (rsb == nullptr)
+      ZENTHROW(ConstNameNotFound, "rsb not found");
+    ParPair rs_par = ParPair("rs", ValPair(rsb->value, rsb->unit_ptr));
+    ParPair t_par = ParPair("t", ValPair(t, &Fahrenheit::get_instance()));
+    ParPair p_par = ParPair("p", ValPair(pb_par.second.first, pb_par.second.second));
+    ParList pars = build_correlation_pars();
+    insert_in_container(pars, pb_par, rs_par, t_par, p_par);
+    VtlQuantity bobp =
+      bob_corr->tuned_compute_by_names(pars, c_bob, m_bob, *bo_unit, false);
+    return bobp;
   }
 
   // In this case we return a pair with the result and the used coa correlation
@@ -1742,7 +1752,7 @@ public:
     const double pb = max(pb_par.second.first, in.p.get_last());
     double uod = uod_par.second.first;
     in.p.get_last() = pb;
-    in.y.get_first() = in.uod = uod;
+    in.uod = uod;
 
     if (exist_rs and rs_corr != nullptr)
       // in this case coa is already parallel to in
@@ -1773,6 +1783,8 @@ public:
     pars.insert(pb_par);
     pars.insert(uod_par);
 
+    assert(Quantity<psig>(in.p.get_first()).is_near(0, 1e-1));
+
     DynList<double> p_list, uob_list;
     for (auto it = zip_it(in.p, rs.y, bob.y); it.has_curr(); it.next())
       {
@@ -1791,11 +1803,6 @@ public:
 	pars.remove("rs");
 	pars.remove("bob");
       }
-
-    if (Quantity<psig>(p_list.get_first()).is_near(0, 1e-1))
-      uod = uob_list.get_first();
-
-    //TODO asegutar que uod est;e bien cuando p(0) exista dentro de in
 
     VectorDesc result(pref.t, pb, PVT_INVALID_VALUE, uod, uob_list.get_last(),
 		      p_list, pref.punit, "uob", uob_list, &corr_ptr->unit);
@@ -1834,18 +1841,23 @@ public:
     const double pb = pb_par.second.first; // its unit is pb_par.second.second
     in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
 
+    cout << corr_ptr->name << endl
+	 << in << endl;
+
     const ParPair uod_par = get_uod(pref, pb_par);
     const double & uod = uod_par.second.first;
-    in.y.get_first() = in.uod = uod;
+    in.uod = uod;
 
     pars.insert("t", in.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
     pars.insert(uod_par);
 
     const VtlQuantity uobp = compute_uobp(in.t);
+
+    cout << "t = " << in.t << " uobp = " << uobp << endl;
+
     pars.insert("uobp", uobp);
     DynList<double> p_list, uoa_list;
-
     for (auto it = in.p.get_it(); it.has_curr(); it.next())
       {
 	const double p = it.get_curr();
@@ -1857,11 +1869,13 @@ public:
 	pars.remove("p");
       }
 
-    // // thus we assure than uobp value es less that first uoa
-    // const double uobp = nextafter(uoa_list.get_first(),
-    // 				  numeric_limits<double>::min());
+    // thus we assure than uobp value es less that first uoa
+    const double fake_uobp = nextafter(uoa_list.get_first(),
+				       numeric_limits<double>::min());
+    cout << "uobp   = " << uobp << endl
+	 << "f uobp = " << fake_uobp << endl;
 
-    VectorDesc result(in.t, pb, in.bobp, uod, uobp, p_list, in.punit,
+    VectorDesc result(in.t, pb, in.bobp, uod, fake_uobp, p_list, in.punit,
 		      "uoa", uoa_list, &corr_ptr->unit);
     return compute_epilogue(pref, result);
   }
