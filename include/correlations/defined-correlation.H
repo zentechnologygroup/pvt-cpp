@@ -44,6 +44,7 @@ class DefinedCorrelation
 
     VtlQuantity to_result_unit(const VtlQuantity & val) const
     {
+      assert(result_unit != nullptr);
       if (result_unit == &val.unit)
 	return val;
       return VtlQuantity(*result_unit, val);
@@ -248,7 +249,22 @@ public:
   void add_correlation(const Correlation * correlation_ptr,
 		       double start, double end)
   {
-    intervals.insert(Interval(correlation_ptr, start, end));
+    auto result = intervals.insert(Interval(correlation_ptr, start, end));
+    if (result)
+      {
+	if (result_unit == nullptr)
+	  result_unit = &correlation_ptr->unit;
+	result->result_unit = result_unit;
+	correlation_ptr->get_preconditions().for_each([this] (const auto & par)
+          {
+	    par_names.insert(par.name);
+	  });
+	return;
+      }
+    ostringstream s;
+    s << "DefinedCorrelation::add_correlation: interval [" << start << ", "
+      << end << "] is already inserted";
+    throw domain_error(s.str());
   }
 
   void add_correlation(const Correlation * correlation_ptr,
