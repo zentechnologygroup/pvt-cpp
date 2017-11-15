@@ -2512,3 +2512,15 @@
 - Comment      
 - Finished     
 
+## 420. Revisar f5 calculo de ubo en auto
+- Created at   2017-11-14 20:12:57 -0400
+- Completed at 2017-11-15 10:59:23 -0400
+- Comment      
+- Finished     
+
+## 421. precision en matriz
+- Created at   2017-10-30 08:43:57 -0400
+- Completed at 2017-11-15 10:59:36 -0400
+- Comment      
+- Finished     
+

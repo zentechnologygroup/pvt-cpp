@@ -417,3 +417,5 @@ verificar que yunit siempre sea la misma cuando hay varios arreglos,2017-11-09 1
 unificar unidades en estadísticas lcal,2017-10-31 12:36:52 -0400,2017-11-11 12:09:03 -0400,,2017-11-11 12:09:07 -0400
 correlación que esté seteada no debe contar para auto,2017-10-10 16:27:53 -0400,2017-11-12 11:08:30 -0400,,2017-11-12 11:08:34 -0400
 mas decimales en apply,2017-11-13 15:18:36 -0400,2017-11-14 11:59:27 -0400,,2017-11-14 11:59:42 -0400
+Revisar f5 calculo de ubo en auto,2017-11-14 20:12:57 -0400,2017-11-15 10:59:23 -0400,,2017-11-15 10:59:26 -0400
+precision en matriz,2017-10-30 08:43:57 -0400,2017-11-15 10:59:36 -0400,,2017-11-15 10:59:38 -0400
