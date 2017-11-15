@@ -1166,7 +1166,10 @@ public:
 	{
 	  const double & c = CorrStat::c(desc);
 	  const double & m = CorrStat::m(desc);
-	  ytuned = ycorr.maps([c, m] (auto y) { return c + m*y; });
+	  const double min_val = corr_ptr->unit.min_val;
+	  const double max_val = corr_ptr->unit.max_val;
+	  ytuned = ycorr.maps([c, m, min_val, max_val] (auto y)
+			      { return min(max(min_val, c + m*y), max_val); });
 	}
     }
     DynList<string> to_dynlist(size_t precision = 10) const
@@ -1219,6 +1222,8 @@ public:
     for (auto it = tp.get_it(); it.has_curr(); it.next())
       {
 	auto curr = it.get_curr();
+	if (not BaseQuantity::is_valid(curr.uod, CP::get_instance()))
+	  continue;
 	t.append(curr.t);
 	uod_lab.append(curr.uod);
 	uod_corr.append(compute_uod(curr.t, curr.pb, corr_ptr).raw());

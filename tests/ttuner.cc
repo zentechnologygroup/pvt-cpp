@@ -1146,7 +1146,7 @@ void process_local_calibration()
       vals.for_each([&tset] (auto & l) { tset.insert(l.get_first(), Tmp()); });
 
       // Second pass: to know the names
-      const DynList<string> names = header.drop(3);
+      const DynList<string> names = header.drop(4); // drop (t, y, plab and p)
       for (auto it = tset.get_it(); it.has_curr(); it.next())
 	{
 	  auto & p = it.get_curr();
@@ -1161,11 +1161,12 @@ void process_local_calibration()
       // Third pass: put the values 
       for (auto it = vals.get_it(); it.has_curr(); it.next())
 	{
-	  auto & row = it.get_curr();
+	  auto & row = it.get_curr(); // t y plab p ycorr1 ycorr1-tuned ...
 	  auto t = row.remove_first();
 	  Tmp & tmp = tset[t];
-	  const double y = row.remove_first();
-	  const double p = row.remove_first();
+	  const double y = row.remove_first(); // remove y
+	  const double p = row.remove_first(); // remove plab
+	  row.remove_first(); // remove p
 	  tmp.y.append(y);
 	  tmp.p.append(p);
 	  pmin = min(pmin, p);
@@ -1181,8 +1182,6 @@ void process_local_calibration()
 	    }
 	  assert(row.is_empty());
 	}
-
-      cout << pmin << " " << pmax << endl;
 
       ostringstream s;
       for (auto it = tset.get_it(); it.has_curr(); it.next())
@@ -1322,12 +1321,14 @@ void process_local_calibration()
 	src_unit = &CP::get_instance();
       else
 	{
-	  const DynList<const VectorDesc*> vlist = data.search_vectors(target_name);
+	  const DynList<const VectorDesc*> vlist =
+	    data.search_vectors(target_name);
 	  assert(not vlist.is_empty());
 	  src_unit = vlist.get_first()->yunit;
 	}
       if (not yunit->is_sibling(*src_unit))
-  	ZENTHROW(UnitNotFound, yunit_arg.getValue() + " is not a unit sibling of " +
+  	ZENTHROW(UnitNotFound, yunit_arg.getValue() +
+		 " is not a unit sibling of " +
 		 src_unit->name);
       stats.for_each([yunit, src_unit] (auto & s)
   		     { mutable_unit_convert(*src_unit, s.ylab, *yunit); });
