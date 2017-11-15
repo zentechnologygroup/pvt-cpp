@@ -1747,7 +1747,7 @@ public:
     const ParPair uod_par = get_uod(pref, pb_par);
     const double pb = max(pb_par.second.first, in.p.get_last());
     const double uod = uod_par.second.first;
-    in.pb = in.p.get_last() = pb;
+    in.pb = in.p.get_last() = pb;+
     in.uod = uod;
 
     if (exist_rs and rs_corr != nullptr)
