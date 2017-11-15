@@ -74,3 +74,6 @@
 ## 25. dry de add_correlation result_unit en define-correlation
 - Created at   2017-11-14 15:28:26 -0400
 
+## 26. Revisar f5 calculo de ubo en auto
+- Created at   2017-11-14 20:12:57 -0400
+

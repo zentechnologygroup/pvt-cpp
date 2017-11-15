@@ -1520,8 +1520,7 @@ public:
 	fake_rs.yname = "rs"; // in this way compute_coa will accept it
 	fake_rs.yunit = &rs_corr->unit;
 	rs = compute_rs(fake_rs, rs_corr, c_rs, m_rs);
-      }
-    // else r is alredy defined
+      } // else r is already defined
     rs.make_parallel(in);
 
     DynList<double> p_list, bob_list;
@@ -1656,7 +1655,6 @@ public:
     in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
 
     if (exist_coa and coa_corr != nullptr)
-      // in this case coa is already parallel to in
       coa = compute_coa(coa, coa_corr, c_coa, m_coa);
     else if (coa_corr != nullptr)
       {
@@ -1664,8 +1662,7 @@ public:
 	fake_coa.yname = "coa"; // in this way compute_coa will accept it
 	fake_coa.yunit = &coa_corr->unit;
 	coa = compute_coa(fake_coa, coa_corr, c_coa, m_coa);
-      }
-    // else coa is already defined
+      } // else coa is already defined
     coa = coa.make_parallel(in);
 
     const VtlQuantity bobp = compute_bobp(in.t);
@@ -1754,7 +1751,6 @@ public:
     in.uod = uod;
 
     if (exist_rs and rs_corr != nullptr)
-      // in this case coa is already parallel to in
       rs = compute_rs(rs, rs_corr, c_rs, m_rs);
     else if (rs_corr != nullptr)
       {
@@ -1762,8 +1758,7 @@ public:
 	fake_rs.yname = "rs"; // in this way compute_coa will accept it
 	fake_rs.yunit = &rs_corr->unit;
 	rs = compute_rs(fake_rs, rs_corr, c_rs, m_rs);
-      }
-    // else rs is already defined
+      } // else rs is already defined
     rs = rs.make_parallel(in);
 
     if (exist_bob and bob_corr != nullptr)
@@ -1774,8 +1769,7 @@ public:
 	fake_bob.yname = "bob";
 	fake_bob.yunit = &bob_corr->unit;
 	bob = compute_bob(fake_bob, bob_corr, c_bob, m_bob);
-      }
-    // else bob is already defined
+      } // else bob is already defined
     bob = bob.make_parallel(in);
 
     ParList pars = build_correlation_pars();
@@ -1863,7 +1857,7 @@ public:
     in.uobp = uobp.raw();
     pars.insert("uobp", uobp);
     DynList<double> p_list, uoa_list;
-    for (auto it = in.p.get_it(1); it.has_curr(); it.next())
+    for (auto it = in.p.get_it(); it.has_curr(); it.next())
       {
 	const double p = it.get_curr();
 	pars.insert("p", p, in.punit);
@@ -1877,8 +1871,6 @@ public:
     // // thus we assure than uobp value es less that first uoa
     const double fake_uobp = nextafter(uoa_list.get_first(),
 				       numeric_limits<double>::min());
-    cout << "uobp   = " << uobp << endl
-	 << "f uobp = " << fake_uobp << endl;
 
     VectorDesc result(in.t, pb, in.bobp, uod, fake_uobp, p_list, in.punit,
 		      "uoa", uoa_list, &corr_ptr->unit);
