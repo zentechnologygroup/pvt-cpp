@@ -38,42 +38,39 @@
 ## 13. cplot como funcion de biblioteca
 - Created at   2017-10-10 16:52:41 -0400
 
-## 14. precision en matriz
-- Created at   2017-10-30 08:43:57 -0400
-
-## 15. auto con autoinputing
+## 14. auto con autoinputing
 - Created at   2017-11-08 09:54:36 -0400
 
-## 16. opcion que salve en nuevo archivo
+## 15. opcion que salve en nuevo archivo
 - Created at   2017-11-08 10:29:03 -0400
 
-## 17. colorear puntos según tempreatura en opcion R de ttuner
+## 16. colorear puntos según tempreatura en opcion R de ttuner
 - Created at   2017-11-08 10:30:55 -0400
 
-## 18. auto inputing dada t
+## 17. auto inputing dada t
 - Created at   2017-11-08 19:30:07 -0400
 
-## 19. ttuner tauto option
+## 18. ttuner tauto option
 - Created at   2017-11-08 19:42:04 -0400
 
-## 20. ttuner auto input option
+## 19. ttuner auto input option
 - Created at   2017-11-08 19:42:15 -0400
 
-## 21. auto inputu con t debe tener todas las correlaciones definidas
+## 20. auto inputu con t debe tener todas las correlaciones definidas
 - Created at   2017-11-09 10:30:28 -0400
 
-## 22. stabilize debe tomatr en cuenta el uod
+## 21. stabilize debe tomatr en cuenta el uod
 - Created at   2017-11-12 14:01:04 -0400
 
-## 23. ojo con el limite inferiro de unidad viscosidad
+## 22. ojo con el limite inferiro de unidad viscosidad
 - Created at   2017-11-12 18:14:01 -0400
 
-## 24. rutina que cambie el pb sin alterar el orden
+## 23. rutina que cambie el pb sin alterar el orden
 - Created at   2017-11-14 12:02:40 -0400
 
-## 25. dry de add_correlation result_unit en define-correlation
+## 24. dry de add_correlation result_unit en define-correlation
 - Created at   2017-11-14 15:28:26 -0400
 
-## 26. Revisar f5 calculo de ubo en auto
-- Created at   2017-11-14 20:12:57 -0400
+## 25. en salida R ttuner está imprimiendo vector de presion
+- Created at   2017-11-15 10:59:08 -0400
 

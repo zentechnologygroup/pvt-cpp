@@ -113,20 +113,23 @@ struct VectorDesc
 	y.reverse();
       }
     if (not is_sorted(p, std::less_equal<double>()))
-      ZENTHROW(SamplesUnsorted, "pressures are not sorted " + join(p, " "));
+      ZENTHROW(SamplesUnsorted, ctor_msg() + "pressures are not sorted " +
+	       join(p));
   }
 
   void pre_validate()
   {
     if (punit == nullptr or yunit == nullptr)
-      ZENTHROW(InvalidUnit, "vector unit are not initialized");
+      ZENTHROW(InvalidUnit, ctor_msg() + "vector unit are not initialized");
     if (not psig::get_instance().is_sibling(*punit))
       ZENTHROW(InvalidUnit, punit->name + " is not a valid pressure unit");
     if (p.size() <= 1)
-      ZENTHROW(LengthMismatch, "Pressure array size is less or equal than 1");
+      ZENTHROW(LengthMismatch, ctor_msg() +
+	       "pressure array size is less or equal than 1");
     if (not p.all([this] (auto p) { return BaseQuantity::is_valid(p, *punit); }))
-      ZENTHROW(OutOfUnitRange,
-	       "at least a pressure value is out of its unit range");
+      ZENTHROW(OutOfUnitRange, ctor_msg() + 
+	       "at least a pressure value is out of its unit range " +
+	       join(p));
     if (punit != &psig::get_instance())
       {
 	mutable_unit_convert(*punit, p, psig::get_instance());
@@ -323,6 +326,8 @@ struct VectorDesc
 	    + ", " + ::to_string(get<1>(t)) + ")"; }, p, y), ", ");
   }
 
+  string ctor_msg() const { return yname + "(" + ::to_string(t) + "): "; }
+
   /** Assuming that `this` contains values for viscosity (uo) in both
       regions saturated and undersaturated, this method split uo in
       two vector named uob and uob respectively. The bubble point and
@@ -342,7 +347,7 @@ struct VectorDesc
 
     if (not is_sorted(p, std::less_equal<double>()))
       ZENTHROW(SamplesUnsorted, "split_uo(): pressure values are not sorted " +
-	       join(p, " "));
+	       join(p));
 
     // First, we must determine p,uo corresponding to the inflection point
     size_t min_idx = 0;
@@ -784,8 +789,7 @@ struct PvtData
       ZENTHROW(InvalidPressureUnit, v.punit->name + " is not for pressure");
 
     if (not is_sorted(v.p, std::less_equal<double>()))
-      ZENTHROW(SamplesUnsorted, "pressure values are not sorted " +
-	       join(v.p, " "));
+      ZENTHROW(SamplesUnsorted, "pressure values are not sorted " + join(v.p));
 
     auto sibling = search_vectors(v.yname);
     if (not sibling.is_empty())
@@ -1165,7 +1169,7 @@ public:
 	  ytuned = ycorr.maps([c, m] (auto y) { return c + m*y; });
 	}
     }
-    DynList<string> to_dynlist(size_t precision) const
+    DynList<string> to_dynlist(size_t precision = 10) const
     {
       return build_dynlist<string>
 	(corr_ptr->name, ::to_string(CorrStat::r2(desc)),
@@ -1278,7 +1282,9 @@ public:
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
     const double pb = pb_par.second.first;
-    in.p.get_last() = pb; // pb for the tuned one
+    in.p.get_last() = pb;
+    for (long i = in.p.size() - 2; i >= 0 and in.p(i) > pb; --i)
+      in.p(i) = nextafter(in.p(i + 1), numeric_limits<double>::min());
 
     pars.insert("t", in.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
@@ -1425,10 +1431,12 @@ private:
 	auto lab_ptr = it.get_curr();
 	try
 	  {
-	    VectorDesc corr_data = (this->*compute_ptr)(*lab_ptr, corr_ptr, 0, 1);
+	    const VectorDesc corr_data =
+	      (this->*compute_ptr)(*lab_ptr, corr_ptr, 0, 1);
 	    // TODO hacer paralelo con lab_data
-	    stats.add(corr_data.t, to_dynlist(lab_ptr->p), to_dynlist(corr_data.p),
-		      to_dynlist(lab_ptr->y), to_dynlist(corr_data.y));
+	    stats.add(corr_data.t, to_dynlist(lab_ptr->p),
+		      to_dynlist(corr_data.p), to_dynlist(lab_ptr->y),
+		      to_dynlist(corr_data.y));
 	    ++k;
 	  }
 	catch (exception & e)
@@ -1490,7 +1498,9 @@ public:
     VectorDesc in = pref;
     const ParPair pb_par = get_pb(pref);
     const double pb = pb_par.second.first;
-    in.p.get_last() = pb; // pb for the tuned one
+    in.p.get_last() = pb;
+    for (long i = in.p.size() - 2; i >= 0 and in.p(i) > pb; --i)
+      in.p(i) = nextafter(in.p(i + 1), numeric_limits<double>::min());
 
     pars.insert("t", in.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
@@ -1748,6 +1758,8 @@ public:
     const double pb = max(pb_par.second.first, in.p.get_last());
     const double uod = uod_par.second.first;
     in.pb = in.p.get_last() = pb;
+    for (long i = in.p.size() - 2; i >= 0 and in.p(i) > pb; --i)
+      in.p(i) = nextafter(in.p(i + 1), numeric_limits<double>::min());
     in.uod = uod;
 
     if (exist_rs and rs_corr != nullptr)
@@ -2842,22 +2854,22 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
   static auto validate_pb = [] (VectorDesc* ptr)
     {
       if (not BaseQuantity::is_valid(ptr->pb, *ptr->punit))
-	ZENTHROW(OutOfUnitRange, "pb is out of unit range");
+	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + "pb is out of unit range");
     };
-  static auto validate_pb_in_p =
-    [] (VectorDesc* ptr, const string & target_name)
+  static auto validate_pb_in_p = [] (VectorDesc* ptr)
     {
       if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
-	ZENTHROW(PressureMismatch,
-		 "VectorDesc ctor (" + target_name +
-		 "): p vector does not contain pb");
+	ZENTHROW(PressureMismatch, ptr->ctor_msg() +
+		 "p vector does not contain pb");
     };
   static auto validate_bo = [] (VectorDesc* ptr)
     {
       if (not RB_STB::get_instance().is_sibling(*ptr->yunit))
-	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for bo");
+	ZENTHROW(InvalidUnit, ptr->ctor_msg() +
+		 ptr->yunit->name + "unit is invalid for bo");
       if (not BaseQuantity::is_valid(ptr->bobp, *ptr->yunit))
-	ZENTHROW(OutOfUnitRange, "bobp value is out of unit range");
+	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + "bobp = " +
+		 ::to_string(ptr->bobp) + " is out of unit range");
       if (ptr->yunit != & RB_STB::get_instance())
 	{
 	  mutable_unit_convert(*ptr->yunit, ptr->y, RB_STB::get_instance());
@@ -2867,17 +2879,23 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	}
       if (not ptr->y.all([u = ptr->yunit] (auto b)
 			 { return BaseQuantity::is_valid(b, *u); }))
-	ZENTHROW(OutOfUnitRange, "at least a bo value is out of its unit range");
+	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() +
+		 "at least a bo value is out of its unit range " +
+		 join(ptr->y));
     };
   static auto validate_uo = [] (VectorDesc* ptr)
     {
       if (not CP::get_instance().is_sibling(*ptr->yunit))
-	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
+	ZENTHROW(InvalidUnit, ptr->ctor_msg() + ptr->yunit->name +
+		 " unit is invalid for uo");
       if (not BaseQuantity::is_valid(ptr->uobp, *ptr->yunit))
-	ZENTHROW(OutOfUnitRange, "uobp value is out of unit range");
+	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + "uobp = " +
+		 ::to_string(ptr->bobp) + " value is out of unit range");
       if (not ptr->y.all([u = ptr->yunit] (auto b)
 			 { return BaseQuantity::is_valid(b, *u); }))
-	ZENTHROW(OutOfUnitRange, "at least an uo value is out of its unit range");
+	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() +
+		 "at least an uo value is out of its unit range" +
+		 join(ptr->y));
       if (ptr->yunit != &CP::get_instance())
 	{
 	  mutable_unit_convert(*ptr->yunit, ptr->y, CP::get_instance());
@@ -2886,10 +2904,10 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	  ptr->yunit = &CP::get_instance();
 	}
     };    
-  static auto pb_validate = [] (VectorDesc*)
+  static auto pb_validate = [] (VectorDesc* ptr)
     {
-      ZENTHROW(InvalidTargetName,
-	       "VectorDesc ctor (pb): pb cannot be a target name");
+      ZENTHROW(InvalidTargetName, ptr->ctor_msg()  +
+	       "pb cannot be a target name");
     };
   static auto rs_validate = [] (VectorDesc* ptr)
     {
@@ -2898,15 +2916,17 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (not SCF_STB::get_instance().is_sibling(*ptr->yunit))
 	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for coa");
       if (ptr->p.get_last() != ptr->pb)
-	ZENTHROW(PressureMismatch,
-		 "VectorDesc ctor (rs): last value of p is not pb");
+	ZENTHROW(PressureMismatch, ptr->ctor_msg() +
+		 "last value of p = " + ::to_str(ptr->p.get_last()) +
+		 " is not pb = " + to_str(ptr->pb));
       if (not is_sorted(ptr->y, std::less_equal<double>()))
-	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: rs samples are not sorted " + ptr->py_string());
+	ZENTHROW(SamplesUnsorted, ptr->ctor_msg() +
+		 "rs samples are not sorted " + ptr->py_string());
       if (not ptr->y.all([u = ptr->yunit] (auto r)
 			 { return BaseQuantity::is_valid(r, *u); }))
-	ZENTHROW(OutOfUnitRange,
-		 "at least a value of rs is out of its unit range");
+	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() +
+		 "at least a value of rs is out of its unit range" +
+		 join(ptr->y));
       mutable_unit_convert(*ptr->yunit, ptr->y, *rs_unit);
       ptr->yunit = rs_unit;
     };
@@ -2916,15 +2936,15 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       validate_pb(ptr);
       validate_bo(ptr);
       if (not is_sorted(ptr->y, std::less_equal<double>()))
-	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: bob samples are sorted " + ptr->py_string());
+	ZENTHROW(SamplesUnsorted, ptr->ctor_msg() +
+		 "bob samples are sorted " + ptr->py_string());
 
       if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	{
 	  if (not ptr->y.exists([bobp = ptr->bobp] (auto v)
 				{ return v == bobp; }))
-	    ZENTHROW(SampleInvalid,
-		     "VectorDesc ctor: bob samples have not bobp");
+	    ZENTHROW(SampleInvalid, ptr->ctor_msg() + "bob samples " +
+		     join(ptr->y) + " have not bobp = " + to_str(ptr->bobp));
 	}
       else
 	{
@@ -2932,11 +2952,12 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	  ptr->y.append(ptr->bobp);
 	}
       if (ptr->pb < ptr->p.get_last())
-	ZENTHROW(PressureMismatch,
-		 "VectorDesc ctor (bob): pb value is less than last value of p");
+	ZENTHROW(PressureMismatch, ptr->ctor_msg() + "pb = " + to_str(ptr->pb) +
+		 " is less than last value of p = " + to_str(ptr->p.get_last()));
       if (ptr->bobp < ptr->y.get_last())
-	ZENTHROW(SampleInvalid,
-		 "VectorDesc ctor: bobp is less than last value of bob");
+	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "bobp = " + to_str(ptr->bobp)
+		 + " is less than last value of bob = " +
+		 to_str(ptr->y.get_last()));
       mutable_unit_convert(*ptr->yunit, ptr->y, *bo_unit);
       ptr->yunit = bo_unit;
     };
@@ -2944,7 +2965,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
     {
       validate_pb(ptr);
       if (not psia_1::get_instance().is_sibling(*ptr->yunit))
-	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for uo");
+	ZENTHROW(InvalidUnit, ptr->ctor_msg() + ptr->yunit->name +
+		 " unit is invalid for uo");
       const size_t & n = ptr->p.size();
       if (n == 2*ptr->y.size())
 	{
@@ -2954,18 +2976,17 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	  ptr->p.swap(pressures);
 	}
       else if (n != ptr->y.size())
-	ZENTHROW(LengthMismatch,
-		 "pressure array must twice o same size than coa");
-      
+	ZENTHROW(LengthMismatch, ptr->ctor_msg() +
+		 "pressure array must twice o same size than coa");      
       ptr->validate_sort();
       if (not is_inversely_sorted(ptr->y, std::less_equal<double>()))
-	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: coa samples are not inversely sorted " +
-		 ptr->py_string());
+	ZENTHROW(SamplesUnsorted, ptr->ctor_msg() +
+		 "coa samples are not inversely sorted " + ptr->py_string());
       if (not ptr->y.all([u = ptr->yunit] (auto c)
 			 { return BaseQuantity::is_valid(c, *u); }))
-	ZENTHROW(OutOfUnitRange,
-		 "at least a coa value is out of its unit range");
+	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + 
+		 "at least a coa value is out of its unit range " +
+		 join(ptr->y));
       mutable_unit_convert(*ptr->yunit, ptr->y, *co_unit);
       ptr->yunit = co_unit;
     };
@@ -2975,69 +2996,69 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       validate_pb(ptr);
       validate_bo(ptr);
       if (not is_inversely_sorted(ptr->y, std::less_equal<double>()))
-	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: boa samples are not inversely sorted " +
+	ZENTHROW(SamplesUnsorted, ptr->ctor_msg() +
+		 "boa samples are not inversely sorted " +
 		 ptr->py_string());
       if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
-	ZENTHROW(SampleInvalid, "p vector contains pb");
+	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "p vector " +
+		 join(ptr->p) + " contains pb = " + to_str(ptr->pb));
       if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
-       	ZENTHROW(SampleInvalid, "boa vector contains bobp");
+       	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "boa vector " +
+		 join(ptr->y) + " contains bobp = " + to_str(ptr->bobp));
       ptr->p.insert(nextafter(ptr->pb, numeric_limits<double>::max()));
       ptr->y.insert(nextafter(ptr->bobp, numeric_limits<double>::min()));
-      if (ptr->p(0) >= ptr->p(1))
-      	ZENTHROW(PressureMismatch,
-      		 "VectorDesc ctor (boa): pb next is greater than first p value");
-      if (ptr->y(0) < ptr->y(1))
-      	ZENTHROW(SampleInvalid,
-      		 "VectorDesc ctor (boa):bobp next is less than first boa value");
       if (not ptr->y.all([u = ptr->yunit] (auto b)
       			 { return BaseQuantity::is_valid(b, *u); }))
-      	ZENTHROW(OutOfUnitRange,
-      		 "at least a boa value is out of its unit range");
+      	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() +
+      		 "at least a boa value is out of its unit range " +
+		 join(ptr->y));
       mutable_unit_convert(*ptr->yunit, ptr->y, *bo_unit);
       ptr->yunit = bo_unit;
     };
-  static auto uod_validate = [] (VectorDesc*)
+  static auto uod_validate = [] (VectorDesc* ptr)
     {
-      ZENTHROW(InvalidTargetName,
-	       "VectorDesc ctor (uod): uod cannot be a target name");
+      ZENTHROW(InvalidTargetName, ptr->ctor_msg() +
+	       "uod cannot be a target name");
     };
   static auto uob_validate = [] (VectorDesc* ptr)
     {
       ptr->validate_sort();
       validate_pb(ptr);
-      validate_pb_in_p(ptr, "uob");
+      validate_pb_in_p(ptr);
       validate_uo(ptr);
       if (not is_inversely_sorted(ptr->y, std::less_equal<double>()))
-	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: uob samples are not inversely sorted " +
-		 ptr->py_string());
+	ZENTHROW(SamplesUnsorted, ptr->ctor_msg() +
+		 "uob samples are not inversely sorted " + ptr->py_string());
       if (BaseQuantity::is_valid(ptr->uod, *ptr->yunit)) // was uod defined?
 	{ // yes ==> validate that first entries correspond to it
 	  if (not VtlQuantity(*ptr->yunit, ptr->y(0)).is_near(ptr->uod, 1))
-	    ZENTHROW(SampleInvalid,
+	    ZENTHROW(SampleInvalid, ptr->ctor_msg() +
 		     "uod sample " + ::to_string(ptr->uod) +
 		     " is not near of first value of uob " +
 		     ::to_string(ptr->y(0)));
 
 	  if (not Quantity<psig>(ptr->p(0)).is_near(0, 1))
-	    ZENTHROW(SampleInvalid, "first pressure value " +
+	    ZENTHROW(SampleInvalid, ptr->ctor_msg() + "first pressure value " +
 		     Quantity<psig>(ptr->p(0)).to_string() + " is not "
 		     "zero given that uod value is present");
 	} 
       else if (are_near(ptr->p(0), 0, 1e-1)) /// is uod inside uob vector?
 	ptr->uod = ptr->y(0);
       else
-	ZENTHROW(SampleInvalid, "first pressure value is not zero");
+	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "first pressure value = " +
+		 to_str(ptr->p(0)) + " is not near from zero");
       if (ptr->uod > ptr->y.get_first())
-	ZENTHROW(SampleInvalid, "uod value is greater than first uob value");
+	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "uod = " + to_str(ptr->uod) +
+		 " is greater than first uob value = " + to_str(ptr->y(0)));
       if (ptr->y.get_first() != ptr->uod)
 	{
 	  ptr->p.insert(0);
 	  ptr->y.insert(ptr->uod);
 	}
       if (ptr->y.get_last() != ptr->uobp)
-	ZENTHROW(OutOfRange, "uobp is not equal than last value of uob");
+	ZENTHROW(OutOfRange, ptr->ctor_msg() + "uobp = " + to_str(ptr->uobp) +
+		 " is not equal than last value of uob = " +
+		 to_str(ptr->y.get_last()));
       mutable_unit_convert(*ptr->yunit, ptr->y, *uo_unit);
       ptr->yunit = uo_unit;
     };
@@ -3046,19 +3067,20 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       ptr->validate_sort();
       validate_pb(ptr);
       if (not BaseQuantity::is_valid(ptr->uod, *ptr->yunit))
-	ZENTHROW(OutOfUnitRange, "uod value is out of its unit range");
+	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + "uod = " +
+		 to_str(ptr->uod) + " is out of its unit range");
       if (ptr->p.get_first() < ptr->pb)
-	ZENTHROW(SampleInvalid, "first p = " + ::to_string(ptr->p.get_first()) +
-		 " is less than pb = " + ::to_string(ptr->pb));
-      if (ptr->uobp >= ptr->y.get_first())
-	ZENTHROW(SampleInvalid, "uobp = " + ::to_string(ptr->uobp) + 
-		 " is greater or equal than first uoa = " +
-		 ::to_string(ptr->y.get_first()));
+	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "first p = " +
+		 to_str(ptr->p.get_first()) + " is less than pb = " +
+		 to_str(ptr->pb));
+      // if (ptr->uobp > ptr->y.get_first())
+      // 	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "uobp = " +
+      // 		 to_str(ptr->uobp) + " is greater than first uoa = " +
+      // 		 to_str(ptr->y.get_first()));
       validate_uo(ptr);
       if (not is_sorted(ptr->y, std::less_equal<double>()))
-	ZENTHROW(SamplesUnsorted,
-		 "VectorDesc ctor: uoa samples are not sorted " +
-		 ptr->py_string());
+	ZENTHROW(SamplesUnsorted, ptr->ctor_msg() +
+		 "uoa samples are not sorted " + ptr->py_string());
       mutable_unit_convert(*ptr->yunit, ptr->y, *uo_unit);
       ptr->yunit = uo_unit;
     };
@@ -3066,11 +3088,13 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
     {
       ptr->validate_sort();
       if (not ptr->yunit->is_sibling(CP::get_instance()))
-	ZENTHROW(InvalidUnit, ptr->yunit->name + " is not sibling of CP");
+	ZENTHROW(InvalidUnit, ptr->ctor_msg() + ptr->yunit->name +
+		 " is not sibling of CP");
       if (not ptr->y.all([u = ptr->yunit] (auto uo)
 			 { return BaseQuantity::is_valid(uo, *u); }))
-	ZENTHROW(OutOfUnitRange,
-		 "at least an uo value is out of its unit range");
+	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + 
+		 "at least an uo value is out of its unit range" +
+		 join(ptr->y));
       if (ptr->yunit != &CP::get_instance())
 	{
 	  mutable_unit_convert(*ptr->yunit, ptr->y, CP::get_instance());
