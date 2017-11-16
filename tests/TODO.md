@@ -65,12 +65,3 @@
 ## 22. ojo con el limite inferiro de unidad viscosidad
 - Created at   2017-11-12 18:14:01 -0400
 
-## 23. rutina que cambie el pb sin alterar el orden
-- Created at   2017-11-14 12:02:40 -0400
-
-## 24. dry de add_correlation result_unit en define-correlation
-- Created at   2017-11-14 15:28:26 -0400
-
-## 25. en salida R ttuner está imprimiendo vector de presion
-- Created at   2017-11-15 10:59:08 -0400
-

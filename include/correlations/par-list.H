@@ -13,6 +13,11 @@ using namespace std;
 using ValPair = pair<double, const Unit*>;
 using ParPair = pair<string, ValPair>;
 
+inline ParPair make_par(const string & name, const VtlQuantity & par)
+{
+  return ParPair(name, ValPair(par.raw(), &par.unit));
+}
+
 using NamedPar = tuple<bool, string, double, const Unit*>;
 
 struct ParEqual

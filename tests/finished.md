@@ -2524,3 +2524,21 @@
 - Comment      
 - Finished     
 
+## 422. en salida R ttuner está imprimiendo vector de presion
+- Created at   2017-11-15 10:59:08 -0400
+- Completed at 2017-11-16 08:44:48 -0400
+- Comment      
+- Finished     
+
+## 423. dry de add_correlation result_unit en define-correlation
+- Created at   2017-11-14 15:28:26 -0400
+- Completed at 2017-11-16 08:54:21 -0400
+- Comment      
+- Finished     
+
+## 424. rutina que cambie el pb sin alterar el orden
+- Created at   2017-11-14 12:02:40 -0400
+- Completed at 2017-11-16 08:54:43 -0400
+- Comment      
+- Finished     
+

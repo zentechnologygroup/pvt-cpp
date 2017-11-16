@@ -1002,7 +1002,7 @@ void process_apply()
   DynList<T> stats = Aleph::sort(corr_list.maps<T>([] (auto corr_ptr)
     {
       return data.apply(corr_ptr);
-    }), cmp[::sort.getValue()]);
+    }), cmp[data.num_temps() > 1 ? ::sort.getValue() : "c"]);
 
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {

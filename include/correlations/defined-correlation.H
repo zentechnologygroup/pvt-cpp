@@ -215,18 +215,17 @@ public:
   DefinedCorrelation(const string & main_par_name, const Unit & unit)
     : main_par_name(main_par_name), unit(unit) {}
 
-  void add_tuned_correlation(const Correlation * correlation_ptr,
-			     double start, double end,
-			     double c, double m, const Unit & tuned_unit)
+private:
+
+  void set_result_unit(Interval * interval, const Correlation * corr_ptr,
+		       double start, double end)
   {
-    auto result =
-      intervals.insert(Interval(correlation_ptr, start, end, c, m, tuned_unit));
-    if (result)
+    if (interval)
       {
 	if (result_unit == nullptr)
-	  result_unit = &correlation_ptr->unit;
-	result->result_unit = result_unit;
-	correlation_ptr->get_preconditions().for_each([this] (const auto & par)
+	  result_unit = &corr_ptr->unit;
+	interval->result_unit = result_unit;
+	corr_ptr->get_preconditions().for_each([this] (const auto & par)
           {
 	    par_names.insert(par.name);
 	  });
@@ -236,6 +235,17 @@ public:
     s << "DefinedCorrelation::add_correlation: interval [" << start << ", "
       << end << "] is already inserted";
     throw domain_error(s.str());
+  }
+
+public:
+
+  void add_tuned_correlation(const Correlation * corr_ptr,
+			     double start, double end,
+			     double c, double m, const Unit & tuned_unit)
+  {
+    auto interval =
+      intervals.insert(Interval(corr_ptr, start, end, c, m, tuned_unit));
+    set_result_unit(interval, corr_ptr, start, end)
   }
 
   void add_tuned_correlation(const Correlation * correlation_ptr,
@@ -246,25 +256,11 @@ public:
 			  VtlQuantity(unit, end).raw(), c, m, tuned_unit);
   }
 
-  void add_correlation(const Correlation * correlation_ptr,
+  void add_correlation(const Correlation * corr_ptr,
 		       double start, double end)
   {
-    auto result = intervals.insert(Interval(correlation_ptr, start, end));
-    if (result)
-      {
-	if (result_unit == nullptr)
-	  result_unit = &correlation_ptr->unit;
-	result->result_unit = result_unit;
-	correlation_ptr->get_preconditions().for_each([this] (const auto & par)
-          {
-	    par_names.insert(par.name);
-	  });
-	return;
-      }
-    ostringstream s;
-    s << "DefinedCorrelation::add_correlation: interval [" << start << ", "
-      << end << "] is already inserted";
-    throw domain_error(s.str());
+    auto interval = intervals.insert(Interval(corr_ptr, start, end));
+    set_result_unit(interval, corr_ptr, start, end);
   }
 
   void add_correlation(const Correlation * correlation_ptr,

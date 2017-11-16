@@ -1035,6 +1035,8 @@ struct PvtData
     return tuples.maps<TpSet>([] (auto & p) { return p.second; });
   }
 
+  size_t num_temps() const { return tp_sets().size(); }
+
   /** Takes the data set and return a list of list with the required
       input vector needed for computing corr_ptr
   */
@@ -1228,6 +1230,8 @@ public:
 	uod_lab.append(curr.uod);
 	uod_corr.append(compute_uod(curr.t, curr.pb, corr_ptr).raw());
       }
+    if (t.is_empty())
+      ZENTHROW(VarNameNotFound, "not found data for uod");
     return ConstStats(corr_ptr, move(t), move(uod_lab), move(uod_corr));
   }
 
@@ -1271,6 +1275,15 @@ private:
     return result;
   }
 
+  VtlQuantity get_rsb() const
+  {
+    const ConstDesc * rsb_ptr = search_const("rsb");
+    if (rsb_ptr == nullptr)
+      ZENTHROW(ConstNameNotFound, "rsb has not been defined");
+    return
+      VtlQuantity(*rs_unit, VtlQuantity(*rsb_ptr->unit_ptr, rsb_ptr->value));
+  }
+
 public:
 
   VectorDesc compute_rs(const VectorDesc & pref,
@@ -1279,11 +1292,8 @@ public:
   {
     compute_prologue("rs", pref, corr_ptr);
 
-    const ConstDesc * rsb_ptr = search_const("rsb");
-    if (rsb_ptr == nullptr)
-      ZENTHROW(ConstNameNotFound, "rsb has not been defined");
     VectorDesc in = pref;
-    const double & rsb = rsb_ptr->value;
+    const double rsb = get_rsb().raw();
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
     const double pb = pb_par.second.first;
@@ -1485,12 +1495,7 @@ public:
   {
     const DynList<const VectorDesc*> rs_lab = stats_prologue("rs", corr_ptr);
     VectorStats stats = compute_stats(rs_lab, corr_ptr, &PvtData::compute_rs);
-    auto rsb_ptr = search_const("rsb");
-    if (rsb_ptr == nullptr)
-      ZENTHROW(ConstNameNotFound, "data set does not contain rsb");
-    const double rsb = VtlQuantity(*rsb_ptr->unit_ptr, rsb_ptr->value).raw();
-
-    return stats_epilogue(stats, rsb);
+    return stats_epilogue(stats, get_rsb().raw());
   }
 
   VectorDesc compute_bob(const VectorDesc & pref,
@@ -1621,12 +1626,8 @@ public:
       return VtlQuantity(*v_ptr->yunit, v_ptr->bobp);
     
     ParPair pb_par = get_pb(v_ptr->t, v_ptr->pb);
-    auto rsb = search_const("rsb");
-    if (rsb == nullptr)
-      ZENTHROW(ConstNameNotFound, "rsb not found");
     ParList pars = build_correlation_pars();
-    insert_in_container(pars, pb_par,
-			ParPair("rs", ValPair(rsb->value, rsb->unit_ptr)),
+    insert_in_container(pars, pb_par, make_par("rs", get_rsb()),
 			ParPair("t", ValPair(t, &Fahrenheit::get_instance())),
 			ParPair("p", pb_par.second));
     VtlQuantity bobp =
@@ -1835,16 +1836,11 @@ public:
     const VectorDesc * v_ptr = *ptr;
     if (uob_corr == nullptr)
       return VtlQuantity(*v_ptr->yunit, v_ptr->uobp);
-
     const ParPair pb_par = get_pb(v_ptr->t, v_ptr->pb);
-    const ParPair uod_par = get_uod(*v_ptr, pb_par);
 
-    auto rsb = search_const("rsb");
-    if (rsb == nullptr)
-      ZENTHROW(ConstNameNotFound, "rsb not found");
     ParList pars = build_correlation_pars();
-    insert_in_container(pars, pb_par, uod_par,
-			ParPair("rs", ValPair(rsb->value, rsb->unit_ptr)),
+    insert_in_container(pars, pb_par, get_uod(*v_ptr, pb_par),
+			make_par("rs", get_rsb()),
 			ParPair("t", ValPair(t, &Fahrenheit::get_instance())),
 			ParPair("p", pb_par.second));
 
@@ -2097,21 +2093,32 @@ public:
       PbUod() {}
       PbUod(double __pb, double __uod) : pb(__pb), uod(__uod) {}
     };
-    static auto rs_stable = [] (const VectorDesc * v, const PbUod * ptr)
+    static auto rs_stable = [] (const PvtData * pvt,
+				const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "rs");
-	if (v->pb == ptr->pb)
-	  return;
-	v->pb = v->p.get_last() = ptr->pb;
+	v->p.get_last() = ptr->pb;
+	v->y.get_last() = pvt->get_rsb().raw();
+	for (long i = v->p.size() - 2; i >= 0 and v->p(i) > ptr->pb; --i)
+	  {
+	    v->p(i) = nextafter(v->p(i + 1), numeric_limits<double>::min());
+	    v->y(i) = nextafter(v->y(i + 1), numeric_limits<double>::min());
+	  }
       };
-    static auto bob_stable = [] (const VectorDesc * v, const PbUod * ptr)
+    static auto bob_stable = [] (const PvtData*,
+				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "bob");
-	if (v->pb == ptr->pb)
-	  return;
-	v->pb = v->p.get_last() = ptr->pb;
+	v->p.get_last() = ptr->pb;
+	v->y.get_last() = v->bobp;
+	for (long i = v->p.size() - 2; i >= 0 and v->p(i) > ptr->pb; --i)
+	  {
+	    v->p(i) = nextafter(v->p(i + 1), numeric_limits<double>::min());
+	    v->y(i) = nextafter(v->y(i + 1), numeric_limits<double>::min());
+	  }
       };
-    static auto coa_stable = [] (const VectorDesc * v, const PbUod * ptr)
+    static auto coa_stable = [] (const PvtData * pvt_ptr,
+				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "coa");
 	if (v->pb == ptr->pb)
@@ -2120,7 +2127,8 @@ public:
 	if (v->p.get_first() <= ptr->pb)
 	  v->p.get_first() = nextafter(ptr->pb, numeric_limits<double>::max());
       };
-    static auto boa_stable = [] (const VectorDesc * v, const PbUod * ptr)
+    static auto boa_stable = [] (const PvtData * pvt_ptr,
+				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "boa");
 	if (v->pb == ptr->pb)
@@ -2129,7 +2137,8 @@ public:
 	if (v->p.get_first() <= ptr->pb)
 	  v->p.get_first() = nextafter(ptr->pb, numeric_limits<double>::max());
       };
-    static auto uob_stable = [] (const VectorDesc * v, const PbUod * ptr)
+    static auto uob_stable = [] (const PvtData * pvt_ptr,
+				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "uob");
 	if (v->pb == ptr->pb)
@@ -2137,7 +2146,8 @@ public:
 	v->pb = v->p.get_last() = ptr->pb;
 	v->uod = v->y.get_first() = ptr->uod;
       };
-    static auto uoa_stable = [] (const VectorDesc * v, const PbUod * ptr)
+    static auto uoa_stable = [] (const PvtData * pvt_ptr,
+				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "uoa");
 	if (v->pb == ptr->pb)
@@ -2147,14 +2157,18 @@ public:
 	if (v->p.get_first() <= ptr->pb)
 	  v->p.get_first() = nextafter(ptr->pb, numeric_limits<double>::max());
       };
-    static auto uo_stable = [] (const VectorDesc *, const PbUod *) {};
-    static AHDispatcher<string,
-			void (*)(const VectorDesc*, const PbUod *)> dispatcher =
-      { "rs", rs_stable, "bob", bob_stable, "coa", coa_stable, "boa", boa_stable,
-	"uob", uob_stable, "uoa", uoa_stable, "uo", uo_stable };
+    static auto uo_stable = [] (const PvtData*,
+				const VectorDesc*, const PbUod*) {};
+    static AHDispatcher<string, void (*)(const PvtData*,
+					 const VectorDesc*, const PbUod *)>
+      dispatcher = { "rs", rs_stable, "bob", bob_stable, "coa", coa_stable,
+		     "boa", boa_stable,	"uob", uob_stable, "uoa", uoa_stable,
+		     "uo", uo_stable };
 
     if (pb_corr == nullptr)
       ZENTHROW(CorrelationNotFound, "correlation for pb is not set");
+    if (uod_corr == nullptr)
+      ZENTHROW(CorrelationNotFound, "correlation for uod is not set");
 
     DynSetTree<double> temps =
       set_unify<double>(vectors, [] (auto & v) { return v.t; });
@@ -2170,7 +2184,7 @@ public:
 				     << endl; });
 
     for (auto & v : vectors)
-      dispatcher.run(v.yname, &v, &t_pb[v.t]);
+      dispatcher.run(v.yname, this, &v, &t_pb[v.t]);
   }
 
   /* given ref_vector which contains a property for several
@@ -2567,8 +2581,7 @@ public:
   StatsDesc auto_apply(const string & target_name,
 		       const DynSetTree<string> & relax_tbl,
 		       const DynSetTree<const Correlation*> & ban_list,
-		       const double threshold,
-		       const AutoApplyType & type) const
+		       double threshold, AutoApplyType type) const
   {
 # define AUTO_FILT(__name)						\
     static auto __name##__filter = [] (const DynList<StatsDesc> & l,	\
@@ -2631,6 +2644,11 @@ public:
 	    return StatsDesc(ptr);
 	  }
       });
+    if (auto_list.is_unitarian())
+      {
+	type = AutoApplyType::c;
+	threshold = 0;
+      }
     auto ret_list = dispatcher.run(type, auto_list, threshold);
     return ret_list.is_empty() ? StatsDesc() : ret_list.get_first();
   }
