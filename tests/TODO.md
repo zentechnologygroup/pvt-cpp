@@ -65,3 +65,6 @@
 ## 22. ojo con el limite inferiro de unidad viscosidad
 - Created at   2017-11-12 18:14:01 -0400
 
+## 23. dry de patrones de ajuste de pb para las dos zonas
+- Created at   2017-11-16 17:46:53 -0400
+

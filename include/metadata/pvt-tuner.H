@@ -1585,7 +1585,11 @@ public:
     VectorDesc in = pref;
     in.pb = pb;
     if (pb >= in.p.get_first())
-      in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+      {
+	in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+	for (size_t i = 1; i < in.p.size() and in.p(i) <= pb; ++i)
+	  in.p(i) = nextafter(in.p(i - 1), numeric_limits<double>::max());
+      }
 
     pars.insert("t", pref.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
@@ -1668,7 +1672,13 @@ public:
     ParList pars = build_correlation_pars();
     const ParPair pb_par = get_pb(pref);
     const double pb = pb_par.second.first; // its unit is pb_par.second.second
-    in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+    in.pb = pb;
+    if (pb >= in.p.get_first())
+      {
+	in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+	for (size_t i = 1; i < in.p.size() and in.p(i) <= pb; ++i)
+	  in.p(i) = nextafter(in.p(i - 1), numeric_limits<double>::max());
+      }
 
     if (exist_coa and coa_corr != nullptr)
       coa = compute_coa(coa, coa_corr, c_coa, m_coa);
@@ -1855,7 +1865,13 @@ public:
     VectorDesc in = pref;
     const ParPair pb_par = get_pb(pref);
     const double pb = pb_par.second.first; // its unit is pb_par.second.second
-    in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+    in.pb = pb;
+    if (pb >= in.p.get_first())
+      {
+	in.p.get_first() = nextafter(pb, numeric_limits<double>::max());
+	for (size_t i = 1; i < in.p.size() and in.p(i) <= pb; ++i)
+	  in.p(i) = nextafter(in.p(i - 1), numeric_limits<double>::max());
+      }
 
     const ParPair uod_par = get_uod(pref, pb_par);
     const double & uod = uod_par.second.first;
@@ -2117,45 +2133,80 @@ public:
 	    v->y(i) = nextafter(v->y(i + 1), numeric_limits<double>::min());
 	  }
       };
-    static auto coa_stable = [] (const PvtData * pvt_ptr,
+    static auto coa_stable = [] (const PvtData*,
 				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "coa");
-	if (v->pb == ptr->pb)
+	if (ptr->pb < v->p.get_first() or v->p.size() < 2)
 	  return;
 	v->pb = ptr->pb;
-	if (v->p.get_first() <= ptr->pb)
-	  v->p.get_first() = nextafter(ptr->pb, numeric_limits<double>::max());
+	size_t n = 1; // number of pressure points above pb
+	while (v->p(n) < ptr->pb and n < v->p.size())
+	  ++n;
+	LineEq coa(v->p(n - 1), v->y(n - 1), v->p(n), v->y(n));
+	v->p(0) = nextafter(ptr->pb, numeric_limits<double>::max());
+	v->y(0) = coa(v->p(0));
+	for (size_t i = 1; i < n; ++i)
+	  {
+	    v->p(i) = nextafter(v->p(i - 1), numeric_limits<double>::max());
+	    v->y(i) = coa(v->p(i));
+	  }
       };
-    static auto boa_stable = [] (const PvtData * pvt_ptr,
+    static auto boa_stable = [] (const PvtData*,
 				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "boa");
-	if (v->pb == ptr->pb)
+	if (ptr->pb < v->p.get_first() or v->p.size() < 2)
 	  return;
 	v->pb = ptr->pb;
-	if (v->p.get_first() <= ptr->pb)
-	  v->p.get_first() = nextafter(ptr->pb, numeric_limits<double>::max());
+	size_t n = 1; // number of pressure points above pb
+	while (v->p(n) < ptr->pb and n < v->p.size())
+	  ++n;
+	
+	LineEq boa(v->p(n - 1), v->y(n - 1), v->p(n), v->y(n));
+	v->p(0) = nextafter(ptr->pb, numeric_limits<double>::max());
+	v->y(0) = boa(v->p(0));
+	for (size_t i = 1; i < n; ++i)
+	  {
+	    v->p(i) = nextafter(v->p(i - 1), numeric_limits<double>::max());
+	    v->y(i) = boa(v->p(i));
+	  }
+	v->bobp = nextafter(v->y(0), numeric_limits<double>::max());
       };
-    static auto uob_stable = [] (const PvtData * pvt_ptr,
+    static auto uob_stable = [] (const PvtData*,
 				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "uob");
-	if (v->pb == ptr->pb)
-	  return;
-	v->pb = v->p.get_last() = ptr->pb;
-	v->uod = v->y.get_first() = ptr->uod;
+	v->p.get_last() = ptr->pb;
+	v->y.get_last() = v->uobp;
+	for (long i = v->p.size() - 2; i >= 0 and v->p(i) > ptr->pb; --i)
+	  {
+	    v->p(i) = nextafter(v->p(i + 1), numeric_limits<double>::min());
+	    v->y(i) = nextafter(v->y(i + 1), numeric_limits<double>::max());
+	  }
+	if (are_near(v->p(0), 0, 10))
+	  v->uod = v->y(0);
       };
-    static auto uoa_stable = [] (const PvtData * pvt_ptr,
+    static auto uoa_stable = [] (const PvtData*,
 				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "uoa");
-	if (v->pb == ptr->pb)
+	if (ptr->pb < v->p.get_first() or v->p.size() < 2)
 	  return;
 	v->pb = ptr->pb;
-	v->uod = ptr->uod;
-	if (v->p.get_first() <= ptr->pb)
-	  v->p.get_first() = nextafter(ptr->pb, numeric_limits<double>::max());
+	size_t n = 1; // number of pressure points above pb
+	while (v->p(n) < ptr->pb and n < v->p.size())
+	  ++n;
+	LineEq uoa(v->p(n - 1), v->y(n - 1), v->p(n), v->y(n));
+	v->p(0) = nextafter(ptr->pb, numeric_limits<double>::max());
+	v->y(0) = uoa(v->p(0));
+	v->uobp = nextafter(uoa(0),  numeric_limits<double>::max());
+	for (size_t i = 1; i < n; ++i)
+	  {
+	    v->p(i) = nextafter(v->p(i - 1), numeric_limits<double>::max());
+	    v->y(i) = uoa(v->p(i));
+	  }
+	
       };
     static auto uo_stable = [] (const PvtData*,
 				const VectorDesc*, const PbUod*) {};
@@ -3092,7 +3143,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (not BaseQuantity::is_valid(ptr->uod, *ptr->yunit))
 	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + "uod = " +
 		 to_str(ptr->uod) + " is out of its unit range");
-      if (ptr->p.get_first() < ptr->pb)
+      if (ptr->p.get_first() <= ptr->pb)
 	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "first p = " +
 		 to_str(ptr->p.get_first()) + " is less than pb = " +
 		 to_str(ptr->pb));
