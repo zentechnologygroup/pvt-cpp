@@ -68,3 +68,9 @@
 ## 23. dry de patrones de ajuste de pb para las dos zonas
 - Created at   2017-11-16 17:46:53 -0400
 
+## 24. minimo máximo author par salida de correlción
+- Created at   2017-11-17 15:18:17 -0400
+
+## 25. minimo uo es mínimo de salida correlación dónde haya author
+- Created at   2017-11-17 15:19:48 -0400
+

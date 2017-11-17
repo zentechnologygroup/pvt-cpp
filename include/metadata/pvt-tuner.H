@@ -349,7 +349,7 @@ struct VectorDesc
       ZENTHROW(SamplesUnsorted, "split_uo(): pressure values are not sorted " +
 	       join(p));
 
-    // First, we must determine p,uo corresponding to the inflection point
+    // First, we must determine (p,uo) corresponding to the inflection point
     size_t min_idx = 0;
     double min_uo = numeric_limits<double>::max();
     for (auto it = enum_zip_it(y); it.has_curr(); it.next())
@@ -362,18 +362,20 @@ struct VectorDesc
 	  }
       } // after this min_y is the index of minimum value of uo
     
-    Array<double> p_below = p.take(min_idx + 1);
-    Array<double> uob = y.take(min_idx + 1);
+    Array<double> p_below = p.take(min_idx);
+    Array<double> uob = y.take(min_idx);
     if (not is_inversely_sorted(uob, std::less_equal<double>()))
       ZENTHROW(SamplesUnsorted, "saturated region of uo is not decreasing " +
 	       py_string());
 
     Array<double> p_above, uoa;
-    for (size_t i = min_idx + 1; i < p.size(); ++i)
+    for (size_t i = min_idx; i < p.size(); ++i)
       {
 	p_above.append(p(i));
 	uoa.append(y(i));
       }
+
+    // Not to forget: minimum point is at p_above(0), uoa(0)
 
     if (not is_sorted(uoa, std::less_equal<double>()))
       ZENTHROW(SamplesUnsorted, "undersaturated region of uo is not increasing " +
@@ -385,9 +387,6 @@ struct VectorDesc
     if (p_above.size() < 2)
       ZENTHROW(CommandLineError, "Not enough point for estimating uoa");
 
-    assert(p_below.get_last() < p_above.get_first());
-    assert(uob.get_last() < uoa.get_first());
-
     // In this point (p_below,uob) contains the saturated uo and
     // (p_above, uoa) the undersaturated one.
 
@@ -396,12 +395,12 @@ struct VectorDesc
     const double uod = extrapolate_left(p_below(0), p_below(1),
 					uob(0), uob(1), 0);
 
-    // Now we build two lines.
+    // Now we build two lines; 
 
     // The first line is compounded by the two last points of
     // p_below,uob
     const size_t & nb = p_below.size();
-    const LineEq lbelow =
+    const LineEq lbelow = 
       { p_below(nb - 2), uob(nb - 2), p_below(nb - 1), uob(nb - 1) };
 
     // The second line is compounded by the two first points of p_above,uoa
@@ -414,18 +413,16 @@ struct VectorDesc
     auto p = lbelow.intersection(labove);
     double & pb = p.first;
     double & uobp = p.second;
-    if (uobp < 0 or pb <= p_below.get_last())
+    if (uobp < 0 or pb <= p_below.get_last() or pb >= p_above.get_first())
       { // These are improbable but possible cases that would
 	// correspond to a bad model
 	pb = p_below.get_last();
 	uobp = uob.get_last();
       }
-    else
-      {
-	p_below.append(pb); // (pb,uod) at the end of the saturated
-			    // zone for better precision 
-	uob.append(uobp);
-      }
+
+    p_below.append(pb); // (pb,uod) at the end of the saturated
+                        // zone for better precision 
+    uob.append(uobp);
 
     // (0,uod) at the beginning of the saturated zone for better precision  
     p_below.insert(VtlQuantity(*punit, Quantity<psig>(0)).raw());
@@ -2784,11 +2781,13 @@ public:
 	     const size_t n = 1) 
   {
 # define ADD_AUTO(name, s)			\
-  test_successful_apply(#name, s);		\
-  corr_map.insert(#name, s);			\
-  name##_corr = s.corr_ptr;			\
-  c_##name = CorrStat::c(s.desc);		\
-  m_##name = CorrStat::m(s.desc);
+    if (s.valid)				\
+      {						\
+	corr_map.insert(#name, s);		\
+	name##_corr = s.corr_ptr;		\
+	c_##name = CorrStat::c(s.desc);		\
+	m_##name = CorrStat::m(s.desc);		\
+      }
 
     DynMapTree<string, StatsDesc> corr_map;
 
