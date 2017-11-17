@@ -41,6 +41,8 @@ static json to_json(const Correlation & c)
   json j;
   j["maxv"] = c.max_val;
   j["minv"] = c.min_val;
+  j["min_from_author"] = c.min_from_author;
+  j["max_from_author"] = c.max_from_author;
   j["unit"] = c.unit.name;
   j["refs"] = to_vector(c.refs.maps<string>([] (const auto & r)
     { return r->to_string(); }));

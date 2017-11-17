@@ -191,6 +191,8 @@ struct Correlation
   const Unit & unit;
   const double min_val;
   const double max_val;
+  mutable bool min_from_author = false;
+  mutable bool max_from_author = false;
   mutable string title;
   mutable DynList<string> db;
   mutable DynList<string> notes;
@@ -538,11 +540,12 @@ protected:
 
   Correlation(const string & type_name, const string & subtype_name,
 	      const string & name, const string & latex_symbol,
-	      const Unit & result_unit,
-	      double min_val, double max_val)
+	      const Unit & result_unit, double min_val, double max_val,
+	      bool min_from_author = true, bool max_from_author = true)
     : type_name(type_name), subtype_name(subtype_name), name(name),
       latex_symbol(latex_symbol), unit(result_unit),
-      min_val(min_val), max_val(max_val)
+      min_val(min_val), max_val(max_val),
+      min_from_author(min_from_author), max_from_author(max_from_author)
   {
     if (tbl.has(name))
       {
@@ -561,13 +564,13 @@ protected:
 	      const string & name, const string & latex_symbol,
 	      const Unit & result_unit)
     : Correlation(type_name, subtype_name, name, latex_symbol, result_unit,
-		  result_unit.min_val, result_unit.max_val) {}
+		  result_unit.min_val, result_unit.max_val, false, false) {}
 
   Correlation(const string & type_name, const string & subtype_name,
 	      const string & name, const string & latex_symbol,
 	      const Unit & result_unit, double min_val)
     : Correlation(type_name, subtype_name, name, latex_symbol,
-		  result_unit, min_val, result_unit.max_val) {}
+		  result_unit, min_val, result_unit.max_val, true) {}
 
   virtual ~Correlation() = 0; // Correlation is an abstract class
 
