@@ -925,7 +925,7 @@ struct PvtData
     }
   };
 
-# define SET_CORRRELATION(tgt_name)	\
+# define SET_CORRRELATION(tgt_name)					\
   void set_##tgt_name(const Correlation * corr_ptr, double c = 0, double m = 1)\
   {									\
     if (corr_ptr->target_name() != #tgt_name)				\
