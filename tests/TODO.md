@@ -74,3 +74,6 @@
 ## 25. minimo uo es mínimo de salida correlación dónde haya author
 - Created at   2017-11-17 15:19:48 -0400
 
+## 26. mejorar msg error de test-corr sin parámetros
+- Created at   2017-11-17 19:28:55 -0400
+

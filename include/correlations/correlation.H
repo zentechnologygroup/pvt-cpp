@@ -541,7 +541,7 @@ protected:
   Correlation(const string & type_name, const string & subtype_name,
 	      const string & name, const string & latex_symbol,
 	      const Unit & result_unit, double min_val, double max_val,
-	      bool min_from_author = true, bool max_from_author = true)
+	      bool min_from_author, bool  max_from_author)
     : type_name(type_name), subtype_name(subtype_name), name(name),
       latex_symbol(latex_symbol), unit(result_unit),
       min_val(min_val), max_val(max_val),
@@ -570,7 +570,10 @@ protected:
 	      const string & name, const string & latex_symbol,
 	      const Unit & result_unit, double min_val)
     : Correlation(type_name, subtype_name, name, latex_symbol,
-		  result_unit, min_val, result_unit.max_val, true) {}
+		  result_unit, min_val, result_unit.max_val, true, false)
+  {
+    min_from_author = true;
+  }
 
   virtual ~Correlation() = 0; // Correlation is an abstract class
 
@@ -1069,22 +1072,6 @@ public:
 					  c, m, tuned_unit, check);
   }
 
-  // TODO: borrar
-  // double
-  // bounded_tuned_compute_and_check(const DynList<double> & pars,
-  // 				  const VtlQuantity & min_val,
-  // 				  const VtlQuantity & max_val,
-  // 				  double c, double m,
-  // 				  bool check = true) const
-  // {
-  //   const double result = c + m*compute(pars, check);
-  //   if (result < min_val)
-  //     return min_val.raw();
-  //   if (result > max_val)
-  //     return max_val.raw();
-  //   return verify_result(VtlQuantity(unit, result)).raw();
-  // }
-
   /** return a list of validated and adequately converted correlation
       parameters
       
@@ -1214,9 +1201,11 @@ extern long free_correlation_call(long proxy_id);
   {									\
     type_name(const string & subtype_name,				\
 	      const string & name, const string & latex_symbol,		\
-	      const Unit & result_unit, double min_val, double max_val)	\
+	      const Unit & result_unit, double min_val, double max_val,	\
+	      bool min_from_author, bool max_from_author)		\
       : Correlation(#type_name, subtype_name, name, latex_symbol,	\
-		    result_unit, min_val, max_val) {}			\
+		    result_unit, min_val, max_val,			\
+		    min_from_author, max_from_author) {}		\
     virtual ~type_name() = 0;						\
     using Correlation::add_parameter;					\
     bool is_hidden = hidden;						\
@@ -1243,15 +1232,15 @@ Declare_Correlation_Type(WaterCorrelation);
     subtype_name(const string & name, const Unit & result_unit,		\
 		 double min_val, double max_val)			\
       : type_name(#subtype_name, name, symbol, result_unit,		\
-		  min_val, max_val) {}					\
+		  min_val, max_val, true, true) {}			\
 									\
     subtype_name(const string & name, const Unit & unit, double min_val) \
       : type_name(#subtype_name, name, symbol, unit,			\
-		  min_val, unit.max_val) {}				\
+		  min_val, unit.max_val, true, false) {}		\
 									\
     subtype_name(const string & name, const Unit & unit)		\
       : type_name(#subtype_name, name, symbol, unit, unit.min_val,	\
-		  unit.max_val) {}					\
+		  unit.max_val, false, false) {}			\
     virtual ~subtype_name() = 0;					\
 									\
   protected:								\
