@@ -716,7 +716,19 @@ void test(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-  test(argc, argv);
-  
-  return 0;
+  try
+    {
+      test(argc, argv);
+    }
+  catch (overflow_error & e)
+    {
+      cout << e.what() << " (probably one o more parameters are missing)"
+	   << endl;
+    }
+  catch (exception & e)
+    {
+      cout << e.what() << endl;
+    }
 }
+
+

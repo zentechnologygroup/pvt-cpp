@@ -2542,3 +2542,27 @@
 - Comment      
 - Finished     
 
+## 425. minimo uo es mínimo de salida correlación dónde haya author
+- Created at   2017-11-17 15:19:48 -0400
+- Completed at 2017-11-18 16:10:53 -0400
+- Comment      
+- Finished     
+
+## 426. mejorar msg error de test-corr sin parámetros
+- Created at   2017-11-17 19:28:55 -0400
+- Completed at 2017-11-18 16:34:31 -0400
+- Comment      
+- Finished     
+
+## 427. minimo máximo author par salida de correlción
+- Created at   2017-11-17 15:18:17 -0400
+- Completed at 2017-11-18 16:34:44 -0400
+- Comment      
+- Finished     
+
+## 428. ojo con el limite inferiro de unidad viscosidad
+- Created at   2017-11-12 18:14:01 -0400
+- Completed at 2017-11-18 16:34:53 -0400
+- Comment      
+- Finished     
+

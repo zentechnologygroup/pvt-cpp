@@ -297,5 +297,12 @@ struct CorrelationInstantiater
   }
 };
 
+inline void init_correlations()
+{
+  CorrelationInstantiater init;
+}
+  
+  
+
 # endif // PVT_CORRELATIONS_H
 

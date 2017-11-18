@@ -422,3 +422,7 @@ precision en matriz,2017-10-30 08:43:57 -0400,2017-11-15 10:59:36 -0400,,2017-11
 en salida R ttuner está imprimiendo vector de presion,2017-11-15 10:59:08 -0400,2017-11-16 08:44:48 -0400,,2017-11-16 08:44:53 -0400
 dry de add_correlation result_unit en define-correlation,2017-11-14 15:28:26 -0400,2017-11-16 08:54:21 -0400,,2017-11-16 08:54:24 -0400
 rutina que cambie el pb sin alterar el orden,2017-11-14 12:02:40 -0400,2017-11-16 08:54:43 -0400,,2017-11-16 08:54:48 -0400
+minimo uo es mínimo de salida correlación dónde haya author,2017-11-17 15:19:48 -0400,2017-11-18 16:10:53 -0400,,2017-11-18 16:34:35 -0400
+mejorar msg error de test-corr sin parámetros,2017-11-17 19:28:55 -0400,2017-11-18 16:34:31 -0400,,2017-11-18 16:34:36 -0400
+minimo máximo author par salida de correlción,2017-11-17 15:18:17 -0400,2017-11-18 16:34:44 -0400,,2017-11-18 16:34:47 -0400
+ojo con el limite inferiro de unidad viscosidad,2017-11-12 18:14:01 -0400,2017-11-18 16:34:53 -0400,,2017-11-18 16:35:03 -0400

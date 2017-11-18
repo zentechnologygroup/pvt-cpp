@@ -1164,38 +1164,6 @@ public:
 
 inline Correlation::~Correlation() {}
 
-class CorrelationInvoker
-{
-  const Correlation * correlation_ptr = nullptr;
-  char * json_buffer = nullptr;
-  const size_t buf_sz = 0;
-  DynList<double> pars;
-
-public:
-
-  CorrelationInvoker(long id, char buf[], size_t sz)
-    : correlation_ptr(Correlation::array()[id]), json_buffer(buf), buf_sz(sz) {}
-
-  void push(double val) { pars.append(val); }
-
-  long call();
-};
-
-/// returns a proxy id for future invocation of correlation with id
-extern long open_correlation_call(long id, char buf[], size_t sz);
-
-/// pushes parameter val to the correlation proxy id. Return 1 if
-/// everything is ok; 0 otherwise 
-extern long push_correlation_call(long proxy_id, double val);
-
-/// performs the call and puts in the buffer specified in
-/// `open_correlation_call()` the json containing the result. Returns
-/// 1 if everything is ok; 0 otherwise
-extern long exec_correlation_call(long proxy_id);
-
-/// free the proxy 
-extern long free_correlation_call(long proxy_id);
-
 # define Header_Correlation_Type(type_name, hidden)	\
   struct type_name : public Correlation					\
   {									\
@@ -1329,25 +1297,31 @@ Declare_Correlation_Subtype(SaturatedOilCompressibility, OilCorrelation,
 Declare_Correlation_Subtype(UndersaturatedOilCompressibility, OilCorrelation,
 			    "c_{oa}");
 Declare_Correlation_Subtype(SaturatedOilDensity, OilFunction, "\\rho_{ob}");
-Declare_Correlation_Subtype(UndersaturatedOilDensity, OilFunction, "\\rho_{oa}");
-Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation, "\\sigma_{go}");
+Declare_Correlation_Subtype(UndersaturatedOilDensity, OilFunction,
+			    "\\rho_{oa}");
+Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation,
+			    "\\sigma_{go}");
 Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation, "\\mu_{od}");
 
     // correlations & functions associated to gas
-Declare_Correlation_Subtype(HydrocarbonGasPseudocriticalPressure, GasCorrelation, "P_{pcHC}");
-Declare_Correlation_Subtype(MixtureGasPseudocriticalPressure, GasCorrelation, "P_{pcM}");
+Declare_Correlation_Subtype(HydrocarbonGasPseudocriticalPressure,
+			    GasCorrelation, "P_{pcHC}");
+Declare_Correlation_Subtype(MixtureGasPseudocriticalPressure, GasCorrelation,
+			    "P_{pcM}");
 Declare_Correlation_Subtype(GasPseudocriticalPressureC7, GasCorrelation,
 			    "P_{pcC_7+}");
 Declare_Correlation_Subtype(GasViscosity, GasCorrelation, "\\mu_{g}");
 Declare_Correlation_Subtype(GasDensity, GasFunction, "\\rho_{g}")
 Declare_Correlation_Subtype(GasVolumeFactor, GasFunction, "B_{g}");
 Declare_Correlation_Subtype(GasCompressibility, GasCorrelation, "Z\\ factor");
-Declare_Correlation_Subtype(HydrocarbonGasPseudocriticalTemperature, GasCorrelation,
+Declare_Correlation_Subtype(HydrocarbonGasPseudocriticalTemperature,
+			    GasCorrelation,
 			    "T_{pcHC}");
 Declare_Correlation_Subtype(MixtureGasPseudocriticalTemperature, GasCorrelation,
 			    "T_{pcM}");
 //Declare_Correlation_Subtype(GasSpecificGravity, GasCorrelation, "\\gamma_g");
-Declare_Correlation_Subtype(HydrocarbonGasSpecificGravity, GasCorrelation, "\\gamma_{gHC}");
+Declare_Correlation_Subtype(HydrocarbonGasSpecificGravity, GasCorrelation,
+			    "\\gamma_{gHC}");
 Declare_Correlation_Subtype(GasIsothermalCompressibility, GasCorrelation,
 			    "c_{g}");
 Declare_Correlation_Subtype(GasPseudoreducedPressure, GasFunction, "P_{pr}");
@@ -1371,8 +1345,7 @@ Declare_Correlation_Subtype(UndersaturatedWaterIsothermalCompressibility,
 			    WaterCorrelation, "c_{wa}");
 Declare_Correlation_Subtype(SolutionGasWaterRelation, WaterCorrelation,
 			    "R_{sw}");
-Declare_Correlation_Subtype(VaporPressure, WaterCorrelation,
-			    "P_{v}");
+Declare_Correlation_Subtype(VaporPressure, WaterCorrelation, "P_{v}");
 Declare_Correlation_Subtype(WetGasVolumeFactor, GasFunction, "B_{wg}");
 Declare_Correlation_Subtype(WetGasSpecificGravity, GasCorrelation, "Y_{wgR}");
 Declare_Correlation_Subtype(EquivalentVolume, GasCorrelation, "V_{eq}");

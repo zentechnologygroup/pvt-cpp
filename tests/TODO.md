@@ -62,18 +62,6 @@
 ## 21. stabilize debe tomatr en cuenta el uod
 - Created at   2017-11-12 14:01:04 -0400
 
-## 22. ojo con el limite inferiro de unidad viscosidad
-- Created at   2017-11-12 18:14:01 -0400
-
-## 23. dry de patrones de ajuste de pb para las dos zonas
+## 22. dry de patrones de ajuste de pb para las dos zonas
 - Created at   2017-11-16 17:46:53 -0400
-
-## 24. minimo máximo author par salida de correlción
-- Created at   2017-11-17 15:18:17 -0400
-
-## 25. minimo uo es mínimo de salida correlación dónde haya author
-- Created at   2017-11-17 15:19:48 -0400
-
-## 26. mejorar msg error de test-corr sin parámetros
-- Created at   2017-11-17 19:28:55 -0400
 

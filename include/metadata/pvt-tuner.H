@@ -498,6 +498,31 @@ constexpr size_t Dim_Pars_List = 100;
 
 struct PvtData
 {
+  static Quantity<CP> min_uo_val()
+  {
+    static size_t count = 0;
+    static Quantity<CP> ret = CP::get_instance().min();
+
+    init_correlations();
+    if (count++ > 0) // if has been already executed then result is in ret
+      return ret;
+    
+    auto uo_corr_list = Correlation::array().filter([] (auto corr_ptr)
+      {
+	assert(corr_ptr);
+	return corr_ptr->min_from_author and
+	is_inside(corr_ptr->target_name(), {"uod", "uob", "uoa"});
+      });
+    if (uo_corr_list.is_empty())
+      return ret;
+    
+    return uo_corr_list.foldl(CP::get_instance().max(), [] (auto m, auto ptr)
+      {
+	return min(m, VtlQuantity(CP::get_instance(),
+				  VtlQuantity(ptr->unit, ptr->min_val)));
+      });
+  }
+
   DynSetTree<ConstDesc> const_values; // indexed and sorted by name
   DynSetTree<VectorDesc> vectors;
   DynSetTree<string> names;
@@ -861,7 +886,10 @@ struct PvtData
       }
   }
 
-  PvtData() { set_ttuner_units(); }
+  PvtData()
+  {
+    set_ttuner_units();
+  }
 
   PvtData(istream & input)
   {
@@ -1138,7 +1166,9 @@ public:
     ParList pars = build_correlation_pars();
     pars.insert("t", t, &Fahrenheit::get_instance());
     pars.insert(get_pb(t, pb));
-    return corr_ptr->tuned_compute_by_names(pars, c, m, CP::get_instance(), false);
+    return corr_ptr->bounded_tuned_compute_by_names
+      (pars, min_uo_val(), CP::get_instance().max(), c, m, CP::get_instance(),
+       false);
   }
 
   struct ConstStats
@@ -1804,6 +1834,9 @@ public:
 
     assert(Quantity<psig>(in.p.get_first()).is_near(0, 1e-1));
 
+    const VtlQuantity min_uo = min_uo_val();
+    const Quantity<CP> max_uo = CP::get_instance().max();
+
     DynList<double> p_list, uob_list;
     for (auto it = zip_it(in.p, rs.y, bob.y); it.has_curr(); it.next())
       {
@@ -1814,8 +1847,8 @@ public:
 	pars.insert("p", p_val, pref.punit);
 	pars.insert("rs", rs_val, rs.yunit);
 	pars.insert("bob", bob_val, bob.yunit);
-	const VtlQuantity uob =
-	  corr_ptr->tuned_compute_by_names(pars, c, m, *in.yunit, false);
+	const VtlQuantity uob = corr_ptr->bounded_tuned_compute_by_names
+	  (pars, min_uo, max_uo, c, m, CP::get_instance(), false);
 	p_list.append(p_val);
 	uob_list.append(uob.raw());
 	remove_from_container(pars, "p", "rs", "bob");
@@ -1851,7 +1884,9 @@ public:
 			ParPair("t", ValPair(t, &Fahrenheit::get_instance())),
 			ParPair("p", pb_par.second));
 
-    return uob_corr->tuned_compute_by_names(pars, c_uob, m_uob, *uo_unit, false);
+    return uob_corr->bounded_tuned_compute_by_names
+      (pars, min_uo_val(), CP::get_instance().max(), c_uob, m_uob,
+       CP::get_instance(), false);
   }
 
   VectorDesc compute_uoa(const VectorDesc & pref, const Correlation * corr_ptr,
@@ -1879,6 +1914,9 @@ public:
     pars.insert(pb_par);
     pars.insert(uod_par);
 
+    const VtlQuantity uo_min = min_uo_val();
+    const VtlQuantity uo_max = CP::get_instance().max();
+
     const VtlQuantity uobp = compute_uobp(in.t);
     in.uobp = uobp.raw();
     pars.insert("uobp", uobp);
@@ -1887,8 +1925,8 @@ public:
       {
 	const double p = it.get_curr();
 	pars.insert("p", p, in.punit);
-	const VtlQuantity uoa =
-	  corr_ptr->tuned_compute_by_names(pars, c, m, *in.yunit, false);
+	const VtlQuantity uoa = corr_ptr->bounded_tuned_compute_by_names
+	  (pars, uo_min, uo_max, c, m, *in.yunit, false);
 	p_list.append(p);
 	uoa_list.append(uoa.raw());
 	pars.remove("p");
