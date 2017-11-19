@@ -2005,8 +2005,7 @@ public:
       contained in `v` and executing the correlation `corr_ptr`. The
       result is expressed in `out_unit` */
   VectorDesc inputing(const VectorDesc & v, const Correlation * corr_ptr,
-		      double c, double m,
-		      const Unit * out_unit) const
+		      double c, double m, const Unit * out_unit) const
   {    
     VectorDesc in = v;
     in.yname = corr_ptr->target_name();
@@ -2088,7 +2087,7 @@ public:
     else
       {
 	auto boa_list =
-	  inputing(data.search_vectors("coa"), boa_corr, c_boa, m_boa);
+	  inputing(data.search_vectors("boa"), boa_corr, c_boa, m_boa);
 	ret.append(boa_list);
 	boa_list.for_each([&data] (auto & v) { data.add_vector(v); });
       }
@@ -2148,7 +2147,7 @@ public:
 				const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "rs");
-	v->p.get_last() = ptr->pb;
+	v->pb = v->p.get_last() = ptr->pb;
 	v->y.get_last() = pvt->get_rsb().raw();
 	for (long i = v->p.size() - 2; i >= 0 and v->p(i) > ptr->pb; --i)
 	  {
@@ -2156,12 +2155,12 @@ public:
 	    v->y(i) = nextafter(v->y(i + 1), numeric_limits<double>::min());
 	  }
       };
-    static auto bob_stable = [] (const PvtData*,
+    static auto bob_stable = [] (const PvtData * pvt,
 				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "bob");
-	v->p.get_last() = ptr->pb;
-	v->y.get_last() = v->bobp;
+	v->pb = v->p.get_last() = ptr->pb;
+	v->y.get_last() = v->bobp = pvt->compute_bobp(v->t).raw();
 	for (long i = v->p.size() - 2; i >= 0 and v->p(i) > ptr->pb; --i)
 	  {
 	    v->p(i) = nextafter(v->p(i + 1), numeric_limits<double>::min());
@@ -2172,8 +2171,6 @@ public:
 				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "coa");
-	if (ptr->pb < v->p.get_first() or v->p.size() < 2)
-	  return;
 	v->pb = ptr->pb;
 	size_t n = 1; // number of pressure points above pb
 	while (v->p(n) < ptr->pb and n < v->p.size())
@@ -2187,61 +2184,54 @@ public:
 	    v->y(i) = coa(v->p(i));
 	  }
       };
-    static auto boa_stable = [] (const PvtData*,
+    static auto boa_stable = [] (const PvtData * pvt,
 				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "boa");
-	if (ptr->pb < v->p.get_first() or v->p.size() < 2)
-	  return;
 	v->pb = ptr->pb;
+	v->bobp = pvt->compute_bobp(v->t).raw();
 	size_t n = 1; // number of pressure points above pb
 	while (v->p(n) < ptr->pb and n < v->p.size())
 	  ++n;
 	
-	LineEq boa(v->p(n - 1), v->y(n - 1), v->p(n), v->y(n));
 	v->p(0) = nextafter(ptr->pb, numeric_limits<double>::max());
-	v->y(0) = boa(v->p(0));
+	v->y(0) = nextafter(v->bobp, numeric_limits<double>::min());
 	for (size_t i = 1; i < n; ++i)
 	  {
 	    v->p(i) = nextafter(v->p(i - 1), numeric_limits<double>::max());
-	    v->y(i) = boa(v->p(i));
+	    v->y(i) = nextafter(v->y(i - 1), numeric_limits<double>::min());
 	  }
-	v->bobp = nextafter(v->y(0), numeric_limits<double>::max());
       };
-    static auto uob_stable = [] (const PvtData*,
+    static auto uob_stable = [] (const PvtData * pvt,
 				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "uob");
-	v->p.get_last() = ptr->pb;
-	v->y.get_last() = v->uobp;
+	v->pb = v->p.get_last() = ptr->pb;
+	v->uod = ptr->uod;
+	v->uobp = v->y.get_last() = pvt->compute_uobp(v->t).raw();
 	for (long i = v->p.size() - 2; i >= 0 and v->p(i) > ptr->pb; --i)
 	  {
 	    v->p(i) = nextafter(v->p(i + 1), numeric_limits<double>::min());
 	    v->y(i) = nextafter(v->y(i + 1), numeric_limits<double>::max());
 	  }
-	if (are_near(v->p(0), 0, 10))
-	  v->uod = v->y(0);
       };
-    static auto uoa_stable = [] (const PvtData*,
+    static auto uoa_stable = [] (const PvtData * pvt,
 				 const VectorDesc * v, const PbUod * ptr)
       {
 	assert(v->yname == "uoa");
-	if (ptr->pb < v->p.get_first() or v->p.size() < 2)
-	  return;
 	v->pb = ptr->pb;
+	v->uod = ptr->uod;
+	v->uobp = pvt->compute_uobp(v->t).raw();
+	v->p(0) = nextafter(ptr->pb, numeric_limits<double>::max());
+	v->y(0) = nextafter(v->uobp, numeric_limits<double>::max());
 	size_t n = 1; // number of pressure points above pb
 	while (v->p(n) < ptr->pb and n < v->p.size())
 	  ++n;
-	LineEq uoa(v->p(n - 1), v->y(n - 1), v->p(n), v->y(n));
-	v->p(0) = nextafter(ptr->pb, numeric_limits<double>::max());
-	v->y(0) = uoa(v->p(0));
-	v->uobp = nextafter(uoa(0),  numeric_limits<double>::max());
 	for (size_t i = 1; i < n; ++i)
 	  {
 	    v->p(i) = nextafter(v->p(i - 1), numeric_limits<double>::max());
-	    v->y(i) = uoa(v->p(i));
-	  }
-	
+	    v->y(i) = nextafter(v->y(i - 1), numeric_limits<double>::max());
+	  }	
       };
     static auto uo_stable = [] (const PvtData*,
 				const VectorDesc*, const PbUod*) {};
@@ -2264,10 +2254,6 @@ public:
 	double uod = this->compute_uod(t, pb, uod_corr, c_uod, m_uod).raw();
 	return PbUod(pb, uod);
       });
-
-    t_pb.for_each([] (auto p) { cout << "t = " << p.first << " pb = "
-				     << p.second.pb << " uod " << p.second.uod
-				     << endl; });
 
     for (auto & v : vectors)
       dispatcher.run(v.yname, this, &v, &t_pb[v.t]);
@@ -2739,17 +2725,6 @@ public:
     return ret_list.is_empty() ? StatsDesc() : ret_list.get_first();
   }
 
-private:
-
-  static void test_successful_apply(const string & target_name,
-				    const StatsDesc & s)
-  {
-    if (not s.valid)
-      ZENTHROW(CannotApply, "cannot find correlation for " + target_name);
-  }
-
-public:
-  
   void set_correlation(const StatsDesc & s)
   {
 # define Declare_Set_Corr(NAME)				\
@@ -2938,8 +2913,8 @@ public:
 	  }
       }
 
-    static DynList<string> name_order = { "pb", "rs", "bob", "coa",
-					  "uod", "uob", "uoa" };
+    static DynList<string> name_order =
+      { "pb", "rs", "bob", "coa", "uod", "uob", "uoa" };
     return name_order.maps<StatsDesc>([&corr_map] (const auto & name)
       {
 	return corr_map[name]; 

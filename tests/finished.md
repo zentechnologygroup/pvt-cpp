@@ -2566,3 +2566,9 @@
 - Comment      
 - Finished     
 
+## 429. cplot como funcion de biblioteca
+- Created at   2017-10-10 16:52:41 -0400
+- Completed at 2017-11-19 08:54:58 -0400
+- Comment      
+- Finished     
+
