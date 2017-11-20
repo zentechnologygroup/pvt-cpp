@@ -245,7 +245,7 @@ public:
   {
     auto interval =
       intervals.insert(Interval(corr_ptr, start, end, c, m, tuned_unit));
-    set_result_unit(interval, corr_ptr, start, end)
+    set_result_unit(interval, corr_ptr, start, end);
   }
 
   void add_tuned_correlation(const Correlation * correlation_ptr,
