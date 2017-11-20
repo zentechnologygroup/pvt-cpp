@@ -1,3 +1,16 @@
+/** PVT grid generator
+
+    This is the backend program for generating pvt grids. All the
+    settings are received through the command line.
+
+    Compile and then type
+    
+        ./cplot --help
+
+    In order to see all the options
+    
+    Aleph-w Leandro Rabindranath Leon
+ */
 
 # include <memory>
 
@@ -18,6 +31,7 @@ using json = nlohmann::json;
 const UnitsInstancer & units_instancer = UnitsInstancer::init();
 
 // These values are used for bounding the maximum number of iterations
+// and thus eventually protect against denial service attacks
 constexpr size_t Max_Num_Of_Steps = 120;   // for --t --p --t_array and --p_array
 constexpr size_t Max_Num_of_Tp_Pairs = 10; // for --tp_pair multiarg
 

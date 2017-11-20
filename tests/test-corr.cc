@@ -1,4 +1,15 @@
+/** PVT correlation calculator
 
+    This is the backend program for generating computing PVT correlations
+
+    Compile and then type
+    
+        ./test-corr --help
+
+    In order to see all the options
+
+    Aleph-w Leandro Rabindranath Leon
+ */
 # include <tclap/CmdLine.h>
 
 # include <ah-stl-utils.H>

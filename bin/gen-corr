@@ -1,3 +1,9 @@
+""" 
+Simple and primitive (by very powerful) correlation generator
+
+Aleph-w Leandro Rabindranath Leon
+"""
+
 #!/usr/bin/env ruby
 # -*- coding: iso-8859-1 -*-
 
@@ -60,7 +66,9 @@ class CorrelationGen
     s = "/** #{@name}\n\n"\
         "    Generated at #{Time.now}\n"\
         "\n"\
-        "    Zen Technologies Group\n\n"
+        "    by gen-corr which was written by Leandro Rabindranath Leon\n"\
+        "    Aleph-w Leandro Rabindranath Leon\n"\
+        "\n"
     @notes.each {|n| s += "#{n}\n" }
     s += "\n"
     s += @doc if @doc

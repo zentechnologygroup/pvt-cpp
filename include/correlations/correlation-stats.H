@@ -14,6 +14,10 @@
 
 using namespace std;
 
+/**
+
+   @ingroup 
+ */
 class CorrStat
 {
   double mean = 0;
@@ -87,7 +91,7 @@ public:
       return ptr->second;
 
     ostringstream s;
-    s << "CorrStat::statistical(" << name << ") : statistica name not found";
+    s << "CorrStat::statistical(" << name << ") : statistical name not found";
     throw domain_error(s.str());
   }
 
