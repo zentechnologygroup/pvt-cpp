@@ -513,14 +513,43 @@ struct PvtData
 	return corr_ptr->min_from_author and
 	is_inside(corr_ptr->target_name(), {"uod", "uob", "uoa"});
       });
+    
     if (uo_corr_list.is_empty())
       return ret;
-    
-    return uo_corr_list.foldl(CP::get_instance().max(), [] (auto m, auto ptr)
+
+    ret = uo_corr_list.foldl(CP::get_instance().max(), [] (auto m, auto ptr)
       {
-	return min(m, VtlQuantity(CP::get_instance(),
-				  VtlQuantity(ptr->unit, ptr->min_val)));
+      	return min(m, VtlQuantity(CP::get_instance(),
+      				  VtlQuantity(ptr->unit, ptr->min_val)));
       });
+
+    return ret;
+  }
+
+  static Quantity<CP> min_uod_val()
+  {
+    static size_t count = 0;
+    static Quantity<CP> ret = CP::get_instance().min();
+
+    init_correlations();
+    if (count++ > 0) // if has been already executed then result is in ret
+      return ret;
+    
+    auto uo_corr_list = Correlation::array().filter([] (auto corr_ptr)
+      {
+	return corr_ptr->min_from_author and corr_ptr->target_name() == "uod";
+      });
+    
+    if (uo_corr_list.is_empty())
+      return ret;
+
+    ret = uo_corr_list.foldl(CP::get_instance().max(), [] (auto m, auto ptr)
+      {
+      	return min(m, VtlQuantity(CP::get_instance(),
+      				  VtlQuantity(ptr->unit, ptr->min_val)));
+      });
+
+    return ret;
   }
 
   DynSetTree<ConstDesc> const_values; // indexed and sorted by name
@@ -1166,9 +1195,10 @@ public:
     ParList pars = build_correlation_pars();
     pars.insert("t", t, &Fahrenheit::get_instance());
     pars.insert(get_pb(t, pb));
-    return corr_ptr->bounded_tuned_compute_by_names
+    VtlQuantity ret = corr_ptr->bounded_tuned_compute_by_names
       (pars, min_uo_val(), CP::get_instance().max(), c, m, CP::get_instance(),
        false);
+    return ret;
   }
 
   struct ConstStats
@@ -1181,7 +1211,8 @@ public:
     CorrStat::Desc desc;
     bool valid = false;
     ConstStats(const Correlation * __corr_ptr, DynList<double> && __t,
-	       DynList<double> && __ylab, DynList<double> && __ycorr)
+	       DynList<double> && __ylab, DynList<double> && __ycorr,
+	       const double min_val, const double max_val)
       : corr_ptr(__corr_ptr), t(move(__t)), ylab(__ylab),
 	ycorr(__ycorr), desc(CorrStat(move(__ylab)).stats(move(__ycorr))),
 	valid(CorrStat::is_valid(desc))
@@ -1195,10 +1226,10 @@ public:
 	{
 	  const double & c = CorrStat::c(desc);
 	  const double & m = CorrStat::m(desc);
-	  const double min_val = corr_ptr->unit.min_val;
-	  const double max_val = corr_ptr->unit.max_val;
-	  ytuned = ycorr.maps([c, m, min_val, max_val] (auto y)
-			      { return min(max(min_val, c + m*y), max_val); });
+	  ytuned = ycorr.maps([c, m, &min_val, &max_val] (auto y)
+            {
+	      return min(max(min_val, c + m*y), max_val);
+	    });
 	}
     }
     DynList<string> to_dynlist(size_t precision = 10) const
@@ -1238,7 +1269,9 @@ public:
     if (k == 0)
       ZENTHROW(MetadataException, "cannot compute any pb value");
 
-    return ConstStats(corr_ptr, move(t), move(pb_lab), move(pb_corr));
+    return ConstStats(corr_ptr, move(t), move(pb_lab), move(pb_corr),
+		      psig::get_instance().min_val,
+		      psig::get_instance().max_val);
   }
 
   ConstStats uod_stats(const Correlation * corr_ptr) const
@@ -1259,7 +1292,8 @@ public:
       }
     if (t.is_empty())
       ZENTHROW(VarNameNotFound, "not found data for uod");
-    return ConstStats(corr_ptr, move(t), move(uod_lab), move(uod_corr));
+    return ConstStats(corr_ptr, move(t), move(uod_lab), move(uod_corr),
+		      min_uod_val().raw(), CP::get_instance().max_val);
   }
 
   ParPair get_uod(const VectorDesc & v, const ParPair & pb_par) const

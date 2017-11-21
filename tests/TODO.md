@@ -62,3 +62,6 @@
 ## 21. dry de patrones de ajuste de pb para las dos zonas
 - Created at   2017-11-16 17:46:53 -0400
 
+## 22. dry de min_uo_val
+- Created at   2017-11-21 15:55:47 -0400
+
