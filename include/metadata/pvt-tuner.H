@@ -1,3 +1,7 @@
+/**
+   
+   Aleph-w Leandro Rabindranath Leon
+ */
 # ifndef PVT_TUNER_H
 # define PVT_TUNER_H
 
@@ -1832,7 +1836,7 @@ public:
     VectorDesc in = pref;
     const ParPair pb_par = get_pb(pref);
     const ParPair uod_par = get_uod(pref, pb_par);
-    const double pb = max(pb_par.second.first, in.p.get_last());
+    const double pb = pb_par.second.first;
     const double uod = uod_par.second.first;
     in.pb = in.p.get_last() = pb;
     for (long i = in.p.size() - 2; i >= 0 and in.p(i) > pb; --i)
