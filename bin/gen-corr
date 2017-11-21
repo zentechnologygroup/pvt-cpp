@@ -1,11 +1,12 @@
-""" 
-Simple and primitive (by very powerful) correlation generator
-
-Aleph-w Leandro Rabindranath Leon
-"""
-
 #!/usr/bin/env ruby
 # -*- coding: iso-8859-1 -*-
+
+=begin
+ Simple and primitive (by very powerful) correlation generator
+
+ Aleph-w Leandro Rabindranath Leon
+=end
+
 
 require 'fileutils'
 require 'optparse'
