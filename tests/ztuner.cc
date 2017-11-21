@@ -1,4 +1,15 @@
+/** PVT ztuner
 
+    This is the back end for automatically computing the best zfactor parameters
+
+    Compile and then type
+    
+        ./ztuner --help
+
+    In order to see all the options
+
+   Aleph-w Leandro Rabindranath Leon
+ */
 # include <fstream>
 
 # include <ah-string-utils.H>

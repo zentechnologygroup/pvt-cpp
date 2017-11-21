@@ -1,4 +1,16 @@
+/** PVT tuner
 
+    This is the back end for tuning fluids. All the required settings
+    are received through the command line
+
+    Compile and then type
+    
+        ./ttuner --help
+
+    In order to see all the options
+
+   Aleph-w Leandro Rabindranath Leon
+ */
 # include <istream>
 
 # include <ah-dispatcher.H>
