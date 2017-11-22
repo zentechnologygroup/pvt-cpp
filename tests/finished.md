@@ -2572,3 +2572,15 @@
 - Comment      
 - Finished     
 
+## 430. dry de min_uo_val
+- Created at   2017-11-21 15:55:47 -0400
+- Completed at 2017-11-22 17:44:30 -0400
+- Comment      
+- Finished     
+
+## 431. opcion que salve en nuevo archivo
+- Created at   2017-11-08 10:29:03 -0400
+- Completed at 2017-11-22 17:44:51 -0400
+- Comment      
+- Finished     
+

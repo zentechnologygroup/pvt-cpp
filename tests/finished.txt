@@ -427,3 +427,5 @@ mejorar msg error de test-corr sin parámetros,2017-11-17 19:28:55 -0400,2017-11
 minimo máximo author par salida de correlción,2017-11-17 15:18:17 -0400,2017-11-18 16:34:44 -0400,,2017-11-18 16:34:47 -0400
 ojo con el limite inferiro de unidad viscosidad,2017-11-12 18:14:01 -0400,2017-11-18 16:34:53 -0400,,2017-11-18 16:35:03 -0400
 cplot como funcion de biblioteca,2017-10-10 16:52:41 -0400,2017-11-19 08:54:58 -0400,,2017-11-19 08:55:03 -0400
+dry de min_uo_val,2017-11-21 15:55:47 -0400,2017-11-22 17:44:30 -0400,,2017-11-22 17:44:34 -0400
+opcion que salve en nuevo archivo,2017-11-08 10:29:03 -0400,2017-11-22 17:44:51 -0400,,2017-11-22 17:44:53 -0400
