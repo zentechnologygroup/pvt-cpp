@@ -28,6 +28,7 @@ add_parameter("rsb", "SCF_STB", "Solution GOR at Pb",  7,  4272)
 add_author("Hanafy et al.")
 add_ref("hanafy:1997")
 add_internal_note("The range for Rsb is presented by Hanafy et al. as the range for Rs.")
+set_hidden()
 end_correlation()
 
 ################################################################

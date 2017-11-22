@@ -115,6 +115,7 @@ add_db("Based on experimental PVT data of 324 fluid samples taken from 176 wells
 add_note("Rs is determined by rearranging the bubble point pressure correlation to solve for the solution gas-oil ratio.")
 add_author("Hanafy et al.")
 add_ref("hanafy:1997")
+set_hidden()
 end_correlation()
 
 ################################################################
