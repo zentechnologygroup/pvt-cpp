@@ -1,4 +1,5 @@
-/** This file contains all the machinery needed for tuning
+/** This file contains all the machinery needed for tuning pb, rs,
+   bob, coa, boa, uod, uob and uoa
    
    Aleph-w Leandro Rabindranath Leon
  */
@@ -33,7 +34,7 @@ struct VectorDesc
 
   mutable double t = 0; //  unit will always be in Fahrenheit
   mutable double pb = PVT_INVALID_VALUE; // bubble point pressure in the
-				       // same unit that p 
+				         // same unit that p 
   mutable double bobp = PVT_INVALID_VALUE; // in RB_STB
   mutable double uod = PVT_INVALID_VALUE; // dead oil viscosity in cP
   mutable double uobp = PVT_INVALID_VALUE; // oil viscosity at pb in cP

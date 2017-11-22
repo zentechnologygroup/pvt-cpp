@@ -1,3 +1,8 @@
+/** This file contains all the machinery needed for tuning z
+   
+   Aleph-w Leandro Rabindranath Leon
+ */
+
 # ifndef Z_CALIBRATE_H
 # define Z_CALIBRATE_H
 

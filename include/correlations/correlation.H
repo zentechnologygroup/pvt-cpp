@@ -1,4 +1,8 @@
-
+/** This file contains the base machinery needed for calculating pvt
+   correlations
+   
+   Aleph-w Leandro Rabindranath Leon
+ */
 # ifndef CORRELATION_H
 # define CORRELATION_H
 

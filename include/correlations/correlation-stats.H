@@ -1,4 +1,7 @@
+/* Basic correlation statistics
 
+  Aleph-w Leandro Rabindranath Leon
+ */
 # ifndef CORRELATION_STATS_H
 # define CORRELATION_STATS_H 1
 
