@@ -1287,8 +1287,11 @@ public:
     pars.insert("t", v.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
     VtlQuantity ret =
-      uod_corr->tuned_compute_by_names(pars, c_uod, m_uod,
-				       CP::get_instance(), false);
+      uod_corr->bounded_tuned_compute_by_names(pars, min_uod_val(),
+					       CP::get_instance().max(),
+					       c_uod, m_uod, CP::get_instance());
+      // uod_corr->tuned_compute_by_names(pars, c_uod, m_uod,
+      // 				       CP::get_instance(), false);
     return ParPair("uod", ValPair(ret.raw(), &ret.unit));
   }
 
@@ -3187,6 +3190,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 		 "uoa samples are not sorted " + ptr->py_string());
       mutable_unit_convert(*ptr->yunit, ptr->y, *uo_unit);
       ptr->yunit = uo_unit;
+      // ptr->p.insert(nextafter(ptr->pb, numeric_limits<double>::max()));
+      // ptr->y.insert(nextafter(ptr->uobp, numeric_limits<double>::max()));
     };
   static auto uo_validate = [] (VectorDesc* ptr)
     {
