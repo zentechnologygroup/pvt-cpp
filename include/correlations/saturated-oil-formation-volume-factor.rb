@@ -124,6 +124,7 @@ add_db("Based on experimental PVT data of 324 fluid samples taken from 176 wells
 add_parameter("rs", "SCF_STB", "Solution GOR", 7, 4272)
 add_author("Hanafy et al.")
 add_ref("hanafy:1997")
+set_hidden()
 end_correlation()
 
 ################################################################

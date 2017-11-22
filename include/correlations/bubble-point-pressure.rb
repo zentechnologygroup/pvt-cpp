@@ -139,6 +139,7 @@ add_db("Based on experimental PVT data of 324 fluid samples taken from 176 wells
 add_author("Hanafy et al.")
 add_ref("hanafy:1997")
 add_eq("{P_{b}}\\,=\\,{{157.27}\\,+\\,{3.205\\cdot{\\,R_{sb}}}}")
+set_hidden()
 end_correlation()
 
 ################################################################
