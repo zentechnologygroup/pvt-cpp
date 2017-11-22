@@ -1004,17 +1004,6 @@ public:
     return tune(compute_by_names(par_list, check), c, m, tuned_unit);
   }
 
-  // TODO: borrar
-  // double
-  // tuned_compute_and_check(const DynList<double> & pars, double c, double m,
-  // 			  const Unit & tuned_unit, bool check = true) const
-  // {
-  //   //auto r = compute_by_names(const DynList<Correlation::ParByName> &pair_list)
-  //   return tune(compute_by_names(pars, check), c, m, tuned_unit));
-  //   double ret = bind_to_unit_limits(c + m*compute(pars, check), unit);
-  //   return verify_result(VtlQuantity(unit, ret)).raw();
-  // }
-
   VtlQuantity
   bounded_tuned_compute_by_names(const DynList<ParByName> & par_list,
 				 const VtlQuantity & min_val,

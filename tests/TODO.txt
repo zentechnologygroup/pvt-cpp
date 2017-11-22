@@ -20,3 +20,4 @@ auto inputu con t debe tener todas las correlaciones definidas,2017-11-09 10:30:
 stabilize debe tomatr en cuenta el uod,2017-11-12 14:01:04 -0400,,
 dry de patrones de ajuste de pb para las dos zonas,2017-11-16 17:46:53 -0400,,
 dry de min_uo_val,2017-11-21 15:55:47 -0400,,
+profiling ttuner y ztuner,2017-11-22 09:45:29 -0400,,

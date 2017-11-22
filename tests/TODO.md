@@ -65,3 +65,6 @@
 ## 22. dry de min_uo_val
 - Created at   2017-11-21 15:55:47 -0400
 
+## 23. profiling ttuner y ztuner
+- Created at   2017-11-22 09:45:29 -0400
+

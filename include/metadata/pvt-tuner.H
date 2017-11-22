@@ -502,59 +502,37 @@ constexpr size_t Dim_Pars_List = 100;
 
 struct PvtData
 {
-  static Quantity<CP> min_uo_val()
-  {
-    static size_t count = 0;
-    static Quantity<CP> ret = CP::get_instance().min();
-
-    init_correlations();
-    if (count++ > 0) // if has been already executed then result is in ret
-      return ret;
-    
-    auto uo_corr_list = Correlation::array().filter([] (auto corr_ptr)
-      {
-	assert(corr_ptr);
-	return corr_ptr->min_from_author and
-	is_inside(corr_ptr->target_name(), {"uod", "uob", "uoa"});
-      });
-    
-    if (uo_corr_list.is_empty())
-      return ret;
-
-    ret = uo_corr_list.foldl(CP::get_instance().max(), [] (auto m, auto ptr)
-      {
-      	return min(m, VtlQuantity(CP::get_instance(),
-      				  VtlQuantity(ptr->unit, ptr->min_val)));
-      });
-
-    return ret;
+# define Define_Get_Min_UO(name, targets...)	\
+  static Quantity<CP> name()			\
+  {						\
+    static size_t count = 0;				\
+    static Quantity<CP> ret = CP::get_instance().min();	\
+							\
+    init_correlations();						\
+    if (count++ > 0) /* if has been already executed then result is in ret */ \
+      return ret;							\
+									\
+    auto uo_corr_list = Correlation::array().filter([] (auto corr_ptr)	\
+    {			                                                \
+      assert(corr_ptr);							\
+      return corr_ptr->min_from_author and				\
+      is_inside(corr_ptr->target_name(), {targets});			\
+    });									\
+									\
+    if (uo_corr_list.is_empty())					\
+      return ret;							\
+									\
+    ret = uo_corr_list.foldl(CP::get_instance().max(), [] (auto m, auto ptr)\
+      {                                                                 \
+      	return min(m, VtlQuantity(CP::get_instance(),			\
+      				  VtlQuantity(ptr->unit, ptr->min_val))); \
+      });								\
+									\
+    return ret;								\
   }
 
-  static Quantity<CP> min_uod_val()
-  {
-    static size_t count = 0;
-    static Quantity<CP> ret = CP::get_instance().min();
-
-    init_correlations();
-    if (count++ > 0) // if has been already executed then result is in ret
-      return ret;
-    
-    auto uo_corr_list = Correlation::array().filter([] (auto corr_ptr)
-      {
-	return corr_ptr->min_from_author and corr_ptr->target_name() == "uod";
-      });
-    
-    if (uo_corr_list.is_empty())
-      return ret;
-
-    ret = uo_corr_list.foldl(CP::get_instance().max(), [] (auto m, auto ptr)
-      {
-      	return min(m, VtlQuantity(CP::get_instance(),
-      				  VtlQuantity(ptr->unit, ptr->min_val)));
-      });
-
-    return ret;
-  }
+  Define_Get_Min_UO(min_uo_val, "uod", "uob", "uoa");
+  Define_Get_Min_UO(min_uod_val, "uod");
 
   DynSetTree<ConstDesc> const_values; // indexed and sorted by name
   DynSetTree<VectorDesc> vectors;
@@ -1528,14 +1506,14 @@ private:
     return stats;
   }
 
-  VectorStats & stats_epilogue(VectorStats & stats, double max_val) const
+  VectorStats & stats_epilogue(VectorStats & stats,
+			       double min_val, double max_val) const
   {
     if (not stats.valid)
       return stats;
 
     const double & c = CorrStat::c(stats.desc);
     const double & m = CorrStat::m(stats.desc);
-    const double & min_val = stats.corr_ptr->unit.min_val;
     for (auto it = stats.temps.get_it(); it.has_curr(); it.next())
       {
 	auto & p = it.get_curr();
@@ -1550,8 +1528,9 @@ private:
 
   VectorStats & stats_epilogue(VectorStats & stats) const
   {
+    const double min_val = stats.corr_ptr->unit.min_val;
     const double max_val = stats.corr_ptr->unit.max_val;
-    return stats_epilogue(stats, max_val);
+    return stats_epilogue(stats, min_val, max_val);
   }
 
 public:
@@ -1560,7 +1539,7 @@ public:
   {
     const DynList<const VectorDesc*> rs_lab = stats_prologue("rs", corr_ptr);
     VectorStats stats = compute_stats(rs_lab, corr_ptr, &PvtData::compute_rs);
-    return stats_epilogue(stats, get_rsb().raw());
+    return stats_epilogue(stats, 0, get_rsb().raw());
   }
 
   VectorDesc compute_bob(const VectorDesc & pref,
@@ -1902,7 +1881,7 @@ public:
   {
     DynList<const VectorDesc*> uob_lab = stats_prologue("uob", corr_ptr);
     VectorStats stats = compute_stats(uob_lab, corr_ptr, &PvtData::compute_uob);
-    return stats_epilogue(stats);
+    return stats_epilogue(stats, min_uo_val().raw(), CP::get_instance().max_val);
   }
 
   VtlQuantity compute_uobp(const double t) const
@@ -1983,7 +1962,7 @@ public:
   {
     DynList<const VectorDesc*> uoa_lab = stats_prologue("uoa", corr_ptr);
     VectorStats stats = compute_stats(uoa_lab, corr_ptr, &PvtData::compute_uoa);
-    return stats_epilogue(stats);
+    return stats_epilogue(stats, min_uo_val().raw(), CP::get_instance().max_val);
   }
 
   VectorStats stats(const Correlation * corr_ptr) const
