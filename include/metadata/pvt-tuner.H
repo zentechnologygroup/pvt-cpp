@@ -1,8 +1,8 @@
 /** This file contains all the machinery needed for tuning pb, rs,
-   bob, coa, boa, uod, uob and uoa
+    bob, coa, boa, uod, uob and uoa
    
-   Aleph-w Leandro Rabindranath Leon
- */
+    Aleph-w Leandro Rabindranath Leon
+*/
 # ifndef PVT_TUNER_H
 # define PVT_TUNER_H
 
@@ -3112,8 +3112,8 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
        	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "boa vector " +
 		 join(ptr->y) + " contains bobp = " + to_str(ptr->bobp));
-      // ptr->p.insert(nextafter(ptr->pb, numeric_limits<double>::max()));
-      // ptr->y.insert(nextafter(ptr->bobp, numeric_limits<double>::min()));
+      ptr->p.insert(nextafter(ptr->pb, numeric_limits<double>::max()));
+      ptr->y.insert(nextafter(ptr->bobp, numeric_limits<double>::min()));
       if (not ptr->y.all([u = ptr->yunit] (auto b)
       			 { return BaseQuantity::is_valid(b, *u); }))
       	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() +
