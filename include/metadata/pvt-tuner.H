@@ -1408,7 +1408,7 @@ public:
 
       closed = true;
 
-      if (temps.is_empty())
+      if (temps.is_empty() or dirty)
 	{
 	  valid = false;
 	  return;
@@ -1503,7 +1503,9 @@ private:
 	  }
 	catch (exception & e)
 	  {
-	    cout << corr_ptr->name << ": " << e.what() << endl;
+	    stats.dirty = true;
+	    // TODO uncomment in develop mode
+	    // cout << corr_ptr->name << ": " << e.what() << endl;
 	  }
       }
     stats.close();
@@ -1870,8 +1872,6 @@ public:
 	pars.insert("bob", bob_val, bob.yunit);
 	const VtlQuantity uob = corr_ptr->bounded_tuned_compute_by_names
 	  (pars, min_uo, max_uo, c, m, CP::get_instance(), false);
-	cout << "p = " << p_val << " rs = " << rs_val
-	     << " uod = " << uod << " uob = " << uob << endl;
 	p_list.append(p_val);
 	uob_list.append(uob.raw());
 	remove_from_container(pars, "p", "rs", "bob");
@@ -2735,7 +2735,8 @@ public:
 	  }
 	catch (exception & e)
 	  {
-	    cout << ptr->name << ": " << e.what() << endl;
+	    // uncomment in develeop mode
+	    //cout << ptr->name << ": " << e.what() << endl;
 	    return StatsDesc(ptr);
 	  }
       });
