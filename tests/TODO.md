@@ -62,3 +62,9 @@
 ## 21. profiling ttuner y ztuner
 - Created at   2017-11-22 09:45:29 -0400
 
+## 22. desactivar las trazas de excepción
+- Created at   2017-11-23 18:18:43 -0400
+
+## 23. si estadistica falla entonces la correlación no aplica
+- Created at   2017-11-23 18:25:55 -0400
+

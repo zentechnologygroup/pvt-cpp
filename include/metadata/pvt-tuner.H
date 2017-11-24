@@ -1870,6 +1870,8 @@ public:
 	pars.insert("bob", bob_val, bob.yunit);
 	const VtlQuantity uob = corr_ptr->bounded_tuned_compute_by_names
 	  (pars, min_uo, max_uo, c, m, CP::get_instance(), false);
+	cout << "p = " << p_val << " rs = " << rs_val
+	     << " uod = " << uod << " uob = " << uob << endl;
 	p_list.append(p_val);
 	uob_list.append(uob.raw());
 	remove_from_container(pars, "p", "rs", "bob");
