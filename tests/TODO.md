@@ -68,3 +68,9 @@
 ## 23. si estadistica falla entonces la correlación no aplica
 - Created at   2017-11-23 18:25:55 -0400
 
+## 24. eiminar de boa pto inmediato superior
+- Created at   2017-11-24 15:54:20 -0400
+
+## 25. limitar valores minimos de uod uob uoa
+- Created at   2017-11-24 15:54:48 -0400
+
