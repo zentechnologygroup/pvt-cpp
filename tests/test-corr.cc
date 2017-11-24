@@ -1,4 +1,15 @@
+/** PVT correlation calculator
 
+    This is the backend program for generating computing PVT correlations
+
+    Compile and then type
+    
+        ./test-corr --help
+
+    In order to see all the options
+
+    Aleph-w Leandro Rabindranath Leon
+ */
 # include <tclap/CmdLine.h>
 
 # include <ah-stl-utils.H>
@@ -415,7 +426,7 @@ void test(int argc, char *argv[])
 
   SwitchArg verbose = { "v", "verbose", "verbose mode", cmd };
 
-  SwitchArg ignore = { "i", "ignore-exception", "ignore exception", cmd };
+  SwitchArg ignore = { "i", "ignore-exception", "ignore exception", cmd, false };
 
   SwitchArg python = { "y", "print-python-call", "print python call", cmd };
 
@@ -425,8 +436,9 @@ void test(int argc, char *argv[])
 
   SwitchArg symbols = { "s", "latex-symbols", "latex symbols", cmd };
 
-  SwitchArg check_arg = { "", "disable-ranges-check",
-			  "disable checking of correlation input ranges", cmd };
+  SwitchArg check_arg = { "", "enable-ranges-check",
+			  "enable checking of correlation input ranges", cmd,
+			  false };
 
   SwitchArg ruby = { "R", "ruby-hash", "generate ruby hash", cmd };
 
@@ -715,7 +727,19 @@ void test(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-  test(argc, argv);
-  
-  return 0;
+  try
+    {
+      test(argc, argv);
+    }
+  catch (overflow_error & e)
+    {
+      cout << e.what() << " (probably one o more parameters are missing)"
+	   << endl;
+    }
+  catch (exception & e)
+    {
+      cout << e.what() << endl;
+    }
 }
+
+

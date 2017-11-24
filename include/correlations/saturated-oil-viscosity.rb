@@ -1,7 +1,5 @@
 # coding: utf-8
 
-# coding: utf-8
-
 ## verificada con python
 begin_correlation("UobBeggsRobinson", "SaturatedOilViscosity", "CP")
 add_title("BEGGS & ROBINSON CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
@@ -81,12 +79,13 @@ end_correlation()
 ## verificada con python
 begin_correlation("UobPerezML", "SaturatedOilViscosity", "CP")
 add_title("PÉREZ, HENY & LAGO CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
+add_note("Pérez, Heny & Lago correlation, calculation of saturated oil viscosity.")
 add_parameter("uod",  "CP", "Dead oil viscosity")
 add_parameter("rs", "SCF_STB", "Solution GOR",  38,  121)
 add_author("Pérez, Heny & Lago")
 add_ref("perez:2001")
-add_internal_note("The correlation could not be verified because the original reference is not available. Date: September 6 2016.")
-set_hidden()
+add_internal_note("The correlation was verified by using the original reference (Pérez, Heny & Lago, 2001). Date: October 02 2017.")
+#set_hidden()
 end_correlation()
 
 
@@ -128,4 +127,52 @@ add_parameter("rs",  "SCF_STB", "Solution GOR", 133, 3050)
 add_author("Dindoruk & Christman")
 add_ref("dindoruk:2004")
 add_internal_note("The range assigned for Rs was taken from the range expressed by the author for Rsb.")
+end_correlation()
+
+################################################################
+
+begin_correlation("UobLopezCR", "SaturatedOilViscosity", "CP", 100, 1800)
+add_title("LÓPEZ, CASTILLO & ROJAS CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY FOR LOWER TEMPERATURES")
+add_db("Based on 48 PVT tests from saturated oil reservoirs located in Bare and Arecuna fields, from the Ayacucho Area of the Faja Petrolífera del Orinoco.")
+add_parameter("rs", "SCF_STB", "Solution GOR", 10, 115)
+add_parameter("api", "Api", "API oil gravity", 9.1, 14.5)
+add_parameter("t", "Fahrenheit", "Temperature", 130, 142)
+add_parameter("p", "psia", "Pressure", 115, 1250)
+add_author("López, Castillo & Rojas")
+add_ref("lopez:2005")
+add_ref("lopez:2014")
+add_internal_note("The correlation was verified by using the original reference. Date: April 27 2017.")
+#set_hidden()
+end_correlation()
+
+################################################################
+
+begin_correlation("UobLopezCRHigherT", "SaturatedOilViscosity", "CP", 100, 1125)
+add_title("LÓPEZ, CASTILLO & ROJAS CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY FOR HIGHER TEMPERATURES")
+add_db("Based on 48 PVT tests from saturated oil reservoirs located in Bare and Arecuna fields, from the Ayacucho Area of the Faja Petrolífera del Orinoco.")
+add_parameter("rs", "SCF_STB", "Solution GOR", 16, 94)
+add_parameter("api", "Api", "API oil gravity", 7.7, 10.3)
+add_parameter("t", "Fahrenheit", "Temperature", 154, 220)
+add_parameter("p", "psia", "Pressure", 215, 1215)
+add_author("López, Castillo & Rojas (Higher T)")
+add_ref("lopez:2005")
+add_ref("lopez:2014")
+add_internal_note("The correlation was verified by using the original reference. Date: April 27 2017.")
+add_internal_note("It was decided to eliminate this correlation because it exhibits non physical trends with respect to temperature and its resulting viscosity values are much lower than those reported by the authors.")
+set_hidden()
+end_correlation()
+
+################################################################
+
+begin_correlation("UobSalazar", "SaturatedOilViscosity", "CP", 109, 5040)
+add_title("SALAZAR CORRELATION, CALCULATION OF SATURATED OIL VISCOSITY")
+add_db("Based on 136 PVT reports from different areas of the Faja Petrolífera del Orinoco: 60 from Ayacucho, 48 from Junín, 26 from Carabobo, and 2 from Boyacá.")
+add_parameter("bob", "RB_STB", "Saturated oil volume factor", 1.0255, 1.0837)
+add_parameter("api", "Api", "API oil gravity", 7.8, 14.9)
+add_parameter("t", "Fahrenheit", "Temperature", 118, 150)
+add_parameter("p", "psia", "Pressure", 115, 1815)
+add_author("Salazar")
+add_ref("salazar:2008")
+add_internal_note("The correlation was verified by using the original reference. Date: May 2 2017.")
+#set_hidden()
 end_correlation()

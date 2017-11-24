@@ -1,17 +1,28 @@
 #!/usr/bin/env ruby
 # -*- coding: iso-8859-1 -*-
 
+=begin
+ Simple and primitive (by very powerful) correlation generator
+
+ Aleph-w Leandro Rabindranath Leon
+=end
+
+
 require 'fileutils'
 require 'optparse'
 require 'calculus.rb'
 
-load 'symbols'
+pvtdir = ENV['PVT']
+
+fail 'PVT env var has not been defined' unless pvtdir
+
+load "#{pvtdir}/include/correlations/symbols"
 
 class CorrelationGen
 
   class Parameter
 
-    attr_reader :name, :desc, :unit
+    attr_reader :name, :desc, :unit, :min, :max
 
     def initialize(name, unit, desc, min = nil, max = nil)
       @name = name
@@ -19,6 +30,10 @@ class CorrelationGen
       @unit = unit
       @min = min
       @max = max
+    end
+
+    def doxy
+      "@param[in] #{name} #{desc}. Range in [#{min}, #{max}]"
     end
 
     def make
@@ -48,6 +63,25 @@ class CorrelationGen
     @vars = []
   end
 
+  def doxy
+    s = "/** #{@name}\n\n"\
+        "    Generated at #{Time.now}\n"\
+        "\n"\
+        "    by gen-corr which was written by Leandro Rabindranath Leon\n"\
+        "    Aleph-w Leandro Rabindranath Leon\n"\
+        "\n"
+    @notes.each {|n| s += "#{n}\n" }
+    s += "\n"
+    s += @doc if @doc
+    @internal_notes.each { |note| s += "#{note.ljust(60)}\n\n" }
+    s += "References:\n\n"
+    @refs.each {|r| s += "  - #{r}\n\n" }
+    @pars.each {|p| s += "#{p.doxy}\n" }
+    s += "@return inside [#{@min}, #{@max}]\n"\
+         "@ingroup Correlations\n"\
+         "*/"
+  end
+
   attr_reader :name
 
   def set_hidden
@@ -58,8 +92,16 @@ class CorrelationGen
     @hidden_calc = true;
   end
 
-  def set_hidden_grid
-    @hidden_grid = true;
+  def set_hidden_blackoil_grid
+    @hidden_blackoil_grid = true;
+  end
+
+  def set_hidden_wetgas_grid
+    @hidden_wetgas_grid = true;
+  end
+
+  def set_hidden_drygas_grid
+    @hidden_drygas_grid = true;
   end
 
   def add_doc(str)
@@ -97,6 +139,7 @@ class CorrelationGen
   def add_parameter(name, unit, desc, min = nil, max = nil)
     @pars << Parameter.new(name, unit, desc, min, max)
     @latex_symbol = $par_symbols[name]
+    $pars_set.add name
   end
 
   def add_synonym(par_name, syn_name, unit_name)
@@ -150,7 +193,23 @@ class CorrelationGen
       s += ', ' unless par == @pars.last
     end
     s += "));\n"\
-         "}\n"
+         "}\n"\
+         "\n"\
+         "#{impl_type} validate_and_call(#{gen_pars}) const\n"\
+         "{\n"
+    @pars.each do |par|
+      if par.name != 'p' && par.name != 't'
+        s += "  if (not (#{par.name} >= #{par.min}))\n"\
+             "    ZENTHROW(OutOfParameterRange, "\
+             "\"parameter #{par.name} is less than #{par.min}\");\n" if par.min
+        s += "  if (not (#{par.name} <= #{par.max}))\n"\
+             "    ZENTHROW(OutOfParameterRange, "\
+             "\"parameter #{par.name} is greater than #{par.max}\");\n" if par.max
+      end
+    end
+    s += "\n"\
+         "return call(#{pars_list});\n"\
+         "}\n"\
   end
 
   def gen_par_operator
@@ -246,20 +305,13 @@ class CorrelationGen
   end
 
   def gen_class
-    s = "/** #{@name}\n\n"\
-        "    Generated at #{Time.now}\n"\
+    s = "#{doxy}\n"\
+        "class #{@name} : public #{@subtype}\n" \
+        "{\n"\
+        "Correlation_Singleton(#{@name});\n"\
         "\n"\
-        "    Zen Technologies Group\n\n"
-    s += @doc if @doc
-    @internal_notes.each { |note| s += "#{note.ljust(60)}\n\n" }
-    s += "\n"\
-         "*/\n"
-    s += "class #{@name} : public #{@subtype}\n" \
-         "{\n"\
-         "Correlation_Singleton(#{@name});\n"\
-         "\n"\
-         "#{@name}()\n"\
-         "  : #{@subtype}(\"#{@name}\", #{@unit}::get_instance()"
+        "#{@name}()\n"\
+        "  : #{@subtype}(\"#{@name}\", #{@unit}::get_instance()"
     s += ", #{@min}" if @min
     s += ", #{@max}" if @max
     s += ")\n"\
@@ -267,7 +319,9 @@ class CorrelationGen
     s += "set_author(\"#{@author}\");"
     s += "set_title(\"#{@title}\");" if @title
     s += "set_hidden();" if @hidden
-    s += "set_hidden_grid();" if @hidden_grid
+    s += "set_hidden_blackoil_grid();" if @hidden_blackoil_grid
+    s += "set_hidden_wetgas_grid();" if @hidden_wetgas_grid
+    s += "set_hidden_drygas_grid();" if @hidden_drygas_grid
     s += "set_hidden_calc();" if @hidden_calc
     @pars.each { |par| s += par.make }
     @db.each { |db| s += "add_db(\"#{db}\");\n" }
@@ -339,8 +393,12 @@ class CorrelationGen
   end
 end
 
+require 'set'
+
+$pars_set = Set.new
 $corr_list = []
 $curr_corr = nil
+
 def begin_correlation(name, subtype, unit, min = nil, max = nil)
   $curr_corr = CorrelationGen.new(name, subtype, unit, min, max)
 end
@@ -349,8 +407,16 @@ def set_hidden
   $curr_corr.set_hidden
 end
 
-def set_hidden_grid
-  $curr_corr.set_hidden_grid
+def set_hidden_blackoil_grid
+  $curr_corr.set_hidden_blackoil_grid
+end
+
+def set_hidden_drygas_grid
+  $curr_corr.set_hidden_drygas_grid
+end
+
+def set_hidden_wetgas_grid
+  $curr_corr.set_hidden_wetgas_grid
 end
 
 def set_hidden_calc
@@ -471,6 +537,10 @@ options_parser = OptionParser.new do |opts|
           'Target directory where equations will be generated') do |dir|
     options[:dir] = dir
   end
+
+  opts.on('-n', '--par-names', 'print union of all parameter names') do
+    options[:par_names] = true
+  end
   
 end
 
@@ -482,7 +552,7 @@ $eq_dir = options[:dir] || '../eqs'
 fail 'correlations file not specified' if file.nil?
 
 require 'bibtex'
-$biblio = options[:biblio] || "refs.bib"
+$biblio = options[:biblio] || "#{pvtdir}/include/correlations/refs.bib"
 $bib_db = BibTeX.open($biblio)
 
 def add_ref(tag)
@@ -491,6 +561,11 @@ def add_ref(tag)
 end
 
 load file
+
+if options[:par_names]
+  puts $pars_set.entries.join ', '
+  exit
+end
 
 if options[:equations]
   $corr_list.each { |corr| corr.make_eq($eq_dir) }

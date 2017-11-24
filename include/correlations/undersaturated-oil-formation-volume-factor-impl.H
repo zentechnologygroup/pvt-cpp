@@ -19,9 +19,9 @@ inline double
 BoaMcCain::impl(const double & bobp,
 		const double & p,
 		const double & pb,
-		const double & co) noexcept
+		const double & coa) noexcept
 {
-  return bobp * exp(co * (pb - p));
+  return bobp * exp(coa * (pb - p));
 }
 
 void BoaDeGhetto::precondition(const Quantity<psia> & p,
@@ -55,7 +55,6 @@ void BoaHanafy::precondition(const Quantity<psia> & p,
 {
   if (not (p > pb))
     {
-      cout << fabs(p.raw() - pb.raw()) << " " << " " << (p < pb) << endl;
       ostringstream s;
       s << "BoaHanafy::impl: pressure " << p << " is not greater than pb " << pb;
       ZENTHROW(WrongValueUndersaturatedCondition, s.str());

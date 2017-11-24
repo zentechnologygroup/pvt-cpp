@@ -14,6 +14,23 @@ end_correlation()
 
 ################################################################
 
+begin_correlation("RsAlShammasiCalibration", "SolutionGasOilRelation", "SCF_STB", 6, 3298.6)
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.51, 3.44)
+add_parameter("p", "psia", "Pressure", "Quantity<Atmosphere>(1)")
+add_parameter("yo", "Sg_do", "Oil specific gravity", "Quantity<Api>(63.7)", "Quantity<Api>(6)")
+add_synonym("yo", "api", "Api")
+add_parameter("t", "Fahrenheit", "Temperature", 74, 341.6)
+add_parameter("c", "Dim_Less", "c")
+add_parameter("m", "Dim_Less", "m")
+add_title("AL-SHAMMASI CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
+add_db("Based on a total of 1709 data sets (1661 data sets from 13 different published literature papers and 48 data sets originated from Kuwait reservoirs from unpublished sources).")
+add_author("Al-Shammasi")
+add_ref("alShammasi:1999")
+set_hidden()
+end_correlation()
+
+################################################################
+
 begin_correlation("RsAlMarhoun", "SolutionGasOilRelation", "SCF_STB", 26, 1602)
 add_title("AL-MARHOUN CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
 add_parameter("yg", "Sgg", "Gas specific gravity", 0.752, 1.367)
@@ -78,6 +95,10 @@ add_parameter("yg", "Sgg", "Gas specific gravity", 0.65, 1.276)
 add_parameter("p", "psia", "Pressure")
 add_parameter("api", "Api", "API oil gravity", 22.3, 48.1)
 add_parameter("t", "Fahrenheit", "Temperature", 80, 280)
+add_parameter("n2", "MoleFraction", "N2 concentration", "Quantity<MolePercent>(0)",  "Quantity<MolePercent>(26)")
+add_parameter("co2","MoleFraction", "CO2 concentration", "Quantity<MolePercent>(0)", "Quantity<MolePercent>(26)")
+add_parameter("h2s", "MoleFraction", "H2S concentration", "Quantity<MolePercent>(0)", "Quantity<MolePercent>(50)")
+add_precondition("n2", "co2", "h2s")
 add_db("Based on 26 samples from the North Sea (collected from wells in the region 56 to 62°N) and 19 samples from the Middle East, Algeria, and several areas in the U.S.")
 add_internal_note("P must be strictly greater than zero for the calculation of the logarithm.")
 add_author("Glaso")
@@ -94,6 +115,7 @@ add_db("Based on experimental PVT data of 324 fluid samples taken from 176 wells
 add_note("Rs is determined by rearranging the bubble point pressure correlation to solve for the solution gas-oil ratio.")
 add_author("Hanafy et al.")
 add_ref("hanafy:1997")
+set_hidden()
 end_correlation()
 
 ################################################################
@@ -246,7 +268,7 @@ add_author("Cegarra")
 add_ref("cegarra:2007")
 add_ref("standing:1947")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 16 2016.")
-set_hidden()
+#set_hidden()
 end_correlation()
 
 ################################################################
@@ -254,20 +276,21 @@ end_correlation()
 ## verificada con python
 begin_correlation("RsPerezML", "SolutionGasOilRelation", "SCF_STB", 38, 121)
 add_title("PÉREZ, HENY & LAGO CORRELATION (MODIFIED MILLÁN-ARCIA CORRELATION), CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
+add_db("Based on 35 laboratory PVT analyses of extra-heavy oil samples from the Orinoco Oil Belt, specifically: 16 from Hamaca, 14 from Zuata, three from Cerro Negro, one from Melones, and one from Boscán.")
 add_parameter("pb", "psia", "Bubble point pressure", 405, 1335)
 add_parameter("p", "psia", "Pressure")
-add_parameter("rsb", "SCF_STB", "Solution GOR at Pb")
+add_parameter("rsb", "SCF_STB", "Solution GOR at Pb", 38, 121)
 add_author("Pérez, Heny & Lago")
 add_ref("perez:2001")
-add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 16 2016.")
-set_hidden()
+add_internal_note("The correlation was verified by using the original reference (Pérez, Heny & Lago, 2001). Date: October 02 2017.")
+#set_hidden()
 end_correlation()
 
 
 ################################################################
 
 ## verificada con python
-begin_correlation("RsMillanArcia", "SolutionGasOilRelation", "SCF_STB", 53, 459)
+begin_correlation("RsMillanArciaDetachedFromPb", "SolutionGasOilRelation", "SCF_STB", 53, 459)
 add_title("MILLÁN-ARCIA CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
 add_db("Venezuelan heavy crudes were correlated.")
 add_parameter("pb", "psia", "Bubble point pressure", 222, 3432.7)
@@ -278,6 +301,24 @@ add_ref("millan:1984")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 16 2016.")
 set_hidden()
+end_correlation()
+
+
+################################################################
+
+begin_correlation("RsMillanArcia", "SolutionGasOilRelation", "SCF_STB", 53,  459)
+add_title("MILLÁN-ARCIA CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
+add_db("Venezuelan heavy crudes were correlated.")
+add_parameter("yg",  "Sgg", "Gas specific gravity")
+add_parameter("p", "psia", "Pressure",  222, 3432.7)
+add_parameter("api", "Api", "API oil gravity",  9,  20.2)
+add_parameter("t", "Fahrenheit", "Temperature",  87,  195)
+add_author("Millán-Arcia")
+add_ref("millan:1984")
+add_ref("perez:2001")
+add_internal_note("The correlation was verified by using a secondary reference (Salazar, 2008). Date: July 27 2017.")
+add_note("Millán-Arcia presented separate equations for solution gas oil ratio (Rs) and bubble point pressure (Pb). The correlation for Pb is used to calculate Rs by rearranging the equation.")
+#set_hidden()
 end_correlation()
 
 
@@ -295,8 +336,57 @@ add_author("Manucci & Rosales")
 add_ref("manucci:1968")
 add_ref("perez:2001")
 add_internal_note("The correlation could not be verified because the original reference is not available. Date: August 16 2016.")
+#set_hidden()
+end_correlation()
+
+################################################################
+
+begin_correlation("RsLopezCR", "SolutionGasOilRelation", "SCF_STB", 12, 110)
+add_title("LÓPEZ, CASTILLO & ROJAS CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
+add_db("Based on 48 PVT tests from saturated oil reservoirs located in Bare and Arecuna fields, from the Ayacucho Area of the Faja Petrolífera del Orinoco.")
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.5086, 0.75)
+add_parameter("p", "psia", "Pressure", 100, 1315)
+add_parameter("api", "Api", "API oil gravity", 7.4, 14.5)
+add_parameter("t", "Fahrenheit", "Temperature", 124, 220)
+add_author("López, Castillo & Rojas")
+add_ref("lopez:2014")
+add_internal_note("The correlation was verified by using the original reference. Date: April 27 2017.")
+#set_hidden()
+end_correlation()
+
+################################################################
+
+begin_correlation("RsSalazar", "SolutionGasOilRelation", "SCF_STB", 26, 149)
+add_title("SALAZAR CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
+add_db("Based on 136 PVT reports from different areas of the Faja Petrolífera del Orinoco: 60 from Ayacucho, 48 from Junín, 26 from Carabobo, and 2 from Boyacá.")
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.5086, 0.75)
+add_parameter("p", "psia", "Pressure", 253, 1564)
+add_parameter("api", "Api", "API oil gravity", 7.1, 18.9)
+add_parameter("t", "Fahrenheit", "Temperature", 108, 169)
+add_author("Salazar")
+add_ref("salazar:2008")
+add_internal_note("The correlation was verified by using the original reference. Date: April 28 2017.")
+add_note("Salazar presented separate equations for solution gas oil ratio (Rs) and bubble point pressure (Pb). The best Pb correlation provides a lower average error than the different ones proposed for Rs; therefore, this correlation is used to calculate Rs by rearranging the equation.")
+#set_hidden()
+end_correlation()
+
+################################################################
+
+begin_correlation("RsSalazarDetachedFromPb", "SolutionGasOilRelation", "SCF_STB", 25, 154)
+add_title("SALAZAR CORRELATION, CALCULATION OF SOLUTION GOR (FOR PRESSURES BELOW THE BUBBLE POINT)")
+add_db("Based on 136 PVT reports from different areas of the Faja Petrolífera del Orinoco: 60 from Ayacucho, 48 from Junín, 26 from Carabobo, and 2 from Boyacá.")
+add_parameter("yg", "Sgg", "Gas specific gravity", 0.5692, 0.6930)
+add_parameter("p", "psia", "Pressure", 65, 1940)
+add_parameter("api", "Api", "API oil gravity", 7.8, 14.9)
+add_parameter("t", "Fahrenheit", "Temperature", 118, 220)
+add_author("Salazar")
+add_ref("salazar:2008")
+add_note("Salazar (2008) presented the correlation as model 1.")
+add_internal_note("The correlation was verified by using the original reference. Date: April 28 2017.")
 set_hidden()
 end_correlation()
+
+################################################################
 
 begin_correlation("RsAbovePb", "SolutionGasOilRelation", "SCF_STB")
 add_title("Faked constant for internal computations above bubble point")
@@ -306,4 +396,7 @@ add_parameter("rsb", "SCF_STB", "Solution GOR at Pb")
 add_precondition("p", "pb")
 set_hidden()
 end_correlation()
+
+################################################################
+
 

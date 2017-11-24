@@ -1,10 +1,6 @@
 DEPEND = sh ./depend.sh
 
-ALEPHW = $(shell echo $$ALEPHW)
-
-#CXX = $(shell echo $$CLANGPATH)/bin/clang++  
-
-INCLUDES = -I../include -I$(ALEPHW) 
+INCLUDES = -I../include -I$(ZEN)/include -I$(ALEPHW) 
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings -Wno-parentheses
 #OPTFLAGS = -Ofast -DNDEBUG
 OPTFLAGS = -O0 -g
@@ -15,24 +11,19 @@ CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
 .SUFFIXES: .rb .H .cc
 
-LIBSRCS = units-vars.cc correlations-vars.cc
+LIBSRCS = correlations-vars.cc pvt-tuner.cc
 
 SRCS = $(LIBSRCS)
-OBJS = pvt.o xxhash.o
-#OBJS = pvt.o pvt-impl.o
-
-EXTRACT_CV = $(TOP)/bin/extract-cv
+OBJS = pvt.o
 
 BIBLIO = $(TOP)/bin/biblio
 
-UNITSDIR=$(TOP)/include/units/
 CORRDIR=$(TOP)/include/correlations/
 
 CORRS=$(shell ls $(CORRDIR)*.rb)
 
 CALLS =	$(CORRS:.rb=.cc)
-HCORR =	$(CORRS:.rb=.H) $(shell ls $(UNITSDIR)*-unit.H) \
-	$(shell ls $(CORRDIR)*-impl.H)
+HCORR =	$(CORRS:.rb=.H) $(shell ls $(CORRDIR)*-impl.H)
 
 HIMPL = $(shell ls $(CORRDIR)*-impl.H)
 
@@ -53,18 +44,14 @@ biblios.cc: $(TOP)/include/correlations/refs.bib $(TOP)/bin/biblio
 	$(RM) $*.cc; 	\	@@\
 	$(BIBLIO) -C -f $(CORRDIR)refs.bib | clang-format -style=Mozilla > $@
 
-pvt.cc: $(CALLS) $(HCORR) 				\
-	$(TOP)/include/units/units.H			\
-	biblios.cc units-vars.cc correlations-vars.cc	\
+pvt.cc: $(CALLS) $(HCORR) $(SRCS)				\
+	biblios.cc correlations-vars.cc	\
 	$(TOP)/include/correlations/pvt-correlations.H	\
-	$(TOP)/include/correlations/correlation.H 	\
-	$(TOP)/include/units/pvt-units.H
+	$(TOP)/include/correlations/correlation.H
 	$(RM) -f $@;					\	@@\
+	cat pvt-tuner.cc >> $@;			\	@@\
 	cat biblio-vars.cc >> $@;			\	@@\
 	cat biblios.cc >> $@;				\	@@\
-	$(CPP) $(CXXFLAGS) units-vars.cc > $*.tmp;	\	@@\
-	cat units-vars.cc >> $@;			\	@@\
-	$(EXTRACT_CV) $*.tmp >> $@;			\	@@\
 	cat correlations-vars.cc >> $@;		\	@@\
 	cat $(CALLS) >> $@;				\	@@\
 	$(RM) $*.tmp

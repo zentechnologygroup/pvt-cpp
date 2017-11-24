@@ -28,3 +28,9 @@
 - Comment      
 - Finished     
 
+## 6. opciones en cali para generar y leer json
+- Created at   2017-04-28 12:55:19 -0400
+- Completed at 
+- Comment      
+- Finished     
+

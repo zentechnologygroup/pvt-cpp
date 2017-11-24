@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
   auto p = to_dynlist(p_below);
   p.append(to_dynlist(p_above));
   
-  DefinedCorrelation defcorr("p");
+  DefinedCorrelation defcorr("p", psia::get_instance());
   defcorr.add_tuned_correlation(best_uob_corr, p_below.get_first(),
 				p_below.get_last(), fit_pars.c, fit_pars.m);
   defcorr.add_tuned_correlation(best_uoa_corr, p_above.get_first(),

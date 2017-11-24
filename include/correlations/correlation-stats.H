@@ -1,4 +1,7 @@
+/* Basic correlation statistics
 
+  Aleph-w Leandro Rabindranath Leon
+ */
 # ifndef CORRELATION_STATS_H
 # define CORRELATION_STATS_H 1
 
@@ -12,13 +15,19 @@
 
 # include "correlation.H"
 
+using namespace std;
+
+/**
+
+   @ingroup 
+ */
 class CorrStat
 {
-  double mean;
-  double var;
+  double mean = 0;
+  double var = 0;
   size_t n = 0;
 
-  const Array<double> y;
+  const Array<double> y; // experimental data
 
   long double ss_tot = 0;
 
@@ -85,12 +94,15 @@ public:
       return ptr->second;
 
     ostringstream s;
-    s << "CorrStat::statistical(" << name << ") : statistica name not found";
+    s << "CorrStat::statistical(" << name << ") : statistical name not found";
     throw domain_error(s.str());
   }
 
   void compute_base()
   {
+    if (y.is_empty())
+      ZENTHROW(SizeMismatch, "experimental data is empty");
+    
     set_statistical("r2", &CorrStat::r2);
     set_statistical("mse", &CorrStat::mse);
     set_statistical("sigma_distance", &CorrStat::sigma_distance);
@@ -114,7 +126,7 @@ public:
   struct LFit
   {
     double c = 0;
-    double m = 0;
+    double m = 1;
     double cov00 = 0;
     double cov01 = 0;
     double cov11 = 0;
@@ -124,14 +136,17 @@ public:
 
     LFit(const Array<double> & y, const Array<double> & yc)
     {
+      if (y.size() != yc.size())
+	ZENTHROW(SizeMismatch, "y and yc have different sizes");
+
+      if (y.size() == 1)
+	{
+	  c = yc(0) - y(0);
+	  return;
+	}
+
       gsl_fit_linear(&yc.base(), 1, &y.base(), 1, yc.size(), &c, &m,
 		     &cov00, &cov01, &cov11, &sumsq);
-      if (std::isnan(c))
-	c = 0;
-      if (std::isnan(m))
-	m = 1;
-      if (std::isnan(sumsq))
-	sumsq = 0;
     }
 
     string to_string() const
@@ -159,15 +174,43 @@ public:
   //                  r2       mse   sigma
   using Desc = tuple<double, double, double, LFit>;
 
+  static double & r2(Desc & d) { return get<0>(d); }
+  static double & mse(Desc & d) { return get<1>(d); }
+  static double & sigma(Desc & d) { return get<2>(d); }
+  static double & sumsq(Desc & d) { return get<3>(d).sumsq; }
+  static double & c(Desc & d) { return get<3>(d).c; }
+  static double cabs(Desc & d) { return fabs(get<3>(d).c); }
+  static double & m(Desc & d) { return get<3>(d).m; }
   static double r2(const Desc & d) { return get<0>(d); }
   static double mse(const Desc & d) { return get<1>(d); }
   static double sigma(const Desc & d) { return get<2>(d); }
   static double sumsq(const Desc & d) { return get<3>(d).sumsq; }
   static double c(const Desc & d) { return get<3>(d).c; }
+  static double cabs(const Desc & d) { return fabs(get<3>(d).c); }
   static double m(const Desc & d) { return get<3>(d).m; }
+  static bool is_valid(const Desc & d)
+  {
+    bool invalid = std::isnan(r2(d)) or std::isnan(mse(d)) or
+      std::isnan(sigma(d)) or std::isnan(sumsq(d)) or std::isnan(c(d)) or
+      std::isnan(m(d));
+    return not invalid;
+  }
 
+  friend ostream & operator << (ostream & o, const CorrStat::Desc & d)
+  {
+    return o << "r2    = " << r2(d) << endl
+	     << "mse   = " << mse(d) << endl
+	     << "sigma = " << sigma(d) << endl
+	     << "sumsq = " << sumsq(d) << endl
+	     << "c     = " << c(d) << endl
+	     << "m     = " << m(d);
+  }
+      
   Desc stats(const Array<double> & yc) const
   {
+    if (yc.size() != y.size())
+      ZENTHROW(SizeMismatch,
+	       "experimental and correlation data do not have the same size");
     double r2 = this->r2(yc);
     double mse = this->mse(yc);
     double sigma = sigma_distance(yc);
@@ -176,10 +219,32 @@ public:
     return make_tuple(r2, mse, sigma, fit);
   }
 
+  static DynList<string> desc_to_dynlist(const Desc & d, size_t precision = 17)
+  {
+    return build_dynlist<string>(::to_string(r2(d)), ::to_string(mse(d)),
+				 ::to_string(sigma(d)), ::to_string(sumsq(d)),
+				 ::to_string(c(d), precision),
+				 ::to_string(m(d), precision),
+				 is_valid(d) ? "valid" : "invalid");
+  }
+
+  static DynList<string> invalid_desc_to_dynlist()
+  {
+    return build_dynlist<string>("-", "-", "-", "-", "-", "-", "invalid");
+  }
+
+  static DynList<string> stats_header()
+  {
+    return
+      build_dynlist<string>("r2", "mse", "sigma", "sumsq", "c", "m", "status");
+  }
+
   // each sample contains a row of parameters plus the value
   CorrStat(const Array<double> & y) : y(y) { compute_base(); }
 
   CorrStat(Array<double> && y) : y(move(y)) { compute_base(); }
+
+  CorrStat(const DynList<double> & y) : y(y) { compute_base(); }
 };
 
 		 

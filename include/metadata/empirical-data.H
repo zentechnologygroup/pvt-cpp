@@ -12,7 +12,7 @@
 # include <ah-zip.H>
 # include <ahSort.H>
 
-# include <units/pvt-units.H>
+# include <pvt-units.H>
 # include <correlations/pvt-correlations.H>
 # include <correlations/defined-correlation.H>
 
@@ -37,6 +37,12 @@ struct EmpiricalData
   Array<const Unit*> const_units;
 
   DynMapTree<string, pair<double*, const Unit*>> const_table;
+
+  struct DataSet
+  {
+    const string xname = "no-name";
+    const string yname = "no-name";
+  };
 
   struct VarSet
   {
@@ -523,7 +529,8 @@ struct EmpiricalData
 	else
 	  a.first.for_each([&] (auto v)
             {
-	      ret.append(VtlQuantity(*ret_unit, VtlQuantity(*a.second, v)).raw());
+	      ret.append(VtlQuantity(*ret_unit,
+				     VtlQuantity(*a.second, v)).raw());
 	    });
       });
     return make_pair(ret, ret_unit);
@@ -562,7 +569,8 @@ struct EmpiricalData
 	else
 	  a.first.for_each([&] (auto v)
             {
-	      ret.append(VtlQuantity(*ret_unit, VtlQuantity(*a.second, v)).raw());
+	      ret.append(VtlQuantity(*ret_unit,
+				     VtlQuantity(*a.second, v)).raw());
 	    });
       });
     return make_pair(ret, ret_unit);
@@ -1412,7 +1420,7 @@ public:
     return correlation_ptr->compute(pars, check).raw();
   }
 
-  /// Aplies `correlation_ptr` to the var set seti restricted to the
+  /// Applies `correlation_ptr` to the var set seti restricted to the
   /// values of samples[col] are greater or equal than min_val and
   /// lesser than max_val
   DynList<DynList<Correlation::ParByName>>
@@ -1581,7 +1589,7 @@ public:
 			   const string & var_name, 
 			   const DynList<size_t> & sets) const
   {
-    // primero determinar los rangos de var_name según lo contenido en sets
+    // First determine the ranges of var_name according to the contents in sets
     //                 start    end       seti    col
     using SRange = tuple<double, double, size_t, size_t>;
     auto sets_ranges = sets.maps<SRange>([&var_name, this] (size_t i)
@@ -1594,7 +1602,7 @@ public:
 			  var_set.samples.get_last()(col), i, col);
       });
 
-    // Luego según los rangos determinar las correlaciones
+    // Then, according to selected ranges, to determine what are the correlations
     using CRange = tuple<double, double, const Correlation*>;
     auto corr_ranges =
       correlation.interval_list().maps<CRange>([] (const auto &i)
@@ -1609,9 +1617,8 @@ public:
 	       "Empiricaldata::generate_samples_by_name(): data given in some "
 	       "variable set is outside of correlation range");
 
-    // Ahora debo hacer una especie de merge de los intervalos tal que
-    // el resultado tenga la mínima cantidad de intervalos
-
+    // Now make a kind of merge of the intervals so that the result
+    // has the minimum number of intervals
     DynList<pair<const Correlation*,
 		 DynList<DynList<Correlation::ParByName>>>> ret;
     DynList<DynList<Correlation::ParByName>> curr_pars;

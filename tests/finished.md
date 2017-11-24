@@ -1024,3 +1024,1563 @@
 - Comment      
 - Finished     
 
+## 172. variables pressure y temperature deben ser VtlQuantity
+- Created at   2017-02-26 10:36:47 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 173. DefinedCorrelation debe recibir la unidad y la búsqueda del parámetro principal hacer la conversion
+- Created at   2017-02-25 18:30:54 -0400
+- Completed at 2017-02-26 11:56:35 -0400
+- Comment      
+- Finished     
+
+## 174. define_correlation puede estar buggy porque no recibe unidad
+- Created at   2017-02-25 17:57:03 -0400
+- Completed at 2017-02-26 11:56:47 -0400
+- Comment      
+- Finished     
+
+## 175. 
+- Created at   2017-02-26 14:10:26 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 176. is_null no debe llamar a numeric_lilimits::max()
+- Created at   2017-02-26 13:45:28 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 177. is_null no debe llamar a numeric_lilimits::max()
+- Created at   2017-02-26 13:44:53 -0400
+- Completed at 2017-02-26 16:21:56 -0400
+- Comment      
+- Finished     
+
+## 178. revisar error con is_null()
+- Created at   2017-02-26 13:28:03 -0400
+- Completed at 2017-02-26 16:22:07 -0400
+- Comment      
+- Finished     
+
+## 179. considerar elimionar is_null de asignación en VtlQuantity
+- Created at   2017-02-26 11:56:12 -0400
+- Completed at 2017-02-26 16:23:20 -0400
+- Comment      
+- Finished     
+
+## 180. revisar valor de bg por debajo de pb pero que arroja un z inválido
+- Created at   2017-02-26 13:25:06 -0400
+- Completed at 2017-02-26 16:23:35 -0400
+- Comment      
+- Finished     
+
+## 181. corregir sutton et al en presion
+- Created at   2016-09-21 16:21:49 -0400
+- Completed at 2017-03-02 16:34:27 -0400
+- Comment      
+- Finished     
+
+## 182. definir en plor cuáles serán las excepciones que abortan
+- Created at   2017-01-31 10:29:24 -0400
+- Completed at 2017-02-07 15:37:08 -0400
+- Comment      
+- Finished     
+
+## 183. 
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 184. json debe tener nombre de unidades
+- Created at   2017-03-02 15:45:27 -0400
+- Completed at 2017-03-08 11:23:49 -0400
+- Comment      
+- Finished     
+
+## 185. borrar del json maxvu
+- Created at   2017-03-08 15:09:20 -0400
+- Completed at 2017-03-08 15:43:56 -0400
+- Comment      
+- Finished     
+
+## 186. opcion a plot que retorna tipos de fluidos
+- Created at   2017-03-08 15:11:00 -0400
+- Completed at 2017-03-08 15:43:49 -0400
+- Comment      
+- Finished     
+
+## 187. método parameter_names puede etner la lista ya construida
+- Created at   2017-02-25 17:12:31 -0400
+- Completed at 2017-02-27 15:21:49 -0400
+- Comment      
+- Finished     
+
+## 188. opción que solo liste las excepciones:
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 189. dry en plot de código común
+- Created at   2017-02-13 17:10:09 -0400
+- Completed at 2017-03-08 17:16:02 -0400
+- Comment      
+- Finished     
+
+## 190. documentar lot
+- Created at   2017-02-13 17:10:16 -0400
+- Completed at 2017-03-08 17:15:57 -0400
+- Comment      
+- Finished     
+
+## 191. generate_grid podría generarse automáticamente según los valores de la correlaciones
+- Created at   2017-02-19 10:14:59 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 192. script que añada símbolos latex a todas las unidades
+- Created at   2017-03-02 16:15:06 -0400
+- Completed at 2017-03-11 16:30:23 -0400
+- Comment      
+- Finished     
+
+## 193. añadir columna aplot con el número de excepción
+- Created at   2017-02-25 17:34:56 -0400
+- Completed at 2017-03-11 16:32:07 -0400
+- Comment      
+- Finished     
+
+## 194. implementar la unión de parámetros de famila de correlación
+- Created at   2017-02-08 15:06:07 -0400
+- Completed at 2017-03-11 16:32:23 -0400
+- Comment      
+- Finished     
+
+## 195. Establecer en plot claramente las diff entre compute y dompute
+- Created at   2017-03-13 16:34:49 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 196. copiar version de cplot a plot; luego transformar cplot para cambio de unidad
+- Created at   2017-03-13 20:33:46 -0400
+- Completed at 2017-03-14 12:47:48 -0400
+- Comment      
+- Finished     
+
+## 197. optimizar build_stack_of_property_units
+- Created at   2017-03-14 10:36:21 -0400
+- Completed at 2017-03-14 12:47:43 -0400
+- Comment      
+- Finished     
+
+## 198. nueva versión de plot con cambio de unidades en salida
+- Created at   2017-03-13 17:44:26 -0400
+- Completed at 2017-03-14 12:50:34 -0400
+- Comment      
+- Finished     
+
+## 199. test-conversion debe tener opción que genre tabla ruby con unidades
+- Created at   2017-03-12 11:29:53 -0400
+- Completed at 2017-03-14 12:51:15 -0400
+- Comment      
+- Finished     
+
+## 200. Establecer en plot claramente las diff entre compute y dompute
+- Created at   2017-03-13 16:34:43 -0400
+- Completed at 2017-03-14 17:42:59 -0400
+- Comment      
+- Finished     
+
+## 201. actualiza hide en jsons
+- Created at   2017-03-14 16:53:30 -0400
+- Completed at 2017-03-14 17:18:22 -0400
+- Comment      
+- Finished     
+
+## 202. calibrar co
+- Created at   2016-11-30 10:30:58 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 203. opcion en calibrate que genere grid y plot
+- Created at   2017-03-02 08:39:44 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 204. programa que genere el json para calibrate
+- Created at   2017-03-02 15:13:38 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 205. correlacion sgo no s está valdando bien
+- Created at   2017-03-13 16:51:59 -0400
+- Completed at 2017-03-14 18:03:26 -0400
+- Comment      
+- Finished     
+
+## 206. set_check() y report_exceptions = catch_exceptions.getValue() pueden ir en main
+- Created at   2017-03-14 21:01:33 -0400
+- Completed at 2017-03-15 09:17:49 -0400
+- Comment      
+- Finished     
+
+## 207. en cplot considerar que cob
+- Created at    coa y uod no estén calibradas
+- Completed at 2017-03-16 16:11:05 -0400
+- Comment      
+- Finished     
+
+## 208. familia de set_par() para args debe validar si hubo o no entrada (para cplot)
+- Created at   2017-03-15 16:25:32 -0400
+- Completed at 2017-03-16 11:55:51 -0400
+- Comment      
+- Finished     
+
+## 209. cplot: veqsp_corr y gpa_corr están casadas al uso de uno o dos separadores (tsep)
+- Created at   2017-03-15 17:12:49 -0400
+- Completed at 2017-03-17 15:51:35 -0400
+- Comment      
+- Finished     
+
+## 210. considerar hash perfecto para unidades
+- Created at   2017-03-21 09:19:26 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 211. separar unidades en lib aparte
+- Created at   2017-03-20 16:15:42 -0400
+- Completed at 2017-03-22 08:01:47 -0400
+- Comment      
+- Finished     
+
+## 212. verificar cambio de unidades con combinación de  --unit y --row 
+- Created at   2017-03-17 16:27:44 -0400
+- Completed at 2017-03-22 08:02:06 -0400
+- Comment      
+- Finished     
+
+## 213. cplot debe prepararse para recibir pares t-p e lugar de rangos
+- Created at   2017-03-17 15:50:33 -0400
+- Completed at 2017-03-22 08:02:23 -0400
+- Comment      
+- Finished     
+
+## 214. definir política de unidades
+- Created at    pues se comparte pvt con bep y más
+- Completed at 2017-03-15 09:58:31 -0400
+- Comment      
+- Finished     
+
+## 215. UnitsIntances debe ser un singleton para asegurar una sola llamada
+- Created at   2017-03-22 12:07:23 -0400
+- Completed at 2017-03-23 11:41:22 -0400
+- Comment      
+- Finished     
+
+## 216. operator <<  to_string para pvtdata
+- Created at   2017-03-27 11:37:15 -0400
+- Completed at 2017-03-28 10:21:20 -0400
+- Comment      
+- Finished     
+
+## 217. considerar cambiar pares p
+- Created at   property por secuencia p luego secuenci property
+- Completed at 2017-03-27 18:07:17 -0400
+- Comment      
+- Finished     
+
+## 218. calibrate puede recibir matrices incompletas; que trabaje con vectores y no con matrices
+- Created at   2017-03-21 08:34:50 -0400
+- Completed at 2017-03-28 10:20:58 -0400
+- Comment      
+- Finished     
+
+## 219. verificar que unidades de salida en can_be_applied sean consistentes
+- Created at   2017-03-28 10:20:41 -0400
+- Completed at 2017-03-28 14:59:00 -0400
+- Comment      
+- Finished     
+
+## 220. test-pvt-data opcion para cambiarunidades de salida
+- Created at   2017-04-03 17:19:13 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 221. salida de test-pvt es la traspuesta
+- Created at   2017-04-03 19:48:41 -0400
+- Completed at 2017-04-04 10:42:26 -0400
+- Comment      
+- Finished     
+
+## 222. en cplot los pars _concentration dejarlos sin este sufijo
+- Created at   2017-03-29 20:50:51 -0400
+- Completed at 2017-04-04 10:43:00 -0400
+- Comment      
+- Finished     
+
+## 223. terminar gen-json
+- Created at   2017-03-20 16:18:12 -0400
+- Completed at 2017-04-04 19:40:49 -0400
+- Comment      
+- Finished     
+
+## 224. evitar transpose
+- Created at   2017-03-29 09:52:48 -0400
+- Completed at 2017-04-04 19:41:12 -0400
+- Comment      
+- Finished     
+
+## 225. test-pvt-data debe tener opciones de salida mat
+- Created at    csv
+- Completed at 2017-04-04 19:41:26 -0400
+- Comment      2017-03-28 17:12:14 -0400
+- Finished     2017-03-28 17:12:14 -0400
+
+## 226. Sample debe contener uod; así no sea utilizado
+- Created at   2017-04-08 17:12:44 -0400
+- Completed at 2017-04-11 10:10:44 -0400
+- Comment      
+- Finished     
+
+## 227. test-cali no está mostrando BobKartoatmodjo y VasquesBegs
+- Created at   2017-04-10 19:53:18 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 228. borrar tmp_calibration
+- Created at   2017-04-05 17:31:17 -0400
+- Completed at 2017-04-11 10:10:29 -0400
+- Comment      
+- Finished     
+
+## 229. 
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 230. el ordenamiento es por y no por p
+- Created at   2017-04-08 20:04:38 -0400
+- Completed at 2017-04-12 19:01:32 -0400
+- Comment      
+- Finished     
+
+## 231. El problema de eliminar ptos experimentales es que se puede perder el mínimo para hacer la regressión
+- Created at   2017-04-11 10:10:06 -0400
+- Completed at 2017-04-12 19:01:49 -0400
+- Comment      
+- Finished     
+
+## 232. añadir opcion plot a test-pvt-data que grafique a paso pero qu emuestre pts experimentales
+- Created at   2017-04-05 15:12:03 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 233. validar que tuplas de t y pb coincidan
+- Created at   2017-03-31 12:52:30 -0400
+- Completed at 2017-04-12 19:10:47 -0400
+- Comment      
+- Finished     
+
+## 234. se requiere uobp como dato;
+- Created at   2017-04-12 14:51:41 -0400
+- Completed at 2017-04-12 19:29:04 -0400
+- Comment      
+- Finished     
+
+## 235. dry de familia apply
+- Created at   2017-04-05 16:51:30 -0400
+- Completed at 2017-04-14 10:25:07 -0400
+- Comment      
+- Finished     
+
+## 236. dispatcher en ValuesArg para validar orden de y
+- Created at   2017-04-08 10:38:27 -0400
+- Completed at 2017-04-14 10:26:13 -0400
+- Comment      
+- Finished     
+
+## 237. apply y stats deben retornar pares que contengan la temperatura
+- Created at   2017-04-04 19:36:07 -0400
+- Completed at 2017-04-14 10:30:38 -0400
+- Comment      
+- Finished     
+
+## 238. atrapat Undefined en cplot
+- Created at   2017-04-18 17:44:28 -0400
+- Completed at 2017-04-19 09:06:09 -0400
+- Comment      
+- Finished     
+
+## 239. falta eliminar repetidos de presión en apply
+- Created at   2017-03-31 21:02:01 -0400
+- Completed at 2017-04-19 09:12:50 -0400
+- Comment      
+- Finished     
+
+## 240. el orden del eje x para la regersion debe ser como se ascendente por presión
+- Created at   2017-04-19 17:05:23 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 241. si hay excepcion en iapply ==> hay que eliminar la presión y y para los cuales ocurrió
+- Created at   2017-04-19 16:29:14 -0400
+- Completed at 2017-04-20 09:42:29 -0400
+- Comment      
+- Finished     
+
+## 242. cambio unidad para uod bobp y uobp
+- Created at   2017-04-19 15:12:35 -0400
+- Completed at 2017-04-20 09:42:44 -0400
+- Comment      
+- Finished     
+
+## 243. parte separada para calibrar pb
+- Created at   2017-04-14 10:54:49 -0400
+- Completed at 2017-04-20 09:44:16 -0400
+- Comment      hacer la simple suma de los pb versus salida de correlaciones
+- Finished     hacer la simple suma de los pb versus salida de correlaciones
+
+## 244. opcion pb_calibration
+- Created at   2017-04-16 11:16:24 -0400
+- Completed at 2017-04-20 09:54:02 -0400
+- Comment      
+- Finished     
+
+## 245. sacar pb de entre conjunto de propiedades para opcion --property
+- Created at   2017-04-15 11:33:50 -0400
+- Completed at 2017-04-20 09:54:25 -0400
+- Comment      
+- Finished     
+
+## 246. istats puede probar con varios esquemas y sleccionas el que dé mejor c y m
+- Created at   2017-04-11 21:13:08 -0400
+- Completed at 2017-04-20 09:55:02 -0400
+- Comment      
+- Finished     
+
+## 247. cuantificar errores para un rango de temperturas para bo y uo caibrados
+- Created at   2017-03-29 16:55:18 -0400
+- Completed at 2017-04-20 09:55:18 -0400
+- Comment      
+- Finished     
+
+## 248. mostrar solo regresione válidas
+- Created at   2017-04-19 11:18:31 -0400
+- Completed at 2017-04-20 09:55:36 -0400
+- Comment      
+- Finished     
+
+## 249. falta cob y cob en test-cali
+- Created at   2017-04-15 11:35:19 -0400
+- Completed at 2017-04-20 09:56:19 -0400
+- Comment      
+- Finished     
+
+## 250. option print debe tener salida csv y/o mat
+- Created at   2017-04-15 15:06:29 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 251. validar que ultimo valor del vector siempre debe ser el correspondiente al rsb
+- Created at   2017-04-05 15:59:33 -0400
+- Completed at 2017-04-20 09:57:44 -0400
+- Comment      
+- Finished     
+
+## 252. json de calibrate debe recibir unidades en nombre no en símbolos
+- Created at   2017-03-13 10:16:03 -0400
+- Completed at 2017-04-20 09:58:49 -0400
+- Comment      
+- Finished     
+
+## 253. Indagar penultimos saltos en bob para test-calibrate
+- Created at   2017-03-01 16:10:40 -0400
+- Completed at 2017-04-20 09:59:07 -0400
+- Comment      
+- Finished     
+
+## 254. calibrar co
+- Created at   2017-03-20 15:17:41 -0400
+- Completed at 2017-04-20 09:59:17 -0400
+- Comment      
+- Finished     
+
+## 255. como calibrar con varias tmperaturas?
+- Created at   2017-03-28 14:58:47 -0400
+- Completed at 2017-04-20 09:59:38 -0400
+- Comment      
+- Finished     
+
+## 256. desc para vector en test-pvt-data
+- Created at   2017-03-30 10:35:34 -0400
+- Completed at 2017-04-20 10:00:13 -0400
+- Comment      
+- Finished     
+
+## 257. añadir caso pb cuandio sólo hay un pto
+- Created at   2017-04-16 13:30:36 -0400
+- Completed at 2017-04-20 10:00:46 -0400
+- Comment      
+- Finished     
+
+## 258. Cuando la regresión dé error debe reportarse
+- Created at   2017-04-18 15:45:52 -0400
+- Completed at 2017-04-20 10:01:08 -0400
+- Comment      
+- Finished     
+
+## 259. marca que diga si la regresion es válida
+- Created at   2017-04-20 11:20:29 -0400
+- Completed at 2017-04-20 11:46:51 -0400
+- Comment      
+- Finished     
+
+## 260. verificar con rigor iapply pase de pb
+- Created at    uod
+- Completed at 2017-04-21 10:47:28 -0400
+- Comment      2017-04-20 11:47:25 -0400
+- Finished     2017-04-20 11:47:25 -0400
+
+## 261. considerar acotar rs a rsb en cplot
+- Created at   2017-04-20 17:25:36 -0400
+- Completed at 2017-04-23 14:13:42 -0400
+- Comment      hecho
+- Finished     hecho
+
+## 262. en cplot: cálculo de BoaMcCain debería de recibir coa
+- Created at    no co
+- Completed at 2017-04-23 14:14:13 -0400
+- Comment      
+- Finished     
+
+## 263. opcion en calibrate que relaje una condición
+- Created at   2017-04-21 10:05:00 -0400
+- Completed at 2017-04-23 14:14:57 -0400
+- Comment      
+- Finished     
+
+## 264. opcion que diga dónde una correklación falló
+- Created at   2017-04-19 14:33:41 -0400
+- Completed at 2017-04-23 14:15:18 -0400
+- Comment      
+- Finished     
+
+## 265. cali no procesa varias temps para el fluid1
+- Created at   2017-04-23 14:13:03 -0400
+- Completed at 2017-04-24 10:54:59 -0400
+- Comment      
+- Finished     
+
+## 266. encontrar una forma de acotar rs a rsb desde a calibracón
+- Created at   2017-04-24 19:28:02 -0400
+- Completed at 2017-04-25 10:58:38 -0400
+- Comment      
+- Finished     
+
+## 267. considerar añadir a las correlaciones de rs el parámetro rsb
+- Created at   2017-04-25 10:40:25 -0400
+- Completed at 2017-04-25 10:58:46 -0400
+- Comment      
+- Finished     
+
+## 268. opcion --relax debe considerar variable que ya estén relajadas
+- Created at   2017-04-23 17:39:21 -0400
+- Completed at 2017-04-25 17:16:57 -0400
+- Comment      
+- Finished     
+
+## 269. opcion en cplot que especifique un vector específico de temp y pression
+- Created at   2017-04-23 13:26:53 -0400
+- Completed at 2017-04-26 10:00:03 -0400
+- Comment      
+- Finished     
+
+## 270. en calibración verificar que no hayan nan
+- Created at   2017-04-20 17:04:19 -0400
+- Completed at 2017-04-26 11:25:29 -0400
+- Comment      
+- Finished     
+
+## 271. para conjunto subsaturados la presión de burbuja debe ser ligeramente incrementada
+- Created at   2017-04-20 10:33:52 -0400
+- Completed at 2017-04-26 11:26:06 -0400
+- Comment      
+- Finished     
+
+## 272. Zen exception en par-liats
+- Created at   2017-04-04 08:49:24 -0400
+- Completed at 2017-04-26 16:21:27 -0400
+- Comment      
+- Finished     
+
+## 273. RsCegarra pow(10
+- Created at    l4*api< - l3*t) en linea 386
+- Completed at 2017-04-26 16:23:22 -0400
+- Comment      
+- Finished     
+
+## 274. verificar que Invalid_Value y VtlQuantity() se estén procesando en cplot
+- Created at   2017-03-14 20:51:35 -0400
+- Completed at 2017-04-26 16:25:25 -0400
+- Comment      
+- Finished     
+
+## 275. corregir entrada csv via stdin plot-r
+- Created at   2017-04-19 11:33:53 -0400
+- Completed at 2017-04-26 16:51:28 -0400
+- Comment      
+- Finished     
+
+## 276. acelerar la traspuesta
+- Created at   2017-04-26 17:53:11 -0400
+- Completed at 2017-04-27 10:06:29 -0400
+- Comment      
+- Finished     
+
+## 277. hacer funciones de acceso a TYPE
+- Created at   2017-04-19 15:49:34 -0400
+- Completed at 2017-04-27 10:19:25 -0400
+- Comment      
+- Finished     
+
+## 278. opción cplot que solo imprima excepciones
+- Created at   2017-04-26 17:35:47 -0400
+- Completed at 2017-04-27 10:19:16 -0400
+- Comment      
+- Finished     
+
+## 279. pasar excepciones de tclap a zen
+- Created at   2017-03-28 15:26:32 -0400
+- Completed at 2017-04-27 10:21:40 -0400
+- Comment      Para eso hacer una excepcion TCLAP
+- Finished     Para eso hacer una excepcion TCLAP
+
+## 280. --cob en cplot debe ser por omisión CobMcCainEtAl
+- Created at   2017-04-20 16:31:47 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 281. opción para generar el grid traspuesto
+- Created at   2017-04-11 16:53:37 -0400
+- Completed at 2017-04-27 10:24:39 -0400
+- Comment      
+- Finished     
+
+## 282. diseñar esquema para que z_min sea comartible entre correlaiones y unidades
+- Created at   2017-04-11 16:53:16 -0400
+- Completed at 2017-04-27 10:39:20 -0400
+- Comment      
+- Finished     
+
+## 283. verrificar que move sea invocado en row para traspuestas
+- Created at   2017-04-27 15:40:55 -0400
+- Completed at 2017-04-27 17:40:23 -0400
+- Comment      
+- Finished     
+
+## 284. revisar si es necesario guardia de retorno negativo para correlaciones de rx
+- Created at   2017-04-11 21:51:40 -0400
+- Completed at 2017-04-28 15:04:12 -0400
+- Comment      
+- Finished     
+
+## 285. opciones en cali para generar y leer json
+- Created at   2017-04-28 12:55:38 -0400
+- Completed at 2017-05-02 09:11:29 -0400
+- Comment      
+- Finished     
+
+## 286. 
+- Created at   2017-05-04 10:37:26 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 287. preguntar por columnas de compresibilidad
+- Created at   2017-05-03 09:28:49 -0400
+- Completed at 2017-05-04 11:16:33 -0400
+- Comment      
+- Finished     
+
+## 288. falta split de co
+- Created at   2017-05-02 14:57:05 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 289. extrapolar pb segun otros arrglos (en concreto uob)
+- Created at   2017-05-01 16:29:03 -0400
+- Completed at 2017-05-04 11:17:19 -0400
+- Comment      
+- Finished     
+
+## 290. calibrar uod
+- Created at   2017-05-01 16:48:22 -0400
+- Completed at 2017-05-04 11:18:29 -0400
+- Comment      
+- Finished     
+
+## 291. opción de borrar un vector o constante
+- Created at   2017-05-02 17:42:34 -0400
+- Completed at 2017-05-05 10:45:41 -0400
+- Comment      
+- Finished     
+
+## 292. remove const
+- Created at   2017-05-05 10:35:09 -0400
+- Completed at 2017-05-05 11:06:58 -0400
+- Comment      
+- Finished     
+
+## 293. uod automático según multiplicidad de arrreglos
+- Created at   2017-05-09 15:40:50 -0400
+- Completed at 2017-05-10 19:42:17 -0400
+- Comment      
+- Finished     
+
+## 294. formatera bien lista e correlaciones
+- Created at   2017-05-09 14:40:23 -0400
+- Completed at 2017-05-11 10:22:28 -0400
+- Comment      
+- Finished     
+
+## 295. acelerar cplot mediante factorización de parámetros en familias de correlaciones
+- Created at   2017-05-13 09:28:03 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 296. calculadora grid
+- Created at   2017-05-12 17:32:34 -0400
+- Completed at 2017-05-22 16:25:34 -0400
+- Comment      
+- Finished     
+
+## 297. opción a cali con alto de linea en salida
+- Created at   2017-05-22 16:05:03 -0400
+- Completed at 2017-05-22 17:14:31 -0400
+- Comment      
+- Finished     
+
+## 298. opción a cplot que genere grid conciso
+- Created at   2017-05-03 08:47:55 -0400
+- Completed at 2017-05-22 17:17:10 -0400
+- Comment      
+- Finished     
+
+## 299. ponerle al etado de calibración las correlaciones
+- Created at   2017-05-02 15:09:38 -0400
+- Completed at 2017-05-22 17:17:25 -0400
+- Comment      
+- Finished     
+
+## 300. piner un filtro por propiedad a opcion print
+- Created at   2017-04-19 14:25:40 -0400
+- Completed at 2017-05-22 17:17:45 -0400
+- Comment      
+- Finished     
+
+## 301. hacer el inputing de pb
+- Created at   2017-04-26 15:52:26 -0400
+- Completed at 2017-05-22 17:18:05 -0400
+- Comment      
+- Finished     
+
+## 302. transpose para tuner
+- Created at   2017-05-23 15:18:21 -0400
+- Completed at 2017-05-24 16:11:00 -0400
+- Comment      
+- Finished     
+
+## 303. generar por cada correlacion método validate_and_call
+- Created at   2017-05-26 15:58:04 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 304. compute en empirical_data 1405: se puede acer más raṕido
+- Created at   2016-12-01 17:30:02 -0400
+- Completed at 2017-05-27 19:44:50 -0400
+- Comment      
+- Finished     
+
+## 305. script que lea hoja de Virginia y genere los csv para distintos grids
+- Created at   2017-02-16 18:15:52 -0400
+- Completed at 2017-04-26 11:25:56 -0400
+- Comment      
+- Finished     
+
+## 306. dry de print_column en cplot
+- Created at   2017-05-29 10:39:46 -0400
+- Completed at 2017-05-30 07:45:35 -0400
+- Comment      
+- Finished     
+
+## 307. opcion filter con nombres de columnas y a la vez orden de aparición
+- Created at   2017-05-28 18:06:13 -0400
+- Completed at 2017-05-30 07:45:49 -0400
+- Comment      
+- Finished     
+
+## 308. opción export en cplot que genere grid sin las 2 primeras cols
+- Created at   2017-05-26 17:32:45 -0400
+- Completed at 2017-05-30 07:46:06 -0400
+- Comment      
+- Finished     
+
+## 309. ojo con la precisión en cplot
+- Created at   2017-05-04 11:02:49 -0400
+- Completed at 2017-05-30 07:46:19 -0400
+- Comment      
+- Finished     
+
+## 310. compute de Correlation n debe retornar double
+- Created at   2017-05-25 10:52:02 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 311. fag a cplot que imprima resultados a precisión
+- Created at   2017-05-03 15:24:34 -0400
+- Completed at 2017-05-30 07:47:02 -0400
+- Comment      
+- Finished     
+
+## 312. averiguar como convertir lambda a void (*)()
+- Created at   2017-05-30 16:39:58 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 313. opción flobal dpara digits
+- Created at   2017-05-30 14:54:13 -0400
+- Completed at 2017-05-31 17:44:13 -0400
+- Comment      
+- Finished     
+
+## 314. validar nombre columna en filter
+- Created at   2017-06-01 11:57:09 -0400
+- Completed at 2017-06-01 12:33:30 -0400
+- Comment      
+- Finished     
+
+## 315. process_ow de cplot espeial para cuando hay filtro
+- Created at   2017-05-31 17:46:08 -0400
+- Completed at 2017-06-01 12:33:52 -0400
+- Comment      
+- Finished     
+
+## 316. cplot con opcion filter debe funcionar para no traspuesta
+- Created at   2017-05-31 15:59:08 -0400
+- Completed at 2017-06-01 12:34:12 -0400
+- Comment      
+- Finished     
+
+## 317. dry de conversión de uunidad en rutinas row
+- Created at   2017-05-31 21:25:57 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 318. documentar ocpiones action y property en test-cali
+- Created at   2017-05-03 16:14:39 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 319. error en legenda de ztuner
+- Created at   2017-05-31 17:53:22 -0400
+- Completed at 2017-06-02 14:53:01 -0400
+- Comment      
+- Finished     
+
+## 320. procesar invalidos en grid
+- Created at   2017-06-04 11:59:07 -0400
+- Completed at 2017-06-06 15:20:08 -0400
+- Comment      
+- Finished     
+
+## 321. falta procesar computo en grid cuando el valor no está definido
+- Created at   2017-06-06 11:35:15 -0400
+- Completed at 2017-06-06 15:20:04 -0400
+- Comment      
+- Finished     
+
+## 322. en grid métodos que reciban lista o vector de t o p
+- Created at   2017-06-06 12:56:23 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 323. tuner si escritura de archvo jon falla ==> abortar
+- Created at   2017-05-30 15:13:46 -0400
+- Completed at 2017-06-06 15:56:12 -0400
+- Comment      
+- Finished     
+
+## 324. error en legenda de ztuner
+- Created at   2017-05-31 17:53:22 -0400
+- Completed at 2017-06-06 15:56:24 -0400
+- Comment      
+- Finished     
+
+## 325. averiguar como convertir lambda a void (*)()
+- Created at   2017-05-30 16:39:09 -0400
+- Completed at 2017-06-06 16:04:22 -0400
+- Comment      
+- Finished     
+
+## 326. fluid1.json para lcal alguna rs trae arreglos incompletos
+- Created at   2017-05-31 16:50:02 -0400
+- Completed at 2017-06-06 16:05:07 -0400
+- Comment      
+- Finished     
+
+## 327. calibrar zfactor
+- Created at   2017-03-20 16:15:08 -0400
+- Completed at 2017-06-06 16:05:48 -0400
+- Comment      
+- Finished     
+
+## 328. validad que el data set tenga el mismo pb para cada vector: 
+- Created at   
+- Completed at 2017-06-06 16:06:22 -0400
+- Comment      
+- Finished     
+
+## 329. cambio unidades entrada a ztuner
+- Created at   2017-05-24 16:10:44 -0400
+- Completed at 2017-06-06 16:19:20 -0400
+- Comment      
+- Finished     
+
+## 330. añadir opción a test-corr que reciba un arreglo de t y p como en cplot y genere la matriz
+- Created at   2017-04-20 16:50:00 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 331. generar por cada correlacion método validate_and_call
+- Created at   2017-05-26 15:56:41 -0400
+- Completed at 2017-06-06 17:10:17 -0400
+- Comment      
+- Finished     
+
+## 332. dry en ValusArg::operator = de test-cali
+- Created at   2017-05-03 16:59:18 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 333. generar doxygen desde ruby
+- Created at   2017-09-03 18:44:40 -0400
+- Completed at 2017-09-10 10:52:05 -0400
+- Comment      
+- Finished     
+
+## 334. firma única de familia de correlación: que reciba union de todos los parámtros
+- Created at   2017-03-29 16:31:35 -0400
+- Completed at 
+- Comment      qu se apoye en gen-corr
+- Finished     qu se apoye en gen-corr
+
+## 335. poner opción a plotr para dibujar directamente
+- Created at   2017-09-06 09:29:36 -0400
+- Completed at 2017-09-10 10:54:35 -0400
+- Comment      
+- Finished     
+
+## 336. hacer plot R directo desde cplot
+- Created at   2017-09-06 09:29:55 -0400
+- Completed at 2017-09-09 09:43:09 -0400
+- Comment      
+- Finished     
+
+## 337. verificar error en ./tuner -f f5.json --input "bob uob"
+- Created at   2017-09-07 16:22:47 -0400
+- Completed at 2017-09-10 10:52:50 -0400
+- Comment      
+- Finished     
+
+## 338. revisa que opcion simple de grid sea equipaable a blackoil
+- Created at   2017-09-07 17:49:42 -0400
+- Completed at 2017-09-10 10:54:54 -0400
+- Comment      
+- Finished     
+
+## 339. cplot poner coa a simple 
+- Created at   2017-09-08 18:00:57 -0400
+- Completed at 2017-09-09 13:04:57 -0400
+- Comment      
+- Finished     
+
+## 340. en tuner opcion que genere el grid
+- Created at   2017-09-08 18:04:32 -0400
+- Completed at 2017-09-09 13:04:47 -0400
+- Comment      
+- Finished     
+
+## 341. 
+- Created at   2017-09-11 15:43:37 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 342. añadir xfactor a generación de cplot desde tuner
+- Created at   2017-09-07 17:19:36 -0400
+- Completed at 2017-09-11 17:42:18 -0400
+- Comment      
+- Finished     
+
+## 343. =======
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 344. >>>>>>> 80a2507d55eead61fcf4247f59932bb61fbc2de6
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 345. revisar diagostico f5 Lopez para pb Perez para Rs
+- Created at   2017-09-14 16:18:30 -0400
+- Completed at 2017-09-15 10:36:33 -0400
+- Comment      
+- Finished     
+
+## 346. revisar diagostico f5 Lopez para pb Perez para Rs
+- Created at   2017-09-14 16:22:21 -0400
+- Completed at 2017-09-15 10:36:26 -0400
+- Comment      
+- Finished     
+
+## 347. generar grid desde tuner
+- Created at   2017-09-13 17:34:04 -0400
+- Completed at 2017-09-15 10:36:46 -0400
+- Comment      
+- Finished     
+
+## 348. <<<<<<< HEAD
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 349. en pvt-calibrate cambiar tuplas por struct
+- Created at   2017-09-16 16:13:03 -0400
+- Completed at 2017-09-16 16:13:31 -0400
+- Comment      
+- Finished     
+
+## 350. pbstats y uodstats deben usar tipo StatsDesc
+- Created at   2017-09-16 11:03:21 -0400
+- Completed at 2017-09-16 18:50:12 -0400
+- Comment      
+- Finished     
+
+## 351. input opcion en tuner debe permitir poner varios arreglos de entrada
+- Created at   2017-09-10 10:51:58 -0400
+- Completed at 2017-09-11 17:42:10 -0400
+- Comment      
+- Finished     
+
+## 352. revisar por qué corta columnas en ./tuner -f f5.json --input "bob uob" --lcal "BobSalazar BobPerezML"
+- Created at   2017-09-11 11:42:27 -0400
+- Completed at 2017-09-17 21:01:00 -0400
+- Comment      
+- Finished     
+
+## 353. error en input bob rs es parametro fuera de rango
+- Created at   2017-09-07 17:01:01 -0400
+- Completed at 2017-09-17 21:01:19 -0400
+- Comment      
+- Finished     
+
+## 354. para tuner opcion automática que genere todos los parámetros según r2 y threshld
+- Created at   2017-09-16 16:12:50 -0400
+- Completed at 2017-09-17 20:51:39 -0400
+- Comment      
+- Finished     
+
+## 355. =======
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 356. >>>>>>> 0cd61315775fbae5fbff5cb94b048b98dfcdacfc
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 357. <<<<<<< HEAD
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 358. para tuner y ztuner opcion que imprima data de regresión
+- Created at   2017-09-19 17:20:38 -0400
+- Completed at 2017-09-24 12:41:56 -0400
+- Comment      
+- Finished     
+
+## 359. opcion ban de tuner dee afectar a apply
+- Created at   2017-09-22 19:55:50 -0400
+- Completed at 2017-09-25 15:08:14 -0400
+- Comment      
+- Finished     
+
+## 360. auto modes por mse
+- Created at    sigma
+- Completed at 2017-09-25 15:07:58 -0400
+- Comment      2017-09-24 12:39:47 -0400
+- Finished     2017-09-24 12:39:47 -0400
+
+## 361. ban con lista
+- Created at   2017-09-24 12:40:00 -0400
+- Completed at 2017-09-25 15:08:06 -0400
+- Comment      
+- Finished     
+
+## 362. dry de stats en corr-stats que ya están en lfit
+- Created at   2017-09-26 09:31:35 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 363. r2 debe ir en lfit
+- Created at   2017-09-25 21:10:00 -0400
+- Completed at 2017-09-26 10:08:09 -0400
+- Comment      
+- Finished     
+
+## 364. Revisar calculo de zfactor
+- Created at   2017-09-19 17:14:18 -0400
+- Completed at 2017-09-26 10:08:27 -0400
+- Comment      
+- Finished     
+
+## 365. eliminar tuplas como estructuctura y sustituirlas por struct
+- Created at   2017-09-12 13:16:12 -0400
+- Completed at 2017-09-26 10:12:23 -0400
+- Comment      
+- Finished     
+
+## 366. corregir abs por fabs y r2 en tuner
+- Created at   2017-09-26 09:51:33 -0400
+- Completed at 2017-09-26 10:07:47 -0400
+- Comment      
+- Finished     
+
+## 367. ztuner: número de digito de doubel como parametrod default 17
+- Created at   2017-09-26 09:24:49 -0400
+- Completed at 2017-09-26 10:19:37 -0400
+- Comment      
+- Finished     
+
+## 368. poner r2 en eporte solve de ztuner
+- Created at   2017-09-22 15:30:02 -0400
+- Completed at 2017-09-26 10:19:54 -0400
+- Comment      
+- Finished     
+
+## 369. comb_list debe ser una lista no un array
+- Created at   2017-09-25 18:54:15 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 370. uto debe usar uob sin calibrar en caso de tener coa
+- Created at   2017-09-19 17:48:24 -0400
+- Completed at 2017-09-26 16:51:43 -0400
+- Comment      
+- Finished     
+
+## 371. input opcion en tuner debe permitir poner varios arreglos de entrada
+- Created at   2017-09-10 10:51:58 -0400
+- Completed at 2017-09-26 16:53:10 -0400
+- Comment      
+- Finished     
+
+## 372. variables globales para propiedades; de ese modo evitaos macros
+- Created at   2017-07-14 15:35:47 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 373. bounds de lazos en cplot
+- Created at   2017-09-26 10:12:11 -0400
+- Completed at 2017-09-29 15:53:11 -0400
+- Comment      
+- Finished     
+
+## 374. forzar a que regresion de uod de cero en ptos negativos
+- Created at   2017-09-16 16:52:40 -0400
+- Completed at 2017-09-29 14:51:21 -0400
+- Comment      
+- Finished     
+
+## 375. acelerar clot folding c-pb y m-pm-arg
+- Created at   2017-09-14 17:07:29 -0400
+- Completed at 2017-09-29 15:59:21 -0400
+- Comment      
+- Finished     
+
+## 376.  
+- Created at   2017-10-04 14:15:52 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 377. test-grid debe recibir puntos exprimentales y calcular el error
+- Created at   2017-09-13 10:11:06 -0400
+- Completed at 2017-09-17 20:57:35 -0400
+- Comment      
+- Finished     
+
+## 378. --ban CoaHanafy no está funcionando
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 379. predicado is_near en unidades
+- Created at   2017-10-30 14:43:39 -0400
+- Completed at 2017-10-31 12:04:00 -0400
+- Comment      
+- Finished     
+
+## 380. en list corr coa va antes que boa
+- Created at   
+- Completed at 2017-10-31 12:12:28 -0400
+- Comment      
+- Finished     
+
+## 381. calibración global
+- Created at   2017-04-26 16:38:18 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 382. dry de process_uod_calibration y process_pb_calibration
+- Created at   2017-05-08 16:14:55 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 383. UodKartoatmodjoSchmidt puede arrojar valores egativos
+- Created at   2017-10-28 19:08:51 -0400
+- Completed at 2017-10-31 12:15:09 -0400
+- Comment      
+- Finished     
+
+## 384. pb exp con auto
+- Created at   2017-10-10 16:27:25 -0400
+- Completed at 2017-10-31 12:34:08 -0400
+- Comment      
+- Finished     
+
+## 385. pbcal y uodcl deben estar en lcal
+- Created at   2017-09-11 15:12:36 -0400
+- Completed at 2017-10-31 12:34:18 -0400
+- Comment      
+- Finished     
+
+## 386. cambiar tupla Sample por struct
+- Created at   2017-10-10 09:11:07 -0400
+- Completed at 2017-10-31 12:34:37 -0400
+- Comment      
+- Finished     
+
+## 387. documentar formatos de property en tuner
+- Created at   2017-10-04 15:41:04 -0400
+- Completed at 2017-10-08 20:33:50 -0400
+- Comment      
+- Finished     
+
+## 388. scripts ruby
+- Created at   2017-11-02 09:55:44 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 389. scripts ruby
+- Created at   2017-11-02 10:13:36 -0400
+- Completed at 2017-11-02 10:51:42 -0400
+- Comment      
+- Finished     
+
+## 390. valores calibrados deben estar dentro de rangos de unidad
+- Created at   2017-11-01 15:27:36 -0400
+- Completed at 2017-11-02 10:51:51 -0400
+- Comment      
+- Finished     
+
+## 391. asegurar que unidades de stats sean iguales
+- Created at   2017-10-29 17:15:32 -0400
+- Completed at 2017-11-02 10:53:31 -0400
+- Comment      
+- Finished     
+
+## 392. calibrar con vectores retornados por cascada de correlaciones
+- Created at   2017-10-10 16:51:44 -0400
+- Completed at 2017-11-02 10:53:52 -0400
+- Comment      
+- Finished     
+
+## 393. eliminar entrada de bo
+- Created at   2017-06-20 14:54:33 -0400
+- Completed at 2017-11-02 10:54:13 -0400
+- Comment      
+- Finished     
+
+## 394. poner ptos experimentales en opción de Cplot
+- Created at   2017-10-10 09:25:30 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 395. put_pb_sample falta conversion
+- Created at   2017-09-11 16:53:37 -0400
+- Completed at 2017-11-02 10:55:32 -0400
+- Comment      
+- Finished     
+
+## 396. documentar más cplot
+- Created at   2017-09-06 09:31:57 -0400
+- Completed at 2017-11-02 10:55:44 -0400
+- Comment      
+- Finished     
+
+## 397. grid pvt debe extrapolar
+- Created at   2017-09-08 18:29:26 -0400
+- Completed at 2017-11-02 11:02:44 -0400
+- Comment      
+- Finished     
+
+## 398. dry de put_pbuod_sample
+- Created at   2017-09-11 16:24:26 -0400
+- Completed at 2017-11-02 11:02:31 -0400
+- Comment      
+- Finished     
+
+## 399. correlaciones pueden agruparsepor subtipo
+- Created at   2017-03-23 12:25:40 -0400
+- Completed at 2017-11-02 11:02:58 -0400
+- Comment      
+- Finished     
+
+## 400. tomar corr pb si stá definida para calibración de rs
+- Created at   2017-10-09 16:35:19 -0400
+- Completed at 2017-11-02 11:03:24 -0400
+- Comment      
+- Finished     
+
+## 401. validar en auto cuando auto_apply retorne lista vacía
+- Created at   2017-11-03 18:15:43 -0400
+- Completed at 2017-11-03 19:01:27 -0400
+- Comment      
+- Finished     
+
+## 402. can_be_applied y list_restrictions deben considerar bobp y uobp
+- Created at   2017-11-07 15:38:46 -0400
+- Completed at 2017-11-07 20:47:54 -0400
+- Comment      
+- Finished     
+
+## 403. reporte de lcal debe estar en la mism unidad de datos
+- Created at   2017-11-06 15:03:46 -0400
+- Completed at 2017-11-07 20:47:58 -0400
+- Comment      
+- Finished     
+
+## 404. evaluar correlación si llamara precondiciones (desde ruby)
+- Created at   2017-11-03 16:13:52 -0400
+- Completed at 2017-11-07 20:48:04 -0400
+- Comment      
+- Finished     
+
+## 405. considerar eliminar precondicion en CoaPerezML
+- Created at   2017-11-03 12:32:20 -0400
+- Completed at 2017-11-07 20:48:08 -0400
+- Comment      
+- Finished     
+
+## 406. ojo con el pb max: podría calibarse por debajo
+- Created at   2017-11-01 17:20:28 -0400
+- Completed at 2017-11-07 20:48:19 -0400
+- Comment      
+- Finished     
+
+## 407. ptos experimentales en gráfica para plot-r
+- Created at   2017-10-10 16:23:34 -0400
+- Completed at 2017-11-08 08:44:34 -0400
+- Comment      
+- Finished     
+
+## 408. asegurar que uod siempre esté en C
+- Created at   2017-11-02 15:33:25 -0400
+- Completed at 2017-11-08 08:44:48 -0400
+- Comment      
+- Finished     
+
+## 409. añadir un modo de lista de excepciones para ttuner
+- Created at   2017-11-04 13:32:58 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 410. cplot unidades de caliracion para rs
+- Created at    bob
+- Completed at  boa
+- Comment       coa
+- Finished      coa
+
+## 411. cuando haya más de un vector para la misma propiedad la unidad es la misma
+- Created at   2017-11-09 15:47:52 -0400
+- Completed at 2017-11-09 21:33:10 -0400
+- Comment      
+- Finished     
+
+## 412. poner columna adicional en lcal con consulta al vector de presión
+- Created at   2017-11-09 10:19:38 -0400
+- Completed at 2017-11-09 21:33:24 -0400
+- Comment      
+- Finished     
+
+## 413. casar unidades de vectores a las de la propiedad
+- Created at   2017-11-09 21:40:24 -0400
+- Completed at 2017-11-11 11:30:54 -0400
+- Comment      
+- Finished     
+
+## 414. los arreglos de partida en inputing son uob y uoa
+- Created at   2017-11-09 12:44:04 -0400
+- Completed at 2017-11-11 11:31:35 -0400
+- Comment      
+- Finished     
+
+## 415. cplot unidades de caliracion para rs bob boa coa uob y uoa
+- Created at   2017-11-09 21:24:16 -0400
+- Completed at 2017-11-11 11:34:30 -0400
+- Comment      
+- Finished     
+
+## 416. verificar que yunit siempre sea la misma cuando hay varios arreglos
+- Created at   2017-11-09 15:45:13 -0400
+- Completed at 2017-11-11 11:40:57 -0400
+- Comment      
+- Finished     
+
+## 417. unificar unidades en estadísticas lcal
+- Created at   2017-10-31 12:36:52 -0400
+- Completed at 2017-11-11 12:09:03 -0400
+- Comment      
+- Finished     
+
+## 418. correlación que esté seteada no debe contar para auto
+- Created at   2017-10-10 16:27:53 -0400
+- Completed at 2017-11-12 11:08:30 -0400
+- Comment      
+- Finished     
+
+## 419. mas decimales en apply
+- Created at   2017-11-13 15:18:36 -0400
+- Completed at 2017-11-14 11:59:27 -0400
+- Comment      
+- Finished     
+
+## 420. Revisar f5 calculo de ubo en auto
+- Created at   2017-11-14 20:12:57 -0400
+- Completed at 2017-11-15 10:59:23 -0400
+- Comment      
+- Finished     
+
+## 421. precision en matriz
+- Created at   2017-10-30 08:43:57 -0400
+- Completed at 2017-11-15 10:59:36 -0400
+- Comment      
+- Finished     
+
+## 422. en salida R ttuner está imprimiendo vector de presion
+- Created at   2017-11-15 10:59:08 -0400
+- Completed at 2017-11-16 08:44:48 -0400
+- Comment      
+- Finished     
+
+## 423. dry de add_correlation result_unit en define-correlation
+- Created at   2017-11-14 15:28:26 -0400
+- Completed at 2017-11-16 08:54:21 -0400
+- Comment      
+- Finished     
+
+## 424. rutina que cambie el pb sin alterar el orden
+- Created at   2017-11-14 12:02:40 -0400
+- Completed at 2017-11-16 08:54:43 -0400
+- Comment      
+- Finished     
+
+## 425. minimo uo es mínimo de salida correlación dónde haya author
+- Created at   2017-11-17 15:19:48 -0400
+- Completed at 2017-11-18 16:10:53 -0400
+- Comment      
+- Finished     
+
+## 426. mejorar msg error de test-corr sin parámetros
+- Created at   2017-11-17 19:28:55 -0400
+- Completed at 2017-11-18 16:34:31 -0400
+- Comment      
+- Finished     
+
+## 427. minimo máximo author par salida de correlción
+- Created at   2017-11-17 15:18:17 -0400
+- Completed at 2017-11-18 16:34:44 -0400
+- Comment      
+- Finished     
+
+## 428. ojo con el limite inferiro de unidad viscosidad
+- Created at   2017-11-12 18:14:01 -0400
+- Completed at 2017-11-18 16:34:53 -0400
+- Comment      
+- Finished     
+
+## 429. cplot como funcion de biblioteca
+- Created at   2017-10-10 16:52:41 -0400
+- Completed at 2017-11-19 08:54:58 -0400
+- Comment      
+- Finished     
+
+## 430. dry de min_uo_val
+- Created at   2017-11-21 15:55:47 -0400
+- Completed at 2017-11-22 17:44:30 -0400
+- Comment      
+- Finished     
+
+## 431. opcion que salve en nuevo archivo
+- Created at   2017-11-08 10:29:03 -0400
+- Completed at 2017-11-22 17:44:51 -0400
+- Comment      
+- Finished     
+

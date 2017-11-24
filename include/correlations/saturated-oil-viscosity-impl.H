@@ -11,8 +11,9 @@ UobBeggsRobinson::impl(const double & uod,
   const double a = 10.715 * pow(rs + 100, -0.515);
   const double b = 5.44 * pow(rs + 150, -0.338);
 
-  const double uob = a * pow(uod, b);
+  double uob = a * pow(uod, b);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -23,8 +24,9 @@ UobChewConnally::impl(const double & uod,
   const double a = pow(10, rs * (2.2e-7*rs - 7.4e-4));
   const double b = 0.68 /pow(10, 8.62e-5*rs) + 0.25/pow(10, 1.1e-3*rs) +
     0.062/ pow(10, 3.74e-3*rs);
-  const double uob = a * pow(uod, b);
+  double uob = a * pow(uod, b);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -56,8 +58,9 @@ UobKhan::impl(const double & rsb,
         
   const double uo_bubble = a / (b*c*d); // Bubble Point Oil Viscosity [cp] 
 
-  const double uob = uo_bubble * pow(p/pb,-0.14) * exp(-2.5e-4*(p - pb));
+  double uob = uo_bubble * pow(p/pb,-0.14) * exp(-2.5e-4*(p - pb));
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -71,8 +74,9 @@ UobKartoatmodjoSchmidt::impl(const double & uod,
         
   const double f = a * b;
         
-  const double uob = -0.06821 + 0.9824*f + 0.0004034*f*f;
+  double uob = -0.06821 + 0.9824*f + 0.0004034*f*f;
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -82,8 +86,9 @@ UobPetroskyFarshad::impl(const double & uod,
 {
   const double a = 0.1651 + 0.6165*pow(10, -6.0866e-4*rs);
   const double b = 0.5131 + 0.5109 * pow(10, -1.1831e-3*rs);
-  const double uob = a * pow(uod, b);
+  double uob = a * pow(uod, b);
   
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -93,8 +98,9 @@ UobPerezML::impl(const double & uod,
 {
   const double b = 0.5704 + 0.4296 * pow(10, -0.00180*rs);
         
-  const double uob = pow(uod, b);
+  double uob = pow(uod, b);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -105,8 +111,9 @@ UobGilFonseca::impl(const double & uod,
   const double a = 0.76922 + 0.2244*pow(10, -0.0139 * rs);
   const double b = 0.10563 + 0.89405*pow(10, -0.00057 * rs);
         
-  const double uob = a*pow(uod, b);
+  double uob = a*pow(uod, b);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -131,6 +138,7 @@ UobDeGhettoEtAl::impl(const double & uod,
       uob = -0.6311 + 1.078*f + 0.003653*f*f;
     }
 
+  uob = max(0.0, uob);
   return uob;
 }
 
@@ -153,10 +161,64 @@ UobDindorukChristman::impl(const double & uod,
         
   const double b = a6/exp(a7*rs) + a8*pow(rs, a9)/exp(a10*rs);
         
-  const double uob = a * pow(uod, b);
+  double uob = a * pow(uod, b);
 
+  uob = max(0.0, uob);
   return uob;
 }
 
+inline double
+UobLopezCR::impl(const double & rs,
+		 const double & api,
+		 const double & t,
+		 const double & p) noexcept
+{
+  constexpr double a1 = 15.2127;
+  constexpr double a2 = -0.0339308;
+  constexpr double a3 = -0.000113009;
+  constexpr double a4 = -0.00194864;
+  constexpr double a5 = -0.374708;
+   
+  double uob = exp(a1 +  a2 * t + a3 * p + a4 * rs + a5 * api);
+
+  uob = max(0.0, uob);
+  return uob;
+}
+
+inline double
+UobLopezCRHigherT::impl(const double & rs,
+		 	 const double & api,
+		 	 const double & t,
+		 	 const double & p) noexcept
+{
+  constexpr double a1 = 4.20953;
+  constexpr double a2 = 0.0123087;
+  constexpr double a3 = 0.00011787;
+  constexpr double a4 = -0.00930884;
+  constexpr double a5 = -0.190943;
+   
+  double uob = exp(a1 +  a2 * t + a3 * p + a4 * rs + a5 * api);
+
+  uob = max(0.0, uob);
+  return uob;
+}
+
+inline double
+UobSalazar::impl(const double & bob,
+		 const double & api,
+		 const double & t,
+		 const double & p) noexcept
+{
+  constexpr double a1 = 23.487;
+  constexpr double a2 = -0.001;
+  constexpr double a3 = -0.035;
+  constexpr double a4 = -6.669;
+  constexpr double a5 = -0.439;
+   
+  double uob = exp(a1 +  a2 * p + a3 * t + a4 * bob + a5 * api);
+
+  uob = max(0.0, uob);
+  return uob;
+}
 
 # endif // SATURATED_OIL_VISCOSITY_IMPL_H

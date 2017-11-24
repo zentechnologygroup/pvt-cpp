@@ -125,12 +125,13 @@ end_correlation()
 ## verificada con python
 begin_correlation("UodPerezML", "DeadOilViscosity", "CP")
 add_title("PÉREZ, HENY & LAGO CORRELATION (MODIFIED BEGGS & ROBINSON CORRELATION), CALCULATION OF DEAD OIL VISCOSITY")
+add_note("Pérez, Heny & Lago correlation (modified Beggs & Robinson correlation), calculation of dead oil viscosity.")
 add_parameter("api", "Api", "API oil gravity",  6.4,  12.9)
 add_parameter("t", "Fahrenheit", "Temperature",  112,  300)
 add_author("Pérez, Heny & Lago")
 add_ref("perez:2001")
-add_internal_note("The correlation could not be verified because the original reference is not available. Date: September 1 2016.")
-set_hidden()
+add_internal_note("The correlation was verified by using the original reference (Pérez, Heny & Lago, 2001). Date: October 02 2017.")
+#set_hidden()
 end_correlation()
 
 ################################################################

@@ -3,6 +3,7 @@
 # define PassCDebugFlags
 
 ALEPHW = $(shell echo $$ALEPHW)
+ZEN = $(shell echo $$ZEN)
 
 SUBDIRS = include lib tests backend profile
 

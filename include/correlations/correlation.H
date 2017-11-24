@@ -1,4 +1,8 @@
-
+/** This file contains the base machinery needed for calculating pvt
+   correlations
+   
+   Aleph-w Leandro Rabindranath Leon
+ */
 # ifndef CORRELATION_H
 # define CORRELATION_H
 
@@ -13,10 +17,11 @@
 
 # include <utils.H>
 
-# include <units/pvt-units.H>
+# include <pvt-units.H>
 # include <biblio.H>
 
-# include "pvt-exceptions.H"
+# include <pvt-units.H>
+# include <pvt-exceptions.H>
 
 # include "par-list.H"
 
@@ -179,6 +184,7 @@ public:
   }
 };
 
+
 struct Correlation
 {
   const string type_name;
@@ -189,15 +195,21 @@ struct Correlation
   const Unit & unit;
   const double min_val;
   const double max_val;
+  mutable bool min_from_author = false;
+  mutable bool max_from_author = false;
   mutable string title;
   mutable DynList<string> db;
   mutable DynList<string> notes;
   mutable DynList<const BibEntry*> refs;
   mutable bool hidden = false; // indicates whether correlation is or not hidden
   mutable bool hidden_calc = false;
-  mutable bool hidden_grid = false;
+  mutable bool hidden_blackoil_grid = false;
+  mutable bool hidden_drygas_grid = false;
+  mutable bool hidden_wetgas_grid = false;
   mutable long id = -1;
   mutable string __target_name = "NOT-DEFINED";
+
+  mutable DynSetTree<string> par_names;
 
 private:
 
@@ -219,6 +231,12 @@ public:
   /// Returns the correlation target name
   const string & target_name() const { return __target_name; }
 
+  string author_name() const
+  {
+    auto pos = name.find(::to_name(__target_name));
+    return name.substr(pos + __target_name.size());
+  }
+
   // Returns the parameters names in the declaration order
   DynList<string> parameters_signature() const
   {
@@ -235,6 +253,11 @@ public:
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
       ret.append(it.get_curr().name);
     return ret;
+  }
+
+  const DynSetTree<string> & parameter_names() const
+  {
+    return par_names;
   }
 
   DynList<CorrelationPar::P> synonyms() const
@@ -292,7 +315,7 @@ private:
     return const_cast<CorrelationPar*>(par_ptr);
   }
 
-  public:
+public:
 
   static DynList<pair<string, string>> latex_symbols()
   {
@@ -312,6 +335,7 @@ private:
   {
     auto par_ptr = search_parameter(par_name);
     par_ptr->add_synonym(synonym, unit_name);
+    par_names.append(synonym);
   }
 
   void def_parameter_latex_symbol(const string & par_name,
@@ -321,11 +345,19 @@ private:
     par_ptr->def_latex_symbol(latex_symbol);
   }
 
-  void set_hidden() { hidden = hidden_calc = hidden_grid = true; }
+  void set_hidden()
+  {
+    hidden = hidden_calc = hidden_blackoil_grid = hidden_drygas_grid =
+      hidden_wetgas_grid = true;
+  }
 
   void set_hidden_calc() { hidden_calc = true; }
 
-  void set_hidden_grid() { hidden_grid = true; }
+  void set_hidden_blackoil_grid() { hidden_blackoil_grid = true; }
+
+  void set_hidden_drygas_grid() { hidden_drygas_grid = true; }
+
+  void set_hidden_wetgas_grid() { hidden_wetgas_grid = true; }
 
   static string json_of_all_correlations();
 
@@ -512,11 +544,12 @@ protected:
 
   Correlation(const string & type_name, const string & subtype_name,
 	      const string & name, const string & latex_symbol,
-	      const Unit & result_unit,
-	      double min_val, double max_val)
+	      const Unit & result_unit, double min_val, double max_val,
+	      bool min_from_author, bool  max_from_author)
     : type_name(type_name), subtype_name(subtype_name), name(name),
       latex_symbol(latex_symbol), unit(result_unit),
-      min_val(min_val), max_val(max_val)
+      min_val(min_val), max_val(max_val),
+      min_from_author(min_from_author), max_from_author(max_from_author)
   {
     if (tbl.has(name))
       {
@@ -535,15 +568,18 @@ protected:
 	      const string & name, const string & latex_symbol,
 	      const Unit & result_unit)
     : Correlation(type_name, subtype_name, name, latex_symbol, result_unit,
-		  result_unit.min_val, result_unit.max_val) {}
+		  result_unit.min_val, result_unit.max_val, false, false) {}
 
   Correlation(const string & type_name, const string & subtype_name,
 	      const string & name, const string & latex_symbol,
 	      const Unit & result_unit, double min_val)
     : Correlation(type_name, subtype_name, name, latex_symbol,
-		  result_unit, min_val, result_unit.max_val) {}
+		  result_unit, min_val, result_unit.max_val, true, false)
+  {
+    min_from_author = true;
+  }
 
-  virtual ~Correlation() = 0; // Correlation is abstract
+  virtual ~Correlation() = 0; // Correlation is an abstract class
 
   CorrelationPar &
   add_parameter(const string & name, const Unit & unit,
@@ -563,6 +599,7 @@ protected:
     CorrelationPar par(name, unit, description, min, max);
     CorrelationPar & ret = preconditions.append(move(par));
     ++n;
+    par_names.append(name);
     return ret;
   }
 
@@ -621,6 +658,14 @@ public:
       << ::to_string(mat);
 
     return s.str();
+  }
+
+  /// Return correlation signature in a dynlist
+  DynList<string> to_dynlist() const
+  {
+    DynList<string> ret = { name };
+    ret.append(preconditions.maps<string>([] (auto & p) { return p.to_string(); }));
+    return ret;
   }
 
   static string ruby_class()
@@ -737,18 +782,18 @@ public:
 	const auto result = compute(pars, check);
 	auto status = check_result(VtlQuantity(unit, result));
 	if (status)
-	  return make_tuple(result.raw(), unit.symbol, true, "");
+	  return make_tuple(result.raw(), unit.name, true, "");
 
 	ostringstream s;
 	s << "Correlation result " << result << " is out of range ["
 	  << min_val << ", " << max_val << "]";
 	OutOfCorrelationRange e(__LINE__, __FILE__, "OutOfCorrelationRange",
 				s.str().c_str());
-	return make_tuple(result.raw(), unit.symbol, false, e.what());
+	return make_tuple(result.raw(), unit.name, false, e.what());
       }
     catch (exception &e)
       {
-	return make_tuple(0, unit.symbol, false, e.what());
+	return make_tuple(0, unit.name, false, e.what());
       }
   }
 
@@ -784,7 +829,7 @@ public:
 
   using ParByName = pair<string, double>;
 
-  /// Compute correlation by receiving an unseorted list of pair par-name,value
+  /// Compute correlation by receiving an unsorted list of pair par-name,value
   VtlQuantity
   compute_by_names(const DynList<ParByName> & pair_list,
 		   bool check = true) const
@@ -816,6 +861,12 @@ public:
   }
 
   using NamedPar = tuple<bool, string, double, const Unit*>;
+
+  static NamedPar
+  build_names_par(const string & name, double val, const Unit * uptr)
+  {
+    return NamedPar(true, name, val, uptr);
+  }
 
   VtlQuantity compute_by_names(const DynList<NamedPar> & pair_list,
 			       bool check = true) const
@@ -858,42 +909,58 @@ public:
   {
     DynList<VtlQuantity> vals;
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
-      vals.append(par_list(it.get_curr().names()));
+      {
+	auto & par = it.get_curr();
+	VtlQuantity val = par_list.search(par.names());
+	vals.append(val);
+      }
 
     return compute(vals, check);
   }
-  
-  VtlQuantity tuned_compute_and_check(const DynList<VtlQuantity> & pars,
-				      double c, double m,
-				      bool check = true) const
-  {
-    return verify_result(VtlQuantity(unit, c + m*compute(pars, check).raw()));
-  }
 
-  tuple<double, string, bool, string> tuned_execute(DynList<VtlQuantity> & pars,
-						    double c, double m,
-						    bool check = true) const
+  template <typename ... Args>
+  VtlQuantity
+  compute_by_names(bool check, ParList & par_list, Args & ...  args) const
   {
+    insert_in_container(par_list, args...);
     try
       {
-	const auto result = c + m*compute(pars, check).raw();
-	auto status = check_result(VtlQuantity(unit, result));
-	if (status)
-	  return make_tuple(result, unit.symbol, true, "");
-
-	ostringstream s;
-	s << "Correlation result " << result << " is out of range ["
-	  << min_val << ", " << max_val << "]";
-	return make_tuple(result, unit.symbol, false, s.str());
+	VtlQuantity ret = compute_by_names(par_list, check);
+	remove_from_container(par_list, args...);
+	return ret;
       }
-    catch (exception &e)
+    catch (...)
       {
-	return make_tuple(0, unit.symbol, false, e.what());
+	remove_from_container(par_list, args...);
       }
+  }
+
+  static VtlQuantity tune(const VtlQuantity & val,
+			  double c, double m, const Unit & tuned_unit)
+  {
+    double r = bind_to_unit_limits(c + m*VtlQuantity(tuned_unit, val).raw(),
+				   tuned_unit);
+    return VtlQuantity(val.unit, VtlQuantity(tuned_unit, r));
+    
+  }
+
+  VtlQuantity tuned_compute_and_check(const DynList<VtlQuantity> & pars,
+				      double c, double m, const Unit & tuned_unit,
+				      bool check = true) const
+  {
+    return tune(compute(pars, check), c, m, tuned_unit);
+  }
+
+  tuple<double, string, bool, string>
+  tuned_execute(DynList<VtlQuantity> & pars, double c, double m,
+		const Unit & tuned_unit, bool check = true) const
+  {
+    VtlQuantity r = VtlQuantity(tuned_unit, c + m*compute(pars, check).raw());
+    return make_tuple(r.raw(), unit.name, true, "");
   }
 
   double tuned_compute(const DynList<double> & values, double c, double m,
-		       bool check = true) const
+		       const Unit & tuned_unit, bool check = true) const
   {
     DynList<VtlQuantity> pars;
     auto it = get_pair_it(preconditions, values);
@@ -913,36 +980,89 @@ public:
 	ZENTHROW(InvalidNumberOfParameters, s.str());
       }
 
-    VtlQuantity ret = { unit, c + m*compute(pars, check).raw() };
+    VtlQuantity ret = tune(compute(pars, check), c, m, tuned_unit);
     return ret.raw();
   }
 
   VtlQuantity
   tuned_compute_by_names(const DynList<ParByName> & pair_list,
-			 double c, double m, bool check = true) const
+			 double c, double m, const Unit & tuned_unit,
+			 bool check = true) const
   {
-    return VtlQuantity(unit, c + m*compute_by_names(pair_list, check).raw());
+    return tune(compute_by_names(pair_list, check), c, m, tuned_unit);
   }
 
   VtlQuantity
   tuned_compute_by_names(const DynList<NamedPar> & pair_list,
-			 double c, double m, bool check = true) const
+			 double c, double m, const Unit & tuned_unit,
+			 bool check = true) const
   {
-    return VtlQuantity(unit, c + m*compute_by_names(pair_list, check).raw());
+    return tune(compute_by_names(pair_list, check), c, m, tuned_unit);
   }
 
   VtlQuantity
   tuned_compute_by_names(const ParList & par_list,
-			 double c, double m, bool check = true) const
+			 double c, double m, const Unit & tuned_unit,
+			 bool check = true) const
   {
-    return VtlQuantity(unit, c + m*compute_by_names(par_list, check).raw());
+    return tune(compute_by_names(par_list, check), c, m, tuned_unit);
   }
 
-  double
-  tuned_compute_and_check(const DynList<double> & pars, double c, double m,
-			  bool check = true) const
+  VtlQuantity
+  bounded_tuned_compute_by_names(const DynList<ParByName> & par_list,
+				 const VtlQuantity & min_val,
+				 const VtlQuantity & max_val,
+				 double c, double m, const Unit & tuned_unit,
+				 bool check = true) const
   {
-    return verify_result(VtlQuantity(unit, c + m*compute(pars, check))).raw();
+    const double result =
+      tune(compute_by_names(par_list, check), c, m, tuned_unit).raw();
+    if (result < min_val)
+      return min_val;
+    if (result > max_val)
+      return max_val;
+    return VtlQuantity(unit, result);
+  }
+
+  VtlQuantity
+  bounded_tuned_compute_by_names(const DynList<NamedPar> & par_list,
+				 const VtlQuantity & min_val,
+				 const VtlQuantity & max_val,
+				 double c, double m, const Unit & tuned_unit,
+				 bool check = true) const
+  {
+    const double result =
+      tune(compute_by_names(par_list, check), c, m, tuned_unit).raw();
+     if (result < min_val)
+      return min_val;
+    if (result > max_val)
+      return max_val;
+    return VtlQuantity(unit, result);
+  }
+
+  VtlQuantity
+  bounded_tuned_compute_by_names(const ParList & par_list,
+				 const VtlQuantity & min_val,
+				 const VtlQuantity & max_val,
+				 double c, double m, const Unit & tuned_unit,
+				 bool check = true) const
+  {
+    const double result =
+      tune(compute_by_names(par_list, check), c, m, tuned_unit).raw();
+    if (result < min_val)
+      return min_val;
+    if (result > max_val)
+      return max_val;
+    return VtlQuantity(unit, result);
+  }
+
+  VtlQuantity
+  bounded_tuned_compute_by_names(const ParList & par_list,
+				 double c, double m, const Unit & tuned_unit,
+				 bool check = true) const
+  {
+    return bounded_tuned_compute_by_names(par_list, unit.min(), unit.max(),
+					  c, m, tuned_unit, check);
   }
 
   /** return a list of validated and adequately converted correlation
@@ -960,15 +1080,16 @@ public:
 	auto p = it.get_curr();
 	const auto & precondition = get<0>(p);
 	const string & par_name = precondition.name;
-	const auto & par = get<1>(p);
+	const VtlQuantity & par = get<1>(p);
 	if (not (par_name == "p" or par_name == "t") and // TODO lista hash
 	    not precondition.check(par))
 	  {
 	    auto i = get<2>(p) + 1;
 	    ostringstream s;
-	    s << "Parameter " << i << " (" << par_name << " = " << par
-	      << ") in correlation " << name 
-	      << " does not satisfy application development range"; 
+	    s << "Parameter " << i << " (" << par_name << " = " << par.raw()
+	      << " " << par.unit.name << ") in correlation " << name 
+	      << " does not satisfy application development range ["
+	      << precondition.min_val << ", " << precondition.max_val << "]";
 	    ZENTHROW(OutOfParameterRange, s.str());
 	  }
       }
@@ -990,9 +1111,9 @@ public:
     if (result.get_value() < min_val or result.get_value() > max_val)
       {
 	ostringstream s;
-	s << "In correlation " << name << " " << subtype_name << " " << type_name
-	  << " : return value (" << result.get_value() << " "
-	  << result.unit.symbol << ") is out of range ["
+	s << "In correlation " << name << " " << subtype_name << " "
+	  << type_name << " : return value (" << result.get_value() << " "
+	  << result.unit.name << ") is out of range ["
 	  << min_val << ", " << max_val << "] defined for the correlation";
 	ZENTHROW(OutOfCorrelationRange, s.str());
       }
@@ -1016,50 +1137,36 @@ public:
 					    });
     return names.keys();
   }
+
+  /// Return all the parameter names associated to all correlations
+  /// involving target_name
+  static DynList<string> all_parameter_names(const string & target_name)
+  {
+    const DynList<const Correlation*> corr_list =
+      correlations_tbl.filter([&target_name] (auto ptr)
+			      {
+				return ptr->target_name() == target_name;
+			      });
+    DynSetTree<string> names;
+    for (auto i = corr_list.get_it(); i.has_curr(); i.next())
+      for (auto it = i.get_curr()->par_names.get_it(); it.has_curr(); it.next())
+	names.append(it.get_curr());
+    return names.keys();
+  }
 };
 
 inline Correlation::~Correlation() {}
-
-class CorrelationInvoker
-{
-  const Correlation * correlation_ptr = nullptr;
-  char * json_buffer = nullptr;
-  const size_t buf_sz = 0;
-  DynList<double> pars;
-
-public:
-
-  CorrelationInvoker(long id, char buf[], size_t sz)
-    : correlation_ptr(Correlation::array()[id]), json_buffer(buf), buf_sz(sz) {}
-
-  void push(double val) { pars.append(val); }
-
-  long call();
-};
-
-/// returns a proxy id for future invocation of correlation with id
-extern long open_correlation_call(long id, char buf[], size_t sz);
-
-/// pushes parameter val to the correlation proxy id. Return 1 if
-/// everything is ok; 0 otherwise 
-extern long push_correlation_call(long proxy_id, double val);
-
-/// performs the call and puts in the buffer specified in
-/// `open_correlation_call()` the json containing the result. Returns
-/// 1 if everything is ok; 0 otherwise
-extern long exec_correlation_call(long proxy_id);
-
-/// free the proxy 
-extern long free_correlation_call(long proxy_id);
 
 # define Header_Correlation_Type(type_name, hidden)	\
   struct type_name : public Correlation					\
   {									\
     type_name(const string & subtype_name,				\
 	      const string & name, const string & latex_symbol,		\
-	      const Unit & result_unit, double min_val, double max_val)	\
+	      const Unit & result_unit, double min_val, double max_val,	\
+	      bool min_from_author, bool max_from_author)		\
       : Correlation(#type_name, subtype_name, name, latex_symbol,	\
-		    result_unit, min_val, max_val) {}			\
+		    result_unit, min_val, max_val,			\
+		    min_from_author, max_from_author) {}		\
     virtual ~type_name() = 0;						\
     using Correlation::add_parameter;					\
     bool is_hidden = hidden;						\
@@ -1085,16 +1192,20 @@ Declare_Correlation_Type(WaterCorrelation);
   {									\
     subtype_name(const string & name, const Unit & result_unit,		\
 		 double min_val, double max_val)			\
-      : type_name(#subtype_name, name, symbol, result_unit, min_val, max_val) {} \
+      : type_name(#subtype_name, name, symbol, result_unit,		\
+		  min_val, max_val, true, true) {}			\
 									\
     subtype_name(const string & name, const Unit & unit, double min_val) \
-      : type_name(#subtype_name, name, symbol, unit, min_val, unit.max_val) {} \
+      : type_name(#subtype_name, name, symbol, unit,			\
+		  min_val, unit.max_val, true, false) {}		\
 									\
     subtype_name(const string & name, const Unit & unit)		\
       : type_name(#subtype_name, name, symbol, unit, unit.min_val,	\
-		  unit.max_val) {}					\
+		  unit.max_val, false, false) {}			\
     virtual ~subtype_name() = 0;					\
+									\
   protected:								\
+									\
     using type_name::add_parameter;					\
   };									\
 									\
@@ -1179,25 +1290,31 @@ Declare_Correlation_Subtype(SaturatedOilCompressibility, OilCorrelation,
 Declare_Correlation_Subtype(UndersaturatedOilCompressibility, OilCorrelation,
 			    "c_{oa}");
 Declare_Correlation_Subtype(SaturatedOilDensity, OilFunction, "\\rho_{ob}");
-Declare_Correlation_Subtype(UndersaturatedOilDensity, OilFunction, "\\rho_{oa}");
-Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation, "\\sigma_{go}");
+Declare_Correlation_Subtype(UndersaturatedOilDensity, OilFunction,
+			    "\\rho_{oa}");
+Declare_Correlation_Subtype(OilInterfacialTension, OilCorrelation,
+			    "\\sigma_{go}");
 Declare_Correlation_Subtype(DeadOilViscosity, OilCorrelation, "\\mu_{od}");
 
     // correlations & functions associated to gas
-Declare_Correlation_Subtype(HydrocarbonGasPseudocriticalPressure, GasCorrelation, "P_{pcHC}");
-Declare_Correlation_Subtype(MixtureGasPseudocriticalPressure, GasCorrelation, "P_{pcM}");
+Declare_Correlation_Subtype(HydrocarbonGasPseudocriticalPressure,
+			    GasCorrelation, "P_{pcHC}");
+Declare_Correlation_Subtype(MixtureGasPseudocriticalPressure, GasCorrelation,
+			    "P_{pcM}");
 Declare_Correlation_Subtype(GasPseudocriticalPressureC7, GasCorrelation,
 			    "P_{pcC_7+}");
 Declare_Correlation_Subtype(GasViscosity, GasCorrelation, "\\mu_{g}");
 Declare_Correlation_Subtype(GasDensity, GasFunction, "\\rho_{g}")
 Declare_Correlation_Subtype(GasVolumeFactor, GasFunction, "B_{g}");
 Declare_Correlation_Subtype(GasCompressibility, GasCorrelation, "Z\\ factor");
-Declare_Correlation_Subtype(HydrocarbonGasPseudocriticalTemperature, GasCorrelation,
+Declare_Correlation_Subtype(HydrocarbonGasPseudocriticalTemperature,
+			    GasCorrelation,
 			    "T_{pcHC}");
 Declare_Correlation_Subtype(MixtureGasPseudocriticalTemperature, GasCorrelation,
 			    "T_{pcM}");
 //Declare_Correlation_Subtype(GasSpecificGravity, GasCorrelation, "\\gamma_g");
-Declare_Correlation_Subtype(HydrocarbonGasSpecificGravity, GasCorrelation, "\\gamma_{gHC}");
+Declare_Correlation_Subtype(HydrocarbonGasSpecificGravity, GasCorrelation,
+			    "\\gamma_{gHC}");
 Declare_Correlation_Subtype(GasIsothermalCompressibility, GasCorrelation,
 			    "c_{g}");
 Declare_Correlation_Subtype(GasPseudoreducedPressure, GasFunction, "P_{pr}");
@@ -1221,7 +1338,11 @@ Declare_Correlation_Subtype(UndersaturatedWaterIsothermalCompressibility,
 			    WaterCorrelation, "c_{wa}");
 Declare_Correlation_Subtype(SolutionGasWaterRelation, WaterCorrelation,
 			    "R_{sw}");
-Declare_Correlation_Subtype(VaporPressure, WaterCorrelation,
-			    "P_{v}");
+Declare_Correlation_Subtype(VaporPressure, WaterCorrelation, "P_{v}");
+Declare_Correlation_Subtype(WetGasVolumeFactor, GasFunction, "B_{wg}");
+Declare_Correlation_Subtype(WetGasSpecificGravity, GasCorrelation, "Y_{wgR}");
+Declare_Correlation_Subtype(EquivalentVolume, GasCorrelation, "V_{eq}");
+Declare_Correlation_Subtype(AdditionalGasProduced, GasCorrelation, "G_{pa}");
+Declare_Correlation_Subtype(ProducingGasOilRatio, GasFunction, "GOR");
 
 # endif // CORRELATION_H

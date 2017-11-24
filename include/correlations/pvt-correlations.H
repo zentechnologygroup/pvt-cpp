@@ -31,6 +31,11 @@
 # include "undersaturated-water-isothermal-compressibility.H"
 # include "solution-gas-water-relation.H"
 # include "spivey-dry.H"
+# include "wet-gas-volume-factor.H"
+# include "wet-gas-specific-gravity.H"
+# include "equivalent-volume.H"
+# include "additional-gas-produced.H"
+# include "producing-gas-oil-ratio.H"
 
 # include "bubble-point-pressure-impl.H"
 # include "solution-gas-oil-relation-impl.H"
@@ -63,10 +68,18 @@
 # include "solution-gas-water-relation-impl.H"
 # include "spivey-dry-impl.H"
 
+# include "wet-gas-volume-factor-impl.H"
+# include "wet-gas-specific-gravity-impl.H"
+# include "equivalent-volume-impl.H"
+# include "additional-gas-produced-impl.H"
+# include "producing-gas-oil-ratio-impl.H"
+
 struct CorrelationInstantiater
 {
   CorrelationInstantiater()
   {
+    UnitsInstancer::init();
+
         // Oil Bubble point
     PbAlMarhoun::get_instance();
     PbAlShammasi::get_instance();
@@ -89,6 +102,9 @@ struct CorrelationInstantiater
     PbMillanArcia::get_instance();
     PbManucciRosales::get_instance();
     PbGlaso::get_instance();
+    PbLopezCR::get_instance();
+    PbLopezCRDetachedFromRs::get_instance();
+    PbSalazar::get_instance();
 
     RsAlShammasi::get_instance();
     RsAlMarhoun::get_instance();
@@ -107,11 +123,16 @@ struct CorrelationInstantiater
     RsVelarde::get_instance();
     RsCegarra::get_instance();
     RsPerezML::get_instance();
+    RsMillanArciaDetachedFromPb::get_instance();
     RsMillanArcia::get_instance();
     RsManucciRosales::get_instance();
+    RsLopezCR::get_instance();
+    RsSalazar::get_instance();
+    RsSalazarDetachedFromPb::get_instance();
 
     BobAlmarhoun::get_instance();
     BobAlShammasi::get_instance();
+    BobCegarra::get_instance();
     BobDeGhetto::get_instance();
     BobDindorukChristman::get_instance();
     BobDoklaOsman::get_instance();
@@ -127,6 +148,8 @@ struct CorrelationInstantiater
     BobMillanArcia::get_instance();
     BobManucciRosales::get_instance();
     BobLasater::get_instance();
+    BobLopezCR::get_instance();
+    BobSalazar::get_instance();
 
     BoaMcCain::get_instance();
     BoaDeGhetto::get_instance();
@@ -171,6 +194,8 @@ struct CorrelationInstantiater
     UobGilFonseca::get_instance();
     UobDeGhettoEtAl::get_instance();
     UobDindorukChristman::get_instance();
+    UobLopezCR::get_instance();
+    UobSalazar::get_instance();
 
     UoaKartoatmodjoSchmidt::get_instance();
     UoaDeGhettoEtAl::get_instance();
@@ -192,8 +217,6 @@ struct CorrelationInstantiater
 
     PpchcStanding::get_instance();
     PpchcSutton::get_instance();
-    PpchcGuoGhalambor::get_instance();
-    PpcAhmed::get_instance();
     PpchcElsharkawyEtAl::get_instance();
     PpchcStandingHeavierFractions::get_instance();
 
@@ -242,10 +265,11 @@ struct CorrelationInstantiater
     SgwJenningsNewman::get_instance();
 
     CwbSpiveyMN::get_instance();
+    CwbMcCain::get_instance();
+    CwbMcCainOsif::get_instance();
     CwaSpiveyMN::get_instance();
     CwaDodsonStanding::get_instance();
     CwaOsif::get_instance();
-    CwbMcCain::get_instance();
 
     RswSpiveyMN::get_instance();
     RswMcCoy::get_instance();
@@ -260,11 +284,25 @@ struct CorrelationInstantiater
     BwbMcCoy::get_instance();
     BwaSpiveyMN::get_instance();
     BwaMcCain::get_instance();
-
-    // Al no ejecutarse esta instanci ==> la correlació no se incluye en tabla
+    // Al no ejecutarse esta instancia ==> la correlación no se incluye en tabla
     BwSpiveyMNDry::get_instance();
+
+    Bwg::get_instance();
+    YwgrMcCain::get_instance();
+    VeqspMcCain::get_instance();
+    Veqsp2McCain::get_instance();
+    GpaspMcCain::get_instance();
+    Gpasp2McCain::get_instance();
+    Rsp1::get_instance();
   }
 };
+
+inline void init_correlations()
+{
+  CorrelationInstantiater init;
+}
+  
+  
 
 # endif // PVT_CORRELATIONS_H
 

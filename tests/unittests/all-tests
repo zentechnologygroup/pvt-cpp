@@ -1,8 +1,0 @@
-#!/bin/bash
-
-list=`ls *.csv`
-for f in $list
-do
-    ./run-test -t `basename $f .csv`
-done
-	 

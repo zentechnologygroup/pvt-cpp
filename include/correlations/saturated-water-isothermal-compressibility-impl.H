@@ -4,6 +4,7 @@
 # include <correlations/saturated-water-isothermal-compressibility.H>
 # include <correlations/spivey-dry.H>
 # include "water-density.H"
+# include "undersaturated-water-isothermal-compressibility.H"
 
 void CwbSpiveyMN::precondition(const Quantity<Celsius> & t,
 			       const Quantity<mPascal> & p) const
@@ -21,7 +22,7 @@ void CwbSpiveyMN::precondition(const Quantity<Celsius> & t,
 inline double
 CwbSpiveyMN::impl(const double & t, // comes in Celsius
 		 const double & p,
-		 const double & nacl_concentration,
+		 const double & nacl,
 		 const double & z) noexcept
 {
   const double tk = unit_convert<Celsius, Kelvin>(t);
@@ -33,7 +34,7 @@ CwbSpiveyMN::impl(const double & t, // comes in Celsius
   // Density of methane-free brine at the temperature and pressure of
   // evaluation [g/cm³]
   const double pgfw =
-    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl_concentration);
+    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl);
   
   // Specific volume of methane-free brine [cm³/g]
   const double vgfw = 1.0/pgfw;
@@ -41,11 +42,11 @@ CwbSpiveyMN::impl(const double & t, // comes in Celsius
   // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
   // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
   const double mch4w =
-    MwSpiveyMN::get_instance().impl(t, p, pv, nacl_concentration);
+    MwSpiveyMN::get_instance().impl(t, p, pv, nacl);
 
   // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE
   // TEMPERATURE AND PRESSURE OF EVALUATION 
-  const double m = nacl_concentration;
+  const double m = nacl;
   // Derivatives with respect to P
   const double c3 = -8.5658e-2 + 1.31961e-2*log(tk) + 7.338/tk +
     9.05e-2/(680 - tk);
@@ -61,7 +62,7 @@ CwbSpiveyMN::impl(const double & t, // comes in Celsius
   // dvgfwdP: DERIVATIVE OF SPECIFIC VOLUME WITH RESPECT TO PRESSURE 
 
   const double cgfw =
-    CgfwSpiveyMN::get_instance().impl(t, p, nacl_concentration);
+    CgfwSpiveyMN::get_instance().impl(t, p, nacl);
   
   const double dvgfwdp = -vgfw * cgfw;  
 
@@ -96,12 +97,47 @@ CwbSpiveyMN::impl(const double & t, // comes in Celsius
 inline double
 CwbMcCain::impl(const double & t,
 		const double & p,
-		const double & nacl_concentration,
+		const double & nacl,
 		const double & bg,
 		const double & bw,
 		const double & cwa) noexcept
 {
-  const double s = nacl_concentration;
+  const double s = nacl;
+  const double t2 = t*t;
+  const double t3 = t2*t;
+  const double t4 = t3*t;
+
+  // Estimation of the derivative of solution gas-water ratio with
+  // respect to pressure [scf/STB psia] 
+  const double b = 1.01021e-2 - 7.44241e-5*t + 3.05553e-7*t2 - 2.94883e-10*t3;
+  const double c = (-9.02505 + 0.130237*t - 8.53425e-4*t2 + 2.34122e-6*t3 -
+		    2.37049e-9*t4) * 1e-7;
+
+  const double drswdps = b + 2*c*p;
+
+  // Correction of the derivative, due to dissolved solids
+  const double drswdp = drswdps * pow(10, -0.0840655*s*pow(t, -0.285854));
+
+  // Isothermal compressibility
+  const double cwb = cwa + bg/bw * drswdp;
+
+  return cwb;
+}
+
+
+inline double
+CwbMcCainOsif::impl(const double & t,
+		    const double & p,
+		    const double & nacl,
+		    const double & bg,
+		    const double & bw) noexcept
+{
+  const double nacl_in_cgl =
+    unit_convert<Dissolved_Salt_Percent, CgL>(nacl);
+
+  const double cwa = CwaOsif::get_instance().impl(t, p, nacl_in_cgl);
+
+  const double s = nacl;
   const double t2 = t*t;
   const double t3 = t2*t;
   const double t4 = t3*t;

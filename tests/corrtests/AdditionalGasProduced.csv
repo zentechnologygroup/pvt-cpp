@@ -1,0 +1,3 @@
+,disabled,tsp1,tsp1 unit,tsp2,tsp2 unit,psp1,psp1 unit,ygsp1,ygsp1 unit,api,api unit,result,result unit,tolerance,Note,"ref ""mcCain:1990"""
+Gpasp1McCain,,73,Fahrenheit,,,300,psia,0.679,Sgg,56,Api,330,SCF_STB,0.07,Example 7-5. Two stages.,1
+Gpasp2McCain,,73,Fahrenheit,74,Fahrenheit,900,psia,0.669,Sgg,60.7,Api,756,SCF_STB,0.09,Example 7-4. Three stages.,1

@@ -1,0 +1,86 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'optparse'
+require 'fileutils'
+
+alephw = ENV['ALEPHW']
+gtestdir = ENV['GOOGLETEST']
+zendir = ENV['ZEN']
+pvtdir = ENV['PVT']
+
+
+fail 'ALEPHW env var has not been defined' unless alephw
+fail 'GOOGLETEST env var has not been defined' unless gtestdir
+fail 'PVT env var has not been defined' unless pvtdir
+fail 'ZEN env var has not been defined' unless zendir
+
+options = {}
+options_parser = OptionParser.new do |opts|
+  opts.on('-f name', '--file name', 'prefix name of test spec') do |name|
+    options[:name] = name
+  end
+
+  opts.on('-n', '--num-tests [number]', 'number of tests') do |num_tests|
+    options[:num_tests] = num_tests
+  end
+
+  opts.on('-s', '--seed [seed]', 'number of tests') do |seed|
+    options[:seed] = seed
+  end
+
+  opts.on('-F', '--filter [filter]', 'number of tests') do |filter|
+    options[:filter] = filter
+  end
+end
+
+options_parser.parse!
+
+name = options[:name]
+n = options[:num_tests]
+seed = options[:seed]
+filter = options[:filter]
+
+fail "option -f prefix test file has not been specified" unless name
+
+if name.end_with? '.cc'
+  test_src_name = name
+else
+  test_src_name = name + '.cc'
+end
+
+fail "#{test_src_name} not found" unless File.exists? test_src_name
+
+tgt_name = File.basename test_src_name, '.cc'
+
+compile_line = "clang++ #{test_src_name} "\
+               "-std=c++14 -isystem -pthread -I#{alephw} "\
+               "-I#{zendir}/include -I#{pvtdir}/include "\
+               "-I#{gtestdir}/googletest/include "\
+               "-I#{gtestdir}/googlemock/include "\
+               "-std=c++14 -Wall -Wextra -Wcast-align -Wno-sign-compare "\
+               "-Wno-write-strings -Wno-parentheses -O0 -g "\
+               "-L#{zendir}/lib -L#{pvtdir}/lib -lzen -lpvt "\
+               "-L#{alephw} -lAleph #{gtestdir}/googletest/make/gtest_main.a "\
+               "#{gtestdir}/googlemock/make/gmock_main.a "\
+               "-lstdc++ -lgsl -lgslcblas -lm -lpthread -lc -o #{tgt_name}"
+
+puts compile_line
+
+compile_status = system(compile_line)
+
+fail "Test compilation failed" unless compile_status
+
+command_line = "./#{tgt_name}"
+command_line += " -n=#{n}" if n
+command_line += " -s=#{seed}" if seed
+command_line += " --gtest_filter=#{filter}" if filter
+
+puts "#{command_line}"
+test_status = system(command_line)
+
+fail "Test has aborted" unless test_status
+
+puts "Test for #{name} executed successfully"
+
+

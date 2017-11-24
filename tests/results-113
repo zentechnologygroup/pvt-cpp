@@ -129,4 +129,12 @@ Generación de grid con mejores ajustes
 
 Esta es la última
 
-time ./plot --t "100 350 10" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s-concentration 1.2 --co2-concentration .5 --n2-concentration .1 --pb PbManucciRosales --c-pb -222.077246 --rs RsVelarde --c-rs -109.426018 --m-rs 1.073372 --bob BobPetroskyFarshad --c-bob -0.265302 --m-bob 1.356803 --boa BoaPetroskyFarshad --c-boa -1.429164 --m-boa 1.804668 --uod UodNaseri --uob UobBeggsRobinson --c-uob 0.029390 --m-uob 0.530000 --uoa UoaVasquezBeggs --c-uoa 0.006047 --m-uoa 0.991407 --cob CobMcCainEtAl --coa CoaVasquezBeggs --ca 0.006047 --ma 0.991407 --grid --unit "p psig" --ppchc PpchcStanding --tpchc TpchcStanding --zfactor ZfactorDranchukAK --bwb BwbSpiveyMN --bwa BwaSpiveyMN --nacl-concentration 0 --uw UwMaoDuan --pw PwSpiveyMN --rsw RswSpiveyMN --cwb CwbMcCain --cwa CwaDodsonStanding --cg CgMattarBA --sgo SgoBakerSwerdloff --sgw SgwJenningsNewman --ug UgCarrKB
+time ./cplot --t "100 350 10" --p "100 15000 40" --api 26 --yg .7 --tsep 100 --psep 34.6959 --rsb 1121 --h2s 1.2 --co2 .5 --n2 .1 --pb PbManucciRosales --c-pb -222.077246 --rs RsVelarde --c-rs -109.426018 --m-rs 1.073372 --bob BobPetroskyFarshad --c-bob -0.265302 --m-bob 1.356803 --boa BoaPetroskyFarshad --c-boa -1.429164 --m-boa 1.804668 --uod UodNaseri --uob UobBeggsRobinson --c-uob 0.029390 --m-uob 0.530000 --uoa UoaVasquezBeggs --c-uoa 0.006047 --m-uoa 0.991407 --cob CobMcCainEtAl --coa CoaVasquezBeggs --unit "p psig" --ppchc PpchcStanding --tpchc TpchcStanding --zfactor ZfactorDranchukAK --bwb BwbSpiveyMN --bwa BwaSpiveyMN --nacl 0 --uw UwMaoDuan --pw PwSpiveyMN --rsw RswSpiveyMN --cwb CwbMcCain --cwa CwaDodsonStanding --cg CgMattarBA --sgo SgoBakerSwerdloff --sgw SgwJenningsNewman --ug UgCarrKB --grid blackoil
+
+LLamada para drygas
+
+./cplot --yg 1 --unit "yg Sgg" --nacl 5 --unit "nacl Dissolved_Salt_PPM" --h2s 0.003 --unit "h2s VolumeFraction" --n2  0.001 --unit "n2  VolumeFraction" --co2 0.002 --unit "co2 VolumeFraction" --t  "80 300 10" --unit "t Fahrenheit" --p  "100 7000 40" --unit "p psia" --ppchc PpchcStanding --tpchc TpchcStanding --zfactor ZfactorDranchukPR --cg CgMattarBA --ug UgCarrKB --bwb BwbSpiveyMN --uw  UwMcCain --pw  PwSpiveyMN --rsw RswSpiveyMN --cwb CwbSpiveyMN --sgw SgwJenningsNewman --grid drygas
+
+llamada para wetgas
+
+./cplot --t "80 300 100" --p "100 4022 100" --api 0.736 --unit "api Sg_do" --yg .669 --tsep 73 --psep 300 --h2s 1 --co2 3 --n2 1  --unit "p psig" --ppchc PpchcStanding --tpchc TpchcStanding --zfactor ZfactorSarem --cg CgSarem --bwb BwbSpiveyMN --nacl 7 --uw UwMaoDuan --pw PwSpiveyMN --rsw RswSpiveyMN --cwb CwbSpiveyMN --cwa CwaSpiveyMN  --sgw SgwJenningsNewman --grid wetgas --ogr 0.000016389 --unit "ogr STB_SCF"

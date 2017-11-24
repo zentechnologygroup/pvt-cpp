@@ -6,7 +6,7 @@
 
 inline double
 UwMaoDuan::impl(const double & t,
-		const double & nacl_concentration,
+		const double & nacl,
 		const double & ppw) noexcept
 {
   const double t2 = t*t;
@@ -23,7 +23,7 @@ UwMaoDuan::impl(const double & t,
   const double b = 0.69161945e-1 + -0.27292263e-3*t + 0.20852448e-6*t2;
   const double c = -0.25988855e-2 + 0.77989227e-5*t;
 
-  const double m = nacl_concentration;
+  const double m = nacl;
   const double m2 = m*m;
   const double m3 = m2*m;
         
@@ -47,9 +47,9 @@ UwVanWingen::impl(const double & t) noexcept
 inline double
 UwMatthewsRussel::impl(const double & t,
 		       const double & p,
-		       const double & nacl_concentration) noexcept
+		       const double & nacl) noexcept
 {
-  const double s = nacl_concentration;
+  const double s = nacl;
   const double s2 = s*s;
 
   // Calculation of water viscosity at atmospheric pressure
@@ -66,9 +66,9 @@ UwMatthewsRussel::impl(const double & t,
 inline double
 UwMcCain::impl(const double & t,
 	       const double & p,
-	       const double & nacl_concentration) noexcept
+	       const double & nacl) noexcept
 {
-  const double s = nacl_concentration;
+  const double s = nacl;
   const double s2 = s*s;
   const double s3 = s2*s;
   const double s4 = s3*s;
@@ -87,9 +87,9 @@ UwMcCain::impl(const double & t,
 
 inline double
 UwMcCoy::impl(const double & t,
-	      const double & nacl_concentration) noexcept
+	      const double & nacl) noexcept
 {
-  const double s = nacl_concentration;
+  const double s = nacl;
   
   const double uwp = 0.02414 * pow(10, 247.8/(t - 140));
 

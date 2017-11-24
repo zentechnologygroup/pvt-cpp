@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+require 'fileutils'
+require 'optparse'
+
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-f NAME', '--file NAME', 'csv file name') do |file_name|
+    options[:file_name] = file_name
+  end
+
+end
+
+options_parser.parse!
+
+file = options[:file_name]
+
+require 'csv'
+
+rows = CSV.read(file, headers: true)
+
+a = rows.map do |r|
+  r.to_a.map { |e| e[1].to_f }
+end
+
+a.transpose.zip(rows.headers).each do |e|
+  puts "#{e[1].split[0]} #{e[1].split[1]} #{e[0].join(' ')}"
+end

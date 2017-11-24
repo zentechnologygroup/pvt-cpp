@@ -1,6 +1,11 @@
+~*
 *.o
 Makefile
 *.a
 *.so
 *.bak
 gitversion.H
+backend*
+call*
+*.out
+*.user

@@ -23,7 +23,7 @@ void CwaSpiveyMN::precondition(const Quantity<Celsius> & t,
 inline double
 CwaSpiveyMN::impl(const double & t, // comes in Celsius
 		 const double & p,
-		 const double & nacl_concentration) noexcept
+		 const double & nacl) noexcept
 {
   const double tk = unit_convert<Celsius, Kelvin>(t);
 
@@ -34,7 +34,7 @@ CwaSpiveyMN::impl(const double & t, // comes in Celsius
   // Density of methane-free brine at the temperature and pressure of
   // evaluation [g/cm³]
   const double pgfw =
-    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl_concentration);
+    PwSpiveyMNGasFree::get_instance().impl(t, p, nacl);
   
   // Specific volume of methane-free brine [cm³/g]
   const double vgfw = 1.0/pgfw;
@@ -42,11 +42,11 @@ CwaSpiveyMN::impl(const double & t, // comes in Celsius
   // mCH4w: SOLUBILITY OF METHANE IN BRINE [gmol NaCl/kgH2O] 
   // AT THE TEMPERATURE AND PRESSURE OF EVALUATION
   const double mch4w =
-    MwSpiveyMN::get_instance().impl(t, p, pv, nacl_concentration);
+    MwSpiveyMN::get_instance().impl(t, p, pv, nacl);
 
   // VMCH4w: PARTIAL MOLAR VOLUME OF METHANE IN BRINE AT THE
   // TEMPERATURE AND PRESSURE OF EVALUATION  
-  const double m = nacl_concentration;
+  const double m = nacl;
 
   // Derivatives with respect to P
   const double c3 = -8.5658e-2 + 1.31961e-2*log(tk) + 7.338/tk +
@@ -63,7 +63,7 @@ CwaSpiveyMN::impl(const double & t, // comes in Celsius
   // dvgfwdP: DERIVATIVE OF SPECIFIC VOLUME WITH RESPECT TO PRESSURE 
 
   const double cgfw =
-    CgfwSpiveyMN::get_instance().impl(t, p, nacl_concentration);
+    CgfwSpiveyMN::get_instance().impl(t, p, nacl);
   
   const double dvgfwdp = -vgfw * cgfw;  
 
@@ -84,11 +84,11 @@ inline double
 CwaDodsonStanding::impl(const double & t,
 		       const double & p,
 		       const double & rsw,
-		       const double & nacl_concentration) noexcept
+		       const double & nacl) noexcept
 {
   const double t2 = t*t;
   const double t3 = t2*t;
-  const double s07 = pow(nacl_concentration, 0.7);
+  const double s07 = pow(nacl, 0.7);
 
   // Compressibility of gas-free water
   const double a = 3.8546 - 1.34e-4*p;
@@ -107,11 +107,9 @@ CwaDodsonStanding::impl(const double & t,
 
 
 inline double
-CwaOsif::impl(const double & t,
-	     const double & p,
-	     const double & nacl_concentration) noexcept
+CwaOsif::impl(const double & t, const double & p, const double & nacl) noexcept
 {
-  const double cw = 1/(7.033*p + 541.5*nacl_concentration -
+  const double cw = 1/(7.033*p + 541.5*nacl -
 		       537*t + 403.3e3);
   return cw;
 }

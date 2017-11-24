@@ -1,11 +1,6 @@
 DEPEND = sh ./depend.sh
 
-
-CXXPATH=$(shell echo $$CLANGPATH)
-
-#CXX = $(CXXPATH)/bin/clang++  
-
-INCLUDES = -I$(TOP)/include -I$(ALEPHW) 
+INCLUDES = -I$(TOP)/include -I$(ZEN)/include -I$(ALEPHW) 
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
 	-Wno-parentheses
 
@@ -17,13 +12,13 @@ LDFLAGS=-pg
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
-SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc -pg
+SYS_LIBRARIES = -L$(ZEN)/lib -lzen -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc -pg
 
 DEPLIBS	= $(TOP)/lib/libpvtp.a
 
 LOCAL_LIBRARIES = $(TOP)/lib/libpvtp.a
 
-TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot.cc
+TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot.cc cplot.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
@@ -38,7 +33,7 @@ NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LI
 AllTarget(test-calibrate)
 NormalProgramTarget(test-calibrate,test-calibrate.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
-AllTarget(plot)
-NormalProgramTarget(plot,plot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+AllTarget(cplot)
+NormalProgramTarget(cplot,cplot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()

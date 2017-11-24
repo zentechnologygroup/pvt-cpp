@@ -1,0 +1,948 @@
+
+# include <gmock/gmock.h>
+
+# include <metadata/pvt-tuner.H>
+
+using namespace std;
+using namespace testing;
+using namespace std;
+
+const UnitsInstancer & __units_sys = UnitsInstancer::init();
+
+constexpr double epsilon = 1e-9;
+static auto near_cmp = [] (double v1, double v2)
+{
+  return fabs(v1 - v2) <= epsilon;
+};
+
+TEST(EmptyPvtData, simple_ops)
+{
+  PvtData d;
+
+  ASSERT_TRUE(d.const_values.is_empty());
+  ASSERT_TRUE(d.vectors.is_empty());
+}
+
+TEST(PvtData, add_const)
+{
+  PvtData data;
+  data.add_const("api", 8, Api::get_instance());
+
+  ASSERT_THROW(data.add_const("api", 9, Api::get_instance()),
+	       DuplicatedConstName);
+
+  auto cptr = data.search_const("api");
+  ASSERT_NE(cptr, nullptr);
+  ASSERT_EQ(cptr->name, "api");
+  ASSERT_EQ(cptr->value, 8);
+  ASSERT_EQ(cptr->unit_ptr, &Api::get_instance());
+
+  Array<double> parray100 = { 100, 200, 300, 820 };
+  Array<double> parray200 = { 100, 300, 800, 1120 };
+  Array<double> rs100 = {16, 70, 120, 150};
+  Array<double> rs200 = {20, 90, 140, 200};
+
+  data.add_vector(100, 820, -1, -1, -1, parray100, psia::get_instance(),
+		  "rs", rs100, SCF_STB::get_instance());
+
+  ASSERT_THROW(data.add_vector(100, 820, -1, -1, -1, parray100,
+			       psia::get_instance(),
+			       "rs", rs100, SCF_STB::get_instance()),
+	       DuplicatedVarName);
+  auto vlist = data.search_vectors("rs");
+  ASSERT_FALSE(vlist.is_empty());
+  auto vptr = vlist.get_first();
+  ASSERT_EQ(vptr->yname, "rs");
+  ASSERT_EQ(vptr->t, 100);
+  ASSERT_EQ(vptr->pb, 820);
+  ASSERT_EQ(vptr->punit, &psia::get_instance());
+  ASSERT_EQ(vptr->yunit, &SCF_STB::get_instance());
+  ASSERT_TRUE(zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
+		      parray100, vptr->p));
+  ASSERT_TRUE(zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
+		      rs100, vptr->y));
+
+  data.add_vector(200, 1120, -1, -1, -1, parray200, psia::get_instance(),
+		  "rs", rs200, SCF_STB::get_instance());
+  ASSERT_THROW(data.add_vector(200, 1120, -1, -1, -1, parray200,
+			       psia::get_instance(),
+			       "rs", rs200, SCF_STB::get_instance()),
+	       DuplicatedVarName);
+  vlist = data.search_vectors("rs");
+  ASSERT_FALSE(vlist.is_empty());
+  vptr = vlist.get_first();
+
+  ASSERT_EQ(vptr->yname, "rs");
+  ASSERT_EQ(vptr->t, 100);
+  ASSERT_EQ(vptr->pb, 820);
+  ASSERT_EQ(vptr->punit, &psia::get_instance());
+  ASSERT_EQ(vptr->yunit, &SCF_STB::get_instance());
+  ASSERT_TRUE(zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
+  		      parray100, vptr->p));
+  ASSERT_TRUE(zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
+  		      rs100, vptr->y));
+
+  vptr = vlist.get_last();
+  
+  ASSERT_EQ(vptr->yname, "rs");
+  ASSERT_EQ(vptr->t, 200);
+  ASSERT_EQ(vptr->pb, 1120);
+  ASSERT_EQ(vptr->punit, &psia::get_instance());
+  ASSERT_EQ(vptr->yunit, &SCF_STB::get_instance());
+  ASSERT_TRUE(zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
+  		      parray200, vptr->p));
+  ASSERT_TRUE(zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
+  		      rs200, vptr->y));
+}
+
+TEST(PvtData, split_uo)
+{
+  PvtData data;
+  data.add_const("api", 8.3, Api::get_instance());
+  data.add_const("co2", 0.86, MolePercent::get_instance());
+  data.add_const("n2", 0.19, MolePercent::get_instance());
+  data.add_const("psep", 100, psia::get_instance());
+  data.add_const("rsb", 79.5, SCF_STB::get_instance());
+  data.add_const("yg", 0.608, Sgg::get_instance());
+  data.add_const("tsep", 100, Fahrenheit::get_instance());
+
+  data.add_vector(125, 820, 1.0919, PVT_INVALID_VALUE, 7500, 
+		  {820, 650, 550, 450, 0}, psia::get_instance(), "uob",
+		  {7500, 11350, 14000, 18120, 30000}, CP::get_instance());
+  data.add_vector(125, 820, 1.0919, 30000, 7500, 
+		  {3000, 2700, 2400, 2100, 1800, 1500, 1200, 1000},
+		  psia::get_instance(), "uoa",
+		  {12891, 11384, 10377, 9530, 8762, 8240, 7869, 7638},
+		  CP::get_instance());
+  data.add_vector(300, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  {3000, 2700, 2400, 2100, 1800, 1500, 1200, 900, 600, 400, 200},
+		  psia::get_instance(), "uo",
+		  {38.14, 36.77, 35.66, 34.42, 33.44, 32.19, 30.29,
+		      32.5, 37.1, 40.8, 44.5}, CP::get_instance());
+  data.add_vector(200, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  {3000, 2700, 2400, 2100, 1800, 1500, 1300,
+		      1100, 1000, 800, 500, 200}, psia::get_instance(), "uo",
+		  {370, 349.7, 335, 316.3, 302.4, 279.8, 270, 260,
+		      256, 278, 345.3, 404.6}, CP::get_instance());
+
+  auto uo_list = data.search_vectors("uo");
+  ASSERT_EQ(uo_list.size(), 2);
+
+  auto uob_list = data.search_vectors("uob");
+  ASSERT_TRUE(uob_list.is_unitarian());
+
+  auto uoa_list = data.search_vectors("uoa");
+  ASSERT_TRUE(uoa_list.is_unitarian());
+
+  const DynList<double> t = {125, 200, 300};
+
+  data.split_uo();
+
+  uob_list = data.search_vectors("uob");
+  size_t k = 0;
+  for (auto it = zip_it(uob_list, t); it.has_curr(); it.next(), ++k)
+    {
+      auto t = it.get_curr();
+      const VectorDesc * uob = get<0>(t);
+      ASSERT_EQ(uob->uod, uob->y(0));
+      ASSERT_EQ(uob->uobp, uob->y.get_last());
+      ASSERT_EQ(uob->t, get<1>(t));
+    }
+  ASSERT_GT(k, 0);
+
+  uoa_list = data.search_vectors("uoa");
+  k = 0;
+  for (auto it = zip_it(uoa_list, t); it.has_curr(); it.next(), ++k)
+    {
+      auto t = it.get_curr();
+      const VectorDesc * uoa = get<0>(t);
+      ASSERT_NE(uoa->uod, PVT_INVALID_VALUE);
+      ASSERT_EQ(uoa->uobp, nextafter(uoa->y.get_first(),
+				     numeric_limits<double>::min()));
+      ASSERT_EQ(uoa->t, get<1>(t));
+    }
+  ASSERT_GT(k, 0);
+
+  // now we test a bad split
+  data.rm_vector(200, "uob");
+  data.rm_vector(200, "uoa");
+  data.rm_vector(300, "uob");
+  data.rm_vector(300, "uoa");
+  data.rm_vector(200, "uo");
+  data.rm_vector(300, "uo");
+
+  // these uo vectors are the same than above, excepts that the
+  // temperature is swapped. So, the split would cause a pb for 300
+  // degF less that the pb for 200 degF
+  data.add_vector(200, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  {3000, 2700, 2400, 2100, 1800, 1500, 1200, 900, 600, 400, 200},
+		  psia::get_instance(), "uo",
+		  {38.14, 36.77, 35.66, 34.42, 33.44, 32.19, 30.29,
+		      32.5, 37.1, 40.8, 44.5}, CP::get_instance());
+  data.add_vector(300, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		  {3000, 2700, 2400, 2100, 1800, 1500, 1300,
+		      1100, 1000, 800, 500, 200}, psia::get_instance(), "uo",
+		  {370, 349.7, 335, 316.3, 302.4, 279.8, 270, 260,
+		      256, 278, 345.3, 404.6}, CP::get_instance());
+  ASSERT_THROW(data.split_uo(), PressureMismatch);
+}
+
+struct FluidTest : public Test
+{
+  const DynList<double> temps = { 125, 200, 300};
+  PvtData data;
+  FluidTest() // fluid5 
+  {
+    data.add_const("api", 8.3, Api::get_instance());
+    data.add_const("co2", 0.86, MolePercent::get_instance());
+    data.add_const("n2", 0.19, MolePercent::get_instance());
+    data.add_const("psep", 100, psia::get_instance());
+    data.add_const("rsb", 79.5, SCF_STB::get_instance());
+    data.add_const("yg", 0.608, Sgg::get_instance());
+    data.add_const("tsep", 100, Fahrenheit::get_instance());
+
+    data.add_vector(125, 820, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		    PVT_INVALID_VALUE, {820, 600, 450, 300, 15},
+		    psia::get_instance(), "rs",
+		    {80, 62, 47, 35, 0}, SCF_STB::get_instance());
+    data.add_vector(125, 820, 1.0919, PVT_INVALID_VALUE,
+		    PVT_INVALID_VALUE, {600, 450, 300, 15},
+		    psia::get_instance(), "bob",
+		    {1.0865, 1.0790, 1.0713, 1.0228},
+		    RB_STB::get_instance());
+    data.add_vector(125, 820, 1.0919, PVT_INVALID_VALUE,
+		    PVT_INVALID_VALUE,
+		    {3000, 2800, 2600, 2400, 2200, 2000, 1800,
+			1600, 1400, 1200, 1000, 2800, 2600, 2400, 2200,
+			2000, 1800, 1600, 1400, 1200, 1000, 820},
+		    psia::get_instance(), "coa",
+		    {3.76E-06, 4.07E-06, 4.28E-06, 4.45E-06, 4.62E-06,
+			4.76E-06, 4.86E-06, 5.24E-06, 5.51E-06, 5.61E-06,
+			6.00E-06}, psia_1::get_instance());
+    data.add_vector(125, 820, 1.0919, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		    {3000, 2800, 2600, 2400, 2200, 2000, 1800, 1600, 1400,
+			1200, 1000},
+		    psia::get_instance(), "boa",
+		    {1.0804, 1.0813, 1.0822, 1.0830, 1.0840, 1.0850,
+			1.0861, 1.0872, 1.0883, 1.0895, 1.0907},
+		    RB_STB::get_instance());
+    data.add_vector(125, 820, 1.0919, PVT_INVALID_VALUE, 7500, 
+		    {820, 650, 550, 450, 0}, psia::get_instance(), "uob",
+		    {7500, 11350, 14000, 18120, 30000}, CP::get_instance());
+    data.add_vector(125, 820, 1.0919, 30000, 7500, 
+		    {3000, 2700, 2400, 2100, 1800, 1500, 1200, 1000},
+		    psia::get_instance(), "uoa",
+		    {12891, 11384, 10377, 9530, 8762, 8240, 7869, 7638},
+		    CP::get_instance());
+    data.add_vector(200, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		    PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		    {3000, 2700, 2400, 2100, 1800, 1500, 1300,
+			1100, 1000, 800, 500, 200}, psia::get_instance(), "uo",
+		    {370, 349.7, 335, 316.3, 302.4, 279.8, 270, 260,
+			256, 278, 345.3, 404.6}, CP::get_instance());
+    data.add_vector(300, PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		    PVT_INVALID_VALUE, PVT_INVALID_VALUE,
+		    {3000, 2700, 2400, 2100, 1800, 1500, 1200, 900, 600, 400, 200},
+		    psia::get_instance(), "uo",
+		    {38.14, 36.77, 35.66, 34.42, 33.44, 32.19, 30.29,
+			32.5, 37.1, 40.8, 44.5}, CP::get_instance());
+    data.split_uo();
+
+    {
+      auto uob_list = data.search_vectors("uob");
+      assert(not uob_list.is_empty());
+      assert(uob_list.all([] (auto & v) { return v->uod != PVT_INVALID_VALUE and
+	      v->uobp != PVT_INVALID_VALUE; }));
+    }
+    {
+      auto uoa_list = data.search_vectors("uoa");
+      assert(not uoa_list.is_empty());
+      assert(uoa_list.all([] (auto & v) { return v->uod != PVT_INVALID_VALUE and
+	      v->uobp != PVT_INVALID_VALUE; }));
+    }
+  }
+};
+
+TEST_F(FluidTest, json)
+{
+  string json = data.to_json().dump();
+  istringstream s(json);
+  PvtData test(s);
+
+  ASSERT_EQ(data.pb_corr, test.pb_corr);
+  ASSERT_EQ(data.rs_corr, test.rs_corr);
+  ASSERT_EQ(data.bob_corr, test.bob_corr);
+  ASSERT_EQ(data.coa_corr, test.coa_corr);
+  ASSERT_EQ(data.boa_corr, test.boa_corr);
+  ASSERT_EQ(data.uod_corr, test.uod_corr);
+  ASSERT_EQ(data.uob_corr, test.uob_corr);
+  ASSERT_EQ(data.uoa_corr, test.uoa_corr);
+
+  const DynList<string> const_names =
+    { "api", "co2", "n2", "psep", "rsb", "yg", "tsep" };
+
+  for (auto it = const_names.get_it(); it.has_curr(); it.next())
+    {
+      const string & name = it.get_curr();
+      auto ptr1 = data.search_const(name);
+      auto ptr2 = test.search_const(name);
+      ASSERT_EQ(ptr1->name, ptr2->name);
+      ASSERT_EQ(ptr1->value, ptr2->value);
+      ASSERT_EQ(ptr1->unit_ptr, ptr2->unit_ptr);
+    }
+
+  const DynList<string> property_names = { "rs", "bob", "coa", "boa", "uob", "uoa" };
+  for (auto it = property_names.get_it(); it.has_curr(); it.next())
+    {
+      const string & name = it.get_curr();
+      auto vlist1 = data.search_vectors(name);
+      auto vlist2 = test.search_vectors(name);
+      for (auto it = zip_it(vlist1, vlist2); it.has_curr(); it.next())
+	{
+	  auto t = it.get_curr();
+	  const VectorDesc * v1 = get<0>(t);
+	  const VectorDesc * v2 = get<1>(t);
+	  ASSERT_NEAR(v1->t, v2->t, epsilon);
+	  ASSERT_NEAR(v1->pb, v2->pb, epsilon);
+	  ASSERT_NEAR(v1->bobp, v2->bobp, epsilon);
+	  ASSERT_NEAR(v1->uod, v2->uod, epsilon);
+	  ASSERT_NEAR(v1->uobp, v2->uobp, epsilon);
+	  ASSERT_EQ(v1->punit, v2->punit);
+	  ASSERT_EQ(v1->yunit, v2->yunit);
+	  ASSERT_TRUE(eq(v1->p, v2->p, near_cmp));
+	  ASSERT_TRUE(eq(v1->y, v2->y, near_cmp));
+	}
+    }
+}
+
+TEST_F(FluidTest, rm_const)
+{
+  auto api_ptr = data.search_const("api");
+  ASSERT_NE(api_ptr, nullptr);
+  ASSERT_EQ(api_ptr->name, "api");
+  ASSERT_NO_THROW(data.rm_const("api"));
+  ASSERT_EQ(data.search_const("api"), nullptr);
+}
+
+TEST_F(FluidTest, rm_vector)
+{
+  DynList<const VectorDesc*> uo_list = data.search_vectors("uo");
+  ASSERT_FALSE(uo_list.is_empty());
+
+  auto fst_uo = uo_list.get_first();
+  ASSERT_EQ(fst_uo->yname, "uo");
+  ASSERT_NO_THROW(data.rm_vector(200, "uo"));
+
+  uo_list = data.search_vectors("uo");
+  ASSERT_FALSE(uo_list.exists([] (auto vptr) { return vptr->t == 200; }));
+
+  ASSERT_NO_THROW(data.rm_vector(300, "uo"));
+
+  ASSERT_TRUE(data.search_vectors("uo").is_empty());
+  ASSERT_FALSE(data.names.has("uo"));
+}
+
+TEST_F(FluidTest, set_correlations)
+{
+  ASSERT_THROW(data.set_pb(&RsAlMarhoun::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_pb(&PbAlMarhoun::get_instance()));
+  ASSERT_EQ(data.pb_corr, &PbAlMarhoun::get_instance());
+  ASSERT_EQ(data.c_pb, 0);
+  ASSERT_EQ(data.m_pb, 1);
+
+  ASSERT_NO_THROW(data.set_pb(&PbAlShammasi::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.pb_corr, &PbAlShammasi::get_instance());
+  ASSERT_EQ(data.c_pb, 0.1);
+  ASSERT_EQ(data.m_pb, 0.99);
+
+  ASSERT_THROW(data.set_pb(&UodBeal::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_rs(&RsAlMarhoun::get_instance()));
+  ASSERT_EQ(data.rs_corr, &RsAlMarhoun::get_instance());
+  ASSERT_EQ(data.c_rs, 0);
+  ASSERT_EQ(data.m_rs, 1);
+
+  ASSERT_NO_THROW(data.set_rs(&RsPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.rs_corr, &RsPerezML::get_instance());
+  ASSERT_EQ(data.c_rs, 0.1);
+  ASSERT_EQ(data.m_rs, 0.99);
+
+  ASSERT_THROW(data.set_bob(&UodBeal::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_bob(&BobAlShammasi::get_instance()));
+  ASSERT_EQ(data.bob_corr, &BobAlShammasi::get_instance());
+  ASSERT_EQ(data.c_bob, 0);
+  ASSERT_EQ(data.m_bob, 1);
+
+  ASSERT_NO_THROW(data.set_bob(&BobPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.bob_corr, &BobPerezML::get_instance());
+  ASSERT_EQ(data.c_bob, 0.1);
+  ASSERT_EQ(data.m_bob, 0.99);
+
+  ASSERT_THROW(data.set_coa(&UodBeal::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_coa(&CoaDeGhetto::get_instance()));
+  ASSERT_EQ(data.coa_corr, &CoaDeGhetto::get_instance());
+  ASSERT_EQ(data.c_coa, 0);
+  ASSERT_EQ(data.m_coa, 1);
+
+  ASSERT_NO_THROW(data.set_coa(&CoaPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.coa_corr, &CoaPerezML::get_instance());
+  ASSERT_EQ(data.c_coa, 0.1);
+  ASSERT_EQ(data.m_coa, 0.99);
+
+  ASSERT_THROW(data.set_boa(&UodBeal::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_boa(&BoaDeGhetto::get_instance()));
+  ASSERT_EQ(data.boa_corr, &BoaDeGhetto::get_instance());
+  ASSERT_EQ(data.c_boa, 0);
+  ASSERT_EQ(data.m_boa, 1);
+
+  ASSERT_NO_THROW(data.set_boa(&BoaPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.boa_corr, &BoaPerezML::get_instance());
+  ASSERT_EQ(data.c_boa, 0.1);
+  ASSERT_EQ(data.m_boa, 0.99);
+
+  ASSERT_THROW(data.set_uod(&BobAlShammasi::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_uod(&UodBeal::get_instance()));
+  ASSERT_EQ(data.uod_corr, &UodBeal::get_instance());
+  ASSERT_EQ(data.c_uod, 0);
+  ASSERT_EQ(data.m_uod, 1);
+
+  ASSERT_NO_THROW(data.set_uod(&UodPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.uod_corr, &UodPerezML::get_instance());
+  ASSERT_EQ(data.c_uod, 0.1);
+  ASSERT_EQ(data.m_uod, 0.99);
+
+  ASSERT_THROW(data.set_uob(&BobAlShammasi::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_uob(&UobBeggsRobinson::get_instance()));
+  ASSERT_EQ(data.uob_corr, &UobBeggsRobinson::get_instance());
+  ASSERT_EQ(data.c_uob, 0);
+  ASSERT_EQ(data.m_uob, 1);
+
+  ASSERT_NO_THROW(data.set_uob(&UobPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.uob_corr, &UobPerezML::get_instance());
+  ASSERT_EQ(data.c_uob, 0.1);
+  ASSERT_EQ(data.m_uob, 0.99);
+
+  ASSERT_THROW(data.set_uoa(&BobAlShammasi::get_instance()), InvalidTargetName);
+  ASSERT_NO_THROW(data.set_uoa(&UoaBeal::get_instance()));
+  ASSERT_EQ(data.uoa_corr, &UoaBeal::get_instance());
+  ASSERT_EQ(data.c_uoa, 0);
+  ASSERT_EQ(data.m_uoa, 1);
+
+  ASSERT_NO_THROW(data.set_uoa(&UoaPerezML::get_instance(), 0.1, 0.99));
+  ASSERT_EQ(data.uoa_corr, &UoaPerezML::get_instance());
+  ASSERT_EQ(data.c_uoa, 0.1);
+  ASSERT_EQ(data.m_uoa, 0.99);
+}
+
+TEST_F(FluidTest, build_entries_for_correlation_without_inputing)
+{
+  {
+    auto l = data.build_input_for_correlation(&PbAlShammasi::get_instance());
+    ASSERT_FALSE(l.is_empty()); // because does not require pressure
+    ASSERT_TRUE(l.all([] (auto & c) { return c.t != PVT_INVALID_VALUE and
+	    c.pb != PVT_INVALID_VALUE and c.uod != PVT_INVALID_VALUE; }));
+  }
+  {
+    auto l = data.build_input_for_correlation(&RsAlShammasi::get_instance());
+    ASSERT_FALSE(l.is_empty());
+    auto rs = data.search_vectors("rs");
+    size_t k = 0;
+    for (auto it = zip_it(l, rs); it.has_curr(); it.next(), ++k)
+      {
+	auto t = it.get_curr();
+	const PvtData::CorrInput & in = get<0>(t);
+	ASSERT_EQ(in.p_ref->t, in.t);
+	ASSERT_EQ(in.p_ref->pb, in.pb);
+	ASSERT_EQ(in.p_ref->uod, in.uod);
+	ASSERT_TRUE(in.vlist.is_empty());
+	ASSERT_EQ(in.p_ref, get<1>(t));
+      }
+    ASSERT_NE(k, 0);
+  }
+  {
+    auto l = data.build_input_for_correlation(&BobLopezCR::get_instance());
+    ASSERT_FALSE(l.is_empty());
+    auto bob = data.search_vectors("bob");
+    auto rs = data.search_vectors("rs");
+    size_t k = 0;
+    for (auto it = zip_it(l, bob, rs); it.has_curr(); it.next(), ++k)
+      {
+	auto t = it.get_curr();
+	const PvtData::CorrInput & in = get<0>(t);
+	ASSERT_TRUE(in.vlist.is_unitarian());
+	ASSERT_EQ(in.p_ref, get<1>(t));
+	ASSERT_EQ(in.p_ref->t, in.t);
+	ASSERT_EQ(in.p_ref->pb, in.pb);
+	ASSERT_EQ(in.p_ref->uod, in.uod);
+	const VectorDesc & rs_v = in.vlist.get_first();
+	const VectorDesc * rs_ptr = get<2>(t);
+	ASSERT_FALSE(rs_v.p.is_empty());
+	ASSERT_FALSE(rs_ptr->p.is_empty());
+	ASSERT_FALSE(rs_v.y.is_empty());
+	ASSERT_FALSE(rs_ptr->y.is_empty());
+	ASSERT_TRUE(eq(rs_v.p, rs_ptr->p, near_cmp));
+	ASSERT_TRUE(eq(rs_v.y, rs_ptr->y, near_cmp));
+      }
+    ASSERT_NE(k, 0);
+  }
+  {
+    auto l = data.build_input_for_correlation(&CoaPerezML::get_instance());
+    ASSERT_FALSE(l.is_empty());
+    auto coa = data.search_vectors("coa");
+    size_t k = 0;
+    for (auto it = zip_it(l, coa); it.has_curr(); it.next(), ++k)
+      {
+	auto t = it.get_curr();
+	const PvtData::CorrInput & in = get<0>(t);
+	ASSERT_EQ(in.p_ref->t, in.t);
+	ASSERT_EQ(in.p_ref->pb, in.pb);
+	ASSERT_EQ(in.p_ref->uod, in.uod);
+	ASSERT_TRUE(in.vlist.is_empty());
+	ASSERT_EQ(in.p_ref, get<1>(t));
+      }
+    ASSERT_NE(k, 0);
+  }
+  {
+    const auto l = data.build_input_for_correlation(&BoaMcCain::get_instance());
+    ASSERT_FALSE(l.is_empty());
+    auto boa = data.search_vectors("boa");
+    ASSERT_FALSE(boa.is_empty());
+    size_t k = 0;
+    for (auto it = zip_it(l, boa); it.has_curr(); it.next(), ++k)
+      {
+	auto t = it.get_curr();
+	const PvtData::CorrInput & in = get<0>(t);
+	ASSERT_TRUE(in.vlist.is_unitarian());
+	ASSERT_EQ(in.p_ref, get<1>(t));
+	ASSERT_EQ(in.p_ref->t, in.t);
+	ASSERT_EQ(in.p_ref->pb, in.pb);
+	ASSERT_EQ(in.p_ref->uod, in.uod);
+	const VectorDesc & coa_v = in.vlist.get_first();
+	ASSERT_EQ(coa_v.yname, "coa");
+	ASSERT_FALSE(coa_v.p.is_empty());
+	ASSERT_FALSE(coa_v.y.is_empty());
+      }
+    ASSERT_NE(k, 0);
+  }
+  {
+    auto l = data.build_input_for_correlation(&UodBeal::get_instance());
+    ASSERT_FALSE(l.is_empty());    
+    ASSERT_TRUE(l.all([] (auto & c) { return c.t != PVT_INVALID_VALUE and
+	    c.pb != PVT_INVALID_VALUE and c.uod != PVT_INVALID_VALUE; }));
+  }
+  {
+    auto l = data.build_input_for_correlation(&UobBeggsRobinson::get_instance());
+    ASSERT_FALSE(l.is_empty());
+    auto uob = data.search_vectors("uob");
+    auto rs = data.search_vectors("rs");
+    size_t k = 0;
+    for (auto it = zip_it(l, uob, rs); it.has_curr(); it.next(), ++k)
+      {
+	auto t = it.get_curr();
+	const PvtData::CorrInput & in = get<0>(t);
+	ASSERT_TRUE(in.vlist.is_unitarian());
+	ASSERT_EQ(in.p_ref->t, in.t);
+	ASSERT_EQ(in.p_ref->pb, in.pb);
+	ASSERT_EQ(in.p_ref->uod, in.uod);	ASSERT_EQ(in.p_ref, get<1>(t));
+	const VectorDesc & rs_v = in.vlist.get_first();
+	const VectorDesc * rs_ptr = get<2>(t);
+	ASSERT_FALSE(rs_v.p.is_empty());
+	ASSERT_FALSE(rs_ptr->p.is_empty());
+	ASSERT_FALSE(rs_v.y.is_empty());
+	ASSERT_FALSE(rs_ptr->y.is_empty());
+	ASSERT_TRUE(eq(in.p_ref->p, rs_v.p, near_cmp));
+	ASSERT_TRUE(eq(rs_v.y, rs_ptr->gety(rs_v.p), near_cmp));
+      }
+    ASSERT_NE(k, 0);
+  }  
+  {
+    auto l = data.build_input_for_correlation(&UoaBeal::get_instance());
+    ASSERT_FALSE(l.is_empty());
+    auto uoa = data.search_vectors("uoa");
+    ASSERT_FALSE(uoa.is_empty());
+    size_t k = 0;
+    for (auto it = zip_it(l, uoa); it.has_curr(); it.next(), ++k)
+      {
+	auto t = it.get_curr();
+	const PvtData::CorrInput & in = get<0>(t);
+	ASSERT_TRUE(in.vlist.is_empty());
+	ASSERT_EQ(in.p_ref->t, in.t);
+	ASSERT_EQ(in.p_ref->pb, in.pb);
+	ASSERT_EQ(in.p_ref->uod, in.uod);
+	ASSERT_EQ(in.p_ref, get<1>(t));
+      }
+    ASSERT_NE(k, 0);
+  }
+}
+
+TEST_F(FluidTest, tp_sets)
+{
+  auto tp = data.tp_sets();
+  ASSERT_FALSE(tp.is_empty());
+}
+
+TEST_F(FluidTest, compute_values_without_inputing)
+{
+  {
+    auto ret = data.compute_values(&PbAlMarhoun::get_instance());
+    ASSERT_EQ(ret.corr_ptr, &PbAlMarhoun::get_instance());
+    ASSERT_TRUE(ret.p.is_empty());
+    ASSERT_TRUE(ret.punits.is_empty());
+    DynList<double> t_r = { 125, 200, 300 };
+    DynList<double> pb_r = { 1522.54, 1786.91, 2154.86 };
+    for (auto it = zip_it(ret.t, t_r, ret.y, pb_r); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	ASSERT_EQ(get<0>(t), get<1>(t));
+	ASSERT_FALSE(get<2>(t).is_empty());
+	ASSERT_NEAR(get<2>(t).get_first(), get<3>(t), 1e-2);
+      }
+  }
+  {
+    auto ret = data.compute_values(&RsAlMarhoun::get_instance());
+    ASSERT_EQ(ret.corr_ptr, &RsAlMarhoun::get_instance());
+    ASSERT_TRUE(ret.t.is_unitarian());
+    ASSERT_TRUE(ret.p.is_unitarian());
+    ASSERT_TRUE(ret.punits.is_unitarian());
+    DynList<double> p_r = {15, 300, 450, 600, 820 };
+    DynList<double> y_r = { 0.1242871314, 8.2004913732, 14.4574971593,
+			    21.6178535130, 33.4602142045 };
+    for (auto it = zip_it(ret.p.get_first(), ret.y.get_first(), p_r, y_r);
+	 it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	ASSERT_EQ(get<0>(t), get<2>(t));
+	ASSERT_NEAR(get<1>(t), get<3>(t), 1e-2);
+      }
+  }
+  {
+    auto ret = data.compute_values(&BobLopezCR::get_instance());
+    ASSERT_EQ(ret.corr_ptr, &BobLopezCR::get_instance());
+    ASSERT_TRUE(ret.t.is_unitarian());
+    ASSERT_TRUE(ret.p.is_unitarian());
+    ASSERT_TRUE(ret.punits.is_unitarian());
+    DynList<double> p_r = {15, 300, 450, 600, 820 };
+    DynList<double> y_r = { 1.030888, 1.043921, 1.048389, 1.053975, 1.060677 };
+    for (auto it = zip_it(ret.p.get_first(), ret.y.get_first(), p_r, y_r);
+	 it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	ASSERT_EQ(get<0>(t), get<2>(t));
+	ASSERT_NEAR(get<1>(t), get<3>(t), 1e-2);
+      }
+  }
+  {
+    auto ret = data.compute_values(&CoaDeGhetto::get_instance());
+    ASSERT_EQ(ret.corr_ptr, &CoaDeGhetto::get_instance());
+    ASSERT_TRUE(ret.t.is_unitarian());
+    ASSERT_TRUE(ret.p.is_unitarian());
+    ASSERT_TRUE(ret.punits.is_unitarian());
+    DynList<double> p_r = { 910, 1100, 1300, 1500, 1700,
+			    1900, 2100, 2300, 2500, 2700, 2900};
+    DynList<double> y_r = { 0.0000088299, 0.0000073048, 0.0000061810, 0.0000053568,
+			    0.0000047266, 0.0000042291, 0.0000038263, 0.0000034936,
+			    0.0000032141, 0.0000029760, 0.0000027708 };
+    for (auto it = zip_it(ret.p.get_first(), ret.y.get_first(), p_r, y_r);
+	 it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	ASSERT_EQ(get<0>(t), get<2>(t));
+	ASSERT_NEAR(get<1>(t), get<3>(t), 1e-10);
+      }
+  }
+  {
+    auto ret = data.compute_values(&BoaMcCain::get_instance());
+    ASSERT_EQ(ret.corr_ptr, &BoaMcCain::get_instance());
+    ASSERT_TRUE(ret.t.is_unitarian());
+    ASSERT_TRUE(ret.p.is_unitarian());
+    ASSERT_TRUE(ret.punits.is_unitarian());
+    DynList<double> p_r = { 820, 1000, 1200, 1400, 1600, 1800,
+			    2000, 2200, 2400, 2600, 2800, 3000 };
+    DynList<double> y_r = { 1.0919000000, 1.0907576545, 1.0895954690, 1.0885013022,
+			    1.0876074656, 1.0867651137, 1.0858738972, 1.0850879005,
+			    1.0843954015, 1.0838156219, 1.0834686397, 1.0833524981 };
+    for (auto it = zip_it(ret.p.get_first(), ret.y.get_first(), p_r, y_r);
+	 it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	ASSERT_NEAR(get<0>(t), get<2>(t), 1e2);
+	ASSERT_NEAR(get<1>(t), get<3>(t), 1e-10);
+      }
+  }
+  {
+    auto ret = data.compute_values(&UodBeal::get_instance());
+    ASSERT_EQ(ret.corr_ptr, &UodBeal::get_instance());
+    ASSERT_TRUE(ret.p.is_empty());
+    ASSERT_TRUE(ret.punits.is_empty());
+    DynList<double> t_r = { 125, 200, 300 };
+    DynList<double> uod_r = { 19838.5, 70.8092, 0.16593 };
+    for (auto it = zip_it(ret.t, t_r, ret.y, uod_r); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	ASSERT_EQ(get<0>(t), get<1>(t));
+	ASSERT_FALSE(get<2>(t).is_empty());
+	ASSERT_NEAR(get<2>(t).get_first(), get<3>(t), 1e-1);
+      }
+  }
+  {
+    auto ret = data.compute_values(&UobBeggsRobinson::get_instance());
+    ASSERT_EQ(ret.corr_ptr, &UobBeggsRobinson::get_instance());
+    ASSERT_TRUE(ret.t.is_unitarian());
+    ASSERT_TRUE(ret.p.is_unitarian());
+    ASSERT_TRUE(ret.punits.is_unitarian());
+    DynList<double> p_r = { 0, 450, 550, 650, 820 };
+    DynList<double> y_r = { 30056.5258647182, 9946.2324985816, 8225.4569796661,
+			    6992.7696026539, 5547.2844488500 };
+    for (auto it = zip_it(ret.p.get_first(), ret.y.get_first(), p_r, y_r);
+	 it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	ASSERT_NEAR(get<0>(t), get<2>(t), 1e2);
+	ASSERT_NEAR(get<1>(t), get<3>(t), 1e-10);
+      }
+  }
+  {
+    auto ret = data.compute_values(&UoaAbedini::get_instance());
+    ASSERT_EQ(ret.t.size(), 3);
+    ASSERT_EQ(ret.p.size(), 3);
+    ASSERT_EQ(ret.punits.size(), 3);
+    DynList<DynList<double>> p_r = { { 820, 1000, 1200, 1500, 1800,
+				       2100, 2400, 2700, 3000 },
+				     { 1006.25, 1100, 1300, 1500,
+				       1800, 2100, 2400, 2700, 3000 },
+				     { 1200, 1500, 1800, 2100, 2400,
+				       2700, 3000 } };
+    DynList<DynList<double>> y_r =
+      { { 7500, 11677.8904145129, 16319.9908750827, 23283.1415659374,
+	  30246.2922567922, 37209.4429476469, 44172.5936385017, 51135.7443293564,
+	  58098.8950202112 },
+	{ 255.3125, 269.4848552017, 299.7192129652, 329.9535707287,
+	  375.3051073741, 420.6566440194, 466.0081806647, 511.3597173100,
+	  556.7112539553 },
+	{ 30.2900000000, 31.7730048248, 33.2560096496, 34.7390144744,
+	  36.2220192992, 37.7050241239, 39.1880289487 } };
+    for (auto it = zip_it(ret.p, p_r, ret.y, y_r); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	for (auto it = zip_it(get<0>(t), get<1>(t), get<2>(t), get<3>(t));
+	     it.has_curr(); it.next())
+	  {
+	    auto t = it.get_curr();
+	    ASSERT_NEAR(get<0>(t), get<1>(t), 1e2);
+	    ASSERT_NEAR(get<2>(t), get<3>(t), 1e-4);
+	  }
+      }
+  }
+}
+
+TEST_F(FluidTest, build_entries_for_correlation_with_inputing)
+{
+
+}
+
+TEST_F(FluidTest, build_entries_for_correlation_with_correlations_defined)
+{
+
+}
+
+// TODO probar construcción de CorrInput
+// TODO: probar en merge_with que valores de bobp uod y uobp den correctos
+// TODO: probar to_parpair en  vector
+// Todo: parallel_vectors
+
+// TODO 1ro debo programar inputing
+
+// Luego debo verificar parallel vectors
+
+TEST_F(FluidTest, get_pars)
+{
+  {
+    const DynList<const VectorDesc*> uob_vectors = data.search_vectors("uob");
+    const DynList<PvtData::Sample> l = data.get_pars(uob_vectors, "rs");
+    for (auto it = zip_it(uob_vectors, l); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	const VectorDesc * vptr = get<0>(t);
+	const PvtData::Sample & sample = get<1>(t);
+	ASSERT_TRUE(eq(vptr->p, sample.pvals, near_cmp));
+      }
+  }
+
+  {
+    const DynList<const VectorDesc*> uo_vectors = data.search_vectors("uo");
+    const DynList<PvtData::Sample> l = data.get_pars(uo_vectors, "rs");
+    for (auto it = zip_it(uo_vectors, l); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	const VectorDesc * vptr = get<0>(t);
+	const PvtData::Sample & sample = get<1>(t);
+	ASSERT_TRUE(eq(vptr->p, sample.pvals, near_cmp));
+	vptr->p.for_each([] (auto p) { cout << p << " "; }); cout << endl;
+	sample.pvals.for_each([] (auto p) { cout << p << " "; }); cout << endl;
+      }
+  }
+
+  {
+    const DynList<const VectorDesc*> uo_vectors = data.search_vectors("uoa");
+    const DynList<PvtData::Sample> l = data.get_pars(uo_vectors, "boa");
+    for (auto it = zip_it(uo_vectors, l); it.has_curr(); it.next())
+      {
+	auto t = it.get_curr();
+	const VectorDesc * vptr = get<0>(t);
+	const PvtData::Sample & sample = get<1>(t);
+	ASSERT_TRUE(eq(vptr->p, sample.pvals, near_cmp));
+      }
+    } 
+}
+
+TEST_F(FluidTest, matches_with_pars)
+{
+  auto lbefore = data.matches_with_pars("rs");
+
+  auto api_ptr = data.search_const("api");
+  const auto api = *api_ptr;
+  data.rm_const("api");
+
+  ASSERT_EQ(data.search_const("api"), nullptr);
+
+  auto lafter = data.matches_with_pars("rs");
+
+  ASSERT_FALSE(eq(lbefore, lafter));
+
+  //data.add_const(const ConstDesc &c)
+}
+
+
+TEST_F(FluidTest, can_be_applied)
+{
+  auto l = data.can_be_applied("rs");
+  l.for_each([] (auto ptr) { cout << ptr->name << endl; });
+
+  cout << "****************************************************************" << endl;
+
+  Correlation::array().filter([] (auto ptr) { return ptr->target_name() == "rs"; }).
+    for_each([] (auto ptr) { cout << ptr->name << endl; });
+}
+
+
+TEST_F(FluidTest, list_restrictions)
+{
+
+}
+
+TEST_F(FluidTest, get_vectors)
+{
+
+}
+
+TEST_F(FluidTest, pbapply)
+{
+
+}
+
+TEST_F(FluidTest, rsapply)
+{
+
+}
+
+TEST_F(FluidTest, bobapply)
+{
+
+}
+
+TEST_F(FluidTest, coaapply)
+{
+
+}
+
+TEST_F(FluidTest, boaapply)
+{
+
+}
+
+TEST_F(FluidTest, uodapply)
+{
+
+}
+
+TEST_F(FluidTest, uobapply)
+{
+
+}
+
+TEST_F(FluidTest, uoaapply)
+{
+
+}
+
+TEST_F(FluidTest, build_samples) // Revisar si es necesaria
+{
+
+}
+
+TEST_F(FluidTest, iapply)
+{
+
+}
+
+TEST_F(FluidTest, pbstats)
+{
+
+}
+
+TEST_F(FluidTest, rsstats)
+{
+
+}
+
+TEST_F(FluidTest, bobstats)
+{
+
+}
+
+TEST_F(FluidTest, coastats)
+{
+
+}
+
+TEST_F(FluidTest, boastats)
+{
+
+}
+
+TEST_F(FluidTest, uodstats)
+{
+
+}
+
+TEST_F(FluidTest, uobstats)
+{
+
+}
+
+TEST_F(FluidTest, uoastats)
+{
+
+}
+
+TEST_F(FluidTest, istats)
+{
+
+}
+
+TEST_F(FluidTest, auto_apply)
+{
+
+}
+
+
+
+TEST(PvtData, are_all_correlations_defined_and_missing)
+{
+
+}
+
+

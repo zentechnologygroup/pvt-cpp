@@ -5,6 +5,130 @@
 
 # include <correlations/gas-compressibility.H>
 
+# include <math.h>
+
+static const double min_z = MIN_Z_VALUE;
+
+static double guess_initial_value_linear(const double & tpr, const double & ppr)
+{
+/*  constexpr double a1  = 0.317842;
+  constexpr double a2  = 0.382216;*/
+  constexpr double a3  = -7.768354;
+  constexpr double a4  = 14.290531;
+  constexpr double a5  = 0.000002;
+  constexpr double a6  = -0.004693;
+  constexpr double a7  = 0.096254;
+  constexpr double a8  = 0.166720;
+  constexpr double a9  = 0.966910;
+/*  constexpr double a10 = 0.063069;
+  constexpr double a11 = -1.966847;
+  constexpr double a12 = 21.0581;
+  constexpr double a13 = -27.0246;
+  constexpr double a14 = 16.23;
+  constexpr double a15 = 207.783;
+  constexpr double a16 = -488.161;
+  constexpr double a17 = 176.29;
+  constexpr double a18 = 1.88453;
+  constexpr double a19 = 3.05921;*/
+
+  const double t = 1/tpr;
+  const double t2 = t*t;
+  const double t3 = t2*t;
+  const double t6 = t3*t3; // t3*t3 = t3^2 = t^6
+  const double ppr2 = ppr*ppr;
+  const double ppr3 = ppr2*ppr;
+  const double ppr6 = ppr3*ppr3; // ppr3*ppr3 = ppr3^2 = ppr^6
+
+  const double t12 = (1 - t)*(1 - t);
+  
+  constexpr double m1 = 0.1009332;
+  constexpr double m2 = 0.7773702;
+
+  const double M = m1*t2*exp(m2*t12);
+
+  //const double A = a1*t*exp(a2*t12)*ppr;
+  const double B = a3*t + a4*t2 + a5*t6*ppr6;
+  const double C = a9 + a8*t*ppr + a7*t2*ppr2 + a6*t3*ppr3;
+  //const double D = a10*t*exp(a11*t12);
+  //const double E = a12*t + a13*t2 + a14*t3;
+  //const double F = a15*t + a16*t2 + a17*t3;
+  //const double G = a18 + a19*t;
+
+  //const double A2 = A*A;
+  const double C2 = C*C;
+  //const double C3 = C2*C;
+
+  const double z = 1/C + M*ppr2*(1 - B/C2)/C;
+
+  return z > min_z ? z : min_z;
+}
+
+static double guess_initial_value_nonlinear(const double & tpr, const double & ppr)
+{
+  constexpr double a1  = 0.317842;
+  constexpr double a2  = 0.382216;
+  constexpr double a3  = -7.768354;
+  constexpr double a4  = 14.290531;
+  constexpr double a5  = 0.000002;
+  constexpr double a6  = -0.004693;
+  constexpr double a7  = 0.096254;
+  constexpr double a8  = 0.166720;
+  constexpr double a9  = 0.966910;
+  constexpr double a10 = 0.063069;
+  constexpr double a11 = -1.966847;
+  constexpr double a12 = 21.0581;
+  constexpr double a13 = -27.0246;
+  constexpr double a14 = 16.23;
+  constexpr double a15 = 207.783;
+  constexpr double a16 = -488.161;
+  constexpr double a17 = 176.29;
+  constexpr double a18 = 1.88453;
+  constexpr double a19 = 3.05921;
+
+  const double t = 1/tpr;
+  const double t2 = t*t;
+  const double t3 = t2*t;
+  const double t6 = t3*t3; // t3*t3 = t3^2 = t^6
+  const double ppr2 = ppr*ppr;
+  const double ppr3 = ppr2*ppr;
+  const double ppr6 = ppr3*ppr3; // ppr3*ppr3 = ppr3^2 = ppr^6
+
+  const double t12 = (1 - t)*(1 - t);
+
+  const double A = a1*t*exp(a2*t12)*ppr;
+  const double B = a3*t + a4*t2 + a5*t6*ppr6;
+  const double C = a9 + a8*t*ppr + a7*t2*ppr2 + a6*t3*ppr3;
+  const double D = a10*t*exp(a11*t12);
+  const double E = a12*t + a13*t2 + a14*t3;
+  const double F = a15*t + a16*t2 + a17*t3;
+  const double G = a18 + a19*t;
+
+  const double A2 = A*A;
+  const double C2 = C*C;
+  const double C3 = C2*C;
+
+  const double y = D * ppr / ((1 + A2)/C - (A2 * B)/C3);
+  const double y2 = y * y;
+  const double y3 = y2 * y;
+  const double yG = pow(y, G);
+  const double z = (D * ppr * (1 + y + y2 - y3)) / ((D * ppr + E * y2 - F * yG) * pow(1 - y, 3));
+
+  return z > min_z ? z : min_z;
+}
+
+static double guess_initial_value_eos(const double & tpr, const double & ppr)
+{
+  // Representation of the Standing-Katz chart using a Carnahan-Starling hard-sphere EOS
+  const double prprev = 0.47; // z = 0.25, ppr = 2, tpr = 1.05
+  const double tpr_1 = 1/tpr;
+  const double tpr_1_1 = 1 - tpr_1;
+  
+  const double a = 0.06125*tpr_1*exp(-1.2*tpr_1_1*tpr_1_1);
+  double z = a * ppr / prprev;
+
+  return z > min_z ? z : min_z;
+}
+
 inline double
 ZfactorSarem::impl(const double & tpr,
 		   const double & ppr) noexcept
@@ -52,9 +176,21 @@ ZfactorSarem::impl(const double & tpr,
     0.0053096*p5x*p0y + 0.0089178*p5x*p1y + -0.0108948*p5x*p2y +
     0.0095594*p5x*p3y + -0.0060114*p5x*p4y + 0.0031175*p5x*p5y;
 
+  if (z < min_z)
+    return min_z;
+
   return z;
 }
 
+using GuessFct = double (*)(const double &, const double &);
+
+static GuessFct guess_fct[] =
+  {
+    &guess_initial_value_linear,
+    &guess_initial_value_nonlinear,
+    &guess_initial_value_eos,
+    nullptr // sentinel value for indicating array end
+  };
 
 inline double
 ZfactorHallYarborough::impl(const double & tpr,
@@ -69,16 +205,27 @@ ZfactorHallYarborough::impl(const double & tpr,
   const double b = 14.76*tpr_1 - 9.76*tpr_1_2 + 4.58*tpr_1_3;
   const double c = 90.7*tpr_1 - 242.2*tpr_1_2 + 42.4*tpr_1_3;
   const double d = 2.18 + 2.82*tpr_1;
+ 
+  constexpr double epsilon = 1.0e-8;
 
-  // pr: Densidad reducida definida por el autor del metodo
-  constexpr double epsilon = 1.0e-10;
-  double pr = 0, prf = 0;
-  double prprev = 0.00001;
-            
-  // iteracion por metodo Newton-Raphson
-  while (fabs(prprev - pr) > epsilon)
+  GuessFct * guess_ptr = &guess_fct[0];
+
+ calculate:
+
+  assert(*guess_ptr == guess_initial_value_linear or
+	 *guess_ptr == guess_initial_value_nonlinear or
+	 *guess_ptr == guess_initial_value_eos);
+  
+  double pr = 0, prf = 0, z = 0;   // pr: Reduced density
+
+  double zprev = (**guess_ptr)(tpr, ppr);
+  double prprev = a * ppr / zprev;
+
+  // Newton-Raphson method iteration
+  for (size_t i = 0; i < 60 and (fabs(prprev - pr) > epsilon); ++i)
     {
       pr = prprev;
+
       const double pr2 = pr*pr;
       const double pr3 = pr2*pr;
       const double pr4 = pr3*pr;
@@ -88,13 +235,20 @@ ZfactorHallYarborough::impl(const double & tpr,
       const double dfdpr= (1 + 4*pr + 4*pr2 - 4*pr3 + pr4) / pow(1 - pr, 4) -
 	2*b*pr + c*d*pow(pr, d - 1);
       prf = pr - f/dfdpr;
+
       prprev = prf;
     }       
-
+  
   pr = prf;
-            
-  const double z = (0.06125*ppr*tpr_1*exp(-1.2 * tpr_1_1*tpr_1_1)) / pr;
-
+           
+  z = a * ppr / pr;
+  
+  if ((std::isnan(z) or z < min_z))
+    if (*(++guess_ptr) != nullptr) // *guess_ptr because is a pointer to pointer
+      goto calculate;
+    else
+      z = min_z; // all the guessing methods have been explored unsuccessfully
+  
   return z;
 }
 
@@ -114,14 +268,17 @@ ZfactorDranchukPR::impl(const double & tpr,
   const double tpr2 = tpr*tpr;
   const double tpr3 = tpr2*tpr;
 
-      // pr: Densidad reducida definida por el autor del metodo
   constexpr double epsilon = 1.0e-8;
-  double z = 0.5;
-  double zprev = 0.6;
-  double zf = 0;
-            
-      // iteracion por metodo Newton-Raphson
-  while (fabs(zprev - z) > epsilon)
+
+  // pr: Reduced density
+  double zprev, z, zf;
+
+  zprev = guess_initial_value_linear(tpr, ppr);
+  z = 0;
+  zf = 0;
+
+  // Newton-Raphson method iteration
+  for (size_t i = 0; i < 60 and (fabs(zprev - z) > epsilon); ++i)
     {
       z = zprev;
       const double pr = 0.27*ppr/(z * tpr);
@@ -145,25 +302,30 @@ ZfactorDranchukPR::impl(const double & tpr,
       zprev = zf;
     }
 
+  if (zf < min_z)
+    return min_z;
+                            
   return zf;
 }
-
+/*
 void ZfactorDranchukAK::precondition(const Quantity<PseudoReducedTemperature> & tpr,
 			      const Quantity<PseudoReducedPressure> & ppr) const
 {
-  if ( (tpr >= 1 and not (0.2 <= ppr and ppr <= 30)) or (tpr < 1 and not (ppr <= 1)) )
+  if ( (tpr >= 1 and not (0.2 <= ppr and ppr <= 30)) or
+       (tpr < 1 and not (ppr <= 1)) )
     {
       ostringstream s;
-      s << "ZfactorDranchukAK::impl: Wrong combination of input values for tpr " << tpr << " and ppr " << ppr;
+      s << "ZfactorDranchukAK::impl: Wrong combination of input values for tpr "
+	<< tpr << " and ppr " << ppr;
       ZENTHROW(WrongCombinationInputValues, s.str());
     }
 }
-
+*/
 inline double
 ZfactorDranchukAK::impl(const double & tpr,
 			const double & ppr) noexcept
 {
-  //todo son dos conjuntos d erangos
+  //todo son dos conjuntos de rangos
   constexpr double a1 = 0.3265;
   constexpr double a2 = -1.07;
   constexpr double a3 = -0.5339;
@@ -178,8 +340,8 @@ ZfactorDranchukAK::impl(const double & tpr,
             
   // pr: Densidad reducida definida por el autor del metodo
   constexpr double epsilon = 1.0e-8;
-  double z = 0.5;
-  double zprev = 0.6;
+  double z = 0;
+  double zprev = guess_initial_value_linear(tpr, ppr);
   double zf;
 
   const double tpr2 = tpr*tpr;
@@ -187,7 +349,7 @@ ZfactorDranchukAK::impl(const double & tpr,
   const double tpr4 = tpr3*tpr;
   const double tpr5 = tpr4*tpr;
 
-  while (fabs(zprev - z) > epsilon)
+  for (size_t i = 0; i < 60 and (fabs(zprev - z) > epsilon); ++i)
     {
       z = zprev;
       const double pr = 0.27*ppr/(z * tpr);
@@ -214,6 +376,9 @@ ZfactorDranchukAK::impl(const double & tpr,
       zprev = zf;
     }     
 
+  if (zf < min_z)
+    return min_z;
+                            
   return zf;
 }
 
@@ -222,42 +387,45 @@ ZfactorGopal::impl(const double & tpr,
 		   const double & ppr) noexcept
 {
   double z = 0;
-  if (0.2 <= ppr and ppr <= 1.2)
+  if (ppr <= 1.2) // 0.2 <= ppr <= 1.2
     {
-      if (1.05 <= tpr and tpr <= 1.2)
+      if (tpr <= 1.2) // 1.05 <= tpr <= 1.2
 	z = ppr*(1.6643*tpr - 2.2114) - 0.3647*tpr + 1.4385;
       else if (tpr > 1.2 and tpr <= 1.4)
 	z = ppr*(0.0522*tpr - 0.8511) - 0.0364*tpr + 1.0490;
       else if (tpr > 1.4 and tpr <= 2.0)
 	z = ppr*(0.1391*tpr - 0.2988) + 0.0007*tpr + 0.9969;
-      else // 2.0 < Tpr <= 3.0
+      else if (tpr > 2.0) // 2.0 < tpr <= 3.0
 	z = ppr*(0.0295*tpr - 0.0825) + 0.0009*tpr + 0.9967;
     }
   else if (1.2 < ppr and ppr <= 2.8)
     {
-      if (1.05 <= tpr and tpr <= 1.2)
+      if (tpr <= 1.2) // 1.05 <= tpr <= 1.2
 	z = ppr*(-1.3570*tpr + 1.4942) + 4.6315*tpr - 4.7009;
       else if (tpr > 1.2 and tpr <= 1.4)
 	z = ppr*(0.1717*tpr - 0.3232) + 0.5869*tpr + 0.1229;
       else if (tpr > 1.4 and tpr <= 2.0)
 	z = ppr*(0.0984*tpr - 0.2053) + 0.0621*tpr + 0.8580;
-      else // 2.0 < Tpr <= 3.0
+      else if (tpr > 2.0) // 2.0 < tpr <= 3.0
 	z = ppr*(0.0211*tpr - 0.0527) + 0.0127*tpr + 0.9549;
     }
   else if (ppr > 2.8 and ppr <= 5.4)
     {
-      if (1.05 <= tpr and tpr <= 1.2)
+      if (tpr <= 1.2) // 1.05 <= tpr <= 1.2
 	z = ppr*(-0.3278*tpr + 0.4752) + 1.8223*tpr - 1.9036;
       else if (tpr > 1.2 and tpr <= 1.4)
 	z = ppr*(-0.2521*tpr + 0.3871) + 1.6087*tpr - 1.6635;
       else if (tpr > 1.4 and tpr <= 2.0)
 	z = ppr*(-0.0284*tpr + 0.0625) + 0.4714*tpr - 0.0011;
-      else // 2.0 < Tpr <= 3.0:
+      else if (tpr > 2.0) // 2.0 < tpr <= 3.0
 	z = ppr*(0.0041*tpr + 0.0039) + 0.0607*tpr + 0.7927;
     }
-  else // 5.4 < ppr <= 15
+  else if (ppr > 5.4) // 5.4 < ppr <= 15
     z = ppr*pow(0.711 + 3.66*tpr + 0.0039, -1.4667) -
       1.637/(0.319*tpr + 0.522) + 2.071;
+
+  if (z < min_z)
+    return min_z;
                             
   return z;
 }
@@ -282,10 +450,13 @@ ZfactorBrillBeggs::impl(const double & tpr,
   double z = 0;
   if (b > 700)
     z = a + c*pow(ppr, d); //The fraction (1 - A)/exp(B) becomes
-				 //zero with very high numbers in the
+				 //zero with very high numbez in the
 				 //denominator (i.e. exp(B) > 1e+304) 
   else
     z = a + ((1 - a)/exp(b)) + c*pow(ppr, d);
+
+  if (z < min_z)
+    return min_z;
 
   return z;
 }
@@ -298,10 +469,10 @@ ZfactorPapay::impl(const double & tpr,
   const double z = 1 - 3.52*ppr/pow(10, 0.9813*tpr) +
     0.274*ppr2/pow(10, 0.8157*tpr);
 
+  if (z < min_z)
+    return min_z;
+
   return z;
 }
-
-
-
 
 # endif // GAS_COMPRESSIBILITY_IMPL_H

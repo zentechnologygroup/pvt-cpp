@@ -5,6 +5,7 @@
 
 # include <ah-comb.H>
 # include <tpl_dynMapTree.H>
+# include <ah-dispatcher.H>
 
 # include <metadata/pvt-analyse.H>
 # include <metadata/pvt-calibrate.H>
@@ -32,7 +33,7 @@ SwitchArg corr_all = { "a", "all", "list all associated correlations", cmd };
 SwitchArg corr_best = { "b", "best", "list best correlations", cmd };
 
 SwitchArg force_corr =
-  { "j", "join", "join by correlation value instead of sexperimental point",
+  { "j", "join", "join by correlation value instead of experimental point",
     cmd };
   
 ValueArg<string> below_corr = { "B", "below", "below correlation name", false,
@@ -48,7 +49,7 @@ ValuesConstraint<string> allowed_compute = compute_types;
 ValueArg<string> compute_type = { "c", "compute-type", "compute type", false,
 				 "single", &allowed_compute, cmd };
 
-vector<string> sort_values = { "r2", "sumsq", "mse", "distance", "m" };
+vector<string> sort_values = { "r2", "sumsq", "mse", "distance", "m", "c" };
 ValuesConstraint<string> allow_sort = sort_values;
 ValueArg<string> sort_type = { "o", "order", "output order type", false,
 			       "sumsq", &allow_sort, cmd };
@@ -78,6 +79,7 @@ PvtAnalyzer load_pvt_data(istream & input)
 void list_correlations(const DynList<const Correlation*> & l)
 {
   l.for_each([] (auto p) { cout << p->call_string() << endl; });
+  exit(0);
 }
 
 auto cmp_r2 = [] (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
@@ -125,6 +127,15 @@ auto cmp_m = [] (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
   return fabs(1 - f1.m) < fabs(1 - f2.m);
 };
 
+auto cmp_c = [] (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
+{
+  const CorrStat::Desc & s1 = get<2>(d1);
+  const CorrStat::Desc & s2 = get<2>(d2);
+  const CorrStat::LFit & f1 = get<3>(s1);
+  const CorrStat::LFit & f2 = get<3>(s2);
+  return fabs(f1.c) < fabs(f2.c);
+};
+
 auto get_cmp(const string & sort_type) -> bool
   (*) (const PvtAnalyzer::Desc & d1, const PvtAnalyzer::Desc & d2)
 {
@@ -133,13 +144,8 @@ auto get_cmp(const string & sort_type) -> bool
   if (sort_type == "distance") return cmp_dist;
   if (sort_type == "mse") return cmp_mse;
   if (sort_type == "m") return cmp_m;
+  if (sort_type == "c") return cmp_c;
   cout << "Invalid sort type " << sort_type << endl;
-  abort();
-}
-
-void error_msg(const string & msg = "Not yet implemented")
-{
-  cout << msg << endl;
   abort();
 }
 
@@ -213,6 +219,7 @@ void list_correlations(const DynList<PvtAnalyzer::Desc> & l,
   mat.insert(DynList<string>({"Correlation", "r2", "mse", "distance", "sumsq",
 	  "c", "m"}));
   cout << format_list(mat, get_output_type(out_type));
+  exit(0);
 }
 
 void list_correlations
@@ -242,6 +249,7 @@ void list_correlations
   mat.insert(DynList<string>({"Correlation", "r2", "mse", "distance", "sumsq",
 	  "c", "m"}));
   cout << format_list(mat, get_output_type(out_type));
+  exit(0);
 }
 
 enum class EvalType { Single, Calibrated, Both, Undefined };
@@ -538,16 +546,10 @@ eval_correlations(const DynList<PvtAnalyzer::Desc> & lb, // below pb
 void process_pb(PvtAnalyzer & pvt)
 {
   if (corr_all.isSet())
-    {
-      list_correlations(pvt.pb_correlations());
-      exit(0);
-    }
+    list_correlations(pvt.pb_correlations());
 
   if (corr_list.isSet())
-    {
-      list_correlations(pvt.pb_valid_correlations());
-      exit(0);
-    }
+    list_correlations(pvt.pb_valid_correlations());
 
   if (not corr_best.isSet())
     error_msg("missing combined option -a, -l, or -b with -P pb option");
@@ -688,6 +690,7 @@ r_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
     << Rvector("cols", cols) << endl
     <<  "legend(\"topleft\", legend=cnames, lty=1, col=cols)" << endl;
 
+  cout << s.str() << endl;
   return s.str();
 }
 
@@ -700,30 +703,6 @@ json to_json(const pair<CorrDesc, DynList<double>> & sample)
   j["m"] = get<3>(sample.first);
   j["values"] = to_vector(sample.second);
   return j;
-}
-
-string mat_format
-(const pair<DynList<MixedCorrDesc>, DynList<DynList<double>>> & dmat)
-{
-  return mat_format(make_pair(dmat.first.maps<CorrDesc>([] (const auto & desc)
-                                 { return to_CorrDesc(desc); }),
-			      dmat.second));
-}
-
-string csv_format(const pair<DynList<MixedCorrDesc>,
-		  DynList<DynList<double>>> & dmat)
-{
-  return csv_format(make_pair(dmat.first.maps<CorrDesc>([] (const auto & desc)
-					          { return to_CorrDesc(desc); }),
-			      dmat.second));
-}
-
-string r_format(const pair<DynList<MixedCorrDesc>,
-		DynList<DynList<double>>> & dmat)
-{
-  return r_format(make_pair(dmat.first.maps<CorrDesc>([] (const auto & desc)
-				          { return to_CorrDesc(desc); }),
-			    dmat.second));
 }
 
 json to_json(const pair<MixedCorrDesc, DynList<double>> & sample)
@@ -751,19 +730,59 @@ json_format(const pair<DynList<CorrDesc>, DynList<DynList<double>>> & dmat)
     }
 
   json j;
-  j["data sets"] =
-    to_vector(samples.maps<json>([] (const auto & s) { return to_json(s); }));
+  j["data sets"] = to_vector(samples.maps<json>([] (auto & s) { return to_json(s); }));
   
   return j.dump(2);
 }
 
+using FormatFct =
+  string (*)(const pair<DynList<CorrDesc>, DynList<DynList<double>>>&);
+
+AHDispatcher<string, FormatFct> format_dispatcher("csv", csv_format,
+						  "mat", mat_format,
+						  "json", json_format,
+						  "R", r_format);
+
+string mixed_mat_format
+(const pair<DynList<MixedCorrDesc>, DynList<DynList<double>>> & dmat)
+{
+  return mat_format(make_pair(dmat.first.maps<CorrDesc>([] (const auto & desc)
+                                 { return to_CorrDesc(desc); }),
+			      dmat.second));
+}
+
+string mixed_csv_format(const pair<DynList<MixedCorrDesc>,
+			DynList<DynList<double>>> & dmat)
+{
+  return csv_format(make_pair(dmat.first.maps<CorrDesc>([] (const auto & desc)
+					          { return to_CorrDesc(desc); }),
+			      dmat.second));
+}
+
+string mixed_r_format(const pair<DynList<MixedCorrDesc>,
+		      DynList<DynList<double>>> & dmat)
+{
+  return r_format(make_pair(dmat.first.maps<CorrDesc>([] (const auto & desc)
+				          { return to_CorrDesc(desc); }),
+			    dmat.second));
+}
+
 string
-json_format(const pair<DynList<MixedCorrDesc>, DynList<DynList<double>>> & dmat)
+mixed_json_format(const pair<DynList<MixedCorrDesc>,
+		  DynList<DynList<double>>> & dmat)
 {
   return json_format(make_pair(dmat.first.maps<CorrDesc>([] (const auto & desc)
 					          { return to_CorrDesc(desc); }),
 			      dmat.second));
 }
+
+using MixedFormatFct =
+  string (*)(const pair<DynList<MixedCorrDesc>, DynList<DynList<double>>>&);
+
+AHDispatcher<string, MixedFormatFct> mixed_dispatcher("csv", mixed_csv_format,
+						      "mat", mixed_mat_format,
+						      "json", mixed_json_format,
+						      "R", mixed_r_format);
 
 DynList<const Correlation*>
 read_correlation_from_command_line(MultiArg<string> & cnames,
@@ -820,23 +839,14 @@ read_uob_correlations_from_command_line(MultiArg<string> & cnames,
 void process_rs(PvtAnalyzer & pvt)
 {
   if (corr_all.isSet())
-    {
-      list_correlations(pvt.rs_correlations());
-      exit(0);
-    }
+    list_correlations(pvt.rs_correlations());
 
   if (corr_list.isSet())
-    {
-      list_correlations(pvt.rs_valid_correlations());
-      exit(0);
-    }
+    list_correlations(pvt.rs_valid_correlations());
 
   if (corr_best.isSet())
-    {
-      list_correlations(pvt.rs_best_correlations(), sort_type.getValue(),
-			output_type.getValue());
-      exit(0);
-    }
+    list_correlations(pvt.rs_best_correlations(), sort_type.getValue(),
+		      output_type.getValue());
 
   if (not plot.isSet())
     error_msg("Not plot option (-p) has not been set");
@@ -851,23 +861,7 @@ void process_rs(PvtAnalyzer & pvt)
 				"Below Pb", "rs", pvt,
 				get_eval_type(compute_type.getValue()));
 
-  switch (get_output_type(output_type.getValue()))
-    {
-    case OutputType::mat:
-      cout << mat_format(dmat);
-      break;
-    case OutputType::csv:
-      cout << csv_format(dmat);
-      break;
-    case OutputType::R:
-      cout << r_format(dmat);
-      break;
-    case OutputType::json:
-      cout << json_format(dmat);
-      break;
-    default:
-      error_msg("Invalid outout type value");
-    }
+  cout << format_dispatcher.run(output_type.getValue(), dmat) << endl;
 }
 
 void process_rsa(PvtAnalyzer & pvt)
@@ -903,45 +897,20 @@ void process_rsa(PvtAnalyzer & pvt)
 				pvt.get_data().name_index("Below Pb", "rs"), pvt,
 				get_eval_type(compute_type.getValue()));
 
-  switch (get_output_type(output_type.getValue()))
-    {
-    case OutputType::mat:
-      cout << mat_format(dmat);
-      break;
-    case OutputType::csv:
-      cout << csv_format(dmat);
-      break;
-    case OutputType::R:
-      cout << r_format(dmat);
-      break;
-    case OutputType::json:
-      cout << json_format(dmat);
-      break;
-    default:
-      error_msg("Invalid outout type value");
-    }
+  mixed_dispatcher.run(output_type.getValue(), dmat);
 }
 
 void process_bob(PvtAnalyzer & pvt)
 {
   if (corr_all.isSet())
-    {
-      list_correlations(pvt.bob_correlations());
-      exit(0);
-    }
+    list_correlations(pvt.bob_correlations());
 
   if (corr_list.isSet())
-    {
-      list_correlations(pvt.bob_valid_correlations());
-      exit(0);
-    }
+    list_correlations(pvt.bob_valid_correlations());
 
   if (corr_best.isSet())
-    {
-      list_correlations(pvt.bob_best_correlations(), sort_type.getValue(),
-			output_type.getValue());
-      exit(0);
-    }
+    list_correlations(pvt.bob_best_correlations(), sort_type.getValue(),
+		      output_type.getValue());
 
   if (not plot.isSet())
     error_msg("Not plot option (-p) has not been set");
@@ -956,45 +925,20 @@ void process_bob(PvtAnalyzer & pvt)
 				"Below Pb", "bob", pvt,
 				get_eval_type(compute_type.getValue()));
 
-  switch (get_output_type(output_type.getValue()))
-    {
-    case OutputType::mat:
-      cout << mat_format(dmat);
-      break;
-    case OutputType::csv:
-      cout << csv_format(dmat);
-      break;
-    case OutputType::R:
-      cout << r_format(dmat);
-      break;
-    case OutputType::json:
-      cout << json_format(dmat);
-      break;
-    default:
-      error_msg("Invalid outout type value");
-    }
+  cout << format_dispatcher.run(output_type.getValue(), dmat) << endl;
 }
 
 void process_boa(PvtAnalyzer & pvt)
 {
   if (corr_all.isSet())
-    {
-      list_correlations(pvt.boa_correlations());
-      exit(0);
-    }
+    list_correlations(pvt.boa_correlations());
 
   if (corr_list.isSet())
-    {
-      list_correlations(pvt.boa_valid_correlations());
-      exit(0);
-    }
+    list_correlations(pvt.boa_valid_correlations());
 
   if (corr_best.isSet())
-    {
-      list_correlations(pvt.boa_best_correlations(), sort_type.getValue(),
-			output_type.getValue());
-      exit(0);
-    }
+    list_correlations(pvt.boa_best_correlations(), sort_type.getValue(),
+		      output_type.getValue());
 
   if (not plot.isSet())
     error_msg("Not plot option (-p) has not been set");
@@ -1009,23 +953,7 @@ void process_boa(PvtAnalyzer & pvt)
 				"Above Pb", "boa", pvt,
 				get_eval_type(compute_type.getValue()));
 
-  switch (get_output_type(output_type.getValue()))
-    {
-    case OutputType::mat:
-      cout << mat_format(dmat);
-      break;
-    case OutputType::csv:
-      cout << csv_format(dmat);
-      break;
-    case OutputType::R:
-      cout << r_format(dmat);
-      break;
-    case OutputType::json:
-      cout << json_format(dmat);
-      break;
-    default:
-      error_msg("Invalid outout type value");
-    }
+  cout << format_dispatcher.run(output_type.getValue(), dmat) << endl;
 }
 
 void process_bo(PvtAnalyzer & pvt)
@@ -1103,45 +1031,20 @@ void process_bo(PvtAnalyzer & pvt)
 		      pvt.get_data().name_index("Below Pb", "bob"), pvt,
 		      get_eval_type(compute_type.getValue()));
 
-  switch (get_output_type(output_type.getValue()))
-    {
-    case OutputType::mat:
-      cout << mat_format(dmat);
-      break;
-    case OutputType::csv:
-      cout << csv_format(dmat);
-      break;
-    case OutputType::R:
-      cout << r_format(dmat);
-      break;
-    case OutputType::json:
-      cout << json_format(dmat);
-      break;
-    default:
-      error_msg("Invalid outout type value");
-    }
+  mixed_dispatcher.run(output_type.getValue(), dmat);
 }
 
 void process_uob(PvtAnalyzer & pvt)
 {
   if (corr_all.isSet())
-    {
-      list_correlations(pvt.uob_correlations());
-      exit(0);
-    }
+    list_correlations(pvt.uob_correlations());
 
   if (corr_list.isSet())
-    {
       list_correlations(pvt.uob_valid_correlations());
-      exit(0);
-    }
 
   if (corr_best.isSet())
-    {
-      list_correlations(pvt.uob_correlations_lfits(), sort_type.getValue(),
-			output_type.getValue());
-      exit(0);
-    }
+    list_correlations(pvt.uob_correlations_lfits(), sort_type.getValue(),
+		      output_type.getValue());
 
   if (not plot.isSet())
     error_msg("Not plot option (-p) has not been set");
@@ -1175,45 +1078,20 @@ void process_uob(PvtAnalyzer & pvt)
   if (uod_corr) // if uod was computed ==> delete from data set
     pvtdata.remove_last_const("uod");
 
-  switch (get_output_type(output_type.getValue()))
-    {
-    case OutputType::mat:
-      cout << mat_format(dmat);
-      break;
-    case OutputType::csv:
-      cout << csv_format(dmat);
-      break;
-    case OutputType::R:
-      cout << r_format(dmat);
-      break;
-    case OutputType::json:
-      cout << json_format(dmat);
-      break;
-    default:
-      error_msg("Invalid outout type value");
-    }
+  cout << format_dispatcher.run(output_type.getValue(), dmat) << endl;
 }
 
 void process_uoa(PvtAnalyzer & pvt)
 {
   if (corr_all.isSet())
-    {
-      list_correlations(pvt.uoa_correlations());
-      exit(0);
-    }
+    list_correlations(pvt.uoa_correlations());
 
   if (corr_list.isSet())
-    {
-      list_correlations(pvt.uoa_valid_correlations());
-      exit(0);
-    }
+    list_correlations(pvt.uoa_valid_correlations());
 
   if (corr_best.isSet())
-    {
-      list_correlations(pvt.uoa_best_correlations(), sort_type.getValue(),
-			output_type.getValue());
-      exit(0);
-    }
+    list_correlations(pvt.uoa_best_correlations(), sort_type.getValue(),
+		      output_type.getValue());
 
   if (not plot.isSet())
     error_msg("Not plot option (-p) has not been set");
@@ -1228,23 +1106,7 @@ void process_uoa(PvtAnalyzer & pvt)
 				"Above Pb", "uoa", pvt,
 				get_eval_type(compute_type.getValue()));
 
-  switch (get_output_type(output_type.getValue()))
-    {
-    case OutputType::mat:
-      cout << mat_format(dmat);
-      break;
-    case OutputType::csv:
-      cout << csv_format(dmat);
-      break;
-    case OutputType::R:
-      cout << r_format(dmat);
-      break;
-    case OutputType::json:
-      cout << json_format(dmat);
-      break;
-    default:
-      error_msg("Invalid outout type value");
-    }
+  cout << format_dispatcher.run(output_type.getValue(), dmat) << endl;
 }
 
 void process_uo(PvtAnalyzer & pvt)
@@ -1340,55 +1202,20 @@ void process_uo(PvtAnalyzer & pvt)
   if (uod_corr) // if uod was computed ==> delete from data set
     pvtdata.remove_last_const("uod");
 
-  switch (get_output_type(output_type.getValue()))
-    {
-    case OutputType::mat:
-      cout << mat_format(dmat);
-      break;
-    case OutputType::csv:
-      cout << csv_format(dmat);
-      break;
-    case OutputType::R:
-      cout << r_format(dmat);
-      break;
-    case OutputType::json:
-      cout << json_format(dmat);
-      break;
-    default:
-      error_msg("Invalid outout type value");
-    }
+  mixed_dispatcher.run(output_type.getValue(), dmat);
 }
 
-using OptionPtr = void (*)(PvtAnalyzer&);
-
-DynMapTree<string, OptionPtr> dispatch_tbl;
-
-void init_dispatcher()
-{
-  dispatch_tbl.insert("pb", process_pb);
-  dispatch_tbl.insert("rs", process_rs);
-  dispatch_tbl.insert("rsa", process_rsa);
-  dispatch_tbl.insert("bob", process_bob);
-  dispatch_tbl.insert("boa", process_boa);
-  dispatch_tbl.insert("bo", process_bo);
-  dispatch_tbl.insert("uob", process_uob);
-  dispatch_tbl.insert("uoa", process_uoa);
-  dispatch_tbl.insert("uo", process_uo);
-}
-
-void dispatch_option(const string & op, PvtAnalyzer & pvt)
-{
-  auto command = dispatch_tbl.search(op);
-  if (command == nullptr)
-    error_msg("Option " + op + " not registered");
-  (*command->second)(pvt);
-}
-
+AHDispatcher<string, void (*)(PvtAnalyzer&)> property_dispatcher("pb", process_pb,
+								 "rs", process_rs,
+								 "rsa", process_rsa,
+								 "bob", process_bob,
+								 "boa", process_boa,
+								 "bo", process_bo,
+								 "uob", process_uob,
+								 "uoa", process_uoa,
+								 "uo", process_uo);
 int main(int argc, char *argv[])
 {
-  init_dispatcher();
-
-  //cmd.xorAdd(corr_list, corr_best);
   cmd.parse(argc, argv);
 
   PvtAnalyzer pvt;
@@ -1414,7 +1241,7 @@ int main(int argc, char *argv[])
       exit(0);
     }
 
-  dispatch_option(property.getValue(), pvt);
+  property_dispatcher.run(property.getValue(), pvt);
 
   return 0;
 }

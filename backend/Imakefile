@@ -1,9 +1,8 @@
 DEPEND = sh ./depend.sh
 
-INCLUDES = -I$(TOP)/include -I$(ALEPHW) 
+INCLUDES = -I$(TOP)/include -I$(ZEN)/include -I$(ALEPHW) 
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
 	-Wno-parentheses
-
 
 OPTFLAGS = -Ofast -DNDEBUG
 FLAGS = -std=c++14 $(WARN) $(OPTFLAGS)
@@ -11,20 +10,20 @@ FLAGS = -std=c++14 $(WARN) $(OPTFLAGS)
 OPTIONS = $(FLAGS)
 CXXFLAGS= -std=c++14 $(INCLUDES) $(OPTIONS)
 
-SYS_LIBRARIES = -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
+SYS_LIBRARIES = -L$(ZEN)/lib -lzen -L$(ALEPHW) -lAleph -lstdc++ -lgsl -lgslcblas -lm -lc
 
 DEPLIBS	= $(TOP)/lib/libpvt-op.a
 
 LOCAL_LIBRARIES = $(TOP)/lib/libpvt-op.a
 
-TESTSRCS = test-conversion.cc test-corr.cc test-calibrate.cc plot.cc plot-corr.cc \
+TESTSRCS = test-conversion.cc test-corr.cc ttuner.cc ztuner.cc cplot.cc \
 	vector-conversion.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
 SRCS = $(TESTSRCS)
 
-all:: backend-conversion backend-corr backend-plot backend-calibrate backend-plot-corr backend-vector-conversion
+all:: backend-conversion backend-corr backend-cplot backend-ttuner backend-vector-conversion backend-ztuner
 
 backend-conversion: test-conversion
 	$(RM) backend-conversion; 	\	@@\
@@ -34,17 +33,17 @@ backend-corr: test-corr
 	$(RM) backend-corr; 	\	@@\
 	$(CP) test-corr backend-corr
 
-backend-plot: plot
-	$(RM) backend-plot; 	\	@@\
-	$(CP) plot backend-plot;
+backend-cplot: cplot
+	$(RM) backend-cplot; 	\	@@\
+	$(CP) cplot backend-cplot;
 
-backend-plot-corr: plot-corr
-	$(RM) backend-plot-corr; 	\	@@\
-	$(CP) plot backend-plot-corr
+backend-ttuner: ttuner
+	$(RM) backend-ttuner; 	\	@@\
+	$(CP) ttuner backend-ttuner
 
-backend-calibrate: test-calibrate
-	$(RM) backend-calibrate; 	\	@@\
-	$(CP) test-calibrate backend-calibrate
+backend-ztuner: ztuner
+	$(RM) backend-ztuner; 	\	@@\
+	$(CP) ztuner backend-ztuner
 
 backend-vector-conversion: vector-conversion
 	$(RM) backend-vector-conversion; 	\	@@\
@@ -59,13 +58,13 @@ NormalProgramTarget(vector-conversion,vector-conversion.o,$(DEPLIBS),$(LOCAL_LIB
 AllTarget(test-corr)
 NormalProgramTarget(test-corr,test-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
-AllTarget(test-calibrate)
-NormalProgramTarget(test-calibrate,test-calibrate.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+AllTarget(ttuner)
+NormalProgramTarget(ttuner,ttuner.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
-AllTarget(plot)
-NormalProgramTarget(plot,plot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+AllTarget(ztuner)
+NormalProgramTarget(ztuner,ztuner.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
-AllTarget(plot-corr)
-NormalProgramTarget(plot-corr,plot-corr.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+AllTarget(cplot)
+NormalProgramTarget(cplot,cplot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 DependTarget()

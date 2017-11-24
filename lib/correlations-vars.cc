@@ -5,6 +5,8 @@
 
 # include <json.hpp>
 
+# include <pvt-units.H>
+
 # include "gitversion.H"
 
 using namespace Aleph;
@@ -21,12 +23,13 @@ static json to_json(const CorrelationPar & p)
   json j;
   j["name"] = p.name;
   j["desc"] = p.description;
-  j["unit"] = p.unit.symbol;
+  j["unit"] = p.unit.name;
+  j["unit_name"] = p.unit.name;
   j["physicalq"] = p.unit.physical_quantity.name;
   j["minv"] = p.min_val.get_value();
-  j["minvu"] = p.min_val.unit.symbol;
+  j["minvu"] = p.min_val.unit.name;
   j["maxv"] = p.max_val.get_value();
-  j["maxvu"] = p.min_val.unit.symbol;
+  j["maxvu"] = p.min_val.unit.name;
   j["minauthor"] = p.min_from_author;
   j["maxauthor"] = p.max_from_author;
   j["latex"] = p.latex_symbol;
@@ -38,7 +41,9 @@ static json to_json(const Correlation & c)
   json j;
   j["maxv"] = c.max_val;
   j["minv"] = c.min_val;
-  j["unit"] = c.unit.symbol;
+  j["min_from_author"] = c.min_from_author;
+  j["max_from_author"] = c.max_from_author;
+  j["unit"] = c.unit.name;
   j["refs"] = to_vector(c.refs.maps<string>([] (const auto & r)
     { return r->to_string(); }));
   j["notes"] = to_vector(c.notes);
@@ -50,7 +55,9 @@ static json to_json(const Correlation & c)
   j["type"] = c.type_name;
   j["name"] = c.name;
   j["hidden"] = c.hidden;
-  j["hidden_grid"] = c.hidden_grid;
+  j["hidden_blackoil_grid"] = c.hidden_blackoil_grid;
+  j["hidden_wetgas_grid"] = c.hidden_wetgas_grid;
+  j["hidden_drygas_grid"] = c.hidden_drygas_grid;
   j["hidden_calc"] = c.hidden_calc;
   j["id"] = c.id;
 
@@ -74,7 +81,9 @@ static json to_json_concise(const Correlation & c)
   j["latex"] = c.latex_symbol;
   j["name"] = c.name;
   j["hidden"] = c.hidden;
-  j["hidden_grid"] = c.hidden_grid;
+  j["hidden_blackoil_grid"] = c.hidden_blackoil_grid;
+  j["hidden_wetgas_grid"] = c.hidden_wetgas_grid;
+  j["hidden_drygas_grid"] = c.hidden_drygas_grid;
   j["hidden_calc"] = c.hidden_calc;
   j["id"] = c.id;
 
@@ -157,69 +166,5 @@ string Correlation::json_of_all_correlations()
   j["version"] = GITVERSION;
 
   return j.dump(2);
-}
-
-long open_correlation_call(long id, char buf[], size_t sz)
-{
-  try
-    {
-      return (long) new CorrelationInvoker(id, buf, sz);
-    }
-  catch (...)
-    {
-      return 0;
-    }
-}
-
-long push_correlation_call(long proxy_id, double val)
-{
-  try
-    {
-      CorrelationInvoker * ptr = (CorrelationInvoker*) proxy_id;
-      ptr->push(val);
-      return true;
-    }
-  catch (...)
-    {
-      return false;
-    }
-}
-
-long CorrelationInvoker::call()
-{
-  bool status = true;
-  json j;
-  try
-    {
-      double result = correlation_ptr->compute(pars);
-      j["status"] = "success";
-      j["result"] = result;
-      j["msg"] = "";
-    }
-  catch (exception & e)
-    {
-      j["status"] = "failure";
-      j["result"] = 0;
-      j["msg"] = e.what();
-      status = false;
-    }
-
-  string str = j.dump();
-
-  strncpy(json_buffer, str.data(), buf_sz);
-
-  return status;
-}
-
-long exec_correlation_call(long proxy_id)
-{
-  CorrelationInvoker * ptr = (CorrelationInvoker*) proxy_id;
-  return ptr->call();
-}
-
-long free_correlation_call(long proxy_id)
-{
-  delete (CorrelationInvoker*) proxy_id;
-  return true;
 }
 

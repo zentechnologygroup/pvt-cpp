@@ -27,6 +27,16 @@ BobAlShammasi::impl(const double & yg,
 }
 
 inline double
+BobCegarra::impl(const double & yg,
+		         const double & yo,
+		         const double & rs,
+		         const double & t) noexcept
+{
+  const double bob = BobAlShammasi::get_instance().impl(yg, yo, rs, t);
+  return bob;
+}
+
+inline double
 BobDeGhetto::impl(const double & yg,
 		 const double & api,
 		 const double & rs,
@@ -314,11 +324,7 @@ BobMillanArcia::impl(const double & api,
   const double bob = 1.3537 * pow(rsb, 0.1505) * pow(pb, -0.1239) *
     exp(-0.00405*api);
 
-  double bo = 0;  
-  if (p < pb) // Saturated oil
-    bo = bob * (0.9419 + 0.0608 * p/pb);
-
-  return bo;
+  return bob * (0.9419 + 0.0608 * p/pb);
 }
 
 
@@ -332,5 +338,21 @@ BobManucciRosales::impl(const double & api,
   return 0.2378 * pow(rs, 0.221) * pow(10, x);
 }
 
+inline double
+BobLopezCR::impl(const double & yg,
+		 const double & api,
+		 const double & rs,
+		 const double & t) noexcept
+{
+  return 0.93176 + 0.000422061 * t + 0.000372363 * rs + 0.0545485 * yg + 0.00159098 * api;
+}
+
+inline double
+BobSalazar::impl(const double & yg,
+		 const double & api,
+		 const double & p) noexcept
+{
+  return 0.99619 + 0.00003 * p + 0.00245 * api + 0.01433 * yg;
+}
 
 # endif // SATURATED_OIL_FORMATION_VOLUME_FACTOR_IMPL_H
