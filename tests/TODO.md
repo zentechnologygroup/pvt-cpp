@@ -68,3 +68,6 @@
 ## 23. si estadistica falla entonces la correlación no aplica
 - Created at   2017-11-23 18:25:55 -0400
 
+## 24. cuando se compile en backend se sube automáticamente al servidor segun la brach
+- Created at   2017-11-24 11:31:15 -0400
+
