@@ -71,3 +71,9 @@
 ## 24. cuando se compile en backend se sube automáticamente al servidor segun la brach
 - Created at   2017-11-24 11:31:15 -0400
 
+## 25. eiminar de boa pto inmediato superior
+- Created at   2017-11-24 15:54:20 -0400
+
+## 26. limitar valores minimos de uod uob uoa
+- Created at   2017-11-24 15:54:48 -0400
+
