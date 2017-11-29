@@ -1041,7 +1041,7 @@ struct PvtData
   	    const double p = unit_convert(*vdesc.punit, vdesc.pb,
   					  psig::get_instance());
 	    TpSet & t = ptr->second;
-  	    if (t.pb > 0 and not are_near(t.pb, p, 1e-5))
+  	    if (t.pb > 0 and not are_near(t.pb, p, 1))
   	      {
 		cout << "Found two contradictory pairs t, pb: "
 		     << ptr->first << ","
