@@ -12,6 +12,7 @@ TARGET = pvt-tester
 TEMPLATE = app
 
 INCLUDEPATH += ./ ../include \
+/home/lrleon/zen/include  \
 /home/lrleon/Aleph-w
 
 LIBS += -L$$PWD/../lib
@@ -32,10 +33,10 @@ CONFIG += c++14
       # TMP
       # For some reason I still do not understand, the kit fails to accept the compiler I want
       # So, these two lines are temporal.
-QMAKE_CC = /home/lrleon/LLVM-3.9.0/bin/clang
-QMAKE_CXX = /home/lrleon/LLVM-3.9.0/bin/clang++
+#QMAKE_CC = /home/lrleon/LLVM-3.9.0/bin/clang
+#QMAKE_CXX = /home/lrleon/LLVM-3.9.0/bin/clang++
       # End TMP
 
 QMAKE_CXXFLAGS += -std=c++14
 
-LIBS += $$PWD/../lib/libpvt.a -L/home/lrleon/Aleph-w -lAleph
+LIBS += $$PWD/../lib/libpvt.a -L /home/lrleon/zen/lib -lzen -L/home/lrleon/Aleph-w -lAleph

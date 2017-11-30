@@ -145,7 +145,7 @@ void MainWindow::compute()
       auto par = it.get_curr();
       auto val = get<2>(par)->value();
       auto symbol = get<3>(par)->currentText().toStdString();
-      VtlQuantity v = { val, symbol };
+      VtlQuantity v(symbol, val);
       pars.append(v);
     }
 

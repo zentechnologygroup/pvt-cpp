@@ -68,3 +68,15 @@
 ## 23. si estadistica falla entonces la correlación no aplica
 - Created at   2017-11-23 18:25:55 -0400
 
+## 24. cuando se compile en backend se sube automáticamente al servidor segun la brach
+- Created at   2017-11-24 11:31:15 -0400
+
+## 25. eiminar de boa pto inmediato superior
+- Created at   2017-11-24 15:54:20 -0400
+
+## 26. limitar valores minimos de uod uob uoa
+- Created at   2017-11-24 15:54:48 -0400
+
+## 26. si familia de stats causa excepcion entonces la esta se pone dirty
+- Created at   2017-11-28 16:00:51 -0400
+
