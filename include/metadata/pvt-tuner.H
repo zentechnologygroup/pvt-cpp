@@ -2619,25 +2619,32 @@ public:
     DECLARE_STAT(boa);
     DECLARE_STAT(uob);
     DECLARE_STAT(uoa);
-    
-    const string target_name = corr_ptr->target_name();
-    if (target_name == "pb" or target_name == "uod")
+
+    try
       {
-	static
-	  AHDispatcher<string, ConstStats (*)(const PvtData*, const Correlation*)>
-	  d = { "pb", pb_s, "uod", uod_s };
-	ConstStats s = d.run(target_name, this, corr_ptr);
-	return StatsDesc(s);
+	const string target_name = corr_ptr->target_name();
+	if (target_name == "pb" or target_name == "uod")
+	  {
+	    static AHDispatcher<string, ConstStats (*)(const PvtData*,
+						       const Correlation*)>
+	      d = { "pb", pb_s, "uod", uod_s };
+	    ConstStats s = d.run(target_name, this, corr_ptr);
+	    return StatsDesc(s);
+	  }
+	else
+	  {
+	    static
+	      AHDispatcher<string,
+			   VectorStats (*)(const PvtData*, const Correlation*)>
+	      d = { "rs", rs_s, "bob", bob_s, "bob", bob_s, "coa", coa_s,
+		    "boa", boa_s, "uob", uob_s, "uoa", uoa_s };
+	    VectorStats s = d.run(target_name, this, corr_ptr);
+	    return StatsDesc(s);
+	  }
       }
-    else
+    catch (exception & e)
       {
-	static
-	  AHDispatcher<string,
-		       VectorStats (*)(const PvtData*, const Correlation*)>
-	  d = { "rs", rs_s, "bob", bob_s, "bob", bob_s, "coa", coa_s,
-		"boa", boa_s, "uob", uob_s, "uoa", uoa_s };
-	VectorStats s = d.run(target_name, this, corr_ptr);
-	return StatsDesc(s);
+	return StatsDesc(corr_ptr); // it is invalid
       }
   }
 
