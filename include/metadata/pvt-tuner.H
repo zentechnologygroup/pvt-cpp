@@ -15,6 +15,7 @@
 
 # include <correlations/pvt-correlations.H>
 # include <correlations/correlation-stats.H>
+# include <correlations/uo-min.H>
 # include "metadata-exceptions.H"
 # include "ttuner-units.H"
 
@@ -503,38 +504,6 @@ constexpr size_t Dim_Pars_List = 100;
 
 struct PvtData
 {
-# define Define_Get_Min_UO(name, targets...)	\
-  static Quantity<CP> name()			\
-  {						\
-    static size_t count = 0;				\
-    static Quantity<CP> ret = CP::get_instance().min();	\
-							\
-    init_correlations();						\
-    if (count++ > 0) /* if has been already executed then result is in ret */ \
-      return ret;							\
-									\
-    auto uo_corr_list = Correlation::array().filter([] (auto corr_ptr)	\
-    {			                                                \
-      assert(corr_ptr);							\
-      return corr_ptr->min_from_author and				\
-      is_inside(corr_ptr->target_name(), {targets});			\
-    });									\
-									\
-    if (uo_corr_list.is_empty())					\
-      return ret;							\
-									\
-    ret = uo_corr_list.foldl(CP::get_instance().max(), [] (auto m, auto ptr)\
-      {                                                                 \
-      	return min(m, VtlQuantity(CP::get_instance(),			\
-      				  VtlQuantity(ptr->unit, ptr->min_val))); \
-      });								\
-									\
-    return ret;								\
-  }
-
-  Define_Get_Min_UO(min_uo_val, "uod", "uob", "uoa");
-  Define_Get_Min_UO(min_uod_val, "uod");
-
   DynSetTree<ConstDesc> const_values; // indexed and sorted by name
   DynSetTree<VectorDesc> vectors;
   DynSetTree<string> names;
@@ -1175,11 +1144,12 @@ public:
     if (corr_ptr->target_name() != "uod")
       ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for uod");
+    Quantity<CP> min_uod = VtlQuantity(corr_ptr->unit, corr_ptr->max_val);
     ParList pars = build_correlation_pars();
     pars.insert("t", t, &Fahrenheit::get_instance());
     pars.insert(get_pb(t, pb));
     VtlQuantity ret = corr_ptr->bounded_tuned_compute_by_names
-      (pars, min_uo_val(), CP::get_instance().max(), c, m, CP::get_instance(),
+      (pars, min_uod, CP::get_instance().max(), c, m, CP::get_instance(),
        false);
     return ret;
   }

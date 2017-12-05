@@ -26,6 +26,7 @@
 
 using json = nlohmann::json;
 
+# include <correlations/uo-min.H>
 # include <metadata/ttuner-units.H>
 
 const UnitsInstancer & units_instancer = UnitsInstancer::init();
@@ -1715,6 +1716,8 @@ void print_notranspose()
 				  NPAR(co2), NPAR(h2s));		\
   /* End calculation constants for z */					\
 									\
+  const auto min_uo = min_uo_val();					\
+									\
   /* Initialization of correlation parameter lists */			\
   auto pb_pars = load_constant_parameters({pb_corr});			\
   auto rs_pars = load_constant_parameters({rs_corr,			\
@@ -1784,9 +1787,11 @@ void print_notranspose()
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
-  auto uod_val = tcompute(uod_corr, c_uod_arg.getValue(),		\
-			  m_uod_arg.getValue(), *uo_unit, check,	\
-			  uod_pars, t_par, pb_par);			\
+  const VtlQuantity min_uod = { uod_corr->unit, uod_corr->min_val };	\
+  auto uod_val = bcompute(uod_corr, c_uod_arg.getValue(), \
+			  m_uod_arg.getValue(), *uo_unit, min_uod,	\
+			  CP::get_instance().max(), check, uod_pars,	\
+			  t_par, pb_par);				\
 									\
   insert_in_container(rs_pars, t_par, pb_par);				\
   auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(), \
@@ -1809,6 +1814,7 @@ void print_notranspose()
 				    m_uob_arg.getValue(), *uo_unit,	\
 				    uoa_corr, c_uoa_arg.getValue(),	\
 				    m_uoa_arg.getValue(), *uo_unit);	\
+  uo_corr.set_min(min_uo);						\
   									\
   auto po_corr = define_correlation(pb_q, &PobBradley::get_instance(),	\
 				    &PoaBradley::get_instance());	\
@@ -2023,6 +2029,8 @@ void generate_rows_blackoil()
 				  NPAR(co2), NPAR(h2s));		\
   /* End calculation constants for z */					\
 									\
+  const auto min_uo = min_uo_val();					\
+									\
   /* Initialization of correlation parameter lists */			\
   auto pb_pars = load_constant_parameters({pb_corr});			\
   auto rs_pars = load_constant_parameters({rs_corr,			\
@@ -2066,9 +2074,11 @@ void generate_rows_blackoil()
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
-  auto uod_val = tcompute(uod_corr, c_uod_arg.getValue(),		\
-			  m_uod_arg.getValue(), *uo_unit, check,	\
-			  uod_pars, t_par, pb_par);			\
+  const VtlQuantity min_uod = { uod_corr->unit, uod_corr->min_val };	\
+  auto uod_val = bcompute(uod_corr, c_uod_arg.getValue(), \
+			  m_uod_arg.getValue(), *uo_unit, min_uod,	\
+			  CP::get_instance().max(), check, uod_pars,	\
+			  t_par, pb_par);				\
 									\
   insert_in_container(rs_pars, t_par, pb_par);				\
   auto rs_corr = define_correlation(pb_q, ::rs_corr, c_rs_arg.getValue(), \
@@ -2094,6 +2104,7 @@ void generate_rows_blackoil()
 			      m_uob_arg.getValue(), *uo_unit,		\
 			      uoa_corr, c_uoa_arg.getValue(),		\
 			      m_uoa_arg.getValue(), *uo_unit);		\
+  uo_corr.set_min(min_uo);						\
   									\
   insert_in_container(bo_pars, t_par, pb_par);				\
   auto bobp = tcompute(bob_corr, c_bob_arg.getValue(),			\
