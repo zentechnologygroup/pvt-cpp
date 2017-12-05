@@ -2602,3 +2602,15 @@
 - Comment      
 - Finished     
 
+## 435. limitar valores minimos de uod uob uoa
+- Created at   2017-11-24 15:54:48 -0400
+- Completed at 2017-12-05 15:41:11 -0400
+- Comment      
+- Finished     
+
+## 436. si familia de stats causa excepcion entonces la esta se pone dirty
+- Created at   2017-11-28 16:00:51 -0400
+- Completed at 2017-12-05 15:41:09 -0400
+- Comment      
+- Finished     
+
