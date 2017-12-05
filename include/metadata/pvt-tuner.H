@@ -1144,11 +1144,12 @@ public:
     if (corr_ptr->target_name() != "uod")
       ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for uod");
+    Quantity<CP> min_uod = VtlQuantity(corr_ptr->unit, corr_ptr->max_val);
     ParList pars = build_correlation_pars();
     pars.insert("t", t, &Fahrenheit::get_instance());
     pars.insert(get_pb(t, pb));
     VtlQuantity ret = corr_ptr->bounded_tuned_compute_by_names
-      (pars, min_uo_val(), CP::get_instance().max(), c, m, CP::get_instance(),
+      (pars, min_uod, CP::get_instance().max(), c, m, CP::get_instance(),
        false);
     return ret;
   }

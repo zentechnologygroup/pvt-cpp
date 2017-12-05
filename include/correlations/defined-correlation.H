@@ -276,12 +276,12 @@ public:
 
   void set_min(const VtlQuantity & min_val)
   {
-    set_min(VtlQuantity(unit, min_val).raw());
+    set_min(VtlQuantity(*result_unit, min_val).raw());
   }
 
   void set_max(const VtlQuantity & max_val)
   {
-    set_max(VtlQuantity(unit, max_val).raw());
+    set_max(VtlQuantity(*result_unit, max_val).raw());
   }
 
   VtlQuantity
