@@ -27,27 +27,33 @@ all:: backend-conversion backend-corr backend-cplot backend-ttuner backend-vecto
 
 backend-conversion: test-conversion
 	$(RM) backend-conversion; 	\	@@\
-	$(CP) test-conversion backend-conversion
+	$(CP) test-conversion backend-conversion;	@@\
+	upx -9 backend-conversion
 
 backend-corr: test-corr
 	$(RM) backend-corr; 	\	@@\
-	$(CP) test-corr backend-corr
+	$(CP) test-corr backend-corr;	@@\
+	upx -9 backend-corr
 
 backend-cplot: cplot
 	$(RM) backend-cplot; 	\	@@\
-	$(CP) cplot backend-cplot;
+	$(CP) cplot backend-cplot;	@@\
+	upx -9 backend-cplot
 
 backend-ttuner: ttuner
 	$(RM) backend-ttuner; 	\	@@\
-	$(CP) ttuner backend-ttuner
+	$(CP) ttuner backend-ttuner;	@@\
+	upx -9 backend-ttuner
 
 backend-ztuner: ztuner
 	$(RM) backend-ztuner; 	\	@@\
-	$(CP) ztuner backend-ztuner
+	$(CP) ztuner backend-ztuner;	@@\
+	upx -9 backend-ztuner
 
 backend-vector-conversion: vector-conversion
 	$(RM) backend-vector-conversion; 	\	@@\
-	$(CP) vector-conversion backend-vector-conversion
+	$(CP) vector-conversion backend-vector-conversion;	@@\
+	upx -9 backend-vector-conversion
 
 AllTarget(test-conversion)
 NormalProgramTarget(test-conversion,test-conversion.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
