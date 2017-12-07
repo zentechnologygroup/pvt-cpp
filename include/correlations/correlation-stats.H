@@ -195,6 +195,7 @@ public:
   static double m(const Desc & d) { return get<3>(d).m; }
   static bool is_valid(const Desc & d)
   {
+<<<<<<< HEAD
     bool valid = std::isnormal(r2(d)) and std::isnormal(mse(d)) and
       std::isnormal(sigma(d)) and std::isnormal(sumsq(d)) and
       std::isnormal(c(d)) and std::isnormal(m(d));
@@ -203,6 +204,17 @@ public:
     //   std::isnan(sigma(d)) or std::isnan(sumsq(d)) or
     //   std::isnan(c(d)) or std::isnan(m(d));
     // return not invalid;
+=======
+    // bool valid = std::isnormal(r2(d)) and std::isnormal(mse(d)) and
+    //   std::isnormal(sigma(d)) and std::isnormal(sumsq(d)) and
+    //   std::isnormal(c(d)) and std::isnormal(m(d));
+    //return valid;
+    bool invalid = std::isnan(r2(d)) or std::isnan(mse(d)) or
+      std::isnan(sigma(d)) or std::isnan(sumsq(d)) or
+      std::isnan(c(d)) or std::isnan(m(d));
+    //cout << d << endl;
+    return not invalid;
+>>>>>>> 5b597d3279fe3aa8c365af363546334cb4ed372a
   }
 
   friend ostream & operator << (ostream & o, const CorrStat::Desc & d)
