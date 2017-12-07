@@ -202,6 +202,7 @@ public:
     bool invalid = std::isnan(r2(d)) or std::isnan(mse(d)) or
       std::isnan(sigma(d)) or std::isnan(sumsq(d)) or
       std::isnan(c(d)) or std::isnan(m(d));
+    //cout << d << endl;
     return not invalid;
   }
 
