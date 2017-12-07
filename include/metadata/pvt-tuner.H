@@ -1144,7 +1144,7 @@ public:
     if (corr_ptr->target_name() != "uod")
       ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for uod");
-    Quantity<CP> min_uod = VtlQuantity(corr_ptr->unit, corr_ptr->max_val);
+    Quantity<CP> min_uod = VtlQuantity(corr_ptr->unit, corr_ptr->min_val);
     ParList pars = build_correlation_pars();
     pars.insert("t", t, &Fahrenheit::get_instance());
     pars.insert(get_pb(t, pb));

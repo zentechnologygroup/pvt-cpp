@@ -35,14 +35,16 @@ public:
 
   double r2(const Array<double> & yc) const
   {
-    auto pearson_corr = gsl_stats_correlation(&y.base(), 1,
+    double pearson_corr = gsl_stats_correlation(&y.base(), 1,
 					      &yc.base(), 1, y.size());
-    if (not std::isnormal(pearson_corr))
+    // cout << "r2 = " << pearson_corr << endl
+    // 	 << (std::isnan(pearson_corr) ? "true" : "false") << endl
+    // 	 << "status = " << fpclassify(pearson_corr) << endl
+    // 	 << "n  = " << y.size() << endl
+    // 	 << "y  = " << join(y) << endl
+    // 	 << "yc = " << join(yc) << endl; 
+    if (not is_normal_number(pearson_corr))
       {
-	// cout << "r2 = " << pearson_corr << endl
-	//      << "n  = " << y.size() << endl
-	//      << "y  = " << join(y) << endl
-	//      << "yc = " << join(yc) << endl; 
 	return 1;
       }
     return pearson_corr*pearson_corr;
@@ -195,26 +197,20 @@ public:
   static double m(const Desc & d) { return get<3>(d).m; }
   static bool is_valid(const Desc & d)
   {
-<<<<<<< HEAD
-    bool valid = std::isnormal(r2(d)) and std::isnormal(mse(d)) and
-      std::isnormal(sigma(d)) and std::isnormal(sumsq(d)) and
-      std::isnormal(c(d)) and std::isnormal(m(d));
+    bool valid = is_normal_number(r2(d)) and is_normal_number(mse(d)) and
+      is_normal_number(sigma(d)) and is_normal_number(sumsq(d)) and
+      is_normal_number(c(d)) and is_normal_number(m(d));
+    //cout << d << endl;
     return valid;
     // bool invalid = std::isnan(r2(d)) or std::isnan(mse(d)) or
     //   std::isnan(sigma(d)) or std::isnan(sumsq(d)) or
     //   std::isnan(c(d)) or std::isnan(m(d));
     // return not invalid;
-=======
-    // bool valid = std::isnormal(r2(d)) and std::isnormal(mse(d)) and
-    //   std::isnormal(sigma(d)) and std::isnormal(sumsq(d)) and
-    //   std::isnormal(c(d)) and std::isnormal(m(d));
-    //return valid;
-    bool invalid = std::isnan(r2(d)) or std::isnan(mse(d)) or
-      std::isnan(sigma(d)) or std::isnan(sumsq(d)) or
-      std::isnan(c(d)) or std::isnan(m(d));
-    //cout << d << endl;
-    return not invalid;
->>>>>>> 5b597d3279fe3aa8c365af363546334cb4ed372a
+    // bool invalid = std::isnan(r2(d)) or std::isnan(mse(d)) or
+    //   std::isnan(sigma(d)) or std::isnan(sumsq(d)) or
+    //   std::isnan(c(d)) or std::isnan(m(d));
+    
+    //return not invalid;
   }
 
   friend ostream & operator << (ostream & o, const CorrStat::Desc & d)

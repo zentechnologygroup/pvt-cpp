@@ -4,7 +4,7 @@ INCLUDES = -I$(TOP)/include -I$(ZEN)/include -I$(ALEPHW)
 WARN= -Wall -Wextra -Wcast-align -Wno-sign-compare -Wno-write-strings\
 	-Wno-parentheses
 
-OPTFLAGS = -Ofast -DNDEBUG
+OPTFLAGS = -O2 -DNDEBUG
 FLAGS = -std=c++14 $(WARN) $(OPTFLAGS)
 
 OPTIONS = $(FLAGS)
