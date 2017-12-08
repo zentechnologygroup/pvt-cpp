@@ -202,15 +202,6 @@ public:
       is_normal_number(c(d)) and is_normal_number(m(d));
     //cout << d << endl;
     return valid;
-    // bool invalid = std::isnan(r2(d)) or std::isnan(mse(d)) or
-    //   std::isnan(sigma(d)) or std::isnan(sumsq(d)) or
-    //   std::isnan(c(d)) or std::isnan(m(d));
-    // return not invalid;
-    // bool invalid = std::isnan(r2(d)) or std::isnan(mse(d)) or
-    //   std::isnan(sigma(d)) or std::isnan(sumsq(d)) or
-    //   std::isnan(c(d)) or std::isnan(m(d));
-    
-    //return not invalid;
   }
 
   friend ostream & operator << (ostream & o, const CorrStat::Desc & d)
