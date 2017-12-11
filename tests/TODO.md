@@ -74,3 +74,6 @@
 ## 25. eiminar de boa pto inmediato superior
 - Created at   2017-11-24 15:54:20 -0400
 
+## 26. cplot como función para que pueda ser usado en qt
+- Created at   2017-12-09 14:57:01 -0400
+
