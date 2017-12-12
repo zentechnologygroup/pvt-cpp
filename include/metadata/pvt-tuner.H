@@ -1245,8 +1245,9 @@ public:
       }
     if (t.is_empty())
       ZENTHROW(VarNameNotFound, "not found data for uod");
+    Quantity<CP> min_uod = VtlQuantity(corr_ptr->unit, corr_ptr->min_val);
     return ConstStats(corr_ptr, move(t), move(uod_lab), move(uod_corr),
-		      min_uod_val().raw(), CP::get_instance().max_val);
+		      min_uod.raw(), CP::get_instance().max_val);
   }
 
   ParPair get_uod(const VectorDesc & v, const ParPair & pb_par) const
