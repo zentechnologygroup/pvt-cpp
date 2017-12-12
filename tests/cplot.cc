@@ -1787,8 +1787,8 @@ void print_notranspose()
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
-  const VtlQuantity min_uod = { uod_corr->unit, uod_corr->min_val };	\
-  auto uod_val = bcompute(uod_corr, c_uod_arg.getValue(), \
+  const Quantity<CP> min_uod = min_uod_val(uod_corr);			\
+  auto uod_val = bcompute(uod_corr, c_uod_arg.getValue(),		\
 			  m_uod_arg.getValue(), *uo_unit, min_uod,	\
 			  CP::get_instance().max(), check, uod_pars,	\
 			  t_par, pb_par);				\
@@ -2074,7 +2074,7 @@ void generate_rows_blackoil()
   auto pb_par = npar("pb", pb_q);					\
   auto p_pb = npar("p", pb_q);						\
 									\
-  const VtlQuantity min_uod = { uod_corr->unit, uod_corr->min_val };	\
+  const Quantity<CP> min_uod = min_uod_val(uod_corr);			\
   auto uod_val = bcompute(uod_corr, c_uod_arg.getValue(), \
 			  m_uod_arg.getValue(), *uo_unit, min_uod,	\
 			  CP::get_instance().max(), check, uod_pars,	\

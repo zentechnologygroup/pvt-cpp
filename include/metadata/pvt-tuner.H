@@ -1144,7 +1144,7 @@ public:
     if (corr_ptr->target_name() != "uod")
       ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for uod");
-    Quantity<CP> min_uod = VtlQuantity(corr_ptr->unit, corr_ptr->min_val);
+    Quantity<CP> min_uod = min_uod_val(corr_ptr);
     ParList pars = build_correlation_pars();
     pars.insert("t", t, &Fahrenheit::get_instance());
     pars.insert(get_pb(t, pb));
@@ -1245,7 +1245,7 @@ public:
       }
     if (t.is_empty())
       ZENTHROW(VarNameNotFound, "not found data for uod");
-    Quantity<CP> min_uod = VtlQuantity(corr_ptr->unit, corr_ptr->min_val);
+    Quantity<CP> min_uod = min_uod_val(corr_ptr);
     return ConstStats(corr_ptr, move(t), move(uod_lab), move(uod_corr),
 		      min_uod.raw(), CP::get_instance().max_val);
   }

@@ -35,5 +35,13 @@
   Define_Get_Min_UO(min_uo_val, "uod", "uob", "uoa");
   Define_Get_Min_UO(min_uod_val, "uod");
 
+inline Quantity<CP> min_uod_val(const Correlation * corr_ptr)
+{
+  if (corr_ptr->min_from_author)
+    return Quantity<CP>(VtlQuantity(corr_ptr->unit, corr_ptr->min_val));
+
+  return min_uod_val();
+}
+
 
 # endif
