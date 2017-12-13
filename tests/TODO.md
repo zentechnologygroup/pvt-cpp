@@ -83,3 +83,6 @@
 ## 28. actualizar po con el bo suavizado
 - Created at   2017-12-13 12:16:13 -0400
 
+## 29. opcion para cplot que reciba grid y genere errores
+- Created at   2017-12-13 14:29:35 -0400
+

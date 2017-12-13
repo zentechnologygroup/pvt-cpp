@@ -79,7 +79,7 @@ struct Cplot
 
 # define Declare_Correlation(NAME, CORR)				\
   const Correlation * NAME##_corr = &CORR::get_instance();		\
-  void set_##NAME(const Correlation * corr_ptr)				\
+  void set_##NAME(const Correlation * corr_ptr)			\
   {									\
     const string target_name = CORR::get_instance().target_name();	\
     if (NAME##_corr->target_name() != target_name)			\

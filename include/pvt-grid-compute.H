@@ -28,11 +28,22 @@ class PvtGrid
     Array<Array<double>> vals;
   };
 
-  using T = tuple<double, Array<double>, Array<Array<double>>>;
+  struct Tdesc
+  {
+    double t;
+    Array<double> p;
+    Array<Array<double>> vals;
+    Tdesc() {}
+    Tdesc(double __t, Array<double> && __p, Array<Array<double>> && __vals)
+      : t(__t), p(move(__p)), vals(move(__vals)) {}
+  };
+
+  //using T = tuple<double, Array<double>, Array<Array<double>>>;
 
   //          t,          matrix of values associated to temperature t
   // columns in second are ordered by name in var_names array
-  Array<T> temps; 
+  //Array<T> temps; 
+  Array<Tdesc> temps; 
 
   void process_row(const Array<string> & row,
 		   DynMapTree<double, Desc> & tmap,
@@ -89,9 +100,11 @@ public:
     if (not header.exists([] (auto & s)
 			  { return split_to_list(s, " ")[0] == "t"; }))
       ZENTHROW(InvalidCsvHeader, "csv header does not contain t field");
+    
     if (not header.exists([] (auto & s)
 			  { return split_to_list(s, " ")[0] == "p"; }))
       ZENTHROW(InvalidCsvHeader, "csv header does not contain p field");
+    
     DynList<pair<string, size_t>> names_to_idx;
     size_t i = 0, tidx = 0, pidx = 0;
     for (auto it = header.get_it(); it.has_curr(); it.next(), ++i)
@@ -149,7 +162,7 @@ public:
 		   "pressure values associated to temp " + to_string(t) +
 		   " are not sorted");
 	
-	temps.append(T(t, move(desc.p), move(desc.vals)));
+	temps.append(Tdesc(t, move(desc.p), move(desc.vals)));
       }
 
     var_names = var_names.filter([] (auto & p)
@@ -168,12 +181,9 @@ public:
 
     for (auto tit = grid.temps.get_it(); tit.has_curr(); tit.next())
       {
-	const T & tt = tit.get_curr();
-	const double & t = get<0>(tt);
-
-	const Array<double> & p = get<1>(tt);
-	const Array<Array<double>> & vals = get<2>(tt);
-	for (auto rit = zip_it(p, vals); rit.has_curr(); rit.next())
+	const Tdesc & d = tit.get_curr();
+	const double & t = d.t;
+	for (auto rit = zip_it(d.p, d.vals); rit.has_curr(); rit.next())
 	  {
 	    auto tt = rit.get_curr();
 	    const double & p = get<0>(tt);
@@ -212,8 +222,8 @@ private:
   // return first and second indexes of temperature
   RangeDesc search_temperature(const double t) const
   {
-    const double & t1 = get<0>(temps.get_first());
-    const double & t2 = get<0>(temps.get_last());
+    const double & t1 = temps.get_first().t;
+    const double & t2 = temps.get_last().t;
 
     assert(t1 < t2);
     
@@ -226,13 +236,13 @@ private:
 	return RangeDesc(n - 2, n - 1, RangeDesc::Type::Right);
       }
 
-    T t_t;
-    get<0>(t_t) = t;
-    const long i = Aleph::binary_search(temps, t_t, [] (auto & t1, auto & t2)
-					{ return get<0>(t1) < get<0>(t2); });
+    Tdesc d;
+    d.t = t;
+    const long i = Aleph::binary_search(temps, d, [] (auto & d1, auto & d2)
+					{ return d1.t < d2.t; });
     assert(i >= 0 and size_t(i) < temps.size());
-    const T & found_entry = temps(i);
-    const double & found_t = get<0>(found_entry);
+    const Tdesc & found_entry = temps(i);
+    const double & found_t = found_entry.t;
     if (found_t == t)
       return RangeDesc(i, i, RangeDesc::Type::Equal);
     else if (t < found_t)
@@ -247,9 +257,9 @@ private:
       }
   }
 
-  RangeDesc search_presure(const T & desc, const double & p) const
+  RangeDesc search_presure(const Tdesc & desc, const double & p) const
   {
-    const Array<double> & pvals = get<1>(desc); // sorted pressure
+    const Array<double> & pvals = desc.p; // sorted pressure
     const double & fst_p = pvals.get_first(); // minimum pressure
     const double & lst_p = pvals.get_last();  // maximum pressure
 
@@ -315,17 +325,17 @@ public:
 
 private:
 
-  double interpolate_p(const T & desc, const double p, size_t name_idx) const
+  double interpolate_p(const Tdesc & d, const double p, size_t name_idx) const
   {
-    const Array<double> & pvals = get<1>(desc);
-    const Array<Array<double>> & vals = get<2>(desc);
-    const RangeDesc p_idx = search_presure(desc, p);
+    const Array<double> & pvals = d.p;
+    const Array<Array<double>> & vals = d.vals;
+    const RangeDesc p_idx = search_presure(d, p);
 
     const double & p1 = pvals(p_idx.first);
     const Array<double> & vals1 = vals(p_idx.first);    
     const double & y1 = vals1(name_idx);
     if (y1 == Unit::Invalid_Value)
-      ZENTHROW(OutOfRange, "for t = " + to_string(get<0>(desc)) + " p = " +
+      ZENTHROW(OutOfRange, "for t = " + to_string(d.t) + " p = " +
 	       to_str(p) + " : value of " + var_names(name_idx).first +
 	       " out of grid range"); 
 
@@ -344,21 +354,21 @@ private:
 	break;
       case RangeDesc::Type::Internal:
 	if (y2 == Unit::Invalid_Value)
-	  ZENTHROW(OutOfRange, "for t = " + to_string(get<0>(desc)) + " p = " +
+	  ZENTHROW(OutOfRange, "for t = " + to_string(d.t) + " p = " +
 		   to_str(p) + " : value of " + var_names(name_idx).first +
 		   " out of grid range");    
 	y = interpolate(p1, p2, y1, y2, p);
 	break;
       case RangeDesc::Type::Left:
 	if (y2 == Unit::Invalid_Value)
-	  ZENTHROW(OutOfRange, "for t = " + to_string(get<0>(desc)) + " p = " +
+	  ZENTHROW(OutOfRange, "for t = " + to_string(d.t) + " p = " +
 		   to_str(p) + " : value of " + var_names(name_idx).first +
 		   " out of grid range");    
 	y = extrapolate_left(p1, p2, y1, y2, p);
 	break;
       case RangeDesc::Type::Right:
 	if (y2 == Unit::Invalid_Value)
-	  ZENTHROW(OutOfRange, "for t = " + to_string(get<0>(desc)) + " p = " +
+	  ZENTHROW(OutOfRange, "for t = " + to_string(d.t) + " p = " +
 		   to_str(p) + " : value of " + var_names(name_idx).first +
 		   " out of grid range");    
 	y = extrapolate_right(p1, p2, y1, y2, p);
@@ -382,11 +392,11 @@ public:
 
     const RangeDesc t_idx = search_temperature(t);
     
-    const T & desc1 = temps(t_idx.first);
-    const double & t1 = get<0>(desc1);
+    const Tdesc & desc1 = temps(t_idx.first);
+    const double & t1 = desc1.t;
     
-    const T & desc2 = temps(t_idx.second);
-    const double & t2 = get<0>(desc2);
+    const Tdesc & desc2 = temps(t_idx.second);
+    const double & t2 = desc2.t;
 
     assert(t1 <= t2);
 
