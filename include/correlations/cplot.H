@@ -143,8 +143,7 @@ struct Cplot
 
   void init_blackoil()
   {
-    if (not blackoil_correlations_are_set())
-      ZENTHROW(type, msg)
+    blackoil_correlations_are_set();
   }
   
 }; 
