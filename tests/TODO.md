@@ -77,3 +77,9 @@
 ## 26. cplot como función para que pueda ser usado en qt
 - Created at   2017-12-09 14:57:01 -0400
 
+## 27. suavizar bo y uo
+- Created at   2017-12-13 12:15:47 -0400
+
+## 28. actualizar po con el bo suavizado
+- Created at   2017-12-13 12:16:13 -0400
+
