@@ -95,11 +95,21 @@ struct Cplot
 
   void blackoil_correlations_are_set() const
   {
-    if (pb_corr == nullptr)
- and rs_corr and bob_corr and boa_corr and coa_corr and
-      uod_corr and uob_corr and uoa_corr and zfactor_corr;
+# define TEST_CORR(name)			\
+    if (name##_corr == nullptr)						\
+      ZENTHROW(CorrelationNotFound, "correlation for " #name " not found")
+    TEST_CORR(pb);
+    TEST_CORR(rs);
+    TEST_CORR(bob);
+    TEST_CORR(boa);
+    TEST_CORR(coa);
+    TEST_CORR(uod);
+    TEST_CORR(uob);
+    TEST_CORR(uoa);
+    TEST_CORR(zfactor);
   }
 
+  Declare_Correlation(cob, CobMcCainEtAl);
   Declare_Correlation(ppchc, PpchcStanding);
   Declare_Correlation(ppcm_mixing, PpcmKayMixingRule);
   Declare_Correlation(adjustedppcm, AdjustedppcmWichertAziz);
