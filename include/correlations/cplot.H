@@ -69,18 +69,23 @@ struct Cplot
   mutable double c_##name = 0;			\
   mutable double m_##name = 1;			\
 						\
-  void set_##name(const Correlation * __##name##_corr, double c, double m) noexcept \
+  void set_##name(const Correlation * __##name##_corr,			\
+		  double c, double m) noexcept				\
   {									\
     name##_corr = __##name##_corr;					\
     c_##name = c;							\
     m_##name = m;							\
   }
 
-# define Declare_Correlation(name, corr)				\
-  const Correlation * name##_corr = &corr::get_instance();		\
-  void set_##name(const Correlation * __##name##_corr) noexcept		\
+# define Declare_Correlation(NAME, CORR)				\
+  const Correlation * NAME##_corr = &CORR::get_instance();		\
+  void set_##NAME(const Correlation * corr_ptr)				\
   {									\
-    name##_corr = __##name##_corr;					\
+    const string target_name = CORR::get_instance().target_name();	\
+    if (NAME##_corr->target_name() != target_name)			\
+      ZENTHROW(CorrelationNotFound, NAME##_corr->name +			\
+	       " is not for " + target_name);				\
+    NAME##_corr = corr_ptr;						\
   }
 
   Declare_Tuned_Correlation(pb);
@@ -93,20 +98,28 @@ struct Cplot
   Declare_Tuned_Correlation(uoa);
   Declare_Tuned_Correlation(zfactor);
 
+  static void
+  verify_corr(const Correlation * corr_ptr, const string & target_name)
+  {
+    if (corr_ptr == nullptr)
+      ZENTHROW(CorrelationNotFound,
+	       "correlation for " + target_name + " is not set");
+    if (corr_ptr->target_name() != target_name)
+      ZENTHROW(CorrelationNotFound,
+	       corr_ptr->name + "  is not for" + target_name);
+  }
+
   void blackoil_correlations_are_set() const
   {
-# define TEST_CORR(name)			\
-    if (name##_corr == nullptr)						\
-      ZENTHROW(CorrelationNotFound, "correlation for " #name " not found")
-    TEST_CORR(pb);
-    TEST_CORR(rs);
-    TEST_CORR(bob);
-    TEST_CORR(boa);
-    TEST_CORR(coa);
-    TEST_CORR(uod);
-    TEST_CORR(uob);
-    TEST_CORR(uoa);
-    TEST_CORR(zfactor);
+    verify_corr(pb_corr, "pb");
+    verify_corr(rs_corr, "rs");
+    verify_corr(bob_corr, "bob");
+    verify_corr(coa_corr, "coa");
+    verify_corr(boa_corr, "boa");
+    verify_corr(uod_corr, "uod");
+    verify_corr(uob_corr, "uob");
+    verify_corr(uoa_corr, "uoa");
+    verify_corr(zfactor_corr, "zfactor");
   }
 
   Declare_Correlation(cob, CobMcCainEtAl);
@@ -130,8 +143,7 @@ struct Cplot
 
   void init_blackoil()
   {
-    if (not blackoil_correlations_are_set())
-      ZENTHROW(type, msg)
+    blackoil_correlations_are_set();
   }
   
 }; 
