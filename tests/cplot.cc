@@ -708,6 +708,9 @@ SwitchArg transpose_par = { "", "transpose", "transpose grid", cmd };
 ValueArg<ColNames> filter_par = { "", "filter", "col names", false, ColNames(),
 				  "col names list", cmd };
 
+ValueArg<ColNames> nfilter_par = { "", "nfilter", "col names", false, ColNames(),
+				   "col names list", cmd };
+
 ValueArg<size_t> dft_precision = { "", "dft-precision", "default precision value",
 				   false, 6, "default precision value", cmd };
 
@@ -1457,20 +1460,32 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
       return pair<string, string>(h.first, "%." + precision + "f");
     });
 
-  if (filter_par.isSet())
+  const bool filter = filter_par.isSet();
+  const bool nfilter = nfilter_par.isSet();
+  if (filter or nfilter)
     {
+      DynSetTree<string> nfilter_tbl;
+      for (auto it = nfilter_par.getValue().col_names.get_it(); it.has_curr();
+	   it.next())
+	nfilter_tbl.insert(it.get_curr());
       DynMapTree<string, size_t> idx;
       size_t i = 0;
       for (auto it = header.get_it(); it.has_curr(); it.next())
 	idx.insert(it.get_curr().first, i++);
-      for (auto it = filter_par.getValue().col_names.get_it(); it.has_curr();
-	   it.next())
+      if (filter)
 	{
-	  const string & col_name = it.get_curr();
-	  if (not name_to_precision.contains(col_name))
-	    ZENTHROW(CommandLineError, "in --filter: " + col_name +
-		     " is not a valid column name");
-	  col_indexes.append(idx[col_name]);
+	  for (auto it = filter_par.getValue().col_names.get_it(); it.has_curr();
+	       it.next())
+	    {
+	      const string & col_name = it.get_curr();
+	      if (not name_to_precision.contains(col_name))
+		ZENTHROW(CommandLineError, "in --filter: " + col_name +
+			 " is not a valid column name");
+	    col_indexes.append(idx[col_name]);
+	  }
+      else // nfilter is true
+	{
+	  
 	}
     }
 

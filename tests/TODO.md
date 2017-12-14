@@ -65,24 +65,27 @@
 ## 22. desactivar las trazas de excepción
 - Created at   2017-11-23 18:18:43 -0400
 
-## 23. si estadistica falla entonces la correlación no aplica
-- Created at   2017-11-23 18:25:55 -0400
-
-## 24. cuando se compile en backend se sube automáticamente al servidor segun la brach
+## 23. cuando se compile en backend se sube automáticamente al servidor segun la brach
 - Created at   2017-11-24 11:31:15 -0400
 
-## 25. eiminar de boa pto inmediato superior
-- Created at   2017-11-24 15:54:20 -0400
-
-## 26. cplot como función para que pueda ser usado en qt
+## 24. cplot como función para que pueda ser usado en qt
 - Created at   2017-12-09 14:57:01 -0400
 
-## 27. suavizar bo y uo
+## 25. suavizar bo y uo
 - Created at   2017-12-13 12:15:47 -0400
 
-## 28. actualizar po con el bo suavizado
+## 26. actualizar po con el bo suavizado
 - Created at   2017-12-13 12:16:13 -0400
 
-## 29. opcion para cplot que reciba grid y genere errores
+## 27. opcion para cplot que reciba grid y genere errores
 - Created at   2017-12-13 14:29:35 -0400
+
+## 28. poner error de media en ttuner
+- Created at   2017-12-14 15:28:18 -0400
+
+## 29. opcion nfilter
+- Created at   2017-12-14 17:06:52 -0400
+
+## 30. doc de opcion filter y nfilter
+- Created at   2017-12-14 17:12:21 -0400
 

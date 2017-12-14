@@ -434,3 +434,5 @@ opcion que salve en nuevo archivo,2017-11-08 10:29:03 -0400,2017-11-22 17:44:51 
 <<<<<<< HEAD,,,,2017-11-25 11:22:17 -0400
 limitar valores minimos de uod uob uoa,2017-11-24 15:54:48 -0400,2017-12-05 15:41:11 -0400,,2017-12-05 15:41:23 -0400
 si familia de stats causa excepcion entonces la esta se pone dirty,2017-11-28 16:00:51 -0400,2017-12-05 15:41:09 -0400,,2017-12-05 15:41:23 -0400
+si estadistica falla entonces la correlación no aplica,2017-11-23 18:25:55 -0400,2017-12-14 15:28:30 -0400,,2017-12-14 15:28:44 -0400
+eiminar de boa pto inmediato superior,2017-11-24 15:54:20 -0400,2017-12-14 15:29:04 -0400,,2017-12-14 15:29:09 -0400

@@ -40,5 +40,3 @@ DEFINE_ZEN_EXCEPTION(WrongCombinationInputValues,
 
 #endif
 
-
-

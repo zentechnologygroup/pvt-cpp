@@ -10,6 +10,7 @@
 
 DEFINE_ZEN_EXCEPTION(MismatchInPressureValues, "pressure values does not match");
 DEFINE_ZEN_EXCEPTION(UnsortedPressureValues, "pressure values are not sorted");
+DEFINE_ZEN_EXCEPTION(PropertyNotFound, "Essential property not found");
 
 class PvtGrid
 {
@@ -38,12 +39,10 @@ class PvtGrid
       : t(__t), p(move(__p)), vals(move(__vals)) {}
   };
 
-  //using T = tuple<double, Array<double>, Array<Array<double>>>;
-
-  //          t,          matrix of values associated to temperature t
-  // columns in second are ordered by name in var_names array
-  //Array<T> temps; 
   Array<Tdesc> temps; 
+
+  //                   t,     pb
+  mutable DynMapTree<double, double> pb_table;
 
   void process_row(const Array<string> & row,
 		   DynMapTree<double, Desc> & tmap,
@@ -312,6 +311,25 @@ public:
     long i = binary_search(var_names, p, [] (auto & p1, auto & p2)
 			   { return p1.first < p2.first; });
     return i >= 0 and size_t(i) < var_names.size() and var_names(i).first == name;
+  }
+
+  void make_pb_table() const
+  {
+    if (not pb_table.is_empty())
+      ZENTHROW(DuplicatedOperation, "make_pb_table() performed twice");
+    if (not has_name("pb"))
+      ZENTHROW(PropertyNotFound, "pb property not found in data set");
+
+    const size_t pb_idx = property_index("pb");
+    for (auto it = temps.get_it(); it.has_curr(); it.next())
+      {
+	const Tdesc & d = it.get_curr();
+	const double & t = d.t;
+	const double & pb = d.vals[pb_idx][0];
+	if (not d.vals[pb_idx].all([&pb] (auto & __pb) { return pb == __pb; }))
+	  ZENTHROW(InvariantError, "found inconsistency with pb");
+	pb_table.insert(t, pb);
+      }
   }
 
   void remove(const string & name)

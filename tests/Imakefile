@@ -25,7 +25,7 @@ TESTSRCS = test-all-units-1.cc test-conversion.cc test-corr.cc test-seq.cc \
 	test-empirical-json.cc test-fluid-analysis.cc tuner.cc ztuner.cc\
 	test-def-corr.cc test-calibrate.cc test-par.cc plot.cc cplot.cc \
 	test-exception.cc vector-conversion.cc test-pvt-data.cc test-adjust.cc\
-	test-grid.cc gen-grid-test.cc ttuner.cc test-cplot.cc
+	test-grid.cc gen-grid-test.cc ttuner.cc test-cplot.cc test-smooth.cc
 
 TESTOBJS = $(TESTSRCS:.cc=.o)
 
@@ -98,6 +98,9 @@ NormalProgramTarget(test-grid,test-grid.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LI
 
 AllTarget(test-cplot)
 NormalProgramTarget(test-cplot,test-cplot.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
+
+AllTarget(test-smooth)
+NormalProgramTarget(test-smooth,test-smooth.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))
 
 AllTarget(gen-grid-test)
 NormalProgramTarget(gen-grid-test,gen-grid-test.o,$(DEPLIBS),$(LOCAL_LIBRARIES),$(SYS_LIBRARIES))

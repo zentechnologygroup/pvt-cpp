@@ -2614,3 +2614,15 @@
 - Comment      
 - Finished     
 
+## 437. si estadistica falla entonces la correlación no aplica
+- Created at   2017-11-23 18:25:55 -0400
+- Completed at 2017-12-14 15:28:30 -0400
+- Comment      
+- Finished     
+
+## 438. eiminar de boa pto inmediato superior
+- Created at   2017-11-24 15:54:20 -0400
+- Completed at 2017-12-14 15:29:04 -0400
+- Comment      
+- Finished     
+
