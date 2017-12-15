@@ -1444,6 +1444,9 @@ inline void no_row(const FixedStack<const VtlQuantity*>&,
 
 RowFct row_fct = nullptr;
 
+bool filter_set = false;
+bool nfilter_set = false;
+
 // Print out the csv header according to passed args and return a
 // stack of definitive units for each column. Also it sets row_fct
 template <typename ... Args>
@@ -1460,9 +1463,9 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
       return pair<string, string>(h.first, "%." + precision + "f");
     });
 
-  const bool filter = filter_par.isSet();
-  const bool nfilter = nfilter_par.isSet();
-  if (filter or nfilter)
+  filter_set = filter_par.isSet();
+  nfilter_set = nfilter_par.isSet();
+  if (filter_set or nfilter_set)
     {
       DynSetTree<string> nfilter_tbl;
       for (auto it = nfilter_par.getValue().col_names.get_it(); it.has_curr();
@@ -1472,20 +1475,28 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
       size_t i = 0;
       for (auto it = header.get_it(); it.has_curr(); it.next())
 	idx.insert(it.get_curr().first, i++);
-      if (filter)
-	{
-	  for (auto it = filter_par.getValue().col_names.get_it(); it.has_curr();
-	       it.next())
-	    {
-	      const string & col_name = it.get_curr();
-	      if (not name_to_precision.contains(col_name))
-		ZENTHROW(CommandLineError, "in --filter: " + col_name +
-			 " is not a valid column name");
+      if (filter_set)
+	for (auto it = filter_par.getValue().col_names.get_it(); it.has_curr();
+	     it.next())
+	  {
+	    const string & col_name = it.get_curr();
+	    if (not name_to_precision.contains(col_name))
+	      ZENTHROW(CommandLineError, "in --filter: " + col_name +
+		       " is not a valid column name");
+	    if (nfilter_tbl.has(col_name))
+	      continue;
 	    col_indexes.append(idx[col_name]);
 	  }
-      else // nfilter is true
+      else if (not nfilter_tbl.is_empty())
 	{
-	  
+	  for (auto it = nfilter_tbl.get_it(); it.has_curr(); it.next())
+	    idx.remove(it.get_curr());
+	  DynList<pair<string, size_t>> col_list =
+	    sort(idx.items(), [] (auto & p1, auto & p2)
+		 { return p1.second < p2.second; });
+	  for (auto it = col_list.get_it(); it.has_curr(); it.next())
+	    col_indexes.append(it.get_curr().second);
+	  filter_set = true;
 	}
     }
 
@@ -1532,7 +1543,7 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
       row_fct_pb = &buffer_row_pb;
       row_fct = &buffer_row;
     }
-  else if (filter_par.isSet())
+  else if (filter_set)
     {
       const size_t & n = col_indexes.size();
       for (size_t k = 0; k < n; ++k)
@@ -1602,7 +1613,7 @@ inline void print_column(size_t col_idx)
 
 void print_order()
 {
-  assert(transposed and filter_par.isSet());
+  assert(transposed and filter_set);
 
   DynMapTree<string, size_t> name_map;
   enum_for_each(col_names, [&name_map] (auto & name, auto i)
@@ -1627,7 +1638,7 @@ void print_transpose()
 {
   assert(transposed);
 
-  if (filter_par.isSet())
+  if (filter_set)
     {
       print_order();
       return;
