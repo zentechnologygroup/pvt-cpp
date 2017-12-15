@@ -32,60 +32,48 @@
 ## 11. gen-grid-test debe mostrar lo generado y el grid
 - Created at   2017-09-29 17:00:28 -0400
 
-## 12. cplot tuner ztuner test-corr deben atraar execpciones en main  e imprimir error
-- Created at   2017-10-09 17:05:38 -0400
-
-## 13. auto con autoinputing
+## 12. auto con autoinputing
 - Created at   2017-11-08 09:54:36 -0400
 
-## 14. colorear puntos según tempreatura en opcion R de ttuner
+## 13. colorear puntos según tempreatura en opcion R de ttuner
 - Created at   2017-11-08 10:30:55 -0400
 
-## 15. auto inputing dada t
+## 14. auto inputing dada t
 - Created at   2017-11-08 19:30:07 -0400
 
-## 16. ttuner tauto option
+## 15. ttuner tauto option
 - Created at   2017-11-08 19:42:04 -0400
 
-## 17. ttuner auto input option
+## 16. ttuner auto input option
 - Created at   2017-11-08 19:42:15 -0400
 
-## 18. auto inputu con t debe tener todas las correlaciones definidas
+## 17. auto inputu con t debe tener todas las correlaciones definidas
 - Created at   2017-11-09 10:30:28 -0400
 
-## 19. stabilize debe tomatr en cuenta el uod
+## 18. stabilize debe tomatr en cuenta el uod
 - Created at   2017-11-12 14:01:04 -0400
 
-## 20. dry de patrones de ajuste de pb para las dos zonas
+## 19. dry de patrones de ajuste de pb para las dos zonas
 - Created at   2017-11-16 17:46:53 -0400
 
-## 21. profiling ttuner y ztuner
+## 20. profiling ttuner y ztuner
 - Created at   2017-11-22 09:45:29 -0400
 
-## 22. desactivar las trazas de excepción
+## 21. desactivar las trazas de excepción
 - Created at   2017-11-23 18:18:43 -0400
 
-## 23. cuando se compile en backend se sube automáticamente al servidor segun la brach
-- Created at   2017-11-24 11:31:15 -0400
-
-## 24. cplot como función para que pueda ser usado en qt
+## 22. cplot como función para que pueda ser usado en qt
 - Created at   2017-12-09 14:57:01 -0400
 
-## 25. suavizar bo y uo
+## 23. suavizar bo y uo
 - Created at   2017-12-13 12:15:47 -0400
 
-## 26. actualizar po con el bo suavizado
+## 24. actualizar po con el bo suavizado
 - Created at   2017-12-13 12:16:13 -0400
 
-## 27. opcion para cplot que reciba grid y genere errores
+## 25. opcion para cplot que reciba grid y genere errores
 - Created at   2017-12-13 14:29:35 -0400
 
-## 28. poner error de media en ttuner
+## 26. poner error de media en ttuner
 - Created at   2017-12-14 15:28:18 -0400
-
-## 29. opcion nfilter
-- Created at   2017-12-14 17:06:52 -0400
-
-## 30. doc de opcion filter y nfilter
-- Created at   2017-12-14 17:12:21 -0400
 

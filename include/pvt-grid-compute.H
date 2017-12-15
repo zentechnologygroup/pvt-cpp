@@ -156,10 +156,14 @@ public:
 	const double & t = curr.first;
 	Desc & desc = curr.second;
 	
-	if (not is_sorted(desc.p))
-	  ZENTHROW(UnsortedPressureValues,
-		   "pressure values associated to temp " + to_string(t) +
-		   " are not sorted");
+	if (not is_sorted(desc.p, std::less_equal<double>()))
+	  {
+	    size_t i = search_inversion(desc.p).second;
+	    ZENTHROW(UnsortedPressureValues,
+		     "pressure values associated to temp " + to_string(t) +
+		     " are not sorted " +
+		     join(desc.p.take(i)) + " * " + join(desc.p.drop(i)));
+	  }
 	
 	temps.append(Tdesc(t, move(desc.p), move(desc.vals)));
       }
@@ -392,15 +396,14 @@ private:
 	y = extrapolate_right(p1, p2, y1, y2, p);
 	break;
       }
-
     return y;
   }
   
 public:
 
-  VtlQuantity
-  compute(const size_t name_idx,
-	  const VtlQuantity & temp, const VtlQuantity & pressure) const
+  VtlQuantity compute(const size_t name_idx,
+		      const VtlQuantity & temp,
+		      const VtlQuantity & pressure) const
   {
     assert(name_idx < var_names.size());
 
@@ -445,7 +448,6 @@ public:
 	}
 	break;
       }
-
     return ret;
   }
 

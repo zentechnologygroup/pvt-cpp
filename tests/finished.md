@@ -2626,3 +2626,33 @@
 - Comment      
 - Finished     
 
+## 439. opcion nfilter
+- Created at   2017-12-14 17:06:52 -0400
+- Completed at 2017-12-15 16:13:16 -0400
+- Comment      
+- Finished     
+
+## 440. doc de opcion filter y nfilter
+- Created at   2017-12-14 17:12:21 -0400
+- Completed at 2017-12-15 16:16:48 -0400
+- Comment      
+- Finished     
+
+## 441. cuando se compile en backend se sube automáticamente al servidor segun la brach
+- Created at   2017-11-24 11:31:15 -0400
+- Completed at 2017-12-15 16:17:55 -0400
+- Comment      
+- Finished     
+
+## 442. cplot tuner ztuner test-corr deben atraar execpciones en main  e imprimir error
+- Created at   2017-10-09 17:05:38 -0400
+- Completed at 2017-12-15 16:18:48 -0400
+- Comment      
+- Finished     
+
+## 443. generar el grid directamente desde ttuner
+- Created at   2017-12-15 16:13:08 -0400
+- Completed at 2017-12-15 16:48:03 -0400
+- Comment      
+- Finished     
+

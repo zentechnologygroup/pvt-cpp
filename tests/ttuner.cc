@@ -798,6 +798,8 @@ ValueArg<ArrayDesc> parray = { "", "p_array", "p array", false, ArrayDesc(),
 
 SwitchArg Cplot = { "", "Cplot", "generate simple cplot command", cmd };
 
+SwitchArg grid = { "", "grid", "directly generate cplot output", cmd };
+
 vector<string> r_types = { "rs", "co", "bo", "uo" };
 ValuesConstraint<string> allowed_r_types = r_types;
 ValueArg<string> R = { "R", "R", "direct R output", false, "",
@@ -1495,7 +1497,7 @@ void process_R()
     { "rs", rs_points, "co", co_points, "bo", bo_points, "uo", uo_points };  
 
   const string plot = plot_cmd() + " > tmp.csv";
-  system(plot.c_str());
+
   cout << plot << endl;
 
   const string & type = R.getValue();
@@ -1565,15 +1567,38 @@ void process_Auto()
     return;
 
   if (not Cplot.isSet() and not cplot.isSet() and not print.isSet() and
-      not Print.isSet())
+      not Print.isSet() and not grid.getValue())
     error_msg("Option " + Auto_arg.getName() + " must be used in combination "
 	      "with " + cplot.getName() + " or " + Cplot.getName() + " or " +
-	      print.getName() + " or " + Print.getName());
+	      print.getName() + " or " + Print.getName() + " or " +
+	      grid.getName());
 
    auto corr_list = data.auto_apply(relax_names_tbl, ban.getValue().corr_list,
 				   threshold.getValue(),
 				   auto_map[auto_type.getValue()],
 				   auto_n.getValue());
+}
+
+void process_grid()
+{
+  if (not grid.getValue())
+    return;
+
+  if (not t.isSet())
+    ZENTHROW(CommandLineError, "t option is not set");
+  if (not p.isSet())
+    ZENTHROW(CommandLineError, "p option is not set");
+
+  const RangeDesc & trange = t.getValue();
+  const RangeDesc & prange = p.getValue();
+
+  ostringstream s;
+  s << "./cplot --grid simple " << data.cplot_consts() << data.cplot_corrs()
+    << " --zfactor ZfactorDranchukAK "
+    << "--t \"" << trange.min << " " << trange.max << " " << trange.n << "\" "
+    << "--p \"" << prange.min << " " << prange.max << " " << prange.n << "\"";
+
+  system(s.str().c_str());
 }
 
 void input_data(const Input & in)
@@ -1656,6 +1681,7 @@ int main(int argc, char *argv[])
       process_R();
       process_CPLOT();
       process_cplot();
+      process_grid();
     }
   catch (exception & e)
     {

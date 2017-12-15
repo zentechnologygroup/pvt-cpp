@@ -45,9 +45,37 @@ struct RangeDesc
   double step() const noexcept { return (max - min) / (n - 1); }
 };
 
+struct ArrayDesc
+{
+  DynList<double> values;
+  size_t n = 0;
+
+  ArrayDesc & operator = (const string & str)
+  {
+    string data;
+    istringstream iss(str);
+
+    for (;iss >> data; ++n)
+      {
+	if (not is_double(data))
+	  ZENTHROW(CommandLineError, data + " is not a double");
+
+	values.append(atof(data));
+      }
+
+    if (values.is_empty())
+      ZENTHROW(CommandLineError, "cannot read array");
+
+    in_place_sort(values);
+ 
+    return *this;
+  }
+};
+
 namespace TCLAP
 {
   template<> struct ArgTraits<RangeDesc> { typedef StringLike ValueCategory; };
+  template<> struct ArgTraits<ArrayDesc> { typedef StringLike ValueCategory; };
 }
 
 ValueArg<RangeDesc> t = { "t", "t", "t range", false, RangeDesc(200, 400, 10),
@@ -55,6 +83,12 @@ ValueArg<RangeDesc> t = { "t", "t", "t range", false, RangeDesc(200, 400, 10),
 
 ValueArg<RangeDesc> p = { "p", "p", "p range", false, RangeDesc(400, 800, 10),
 			  "p min max steps", cmd };
+
+ValueArg<ArrayDesc> t_array = { "", "t_array", "t values", false, ArrayDesc(),
+				"t values", cmd };
+
+ValueArg<ArrayDesc> p_array = { "", "p_array", "p values", false, ArrayDesc(),
+				"p values", cmd };
 
 ValueArg<string> var_name =
   { "v", "var-name", "var name", false, "", "var name", cmd };
@@ -158,6 +192,31 @@ void process_output(const string & name, const DynList<DynList<double>> & l)
   dispatcher.run(output.getValue(), name, l);
 }
 
+DynList<double> tvals, pvals;
+
+# define SET_LIST(NAME)							\
+  DynList<double> & set_##NAME##_vals()					\
+  {									\
+    if (NAME.isSet() and NAME##_array.isSet())				\
+      ZENTHROW(CommandLineError, #NAME " and " #NAME "_array option are exclusive"); \
+									\
+    if (not NAME.isSet() and not NAME##_array.isSet())			\
+      ZENTHROW(CommandLineError, #NAME " or " #NAME "_array option must be set"); \
+									\
+    if (NAME.isSet())							\
+      {									\
+	const RangeDesc & d = NAME.getValue();				\
+	for (double v = d.min, step = d.step(); v <= d.max; v += step)	\
+	  NAME##vals.append(v);						\
+      }									\
+    else								\
+      NAME##vals = NAME##_array.getValue().values;			\
+    return NAME##vals;							\
+  }
+
+SET_LIST(t);
+SET_LIST(p);
+
 int main(int argc, char *argv[])
 {
   cmd.parse(argc, argv);
@@ -175,15 +234,17 @@ int main(int argc, char *argv[])
       return 0;
     }
 
-  if (not (t.isSet() and p.isSet() and var_name.isSet()))
-    return 0;
+  if (not var_name.isSet())
+    ZENTHROW(CommandLineError, "Property flag -v NAME is mandatory");
 
   DynList<DynList<double>> l;
   const string & name = var_name.getValue();
-  const auto & tdesc = t.getValue();
-  const auto & pdesc = p.getValue();
-  for (double tval = tdesc.min; tval <= tdesc.max; tval += tdesc.step())
-    for (double pval = pdesc.min; pval <= pdesc.max; pval += pdesc.step())
+
+  set_t_vals();
+  set_p_vals();
+
+  for (double tval : tvals)
+    for (double pval : pvals)
       l.append(build_dynlist<double>(tval, pval,
 				     grid(name, Quantity<Fahrenheit>(tval),
 					  Quantity<psia>(pval)).raw()));

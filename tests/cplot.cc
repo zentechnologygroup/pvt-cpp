@@ -33,7 +33,7 @@ const UnitsInstancer & units_instancer = UnitsInstancer::init();
 
 // These values are used for bounding the maximum number of iterations
 // and thus eventually protect against denial service attacks
-constexpr size_t Max_Num_Of_Steps = 120;   // for --t --p --t_array and --p_array
+constexpr size_t Max_Num_Of_Steps = 220;   // for --t --p --t_array and --p_array
 constexpr size_t Max_Num_of_Tp_Pairs = 10; // for --tp_pair multiarg
 
 # include <correlations/pvt-correlations.H>
@@ -705,11 +705,11 @@ Command_Line_Range(p, "pressure");
 
 SwitchArg transpose_par = { "", "transpose", "transpose grid", cmd };
 
-ValueArg<ColNames> filter_par = { "", "filter", "col names", false, ColNames(),
-				  "col names list", cmd };
+ValueArg<ColNames> filter_par = { "", "filter", "only put names list", false,
+				  ColNames(), "col names list", cmd };
 
-ValueArg<ColNames> nfilter_par = { "", "nfilter", "col names", false, ColNames(),
-				   "col names list", cmd };
+ValueArg<ColNames> nfilter_par = { "", "nfilter", "exclude names list", false,
+				   ColNames(), "col names list", cmd };
 
 ValueArg<size_t> dft_precision = { "", "dft-precision", "default precision value",
 				   false, 6, "default precision value", cmd };
