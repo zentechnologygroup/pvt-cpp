@@ -186,7 +186,8 @@ void process_output(const string & name, const DynList<DynList<double>> & l)
       execute_R_script(s.str());
     };
 
-  static AHDispatcher<string, void (*)(const string &, DynList<DynList<double>>&)>
+  static
+    AHDispatcher<string, void (*)(const string &, DynList<DynList<double>>&)>
     dispatcher("mat", mat, "csv", csv, "R", R);
 
   dispatcher.run(output.getValue(), name, l);
@@ -198,10 +199,12 @@ DynList<double> tvals, pvals;
   DynList<double> & set_##NAME##_vals()					\
   {									\
     if (NAME.isSet() and NAME##_array.isSet())				\
-      ZENTHROW(CommandLineError, #NAME " and " #NAME "_array option are exclusive"); \
+      ZENTHROW(CommandLineError, #NAME " and " #NAME			\
+	       "_array option are exclusive");				\
 									\
     if (not NAME.isSet() and not NAME##_array.isSet())			\
-      ZENTHROW(CommandLineError, #NAME " or " #NAME "_array option must be set"); \
+      ZENTHROW(CommandLineError, #NAME " or " #NAME			\
+	       "_array option must be set");				\
 									\
     if (NAME.isSet())							\
       {									\

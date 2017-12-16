@@ -314,13 +314,15 @@ public:
     p.first = name;
     long i = binary_search(var_names, p, [] (auto & p1, auto & p2)
 			   { return p1.first < p2.first; });
-    return i >= 0 and size_t(i) < var_names.size() and var_names(i).first == name;
+    return i >= 0 and size_t(i) < var_names.size() and
+				  var_names(i).first == name;
   }
 
   void make_pb_table() const
   {
     if (not pb_table.is_empty())
-      ZENTHROW(DuplicatedOperation, "make_pb_table() performed twice");
+      return;
+    
     if (not has_name("pb"))
       ZENTHROW(PropertyNotFound, "pb property not found in data set");
 
