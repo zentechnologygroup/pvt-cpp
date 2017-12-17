@@ -6,13 +6,13 @@
 # include <tpl_sort_utils.H>
 # include <tpl_dynMapTree.H>
 # include <utils.H>
-# include <units.H>
+# include <pvt-units.H>
 
 DEFINE_ZEN_EXCEPTION(MismatchInPressureValues, "pressure values does not match");
 DEFINE_ZEN_EXCEPTION(UnsortedPressureValues, "pressure values are not sorted");
 DEFINE_ZEN_EXCEPTION(PropertyNotFound, "Essential property not found");
 
-class PvtGrid
+struct PvtGrid
 {
   mutable bool valid = false;
   const Unit * tunit_ptr = nullptr;
@@ -331,6 +331,14 @@ public:
       {
 	const Tdesc & d = it.get_curr();
 	const double & t = d.t;
+	cout << "pb = " << join(d.vals[pb_idx]) << endl
+	     << "pb "
+	     << join(d.p.maps([this, t] (auto p)
+			      { return this->compute("pb",
+					       VtlQuantity(*tunit_ptr, t),
+					       VtlQuantity(*punit_ptr, p)).raw(); }))
+	     << endl;
+	
 	const double & pb = d.vals[pb_idx][0];
 	if (not d.vals[pb_idx].all([&pb] (auto & __pb) { return pb == __pb; }))
 	  ZENTHROW(InvariantError, "found inconsistency with pb");

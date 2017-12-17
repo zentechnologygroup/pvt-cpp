@@ -13,6 +13,8 @@ ValueArg<string> file =
 
 SmoothGrid load_grid()
 {
+  if (not file.isSet())
+    ZENTHROW(CommandLineError, "csv file is not set");
   const string & file_name = file.getValue();
   if (not exists_file(file_name))
     error_msg("file " + file_name + " does not exist");
@@ -23,5 +25,10 @@ SmoothGrid load_grid()
 
 int main(int argc, char *argv[])
 {
+  cmd.parse(argc, argv);
+
   SmoothGrid sgrid = load_grid();
+
+  sgrid.grid.pb_table.for_each([] (auto p)
+			       { cout << p.first << " " << p.second << endl; });
 }
