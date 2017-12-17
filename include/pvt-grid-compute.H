@@ -331,16 +331,8 @@ public:
       {
 	const Tdesc & d = it.get_curr();
 	const double & t = d.t;
-	cout << "pb = " << join(d.vals[pb_idx]) << endl
-	     << "pb "
-	     << join(d.p.maps([this, t] (auto p)
-			      { return this->compute("pb",
-					       VtlQuantity(*tunit_ptr, t),
-					       VtlQuantity(*punit_ptr, p)).raw(); }))
-	     << endl;
-	
-	const double & pb = d.vals[pb_idx][0];
-	if (not d.vals[pb_idx].all([&pb] (auto & __pb) { return pb == __pb; }))
+	const double & pb = d.vals[0][pb_idx];
+	if (not d.vals.all([pb, pb_idx] (auto & a) { return a[pb_idx] == pb; }))
 	  ZENTHROW(InvariantError, "found inconsistency with pb");
 	pb_table.insert(t, pb);
       }
