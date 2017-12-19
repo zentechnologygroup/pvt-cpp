@@ -11,6 +11,10 @@ struct SmoothGrid
   {
     grid.make_pb_table();
   }
+
+  enum class ViolationTypes
+  { AdjustUob_PbInUob, AdjustUob_PbInUoa, 
+      
 };
 
 
