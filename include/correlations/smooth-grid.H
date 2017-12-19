@@ -13,8 +13,12 @@ struct SmoothGrid
   }
 
   enum class ViolationTypes
-  { AdjustUob_PbInUob, AdjustUob_PbInUoa, 
-      
+  {
+    AdjustUob_PbInUob, AdjustUob_PbInUoa, AdjustUoa_PbInUob, AdjustUoa_PbInUoa,
+    AdjustBob_PbInUob, AdjustBob_PbInUoa, AdjustBoa_PbInUob, AdjustBoa_PbInUoa
+  };
+
+  
 };
 
 
