@@ -36,7 +36,7 @@ struct SmoothGrid
     const double last_p_in_uob = get<0>(uob_zone.get_last());
     const double last_uob = get<1>(uob_zone.get_last());
     const double first_p_in_uoa = get<0>(uoa_zone.get_first());
-    const double first_uob = get<1>(uob_zone.get_last());
+    const double first_uoa = get<1>(uoa_zone.get_last());
   }
 
   
