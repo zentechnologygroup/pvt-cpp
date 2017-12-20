@@ -305,7 +305,8 @@ public:
 			   { return p1.first < p2.first; });
     if (i < 0 or size_t(i) >= var_names.size() or var_names(i).first != name)
       ZENTHROW(NameNotFound, "var name " + name + " not found");
-    return make_pair(i, p.second);
+    assert(var_names(i).first == name);
+    return make_pair(i, var_names(i).second);
   }
 
   size_t property_index(const string & name) const
@@ -492,6 +493,8 @@ public:
     const size_t & pb_idx = pb_pair.first;
     const Unit * pb_unit = pb_pair.second;
 
+    cout << "pb_idx = " << pb_idx << endl;
+
     PropertyList ret;
     ret.tunit = tunit_ptr;
     ret.punit = punit_ptr;
@@ -501,16 +504,15 @@ public:
     for (auto it = temps.get_it(); it.has_curr(); it.next())
       {
 	const Tdesc & d = it.get_curr();
-	cout << "d.p.size() = " << d.p.size() << endl
-	     << "d.vals.size() = " << d.vals.size() << endl;
 	assert(d.p.size() == d.vals.size());
 	Property pro;
 	pro.t = d.t;
 	pro.pb = punit_ptr == pb_unit ? d.vals[0][pb_idx] :
 	  unit_convert(*pb_unit, d.vals[0][pb_idx], *punit_ptr);
-	pro.yval = d.vals[name_idx][pb_idx];
+	pro.yval = d.vals[pb_idx][name_idx];
 	pro.p = d.p.to_dynlist();
-	pro.y = d.vals[name_idx].to_dynlist();
+	pro.y =
+	  d.vals.maps<double>([name_idx] (auto & a) { return a(name_idx); });
 	pro.n = d.p.size();
 	ret.l.append(move(pro));
       }
