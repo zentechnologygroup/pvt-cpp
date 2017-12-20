@@ -337,6 +337,7 @@ public:
 	const Tdesc & d = it.get_curr();
 	const double & t = d.t;
 	const double & pb = d.vals[0][pb_idx];
+	assert(d.vals.size() == d.p.size());
 	if (not d.vals.all([pb, pb_idx] (auto & a) { return a[pb_idx] == pb; }))
 	  ZENTHROW(InvariantError, "found inconsistency with pb");
 	pb_table.insert(t, pb);
@@ -467,6 +468,7 @@ public:
   {
     double t; // in Fahrenheit
     double pb; // in the same than grid pressure unit
+    double yval; // value of property at pb
     DynList<double> p;
     DynList<double> y;
     size_t n = 0;
@@ -477,12 +479,11 @@ public:
     const Unit * tunit = nullptr;
     const Unit * punit = nullptr;
     const Unit * yunit = nullptr;
-    const string name = "INVALID";
+    mutable string name = "INVALID";
     DynList<Property> l;
   };
 
-  PropertyList get_full_property(const Quantity<Fahrenheit> & t,
-				 const string & name) const
+  PropertyList get_full_property(const string & name) const
   {
     const pair<size_t, const Unit*> name_pair = property_pair(name);
     const size_t & name_idx = name_pair.first;
@@ -495,15 +496,19 @@ public:
     ret.tunit = tunit_ptr;
     ret.punit = punit_ptr;
     ret.yunit = name_pair.second;
+    ret.name = name;
 
     for (auto it = temps.get_it(); it.has_curr(); it.next())
       {
 	const Tdesc & d = it.get_curr();
-	assert(d.p.size() == d.vals(name_idx).size());
+	cout << "d.p.size() = " << d.p.size() << endl
+	     << "d.vals.size() = " << d.vals.size() << endl;
+	assert(d.p.size() == d.vals.size());
 	Property pro;
 	pro.t = d.t;
 	pro.pb = punit_ptr == pb_unit ? d.vals[0][pb_idx] :
 	  unit_convert(*pb_unit, d.vals[0][pb_idx], *punit_ptr);
+	pro.yval = d.vals[name_idx][pb_idx];
 	pro.p = d.p.to_dynlist();
 	pro.y = d.vals[name_idx].to_dynlist();
 	pro.n = d.p.size();

@@ -29,6 +29,7 @@ struct SmoothGrid
   ViolationType uo_review(const PvtGrid::Property & prop) const
   {
     const double & pb = prop.pb;
+    const double & yval = prop.yval;
     auto uo_parts =
       zip_partition([&pb] (auto t) { return get<0>(t) < pb; }, prop.p, prop.y);
     DynList<tuple<double, double>> & uob_zone = uo_parts.first;
@@ -37,6 +38,14 @@ struct SmoothGrid
     const double last_uob = get<1>(uob_zone.get_last());
     const double first_p_in_uoa = get<0>(uoa_zone.get_first());
     const double first_uoa = get<1>(uoa_zone.get_last());
+
+    cout << "t              = " << prop.t << endl
+	 << "last_p_in_uob  = " << last_p_in_uob << endl
+	 << "last_uob       = " << last_uob << endl
+	 << "pb             = " << pb << endl
+	 << "yval           = " << yval << endl
+	 << "first_p_in_uoa = " << first_p_in_uoa << endl
+	 << "first_uoa      = " << last_uob << endl;
   }
 
   

@@ -31,4 +31,12 @@ int main(int argc, char *argv[])
 
   sgrid.grid.pb_table.for_each([] (auto p)
 			       { cout << p.first << " " << p.second << endl; });
+
+  auto vl = sgrid.grid.get_full_property("uo");
+
+  for (auto it = vl.l.get_it(); it.has_curr(); it.next())
+    {
+      const PvtGrid::Property & prop = it.get_curr();
+      sgrid.uo_review(prop);
+    }
 }
