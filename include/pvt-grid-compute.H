@@ -469,7 +469,7 @@ public:
   {
     double t; // in Fahrenheit
     double pb; // in the same than grid pressure unit
-    double yval; // value of property at pb
+    double yval = -1; // value of property at pb (when applies)
     DynList<double> p;
     DynList<double> y;
     size_t n = 0;
@@ -509,10 +509,13 @@ public:
 	pro.t = d.t;
 	pro.pb = punit_ptr == pb_unit ? d.vals[0][pb_idx] :
 	  unit_convert(*pb_unit, d.vals[0][pb_idx], *punit_ptr);
-	pro.yval = d.vals[pb_idx][name_idx];
 	pro.p = d.p.to_dynlist();
 	pro.y =
 	  d.vals.maps<double>([name_idx] (auto & a) { return a(name_idx); });
+	const size_t pb_pos = zip_find_index([pb = pro.pb] (auto t)
+					     { return get<0>(t) == pb; },
+					     pro.p, pro.y);
+	pro.yval = d.vals[name_idx][pb_pos];
 	pro.n = d.p.size();
 	ret.l.append(move(pro));
       }

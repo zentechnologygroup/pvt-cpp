@@ -83,3 +83,6 @@
 ## 28. añadir doc en correlation punto H
 - Created at   2017-12-19 17:20:35 -0400
 
+## 29. en get_full_property no siempre hay pb
+- Created at   2017-12-22 16:23:52 -0400
+

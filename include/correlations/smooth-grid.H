@@ -33,8 +33,10 @@ struct SmoothGrid
 
     auto uo_parts =
       zip_partition([&pb] (auto t) { return get<0>(t) <= pb; }, prop.p, prop.y);
-    DynList<tuple<double, double>> & uob_zone = uo_parts.first;
-    DynList<tuple<double, double>> & uoa_zone = uo_parts.second;
+    DynList<tuple<double, double>> & uob_zone = get<0>(uo_parts);
+    DynList<tuple<double, double>> & uoa_zone = get<2>(uo_parts);
+    const size_t n1 = get<1>(uo_parts);
+    const size_t n2 = get<3>(uo_parts);
 
     const double last_p_in_uob = get<0>(uob_zone.get_last());
     const double first_p_in_uoa = get<0>(uoa_zone.get_first());
