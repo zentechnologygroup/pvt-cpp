@@ -25,15 +25,20 @@
 
 # include "par-list.H"
 
+/** Define a correlation parameter
+
+    @ingroup Correlations
+    @author Leandro Rabindranath Leon
+ */
 struct CorrelationPar
 {
-  const string name;
-  const string description;
+  const string name;  /// name of parameter
+  const string description; 
   const Unit & unit;
   const VtlQuantity min_val;
   const VtlQuantity max_val;
-  mutable bool min_from_author = true;
-  mutable bool max_from_author = true;
+  mutable bool min_from_author = true; /// true if min val was defined for author
+  mutable bool max_from_author = true; /// true if max val was defined for author
   mutable string latex_symbol = "NOT-DEFINED";
 
 private:
