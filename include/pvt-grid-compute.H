@@ -1,3 +1,9 @@
+/** This file contains the base machinery needed for smoothing bo and
+   uo properties of a grid pvt 
+   
+   Aleph-w Leandro Rabindranath Leon
+ */
+
 # ifndef PVT_GRID_COMPUTE_H
 # define PVT_GRID_COMPUTE_H
 
@@ -12,6 +18,11 @@ DEFINE_ZEN_EXCEPTION(MismatchInPressureValues, "pressure values does not match")
 DEFINE_ZEN_EXCEPTION(UnsortedPressureValues, "pressure values are not sorted");
 DEFINE_ZEN_EXCEPTION(PropertyNotFound, "Essential property not found");
 
+/**
+   
+   @ingroup Correlations
+   @author Leandro Rabindranath Leon
+*/
 struct PvtGrid
 {
   mutable bool valid = false;
@@ -468,8 +479,8 @@ public:
   struct Property
   {
     double t; // in Fahrenheit
-    double pb; // in the same than grid pressure unit
-    double yval = -1; // value of property at pb (when applies)
+    double pb = Unit::Invalid_Value; // in the same unit than grid pressure unit
+    double y_in_pb = Unit::Invalid_Value; // value of property at pb (when applies)
     DynList<double> p;
     DynList<double> y;
     size_t n = 0;
@@ -507,16 +518,23 @@ public:
 	assert(d.p.size() == d.vals.size());
 	Property pro;
 	pro.t = d.t;
-	pro.pb = punit_ptr == pb_unit ? d.vals[0][pb_idx] :
-	  unit_convert(*pb_unit, d.vals[0][pb_idx], *punit_ptr);
 	pro.p = d.p.to_dynlist();
 	pro.y =
 	  d.vals.maps<double>([name_idx] (auto & a) { return a(name_idx); });
-	const size_t pb_pos = zip_find_index([pb = pro.pb] (auto t)
-					     { return get<0>(t) == pb; },
-					     pro.p, pro.y);
-	pro.yval = d.vals[name_idx][pb_pos];
 	pro.n = d.p.size();
+	const double & stored_pb = d.vals[0][pb_idx];
+	if (stored_pb != Unit::Invalid_Value)
+	  {
+	    pro.pb = punit_ptr == pb_unit ? stored_pb :
+	      unit_convert(*pb_unit, stored_pb, *punit_ptr);
+	    const size_t pb_pos = zip_find_index([pb = pro.pb] (auto t)
+						 { return get<0>(t) == pb; },
+						 pro.p, pro.y);
+	    cout << "vals size = " << d.vals.size() << endl
+		 << "name_idx = " << name_idx << endl
+		 << "d.vals[name_idx].size() = " << d.vals[name_idx].size() << endl;
+	    pro.y_in_pb = d.vals[name_idx][pb_pos];
+	  }
 	ret.l.append(move(pro));
       }
     return ret;
