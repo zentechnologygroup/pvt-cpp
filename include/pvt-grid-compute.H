@@ -48,6 +48,14 @@ struct PvtGrid
     Tdesc() {}
     Tdesc(double __t, Array<double> && __p, Array<Array<double>> && __vals)
       : t(__t), p(move(__p)), vals(move(__vals)) {}
+    double val(const size_t prop_idx, const size_t p_idx) const
+    {
+      return vals[p_idx][prop_idx];
+    }
+    double val(const size_t prop_idx, const double pressure) const
+    {
+      long p_idx = binary_search(p, pressure, 0, p.size() - 1);
+    }
   };
 
   Array<Tdesc> temps; 
@@ -530,9 +538,11 @@ public:
 	    const size_t pb_pos = zip_find_index([pb = pro.pb] (auto t)
 						 { return get<0>(t) == pb; },
 						 pro.p, pro.y);
-	    cout << "vals size = " << d.vals.size() << endl
-		 << "name_idx = " << name_idx << endl
-		 << "d.vals[name_idx].size() = " << d.vals[name_idx].size() << endl;
+	    cout << join(var_names.maps<string>([] (auto & p)
+						{ return p.first; })) << endl
+	      << "vals size = " << d.vals.size() << endl
+	      << "name_idx = " << name_idx << endl
+	      << "d.vals[name_idx].size() = " << d.vals[name_idx].size() << endl;
 	    pro.y_in_pb = d.vals[name_idx][pb_pos];
 	  }
 	ret.l.append(move(pro));
