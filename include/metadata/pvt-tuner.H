@@ -23,6 +23,11 @@ using Json = nlohmann::json;
 
 # define PVT_INVALID_VALUE UNIT_INVALID_VALUE
 
+/** Vector to be used for defining properties depending on the pressure.
+   
+   @ingroup Correlations
+   @author Leandro Rabindranath Leon
+*/
 struct VectorDesc
 {
   // contain these values "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa"
@@ -33,44 +38,50 @@ struct VectorDesc
     return valid_target_names.has(target_name);
   }
 
-  mutable double t = 0; //  unit will always be in Fahrenheit
-  mutable double pb = PVT_INVALID_VALUE; // bubble point pressure in the
-				         // same unit that p 
-  mutable double bobp = PVT_INVALID_VALUE; // in RB_STB
+  mutable double t = 0; /// Temperature. its unit will always be in Fahrenheit
+  mutable double pb = PVT_INVALID_VALUE; /// bubble point pressure in the
+				         /// same unit that p
+
+  // the following values could be exclusive; that is, they could be
+  // valid in a specific property 
+  mutable double bobp = PVT_INVALID_VALUE; //bo in RB_STB at the
+					   //bubble point pressure
   mutable double uod = PVT_INVALID_VALUE; // dead oil viscosity in cP
   mutable double uobp = PVT_INVALID_VALUE; // oil viscosity at pb in cP
-  mutable Array<double> p;
-  const Unit * punit = nullptr;
+  mutable Array<double> p; /// Pressure values
+  const Unit * punit = nullptr; /// pressure unit for array and bubble point
 
-  mutable string yname = "no-name";
-  const Unit * yunit = nullptr;
-  mutable Array<double> y;
+  mutable string yname = "no-name"; /// name of property
+  const Unit * yunit = nullptr; /// unit specification for property values
+  mutable Array<double> y; /// Property values
 
+  /// return a list containing the pressure values in psig
   DynList<Quantity<psig>> get_pressures() const
   {
     return p.maps<Quantity<psig>>([this] (auto v)
 		  { return Quantity<psig>(VtlQuantity(*punit, v)); });
   }
 
+  /// return a list containing the property values in the unit yunit
   DynList<VtlQuantity> get_y() const
   {
     return y.maps<VtlQuantity>([this] (auto v)
 			       { return VtlQuantity(*yunit, v); });
   } 
 
-  double pmin() const
+  double pmin() const /// Minimum seen pressure value
   {
     assert(p.get_first() < p.get_last());
     return p.get_first();
   }
   
-  double pmax() const
+  double pmax() const /// Maximum seen pressure value
   {
     assert(p.get_first() < p.get_last());
     return p.get_last();
   }
 
-  Json to_json() const
+  Json to_json() const /// Return a json for the vector
   {
     Json j;
     j["t"] = t;
@@ -86,6 +97,7 @@ struct VectorDesc
     return j;
   }
 
+  /// Build a vector from a given json
   VectorDesc(const Json & j)
     : t(j["t"]), pb(j["pb"]), bobp(j["bobp"]), uod(j["uod"]), uobp(j["uobp"]),
       p(to_Array(j["p"].get<vector<double>>())),
@@ -104,6 +116,7 @@ struct VectorDesc
       ZENTHROW(UnitNotFound, "unit for " + yname + " not found");
   }
 
+  /// Return `true` if the vector is valid
   bool is_valid() const noexcept
   {
     return t > 0 and pb > 0 and punit != nullptr and yunit != nullptr and
@@ -111,6 +124,10 @@ struct VectorDesc
       is_sorted(p, std::less_equal<double>());
   }
 
+  /** Examine p. If this last is not sorted, then it inverses it. Next
+      if p is not sorted or inversely sorted, then it throws
+      `SamplesUnsorted` exception
+   */
   void validate_sort()
   {
     if (not is_sorted(p, std::less_equal<double>()))
@@ -123,19 +140,26 @@ struct VectorDesc
 	       join(p));
   }
 
+  // this method is called by the constructor in order to do some
+  // initial validations
   void pre_validate()
   {
+    // verify thag unit for pressure and property are specified
     if (punit == nullptr or yunit == nullptr)
       ZENTHROW(InvalidUnit, ctor_msg() + "vector unit are not initialized");
+    // validates than punit is a pressure unit
     if (not psig::get_instance().is_sibling(*punit))
       ZENTHROW(InvalidUnit, punit->name + " is not a valid pressure unit");
+    // Validate that at least there are 2 value for pressure
     if (p.size() <= 1)
       ZENTHROW(LengthMismatch, ctor_msg() +
 	       "pressure array size is less or equal than 1");
+    // Verify that all pressure values are inside the punit range
     if (not p.all([this] (auto p) { return BaseQuantity::is_valid(p, *punit); }))
       ZENTHROW(OutOfUnitRange, ctor_msg() + 
 	       "at least a pressure value is out of its unit range " +
 	       join(p));
+    // Assure that pressure unit is psig 
     if (punit != &psig::get_instance())
       {
 	mutable_unit_convert(*punit, p, psig::get_instance());
@@ -144,6 +168,8 @@ struct VectorDesc
       }
   }
 
+  // This method is called by the constructor after everything is
+  // set. It verifies that p and y array have the same size
   void post_validate()
   {
     if (p.size() != y.size())
@@ -151,6 +177,7 @@ struct VectorDesc
 	       " array have different sizes");
   }
 
+  /// Build a full vector
   inline 
   VectorDesc(double t, double pb, double bobp, double uod, double uobp,
 	     const Array<double> & p, const Unit * punit,
@@ -158,6 +185,8 @@ struct VectorDesc
 
   VectorDesc() {}
 
+  /// It partially builds a vector. Only the temperature and property
+  /// name are specified
   VectorDesc(double t, const string & name) : t(t), yname(name)
   {
     if (t <= 0)
@@ -165,12 +194,20 @@ struct VectorDesc
 	       " less or equal to zero");
   }
 
+  /** Compute statistics respect to values computed by a correlation.
+
+      @param[in] yc values of the property computed by a associated
+      correlation
+      @param[in] unit_ptr unit in which the values were specified
+      @return statistics descriptor
+   */
   CorrStat::Desc stats(const Array<double> & yc, const Unit * unit_ptr) const
   {
     CorrStat s = y;
     return s.stats(yunit == unit_ptr ? yc : unit_convert(*unit_ptr, yc, *yunit));
   }
 
+  // Compare operation. Only used for defining a lexicographical order
   bool operator < (const VectorDesc & rhs) const noexcept
   {
     if (yname == rhs.yname)
