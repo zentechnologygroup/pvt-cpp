@@ -46,7 +46,7 @@ private:
   double epsilon = 1e-3;
 
 public:
-  
+
   using P = pair<string, const Unit *>;
 
 private:
@@ -56,6 +56,7 @@ private:
   
 public:
 
+  /// return a Ruby representation of parameter class 
   static string ruby_class()
   {
     return R"Ruby(
@@ -71,6 +72,7 @@ public:
     )Ruby";
   }
 
+  /// Return a ruby class instance of `this`
   string to_ruby_class() const
   {
     ostringstream s;
@@ -79,6 +81,7 @@ public:
     return s.str();
   }
 
+  /// Define a synonym `name` with a unit
   void add_synonym(const string & name, const Unit & unit)
   {
     if (not this->unit.is_sibling(unit))
@@ -94,6 +97,7 @@ public:
     names_list.append(p);
   }
 
+  /// Define a synonym `name` whose unit is of name or symbol unit_sym_name
   void add_synonym(const string & name, const string & unit_sym_name)
   {
     auto ptr = Unit::search(unit_sym_name);
@@ -107,30 +111,20 @@ public:
     add_synonym(name, *ptr);
   }
 
+  /// Define a string corresponding to the LaTeX symbol of parameter
   void def_latex_symbol(const string & latex_symbol)
   {
     this->latex_symbol = latex_symbol;
   }
 
+  /// Return a list of pairs containing synonyms name and unit
   const DynList<P> & get_synonyms() const noexcept { return synonyms; }
 
   /// Returns a list of alias associated to this parameter (including
   /// the name itself) 
   const DynList<P> & names() const { return names_list; }
 
-  void set_epsilon(double ratio = 0.01)
-  {
-    Unit::validate_ratio(ratio);
-    epsilon = ratio*(max_val.raw() - min_val.raw());
-  }
-
-  double get_epsilon() const noexcept { return epsilon; }
-
-  double step_size(size_t n) const noexcept
-  {
-    return (max_val.raw() - min_val.raw()) / n;
-  }
-
+  /// Return a stringfied version of `this`
   string to_string() const
   {
     ostringstream s;
@@ -143,6 +137,24 @@ public:
     return { name, unit.symbol, min_val.to_string(), max_val.to_string() };
   }
 
+  /** Build a correlation parameter.
+
+      In this method minimum and maximum values are specified with
+      `VtlQuantity` objects containing specific units.
+
+      Note that the parameter value is not given.
+
+      @param[in] name the of parameter
+      @param[in] unit parameter unit
+      @param[in] desc parameter description
+      @param[in] min minimum value of parameter. Conversion is done if
+      minimum value unit is different than `unit`
+      @param[in] max maximum value of parameter. Conversion is done if
+      maximum value unit is different than `unit`
+      @exception UnitConversionNotFound if there conversion does not
+      exist
+      @exception bad_alloc if there is enough memory
+   */
   CorrelationPar(const string & name, const Unit & unit, const string & desc, 
 		 const VtlQuantity & min, const VtlQuantity & max)
     : name(name), description(desc), unit(unit),
@@ -151,11 +163,27 @@ public:
     names_list.append(make_pair(name, &unit));
   }
 
+  /** Build a correlation parameter.
+
+      In this method minimum and maximum values are specified in the
+      same unit that the given given value contained in parameter `q`.
+
+      @param[in] name the of parameter
+      @param[in] q parameter value specified with  `VtlQuantity` or `Quantity`
+      @param[in] desc parameter description
+      @param[in] min minimum value of parameter in the same unit than
+      `q`
+      @param[in] max maximum value of parameter in the same unit than `q`
+      @exception bad_alloc if there is enough memory
+  */
   CorrelationPar(const string & name, const BaseQuantity q,
 		 const string & desc, double min, double max)
     : CorrelationPar(name, q.unit, desc, 
 		     VtlQuantity(q.unit, min), VtlQuantity(q.unit, max)) {}
 
+  /// Return `true` if value `val` is valid according to specified
+  /// parameter range. Conversion is done if `val` comes in another
+  /// unit than `this->unit`
   bool check(const BaseQuantity & val) const noexcept
   {
     if (&val.unit == &unit)
@@ -167,12 +195,15 @@ public:
 	real_val.raw() <= max_val.raw() + epsilon;
   }
 
+  /// Return `true` if value `q` is valid according to specified
+  /// parameter range. It is assumed than `q` unit is `this->unit`
   bool check(double val) const { return check(VtlQuantity(unit, val)); }
 
+  /// Validate and eventually throw exception is parameter value `q`
+  /// is not inside specified parameter range.
   void verify(const BaseQuantity & q) const
   {
     ostringstream s;
-  
     if (q.get_value() < min_val.raw() - epsilon)
       {
 	s << "Value " << q.get_value() << " is lesser than the minimum value "
@@ -190,42 +221,76 @@ public:
 };
 
 
+/** Define a correlation.
+
+    Correlation class is the base and main object used for defining a
+    correlation. Although this class manages, contains and represents
+    the most part of a correlation, this is not intended to be used as
+    the final correlation. 
+
+    A correlation correlation has a type and a subtype which define
+    families of correlations. For example, correlations related to oil
+    are of type `OilCorrelation`. In a similar way, oil correlations
+    related to compute the bubble point are of subtype
+    `BubblePointPressure`.
+
+    @ingroup Correlations
+    @author Leandro Rabindranath Leon
+ */
 struct Correlation
 {
-  const string type_name;
+  const string type_name; 
   const string subtype_name;
-  const string name = "NOT-DEFINED";
+  const string name = "NOT-DEFINED"; // Correlation name
   mutable string latex_symbol = "NOT-DEFINED";
   mutable string author = "NOT-DEFINED";
-  const Unit & unit;
-  const double min_val;
-  const double max_val;
-  mutable bool min_from_author = false;
-  mutable bool max_from_author = false;
-  mutable string title;
-  mutable DynList<string> db;
-  mutable DynList<string> notes;
-  mutable DynList<const BibEntry*> refs;
-  mutable bool hidden = false; // indicates whether correlation is or not hidden
+  const Unit & unit; /// Return unit 
+  const double min_val; /// minimum value that can reach expressed in `unit`
+  const double max_val; /// maximum value that can reach expressed in `unit`
+  mutable bool min_from_author = false; /// 'true' if author specified minimum
+  mutable bool max_from_author = false; /// 'true' if author specified maximum
+  mutable string title; /// Title as it would be shown is a front-end
+  mutable DynList<string> db; /// String describing the source of data
+  mutable DynList<string> notes; /// Other related notes
+  mutable DynList<const BibEntry*> refs; /// List of references
+  mutable bool hidden = false; // indicates that correlation must be
+			       // competely hidden at all front-end level
+
+  /// Indicates that correlation must not be shown in front-end calculator
   mutable bool hidden_calc = false;
-  mutable bool hidden_blackoil_grid = false;
+  
+  /// Indicates if correlation must be hidden in grid generation for blackoil
+  mutable bool hidden_blackoil_grid = false; 
+
+  /// Indicates if correlation must be hidden in grid generation for drygas
   mutable bool hidden_drygas_grid = false;
+
+  /// Indicates if correlation must be hidden in grid generation for drygas
   mutable bool hidden_wetgas_grid = false;
+
+  /// Unique identifier generated in run-time
   mutable long id = -1;
+
+  /// String indicating the property target name
   mutable string __target_name = "NOT-DEFINED";
 
+  /// List of parameter names
   mutable DynSetTree<string> par_names;
 
 private:
 
+  // List of parameter
   DynList<CorrelationPar> preconditions;
-  size_t n = 0;
+  size_t n = 0; // size of preconditions list
 
-  static size_t counter;
+  static size_t counter; // counter used for generating unique ids
   static DynMapTree<string, const Correlation *> tbl;
 
+  // Every correlation is stored here
   static Array<const Correlation *> correlations_tbl;
 
+  // helper function that extract first symbols until finding the
+  // second upper case symbol
   void set_target_name() const
   {
     __target_name = to_lower(split_camel_case(name).get_first());
@@ -236,22 +301,23 @@ public:
   /// Returns the correlation target name
   const string & target_name() const { return __target_name; }
 
+  /// Return author name
   string author_name() const
   {
     auto pos = name.find(::to_name(__target_name));
     return name.substr(pos + __target_name.size());
   }
 
-  // Returns the parameters names in the declaration order
+  /// Returns the parameters names in the declaration order
   DynList<string> parameters_signature() const
   {
     return
       preconditions.maps<string>([] (const auto & par) { return par.name; });
   }
 
-  // Returns the names of parameters involved in the correlation. The
-  // first one is the return value. The remainder others are the
-  // parameter names
+  /// Returns the names of parameters involved in the correlation. The
+  /// first one is the return value. The remainder others are the
+  /// parameter names
   DynList<string> names() const
   {
     DynList<string> ret = unitarian_DynList(target_name());
@@ -260,11 +326,13 @@ public:
     return ret;
   }
 
+  /// Return a list to correlation parameter names
   const DynSetTree<string> & parameter_names() const
   {
     return par_names;
   }
 
+  /// Return a list of parameter synonyms along with their units
   DynList<CorrelationPar::P> synonyms() const
   {
     DynList<CorrelationPar::P> ret;
@@ -274,9 +342,9 @@ public:
     return ret;
   }
 
-  // Returns a list with all the possible correlation signatures; that
-  // is all the valid permutations through the parameters names and
-  // their synonyms
+  /// Returns a list with all the possible correlation signatures; that
+  /// is all the valid permutations through the parameters names and
+  /// their synonyms
   DynList<DynList<string>> names_and_synonyms() const
   {
     DynList<DynList<string>> ret;
@@ -291,6 +359,10 @@ public:
     return build_perms(ret);
   }
 
+  /// Search `name` in the correlation parameters. If found, then it
+  /// returns a pointer to the `CorrelationPar` object defining the
+  /// parameter. Otherwise, it returns `nullptr`. Parameter synonyms
+  /// are considered in this search
   const CorrelationPar * search_par_name(const string & name) const
   {
     for (auto it = preconditions.get_it(); it.has_curr(); it.next())
