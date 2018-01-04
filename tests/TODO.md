@@ -86,3 +86,6 @@
 ## 29. en get_full_property no siempre hay pb
 - Created at   2017-12-22 16:23:52 -0400
 
+## 30. pasa familia de funciones genéricas que llaman a compute de cplot a correlatio dot H
+- Created at   2018-01-04 17:08:53 -0400
+

@@ -376,7 +376,8 @@ public:
   }
 
 private:
-  
+
+  // helper function for searching a parameter according to its name
   CorrelationPar * search_parameter(const string & par_name) const
   {
     auto par_ptr = preconditions.find_ptr([&par_name] (auto p)
@@ -384,7 +385,7 @@ private:
     if (par_ptr == nullptr)
       {
 	ostringstream s;
-	s << "Correlation::add_par_synonym(): par name " << par_name
+	s << "Correlation::search_parameter(): par name " << par_name
 	  << " not found";
 	ZENTHROW(SynonymNotFound, s.str());
       }
@@ -394,6 +395,8 @@ private:
 
 public:
 
+  /// Return a list of all the LaTeX symbols. Each entry is a pair
+  /// with the parameter name and its corresponding LaTeX symbol
   static DynList<pair<string, string>> latex_symbols()
   {
     DynMapTree<string, string> sbltbl;
@@ -407,6 +410,12 @@ public:
     return sbltbl.items();
   }
 
+  /** Add a parameter alias.
+
+      @param[in] par_name name of paramater
+      @param[in] name of parameter alias
+      @param[in] unit_name name of the unit for the alias
+ */
   void add_par_synonym(const string & par_name, const string & synonym,
 		       const string & unit_name)
   {
@@ -415,6 +424,7 @@ public:
     par_names.append(synonym);
   }
 
+  /// Defines `latex_symbol` as LaTeX symbol of parameter `par_name`
   void def_parameter_latex_symbol(const string & par_name,
 				  const string & latex_symbol)
   {
@@ -422,44 +432,62 @@ public:
     par_ptr->def_latex_symbol(latex_symbol);
   }
 
+  /// Enable all hiding parameter for the correlation. The correlation
+  /// will not be shown at any front-end level
   void set_hidden()
   {
     hidden = hidden_calc = hidden_blackoil_grid = hidden_drygas_grid =
       hidden_wetgas_grid = true;
   }
 
+  /// Turn on hidden flag for the calculator front-end
   void set_hidden_calc() { hidden_calc = true; }
 
+  /// Turn on hidden flag for the blackoil grid front-end
   void set_hidden_blackoil_grid() { hidden_blackoil_grid = true; }
 
+  /// Turn on hidden flag for the drygas grid front-end
   void set_hidden_drygas_grid() { hidden_drygas_grid = true; }
 
+  /// Turn on hidden flag for the wetgas grid front-end
   void set_hidden_wetgas_grid() { hidden_wetgas_grid = true; }
 
+  /// Generates a json describing all the registered correlations
   static string json_of_all_correlations();
 
+  /// Generate a json describing this correlation
   string to_json() const;
 
+  /// Generate a json with all the correlation belonging to
+  /// `subtype_name` correlation family
   static string to_json(const string & subtype_name);
 
+  /// Set the correlation author name
   void set_author(const string & __author) { author = __author; }
 
+  /// Set the correlation title
   void set_title(const string & __title) { title = __title; }
 
+  /// Add a note to data bank list
   void add_db(const string & __db) { db.append(__db); }
 
+  /// Add a note 
   void add_note(const string & note) { notes.append(note); }
 
+  /// Add a reference for the correlation. `tag` parameter is the
+  /// BibTeX tag
   void add_ref(const string & tag)
   {
     refs.append(BibEntry::find(tag));
   }
 
+  /// Return a reference to the list of correlation parameters sorted by pass order
   const DynList<CorrelationPar> & get_preconditions() const noexcept
   {
     return preconditions;
   }
 
+  /// Return a list of pointers to correlation parameters sorted by pass order
   const DynList<const CorrelationPar * const> preconditions_list() const 
   {
     return preconditions.maps<const CorrelationPar * const>([] (const auto & par)
@@ -468,8 +496,8 @@ public:
       });
   }
 
-  // Returns the signature position of parameter `par_name`. If not
-  // found return a position greater than the number of parameters
+  /// Returns the signature position of parameter `par_name`. If not
+  /// found return a position greater than the number of parameters
   size_t parameter_pos(const string & par_name) const
   {
     return preconditions.find_index([&par_name] (const auto & par)
@@ -478,14 +506,17 @@ public:
 				    });
   }
 
+  /// Return a list with the units of correlation parameters
   DynList<const Unit *> get_par_types() const
   {
     return preconditions.maps<const Unit *>([] (const auto & par)
 						 { return &par.unit; });
   }
 
+  /// Return the number of parameters
   size_t get_num_pars() const noexcept { return n; }
 
+  /// Return a string with the correlation author, type, subtype a the name
   virtual string correlation_name() const
   {
     ostringstream s;
@@ -497,14 +528,9 @@ public:
     return s.str();
   }
 
-  DynList<VtlQuantity> double_to_pars(const DynList<double> & vals) const
-  {
-    return zipEq(preconditions_list(), vals).maps<VtlQuantity>([] (auto p)
-      {
-	return VtlQuantity(p.first->name, p.second);
-      });
-  }
-
+  /// Return a string describing the python call. This implies that
+  /// the correlation has been defined in python with exactly the same
+  /// parameters.
   string python_call(const DynList<VtlQuantity> & vals) const
   {
     size_t count = get_num_pars();
@@ -523,65 +549,64 @@ public:
     return s.str();
   }    
 
+  /** Given a parameter list `vals', it builds a string with the
+      signature call. Some such as 
+
+          PbAlMarhoun(0.8 Sgg, 0.9 sg_do, 100 scf/STB, 550 degR)
+
+      @note The unit types and the number of parameter are not validated
+      
+      @param[in] vals a list of VtlQuantity with parameter names and
+      their values
+ */
   string call_string(const DynList<VtlQuantity> & vals) const
   {
-    size_t count = get_num_pars();
-    ostringstream s;
-    s << name << "(";
-
-    zipEq(preconditions_list(), pointers_list(vals)).
-      for_each([&s, &count] (auto p)
-      {
-	VtlQuantity q(p.first->unit, *p.second);
-	s << q;
-	if (--count)
-	  s << ", ";
-      });
-    s << ")";
-
-    return s.str();
+    return name + "(" + join(vals, ", ") + ")";
   }
 
+  /// Takes a list of doubles `vals`, matches with he preconditions units and
+  /// build a signature call
   string call_string(const DynList<double> & vals) const
   {
-    return
-      call_string(zipEq(preconditions_list(), vals).maps<VtlQuantity>([] (auto p)
-        {
-	  return VtlQuantity(p.first->unit, p.second);
-	}));
+    return call_string(zip_maps<VtlQuantity>([] (auto t)
+      {
+	return VtlQuantity(get<0>(t).unit, get<1>(t));
+      }, preconditions, vals));
   }
 
+  /// Return a string with the parameter list between
+  /// parentheses. Each parameter is composed by its name and unit
   string call_string() const
   {
-    ostringstream s;
-    s << name << "(";
-    const auto & last = preconditions.get_last();
-    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
-      {
-	const auto & curr = it.get_curr();
-	s << curr.name;
-	if (&curr != &last)
-	  s << ", ";
-      }
-    s << ")";
-    return s.str();
+    return "(" +
+      join(preconditions.maps<string>([] (auto & p) { return p.name; })) + ")";
   }
 
+  /// Return a list of all registered correlations
   static DynList<const Correlation *> list() { return tbl.values(); }
 
+  /// Return an array of all registered correlations
   static const Array<const Correlation*> & array() noexcept
   {
     return correlations_tbl;
   }
 
+  /// Return the number of registered correlations
   static size_t num_correlations() noexcept { return correlations_tbl.size(); }
 
+  /** Search a correlation given is name.
+
+      @param[in] name correlation name
+      @return a pointer to a `Correlation` object if the correlation
+      was found. Otherwise, it returns `nullptr`
+ */
   static const Correlation * search_by_name(const string & name)
   {
     auto ptr = tbl.search(name);
     return ptr != nullptr ? ptr->second : nullptr;
   }
 
+  /// Return a list with all registered correlation types
   static DynList<string> type_list()
   {
     DynSetTree<string> s;
@@ -591,6 +616,8 @@ public:
     return s.keys();
   }
 
+  /// Return a list with all registered correlation subtypes
+  /// associated to type `type_name`
   static DynList<string> subtype_list(const string & type_name)
   {
     DynSetTree<string> s;
@@ -604,6 +631,8 @@ public:
     return s.keys();
   }
 
+  /// Return a list of `Correlation` pointers associated to subtype
+  /// `subtype_name` 
   static DynList<const Correlation*> list(const string & subtype_name)
   {
     DynSetTree<const Correlation*> s;
@@ -658,6 +687,17 @@ protected:
 
   virtual ~Correlation() = 0; // Correlation is an abstract class
 
+  /** Register a correlation parameter.
+
+      The order of parameter is determined by the order of insertion
+      through this method.
+
+      @param[in] name of parameter
+      @param[in] unit reference to unit
+      @param[in] description string with parameter description
+      @param[in] min minimum value with its unit
+      @param[in] max maximum value with its unit
+ */
   CorrelationPar &
   add_parameter(const string & name, const Unit & unit,
 		const string & description,
@@ -690,6 +730,8 @@ protected:
     return ret;
   }
 
+  /// Insert a new parameter whose minimum and maximum values are the
+  /// unit limits
   CorrelationPar & add_parameter(const string & name, const Unit & unit,
 				 const string & description)
   {
@@ -710,6 +752,7 @@ protected:
 
 public:
 
+  /// Return a string describing the correlation
   string to_string() const
   {
     size_t i = 1;
@@ -745,6 +788,7 @@ public:
     return ret;
   }
 
+  /// Generate a Ruby Correlation class
   static string ruby_class()
   {
     ostringstream s;
@@ -761,6 +805,7 @@ public:
     return s.str();
   }
 
+  /// Generate a ruby specification for all the registered correlations
   static string to_ruby_def() 
   {
     ostringstream s;
@@ -795,6 +840,11 @@ public:
     return s.str();
   }
 
+  /** Print out a full description for the correlation.
+  
+      @param[in] width used for justifying notes and data bank
+      @param[in] left_margin 
+   */
   string full_desc(size_t width = 60, size_t left_margin = 4) const
   {
     ostringstream s;
