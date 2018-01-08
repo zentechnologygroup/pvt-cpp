@@ -29,6 +29,7 @@ struct Goal
   mutable string description;
   mutable DynList<string> collective_actions;
   mutable DynList<string> individual_actions;
+  mutable DynList<string> expected_results;
   mutable time_t start_time, end_time;
   mutable DynList<const Member * const> members;
   mutable GoalType goal_type = GoalType::Undefined;
