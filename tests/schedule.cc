@@ -3,6 +3,7 @@
 # include <fstream>
 # include <tclap/CmdLine.h>
 
+# include <ah-string-utils.H>
 # include <ah-date.H>
 # include <tpl_dynSetTree.H>
 # include <tpl_agraph.H>
@@ -18,7 +19,7 @@ struct Goal;
 
 enum class GoalType { Platform, Product, ServiceMarket, Undefined };
 
-inline string goal_type_to_string(const GoalType & type)
+inline string to_string(const GoalType & type)
 {
   switch (type)
     {
@@ -29,7 +30,7 @@ inline string goal_type_to_string(const GoalType & type)
     }
 }
 
-inline GoalType string_to_goal_type(const string & type)
+inline GoalType to_goal_type(const string & type)
 {
   if (type == "Platform")
     return GoalType::Platform;
@@ -68,39 +69,35 @@ struct Goal
   Goal() {}
 
   Goal(const string & __name, const string & resp, const string & desc,
-       const GoalType & type)
-    : name(__name), responsible(resp), description(desc), goal_type(type)
+       const GoalType & type,
+       const time_t & __start_time, const time_t & __end_time)
+    : name(__name), responsible(resp), description(desc),
+      start_time(__start_time), end_time(__end_time), goal_type(type)
   {
     id = count++;
   }
 
   Goal(const size_t & __id, const string & __name, const string & resp,
-       const string & desc, const GoalType & type)
+       const string & desc, const GoalType & type,
+       const time_t & __start_time, const time_t & __end_time)
     : id(__id), name(__name), responsible(resp),
-      description(desc), goal_type(type)
+      description(desc), start_time(__start_time), end_time(__end_time),
+      goal_type(type)
   {
     if (goal_tbl.contains(id))
       ZENTHROW(DuplicatedName, "id " + to_string(id) + " is already present");
-  }
 
-  void set_start_time(const size_t & dd, const size_t & mm, const size_t & yy)
-  {
-    start_time = to_time_t(dd, mm, yy);
-  }
-
-  void set_end_time(const size_t & dd, const size_t & mm, const size_t & yy)
-  {
-    end_time = to_time_t(dd, mm, yy);
     if (end_time <= start_time)
       throw domain_error("start time " + to_string(start_time) +
 			 " is greater than end time " + to_string(end_time));
   }
 
-  void save(ostream & out) const
+  ostream & save(ostream & out) const
   {
     out << id << endl
 	<< name << endl
 	<< responsible << endl
+	<< description << endl
 	<< collective_actions.size() << endl;
     collective_actions.for_each([&out] (auto & s) { out << s << endl; });
     out << individual_actions.size() << endl;
@@ -111,17 +108,27 @@ struct Goal
 	<< end_time << endl
 	<< members.size() << endl;
     members.for_each([&out] (auto & name) { out << name << endl; });
-    out << goal_type_to_string(goal_type) << endl;
+    return out << to_string(goal_type);
+  }
+
+  friend ostream & operator << (ostream & out, const Goal & goal)
+  {
+    return goal.save(out);
   }
 
   Goal(istream & in)
   {
-    if (not (in >> id >> name))
-      ZENTHROW(InvalidRead, "cannot read goal id or name");
-    if (not (in >> responsible))
-      ZENTHROW(InvalidRead, "cannot read responsible name");
-    if (not (in >> description))
-      ZENTHROW(InvalidRead, "cannot read responsible name");
+    string line;
+    if (not getline(in, line))
+      ZENTHROW(InvalidRead, "cannot read goal id");
+    if (not is_size_t(line))
+      ZENTHROW(InvalidRead, line + " is not an id");
+    if (not getline(in, name))
+      ZENTHROW(InvalidRead, "cannot read goal name");
+    if (not getline(in, responsible))
+      ZENTHROW(InvalidRead, "cannot read goal responsible");
+    if (not getline(in, description))
+      ZENTHROW(InvalidRead, "cannot read goal description");
 
     // Read collective actions
     size_t n;
@@ -130,7 +137,7 @@ struct Goal
     string action;
     for (size_t i = 0; i < n; ++i)
       {
-	if (not (in >> action))
+	if (not getline(in, action))
 	  ZENTHROW(InvalidRead, "cannot read collective action " +
 		   to_string(i));
 	collective_actions.append(action);
@@ -141,7 +148,7 @@ struct Goal
       ZENTHROW(InvalidRead, "cannot read number of individual actions");
     for (size_t i = 0; i < n; ++i)
       {
-	if (not (in >> action))
+	if (not getline(in, action))
 	  ZENTHROW(InvalidRead, "cannot read individual action " + to_string(i));
 	individual_actions.append(action);
       }
@@ -152,7 +159,7 @@ struct Goal
     string result;
     for (size_t i = 0; i < n; ++i)
       {
-	if (not (in >> result))
+	if (not getline(in, result))
 	  ZENTHROW(InvalidRead, "cannot read expected result " + to_string(i));
 	expected_results.append(result);
       }
@@ -172,6 +179,10 @@ struct Goal
 	  ZENTHROW(InvalidRead, "cannot read member " + to_string(i));
 	expected_results.append(member);
       }
+    string t;
+    if (not getline(in, t))
+      ZENTHROW(InvalidRead, "cannot read goal type");
+    goal_type = to_goal_type(t);
   }
 };
 
@@ -192,12 +203,14 @@ struct Plan : public Array_Graph<Graph_Anode<Goal>, Graph_Aarc<>>
   }
 
   size_t register_goal(const string & name, const string & responsible,
-		     const string & desc, const GoalType & type)
+		       const string & desc, const GoalType & type,
+		       const string & start_time, const string & end_time)
   {
     auto ptr = members.search(responsible);
     if (ptr == nullptr)
       ZENTHROW(NameNotFound, "member " + responsible + " not found");
-    Goal goal = { name, responsible, desc, type };
+    Goal goal = { name, responsible, desc, type,
+		  to_time_t(start_time), to_time_t(end_time) };
     Plan::Node * node_ptr = insert_node(move(goal));
     nodes_tbl.insert(node_ptr->get_info().id, node_ptr);
 
@@ -229,10 +242,29 @@ struct Plan : public Array_Graph<Graph_Anode<Goal>, Graph_Aarc<>>
 };
 
 
-
+Plan plan;
 
 int main(int argc, char *argv[])
 {
+  plan.register_member("Leandro Leon");
+  plan.register_member("Ixhel Mejias");
+  plan.register_member("Alberto Valderrama");
+  plan.register_member("Eduardo Valderrama");
+  plan.register_member("Fernando Montilla");
+  plan.register_member("Neylith Quintero");
+  plan.register_member("Virginia Buccellato");
 
-  
+  auto id1 = plan.register_goal("Modelo financiero de startup ZEN",
+				"Alberto Valderrama",
+				"Modelo de negocio, etc", GoalType::Platform,
+				"2018:01:09", "2018:01:27");
+
+  stringstream s;
+  s << plan.search_node(id1)->get_info() << endl;
+
+  Goal g(s);
+
+  cout << "1" << endl
+       << s.str() << endl
+       << g << endl;
 }
