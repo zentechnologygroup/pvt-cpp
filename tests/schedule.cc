@@ -118,8 +118,60 @@ struct Goal
   {
     if (not (in >> id >> name))
       ZENTHROW(InvalidRead, "cannot read goal id or name");
-    string resp_name;
-    if (not (in >> resp_name
+    if (not (in >> responsible))
+      ZENTHROW(InvalidRead, "cannot read responsible name");
+    if (not (in >> description))
+      ZENTHROW(InvalidRead, "cannot read responsible name");
+
+    // Read collective actions
+    size_t n;
+    if (not (in >> n))
+      ZENTHROW(InvalidRead, "cannot read number of collective actions");
+    string action;
+    for (size_t i = 0; i < n; ++i)
+      {
+	if (not (in >> action))
+	  ZENTHROW(InvalidRead, "cannot read collective action " +
+		   to_string(i));
+	collective_actions.append(action);
+      }
+
+    // read individual actions
+    if (not (in >> n))
+      ZENTHROW(InvalidRead, "cannot read number of individual actions");
+    for (size_t i = 0; i < n; ++i)
+      {
+	if (not (in >> action))
+	  ZENTHROW(InvalidRead, "cannot read individual action " + to_string(i));
+	individual_actions.append(action);
+      }
+
+    // Read expected results
+    if (not (in >> n))
+      ZENTHROW(InvalidRead, "cannot read number of expected results");
+    string result;
+    for (size_t i = 0; i < n; ++i)
+      {
+	if (not (in >> result))
+	  ZENTHROW(InvalidRead, "cannot read expected result " + to_string(i));
+	expected_results.append(result);
+      }
+
+    if (not (in >> start_time))
+      ZENTHROW(InvalidRead, "cannot read start time");
+    if (not (in >> end_time))
+      ZENTHROW(InvalidRead, "cannot read end time");
+
+    // red members
+    if (not (in >> n))
+      ZENTHROW(InvalidRead, "cannot read number of members");
+    string member;
+    for (size_t i = 0; i < n; ++i)
+      {
+	if (not (in >> member))
+	  ZENTHROW(InvalidRead, "cannot read member " + to_string(i));
+	expected_results.append(member);
+      }
   }
 };
 
