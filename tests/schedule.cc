@@ -131,9 +131,9 @@ struct Goal
       ZENTHROW(InvalidRead, "cannot read goal description");
 
     // Read collective actions
-    size_t n;
-    if (not (in >> n))
+    if (not getline(in, line) or not is_size_t(line))
       ZENTHROW(InvalidRead, "cannot read number of collective actions");
+    size_t n = atol(line);
     string action;
     for (size_t i = 0; i < n; ++i)
       {
@@ -144,8 +144,9 @@ struct Goal
       }
 
     // read individual actions
-    if (not (in >> n))
+    if (not getline(in, line) or not is_size_t(line))
       ZENTHROW(InvalidRead, "cannot read number of individual actions");
+    n = atol(line);
     for (size_t i = 0; i < n; ++i)
       {
 	if (not getline(in, action))
@@ -154,8 +155,9 @@ struct Goal
       }
 
     // Read expected results
-    if (not (in >> n))
+    if (not getline(in, line) or not is_size_t(line))
       ZENTHROW(InvalidRead, "cannot read number of expected results");
+    n = atol(line);
     string result;
     for (size_t i = 0; i < n; ++i)
       {
@@ -164,8 +166,10 @@ struct Goal
 	expected_results.append(result);
       }
 
-    if (not (in >> start_time))
+    string date;
+    if (not getline(in, date))
       ZENTHROW(InvalidRead, "cannot read start time");
+    start_time = to_time_t(date);
     if (not (in >> end_time))
       ZENTHROW(InvalidRead, "cannot read end time");
 
