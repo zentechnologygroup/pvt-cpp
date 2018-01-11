@@ -96,6 +96,25 @@ struct Goal
 			 " is greater than end time " + to_string(end_time));
   }
 
+  ostream & save(ostream & out) const
+  {
+    out << id << endl
+	<< name << endl
+	<< responsible << endl
+	<< description << endl
+	<< collective_actions.size() << endl;
+    collective_actions.for_each([&out] (auto & s) { out << s << endl; });
+    out << individual_actions.size() << endl;
+    individual_actions.for_each([&out] (auto & s) { out << s << endl; });
+    out << expected_results.size() << endl;
+    expected_results.for_each([&out] (auto & s) { out << s << endl; });
+    out << start_time << endl
+	<< end_time << endl
+	<< members.size() << endl;
+    members.for_each([&out] (auto & name) { out << name << endl; });
+    return out << to_string(goal_type);
+  }
+
   friend ostream & operator << (ostream & out, const Goal & goal)
   {
     out << goal.id << endl
@@ -127,6 +146,81 @@ struct Goal
 	  << join(goal.expected_results.maps([] (auto & s) { return "    " + s; }), 
 		  "\n");
     return out << to_string(goal.goal_type);
+  }
+
+  Goal(istream & in)
+  {
+    string line;
+    if (not getline(in, line))
+      ZENTHROW(InvalidRead, "cannot read goal id");
+    if (not is_size_t(line))
+      ZENTHROW(InvalidRead, line + " is not an id");
+    if (not getline(in, name))
+      ZENTHROW(InvalidRead, "cannot read goal name");
+    if (not getline(in, responsible))
+      ZENTHROW(InvalidRead, "cannot read goal responsible");
+    if (not getline(in, description))
+      ZENTHROW(InvalidRead, "cannot read goal description");
+
+    // Read collective actions
+    if (not getline(in, line) or not is_size_t(line))
+      ZENTHROW(InvalidRead, "cannot read number of collective actions");
+    size_t n = atol(line);
+    string action;
+    for (size_t i = 0; i < n; ++i)
+      {
+	if (not getline(in, action))
+	  ZENTHROW(InvalidRead, "cannot read collective action " +
+		   to_string(i));
+	collective_actions.append(action);
+      }
+
+    // read individual actions
+    if (not getline(in, line) or not is_size_t(line))
+      ZENTHROW(InvalidRead, "cannot read number of individual actions");
+    n = atol(line);
+    for (size_t i = 0; i < n; ++i)
+      {
+	if (not getline(in, action))
+	  ZENTHROW(InvalidRead, "cannot read individual action " + to_string(i));
+	individual_actions.append(action);
+      }
+
+    // Read expected results
+    if (not getline(in, line) or not is_size_t(line))
+      ZENTHROW(InvalidRead, "cannot read number of expected results");
+    n = atol(line);
+    string result;
+    for (size_t i = 0; i < n; ++i)
+      {
+	if (not getline(in, result))
+	  ZENTHROW(InvalidRead, "cannot read expected result " + to_string(i));
+	expected_results.append(result);
+      }
+
+    string date;
+    if (not getline(in, date))
+      ZENTHROW(InvalidRead, "cannot read start time");
+    start_time = atol(date);
+    if (not getline(in, date))
+      ZENTHROW(InvalidRead, "cannot read end time");
+    end_time = atol(date);
+
+    // red members
+    if (not getline(in, line))
+      ZENTHROW(InvalidRead, "cannot read number of members");
+    n = atol(line);
+    string member;
+    for (size_t i = 0; i < n; ++i)
+      {
+	if (not getline(in, member))
+	  ZENTHROW(InvalidRead, "cannot read member " + to_string(i));
+	expected_results.append(member);
+      }
+    string t;
+    if (not getline(in, t))
+      ZENTHROW(InvalidRead, "cannot read goal type");
+    goal_type = to_goal_type(t);
   }
 };
 
@@ -247,4 +341,27 @@ int main(int argc, char *argv[])
   Plan plan(csv);
 
   return 0;
+
+  plan.register_member("Leandro Leon");
+  plan.register_member("Ixhel Mejias");
+  plan.register_member("Alberto Valderrama");
+  plan.register_member("Eduardo Valderrama");
+  plan.register_member("Fernando Montilla");
+  plan.register_member("Neylith Quintero");
+  plan.register_member("Virginia Buccellato");
+
+  auto id1 = plan.register_goal("Modelo financiero de startup ZEN",
+				"Alberto Valderrama",
+				"Modelo de negocio, etc", GoalType::Platform,
+				"2018:01:09", "2018:01:27");
+
+  stringstream s;
+  s << *plan.search_node(id1)->get_info() << endl;
+
+  cout << s.str() << endl
+       << endl;
+
+  Goal g(s);
+
+  cout << g << endl;
 }
