@@ -89,3 +89,27 @@
 ## 30. pasa familia de funciones genéricas que llaman a compute de cplot a correlatio dot H
 - Created at   2018-01-04 17:08:53 -0400
 
+## 31. diagrama topologico
+- Created at   2018-01-10 16:54:43 -0400
+
+## 32. estimación de horas por semana a cada meta
+- Created at   2018-01-10 16:55:00 -0400
+
+## 33. gantt general por individuo y por miembro
+- Created at   2018-01-10 16:55:27 -0400
+
+## 34. lista de fechas milestone
+- Created at   2018-01-10 16:55:38 -0400
+
+## 35. lista de tareas por persona
+- Created at   2018-01-10 16:55:48 -0400
+
+## 36. falta nivel prioridad en goal
+- Created at   2018-01-10 17:03:24 -0400
+
+## 37. falta horas miembros en cada actividad
+- Created at   2018-01-10 17:03:50 -0400
+
+## 38. generar csv
+- Created at   2018-01-10 17:04:07 -0400
+

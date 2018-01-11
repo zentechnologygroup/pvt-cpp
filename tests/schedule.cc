@@ -4,6 +4,7 @@
 # include <tclap/CmdLine.h>
 
 # include <ah-string-utils.H>
+# include <parse-csv.H>
 # include <ah-date.H>
 # include <tpl_dynSetTree.H>
 # include <tpl_agraph.H>
@@ -63,6 +64,8 @@ struct Goal
   mutable time_t start_time, end_time;
   mutable DynList<string> members;
   mutable GoalType goal_type = GoalType::Undefined;
+  mutable size_t nhours = 0;
+  mutable size_t prioriy = 0;
 
   static DynMapTree<size_t, Goal*> goal_tbl;
 
@@ -169,17 +172,19 @@ struct Goal
     string date;
     if (not getline(in, date))
       ZENTHROW(InvalidRead, "cannot read start time");
-    start_time = to_time_t(date);
-    if (not (in >> end_time))
+    start_time = atol(date);
+    if (not getline(in, date))
       ZENTHROW(InvalidRead, "cannot read end time");
+    end_time = atol(date);
 
     // red members
-    if (not (in >> n))
+    if (not getline(in, line))
       ZENTHROW(InvalidRead, "cannot read number of members");
+    n = atol(line);
     string member;
     for (size_t i = 0; i < n; ++i)
       {
-	if (not (in >> member))
+	if (not getline(in, member))
 	  ZENTHROW(InvalidRead, "cannot read member " + to_string(i));
 	expected_results.append(member);
       }
@@ -194,10 +199,18 @@ DynMapTree<size_t, Goal*> Goal::goal_tbl;
 
 size_t Goal::count = 0;
 
-struct Plan : public Array_Graph<Graph_Anode<Goal>, Graph_Aarc<>>
+struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
 {
+  DynMapTree<size_t, Goal*> goals;
   DynMapTree<string, Member> members;
   DynMapTree<size_t, Plan::Node*> nodes_tbl;
+
+  Plan() {}// TODO borrar
+  
+  ~Plan()
+  {
+    goals.for_each([] (auto p) { delete p.second; });
+  }
 
   void register_member(const string & name)
   {
@@ -213,12 +226,13 @@ struct Plan : public Array_Graph<Graph_Anode<Goal>, Graph_Aarc<>>
     auto ptr = members.search(responsible);
     if (ptr == nullptr)
       ZENTHROW(NameNotFound, "member " + responsible + " not found");
-    Goal goal = { name, responsible, desc, type,
-		  to_time_t(start_time), to_time_t(end_time) };
-    Plan::Node * node_ptr = insert_node(move(goal));
-    nodes_tbl.insert(node_ptr->get_info().id, node_ptr);
+    auto goal = new Goal(name, responsible, desc, type,
+			 to_time_t(start_time), to_time_t(end_time));
+    goals.insert(goal->id, goal);
+    Plan::Node * node_ptr = insert_node(goal);
+    nodes_tbl.insert(node_ptr->get_info()->id, node_ptr);
 
-    return goal.id;
+    return goal->id;
   }
 
   Plan::Node * search_node(const size_t & id) const
@@ -243,13 +257,54 @@ struct Plan : public Array_Graph<Graph_Anode<Goal>, Graph_Aarc<>>
 
     insert_arc(src_ptr, tgt_ptr);
   }
-};
 
+ private:
+
+  Goal * read_goal(istream & in)
+  {
+    auto row = csv_read_row(in);
+    if (row.is_empty())
+      return nullptr;
+    auto goal = new Goal;
+    goal->id = atol(row[1]);
+    goal->name = row[5];
+    goal->start_time = to_time_t(row[3], "%d/%m/%Y");
+    goal->end_time = to_time_t(row[4], "%d/%m/%Y");
+    cout << *goal << endl;
+
+    return goal;
+  }
+
+ public:
+
+  Plan(istream & in)
+  {
+    auto header = csv_read_row(in);
+    while (read_goal(in))
+      ;
+  }
+};
 
 Plan plan;
 
+CmdLine cmd = { "schedule", ' ', "0" };
+
+ValueArg<string> file = { "f", "file", "load csv", true, "", "csv-name", cmd };
+
 int main(int argc, char *argv[])
 {
+  cmd.parse(argc, argv);
+
+  auto file_name = file.getValue();
+  if (not exists_file(file.getValue()))
+    ZENTHROW(FileNotFound, file_name + " not found");
+
+  ifstream csv(file_name);
+
+  Plan plan(csv);
+
+  return 0;
+
   plan.register_member("Leandro Leon");
   plan.register_member("Ixhel Mejias");
   plan.register_member("Alberto Valderrama");
@@ -264,11 +319,12 @@ int main(int argc, char *argv[])
 				"2018:01:09", "2018:01:27");
 
   stringstream s;
-  s << plan.search_node(id1)->get_info() << endl;
+  s << *plan.search_node(id1)->get_info() << endl;
+
+  cout << s.str() << endl
+       << endl;
 
   Goal g(s);
 
-  cout << "1" << endl
-       << s.str() << endl
-       << g << endl;
+  cout << g << endl;
 }
