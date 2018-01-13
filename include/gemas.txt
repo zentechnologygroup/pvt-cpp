@@ -1,2 +1,6 @@
 bibtex-ruby
 calculus
+citeproc
+csl
+csl-styles
+citeproc-ruby
