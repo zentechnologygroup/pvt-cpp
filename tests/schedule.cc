@@ -9,6 +9,7 @@
 # include <ah-date.H>
 # include <tpl_dynSetTree.H>
 # include <tpl_agraph.H>
+# include <io_graph.H>
 # include <topological_sort.H>
 
 # include <zen-exceptions.H>
@@ -97,6 +98,81 @@ struct Goal
 			 " is greater than end time " + to_string(end_time));
   }
 
+  Goal(istream & in)
+  {
+    string line;
+    if (not getline(in, line))
+      ZENTHROW(InvalidRead, "cannot read goal id");
+    if (not is_size_t(line))
+      ZENTHROW(InvalidRead, line + " is not an id");
+    if (not getline(in, name))
+      ZENTHROW(InvalidRead, "cannot read goal name");
+    if (not getline(in, responsible))
+      ZENTHROW(InvalidRead, "cannot read goal responsible");
+    if (not getline(in, description))
+      ZENTHROW(InvalidRead, "cannot read goal description");
+
+    // Read collective actions
+    if (not getline(in, line) or not is_size_t(line))
+      ZENTHROW(InvalidRead, "cannot read number of collective actions");
+    size_t n = atol(line);
+    string action;
+    for (size_t i = 0; i < n; ++i)
+      {
+	if (not getline(in, action))
+	  ZENTHROW(InvalidRead, "cannot read collective action " +
+		   to_string(i));
+	collective_actions.append(action);
+      }
+
+    // read individual actions
+    if (not getline(in, line) or not is_size_t(line))
+      ZENTHROW(InvalidRead, "cannot read number of individual actions");
+    n = atol(line);
+    for (size_t i = 0; i < n; ++i)
+      {
+	if (not getline(in, action))
+	  ZENTHROW(InvalidRead, "cannot read individual action " + to_string(i));
+	individual_actions.append(action);
+      }
+
+    // Read expected results
+    if (not getline(in, line) or not is_size_t(line))
+      ZENTHROW(InvalidRead, "cannot read number of expected results");
+    n = atol(line);
+    string result;
+    for (size_t i = 0; i < n; ++i)
+      {
+	if (not getline(in, result))
+	  ZENTHROW(InvalidRead, "cannot read expected result " + to_string(i));
+	expected_results.append(result);
+      }
+
+    string date;
+    if (not getline(in, date))
+      ZENTHROW(InvalidRead, "cannot read start time");
+    start_time = atol(date);
+    if (not getline(in, date))
+      ZENTHROW(InvalidRead, "cannot read end time");
+    end_time = atol(date);
+
+    // read members
+    if (not getline(in, line))
+      ZENTHROW(InvalidRead, "cannot read number of members");
+    n = atol(line);
+    string member;
+    for (size_t i = 0; i < n; ++i)
+      {
+	if (not getline(in, member))
+	  ZENTHROW(InvalidRead, "cannot read member " + to_string(i));
+	expected_results.append(member);
+      }
+    string t;
+    if (not getline(in, t))
+      ZENTHROW(InvalidRead, "cannot read goal type");
+    goal_type = to_goal_type(t);
+  }
+
   friend ostream & operator << (ostream & out, const Goal & goal)
   {
     out << goal.id << endl
@@ -137,11 +213,28 @@ size_t Goal::count = 0;
 
 struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
 {
+  struct StoreGoal
+  {
+    void operator () (ostream & output, Plan&, Plan::Node * p)
+    {
+      output << *p->get_info();
+    }
+  };
+
+  struct LoadGoal
+  {
+    void operator () (istream & in, Plan&, Plan::Node * p)
+    {
+      Goal * goal = new Goal(in);
+      p->get_info() = goal;
+    }
+  };  
+  
   DynMapTree<string, Member> members;
   DynMapTree<size_t, Plan::Node*> nodes_tbl;
   DynMapTree<size_t, DynList<size_t>> deps;
 
-  //Plan() {} // TODO borrar
+  Plan() {}
   
   ~Plan()
   {
@@ -242,8 +335,6 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
 	    insert_arc(src_ptr, p);
 	  }
       }
-    for (auto p : nodes_tbl)
-      cout << p.second->get_info()->id << endl;
   }
 };
 
@@ -264,6 +355,21 @@ int main(int argc, char *argv[])
   ifstream csv(file_name);
 
   Plan plan(csv);
+
+  ostringstream os;
+
+  IO_Graph<Plan, Plan::LoadGoal, Plan::StoreGoal> io(plan);
+  io.save_in_text_mode(os);
+
+  //cout << os.str() << endl;
+
+  istringstream is(os.str());
+
+  cout << is.str() << endl;
+
+  Plan p1;
+  IO_Graph<Plan, Plan::LoadGoal, Plan::StoreGoal>(p1).
+    load_in_text_mode(is);
 
   return 0;
 }
