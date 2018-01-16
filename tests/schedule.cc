@@ -34,11 +34,12 @@ inline string to_string(const GoalType & type)
 
 inline GoalType to_goal_type(const string & type)
 {
-  if (type == "Platform")
+  const string str = tolower(type);
+  if (str == "platform" or contains(str, "infrastructure"))
     return GoalType::Platform;
-  if (type == "Product")
+  if (str == "product" or  contains(str, "innovation"))
     return GoalType::Product;
-  if (type == "ServiceMarket")
+  if (str == "servicemarket" or contains(str, "customer"))
     return GoalType::ServiceMarket;
   return GoalType::Undefined;
 }
@@ -136,15 +137,15 @@ size_t Goal::count = 0;
 
 struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
 {
-  DynMapTree<size_t, Goal*> goals;
   DynMapTree<string, Member> members;
   DynMapTree<size_t, Plan::Node*> nodes_tbl;
+  DynMapTree<size_t, DynList<size_t>> deps;
 
-  Plan() {}// TODO borrar
+  //Plan() {} // TODO borrar
   
   ~Plan()
   {
-    goals.for_each([] (auto p) { delete p.second; });
+    for_each_node([] (auto ptr) { delete ptr->get_info(); });
   }
 
   void register_member(const string & name)
@@ -152,22 +153,6 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
     if (members.contains(name))
       ZENTHROW(DuplicatedName, name + " is already registered");
     members.emplace(name, name);
-  }
-
-  size_t register_goal(const string & name, const string & responsible,
-		       const string & desc, const GoalType & type,
-		       const string & start_time, const string & end_time)
-  {
-    auto ptr = members.search(responsible);
-    if (ptr == nullptr)
-      ZENTHROW(NameNotFound, "member " + responsible + " not found");
-    auto goal = new Goal(name, responsible, desc, type,
-			 to_time_t(start_time), to_time_t(end_time));
-    goals.insert(goal->id, goal);
-    Plan::Node * node_ptr = insert_node(goal);
-    nodes_tbl.insert(node_ptr->get_info()->id, node_ptr);
-
-    return goal->id;
   }
 
   Plan::Node * search_node(const size_t & id) const
@@ -197,24 +182,43 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
 
   Goal * read_goal(istream & in)
   {
-    size_t type_idx = 0, id_idx = 1, start_date_idx = 3, end_date_idx = 4,
-      name_idx = 5, pri_idx = 6, resp_idx = 7, members_idx = 8, nhours_idx = 9;
+    size_t type_idx = 0, id_idx = 1, dep_idx = 2,
+      start_date_idx = 3, end_date_idx = 4, name_idx = 5, pri_idx = 6,
+      resp_idx = 7, members_idx = 8, nhours_idx = 9;
     auto row = csv_read_row(in);
     if (row.is_empty())
       return nullptr;
+
+    const string & resp_name = row[resp_idx];
+    if (not members.has(resp_name))
+      members.insert(resp_name, Member(resp_name));
+
+    const size_t goal_id = atol(row[id_idx]);
+    if (nodes_tbl.has(goal_id))
+      ZENTHROW(DuplicatedName, "duplicated goal id " + to_string(goal_id));
+
     auto goal = new Goal;
-    goal->id = atol(row[id_idx]);
+    goal->id = goal_id;
     goal->name = row[name_idx];
     goal->start_time = to_time_t(row[start_date_idx], "%d/%m/%Y");
     goal->end_time = to_time_t(row[end_date_idx], "%d/%m/%Y");
-    goal->responsible = row[resp_idx];
-    goal->prioriy = atol(row[nhours_idx]);
-    cout << "Meta" << endl
-	 << "start = " << row[start_date_idx] << endl
-	 << "end = " << row[end_date_idx] << endl
-	 << *goal << endl
-	 << endl;
+    goal->responsible = resp_name;
+    goal->nhours = atol(row[nhours_idx]);
+    goal->goal_type = to_goal_type(row[type_idx]);
 
+    deps.insert(goal_id,
+		split_string(row[dep_idx], ",").maps<size_t>([] (auto & s)
+							     {
+							       return stoi(s);
+							     }));
+    nodes_tbl.insert(goal_id, insert_node(goal));
+    // cout << "Meta" << endl
+    // 	 << "start = " << row[start_date_idx] << endl
+    // 	 << "end = " << row[end_date_idx] << endl
+    // 	 << "deps = " << row[dep_idx] << endl
+    // 	 << *goal << endl
+    // 	 << endl;
+    
     return goal;
   }
 
@@ -223,12 +227,27 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
   Plan(istream & in)
   {
     auto header = csv_read_row(in);
-    while (read_goal(in))
+    while (read_goal(in) != nullptr)
       ;
+
+    for (auto it = get_node_it(); it.has_curr(); it.next())
+      {
+	auto * p = it.get_curr();
+	auto & id = p->get_info()->id;
+	auto & deplist = deps[id];
+	while (not deplist.is_empty())
+	  {
+	    auto src_id = deplist.remove();
+	    auto src_ptr = nodes_tbl[src_id];
+	    insert_arc(src_ptr, p);
+	  }
+      }
+    for (auto p : nodes_tbl)
+      cout << p.second->get_info()->id << endl;
   }
 };
 
-Plan plan;
+//Plan plan;
 
 CmdLine cmd = { "schedule", ' ', "0" };
 
