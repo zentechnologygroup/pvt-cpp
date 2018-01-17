@@ -113,3 +113,6 @@
 ## 38. generar csv
 - Created at   2018-01-10 17:04:07 -0400
 
+## 39. filtrar por prioridad
+- Created at   2018-01-17 15:37:12 -0400
+

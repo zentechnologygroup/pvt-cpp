@@ -256,21 +256,21 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
     }
   };
 
-  struct DrawNode
+  struct ShowNode
   {
-    string operator () (Plan::Node * p) const
+    void operator () (const Plan&, Plan::Node * p, ostream & out) const
     {
       const Goal & goal = *p->get_info();
+      out << "label = \"" << goal.name << "\n" << goal.responsible << "\"";
     }
   };
 
-  struct DrawArc
+  struct ShowArc
   {
-    string operator () (Plan::Arc * a) const
+    void operator () (const Plan&, Plan::Arc * a, ostream & out) const
     {
       Plan::Node * src = static_cast<Plan::Node*>(a->src_node);
       Plan::Node * tgt = static_cast<Plan::Node*>(a->tgt_node);
-      
     }
   };
   
@@ -375,13 +375,27 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
 	  }
       }
   }
+
+  void load(istream & in)
+  {
+    this->~Plan();
+    new (this) Plan(in);
+  }
 };
 
-//Plan plan;
+Plan plan;
 
 CmdLine cmd = { "schedule", ' ', "0" };
 
 ValueArg<string> file = { "f", "file", "load csv", true, "", "csv-name", cmd };
+
+SwitchArg top = { "t", "topological", "generate topological diagram", cmd };
+
+ValueArg<size_t> rank = { "", "rank", "rank number", false, 0, "number", cmd };
+
+SwitchArg ranks = { "r", "ranks", "list ranks", cmd };
+
+DynList<DynList<Plan::Node*>> plan_ranks;
 
 int main(int argc, char *argv[])
 {
@@ -391,26 +405,29 @@ int main(int argc, char *argv[])
   if (not exists_file(file.getValue()))
     ZENTHROW(FileNotFound, file_name + " not found");
 
-  ifstream csv(file_name);
+  ifstream in(file_name);
 
-  Plan plan(csv);
+  plan.load(in);
 
-  ostringstream os;
+  if (ranks.getValue())
+    {
+      plan_ranks = Q_Topological_Sort<Plan>().ranks(plan);
+      size_t i = 0;
+      for (auto rank_it = plan_ranks.get_it(); rank_it.has_curr();
+	   rank_it.next(), ++i)
+	{
+	  cout << "Rank " << i << endl;
+	  for (auto it = rank_it.get_curr().get_it(); it.has_curr(); it.next())
+	    cout << "    " << it.get_curr()->get_info()->name << endl;
+	  cout << "================================================================"
+	       << endl;
+	}
+      return 0;
+    }
 
-  IO_Graph<Plan, Plan::LoadGoal, Plan::StoreGoal> io(plan);
-  io.save_in_text_mode(os);
-
-  //cout << os.str() << endl;
-
-  istringstream is(os.str());
-
-  cout << is.str() << endl;
-
-  Plan p1;
-  IO_Graph<Plan, Plan::LoadGoal, Plan::StoreGoal>(p1).
-    load_in_text_mode(is);
-
-  
-
-  return 0;
+  if (top.getValue())
+    {
+      To_Graphviz<Plan, Plan::ShowNode, Plan::ShowArc>().ranks(plan, cout);
+      return 0;
+    }
 }
