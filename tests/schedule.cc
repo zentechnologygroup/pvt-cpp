@@ -101,16 +101,30 @@ struct Goal
   Goal(istream & in)
   {
     string line;
-    if (not getline(in, line))
+    if (not getline(in, line))                         // id
       ZENTHROW(InvalidRead, "cannot read goal id");
     if (not is_size_t(line))
-      ZENTHROW(InvalidRead, line + " is not an id");
-    if (not getline(in, name))
+      ZENTHROW(InvalidRead, line + " is not an id");  
+
+    if (not getline(in, name))                         // name
       ZENTHROW(InvalidRead, "cannot read goal name");
-    if (not getline(in, responsible))
+
+    string t;                                          // goal_type
+    if (not getline(in, t))
+      ZENTHROW(InvalidRead, "cannot read goal type");
+    goal_type = to_goal_type(t);
+    
+    if (not getline(in, responsible))                  // responsible
       ZENTHROW(InvalidRead, "cannot read goal responsible");
-    if (not getline(in, description))
-      ZENTHROW(InvalidRead, "cannot read goal description");
+
+    string date;
+    if (not getline(in, date))                         // start_date
+      ZENTHROW(InvalidRead, "cannot read start time");
+    cout << "date = " << date << endl;
+    start_time = atol(date);
+    if (not getline(in, date))                         // end_date
+      ZENTHROW(InvalidRead, "cannot read end time");
+    end_time = atol(date);
 
     // Read collective actions
     if (not getline(in, line) or not is_size_t(line))
@@ -132,7 +146,8 @@ struct Goal
     for (size_t i = 0; i < n; ++i)
       {
 	if (not getline(in, action))
-	  ZENTHROW(InvalidRead, "cannot read individual action " + to_string(i));
+	  ZENTHROW(InvalidRead, "cannot read individual action " +
+		   to_string(i));
 	individual_actions.append(action);
       }
 
@@ -148,14 +163,6 @@ struct Goal
 	expected_results.append(result);
       }
 
-    string date;
-    if (not getline(in, date))
-      ZENTHROW(InvalidRead, "cannot read start time");
-    start_time = atol(date);
-    if (not getline(in, date))
-      ZENTHROW(InvalidRead, "cannot read end time");
-    end_time = atol(date);
-
     // read members
     if (not getline(in, line))
       ZENTHROW(InvalidRead, "cannot read number of members");
@@ -166,11 +173,7 @@ struct Goal
 	if (not getline(in, member))
 	  ZENTHROW(InvalidRead, "cannot read member " + to_string(i));
 	expected_results.append(member);
-      }
-    string t;
-    if (not getline(in, t))
-      ZENTHROW(InvalidRead, "cannot read goal type");
-    goal_type = to_goal_type(t);
+      }   
   }
 
   friend ostream & operator << (ostream & out, const Goal & goal)
@@ -201,8 +204,8 @@ struct Goal
       out << "No expected results defined";
     else
       out << "Expected results:" << endl
-	  << join(goal.expected_results.maps([] (auto & s) { return "    " + s; }), 
-		  "\n");
+	  << join(goal.expected_results.maps([] (auto & s)
+					     { return "    " + s; }), "\n");
     return out << to_string(goal.goal_type);
   }
 };
@@ -215,9 +218,27 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
 {
   struct StoreGoal
   {
-    void operator () (ostream & output, Plan&, Plan::Node * p)
+    void operator () (ostream & out, Plan&, Plan::Node * p)
     {
-      output << *p->get_info();
+      const Goal & goal = *p->get_info();
+      out << goal.id << endl
+	  << goal.name << endl
+	  << to_string(goal.goal_type) << endl
+	  << goal.responsible << endl
+	  << goal.start_time << endl
+	  << goal.end_time << endl;
+
+      out << goal.collective_actions.size() << endl;
+      for (auto & a : goal.collective_actions)
+	out << a << endl;
+
+      out << goal.individual_actions.size() << endl;
+      for (auto & a : goal.individual_actions)
+	out << a << endl;
+      
+      out << goal.expected_results.size() << endl;
+      for (auto & r : goal.expected_results)
+	out << r << endl;
     }
   };
 
@@ -298,6 +319,7 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
     goal->responsible = resp_name;
     goal->nhours = atol(row[nhours_idx]);
     goal->goal_type = to_goal_type(row[type_idx]);
+    goal->members = split_string(row[members_idx], ","); 
 
     deps.insert(goal_id,
 		split_string(row[dep_idx], ",").maps<size_t>([] (auto & s)
@@ -305,12 +327,6 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
 							       return stoi(s);
 							     }));
     nodes_tbl.insert(goal_id, insert_node(goal));
-    // cout << "Meta" << endl
-    // 	 << "start = " << row[start_date_idx] << endl
-    // 	 << "end = " << row[end_date_idx] << endl
-    // 	 << "deps = " << row[dep_idx] << endl
-    // 	 << *goal << endl
-    // 	 << endl;
     
     return goal;
   }
