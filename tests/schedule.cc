@@ -11,6 +11,7 @@
 # include <tpl_agraph.H>
 # include <io_graph.H>
 # include <topological_sort.H>
+# include <generate_graph.H>
 
 # include <zen-exceptions.H>
 
@@ -120,7 +121,7 @@ struct Goal
     string date;
     if (not getline(in, date))                         // start_date
       ZENTHROW(InvalidRead, "cannot read start time");
-    cout << "date = " << date << endl;
+
     start_time = atol(date);
     if (not getline(in, date))                         // end_date
       ZENTHROW(InvalidRead, "cannot read end time");
@@ -239,6 +240,10 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
       out << goal.expected_results.size() << endl;
       for (auto & r : goal.expected_results)
 	out << r << endl;
+
+      out << goal.members.size() << endl;
+      for (auto & m : goal.members)
+	out << m << endl;
     }
   };
 
@@ -249,7 +254,25 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
       Goal * goal = new Goal(in);
       p->get_info() = goal;
     }
-  };  
+  };
+
+  struct DrawNode
+  {
+    string operator () (Plan::Node * p) const
+    {
+      const Goal & goal = *p->get_info();
+    }
+  };
+
+  struct DrawArc
+  {
+    string operator () (Plan::Arc * a) const
+    {
+      Plan::Node * src = static_cast<Plan::Node*>(a->src_node);
+      Plan::Node * tgt = static_cast<Plan::Node*>(a->tgt_node);
+      
+    }
+  };
   
   DynMapTree<string, Member> members;
   DynMapTree<size_t, Plan::Node*> nodes_tbl;
@@ -386,6 +409,8 @@ int main(int argc, char *argv[])
   Plan p1;
   IO_Graph<Plan, Plan::LoadGoal, Plan::StoreGoal>(p1).
     load_in_text_mode(is);
+
+  
 
   return 0;
 }
