@@ -218,6 +218,10 @@ size_t Goal::count = 0;
 
 struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
 {
+  using Base = Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>;
+
+  Base & get_base() { return *static_cast<Base*>(this); }
+
   struct StoreGoal
   {
     void operator () (ostream & out, Plan&, Plan::Node * p)
@@ -410,17 +414,17 @@ int main(int argc, char *argv[])
 
   plan.load(in);
 
-  Path<Plan> path(plan);
-  if (Tarjan_Connected_Components<Plan>().compute_cycle(plan, path))
+  Path<Plan::Base> path(plan);
+  if (Tarjan_Connected_Components<Plan::Base>().
+      compute_cycle(plan.get_base(), path))
     {
-      auto l = path.nodes();
-      l.for_each([] (auto p)
-		 {
-		   cout << p->get_info()->id << endl;
-		 });
-      return 0;
-      cout << "Detected cycle: " << join(l.maps<string>([] (auto p)
-        { return to_string(p->get_info()->id); }), ", ") << endl;
+      cout << "Detected cycle: " << endl
+	   << join(path.nodes().maps<string>([] (auto p)
+             {
+	       ostringstream s;
+	       s << "    " << p->get_info()->id << " : " << p->get_info()->name;
+	       return s.str();
+	     }), "\n") << endl;
       return 0;
     }
 
