@@ -13,6 +13,7 @@
 # include <topological_sort.H>
 # include <generate_graph.H>
 # include <Tarjan.H>
+# include <tpl_dynSetHash.H>
 
 # include <zen-exceptions.H>
 
@@ -192,7 +193,7 @@ struct Goal
       {
 	out << "Collective actions:" << endl;
 	for (auto a : goal.collective_actions)
-	  cout << "    " << a << endl;
+	  out << "    " << a << endl;
       }
     if (goal.individual_actions.size() == 0)
       out << "No individual actions" << endl;
@@ -200,7 +201,7 @@ struct Goal
       {
 	out << "Individual actions:" << endl;
 	for (auto a : goal.individual_actions)
-	  cout << "    " << a << endl;
+	  out << "    " << a << endl;
       }
     if (goal.expected_results.size() == 0)
       out << "No expected results defined";
@@ -266,7 +267,8 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
     void operator () (const Plan&, Plan::Node * p, ostream & out) const
     {
       const Goal & goal = *p->get_info();
-      out << "label = \"" << goal.name << "\n" << goal.responsible << "\"";
+      out << "label = \"" << goal.id << " : " << goal.name
+	  << "\\n" << goal.responsible << "\"";
     }
   };
 
@@ -275,7 +277,11 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
     void operator () (const Plan&, Plan::Arc * a, ostream & out) const
     {
       Plan::Node * src = static_cast<Plan::Node*>(a->src_node);
-      Plan::Node * tgt = static_cast<Plan::Node*>(a->tgt_node);
+      const Goal & goal = *src->get_info();
+
+      long secs = goal.end_time - goal.start_time;
+      long days = secs / (24*60*60);
+      out << "label = \"" << days << "\"";
     }
   };
   
@@ -288,13 +294,6 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
   ~Plan()
   {
     for_each_node([] (auto ptr) { delete ptr->get_info(); });
-  }
-
-  void register_member(const string & name)
-  {
-    if (members.contains(name))
-      ZENTHROW(DuplicatedName, name + " is already registered");
-    members.emplace(name, name);
   }
 
   Plan::Node * search_node(const size_t & id) const
@@ -332,8 +331,9 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
       return nullptr;
 
     const string & resp_name = row[resp_idx];
-    if (not members.has(resp_name))
-      members.insert(resp_name, Member(resp_name));
+    auto ptr = members.search(resp_name);
+    Member & member = ptr == nullptr ?
+      members.insert(resp_name, Member(resp_name))->second : ptr->second;
 
     const size_t goal_id = atol(row[id_idx]);
     if (nodes_tbl.has(goal_id))
@@ -347,7 +347,16 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
     goal->responsible = resp_name;
     goal->nhours = atol(row[nhours_idx]);
     goal->goal_type = to_goal_type(row[type_idx]);
-    goal->members = split_string(row[members_idx], ","); 
+    goal->members = split_string(row[members_idx], ",");
+    
+    member.responsible_goals.append(goal);
+    goal->members.maps<Member*>([this] (auto & name)
+      {
+	return &members.find(name);
+      }).for_each([goal] (Member * member_ptr)
+      {
+	member_ptr->member_goals.append(goal);
+      });
 
     deps.insert(goal_id,
 		split_string(row[dep_idx], ",").maps<size_t>([] (auto & s)
@@ -400,7 +409,53 @@ ValueArg<size_t> rank = { "", "rank", "rank number", false, 0, "number", cmd };
 
 SwitchArg ranks = { "r", "ranks", "list ranks", cmd };
 
+SwitchArg resp = { "R", "responsibles", "list responsibles", cmd };
+
+ValueArg<string> member =
+  { "m", "member", "list member", false, "", "member-name", cmd };
+
 DynList<DynList<Plan::Node*>> plan_ranks;
+
+void list_member()
+{
+  if (not member.isSet())
+    return;
+
+  const auto & name = member.getValue();
+  auto pair_ptr = plan.members.find_ptr([s = tolower(name)] (auto & p)
+    {
+      return contains(tolower(p.first), s);
+    });
+  if (pair_ptr == nullptr)
+    {
+      cout << "Member name " << name << " not found" << endl;
+      exit(0);
+    }
+
+  const Member & member = pair_ptr->second;
+  DynList<string> header = { "Goal id", "Goal name", "Duration (days)", "Hours" };
+  DynList<DynList<string>> resp_goals =
+    member.responsible_goals.maps<DynList<string>>([] (Goal * goal)
+    { 
+      return build_dynlist<string>(to_string(goal->id), goal->name,
+				   to_string(to_days(goal->end_time -
+						     goal->start_time)),
+				   to_string(goal->nhours));
+    });
+  DynList<DynList<string>> participant_goals =
+     member.member_goals.maps<DynList<string>>([] (Goal * goal)
+    { 
+      return build_dynlist<string>(to_string(goal->id), goal->name,
+				   to_string(to_days(goal->end_time -
+						     goal->start_time)),
+				   "not still defined");
+    });
+  DynList<DynList<string>> rows = { header };
+  rows.append(resp_goals);
+  rows.append(participant_goals);
+  cout << name << endl
+       << "Goals where he/she is responsible:" << endl;
+}
 
 int main(int argc, char *argv[])
 {
@@ -413,6 +468,13 @@ int main(int argc, char *argv[])
   ifstream in(file_name);
 
   plan.load(in);
+
+  if (resp.getValue())
+    {
+      cout << "Responsibles" << endl
+	   << join(plan.members.keys(), "\n") << endl;
+      return 0;
+    }
 
   Path<Plan::Base> path(plan);
   if (Tarjan_Connected_Components<Plan::Base>().
