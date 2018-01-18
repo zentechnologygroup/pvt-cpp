@@ -12,6 +12,7 @@
 # include <io_graph.H>
 # include <topological_sort.H>
 # include <generate_graph.H>
+# include <Tarjan.H>
 
 # include <zen-exceptions.H>
 
@@ -409,6 +410,20 @@ int main(int argc, char *argv[])
 
   plan.load(in);
 
+  Path<Plan> path(plan);
+  if (Tarjan_Connected_Components<Plan>().compute_cycle(plan, path))
+    {
+      auto l = path.nodes();
+      l.for_each([] (auto p)
+		 {
+		   cout << p->get_info()->id << endl;
+		 });
+      return 0;
+      cout << "Detected cycle: " << join(l.maps<string>([] (auto p)
+        { return to_string(p->get_info()->id); }), ", ") << endl;
+      return 0;
+    }
+
   if (ranks.getValue())
     {
       plan_ranks = Q_Topological_Sort<Plan>().ranks(plan);
@@ -418,7 +433,10 @@ int main(int argc, char *argv[])
 	{
 	  cout << "Rank " << i << endl;
 	  for (auto it = rank_it.get_curr().get_it(); it.has_curr(); it.next())
-	    cout << "    " << it.get_curr()->get_info()->name << endl;
+	    {
+	      auto & goal = it.get_curr()->get_info();
+	      cout << "    " << goal->id << " " << goal->name << endl;
+	    }
 	  cout << "================================================================"
 	       << endl;
 	}
