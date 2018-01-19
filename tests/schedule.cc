@@ -353,14 +353,7 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
     goal->goal_type = to_goal_type(row[type_idx]);
     goal->members = split_string(row[members_idx], ",");
     
-    member.responsible_goals.append(goal);
-    goal->members.maps<Member*>([this] (auto & name)
-      {
-	return &members.find(name);
-      }).for_each([goal] (Member * member_ptr)
-      {
-	member_ptr->member_goals.append(goal);
-      });
+    member.responsible_goals.append(goal);   
 
     deps.insert(goal_id,
 		split_string(row[dep_idx], ",").maps<size_t>([] (auto & s)
@@ -379,6 +372,21 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
     auto header = csv_read_row(in);
     while (read_goal(in) != nullptr)
       ;
+
+    for (auto it = nodes_tbl.get_it(); it.has_curr(); it.next())
+      {
+	auto & p = it.get_curr();
+	Goal * goal = p.second->get_info();
+	cout << join(goal->members, ", ") << endl;
+      // 	goal->members.maps<Member*>([this] (auto & name)
+      //     {
+      // 	    if (contains(tolower(name), "todos"))
+      // 	return &members.find(name);
+      // }).for_each([goal] (Member * member_ptr)
+      // {
+      // 	member_ptr->member_goals.append(goal);
+      // });
+      }
 
     for (auto it = get_node_it(); it.has_curr(); it.next())
       {
@@ -457,8 +465,14 @@ void list_member()
   DynList<DynList<string>> rows = { header };
   rows.append(resp_goals);
   rows.append(participant_goals);
+
+  auto frows = format_string_csv(rows);
+
   cout << name << endl
-       << "Goals where he/she is responsible:" << endl;
+       << "Goals where he/she is responsible:" << endl
+       << justify_text(to_string(frows.take(resp_goals.size() + 1)), 2) << endl
+       << to_string(frows.get_first()) << endl
+       << justify_text(to_string(frows.drop(resp_goals.size() + 1)), 2) << endl;
 }
 
 int main(int argc, char *argv[])
