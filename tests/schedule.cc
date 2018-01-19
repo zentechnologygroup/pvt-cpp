@@ -277,11 +277,15 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
     void operator () (const Plan&, Plan::Arc * a, ostream & out) const
     {
       Plan::Node * src = static_cast<Plan::Node*>(a->src_node);
-      const Goal & goal = *src->get_info();
+      const Goal & src_goal = *src->get_info();
 
-      long secs = goal.end_time - goal.start_time;
+      Plan::Node * tgt = static_cast<Plan::Node*>(a->src_node);
+      const Goal & tgt_goal = *src->get_info();
+
+      long secs = src_goal.end_time - src_goal.start_time;
       long days = secs / (24*60*60);
-      out << "label = \"" << days << "\"";
+      out << "label = \"" << src_goal.id << " --> " << tgt_goal.id << "\n"
+	  << days << "/" << src_goal.nhours << "\"";
     }
   };
   
@@ -435,7 +439,7 @@ void list_member()
   const Member & member = pair_ptr->second;
   DynList<string> header = { "Goal id", "Goal name", "Duration (days)", "Hours" };
   DynList<DynList<string>> resp_goals =
-    member.responsible_goals.maps<DynList<string>>([] (Goal * goal)
+    member.responsible_goals.maps<DynList<string>>([] (const Goal * const goal)
     { 
       return build_dynlist<string>(to_string(goal->id), goal->name,
 				   to_string(to_days(goal->end_time -
@@ -443,7 +447,7 @@ void list_member()
 				   to_string(goal->nhours));
     });
   DynList<DynList<string>> participant_goals =
-     member.member_goals.maps<DynList<string>>([] (Goal * goal)
+     member.member_goals.maps<DynList<string>>([] (const Goal * const goal)
     { 
       return build_dynlist<string>(to_string(goal->id), goal->name,
 				   to_string(to_days(goal->end_time -
