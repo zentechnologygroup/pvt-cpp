@@ -268,7 +268,10 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
     {
       const Goal & goal = *p->get_info();
       out << "label = \"" << goal.id << " : " << goal.name
-	  << "\\n" << goal.responsible << "\"";
+	  << endl
+	  << goal.responsible << endl
+	  << to_string(goal.start_time, "%d/%m/%Y") << " - "
+	  << to_string(goal.end_time, "%d/%m/%Y") << "\"";
     }
   };
 
@@ -279,8 +282,8 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
       Plan::Node * src = static_cast<Plan::Node*>(a->src_node);
       const Goal & src_goal = *src->get_info();
 
-      Plan::Node * tgt = static_cast<Plan::Node*>(a->src_node);
-      const Goal & tgt_goal = *src->get_info();
+      Plan::Node * tgt = static_cast<Plan::Node*>(a->tgt_node);
+      const Goal & tgt_goal = *tgt->get_info();
 
       long secs = src_goal.end_time - src_goal.start_time;
       long days = secs / (24*60*60);
@@ -377,7 +380,7 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
       {
 	auto & p = it.get_curr();
 	Goal * goal = p.second->get_info();
-	cout << join(goal->members, ", ") << endl;
+	//cout << join(goal->members, ", ") << endl;
       // 	goal->members.maps<Member*>([this] (auto & name)
       //     {
       // 	    if (contains(tolower(name), "todos"))

@@ -116,3 +116,6 @@
 ## 39. filtrar por prioridad
 - Created at   2018-01-17 15:37:12 -0400
 
+## 40. validar fechas start versus dependencia
+- Created at   2018-01-19 17:52:52 -0400
+
