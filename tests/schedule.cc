@@ -354,7 +354,8 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
     goal->responsible = resp_name;
     goal->nhours = atol(row[nhours_idx]);
     goal->goal_type = to_goal_type(row[type_idx]);
-    goal->members = split_string(row[members_idx], ",");
+    goal->members = split_string(row[members_idx], ",").
+      maps([] (const string & s) { return trim(s); });
     
     member.responsible_goals.append(goal);   
 
@@ -380,15 +381,23 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
       {
 	auto & p = it.get_curr();
 	Goal * goal = p.second->get_info();
-	//cout << join(goal->members, ", ") << endl;
-      // 	goal->members.maps<Member*>([this] (auto & name)
-      //     {
-      // 	    if (contains(tolower(name), "todos"))
-      // 	return &members.find(name);
-      // }).for_each([goal] (Member * member_ptr)
-      // {
-      // 	member_ptr->member_goals.append(goal);
-      // });
+	if (goal->members.exists([] (auto & name) 
+	  {
+	    return contains(tolower(name), "todos");
+	  }))
+	  goal->members = members.keys();
+	goal->members.maps<Member*>([this, goal] (auto & name)
+          {
+	    auto ptr = members.search(name);
+	    if (ptr == nullptr)
+	      
+	      ZENTHROW(NameNotFound, "member name " + name +
+		       " not found for goal id" + to_string(goal->id));
+	    return &ptr->second;
+	  }).for_each([goal] (Member * member_ptr)
+		      {
+			member_ptr->member_goals.append(goal);
+		      });
       }
 
     for (auto it = get_node_it(); it.has_curr(); it.next())
@@ -431,6 +440,16 @@ ValueArg<string> member =
 
 DynList<DynList<Plan::Node*>> plan_ranks;
 
+void list_members()
+{
+  if (not resp.getValue())
+    return;
+
+  cout << "Responsibles" << endl
+       << join(plan.members.keys(), "\n") << endl;
+  exit(0);
+}
+
 void list_member()
 {
   if (not member.isSet())
@@ -462,20 +481,72 @@ void list_member()
     { 
       return build_dynlist<string>(to_string(goal->id), goal->name,
 				   to_string(to_days(goal->end_time -
-						     goal->start_time)),
-				   "not still defined");
+						     goal->start_time)), "-");
     });
   DynList<DynList<string>> rows = { header };
   rows.append(resp_goals);
   rows.append(participant_goals);
 
-  auto frows = format_string_csv(rows);
+  auto frows = format_string(rows);
 
-  cout << name << endl
-       << "Goals where he/she is responsible:" << endl
-       << justify_text(to_string(frows.take(resp_goals.size() + 1)), 2) << endl
-       << to_string(frows.get_first()) << endl
-       << justify_text(to_string(frows.drop(resp_goals.size() + 1)), 2) << endl;
+  cout << member.name << endl
+       << endl
+       << "  Goals where he/she is responsible:" << endl
+       << justify_text(to_string(frows.take(resp_goals.size() + 1)), 120, 4)
+       << endl
+       << endl
+       << "  Goals where he/she is member:" << endl
+       << justify_text(to_string(frows.get_first()), 120, 4) << endl
+       << justify_text(to_string(frows.drop(resp_goals.size() + 1)), 120, 4)
+       << endl;
+}
+
+void validate_cycles()
+{
+  Path<Plan::Base> path(plan);
+  if (not Tarjan_Connected_Components<Plan::Base>().
+      compute_cycle(plan.get_base(), path))
+    return;
+
+  cout << "Detected cycle: " << endl
+       << join(path.nodes().maps<string>([] (auto p)
+          {
+	    ostringstream s;
+	    s << "    " << p->get_info()->id << " : " << p->get_info()->name;
+	    return s.str();
+	  }), "\n") << endl;
+  exit(0);
+}
+
+void list_ranks()
+{
+  if (not ranks.getValue())
+    return;
+
+  plan_ranks = Q_Topological_Sort<Plan>().ranks(plan);
+  size_t i = 0;
+  for (auto rank_it = plan_ranks.get_it(); rank_it.has_curr();
+       rank_it.next(), ++i)
+    {
+      cout << "Rank " << i << endl;
+      for (auto it = rank_it.get_curr().get_it(); it.has_curr(); it.next())
+	{
+	  auto & goal = it.get_curr()->get_info();
+	  cout << "    " << goal->id << " " << goal->name << endl;
+	}
+      cout << "================================================================"
+	   << endl;
+    }
+  exit(0);
+}
+
+void generate_dag()
+{
+  if (not top.getValue())
+    return;
+  
+  To_Graphviz<Plan, Plan::ShowNode, Plan::ShowArc>().ranks(plan, cout);
+  exit(0);
 }
 
 int main(int argc, char *argv[])
@@ -490,49 +561,11 @@ int main(int argc, char *argv[])
 
   plan.load(in);
 
-  if (resp.getValue())
-    {
-      cout << "Responsibles" << endl
-	   << join(plan.members.keys(), "\n") << endl;
-      return 0;
-    }
+  validate_cycles();
 
-  Path<Plan::Base> path(plan);
-  if (Tarjan_Connected_Components<Plan::Base>().
-      compute_cycle(plan.get_base(), path))
-    {
-      cout << "Detected cycle: " << endl
-	   << join(path.nodes().maps<string>([] (auto p)
-             {
-	       ostringstream s;
-	       s << "    " << p->get_info()->id << " : " << p->get_info()->name;
-	       return s.str();
-	     }), "\n") << endl;
-      return 0;
-    }
+  list_member();
+  list_members();
+  list_ranks();  
 
-  if (ranks.getValue())
-    {
-      plan_ranks = Q_Topological_Sort<Plan>().ranks(plan);
-      size_t i = 0;
-      for (auto rank_it = plan_ranks.get_it(); rank_it.has_curr();
-	   rank_it.next(), ++i)
-	{
-	  cout << "Rank " << i << endl;
-	  for (auto it = rank_it.get_curr().get_it(); it.has_curr(); it.next())
-	    {
-	      auto & goal = it.get_curr()->get_info();
-	      cout << "    " << goal->id << " " << goal->name << endl;
-	    }
-	  cout << "================================================================"
-	       << endl;
-	}
-      return 0;
-    }
-
-  if (top.getValue())
-    {
-      To_Graphviz<Plan, Plan::ShowNode, Plan::ShowArc>().ranks(plan, cout);
-      return 0;
-    }
+  generate_dag();
 }

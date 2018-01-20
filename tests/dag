@@ -1,0 +1,5 @@
+#!/bin/bash
+name=$1
+echo $name
+./schedule -f $name.csv -t > $name.dot
+dot -T svg $name.dot > $name.svg
