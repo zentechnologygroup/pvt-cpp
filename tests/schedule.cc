@@ -288,7 +288,7 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
       long secs = src_goal.end_time - src_goal.start_time;
       long days = secs / (24*60*60);
       out << "label = \"" << src_goal.id << " --> " << tgt_goal.id << "\n"
-	  << days << "/" << src_goal.nhours << "\"";
+	  << days << " days / " << src_goal.nhours << "h hours \"";
     }
   };
   
