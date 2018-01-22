@@ -884,6 +884,11 @@ public:
     return out << c.to_string();
   }
 
+  /** Compute the correlation value given its parameters.
+
+      `compute()` method, which is virtual, dynamically dispatches 
+
+   */
   virtual VtlQuantity
   compute(const DynList<VtlQuantity> &, bool check = true) const = 0;
 
