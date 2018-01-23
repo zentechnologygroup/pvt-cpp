@@ -913,7 +913,7 @@ public:
       @param[in] pars a list of `VtlQuantity` objects containing the
       correlation parameters in the same order.
       @param[in] check indicates whether the parameter bounds must be
-      or not checked.
+      or not checked. By default, this parameter has the value `true`.
       @return A VtlQuantity object corresponding to the computed value
       of the correlation.
       @exception bad_alloc if there is not enough memory.
@@ -940,15 +940,48 @@ public:
 
       Now, you could directly call it as follows:
 
-          auto ret = corr_ptr->compute({.8, .9, 28, 560});
+          auto ret = corr_ptr->compute({Quantity<Sgg>(.8), Quantity<Sg_do>(.9), 
+	                                Quantity<SCF_STB>(28), 
+					Quantity<Rankine>(560)});
 
-      Since the `DynList` type has a special constructor receiving  
+      Since the `DynList` type has a constructor receiving the
+      standard type `std::initializer_list`, the parameter list is
+      specified between `{}` and the order of of the list corresponds
+      with the order of implementation function (`yg`, `yo`, `rsb` and
+      `t`). Since `check` is not given, the `true` value is assumed;
+      therefore, all the parameters bounds are checked.
 
       @see compute_and_check execute compute_by_names
    */
   virtual VtlQuantity
   compute(const DynList<VtlQuantity> & pars, bool check = true) const = 0;
 
+  /** Meta-wrapper to `compute()` method.
+
+      This flavor of `compute()` automatically builds the parameter
+      list according to the passing order. 
+
+      Example of use
+      --------------
+
+      Given a pointer `corr_ptr` to the PbAlMarhoun correlation, you
+      could directly compute it thus:
+
+          auto ret = corr_ptr->compute(true, .8, .9, 28, 560);
+
+      In this variant the parameter `check` comes first. This is an
+      essential condition to be able of generate the meta call. Next,
+      the parameters come exactly in the same specification order
+      ((`yg`, `yo`, `rsb` and `t`). 
+
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked.
+      @param[in] args correlation parameters separated with comma in
+      the same specification order.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+   */
   template <typename ... Args>
   VtlQuantity compute(bool check, Args ... args) const
   {
@@ -957,14 +990,59 @@ public:
     return compute(pars_list, check);
   }
 
+  /** Compute the correlation and check if the return satisfies the
+      result bounds.
+
+      This function is similar to `compute()` except for the fact that
+      the return value is validated.
+
+      @param[in] pars a list of `VtlQuantity` objects containing the
+      correlation parameters in the same order.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked. By default, this parameter has the value `true`.
+      @return A VtlQuantity object corresponding to the computed value
+      of the correlation.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+      @exception OutOfCorrelationRange if the return value is not
+      inside of the result interval.
+   */
   VtlQuantity compute_and_check(const DynList<VtlQuantity> & pars,
 				bool check = true) const
   {
     return verify_result(compute(pars, check));
   }
 
+  /** Not throwing version of `compute()`.
+
+      Regarding the received parameters, this function is equivalent
+      to `compute()`. The big difference is that this method does not
+      throw any exception. Instead, this method returns a quadruple
+      whose structure is as follows:
+
+      1. `get<0>(result)`: a double containing the result. This value
+      is valid if there was no error.
+
+      2. `get<1>(result)`: a string with the name of unit result.
+
+      3. `get<2>(result)`: a boolean value indicating if the
+      correlation was correctly computed. `true` value indicates that
+      everything was okay. Otherwise an error occurred and the `false`
+      value is set.
+
+      4. `get<3>(result)`: if an error was detected, then this filed
+      contains a string describing the error. Otherwise the string is empty.
+
+      @param[in] pars a list of `VtlQuantity` objects containing the
+      correlation parameters in the same order.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked. By default, this parameter has the value `true`.
+      @return a `tuple<double, string, bool, string>` containing the
+      all the necessary information about the operation.
+   */
   tuple<double, string, bool, string> execute(DynList<VtlQuantity> & pars,
-					      bool check = true) const
+					      bool check = true) const noexcept
   {
     try
       {
@@ -986,6 +1064,34 @@ public:
       }
   }
 
+  /** Compute the correlation receiving a list of doubles, without
+      their units.
+
+      This method is similar to `compute()`, excepts that it receive
+      their parameters as doubles, without units. In this case, it is
+      assumed that the parameter are expressed in the same units for
+      which the correlation parameters were specified.
+      
+      Example of use
+      --------------
+
+      Given a pointer `corr_ptr` to the PbAlMarhoun correlation, you
+      could directly compute it thus:
+
+          auto ret = corr_ptr->compute({.8, .9, 28, 560});
+
+      @param[in] values list of doubles expressing the correlation
+      parameters separated with comma in the same specification order.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked.
+      @return a double value expressing the result in the
+      implementation unit.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+      @exception InvalidNumberOfParameters if the size of parameter
+      list is less than the number of expected parameters.
+   */
   double compute(const DynList<double> & values, bool check = true) const
   {
     DynList<VtlQuantity> pars;
@@ -1010,15 +1116,57 @@ public:
     return ret.get_value();
   }
 
+  /** Compute the correlation receiving a list of doubles, without
+      their units and check if the return satisfies the result bounds.
+
+      This function is similar to `compute()` except for the fact that
+      the return value is validated.
+
+      @param[in] pars a list of `VtlQuantity` objects containing the
+      correlation parameters in the same order.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked. By default, this parameter has the value `true`.
+      @return A VtlQuantity object corresponding to the computed value
+      of the correlation.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+      @exception OutOfCorrelationRange if the return value is not
+      inside of the result interval.
+      @exception InvalidNumberOfParameters if the size of parameter
+      list is less than the number of expected parameters.
+   */
   double
   compute_and_check(const DynList<double> & pars, bool check = true) const
   {
     return verify_result(VtlQuantity(unit, compute(pars, check))).raw();
   }
 
+  /// Simple parameter by name without unit
   using ParByName = pair<string, double>;
 
-  /// Compute correlation by receiving an unsorted list of pair par-name,value
+  /** Compute correlation by receiving an unsorted list of pairs
+      par-name,value.
+
+      In this method the parameters list could be in any order. They
+      are identified by their names.
+
+      Note that in this version the units are not considered. It is
+      assumed that every parameter is specified in the same unit in
+      which this was specified.      
+
+      @param[in] pair_list a list of pairs everyone containing the
+      parameter value and its name.
+      @param[in]check indicates whether the parameter bounds must be
+      or not checked. By default, this parameter has the value `true`.
+      @return A VtlQuantity object corresponding to the computed value
+      of the correlation.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+      @exception ParameterNameNotFound if a parameter name does not
+      match with the specified name.
+   */  
   VtlQuantity
   compute_by_names(const DynList<ParByName> & pair_list,
 		   bool check = true) const
