@@ -886,11 +886,68 @@ public:
 
   /** Compute the correlation value given its parameters.
 
-      `compute()` method, which is virtual, dynamically dispatches 
+      The `compute()` method which is virtual, dynamically determines
+      the correlation implementation and automatically dispatches it
+      the received parameters.
 
+      This method receives a list `pars` of `VtlQuantity` objects
+      containing the parameters and their units. The order of
+      parameter list must exactly match with the specified and
+      expected order in the correlation implementation.
+
+      The parameter `check` specifies whether the parameters bounds
+      are or not verified. If `check` is `true`, then each parameter
+      range is check respect a the correlation
+      specification. Otherwise no one check is done and the
+      correlation is computed without any previous checking.
+
+      This method does not check whether the return value is or not
+      bound to any specified interval. If you want to do get that,
+      then use `compute_and_check()` method instead of this method. 
+
+      Although this method could perfectly be used in a real
+      production system, it is not intended to use by the majority of
+      back ends and front ends. Its mission is to provide a direct way
+      to find the implementation method and execute it.
+
+      @param[in] pars a list of `VtlQuantity` objects containing the
+      correlation parameters in the same order.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked.
+      @return A VtlQuantity object corresponding to the computed value
+      of the correlation.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+
+      Brief example of use
+      --------------------
+
+      Let's suppose that you want to use the PbAlMarhoun correlation
+      for computing the bubble point. This correlation has the
+      following signature:
+
+          Quantity<psia> call(const Quantity<Sgg>& yg,
+                              const Quantity<Sg_do>& yo,
+                              const Quantity<SCF_STB>& rsb,
+                              const Quantity<Rankine>& t) const
+
+      The first thing that we must do is to get a pointer to the
+      correlation. There are several ways for getting it, perhaps the
+      simplest is through the search method:
+
+          Correlation corr_ptr = search_by_name("PbAlMarhoun");
+
+      Now, you could directly call it as follows:
+
+          auto ret = corr_ptr->compute({.8, .9, 28, 560});
+
+      Since the `DynList` type has a special constructor receiving  
+
+      @see compute_and_check execute compute_by_names
    */
   virtual VtlQuantity
-  compute(const DynList<VtlQuantity> &, bool check = true) const = 0;
+  compute(const DynList<VtlQuantity> & pars, bool check = true) const = 0;
 
   template <typename ... Args>
   VtlQuantity compute(bool check, Args ... args) const
@@ -1478,3 +1535,5 @@ Declare_Correlation_Subtype(AdditionalGasProduced, GasCorrelation, "G_{pa}");
 Declare_Correlation_Subtype(ProducingGasOilRatio, GasFunction, "GOR");
 
 # endif // CORRELATION_H
+
+//  LocalWords:  OutOfParameterRange
