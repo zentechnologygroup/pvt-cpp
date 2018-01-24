@@ -10,6 +10,8 @@
 
 using namespace std;
 
+struct Correlation;
+
 using ValPair = pair<double, const Unit*>;
 using ParPair = pair<string, ValPair>;
 
@@ -46,6 +48,23 @@ inline ParPair build_corrrelation_par(const string & par_name, double par_val,
 
 using HashParTbl = ODhashTable<ParPair, ParEqual>;
 
+/** Define a list of parameters by name to be passed to a correlation
+    for its calculation.
+
+    This class defines an special way for passing parameters to a
+    correlation. This is, until now, the fastest known way for compute
+    a correlation value passing parameter by value. The main advantage
+    of by value passing is that the parameter could be passed in any
+    order. This feature, combined with the parameter naming, easily
+    allows to program generic routines that receive correlations and
+    compute them in a general way.
+
+    The core of speed underlies in the use of a hash table for quickly
+    inserting and restoring the parameters.
+
+    @ingroup Correlations
+    @author Leandro Rabindranath Leon
+ */
 class ParList
 {
 public:

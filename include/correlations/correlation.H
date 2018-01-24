@@ -28,7 +28,7 @@
 /** Define a correlation parameter
 
     @ingroup Correlations
-    @author Leandro Rabindranath Leon
+    @author Leandro Rabindranath Leona
  */
 struct CorrelationPar
 {
@@ -1117,7 +1117,8 @@ public:
   }
 
   /** Compute the correlation receiving a list of doubles, without
-      their units and check if the return satisfies the result bounds.
+      their units and check if the return satisfies the specified
+      result bounds.
 
       This function is similar to `compute()` except for the fact that
       the return value is validated.
@@ -1303,17 +1304,7 @@ public:
       Unit*>`, where the first field is the parameter value and the
       second field is the parameter unit.
 
-      
-
-      In this method the parameters list could be in any order. They
-      are identified by their names.
-
-      If any parameter `par` has the field `get<0>(par)` in `false`,
-      then the calculations is not performed and the exception
-      `ParameterNameNotSet` is thrown.
-
-      @param[in] pair_list a list of pairs everyone containing the
-      parameters.
+      @param[in] pair_list a `ParList` object containing the parameters.
       @param[in] check indicates whether the parameter bounds must be
       or not checked. By default, this parameter has the value `true`.
       @return A VtlQuantity object corresponding to the computed value
@@ -1323,8 +1314,8 @@ public:
       range.
       @exception ParameterNameNotFound if a parameter name does not
       match with the specified name.
-      @exception ParameterNameNotSet if any parameter has the field
-      `get<0>(par)` in `false`. 
+
+      @see ParList
    */  
   VtlQuantity
   compute_by_names(const ParList & par_list, bool check = true) const
@@ -1340,6 +1331,42 @@ public:
     return compute(vals, check);
   }
 
+  /** Meta-wrapper for building a call to 'compute()" which passes
+      correlation parameters by name and uses a `ParList` object.
+
+      Since this method receives a `ParList` object, you could 
+      avoid the costs of its construction and destruction by previously
+      allocating it. 
+
+      The method first inserts the parameters, next it invokes the
+      correlation, and finally it removes the parameters from the
+      `ParList` object even if a exception is thrown.
+
+      Example of use.
+      --------------
+
+      Let's suppose the PbAlMarhoun correlation pointed by `corr_ptr`
+      pointer. You could compute it as follows:
+
+          corr_ptr->compute_by_names(true, parlist, NPAR(t), NPAR(yg),
+                                     NPAR(rsb), NPAR(yo));
+
+      In this case, the helper macro `NPAR` is used which builds each
+      parameter with name homonym to the variable name. For example,
+      `NPAR(yo)' build an parameter with name "yo" and the value
+      stored in a `VtlQuantity` object `yo`. Please note that since
+      units are required, you must use `VtlQuantity` or `Quantity`
+      objects. 
+
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked.
+      @param[in] par_list `ParList` object where the parameters will
+      be passed.
+      @param[in] args parameters of type `ParPair`. You could pass as
+      many as you require.
+
+      @see par, npar, NPAR 
+   */
   template <typename ... Args>
   VtlQuantity
   compute_by_names(bool check, ParList & par_list, Args & ...  args) const
@@ -1354,18 +1381,50 @@ public:
     catch (...)
       {
 	remove_from_container(par_list, args...);
+	throw ;
       }
   }
 
+  /** Helper function for adjusting a correlation computed value
+     according to a linear tuning.
+
+     @param[in] val a `VtlQuantity` representing the correlation
+     computed result.  
+     @param[in] c the tuning c parameter.
+     @param[in] m the tuning m parameter.
+     @param[in] tuned_unit a pointer to the unit that was used when
+     the tuning was done.
+     @exception UnitConversionNotFound if `tuned_unit` is not a
+     sibling unit of `val.unit`.
+     @exception OutOfUnitRange if the tuned value is out of some of
+     the involved units. 
+   */
   static VtlQuantity tune(const VtlQuantity & val,
 			  double c, double m, const Unit & tuned_unit)
   {
-    double r = bind_to_unit_limits(c + m*VtlQuantity(tuned_unit, val).raw(),
-				   tuned_unit);
-    return VtlQuantity(val.unit, VtlQuantity(tuned_unit, r));
-    
+    const double r =
+      bind_to_unit_limits(c + m*VtlQuantity(tuned_unit, val).raw(), tuned_unit);
+    return VtlQuantity(val.unit, VtlQuantity(tuned_unit, r));    
   }
 
+  /** Compute the correlation receiving a list of `VtlQuantity`s,
+      check if the return satisfies the result bounds and then applies
+      a linear tuning.
+
+      @param[in] pars a list of `VtlQuantity` objects containing the
+      correlation parameters in the same order.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked. By default, this parameter has the value `true`.
+      @return A VtlQuantity object corresponding to the computed value
+      of the correlation.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+      @exception OutOfCorrelationRange if the return value is not
+      inside of the result interval.
+      @exception InvalidNumberOfParameters if the size of parameter
+      list is less than the number of expected parameters.
+   */
   VtlQuantity tuned_compute_and_check(const DynList<VtlQuantity> & pars,
 				      double c, double m, const Unit & tuned_unit,
 				      bool check = true) const
@@ -1576,6 +1635,36 @@ public:
     return names.keys();
   }
 };
+
+
+// construct a VtlQuantity from a parameter by name
+inline VtlQuantity par(const Correlation::NamedPar & par)
+{
+  return VtlQuantity(*get<3>(par), get<2>(par));
+}
+
+// construct a parameter by name name from an amount (VtlQuantity or
+// Quantity <Unit>)
+inline Correlation::NamedPar npar(const string & name, const BaseQuantity & p)
+{
+  return Correlation::NamedPar(true, name, p.raw(), &p.unit);
+}
+
+inline Correlation::NamedPar
+npar(const string & name, double v, const Unit * unit)
+{
+  return Correlation::NamedPar(true, name, v, unit);
+}
+
+inline Correlation::NamedPar npar(const string & name,
+				  const Correlation::NamedPar & par)
+{
+  return Correlation::NamedPar(true, name, get<2>(par), get<3>(par));
+}
+
+// macro that constructs a parameter by name with name par from a VtlQuantity
+# define NPAR(par) npar(#par, par)
+
 
 inline Correlation::~Correlation() {}
 

@@ -232,34 +232,6 @@ build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
 
 // helper to handle parameter passing to correlations
 
-// construct a VtlQuantity from a parameter by name
-inline VtlQuantity par(const Correlation::NamedPar & par)
-{
-  return VtlQuantity(*get<3>(par), get<2>(par));
-}
-
-// construct a parameter by name name from an amount (VtlQuantity or
-// Quantity <Unit>)
-inline Correlation::NamedPar npar(const string & name, const BaseQuantity & p)
-{
-  return Correlation::NamedPar(true, name, p.raw(), &p.unit);
-}
-
-inline Correlation::NamedPar
-npar(const string & name, double v, const Unit * unit)
-{
-  return Correlation::NamedPar(true, name, v, unit);
-}
-
-inline Correlation::NamedPar npar(const string & name,
-				  const Correlation::NamedPar & par)
-{
-  return Correlation::NamedPar(true, name, get<2>(par), get<3>(par));
-}
-
-// macro that constructs a parameter by name with name par from a VtlQuantity
-# define NPAR(par) npar(#par, par)
-
 // Declare a command line argument for a double type.
 //
 // Parameters:
