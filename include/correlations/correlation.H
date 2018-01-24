@@ -1408,11 +1408,14 @@ public:
   }
 
   /** Compute the correlation receiving a list of `VtlQuantity`s,
-      check if the return satisfies the result bounds and then applies
-      a linear tuning.
+      check if the return satisfies the specified result bounds and
+      then applies a linear tuning.
 
       @param[in] pars a list of `VtlQuantity` objects containing the
       correlation parameters in the same order.
+      @param[in] c the tuning c parameter.
+      @param[in] m the tuning m parameter.
+      @param[in] tuned_unit the unit used when the tuning was done.
       @param[in] check indicates whether the parameter bounds must be
       or not checked. By default, this parameter has the value `true`.
       @return A VtlQuantity object corresponding to the computed value
