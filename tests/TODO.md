@@ -122,3 +122,6 @@
 ## 41. option make para generar documentacion
 - Created at   2018-01-23 12:46:25 -0400
 
+## 42. par npar NPAR y otro de cplot deben ir en par-list
+- Created at   2018-01-24 11:04:03 -0400
+

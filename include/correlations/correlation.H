@@ -1197,14 +1197,64 @@ public:
     return compute(vals, check);
   }
 
+  /** Complex parameter by name.
+
+      `NamedPar` is a quadruple used to represent a correlation
+      parameter by name, whose structure is the following:
+
+      1. get<0>(par): a boolean value that indicates whether the
+      parameter is or not valid. In some cases, concretely when a
+      calculation depends on other calculation, it is needed to know
+      whether the result of the previous calculation was or not
+      valid. In this case, this field would indicate such thing.
+
+      2. get<1>(par): a string with the name of parameter.
+
+      3. get<2>(par): a double containing the value of parameter.
+
+      4. get<3>(par): a pointer to the unit in which the value is
+      represented. 
+   */
   using NamedPar = tuple<bool, string, double, const Unit*>;
 
+  /** Build a `NamedPar` object.
+
+      @param[in] name the parameter name.
+      @param[in] val value of parameter.
+      @param[in] uptr pointer to the unit which the parameter value is
+      represented.
+      @return a NamedPar object representing the parameter
+   */
   static NamedPar
   build_names_par(const string & name, double val, const Unit * uptr)
   {
     return NamedPar(true, name, val, uptr);
   }
 
+  /** Compute correlation by receiving an unsorted list of `NamedPar`
+      objects. 
+
+      In this method the parameters list could be in any order. They
+      are identified by their names.
+
+      If any parameter `par` has the field `get<0>(par)` in `false`,
+      then the calculations is not performed and the exception
+      `ParameterNameNotSet` is thrown.
+
+      @param[in] pair_list a list of pairs everyone containing the
+      parameters.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked. By default, this parameter has the value `true`.
+      @return A VtlQuantity object corresponding to the computed value
+      of the correlation.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+      @exception ParameterNameNotFound if a parameter name does not
+      match with the specified name.
+      @exception ParameterNameNotSet if any parameter has the field
+      `get<0>(par)` in `false`. 
+   */  
   VtlQuantity compute_by_names(const DynList<NamedPar> & pair_list,
 			       bool check = true) const
   {
@@ -1241,6 +1291,41 @@ public:
     return compute(vals, check);
   }
 
+  /** Compute correlation by receiving a `ParList` object.
+
+      This is the fastest way for computing a correlation using
+      parameters by name. 
+
+      The `ParList` object must contain the parameters of type
+      `ParPair`. A `ParPair` is defined as a `pair<string, ValPair>`
+      where the first field corresponds to the parameter name and the
+      second field is another pair defined as `pair<double, const
+      Unit*>`, where the first field is the parameter value and the
+      second field is the parameter unit.
+
+      
+
+      In this method the parameters list could be in any order. They
+      are identified by their names.
+
+      If any parameter `par` has the field `get<0>(par)` in `false`,
+      then the calculations is not performed and the exception
+      `ParameterNameNotSet` is thrown.
+
+      @param[in] pair_list a list of pairs everyone containing the
+      parameters.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked. By default, this parameter has the value `true`.
+      @return A VtlQuantity object corresponding to the computed value
+      of the correlation.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+      @exception ParameterNameNotFound if a parameter name does not
+      match with the specified name.
+      @exception ParameterNameNotSet if any parameter has the field
+      `get<0>(par)` in `false`. 
+   */  
   VtlQuantity
   compute_by_names(const ParList & par_list, bool check = true) const
   {
