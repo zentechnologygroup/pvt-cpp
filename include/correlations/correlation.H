@@ -1167,7 +1167,7 @@ public:
       range.
       @exception ParameterNameNotFound if a parameter name does not
       match with the specified name.
-   */  
+   */
   VtlQuantity
   compute_by_names(const DynList<ParByName> & pair_list,
 		   bool check = true) const
@@ -1316,7 +1316,7 @@ public:
       match with the specified name.
 
       @see ParList
-   */  
+   */
   VtlQuantity
   compute_by_names(const ParList & par_list, bool check = true) const
   {
@@ -1408,8 +1408,8 @@ public:
   }
 
   /** Compute the correlation receiving a list of `VtlQuantity`s,
-      check if the return satisfies the specified result bounds and
-      then applies a linear tuning.
+      check if the return value satisfies the specified result bounds,
+      and then applies a linear tuning.
 
       @param[in] pars a list of `VtlQuantity` objects containing the
       correlation parameters in the same order.
@@ -1435,6 +1435,36 @@ public:
     return tune(compute(pars, check), c, m, tuned_unit);
   }
 
+  /** Not throwing and tuned version of `compute()`.
+
+      Regarding the received parameters, this function is equivalent
+      to `compute()`. The big difference is that this method does not
+      throw any exception. Instead, this method returns a quadruple
+      whose structure is as follows:
+
+      1. `get<0>(result)`: a double containing the result. This value
+      is valid if there was no error.
+
+      2. `get<1>(result)`: a string with the name of unit result.
+
+      3. `get<2>(result)`: a boolean value indicating if the
+      correlation was correctly computed. `true` value indicates that
+      everything was okay. Otherwise an error occurred and the `false`
+      value is set.
+
+      4. `get<3>(result)`: if an error was detected, then this filed
+      contains a string describing the error. Otherwise the string is empty.
+
+      @param[in] pars a list of `VtlQuantity` objects containing the
+      correlation parameters in the same order.
+      @param[in] c the tuning c parameter.
+      @param[in] m the tuning m parameter.
+      @param[in] tuned_unit the unit used when the tuning was done.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked. By default, this parameter has the value `true`.
+      @return a `tuple<double, string, bool, string>` containing the
+      all the necessary information about the operation.
+   */
   tuple<double, string, bool, string>
   tuned_execute(DynList<VtlQuantity> & pars, double c, double m,
 		const Unit & tuned_unit, bool check = true) const
@@ -1443,6 +1473,24 @@ public:
     return make_tuple(r.raw(), unit.name, true, "");
   }
 
+  /** Compute the correlation receiving a list of doubles, without
+      their units, and applying a linear tuning.
+
+      @param[in] values list of doubles expressing the correlation
+      parameters separated with comma in the same specification order.
+      @param[in] c the tuning c parameter.
+      @param[in] m the tuning m parameter.
+      @param[in] tuned_unit the unit used when the tuning was done.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked.
+      @return a double value expressing the result in the
+      implementation unit.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+      @exception InvalidNumberOfParameters if the size of parameter
+      list is less than the number of expected parameters.
+   */
   double tuned_compute(const DynList<double> & values, double c, double m,
 		       const Unit & tuned_unit, bool check = true) const
   {
@@ -1468,6 +1516,31 @@ public:
     return ret.raw();
   }
 
+  /** Compute a correlation by receiving an unsorted list of pairs
+      par-name,value and applies a linear tuning.
+
+      In this method the parameters list could be in any order. They
+      are identified by their names.
+
+      Note that in this version the units are not considered. It is
+      assumed that every parameter is specified in the same unit in
+      which this was specified.      
+
+      @param[in] pair_list a list of pairs everyone containing the
+      parameter value and its name.
+      @param[in] c the tuning c parameter.
+      @param[in] m the tuning m parameter.
+      @param[in] tuned_unit the unit used when the tuning was done.
+      @param[in]check indicates whether the parameter bounds must be
+      or not checked. By default, this parameter has the value `true`.
+      @return A VtlQuantity object corresponding to the computed value
+      of the correlation.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+      @exception ParameterNameNotFound if a parameter name does not
+      match with the specified name.
+    */  
   VtlQuantity
   tuned_compute_by_names(const DynList<ParByName> & pair_list,
 			 double c, double m, const Unit & tuned_unit,
@@ -1476,6 +1549,33 @@ public:
     return tune(compute_by_names(pair_list, check), c, m, tuned_unit);
   }
 
+  /** Compute a correlation by receiving an unsorted list of `NamedPar`
+      objects and applies a linear tuning.
+
+      In this method the parameters list could be in any order. They
+      are identified by their names.
+
+      If any parameter `par` has the field `get<0>(par)` in `false`,
+      then the calculations is not performed and the exception
+      `ParameterNameNotSet` is thrown.
+
+      @param[in] pair_list a list of pairs everyone containing the
+      parameters.
+      @param[in] c the tuning c parameter.
+      @param[in] m the tuning m parameter.
+      @param[in] tuned_unit the unit used when the tuning was done.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked. By default, this parameter has the value `true`.
+      @return A VtlQuantity object corresponding to the computed value
+      of the correlation.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+      @exception ParameterNameNotFound if a parameter name does not
+      match with the specified name.
+      @exception ParameterNameNotSet if any parameter has the field
+      `get<0>(par)` in `false`. 
+   */
   VtlQuantity
   tuned_compute_by_names(const DynList<NamedPar> & pair_list,
 			 double c, double m, const Unit & tuned_unit,
@@ -1484,6 +1584,36 @@ public:
     return tune(compute_by_names(pair_list, check), c, m, tuned_unit);
   }
 
+  /** Compute correlation by receiving a `ParList` object, and then
+      applies a linear tuning.
+
+      This is the fastest way for computing a correlation using
+      parameters by name. 
+
+      The `ParList` object must contain the parameters of type
+      `ParPair`. A `ParPair` is defined as a `pair<string, ValPair>`
+      where the first field corresponds to the parameter name and the
+      second field is another pair defined as `pair<double, const
+      Unit*>`, where the first field is the parameter value and the
+      second field is the parameter unit.
+
+      @param[in] pair_list a `ParList` object containing the
+      parameters.
+      @param[in] c the tuning c parameter.
+      @param[in] m the tuning m parameter.
+      @param[in] tuned_unit the unit used when the tuning was done.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked. By default, this parameter has the value `true`.
+      @return A VtlQuantity object corresponding to the computed value
+      of the correlation.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+      @exception ParameterNameNotFound if a parameter name does not
+      match with the specified name.
+
+      @see ParList
+   */
   VtlQuantity
   tuned_compute_by_names(const ParList & par_list,
 			 double c, double m, const Unit & tuned_unit,
@@ -1492,6 +1622,40 @@ public:
     return tune(compute_by_names(par_list, check), c, m, tuned_unit);
   }
 
+  /** Compute the correlation by receiving an unsorted list of pairs
+      par-name,value, applies a linear tuning and check for specified
+      bounds. 
+
+      First this method performs everything what
+      `tuned_compute_by_names()` does and then check the result
+      against an interval. If the result is out of interval, then,
+      instead of throwing exception, the result is rounded to the
+      nearest end of interval.
+
+      In this method the parameters list could be in any order. They
+      are identified by their names.
+
+      Note that in this version the units are not considered. It is
+      assumed that every parameter is specified in the same unit in
+      which this was specified.      
+
+      @param[in] pair_list a list of pairs everyone containing the
+      parameter value and its name.
+      @param[in] min_val minimum value of interval.
+      @param[in] max_val maximum value of interval.
+      @param[in] c the tuning c parameter.
+      @param[in] m the tuning m parameter.
+      @param[in] tuned_unit the unit used when the tuning was done.
+      @param[in]check indicates whether the parameter bounds must be
+      or not checked. By default, this parameter has the value `true`.
+      @return A VtlQuantity object corresponding to the computed value
+      of the correlation.
+      @exception bad_alloc if there is not enough memory.
+      @exception OutOfParameterRange if any parameter is out of its
+      range.
+      @exception ParameterNameNotFound if a parameter name does not
+      match with the specified name.
+   */
   VtlQuantity
   bounded_tuned_compute_by_names(const DynList<ParByName> & par_list,
 				 const VtlQuantity & min_val,
