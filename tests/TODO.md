@@ -95,3 +95,6 @@
 ## 32. en doc se deben recuperar las referencias completas y no las tags
 - Created at   2018-01-25 16:47:42 -0400
 
+## 33. script que lea refs y genere archivo doxygen con sus etiquetas
+- Created at   2018-01-25 19:42:51 -0400
+
