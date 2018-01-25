@@ -2656,3 +2656,69 @@
 - Comment      
 - Finished     
 
+## 444. filtrar por prioridad
+- Created at   2018-01-17 15:37:12 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 445. generar csv
+- Created at   2018-01-10 17:04:07 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 446. falta horas miembros en cada actividad
+- Created at   2018-01-10 17:03:50 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 447. falta nivel prioridad en goal
+- Created at   2018-01-10 17:03:24 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 448. lista de tareas por persona
+- Created at   2018-01-10 16:55:48 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 449. lista de fechas milestone
+- Created at   2018-01-10 16:55:38 -0400
+- Completed at 
+- Comment      
+- Finished     
+
+## 450. option make para generar documentacion
+- Created at   2018-01-23 12:46:25 -0400
+- Completed at 2018-01-25 16:47:58 -0400
+- Comment      
+- Finished     
+
+## 451. estimación de horas por semana a cada meta
+- Created at   2018-01-10 16:55:00 -0400
+- Completed at 2018-01-25 16:48:30 -0400
+- Comment      
+- Finished     
+
+## 452. diagrama topologico
+- Created at   2018-01-10 16:54:43 -0400
+- Completed at 2018-01-25 16:48:34 -0400
+- Comment      
+- Finished     
+
+## 453. par npar NPAR y otro de cplot deben ir en par-list
+- Created at   2018-01-24 11:04:03 -0400
+- Completed at 2018-01-25 16:49:12 -0400
+- Comment      
+- Finished     
+
+## 454. validar fechas start versus dependencia
+- Created at   2018-01-19 17:52:52 -0400
+- Completed at 2018-01-25 16:49:38 -0400
+- Comment      
+- Finished     
+

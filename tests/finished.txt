@@ -441,3 +441,14 @@ doc de opcion filter y nfilter,2017-12-14 17:12:21 -0400,2017-12-15 16:16:48 -04
 cuando se compile en backend se sube automáticamente al servidor segun la brach,2017-11-24 11:31:15 -0400,2017-12-15 16:17:55 -0400,,2017-12-15 16:17:59 -0400
 cplot tuner ztuner test-corr deben atraar execpciones en main  e imprimir error,2017-10-09 17:05:38 -0400,2017-12-15 16:18:48 -0400,,2017-12-15 16:18:51 -0400
 generar el grid directamente desde ttuner,2017-12-15 16:13:08 -0400,2017-12-15 16:48:03 -0400,,2017-12-15 16:48:08 -0400
+filtrar por prioridad,2018-01-17 15:37:12 -0400,,,2018-01-25 16:48:05 -0400
+generar csv,2018-01-10 17:04:07 -0400,,,2018-01-25 16:48:09 -0400
+falta horas miembros en cada actividad,2018-01-10 17:03:50 -0400,,,2018-01-25 16:48:13 -0400
+falta nivel prioridad en goal,2018-01-10 17:03:24 -0400,,,2018-01-25 16:48:17 -0400
+lista de tareas por persona,2018-01-10 16:55:48 -0400,,,2018-01-25 16:48:21 -0400
+lista de fechas milestone,2018-01-10 16:55:38 -0400,,,2018-01-25 16:48:24 -0400
+option make para generar documentacion,2018-01-23 12:46:25 -0400,2018-01-25 16:47:58 -0400,,2018-01-25 16:48:52 -0400
+estimación de horas por semana a cada meta,2018-01-10 16:55:00 -0400,2018-01-25 16:48:30 -0400,,2018-01-25 16:48:54 -0400
+diagrama topologico,2018-01-10 16:54:43 -0400,2018-01-25 16:48:34 -0400,,2018-01-25 16:48:56 -0400
+par npar NPAR y otro de cplot deben ir en par-list,2018-01-24 11:04:03 -0400,2018-01-25 16:49:12 -0400,,2018-01-25 16:49:15 -0400
+validar fechas start versus dependencia,2018-01-19 17:52:52 -0400,2018-01-25 16:49:38 -0400,,2018-01-25 16:49:40 -0400

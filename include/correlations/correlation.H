@@ -234,6 +234,8 @@ public:
     related to compute the bubble point are of subtype
     `BubblePointPressure`.
 
+    @see Declare_Correlation_Type, Declare_Correlation_Subtype
+
     @ingroup Correlations
     @author Leandro Rabindranath Leon
  */
@@ -1946,7 +1948,35 @@ inline Correlation::NamedPar npar(const string & name,
   return Correlation::NamedPar(true, name, get<2>(par), get<3>(par));
 }
 
-// macro that constructs a parameter by name with name par from a VtlQuantity
+/** Macro that constructs a parameter by name homonym to a
+    `VtlQuantity` variable name. 
+
+    Example of use
+    --------------
+
+    Let's suppose variables representing temperature, gor, yg and
+    yo. Some such as:
+
+        Quantity<Fahrenheit> t = // temperature
+	Quantity<Sgg> yg = ...
+	Quantity<SCF_STB> rsb = ...
+	Quantity<Sg_do> yo = ...
+
+    Now, we could compute the PbAlMarhoun correlation thus:
+
+        corr_ptr->compute_by_names(true, NPAR(t), NPAR(yg), NPAR(rsb), NPAR(yo));
+
+    Every instance of `NPAR` macro generates a rvalue variable of type
+    `ParPair` with the same name of the variable.
+
+    @param[in] par variable of type `VtlQuantity` or `Quantity`
+    representing some physical magnitude required to compute the
+    correlation. 
+
+    @ingroup Correlations
+    @author Leandro Rabindranath Leon
+   */
+
 # define NPAR(par) npar(#par, par)
 
 
@@ -1969,6 +1999,19 @@ inline Correlation::~Correlation() {}
 									\
   inline type_name::~type_name() {}
 
+/** Declare a correlation type.
+
+    This macro generates an entire class definition derived from
+    `Correlation` class. The idea is to define a family of correlation
+    subtypes.
+
+    @param[in] type_name name of type of correlation.
+
+    @see Correlation, 
+
+    @ingroup Correlations, Declare_Correlation_Subtype
+    @author Leandro Rabindranath Leon
+   */
 # define Declare_Correlation_Type(type_name)	\
   Header_Correlation_Type(type_name, false)
 
@@ -1982,6 +2025,27 @@ Declare_Correlation_Type(GasCorrelation);
 Declare_Correlation_Type(GasFunction);
 Declare_Correlation_Type(WaterCorrelation);
 
+/** Declare a correlation subtype.
+
+    This macro generates an entire class definition derived from a
+    type of correlation. The idea is to define a family of
+    correlations according to a specific physical property. For
+    example, the class `BubblePointPressure', which is of type
+    `OilCorrelation`, is defined through this method and represents
+    the family of correlations estimating the bubble point.
+
+    @param[in] subtype_name name of subtype of correlation.
+    @param[in] type_name name of correlation type from which
+    `subtype_name` will derive.
+    @param[in] symbol string describing the LaTeX symbol to be used
+    for representing the physical property associated to the
+    correlation family.
+
+    @see Correlation, 
+
+    @ingroup Correlations, Declare_Correlation_Subtype
+    @author Leandro Rabindranath Leon
+ */
 # define Declare_Correlation_Subtype(subtype_name, type_name, symbol)	\
   struct subtype_name : public type_name				\
   {									\

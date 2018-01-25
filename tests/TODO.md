@@ -89,39 +89,9 @@
 ## 30. pasa familia de funciones genéricas que llaman a compute de cplot a correlatio dot H
 - Created at   2018-01-04 17:08:53 -0400
 
-## 31. diagrama topologico
-- Created at   2018-01-10 16:54:43 -0400
-
-## 32. estimación de horas por semana a cada meta
-- Created at   2018-01-10 16:55:00 -0400
-
-## 33. gantt general por individuo y por miembro
+## 31. gantt general por individuo y por miembro
 - Created at   2018-01-10 16:55:27 -0400
 
-## 34. lista de fechas milestone
-- Created at   2018-01-10 16:55:38 -0400
-
-## 35. lista de tareas por persona
-- Created at   2018-01-10 16:55:48 -0400
-
-## 36. falta nivel prioridad en goal
-- Created at   2018-01-10 17:03:24 -0400
-
-## 37. falta horas miembros en cada actividad
-- Created at   2018-01-10 17:03:50 -0400
-
-## 38. generar csv
-- Created at   2018-01-10 17:04:07 -0400
-
-## 39. filtrar por prioridad
-- Created at   2018-01-17 15:37:12 -0400
-
-## 40. validar fechas start versus dependencia
-- Created at   2018-01-19 17:52:52 -0400
-
-## 41. option make para generar documentacion
-- Created at   2018-01-23 12:46:25 -0400
-
-## 42. par npar NPAR y otro de cplot deben ir en par-list
-- Created at   2018-01-24 11:04:03 -0400
+## 32. en doc se deben recuperar las referencias completas y no las tags
+- Created at   2018-01-25 16:47:42 -0400
 

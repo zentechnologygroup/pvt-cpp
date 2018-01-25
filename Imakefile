@@ -9,3 +9,6 @@ SUBDIRS = include lib tests backend profile
 
 MakeSubdirs($(SUBDIRS))
 DependSubdirs($(SUBDIRS))
+
+doc:
+	./build-doc
