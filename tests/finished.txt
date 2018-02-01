@@ -453,3 +453,5 @@ diagrama topologico,2018-01-10 16:54:43 -0400,2018-01-25 16:48:34 -0400,,2018-01
 par npar NPAR y otro de cplot deben ir en par-list,2018-01-24 11:04:03 -0400,2018-01-25 16:49:12 -0400,,2018-01-25 16:49:15 -0400
 validar fechas start versus dependencia,2018-01-19 17:52:52 -0400,2018-01-25 16:49:38 -0400,,2018-01-25 16:49:40 -0400
 gantt general por individuo y por miembro,2018-01-10 16:55:27 -0400,,,2018-01-27 11:31:23 -0400
+script que lea refs y genere archivo doxygen con sus etiquetas,2018-01-25 19:42:51 -0400,2018-02-01 15:51:08 -0400,,2018-02-01 15:51:13 -0400
+en doc se deben recuperar las referencias completas y no las tags,2018-01-25 16:47:42 -0400,2018-02-01 15:51:22 -0400,,2018-02-01 15:51:24 -0400

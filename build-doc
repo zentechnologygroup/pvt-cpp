@@ -1,5 +1,4 @@
 #!/bin/bash
-
 rm -rf html latex
 doxygen pvt.txt
 

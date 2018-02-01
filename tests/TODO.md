@@ -89,9 +89,6 @@
 ## 30. pasa familia de funciones genéricas que llaman a compute de cplot a correlatio dot H
 - Created at   2018-01-04 17:08:53 -0400
 
-## 31. en doc se deben recuperar las referencias completas y no las tags
-- Created at   2018-01-25 16:47:42 -0400
-
-## 32. script que lea refs y genere archivo doxygen con sus etiquetas
-- Created at   2018-01-25 19:42:51 -0400
+## 31. generar doc para call y demás
+- Created at   2018-02-01 17:05:32 -0400
 

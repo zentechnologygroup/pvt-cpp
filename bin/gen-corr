@@ -68,7 +68,11 @@ class CorrelationGen
     @vars = []
   end
 
-  def doxy
+  def put_doxy_pars
+    @pars.map {|p| "#{p.doxy}" }.join "\n"
+  end
+
+  def doxy(internal = false)
     s = "/** #{@name}\n"\
         "\n"\
         "#{@title}\n"\
@@ -77,7 +81,7 @@ class CorrelationGen
     s += "\n"
     s += @doc if @doc
     @db.each { |note| s += "#{note.ljust(60)}\n\n" }
-    @internal_notes.each { |note| s += "#{note.ljust(60)}\n\n" }
+    @internal_notes.each { |note| s += "#{note.ljust(60)}\n\n" } if internal
     s += "Formula(s):\n"\
          "-----------\n"\
          "\n"
@@ -94,9 +98,9 @@ class CorrelationGen
         s += "  - Tag #{tag} not found\n"
       end
     end
-    s += "\n\n"
-    @pars.each {|p| s += "#{p.doxy}\n" }
-    s += "@return inside [#{@min}, #{@max}]\n"\
+    s += "\n\n"\
+         "#{put_doxy_pars}\n"\
+         "@return inside [#{@min}, #{@max}]\n"\
          "@ingroup Correlations\n"\
          "\n"\
          "\n"\
@@ -330,8 +334,8 @@ class CorrelationGen
     "double #{@name}__correlation__valid__fct #{gen_doubles}"
   end
 
-  def gen_class
-    s = "#{doxy}\n"\
+  def gen_class(internal = false)
+    s = "#{doxy(internal)}\n"\
         "class #{@name} : public #{@subtype}\n" \
         "{\n"\
         "Correlation_Singleton(#{@name});\n"\
@@ -517,10 +521,10 @@ def gen_extern_impl
   s
 end
 
-def gen_correlations
+def gen_correlations(internal = false)
   s = ""
   $corr_list.each do |corr|
-    s += corr.gen_class + "\n\n"
+    s += corr.gen_class(internal) + "\n\n"
   end
   s
 end
@@ -562,6 +566,10 @@ options_parser = OptionParser.new do |opts|
 
   opts.on('-n', '--par-names', 'print union of all parameter names') do
     options[:par_names] = true
+  end
+
+  opts.on('-i', 'put internal notes') do 
+    options[:internal] = true
   end
   
 end
@@ -606,7 +614,7 @@ if options[:header]
        "# include <pvt-exceptions.H>\n"\
        "# include <correlations/correlation.H>\n"\
        "\n"\
-       "#{gen_correlations}\n"\
+       "#{gen_correlations(options:[:internal])}\n"\
        "\n"\
        " # endif // #{guard_name}"  
   exit
@@ -634,11 +642,6 @@ end
 corr_name = options[:corr_name]
 if corr_name
   corr = search_corr(corr_name)
-  # File.open('tmp', "w+").write("#{corr.gen_impl}")
-  # stdout, stderr, exit_status = Open3.capture3('cat tmp')
-  # puts stdout
-  # puts stderr
-  # puts exit_status
   puts "#{corr.gen_impl}\n"\
        "\n"
   exit
