@@ -61,6 +61,7 @@ options_parser = OptionParser.new do |opts|
   opts.on('-S', '--style style', 'citation style') do |style|
     options[:style] = style
   end
+    
 end
 
 options_parser.parse!
@@ -74,6 +75,7 @@ $bib_db = BibTeX.open(file_name)
 
 header = options[:header]
 source = options[:source]
+biblio = options[:biblio]
 
 raise "Options -H and -C are excluding" if header && source
 

@@ -89,12 +89,9 @@
 ## 30. pasa familia de funciones genéricas que llaman a compute de cplot a correlatio dot H
 - Created at   2018-01-04 17:08:53 -0400
 
-## 31. gantt general por individuo y por miembro
-- Created at   2018-01-10 16:55:27 -0400
-
-## 32. en doc se deben recuperar las referencias completas y no las tags
+## 31. en doc se deben recuperar las referencias completas y no las tags
 - Created at   2018-01-25 16:47:42 -0400
 
-## 33. script que lea refs y genere archivo doxygen con sus etiquetas
+## 32. script que lea refs y genere archivo doxygen con sus etiquetas
 - Created at   2018-01-25 19:42:51 -0400
 

@@ -2722,3 +2722,9 @@
 - Comment      
 - Finished     
 
+## 455. gantt general por individuo y por miembro
+- Created at   2018-01-10 16:55:27 -0400
+- Completed at 
+- Comment      
+- Finished     
+

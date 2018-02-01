@@ -25,7 +25,7 @@ using Json = nlohmann::json;
 
 /** Vector to be used for defining properties depending on the pressure.
    
-   @ingroup Correlations
+   @ingroup Tuning
    @author Leandro Rabindranath Leon
 */
 struct VectorDesc
@@ -365,8 +365,10 @@ struct VectorDesc
 
   string py_string() const
   {
-    return join(zip_maps<string>([] (auto t) { return "(" + ::to_string(get<0>(t))
-	    + ", " + ::to_string(get<1>(t)) + ")"; }, p, y), ", ");
+    return join(zip_maps<string>([] (auto t)
+				 { return "(" + ::to_string(get<0>(t))
+				     + ", " + ::to_string(get<1>(t)) +
+				     ")"; }, p, y), ", ");
   }
 
   string ctor_msg() const { return yname + "(" + ::to_string(t) + "): "; }
@@ -484,6 +486,11 @@ struct VectorDesc
   }
 };
 
+/** 
+   
+   @ingroup Tuning
+   @author Leandro Rabindranath Leon
+*/
 struct ConstDesc
 {
   const string name = "no-name";
@@ -539,6 +546,11 @@ struct ConstDesc
 
 constexpr size_t Dim_Pars_List = 100;
 
+/** 
+   
+   @ingroup Tuning
+   @author Leandro Rabindranath Leon
+*/
 struct PvtData
 {
   DynSetTree<ConstDesc> const_values; // indexed and sorted by name
