@@ -209,8 +209,15 @@ class CorrelationGen
   end
 
   def gen_impl_declaration
-    s = "static inline double impl"
-    s += gen_doubles + 'noexcept'
+    s = "/** Correlation implementation.\n"\
+        "\n"
+    @pars.each do |par|
+      s += "param[in] #{par.name} represented as double in #{par.unit} unit.\n"
+    end
+    s += "@return the correlation result expressed in #{@unit}.\n"\
+         "\n"\
+         "*/\n"\
+         "static inline double impl#{gen_doubles} noexcept"
   end
 
   def gen_call_declaration
@@ -231,6 +238,15 @@ class CorrelationGen
     s += "));\n"\
          "}\n"\
          "\n"\
+         "/** Correlation calculation using validation of parameters ranges.\n"\
+         "\n"\
+         "validate_and_call() review each parameter, eventually convert it\n"\
+         "to the expected unit, and verifies if the parameter is inside of\n"\
+         "correlation range.\n"\
+         "\n"\
+         "#{put_doxy_pars}\n"\
+         "@return inside [#{@min}, #{@max}]\n"\
+         "*/\n"\
          "#{impl_type} validate_and_call(#{gen_pars}) const\n"\
          "{\n"
     @pars.each do |par|
@@ -249,7 +265,8 @@ class CorrelationGen
   end
 
   def gen_par_operator
-    s = "#{impl_type} operator () (#{gen_pars}) const\n"\
+    s = "/// \overload call.\n"\
+        "#{impl_type} operator () (#{gen_pars}) const\n"\
         "{\n"
     s += "  return #{impl_type}(call("
     @pars.each do |par|
@@ -320,7 +337,34 @@ class CorrelationGen
   end
 
   def gen_compute
-    s = "virtual VtlQuantity compute(const DynList<VtlQuantity> & pars,\n"\
+    s = "/** compute() specialization\n"\
+        "\n"\
+        "This is the correlation specialization of virtual method defined in\n"\
+        "Correlation base class.\n"\
+        "\n"\
+        "This method receives a list `pars` of `VtlQuantity` objects\n"\
+        "containing the parameters and their units. The order of\n"\
+        "parameter list must exactly match with the specified and\n"\
+        "expected order in the correlation implementation.\n"\
+        "\n"\
+        "The parameter `check` specifies whether the parameters bounds\n"\
+        "are or not verified. If `check` is `true`, then each parameter\n"\
+        "range is check respect a the correlation\n"\
+        "specification. Otherwise no one check is done and the\n"\
+        "correlation is computed without any previous checking.\n"\
+        "\n"\
+        "This method does not check whether the return value is or not\n"\
+        "bound to any specified interval. If you want to do get that,\n"\
+        "then use `compute_and_check()` method instead of this method. \n"\
+        "\n"\
+        "param[in] pars a list of `VtlQuantity` objects containing the\n"\
+        "correlation parameters in the same order.\n"\
+        "@param[in] check indicates whether the parameter bounds must be\n"\
+        "or not checked. By default, this parameter has the value `true`.\n"\
+        "@return A VtlQuantity object corresponding to the computed value\n"\
+        "of the correlation.\n"\
+        "*/\n"\
+        "virtual VtlQuantity compute(const DynList<VtlQuantity> & pars,\n"\
         "bool check = true) const\n"\
         "{\n"\
         "   if (check)\n"\
