@@ -91,4 +91,8 @@
 
 ## 31. generar doc para call y demás
 - Created at   2018-02-01 17:05:32 -0400
+- Completed at 2018-02-02 16:46:53 -0400
+
+## 32. auto 2 con inputing de t para viernes 9
+- Created at   2018-02-02 16:47:12 -0400
 

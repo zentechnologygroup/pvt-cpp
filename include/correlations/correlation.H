@@ -2019,7 +2019,22 @@ inline Correlation::~Correlation() {}
   Header_Correlation_Type(type_name, true)
 
 Declare_Hidden_Correlation_Type(TmpFunction)
+
+/** Deterministic oil functions.
+
+    This class define an entire family of deterministic functions
+    associated to oil as fluid.
+   
+   @author Leandro Rabindranath Leon
+   @ingroup Correlations
+ */
 Declare_Correlation_Type(OilFunction)
+
+/** Correlation 
+
+    \class OilCorrelation
+    @ingroup Correlations
+ */
 Declare_Correlation_Type(OilCorrelation);
 Declare_Correlation_Type(GasCorrelation);
 Declare_Correlation_Type(GasFunction);
@@ -2136,6 +2151,10 @@ auto tuned_direct_impl(const Correlation & corr_ptr, double c, double m,
 Declare_Correlation_Subtype(TmpCorrelation, TmpFunction, "");
 
     // correlations & functions associated to oil
+/**
+   \class BubblePointPressure
+   @ingroup Correlations
+ */
 Declare_Correlation_Subtype(BubblePointPressure, OilCorrelation, "P_b");
 Declare_Correlation_Subtype(SolutionGasOilRelation, OilCorrelation, "R_s");
 Declare_Correlation_Subtype(UndersaturatedOilVolumeFactor,

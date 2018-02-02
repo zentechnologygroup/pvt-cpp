@@ -100,7 +100,7 @@ class CorrelationGen
     end
     s += "\n\n"\
          "#{put_doxy_pars}\n"\
-         "@return inside [#{@min}, #{@max}]\n"\
+         "@return computed value inside [#{@min}, #{@max}]\n"\
          "@ingroup Correlations\n"\
          "\n"\
          "\n"\
@@ -210,9 +210,12 @@ class CorrelationGen
 
   def gen_impl_declaration
     s = "/** Correlation implementation.\n"\
+        "\n"\
+        "The code of this implementation is located at the file\n"\
+        "#{$guard_name}-impl.H\n"\
         "\n"
     @pars.each do |par|
-      s += "param[in] #{par.name} represented as double in #{par.unit} unit.\n"
+      s += "@param[in] #{par.name} represented as double in #{par.unit} unit.\n"
     end
     s += "@return the correlation result expressed in #{@unit}.\n"\
          "\n"\
@@ -225,7 +228,7 @@ class CorrelationGen
         "using automatic unit conversions\n"\
         "\n"\
         "#{put_doxy_pars}\n"\
-        "@return inside [#{@min}, #{@max}]\n"\
+        "@return computed value inside [#{@min}, #{@max}]\n"\
         "*/\n"\
         "#{impl_type} call(#{gen_pars}) const\n"\
         "{\n"
@@ -245,7 +248,7 @@ class CorrelationGen
          "correlation range.\n"\
          "\n"\
          "#{put_doxy_pars}\n"\
-         "@return inside [#{@min}, #{@max}]\n"\
+         "@return compute value inside [#{@min}, #{@max}]\n"\
          "*/\n"\
          "#{impl_type} validate_and_call(#{gen_pars}) const\n"\
          "{\n"
@@ -642,6 +645,8 @@ end
 
 load file
 
+$guard_name = File.basename file, '.rb'
+
 if options[:par_names]
   puts $pars_set.entries.join ', '
   exit
@@ -705,7 +710,6 @@ if eq
   exit
 end
 
-guard_name = File.basename file, '.rb'
 header_name = guard_name + ".H"
 guard_name += "_impl_H"
 guard_name.gsub! '-', '_'
