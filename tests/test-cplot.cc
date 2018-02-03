@@ -1,5 +1,5 @@
 
-# include <correlations/cplot.H>
+# include <correlations/correlation-invoker.H>
 
 void test()
 {

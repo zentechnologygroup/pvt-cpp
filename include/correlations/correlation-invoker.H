@@ -22,24 +22,44 @@ struct CorrelationInvoker
 
   /*********** The following attributes define fluid properties */
 
-  VtlQuantity api;
-  VtlQuantity rsb;
-  VtlQuantity yg;
-  VtlQuantity tsep;
-  VtlQuantity tsep2;
-  VtlQuantity psep;
-  VtlQuantity ogr;
-  VtlQuantity n2;
-  VtlQuantity co2;
-  VtlQuantity h2;
-  VtlQuantity nacl;
+# define CONSTANT_PAR(__name, __unit)			\
+  VtlQuantity __name;					\
+  const Unit * __name##_unit = &__unit::get_instance();	\
+							\
+  void set_##name(double val, const Unit & unit)	\
+  {							\
+    if (not unit.is_sibling(*__name##_unit))		\
+      ZENTHROW(UnitNotFound, "unit " + unit.name + " is not for " +	\
+	       __name##_unit->physical_quantity.name);			\
+    __name = VtlQuantity(unit, val);					\
+  }
 
-  void test_parameter(const DynList<pair<string, DynList<string>>> & required,
-		      const string & name, const Unit * unit_ptr)
-  {
-    if ((required.exists([&par] (const auto & p) { return p.first == get<1>(par) or
-      p.second.exists([&par] (const auto & s) { return s == get<1>(par); }); }))
-      }
+  CONSTANT_PAR(api, Api);
+  CONSTANT_PAR(rsb, SCF_STB);
+  CONSTANT_PAR(yg, Sgg);
+  CONSTANT_PAR(tsep, Fahrenheit);
+  CONSTANT_PAR(tsep2, Fahrenheit);
+  CONSTANT_PAR(psep, psia);
+  CONSTANT_PAR(ogr, STB_MMscf);
+  CONSTANT_PAR(n2, MolePercent);
+  CONSTANT_PAR(co2, MolePercent);
+  CONSTANT_PAR(h2s, MolePercent);
+  CONSTANT_PAR(nacl, Molality_NaCl);
+
+  /** Given a list of required parameters, this function tests if
+      `name` is inside. It this is the case, then `name` is inserted
+      in `pars_list`.
+
+      `required` parameter is a list of pairs. Each pair is composed
+      by the parameter name and a list of parameter alias.
+
+      This method is intended to be used for constant parameters.
+
+   */
+# define TEST_PARAMETER(required, name, value, unit_ptr)	\
+  if ((required.exists([&name](auto & p) { return p.first == name or	\
+	    p.second.exists([&name](auto & s) { return s == name; }); }))) \
+    pars_list.insert(name, value, unit_ptr)
 
   /**************** end of fluid properties parameters */
 
@@ -47,7 +67,7 @@ struct CorrelationInvoker
   {
     auto required_pars = DefinedCorrelation::parameter_list(l);
 				  
-    test_parameter(required_pars, api_par, pars_list);
+    TEST_PARAMETER(required_pars, #api, pars_list);
     test_parameter(required_pars, rsb_par, pars_list);
     test_parameter(required_pars, yg_par, pars_list);
     test_parameter(required_pars, tsep_par, pars_list);
