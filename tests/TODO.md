@@ -96,3 +96,9 @@
 ## 32. auto 2 con inputing de t para viernes 9
 - Created at   2018-02-02 16:47:12 -0400
 
+## 33. invoker solo debe recibir pars_list y no manejar los parametros
+- Created at   2018-02-03 17:11:44 -0400
+
+## 34. escribir test-invoker orientado a tests
+- Created at   2018-02-05 09:25:57 -0400
+

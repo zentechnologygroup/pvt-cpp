@@ -23,6 +23,50 @@ struct Cplot
     return Correlation::NamedPar(true, name, get<2>(par), get<3>(par));
   }
 
+  /*********** The following attributes define fluid properties */
+
+# define CONSTANT_PAR(__name, __unit)			\
+  VtlQuantity __name;					\
+  const Unit * __name##_unit = &__unit::get_instance();	\
+							\
+  void set_##__name(double val, const Unit & unit)	\
+  {							\
+    if (not unit.is_sibling(*__name##_unit))		\
+      ZENTHROW(UnitNotFound, "unit " + unit.name + " is not for " +	\
+	       __name##_unit->physical_quantity.name);			\
+    __name = VtlQuantity(unit, val);					\
+  }
+
+  CONSTANT_PAR(api, Api);
+  CONSTANT_PAR(rsb, SCF_STB);
+  CONSTANT_PAR(yg, Sgg);
+  CONSTANT_PAR(tsep, Fahrenheit);
+  CONSTANT_PAR(tsep2, Fahrenheit);
+  CONSTANT_PAR(psep, psia);
+  CONSTANT_PAR(ogr, STB_MMscf);
+  CONSTANT_PAR(n2, MolePercent);
+  CONSTANT_PAR(co2, MolePercent);
+  CONSTANT_PAR(h2s, MolePercent);
+  CONSTANT_PAR(nacl, Molality_NaCl);
+
+  /** Given a list of required parameters, this function tests if
+      `name` is inside. It this is the case, then `name` is inserted
+      in `pars_list`.
+
+      `required` parameter is a list of pairs. Each pair is composed
+      by the parameter name and a list of parameter alias.
+
+      This method is intended to be used for constant parameters.
+
+   */
+# define TEST_PARAMETER(required, name)					\
+  if ((required.exists([&name](auto & p) { return p.first == name or	\
+	    p.second.exists([&name](auto & s) { return s == name; }); }))) \
+    pars_list.insert(name, value, unit_ptr)
+
+  /**************** end of fluid properties parameters */
+
+
   // macro that constructs a parameter by name with name par from a VtlQuantity
 # define NPAR(par) npar(#par, par)
   

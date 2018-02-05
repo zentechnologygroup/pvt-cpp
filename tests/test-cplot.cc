@@ -3,7 +3,7 @@
 
 void test()
 {
-  Cplot test;
+  CorrelationInvoker ink;
 }
 
 int main(int argc, char *argv[])
