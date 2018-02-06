@@ -7,6 +7,20 @@
 
        ## Architectural guidelines
 
+       ### The target General Architecture
+
+       - Scalable
+       
+       - Secure
+
+       - Responsiveness
+
+       - Resiliency
+
+       ### The calculation engine library
+
+       ### Command
+
        ## Correlation engine
 
        ## Tuning

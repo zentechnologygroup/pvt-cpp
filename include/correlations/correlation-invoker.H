@@ -22,13 +22,17 @@ struct CorrelationInvoker
   const Unit * t_unit = nullptr;
   const Unit * p_unit = nullptr;
 
-  /**
+  /** Construct a correlation invoker.
 
+      @param[in] pars_list the parameter list object.
+      @param[in] __t_unit temperature unit.
+      @param[in] __p_unit pressure unit.
    */
   CorrelationInvoker(ParList & pars_list,
-		     const Unit * __t_unit, const Unit * __p_unit)
-    : pars_ptr(&pars_list), t_unit(__t_unit), p_unit(__p_unit) {}
+		     const Unit & __t_unit, const Unit & __p_unit)
+    : pars_ptr(&pars_list), t_unit(&__t_unit), p_unit(&__p_unit) {}
 
+  /// Reset the exceptions; the exception list is cleared.
   void reset_exceptions()
   {
     exception_list.empty();
@@ -62,6 +66,7 @@ public:
       the tuning was done.
       @param[in] check indicates whether the parameter bounds must be
       or not checked.
+      @param[in] args list of arguments to be passed to the correlation.
    */
   template <typename ... Args>
   VtlQuantity tcompute(const Correlation * corr_ptr, double c, double m,
@@ -87,7 +92,23 @@ public:
       }
     return VtlQuantity::null_quantity;
   }
-  
+
+  /** Bounded and tuned correlation calculation.
+
+      Compute the correlation value using a linear tuning and bound
+      the result to a specified interval.
+
+      @param[in] corr_ptr pointer to correlation.
+      @param[in] c tuning parameter.
+      @param[in] m tuning parameter.
+      @param[in]  tuned_unit a pointer to the unit that was used when
+      the tuning was done.
+      @param[in] min_val minimum value that the result may take.
+      @param[in] max_val maximum value that the result may take.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked.
+      @param[in] args list of arguments to be passed to the correlation.
+   */
   template <typename ... Args>
   VtlQuantity bcompute(const Correlation * corr_ptr,
 		       double c, double m, const Unit & tuned_unit,
@@ -117,6 +138,13 @@ public:
     return VtlQuantity::null_quantity;
   }
 
+  /** Simple correlation calculation.
+
+      @param[in] corr_ptr pointer to correlation.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked.
+      @param[in] args list of arguments to be passed to the correlation.
+   */
   template <typename ... Args>
   VtlQuantity compute(const Correlation * corr_ptr, bool check,
 		      const Args & ... args)
@@ -140,6 +168,15 @@ public:
     return VtlQuantity::null_quantity;
   }
 
+  /** Correlation calculation with abortion if an exception is thrown.
+
+      This method aborts the calling process if any exception is thrown.
+
+      @param[in] corr_ptr pointer to correlation.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked.
+      @param[in] args list of arguments to be passed to the correlation.
+   */
   template <typename ... Args>
   VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
 			  const Args & ... args)
@@ -206,6 +243,14 @@ private:
 
 public:
 
+  /** Calculation of composed correlation.
+
+      @param[in] corr reference to composed correlation.
+      @param[in] check indicates whether the parameter bounds must be
+      or not checked.
+      @param[in] p_q pressure value used for determining zone.
+      @param[in] args list of arguments to be passed to the correlation.
+   */
   template <typename ... Args>
   VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
 		       const VtlQuantity & p_q,
@@ -242,6 +287,13 @@ public:
   }
 };
 
+/** Define a variable name with the result of invoking a given correlation.
+
+    @param[in] 
+    @param[in] 
+    @param[in] 
+    @ingroup Correlations
+ */
 # define CALL(corr_name, var, args...)				\
   VtlQuantity var;						\
   try								\
@@ -249,7 +301,6 @@ public:
       if (CorrelationInvoker::valid_args(args))			\
 	var = corr_name::get_instance().call(args);		\
     }								\
-  /* catch (UnitConversionNotFound) {} */			\
   catch (exception & e)						\
     {								\
       store_exception(corr_name::get_instance().name, e);	\
