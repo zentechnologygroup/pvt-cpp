@@ -19,7 +19,8 @@ struct Invoker : public Test
 TEST_F(Invoker, SimpleNoExceptions)
 {
   auto corr_ptr = &PbAlMarhoun::get_instance();
-  auto ret = invoker.compute(corr_ptr, true, npar("yg", .8, Sgg::get_instance()),
+  auto ret = invoker.compute(corr_ptr, true,
+			     npar("yg", .8, Sgg::get_instance()),
 			     npar("yo", .9, Sg_do::get_instance()),
 			     npar("rsb", 100, SCF_STB::get_instance()),
 			     npar("t", 130, Fahrenheit::get_instance()));
@@ -30,7 +31,8 @@ TEST_F(Invoker, SimpleNoExceptions)
 TEST_F(Invoker, SimpleWithExceptions)
 {
   auto corr_ptr = &PbAlMarhoun::get_instance();
-  auto ret = invoker.compute(corr_ptr, true, npar("yg", .8, Sgg::get_instance()),
+  auto ret = invoker.compute(corr_ptr, true,
+			     npar("yg", .8, Sgg::get_instance()),
 			     npar("yo", .9, Sg_do::get_instance()),
 			     npar("rsb", 100, SCF_STB::get_instance()));
 
