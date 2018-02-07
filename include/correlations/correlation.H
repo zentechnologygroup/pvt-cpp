@@ -1930,9 +1930,23 @@ inline Correlation::NamedPar npar(const string & name, const BaseQuantity & p)
     @author Leandro Rabindranath Leon
  */
 inline Correlation::NamedPar
-npar(const string & name, double v, const Unit * unit)
+npar(const string & name, double v, const Unit & unit)
 {
-  return Correlation::NamedPar(true, name, v, unit);
+  return Correlation::NamedPar(true, name, v, &unit);
+}
+
+/** Build a `NamedPar`.
+
+    @param[in] name the name of parameter.
+    @param[in] v the value of parameter.
+    @param[in] unit a pointer to the unit used for representing the value.
+    @ingroup Correlations
+    @author Leandro Rabindranath Leon
+ */
+inline Correlation::NamedPar
+npar(const string & name, double v, const Unit * unit_ptr)
+{
+  return npar(name, v, *unit_ptr);
 }
 
 /** Build a copy of a `NamedPar` object.

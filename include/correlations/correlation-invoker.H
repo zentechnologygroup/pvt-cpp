@@ -16,21 +16,19 @@ struct CorrelationInvoker
 {
   bool report_exceptions = false;
   bool exception_thrown = false;
-  ParList * pars_ptr = nullptr;
+  ParList pars_list;
   DynList<string> exception_list;
   double pressure = 0, temperature = 0;
-  const Unit * t_unit = nullptr;
-  const Unit * p_unit = nullptr;
+  const Unit & t_unit;
+  const Unit & p_unit;
 
   /** Construct a correlation invoker.
 
-      @param[in] pars_list the parameter list object.
       @param[in] __t_unit temperature unit.
       @param[in] __p_unit pressure unit.
    */
-  CorrelationInvoker(ParList & pars_list,
-		     const Unit & __t_unit, const Unit & __p_unit)
-    : pars_ptr(&pars_list), t_unit(&__t_unit), p_unit(&__p_unit) {}
+  CorrelationInvoker(const Unit & __t_unit, const Unit & __p_unit)
+    : t_unit(__t_unit), p_unit(__p_unit) {}
 
   /// Reset the exceptions; the exception list is cleared.
   void reset_exceptions()
@@ -45,9 +43,36 @@ private:
   {
     exception_thrown = true;
     ostringstream s;
-    s << corr_name << ": " << temperature << " " << t_unit->name << ", "
-      << pressure << " " << p_unit->name << ": " << e.what() << endl;
+    s << corr_name << ": " << temperature << " " << t_unit.name << ", "
+      << pressure << " " << p_unit.name << ": " << e.what() << endl;
     exception_list.append(s.str());
+  }
+
+  /* Helper that meta-inserts par into pars_list but stops if any
+     parameter is invalid.
+
+     Returns true if all parameters were valid (!= Invalid_Value)
+
+     Otherwise the insertion stops at the first invalid parameter, the
+     parameters previously inserted in the list are deleted and false is
+     returned
+  */
+inline bool insert_in_pars_list(ParList&) { return true; }
+
+  template <typename ... Args> inline
+  bool insert_in_pars_list(ParList & pars_list, 
+			 const Correlation::NamedPar & par, const Args & ... args)
+  {
+    if (get<2>(par) == Unit::Invalid_Value)
+      return false;
+ 
+    pars_list.insert(par);
+    if (insert_in_pars_list(pars_list, args...))
+      return true;
+
+    pars_list.remove(par); // If recursive insertion fails ==> remove pair
+
+    return false;
   }
 
 public:
@@ -75,12 +100,12 @@ public:
   {
     try
       {
-	if (not insert_in_pars_list(*pars_ptr, args...))
+	if (not insert_in_pars_list(pars_list, args...))
 	  return VtlQuantity::null_quantity;
 
 	auto ret =
-	  corr_ptr->tuned_compute_by_names(*pars_ptr, c, m, tuned_unit, check);
-	remove_from_container(pars_ptr, args...);
+	  corr_ptr->tuned_compute_by_names(pars_list, c, m, tuned_unit, check);
+	remove_from_container(pars_list, args...);
 	return ret;
       }
     catch (exception & e)
@@ -88,7 +113,7 @@ public:
 	if (report_exceptions)
 	  store_exception(corr_ptr->name, e);
    
-	remove_from_container(*pars_ptr, args ...);
+	remove_from_container(pars_list, args ...);
       }
     return VtlQuantity::null_quantity;
   }
@@ -118,14 +143,14 @@ public:
   {
     try
       {
-	if (not insert_in_pars_list(*pars_ptr, args...))
+	if (not insert_in_pars_list(pars_list, args...))
 	  return VtlQuantity::null_quantity;
 
-	auto ret = corr_ptr->bounded_tuned_compute_by_names(*pars_ptr,
+	auto ret = corr_ptr->bounded_tuned_compute_by_names(pars_list,
 							    min_val, max_val,
 							    c, m, tuned_unit,
 							    check);
-	remove_from_container(*pars_ptr, args...);
+	remove_from_container(pars_list, args...);
 	return ret;
       }
     catch (exception & e)
@@ -133,7 +158,7 @@ public:
 	if (report_exceptions)
 	  store_exception(corr_ptr->name, e);
    
-	remove_from_container(*pars_ptr, args ...);
+	remove_from_container(pars_list, args ...);
       }
     return VtlQuantity::null_quantity;
   }
@@ -151,11 +176,11 @@ public:
   {
     try
       {
-	if (not insert_in_pars_list(*pars_ptr, args...))
+	if (not insert_in_pars_list(pars_list, args...))
 	  return VtlQuantity::null_quantity;
 
-	auto ret = corr_ptr->compute_by_names(*pars_ptr, check);
-	remove_from_container(*pars_ptr, args...);
+	auto ret = corr_ptr->compute_by_names(pars_list, check);
+	remove_from_container(pars_list, args...);
 	return ret;
       }
     catch (exception & e)
@@ -163,7 +188,7 @@ public:
 	if (report_exceptions)
 	  store_exception(corr_ptr->name, e);
    
-	remove_from_container(*pars_ptr, args ...);
+	remove_from_container(pars_list, args ...);
       }
     return VtlQuantity::null_quantity;
   }
@@ -183,16 +208,16 @@ public:
   {
     try
       {
-	if (not insert_in_pars_list(*pars_ptr, args...))
+	if (not insert_in_pars_list(pars_list, args...))
 	  return VtlQuantity::null_quantity;
 
-	auto ret = corr_ptr->compute_by_names(*pars_ptr, check);
-	remove_from_container(*pars_ptr, args...);
+	auto ret = corr_ptr->compute_by_names(pars_list, check);
+	remove_from_container(pars_list, args...);
 	return ret;
       }
     catch (exception & e)
       {
-	remove_from_container(*pars_ptr, args ...);
+	remove_from_container(pars_list, args ...);
 	cout << "ERROR initializing " << correlation_call(corr_ptr, args...)
 	     << "@ " << e.what();
 	abort();
@@ -232,11 +257,33 @@ private:
 			// Invalid_Value and would fail 
       }
  
-    pars_ptr->insert(par);
+    pars_list.insert(par);
     if (insert_in_pars_list(corr, p_q, args...))
       return true;
 
-    pars_ptr->remove(par); // If recursive insertion fails ==> remove par
+    pars_list.remove(par); // If recursive insertion fails ==> remove par
+    
+    return false;
+  }
+
+  template <typename ... Args>
+  bool insert_in_pars_list(const DefinedCorrelation & corr,
+			   const VtlQuantity & p_q,
+			   const string & name, const VtlQuantity & par,
+			   const Args & ... args)
+  {
+    if (par.raw() == Unit::Invalid_Value)
+      {
+	if (corr.search_parameters(p_q).contains(name))
+	  return false; // here the correlation would receive
+			// Invalid_Value and would fail 
+      }
+ 
+    pars_list.insert(name, par);
+    if (insert_in_pars_list(corr, p_q, args...))
+      return true;
+
+    pars_list.remove(name); // If recursive insertion fails ==> remove par
     
     return false;
   }
@@ -261,8 +308,8 @@ public:
  
     try
       {
-	auto ret = corr.compute_by_names(*pars_ptr, check);
-	remove_from_container(*pars_ptr, args ...);
+	auto ret = corr.compute_by_names(pars_list, check);
+	remove_from_container(pars_list, args ...);
 	return ret;
       }
     catch (UnitConversionNotFound) {}
@@ -281,7 +328,7 @@ public:
 	    store_exception("{ " + names + "}", e);
 	  }
 
-	remove_from_container(*pars_ptr, args ...);
+	remove_from_container(pars_list, args ...);
       }
     return VtlQuantity::null_quantity;
   }
@@ -289,9 +336,11 @@ public:
 
 /** Define a variable name with the result of invoking a given correlation.
 
-    @param[in] 
-    @param[in] 
-    @param[in] 
+    @param[in] corr_name name class defining the correlation. Note
+    that in this case, it is only the class name.
+    @param[in] var name of `VtlQuantity` variable where the result
+    will be put.
+    @param[in] args required arguments for correlation calculation.
     @ingroup Correlations
  */
 # define CALL(corr_name, var, args...)				\

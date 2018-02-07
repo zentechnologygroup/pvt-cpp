@@ -78,10 +78,15 @@ public:
     // empty
   }
 
+  void insert(const string & name, double val, const Unit & unit)
+  {
+    ParPair p(name, ValPair(val, &unit)); // porque es más rápido que &&
+    tbl.insert(p);
+  }
+
   void insert(const string & name, double val, const Unit * unit_ptr)
   {
-    ParPair p(name, ValPair(val, unit_ptr)); // porque es más rápido que &&
-    tbl.insert(p);
+    insert(name, val, *unit_ptr);
   }
 
   void insert(const tuple<string, double, const Unit*> & par)
