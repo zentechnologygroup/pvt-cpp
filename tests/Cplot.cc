@@ -5,7 +5,7 @@
 
     Compile and then type
     
-        ./cplot --help
+        ./Cplot --help
 
     In order to see all the options
     
@@ -27,6 +27,7 @@
 using json = nlohmann::json;
 
 # include <correlations/uo-min.H>
+# include <correlations/correlation-invoker.H>
 # include <metadata/ttuner-units.H>
 
 const UnitsInstancer & units_instancer = UnitsInstancer::init();
@@ -861,168 +862,6 @@ test_parameter(const DynList<pair<string, DynList<string>>> & required,
 
 const double Invalid_Value = Unit::Invalid_Value;
 
-// global values only set during the grid generation and can be accessed by anyone
-double temperature = 0, pressure = 0; 
-bool exception_thrown = false;
-
-// save exception e that was thrown during calculation of correlation corr_name
-void store_exception(const string & corr_name, const exception & e)
-{
-  exception_thrown = true;
-  ostringstream s;
-  s << corr_name << ": " << temperature << " " << t_unit->name << ", "
-    << pressure << " " << p_unit->name << ": " << e.what() << endl;
-  exception_list.append(s.str());
-}
-
-/* Helper that meta-inserts par into pars_list but stops if any
-   parameter is invalid.
-
-   Returns true if all parameters were valid (!= Invalid_Value)
-
-   Otherwise the insertion stops at the first invalid parameter, the
-   parameters previously inserted in the list are deleted and false is
-   returned
-*/
-inline bool insert_in_pars_list(ParList&) { return true; }
-
-template <typename ... Args> inline
-bool insert_in_pars_list(ParList & pars_list, 
-			 const Correlation::NamedPar & par, const Args & ... args)
-{
-  if (get<2>(par) == Invalid_Value)
-    return false;
- 
-  pars_list.insert(par);
-  if (insert_in_pars_list(pars_list, args...))
-    return true;
-
-  pars_list.remove(par); // If recursive insertion fails ==> remove pair
-
-  return false;
-}
-
-/* CONVENTION ON THE NAMES OF WRAPPERS TO CALL THE CORRELATIONS
-
-   - compute(corr_ptr, check, pars_list, args...): direct call to
-   corr_ptr correlation
-
-   - compute_exc(corr_ptr, check, pars_list, args...): direct call to
-   corr_ptr correlation but aborts program if an exception is thrown
-
-   - tcompute(corr_ptr, c, m, check, pars_list, args...): Call to
-   corr_ptr correlation with tuning parameters c and m
-  
-   - dcompute(def_corr, check, p_q, pars_list, args...): call to defined
-   correlation def_corr with pivot parameter p_q
-
-   - CALL(corr_name, var, args...): this macro first declares a VtlQuantity
-   var then assigns it the result of correlation call
-   corr_name::get_instance().impl(args...);
-*/
-template <typename ... Args> inline
-VtlQuantity tcompute(const Correlation * corr_ptr,
-		     double c, double m, const Unit & tuned_unit, bool check,
-		     ParList & pars_list, const Args & ... args)
-{
-  try
-    {
-      if (not insert_in_pars_list(pars_list, args...))
-	return VtlQuantity::null_quantity;
-
-      auto ret =
-	corr_ptr->tuned_compute_by_names(pars_list, c, m, tuned_unit, check);
-      remove_from_container(pars_list, args...);
-      return ret;
-    }
-  //catch (UnitConversionNotFound) {}
-  catch (exception & e)
-    {
-      if (report_exceptions)
-	store_exception(corr_ptr->name, e);
-   
-      remove_from_container(pars_list, args ...);
-    }
-  return VtlQuantity::null_quantity;
-}
-
-// Bounded compute (not used in this version)
-template <typename ... Args> inline
-VtlQuantity bcompute(const Correlation * corr_ptr,
-		     double c, double m, const Unit & tuned_unit,
-		     const VtlQuantity & min_val,
-		     const VtlQuantity & max_val,
-		     bool check,
-		     ParList & pars_list, const Args & ... args)
-{
-  try
-    {
-      if (not insert_in_pars_list(pars_list, args...))
-	return VtlQuantity::null_quantity;
-
-      auto ret = corr_ptr->bounded_tuned_compute_by_names(pars_list,
-							  min_val, max_val,
-							  c, m, tuned_unit,
-							  check);
-      remove_from_container(pars_list, args...);
-      return ret;
-    }
-  //catch (UnitConversionNotFound) {}
-  catch (exception & e)
-    {
-      if (report_exceptions)
-	store_exception(corr_ptr->name, e);
-   
-      remove_from_container(pars_list, args ...);
-    }
-  return VtlQuantity::null_quantity;
-}
-
-template <typename ... Args> inline
-VtlQuantity bcompute(const Correlation * corr_ptr,
-		     double c, double m, const Unit & tuned_unit,
-		     bool check, ParList & pars_list, const Args & ... args)
-{
-  const VtlQuantity min_val = corr_ptr->unit.min();
-  const VtlQuantity max_val = corr_ptr->unit.max();
-  return bcompute(corr_ptr, c, m, tuned_unit, min_val, max_val,
-		  check, pars_list, args...);
-}
-
-template <typename ... Args> inline
-VtlQuantity compute(const Correlation * corr_ptr, bool check,
-		    ParList & pars_list, const Args & ... args)
-{
-  try
-    {
-      if (not insert_in_pars_list(pars_list, args...))
-	return VtlQuantity::null_quantity;
-
-      auto ret = corr_ptr->compute_by_names(pars_list, check);
-      remove_from_container(pars_list, args...);
-      return ret;
-    }
-  //catch (UnitConversionNotFound) {}  
-  catch (exception & e)
-    {
-      if (report_exceptions)
-	store_exception(corr_ptr->name, e);
-   
-      remove_from_container(pars_list, args ...);
-    }
-  return VtlQuantity::null_quantity;
-}
-
-// return true if all args... are valid
-inline bool valid_args() { return true; }
-template <typename ... Args> inline
-bool valid_args(const VtlQuantity & par, const Args & ... args)
-{
-  if (par.is_null())
-    return false;
-  return valid_args(args...);
-} 
-
 template <typename ... Args> inline
 string correlation_call(const Correlation * corr_ptr, const Args & ... args)
 {
@@ -1040,109 +879,6 @@ string correlation_call(const Correlation * corr_ptr, const Args & ... args)
     }
   s << ")";
   return s.str();
-}
-
-template <typename ... Args> inline
-VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
-			ParList & pars_list, const Args & ... args)
-{
-  try
-    {
-      if (not insert_in_pars_list(pars_list, args...))
-	return VtlQuantity::null_quantity;
-
-      auto ret = corr_ptr->compute_by_names(pars_list, check);
-      remove_from_container(pars_list, args...);
-      return ret;
-    }
-  //catch (UnitConversionNotFound) {}
-  catch (exception & e)
-    {
-      remove_from_container(pars_list, args ...);
-      cout << "ERROR initializing " << correlation_call(corr_ptr, args...)
-	   << "@ " << e.what();
-      abort();
-    }
-  return VtlQuantity::null_quantity;
-}
-
-// Macro for creating `var` variable with value returned by correlation corr_name
-# define CALL(corr_name, var, args...)				\
-  VtlQuantity var;						\
-  try								\
-    {								\
-      if (valid_args(args))					\
-	var = corr_name::get_instance().call(args);		\
-    }								\
-  /* catch (UnitConversionNotFound) {} */			\
-  catch (exception & e)						\
-    {								\
-      store_exception(corr_name::get_instance().name, e);	\
-    }
-
-inline bool
-insert_in_pars_list(const DefinedCorrelation&, const VtlQuantity&, ParList&)
-{
-  return true;
-}
-
-template <typename ... Args> inline
-bool insert_in_pars_list(const DefinedCorrelation & corr,
-			 const VtlQuantity & p_q,
-			 ParList & pars_list,
-			 const Correlation::NamedPar & par,
-			 const Args & ... args)
-{
-  if (get<2>(par) == Invalid_Value)
-    {
-      const string & par_name = get<1>(par);   
-      if (corr.search_parameters(p_q).contains(par_name))
-	return false; // here the correlation would receive
-      // Invalid_Value and would fail
-    }
- 
-  pars_list.insert(par);
-  if (insert_in_pars_list(corr, p_q, pars_list, args...))
-    return true;
-
-  pars_list.remove(par); // If recursive insertion fails ==> remove par
-
-  return false;
-}
-
-template <typename ... Args> inline
-VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
-		     const VtlQuantity & p_q,
-		     ParList & pars_list, const Args & ... args)
-{
-  if (not insert_in_pars_list(corr, p_q, pars_list, args...))
-    return VtlQuantity::null_quantity;
- 
-  try
-    {
-      auto ret = corr.compute_by_names(pars_list, check);
-      remove_from_container(pars_list, args ...);
-      return ret;
-    }
-  catch (UnitConversionNotFound) {}
-  catch (exception & e)
-    {
-      if (report_exceptions)
-	{
-	  auto triggering_corr_ptr = corr.search_correlation(p_q);
-	  string names = corr.correlations().
-	    foldl<string>("", [triggering_corr_ptr] (auto & acu, auto ptr)
-			  {
-			    if (triggering_corr_ptr == ptr)
-			      return acu + "*" + ptr->name + " ";
-			    return acu + ptr->name + " ";
-			  });
-	  store_exception("{ " + names + "}", e);
-	}
-
-      remove_from_container(pars_list, args ...);
-    }
-  return VtlQuantity::null_quantity;
 }
 
 template <typename ... Args> inline
