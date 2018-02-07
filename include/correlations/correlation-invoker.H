@@ -22,6 +22,21 @@ struct CorrelationInvoker
   const Unit & t_unit;
   const Unit & p_unit;
 
+  /** If the named parameter is inside `required`, then inserts it
+      into the parameter list.
+
+      @param[in] required list of required parameter names along with
+      its alias.
+      @param[in] par named parameter
+   */
+  void test_parameter(const DynList<pair<string, DynList<string>>> & required,
+		      const Correlation::NamedPar & par)
+  {
+    if (required.exists([&par] (auto & p) { return p.first == get<1>(par) or
+	    p.second.exists([&par] (auto & s) { return s == get<1>(par); }); }))
+      pars_list.insert(par);
+  }
+
   /** Construct a correlation invoker.
 
       @param[in] __t_unit temperature unit.
@@ -354,5 +369,6 @@ public:
     {								\
       store_exception(corr_name::get_instance().name, e);	\
     }
+
 
 #endif

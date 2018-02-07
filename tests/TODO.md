@@ -102,3 +102,6 @@
 ## 34. escribir test-invoker orientado a tests
 - Created at   2018-02-05 09:25:57 -0400
 
+## 35. ojo con reentrancia de tcompute y declaración static
+- Created at   2018-02-07 15:15:59 -0400
+

@@ -5,24 +5,6 @@
 
 struct Cplot
 {
-  inline static Correlation::NamedPar
-  npar(const string & name, const BaseQuantity & p)
-  {
-    return Correlation::NamedPar(true, name, p.raw(), &p.unit);
-  }
-
-  inline static Correlation::NamedPar
-  npar(const string & name, double v, const Unit * unit)
-  {
-    return Correlation::NamedPar(true, name, v, unit);
-  }
-
-  inline static Correlation::NamedPar
-  npar(const string & name, const Correlation::NamedPar & par)
-  {
-    return Correlation::NamedPar(true, name, get<2>(par), get<3>(par));
-  }
-
   /*********** The following attributes define fluid properties */
 
 # define CONSTANT_PAR(__name, __unit)			\
