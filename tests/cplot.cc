@@ -33,7 +33,7 @@ const UnitsInstancer & units_instancer = UnitsInstancer::init();
 
 // These values are used for bounding the maximum number of iterations
 // and thus eventually protect against denial service attacks
-constexpr size_t Max_Num_Of_Steps = 220;   // for --t --p --t_array and --p_array
+constexpr size_t Max_Num_Of_Steps = 220; // for --t --p --t_array and --p_array
 constexpr size_t Max_Num_of_Tp_Pairs = 10; // for --tp_pair multiarg
 
 # include <correlations/pvt-correlations.H>

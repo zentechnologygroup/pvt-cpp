@@ -66,39 +66,9 @@ struct Cplot
 
   /**************** end of fluid properties parameters */
 
-
   // macro that constructs a parameter by name with name par from a VtlQuantity
 # define NPAR(par) npar(#par, par)
   
-# define Declare_Parameter(name, ref_unit)			\
-  mutable VtlQuantity name = VtlQuantity::null_quantity;	\
-  mutable Correlation::NamedPar name##_par;			\
-  void set_##name(double val, const Unit & unit)		\
-  {								\
-    name = VtlQuantity(ref_unit, VtlQuantity(unit, val));	\
-    name##_par = npar(#name, name);				\
-  }
-
-# define Declare_Default_Parameter(name, val, ref_unit)		\
-  mutable VtlQuantity name = { ref_unit, val };			\
-  mutable Correlation::NamedPar name##_par;			\
-  void set_##name(double value, const Unit & unit)		\
-  {								\
-    name = VtlQuantity(ref_unit, VtlQuantity(unit, value));	\
-    name##_par = npar(#name, name);				\
-  }
-
-  Declare_Parameter(api, Api::get_instance());
-  Declare_Parameter(rsb, SCF_STB::get_instance());
-  Declare_Parameter(yg, Sgg::get_instance());
-  Declare_Parameter(tsep, Fahrenheit::get_instance());
-  Declare_Parameter(tsep2, Fahrenheit::get_instance());
-  Declare_Parameter(psep, psia::get_instance());
-  Declare_Default_Parameter(nacl, 0, Molality_NaCl::get_instance());
-  Declare_Default_Parameter(n2, 0, MolePercent::get_instance());
-  Declare_Default_Parameter(co2, 0, MolePercent::get_instance());
-  Declare_Default_Parameter(h2s, 0, MolePercent::get_instance());
-
   bool are_blackoil_bparameters_set() const noexcept
   {
     return api != VtlQuantity::null_quantity and
@@ -114,7 +84,7 @@ struct Cplot
   mutable double m_##name = 1;			\
 						\
   void set_##name(const Correlation * __##name##_corr,			\
-		  double c, double m) noexcept				\
+		  double c = 0, double m = 1) noexcept			\
   {									\
     name##_corr = __##name##_corr;					\
     c_##name = c;							\
@@ -143,7 +113,7 @@ struct Cplot
   Declare_Tuned_Correlation(zfactor);
 
   static void
-  verify_corr(const Correlation * corr_ptr, const string & target_name)
+  verify_correlation(const Correlation * corr_ptr, const string & target_name)
   {
     if (corr_ptr == nullptr)
       ZENTHROW(CorrelationNotFound,
@@ -155,15 +125,15 @@ struct Cplot
 
   void blackoil_correlations_are_set() const
   {
-    verify_corr(pb_corr, "pb");
-    verify_corr(rs_corr, "rs");
-    verify_corr(bob_corr, "bob");
-    verify_corr(coa_corr, "coa");
-    verify_corr(boa_corr, "boa");
-    verify_corr(uod_corr, "uod");
-    verify_corr(uob_corr, "uob");
-    verify_corr(uoa_corr, "uoa");
-    verify_corr(zfactor_corr, "zfactor");
+    verify_correlation(pb_corr, "pb");
+    verify_correlation(rs_corr, "rs");
+    verify_correlation(bob_corr, "bob");
+    verify_correlation(coa_corr, "coa");
+    verify_correlation(boa_corr, "boa");
+    verify_correlation(uod_corr, "uod");
+    verify_correlation(uob_corr, "uob");
+    verify_correlation(uoa_corr, "uoa");
+    verify_correlation(zfactor_corr, "zfactor");
   }
 
   Declare_Correlation(cob, CobMcCainEtAl);
