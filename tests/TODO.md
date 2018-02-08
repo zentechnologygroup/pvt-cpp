@@ -105,3 +105,6 @@
 ## 35. ojo con reentrancia de tcompute y declaración static
 - Created at   2018-02-07 15:15:59 -0400
 
+## 36. super auto lista de todo auto ordenada por lo mejor
+- Created at   2018-02-08 16:39:03 -0400
+

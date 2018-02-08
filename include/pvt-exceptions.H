@@ -12,6 +12,8 @@ DEFINE_ZEN_EXCEPTION(InvalidNumberOfParameters,
 
 DEFINE_ZEN_EXCEPTION(CorrelationNotFound, "Correlation not found");
 
+DEFINE_ZEN_EXCEPTION(InvalidTargetType, "Correlation target is invalid found");
+
 DEFINE_ZEN_EXCEPTION(ParameterNameNotFound, "parameter name not found");
 
 DEFINE_ZEN_EXCEPTION(ParameterNameNotSet, "parameter name not set");

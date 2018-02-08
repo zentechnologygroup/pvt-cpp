@@ -51,7 +51,7 @@ struct Cplot
   // macro that constructs a parameter by name with name par from a VtlQuantity
 # define NPAR(par) npar(#par, par)
   
-  bool are_blackoil_bparameters_set() const noexcept
+  bool are_blackoil_parameters_set() const noexcept
   {
     return api != VtlQuantity::null_quantity and
       rsb != VtlQuantity::null_quantity and
@@ -77,10 +77,10 @@ struct Cplot
   const Correlation * NAME##_corr = &CORR::get_instance();		\
   void set_##NAME(const Correlation * corr_ptr)			\
   {									\
-    const string target_name = CORR::get_instance().target_name();	\
-    if (NAME##_corr->target_name() != target_name)			\
-      ZENTHROW(CorrelationNotFound, NAME##_corr->name +			\
-	       " is not for " + target_name);				\
+    cout << corr_ptr->name << " " << #NAME << endl;			\
+    if (corr_ptr->target_name() != #NAME)				\
+      ZENTHROW(InvalidTargetType, NAME##_corr->name +			\
+	       " is not for " #NAME);					\
     NAME##_corr = corr_ptr;						\
   }
 
@@ -94,6 +94,8 @@ struct Cplot
   Declare_Tuned_Correlation(uoa);
   Declare_Tuned_Correlation(zfactor);
 
+private:
+  
   static void
   verify_correlation(const Correlation * corr_ptr, const string & target_name)
   {
@@ -104,6 +106,8 @@ struct Cplot
       ZENTHROW(CorrelationNotFound,
 	       corr_ptr->name + "  is not for" + target_name);
   }
+
+public:
 
   void blackoil_correlations_are_set() const
   {
