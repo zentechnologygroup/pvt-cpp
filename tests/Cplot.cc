@@ -851,15 +851,6 @@ define_correlation(const VtlQuantity & pb,
   return ret;
 }
 
-void
-test_parameter(const DynList<pair<string, DynList<string>>> & required,
-	       const Correlation::NamedPar & par, ParList & pars_list)
-{
-  if (required.exists([&par] (const auto & p) { return p.first == get<1>(par) or
-      p.second.exists([&par] (const auto & s) { return s == get<1>(par); }); }))
-    pars_list.insert(par);
-}
-
 const double Invalid_Value = Unit::Invalid_Value;
 
 template <typename ... Args> inline
@@ -881,65 +872,22 @@ string correlation_call(const Correlation * corr_ptr, const Args & ... args)
   return s.str();
 }
 
-template <typename ... Args> inline
-VtlQuantity tcompute(const Correlation * corr_ptr,
-		     double c, double m, const Unit & tuned_unit,
-		     bool check, const Args & ... args)
-{ // static for creating it once and thus to gain time. But beware!
-  // The function is not reentrant and can not be used in a
-  // multithreaded environment
-  static ParList pars_list;
-  return tcompute(corr_ptr, c, m, tuned_unit, check, pars_list, args...);
-}
-
-template <typename ... Args> inline
-VtlQuantity compute(const Correlation * corr_ptr, bool check,
-		    const Args & ... args)
-{ // static for creating it once and thus to gain time. But beware!
-  // The function is not reentrant and can not be used in a
-  // multithreaded environment
-  static ParList pars_list;
-  return compute(corr_ptr, check, pars_list, args...);
-}
-
-template <typename ... Args> inline
-VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
-			const Args & ... args)
-{ // static for creating it once and thus to gain time. But beware!
-  // The function is not reentrant and can not be used in a
-  // multithreaded environment
-  static ParList pars_list;
-  return compute_exc(corr_ptr, check, pars_list, args...);
-}
-
-template <typename ... Args> inline
-VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
-		     const VtlQuantity & p_q, const Args & ... args)
-{ // static for creating it once and thus to gain time. But beware!
-  // The function is not reentrant and can not be used in a
-  // multithreaded environment
-  static ParList pars_list;
-  return dcompute(corr, check, pars_list, p_q, args...);
-}
+CorrelationInvoker invoker = { Fahrenheit::get_instance(), psia::get_instance() };
 
 /// Returns the list of parameters required by the set of correlations
 /// that are in l 
 ParList load_constant_parameters(const DynList<const Correlation*> & l)
 {
-  ParList pars_list;
   auto required_pars = DefinedCorrelation::parameter_list(l);
-				  
-  test_parameter(required_pars, api_par, pars_list);
-  test_parameter(required_pars, rsb_par, pars_list);
-  test_parameter(required_pars, yg_par, pars_list);
-  test_parameter(required_pars, tsep_par, pars_list);
-  test_parameter(required_pars, psep_par, pars_list);
-  test_parameter(required_pars, n2_par, pars_list);
-  test_parameter(required_pars, co2_par, pars_list);
-  test_parameter(required_pars, h2s_par, pars_list);
-  test_parameter(required_pars, nacl_par, pars_list);
-
-  return pars_list;
+  invoker.test_parameter(required_pars, api_par);
+  invoker.test_parameter(required_pars, rsb_par);
+  invoker.test_parameter(required_pars, yg_par);
+  invoker.test_parameter(required_pars, tsep_par);
+  invoker.test_parameter(required_pars, psep_par);
+  invoker.test_parameter(required_pars, n2_par);
+  invoker.test_parameter(required_pars, co2_par);
+  invoker.test_parameter(required_pars, h2s_par);
+  invoker.test_parameter(required_pars, nacl_par);
 }
 
 void insert_in_row(FixedStack<const VtlQuantity*> &, size_t&) {}
@@ -974,10 +922,10 @@ inline void buffer_row(const FixedStack<const VtlQuantity*> & row,
   const VtlQuantity ** ptr = &row.base();
 
   Row p;
-  if (exception_thrown)
+  if (invoker.exception_thrown)
     {
       p.first.append("\"true\"");
-      exception_thrown = false;
+      invoker.exception_thrown = false;
     }
   else
     p.first.append("\"false\"");
@@ -1006,10 +954,10 @@ inline void buffer_row_pb(const FixedStack<const VtlQuantity*> & row,
   const size_t n = row.size();
   const VtlQuantity ** ptr = &row.base();
 
-  if (exception_thrown)
+  if (invoker.exception_thrown)
     {
       p.first.append("\"true\"");
-      exception_thrown = false;
+      invoker.exception_thrown = false;
     }
   else
     p.first.append("\"false\"");
@@ -1045,10 +993,10 @@ inline void process_row(const FixedStack<const VtlQuantity*> & row,
   const size_t n = row.size();
   const VtlQuantity ** ptr = &row.base();
 
-  if (exception_thrown)
+  if (invoker.exception_thrown)
     {
       printf("\"true\",");
-      exception_thrown = false;
+      invoker.exception_thrown = false;
     }
   else
     printf("\"false\",");
@@ -1091,7 +1039,7 @@ process_filter_row(const FixedStack<const VtlQuantity*> & row,
     {
       const size_t i = col_indexes(k);
       if (i ==  ncol - 1)
-	printf(exception_thrown ? "\"true\"":  "\"false\"");
+	printf(invoker.exception_thrown ? "\"true\"":  "\"false\"");
       else
 	{
 	  Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
@@ -1102,7 +1050,7 @@ process_filter_row(const FixedStack<const VtlQuantity*> & row,
       if (k < n - 1)
 	printf(",");
     }
-  exception_thrown = false;
+  invoker.exception_thrown = false;
   printf("\n");
 }
 
@@ -1121,7 +1069,7 @@ process_filter_row_pb(const FixedStack<const VtlQuantity*> & row,
       if (i == ncol - 1)
 	printf(is_pb ? "\"true\"" : "\"false\"");
       else if (i == ncol - 2)
-	printf(exception_thrown ? "\"true\"":  "\"false\"");
+	printf(invoker.exception_thrown ? "\"true\"":  "\"false\"");
       else
 	{
 	  Unit_Convert_Fct_Ptr convert_fct = tgt_unit_ptr[i];
@@ -1132,7 +1080,7 @@ process_filter_row_pb(const FixedStack<const VtlQuantity*> & row,
       if (k < n - 1)
 	printf(",");
     }
-  exception_thrown = false;
+  invoker.exception_thrown = false;
   printf("\n");
 }
 
@@ -1435,19 +1383,19 @@ void print_notranspose()
   pressure = get<2>(p_values.get_first());				\
 									\
   /* Calculation of constants for Z */					\
-  auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg), \
-			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
-  auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),		\
-			   NPAR(n2), NPAR(co2), NPAR(h2s));		\
-  auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),		\
-			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
+  auto yghc = invoker.compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg), \
+				  NPAR(n2), NPAR(co2), NPAR(h2s));	\
+  auto ppchc = invoker.compute_exc(ppchc_corr, true, NPAR(yghc),	\
+				   NPAR(n2), NPAR(co2), NPAR(h2s));	\
+  auto ppcm = invoker.compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),	\
+				  NPAR(n2), NPAR(co2), NPAR(h2s));	\
   auto tpchc = tpchc_corr->compute(check, yghc);			\
-  auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),		\
-			  NPAR(n2), NPAR(co2), NPAR(h2s));		\
-  auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),	\
-				  NPAR(tpcm), NPAR(co2), NPAR(h2s));	\
-  auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),	\
-				  NPAR(co2), NPAR(h2s));		\
+  auto tpcm = invoker.compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),	\
+				  NPAR(n2), NPAR(co2), NPAR(h2s));	\
+  auto adjustedppcm = invoker.compute_exc(adjustedppcm_corr, true, NPAR(ppcm),	\
+					  NPAR(tpcm), NPAR(co2), NPAR(h2s)); \
+  auto adjustedtpcm = invoker.compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),	\
+					  NPAR(co2), NPAR(h2s));	\
   /* End calculation constants for z */					\
 									\
   const auto min_uo = min_uo_val();					\
