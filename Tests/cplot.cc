@@ -18,23 +18,24 @@ struct SimplePlot : public Test
 TEST_F(SimplePlot, Basic)
 {
   ASSERT_THROW(cplot.init_blackoil(), CorrelationNotFound);
-  cplot.set_pb(&RsAlMarhoun::get_instance());
+  cplot.set_pb_correlation(&RsAlMarhoun::get_instance());
   return;
-  ASSERT_THROW(cplot.set_pb(&RsAlMarhoun::get_instance()), CorrelationNotFound);
-  cplot.set_pb(&PbAlMarhoun::get_instance());
+  ASSERT_THROW(cplot.set_pb_correlation(&RsAlMarhoun::get_instance()),
+	       CorrelationNotFound);
+  cplot.set_pb_correlation(&PbAlMarhoun::get_instance());
   
   ASSERT_THROW(cplot.init_blackoil(), CorrelationNotFound);
-  cplot.set_rs(&RsAlMarhoun::get_instance());
+  cplot.set_rs_correlation(&RsAlMarhoun::get_instance());
   ASSERT_THROW(cplot.init_blackoil(), CorrelationNotFound);
 
-  cplot.set_bob(&BobAlmarhoun::get_instance());
+  cplot.set_bob_correlation(&BobAlmarhoun::get_instance());
   ASSERT_THROW(cplot.init_blackoil(), CorrelationNotFound);
-  cplot.set_coa(&CoaDeGhetto::get_instance());
+  cplot.set_coa_correlation(&CoaDeGhetto::get_instance());
 
   ASSERT_THROW(cplot.init_blackoil(), CorrelationNotFound);
-  cplot.set_bob(&BoaMcCain::get_instance());
+  cplot.set_bob_correlation(&BoaMcCain::get_instance());
   ASSERT_THROW(cplot.init_blackoil(), CorrelationNotFound);
 
-  cplot.set_bob(&BoaMcCain::get_instance());
+  cplot.set_bob_correlation(&BoaMcCain::get_instance());
   ASSERT_THROW(cplot.init_blackoil(), CorrelationNotFound);
 }

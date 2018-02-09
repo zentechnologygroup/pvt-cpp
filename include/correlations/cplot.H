@@ -65,8 +65,8 @@ struct Cplot
   mutable double c_##name = 0;			\
   mutable double m_##name = 1;			\
 						\
-  void set_##name(const Correlation * __##name##_corr,			\
-		  double c = 0, double m = 1) noexcept			\
+  void set_##name##_correlation(const Correlation * __##name##_corr,	\
+				double c = 0, double m = 1) noexcept	\
   {									\
     name##_corr = __##name##_corr;					\
     c_##name = c;							\
