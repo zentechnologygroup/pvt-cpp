@@ -108,3 +108,6 @@
 ## 36. super auto lista de todo auto ordenada por lo mejor
 - Created at   2018-02-08 16:39:03 -0400
 
+## 37. definit fluido antes de continuar con cplot
+- Created at   2018-02-14 15:08:58 -0400
+

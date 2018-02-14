@@ -7,16 +7,22 @@ struct Cplot
 {
   /*********** The following attributes define fluid properties */
 
-# define CONSTANT_PAR(__name, __unit)			\
-  VtlQuantity __name;					\
-  const Unit * __name##_unit = &__unit::get_instance();	\
+# define CONSTANT_PAR(NAME, __unit)			\
+  VtlQuantity NAME;					\
+  const Unit * NAME##_unit = &__unit::get_instance();	\
 							\
-  void set_##__name(double val, const Unit & unit)	\
+  void set_##NAME(double val, const Unit & unit)	\
   {							\
-    if (not unit.is_sibling(*__name##_unit))		\
-      ZENTHROW(UnitNotFound, "unit " + unit.name + " is not for " +	\
-	       __name##_unit->physical_quantity.name);			\
-    __name = VtlQuantity(unit, val);					\
+    if (not unit.is_sibling(*NAME##_unit))		\
+      ZENTHROW(InvalidUnit, "unit " + unit.name + " is not for " +	\
+	       NAME##_unit->physical_quantity.name);			\
+    NAME = VtlQuantity(unit, val);					\
+  }									\
+									\
+  void test_##NAME() const						\
+  {									\
+    if (NAME.is_null())							\
+      ZENTHROW(ValueNotFound, #NAME " value has not been st");		\
   }
 
   CONSTANT_PAR(api, Api);
@@ -70,7 +76,23 @@ struct Cplot
      and that the returning unit is sibling.
      
   */
-# define Declare_Correlation(NAME, CORR)				\
+# define Declare_Correlation(NAME)					\
+  const Correlation * NAME##_corr = nullptr;				\
+  void set_##NAME(const Correlation & corr)				\
+  {									\
+    if (corr.target_name() != #NAME)					\
+      ZENTHROW(InvalidTargetType, corr.name +				\
+	       " is not for " #NAME);					\
+    NAME##_corr = &corr;						\
+  }									\
+									\
+  void set_##NAME(const Correlation * corr_ptr)				\
+  {									\
+    set_##NAME(*corr_ptr);						\
+  }
+  
+
+# define Declare_Optional_Correlation(NAME, CORR)			\
   const Correlation * NAME##_corr = &CORR::get_instance();		\
   void set_##NAME(const Correlation & corr)				\
   {									\
@@ -79,22 +101,17 @@ struct Cplot
       ZENTHROW(InvalidTargetType, NAME##_corr->name +			\
 	       " is not for " #NAME " (probably set with macro)");	\
     if (corr.target_name() != #NAME)					\
-      ZENTHROW(InvalidTargetType, corr.name +				\
-	       " is not for " #NAME);					\
-    if (not CORR::get_instance().unit.is_sibling(corr.unit))		\
-      ZENTHROW(InvalidUnit, corr.name +					\
-	       " unit is not sibling of " +				\
-	       CORR::get_instance().unit.name);				\
+      ZENTHROW(InvalidTargetType, corr.name + " is not for " #NAME);	\
     NAME##_corr = &corr;						\
   }									\
-  									\
+									\
   void set_##NAME(const Correlation * corr_ptr)				\
   {									\
     set_##NAME(*corr_ptr);						\
   }
   
-# define Declare_Tuned_Correlation(NAME, CORR)				\
-  Declare_Correlation(NAME, CORR);					\
+# define Declare_Tuned_Correlation(NAME)				\
+  Declare_Correlation(NAME);						\
   mutable double c_##NAME = 0;						\
   mutable double m_##NAME = 1;						\
 									\
@@ -112,29 +129,26 @@ struct Cplot
     set_##NAME(*__##NAME##_corr, c, m);					\
   }
 
-  Declare_Tuned_Correlation(pb, PbAlMarhoun);
-  Declare_Tuned_Correlation(rs, RsAlMarhoun);
-  Declare_Tuned_Correlation(bob, BobAlShammasi);
-  Declare_Tuned_Correlation(boa, BoaMcCain);
-  Declare_Tuned_Correlation(coa, CoaDeGhetto);
-  Declare_Tuned_Correlation(uod, UodBeal);
-  Declare_Tuned_Correlation(uob, UobBeggsRobinson);
-  Declare_Tuned_Correlation(uoa, UoaAbedini);
-  Declare_Tuned_Correlation(zfactor, ZfactorDranchukAK);
+  Declare_Tuned_Correlation(pb);
+  Declare_Tuned_Correlation(rs);
+  Declare_Tuned_Correlation(bob);
+  Declare_Tuned_Correlation(boa);
+  Declare_Tuned_Correlation(coa);
+  Declare_Tuned_Correlation(uod);
+  Declare_Tuned_Correlation(uob);
+  Declare_Tuned_Correlation(uoa);
+  Declare_Tuned_Correlation(zfactor);
 
   /* Verify that corr_ptr has the correct target name */
   static void
-  verify_correlation(const Correlation & corr, const string & target_name)
-  {
-    if (corr.target_name() != target_name)
-      ZENTHROW(InvalidTargetType,
-	       corr.name + "  is not for" + target_name);
-  }
-
-  static void
   verify_correlation(const Correlation * corr_ptr, const string & target_name)
   {
-    verify_correlation(*corr_ptr, target_name);
+    if (corr_ptr == nullptr)
+      ZENTHROW(CorrelationNotFound, "Correlation for " + target_name +
+	       " has not been defined");
+    if (corr_ptr->target_name() != target_name)
+      ZENTHROW(InvalidTargetType,
+	       corr_ptr->name + "  is not for" + target_name);
   }
 
   void blackoil_correlations_are_set() const
@@ -150,28 +164,29 @@ struct Cplot
     verify_correlation(zfactor_corr, "zfactor");
   }
 
-  Declare_Correlation(cob, CobMcCainEtAl);
-  Declare_Correlation(ppchc, PpchcStanding);
-  Declare_Correlation(ppcm_mixing, PpcmKayMixingRule);
-  Declare_Correlation(adjustedppcm, AdjustedppcmWichertAziz);
-  Declare_Correlation(tpchc, TpchcStanding);
-  Declare_Correlation(tpcm_mixing, TpcmKayMixingRule);
-  Declare_Correlation(adjustedtpcm, AdjustedtpcmWichertAziz);
-  Declare_Correlation(cg, CgMattarBA);
-  Declare_Correlation(ug, UgCarrKB);
-  Declare_Correlation(bwb, BwbSpiveyMN);
-  Declare_Correlation(bwa, BwaSpiveyMN);
-  Declare_Correlation(uw, UwMcCain);
-  Declare_Correlation(pw, PwSpiveyMN);
-  Declare_Correlation(cwb, CwbSpiveyMN);
-  Declare_Correlation(cwa, CwaSpiveyMN);
-  Declare_Correlation(rsw, RswSpiveyMN);
-  Declare_Correlation(sgo, SgoBakerSwerdloff);
-  Declare_Correlation(sgw, SgwJenningsNewman);
+  Declare_Optional_Correlation(cob, CobMcCainEtAl);
+  Declare_Optional_Correlation(ppchc, PpchcStanding);
+  Declare_Optional_Correlation(ppcm_mixing, PpcmKayMixingRule);
+  Declare_Optional_Correlation(adjustedppcm, AdjustedppcmWichertAziz);
+  Declare_Optional_Correlation(tpchc, TpchcStanding);
+  Declare_Optional_Correlation(tpcm_mixing, TpcmKayMixingRule);
+  Declare_Optional_Correlation(adjustedtpcm, AdjustedtpcmWichertAziz);
+  Declare_Optional_Correlation(cg, CgMattarBA);
+  Declare_Optional_Correlation(ug, UgCarrKB);
+  Declare_Optional_Correlation(bwb, BwbSpiveyMN);
+  Declare_Optional_Correlation(bwa, BwaSpiveyMN);
+  Declare_Optional_Correlation(uw, UwMcCain);
+  Declare_Optional_Correlation(pw, PwSpiveyMN);
+  Declare_Optional_Correlation(cwb, CwbSpiveyMN);
+  Declare_Optional_Correlation(cwa, CwaSpiveyMN);
+  Declare_Optional_Correlation(rsw, RswSpiveyMN);
+  Declare_Optional_Correlation(sgo, SgoBakerSwerdloff);
+  Declare_Optional_Correlation(sgw, SgwJenningsNewman);
 
   void init_blackoil()
   {
     blackoil_correlations_are_set();
+    test_api();
   }
   
 }; 

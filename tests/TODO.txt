@@ -34,3 +34,4 @@ invoker solo debe recibir pars_list y no manejar los parametros,2018-02-03 17:11
 escribir test-invoker orientado a tests,2018-02-05 09:25:57 -0400,,
 ojo con reentrancia de tcompute y declaración static,2018-02-07 15:15:59 -0400,,
 super auto lista de todo auto ordenada por lo mejor,2018-02-08 16:39:03 -0400,,
+definit fluido antes de continuar con cplot,2018-02-14 15:08:58 -0400,,
