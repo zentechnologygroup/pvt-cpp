@@ -56,3 +56,6 @@
 ## 19. ttuner opcion que añada varias temperaturas de inputing
 - Created at   2017-11-08 11:07:04 -0400
 
+## 20. revisar privavidad de clase cplot
+- Created at   2018-02-14 12:34:44 -0400
+

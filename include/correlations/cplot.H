@@ -122,8 +122,6 @@ struct Cplot
   Declare_Tuned_Correlation(uoa, UoaAbedini);
   Declare_Tuned_Correlation(zfactor, ZfactorDranchukAK);
 
-private:
-
   /* Verify that corr_ptr has the correct target name */
   static void
   verify_correlation(const Correlation & corr, const string & target_name)
@@ -138,8 +136,6 @@ private:
   {
     verify_correlation(*corr_ptr, target_name);
   }
-
-public:
 
   void blackoil_correlations_are_set() const
   {
