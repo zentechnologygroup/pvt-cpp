@@ -60,51 +60,83 @@ struct Cplot
       psep != VtlQuantity::null_quantity;
   }
 
-# define Declare_Tuned_Correlation(name)	\
-  const Correlation * name##_corr = nullptr;	\
-  mutable double c_##name = 0;			\
-  mutable double m_##name = 1;			\
-						\
-  void set_##name##_correlation(const Correlation * __##name##_corr,	\
-				double c = 0, double m = 1) noexcept	\
-  {									\
-    name##_corr = __##name##_corr;					\
-    c_##name = c;							\
-    m_##name = m;							\
-  }
+  /* Declare a new correlation type. That is, a correlation pointer of
+     name NAME_corr and a setter function of name set_NAME().
+						
+     NAME is the expected target name of correlation and CORR is the
+     correlation by default.
 
+     The setter validates that the CORR target name is equal to NAME
+     and that the returning unit is sibling.
+     
+  */
 # define Declare_Correlation(NAME, CORR)				\
   const Correlation * NAME##_corr = &CORR::get_instance();		\
-  void set_##NAME(const Correlation * corr_ptr)			\
+  void set_##NAME(const Correlation & corr)				\
   {									\
-    cout << corr_ptr->name << " " << #NAME << endl;			\
-    if (corr_ptr->target_name() != #NAME)				\
+    assert(NAME##_corr);						\
+    if (NAME##_corr->target_name() != #NAME)				\
       ZENTHROW(InvalidTargetType, NAME##_corr->name +			\
+	       " is not for " #NAME " (probably set with macro)");	\
+    if (corr.target_name() != #NAME)					\
+      ZENTHROW(InvalidTargetType, corr.name +				\
 	       " is not for " #NAME);					\
-    NAME##_corr = corr_ptr;						\
+    if (not CORR::get_instance().unit.is_sibling(corr.unit))		\
+      ZENTHROW(InvalidUnit, corr.name +					\
+	       " unit is not sibling of " +				\
+	       CORR::get_instance().unit.name);				\
+    NAME##_corr = &corr;						\
+  }									\
+  									\
+  void set_##NAME(const Correlation * corr_ptr)				\
+  {									\
+    set_##NAME(*corr_ptr);						\
+  }
+  
+# define Declare_Tuned_Correlation(NAME, CORR)				\
+  Declare_Correlation(NAME, CORR);					\
+  mutable double c_##NAME = 0;						\
+  mutable double m_##NAME = 1;						\
+									\
+  void set_##NAME(const Correlation & __##NAME##_corr,			\
+		  double c, double m) noexcept				\
+  {									\
+    set_##NAME(__##NAME##_corr);					\
+    c_##NAME = c;							\
+    m_##NAME = m;							\
+  }									\
+									\
+  void set_##NAME(const Correlation * __##NAME##_corr,			\
+		  double c, double m) noexcept				\
+  {									\
+    set_##NAME(*__##NAME##_corr, c, m);					\
   }
 
-  Declare_Tuned_Correlation(pb);
-  Declare_Tuned_Correlation(rs);
-  Declare_Tuned_Correlation(bob);
-  Declare_Tuned_Correlation(boa);
-  Declare_Tuned_Correlation(coa);
-  Declare_Tuned_Correlation(uod);
-  Declare_Tuned_Correlation(uob);
-  Declare_Tuned_Correlation(uoa);
-  Declare_Tuned_Correlation(zfactor);
+  Declare_Tuned_Correlation(pb, PbAlMarhoun);
+  Declare_Tuned_Correlation(rs, RsAlMarhoun);
+  Declare_Tuned_Correlation(bob, BobAlShammasi);
+  Declare_Tuned_Correlation(boa, BoaMcCain);
+  Declare_Tuned_Correlation(coa, CoaDeGhetto);
+  Declare_Tuned_Correlation(uod, UodBeal);
+  Declare_Tuned_Correlation(uob, UobBeggsRobinson);
+  Declare_Tuned_Correlation(uoa, UoaAbedini);
+  Declare_Tuned_Correlation(zfactor, ZfactorDranchukAK);
 
 private:
-  
+
+  /* Verify that corr_ptr has the correct target name */
+  static void
+  verify_correlation(const Correlation & corr, const string & target_name)
+  {
+    if (corr.target_name() != target_name)
+      ZENTHROW(InvalidTargetType,
+	       corr.name + "  is not for" + target_name);
+  }
+
   static void
   verify_correlation(const Correlation * corr_ptr, const string & target_name)
   {
-    if (corr_ptr == nullptr)
-      ZENTHROW(CorrelationNotFound,
-	       "correlation for " + target_name + " is not set");
-    if (corr_ptr->target_name() != target_name)
-      ZENTHROW(CorrelationNotFound,
-	       corr_ptr->name + "  is not for" + target_name);
+    verify_correlation(*corr_ptr, target_name);
   }
 
 public:
