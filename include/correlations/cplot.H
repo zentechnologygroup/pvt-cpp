@@ -66,6 +66,14 @@ struct Cplot
       psep != VtlQuantity::null_quantity;
   }
 
+# define Declare_Correlation_Common(NAME)	\
+  void test_##NAME##_corr() const					\
+  {									\
+    if (NAME##_corr == nullptr)						\
+      ZENTHROW(CorrelationNotFound, "Correlation for " #NAME		\
+	       " has not been set");					\
+  }
+
   /* Declare a new correlation type. That is, a correlation pointer of
      name NAME_corr and a setter function of name set_NAME().
 						
@@ -73,11 +81,13 @@ struct Cplot
      correlation by default.
 
      The setter validates that the CORR target name is equal to NAME
-     and that the returning unit is sibling.
-     
+     and that the returning unit is sibling.     
   */
 # define Declare_Correlation(NAME)					\
   const Correlation * NAME##_corr = nullptr;				\
+									\
+  Declare_Correlation_Common(NAME);					\
+									\
   void set_##NAME(const Correlation & corr)				\
   {									\
     if (corr.target_name() != #NAME)					\
@@ -86,14 +96,17 @@ struct Cplot
     NAME##_corr = &corr;						\
   }									\
 									\
-  void set_##NAME(const Correlation * corr_ptr)				\
+  void set_##NAME##_corr(const Correlation * corr_ptr)			\
   {									\
     set_##NAME(*corr_ptr);						\
-  }
-  
+  }   
 
 # define Declare_Optional_Correlation(NAME, CORR)			\
   const Correlation * NAME##_corr = &CORR::get_instance();		\
+									\
+									\
+  Declare_Correlation_Common(NAME);					\
+									\
   void set_##NAME(const Correlation & corr)				\
   {									\
     assert(NAME##_corr);						\
@@ -183,10 +196,46 @@ struct Cplot
   Declare_Optional_Correlation(sgo, SgoBakerSwerdloff);
   Declare_Optional_Correlation(sgw, SgwJenningsNewman);
 
-  void init_blackoil()
+  void blackoil_ready()
   {
     blackoil_correlations_are_set();
     test_api();
+    test_rsb();
+    test_yg();
+    test_tsep();
+    test_psep();
+    test_h2s();
+    test_co2();
+    test_n2();
+    test_nacl();
+ 
+    test_pb_corr();
+    test_rs_corr();
+    test_bob_corr();
+    test_boa_corr();
+    test_uod_corr();
+    test_cob_corr();
+    test_coa_corr();
+    test_uob_corr();
+    test_uoa_corr();
+    test_ppchc_corr();
+    test_tpchc_corr();
+    test_ppcm_mixing_corr();
+    test_tpcm_mixing_corr();
+    test_adjustedppcm_corr();
+    test_adjustedtpcm_corr();
+    test_zfactor_corr();
+    test_cg_corr();
+    test_ug_corr();
+    test_bwb_corr();
+    test_bwa_corr();
+    test_uw_corr();
+    test_pw_corr();
+    test_rsw_corr();
+    test_cwb_corr();
+    test_cwa_corr();
+    test_sgo_corr();
+    test_sgw_corr();		
   }
   
 }; 

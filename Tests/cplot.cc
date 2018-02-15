@@ -30,9 +30,9 @@ TEST_F(SimplePlot, Set_Mandatory_Correlations)
 	       InvalidTargetType);
   ASSERT_NO_THROW(cplot.set_pb(PbAlMarhoun::get_instance()));
 
-  ASSERT_THROW(cplot.set_pb(&RsAlMarhoun::get_instance()),
+  ASSERT_THROW(cplot.set_pb_corr(&RsAlMarhoun::get_instance()),
 	       InvalidTargetType);
-  ASSERT_NO_THROW(cplot.set_pb(&PbAlShammasi::get_instance()));
+  ASSERT_NO_THROW(cplot.set_pb_corr(&PbAlShammasi::get_instance()));
 
   ASSERT_NO_THROW(cplot.set_pb(PbAlMarhoun::get_instance(), 2, 2));
   ASSERT_EQ(cplot.c_pb, 2);
@@ -107,7 +107,10 @@ TEST_F(SimplePlot, Set_parameters)
   ASSERT_NO_THROW(cplot.set_co2(10, MolePercent::get_instance()));
   ASSERT_NO_THROW(cplot.set_h2s(10, MolePercent::get_instance()));
   ASSERT_THROW(cplot.set_nacl(10, MolePercent::get_instance()), InvalidUnit);
-  ASSERT_NO_THROW(cplot.set_nacl(6, Molality_NaCl::get_instance()));
+  ASSERT_NO_THROW(cplot.set_nacl(6, Molality_NaCl::get_instance()));  
+}
 
-  
+TEST_F(SimplePlot, blackoil_ready)
+{
+  cplot.blackoil_ready();
 }
