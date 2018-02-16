@@ -112,5 +112,5 @@ TEST_F(SimplePlot, Set_parameters)
 
 TEST_F(SimplePlot, blackoil_ready)
 {
-  cplot.blackoil_ready();
+  ASSERT_THROW(cplot.blackoil_ready(), CorrelationNotFound);
 }
