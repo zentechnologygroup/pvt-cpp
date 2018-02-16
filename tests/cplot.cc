@@ -684,8 +684,7 @@ ValueArg<ColNames> filter_par = { "", "filter", "only put names list", false,
 ValueArg<ColNames> nfilter_par = { "", "nfilter", "exclude names list", false,
 				   ColNames(), "col names list", cmd };
 
-ValueArg<size_t> dft_precision = { "", "dft-precision",
-				   "default precision value",
+ValueArg<size_t> dft_precision = { "", "dft-precision", "default precision value",
 				   false, 6, "default precision value", cmd };
 
 MultiArg<Digits> digits = { "", "digits", "number of decimal digits", false,
@@ -863,8 +862,7 @@ test_parameter(const DynList<pair<string, DynList<string>>> & required,
 
 const double Invalid_Value = Unit::Invalid_Value;
 
-// global values only set during the grid generation and can be
-// accessed by anyone 
+// global values only set during the grid generation and can be accessed by anyone
 double temperature = 0, pressure = 0; 
 bool exception_thrown = false;
 
@@ -891,8 +889,7 @@ inline bool insert_in_pars_list(ParList&) { return true; }
 
 template <typename ... Args> inline
 bool insert_in_pars_list(ParList & pars_list, 
-			 const Correlation::NamedPar & par,
-			 const Args & ... args)
+			 const Correlation::NamedPar & par, const Args & ... args)
 {
   if (get<2>(par) == Invalid_Value)
     return false;
@@ -1335,10 +1332,9 @@ inline void process_row(const FixedStack<const VtlQuantity*> & row,
   printf("\n");
 }
 
-inline void
-process_row_pb(const FixedStack<const VtlQuantity*> & row,
-	       const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
-	       bool is_pb)
+inline void process_row_pb(const FixedStack<const VtlQuantity*> & row,
+			   const FixedStack<Unit_Convert_Fct_Ptr> & row_convert,
+			   bool is_pb)
 {
   printf(is_pb ? "\"true\"," : "\"false\",");
   process_row(row, row_convert);

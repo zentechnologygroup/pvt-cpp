@@ -16,26 +16,11 @@ struct CorrelationInvoker
 {
   bool report_exceptions = false;
   bool exception_thrown = false;
-  ParList pars_list;
   DynList<string> exception_list;
   double pressure = 0, temperature = 0;
   const Unit & t_unit;
   const Unit & p_unit;
-
-  /** If the named parameter is inside `required`, then inserts it
-      into the parameter list.
-
-      @param[in] required list of required parameter names along with
-      its alias.
-      @param[in] par named parameter
-   */
-  void test_parameter(const DynList<pair<string, DynList<string>>> & required,
-		      const Correlation::NamedPar & par)
-  {
-    if (required.exists([&par] (auto & p) { return p.first == get<1>(par) or
-	    p.second.exists([&par] (auto & s) { return s == get<1>(par); }); }))
-      pars_list.insert(par);
-  }
+  ParList tmp_pars_list;
 
   /** Construct a correlation invoker.
 
@@ -72,11 +57,11 @@ private:
      parameters previously inserted in the list are deleted and false is
      returned
   */
-inline bool insert_in_pars_list(ParList&) { return true; }
+  static bool insert_in_pars_list(ParList&) { return true; }
 
-  template <typename ... Args> inline
+  template <typename ... Args> static
   bool insert_in_pars_list(ParList & pars_list, 
-			 const Correlation::NamedPar & par, const Args & ... args)
+			   const Correlation::NamedPar & par, const Args & ... args)
   {
     if (get<2>(par) == Unit::Invalid_Value)
       return false;
@@ -111,7 +96,7 @@ public:
   template <typename ... Args>
   VtlQuantity tcompute(const Correlation * corr_ptr, double c, double m,
 		       const Unit & tuned_unit, bool check,
-		       const Args & ... args)
+		       ParList & pars_list, const Args & ... args)
   {
     try
       {
@@ -131,6 +116,14 @@ public:
 	remove_from_container(pars_list, args ...);
       }
     return VtlQuantity::null_quantity;
+  }
+
+  template <typename ... Args> inline
+  VtlQuantity tcompute(const Correlation * corr_ptr,
+		       double c, double m, const Unit & tuned_unit,
+		       bool check, const Args & ... args)
+  { 
+    return tcompute(corr_ptr, c, m, tuned_unit, check, tmp_pars_list, args...);
   }
 
   /** Bounded and tuned correlation calculation.
@@ -154,7 +147,7 @@ public:
 		       double c, double m, const Unit & tuned_unit,
 		       const VtlQuantity & min_val,
 		       const VtlQuantity & max_val,
-		       bool check, const Args & ... args)
+		       bool check,  ParList & pars_list, const Args & ... args)
   {
     try
       {
@@ -178,6 +171,17 @@ public:
     return VtlQuantity::null_quantity;
   }
 
+  template <typename ... Args> inline
+  VtlQuantity bcompute(const Correlation * corr_ptr,
+		       double c, double m, const Unit & tuned_unit,
+		       bool check, ParList & pars_list, const Args & ... args)
+  {
+    const VtlQuantity min_val = corr_ptr->unit.min();
+    const VtlQuantity max_val = corr_ptr->unit.max();
+    return bcompute(corr_ptr, c, m, tuned_unit, min_val, max_val,
+		    check, pars_list, args...);
+  }
+
   /** Simple correlation calculation.
 
       @param[in] corr_ptr pointer to correlation.
@@ -187,7 +191,7 @@ public:
    */
   template <typename ... Args>
   VtlQuantity compute(const Correlation * corr_ptr, bool check,
-		      const Args & ... args)
+		      ParList & pars_list, const Args & ... args)
   {
     try
       {
@@ -208,6 +212,13 @@ public:
     return VtlQuantity::null_quantity;
   }
 
+  template <typename ... Args> 
+  VtlQuantity compute(const Correlation * corr_ptr, bool check,
+		      const Args & ... args)
+  {  
+    return compute(corr_ptr, check, tmp_pars_list, args...);
+  }
+
   /** Correlation calculation with abortion if an exception is thrown.
 
       This method aborts the calling process if any exception is thrown.
@@ -219,7 +230,7 @@ public:
    */
   template <typename ... Args>
   VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
-			  const Args & ... args)
+			  ParList & pars_list, const Args & ... args)
   {
     try
       {
@@ -240,6 +251,13 @@ public:
     return VtlQuantity::null_quantity;
   }
 
+  template <typename ... Args> 
+  VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
+			  const Args & ... args)
+  {
+    return compute_exc(corr_ptr, check, tmp_pars_list, args...);
+  }
+
   static bool valid_args() { return true; }
 
   template <typename ... Args> static 
@@ -252,15 +270,16 @@ public:
 
 private:
   
-  bool
-  insert_in_pars_list(const DefinedCorrelation&, const VtlQuantity&)
+  static bool
+  insert_in_pars_list(const DefinedCorrelation&, const VtlQuantity&, ParList&)
   {
     return true;
   }
 
-  template <typename ... Args>
+  template <typename ... Args> static
   bool insert_in_pars_list(const DefinedCorrelation & corr,
 			   const VtlQuantity & p_q,
+			   ParList & pars_list,
 			   const Correlation::NamedPar & par,
 			   const Args & ... args)
   {

@@ -15,6 +15,39 @@ struct SimplePlot : public Test
   Cplot cplot;
 };
 
+struct BlackoilPlot : public SimplePlot
+{
+  BlackoilPlot()
+  {
+    cplot.set_boa(BoaMillanArcia::get_instance(),
+		  -0.260005454479017, 1.23760105495816);
+    cplot.set_bob(BobTotalCFP::get_instance(),
+		  -0.743320864010538, 1.73939210267341);
+    cplot.set_coa(CoaPerezML::get_instance(),
+		  8.6296577461858e-06, -0.477971383291644);
+    cplot.set_pb(PbSalazar::get_instance(),
+		 58.9216674773746, 0.832262895375856);
+    cplot.set_rs(RsSalazar::get_instance(),
+		 -2.07970430374413, 1.17945155501256);
+    cplot.set_uoa(UoaDeGhettoEtAl::get_instance(),
+		  32.567065703422, 1.0);
+    cplot.set_uob(UobPerezML::get_instance(),
+		  -138.470633573862, 1.18174982673783);
+    cplot.set_uod(UodPerezML::get_instance(),
+		  -4124.34486516297, 1.0);
+    cplot.set_zfactor(ZfactorDranchukAK::get_instance());
+    cplot.set_api(8.3, Api::get_instance());
+    cplot.set_co2(.86, MolePercent::get_instance());
+    cplot.set_h2s(0, MolePercent::get_instance());
+    cplot.set_n2(.19, MolePercent::get_instance());
+    cplot.set_nacl(0, Molality_NaCl::get_instance());
+    cplot.set_psep(100, psia::get_instance());
+    cplot.set_rsb(79.5, SCF_STB::get_instance());
+    cplot.set_tsep(100, Fahrenheit::get_instance());
+    cplot.set_yg(.608, Sgg::get_instance());
+  }
+};
+
 TEST_F(SimplePlot, Set_Optional_Correlations)
 {
   // This would be the general structure of this test
@@ -110,7 +143,7 @@ TEST_F(SimplePlot, Set_parameters)
   ASSERT_NO_THROW(cplot.set_nacl(6, Molality_NaCl::get_instance()));  
 }
 
-TEST_F(SimplePlot, blackoil_ready)
+TEST_F(BlackoilPlot, blackoil_ready)
 {
-  ASSERT_THROW(cplot.blackoil_ready(), CorrelationNotFound);
+  ASSERT_NO_THROW(cplot.blackoil_ready());
 }

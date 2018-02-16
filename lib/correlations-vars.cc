@@ -16,6 +16,11 @@ size_t Correlation::counter = 0;
 DynMapTree<string, const Correlation *> Correlation::tbl;
 Array<const Correlation *> Correlation::correlations_tbl;
 
+double temperature = 0, pressure = 0; 
+bool exception_thrown = false;
+bool report_exceptions = false;
+DynList<string> exception_list; // Exceptions messages are saved in this list
+
 CorrelationInstantiater __correlations; 
 
 static json to_json(const CorrelationPar & p) 

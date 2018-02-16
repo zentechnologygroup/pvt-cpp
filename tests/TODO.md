@@ -111,3 +111,6 @@
 ## 37. definit fluido antes de continuar con cplot
 - Created at   2018-02-14 15:08:58 -0400
 
+## 38. reformular coreltion-invoker
+- Created at   2018-02-16 17:18:56 -0400
+

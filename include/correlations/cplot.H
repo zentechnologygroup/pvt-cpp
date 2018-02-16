@@ -2,11 +2,10 @@
 # define CPLOT_H
 
 # include <correlations/pvt-correlations.H>
+# include <correlations/defined-correlation.H>
 
 struct Cplot
 {
-  /*********** The following attributes define fluid properties */
-
 # define CONSTANT_PAR(NAME, __unit)			\
   VtlQuantity NAME;					\
   const Unit * NAME##_unit = &__unit::get_instance();	\
@@ -22,7 +21,7 @@ struct Cplot
   void test_##NAME() const						\
   {									\
     if (NAME.is_null())							\
-      ZENTHROW(ValueNotFound, #NAME " value has not been st");		\
+      ZENTHROW(ValueNotFound, #NAME " value has not been set");		\
   }
 
   CONSTANT_PAR(api, Api);
@@ -45,17 +44,34 @@ struct Cplot
       by the parameter name and a list of parameter alias.
 
       This method is intended to be used for constant parameters.
-
    */
-# define TEST_PARAMETER(required, name)					\
-  if ((required.exists([&name](auto & p) { return p.first == name or	\
-	    p.second.exists([&name](auto & s) { return s == name; }); }))) \
-    pars_list.insert(name, value, unit_ptr)
+  static void
+  test_parameter(const DynList<pair<string, DynList<string>>> & required,
+		 const string & name, const VtlQuantity & par,
+		 ParList & pars_list)
+  {
+    if (required.exists([&name] (auto & p) { return p.first == name or
+	    p.second.exists([&name] (auto & s) { return s == name; }); }))
+      pars_list.insert(name, par);
+  }
 
-  /**************** end of fluid properties parameters */
+  ParList load_constant_parameters(const DynList<const Correlation*> & l)
+  {
+    ParList pars_list;
+    auto required_pars = DefinedCorrelation::parameter_list(l);
+				  
+    test_parameter(required_pars, "api", api, pars_list);
+    test_parameter(required_pars, "rsb", rsb, pars_list);
+    test_parameter(required_pars, "yg", yg, pars_list);
+    test_parameter(required_pars, "tsep", tsep, pars_list);
+    test_parameter(required_pars, "psep", psep, pars_list);
+    test_parameter(required_pars, "n2", n2, pars_list);
+    test_parameter(required_pars, "co2", co2, pars_list);
+    test_parameter(required_pars, "h2s", h2s, pars_list);
+    test_parameter(required_pars, "nacl", nacl, pars_list);
 
-  // macro that constructs a parameter by name with name par from a VtlQuantity
-# define NPAR(par) npar(#par, par)
+    return pars_list;
+  }
   
   bool are_blackoil_parameters_set() const noexcept
   {
@@ -235,7 +251,21 @@ struct Cplot
     test_cwb_corr();
     test_cwa_corr();
     test_sgo_corr();
-    test_sgw_corr();		
+    test_sgw_corr();
+
+    auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),
+			    NPAR(n2), NPAR(co2), NPAR(h2s)); 
+    auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),		\
+			     NPAR(n2), NPAR(co2), NPAR(h2s));		\
+    auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),		\
+			    NPAR(n2), NPAR(co2), NPAR(h2s));		\
+    auto tpchc = tpchc_corr->compute(check, yghc);			\
+    auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),		\
+			    NPAR(n2), NPAR(co2), NPAR(h2s));		\
+    auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),	\
+				    NPAR(tpcm), NPAR(co2), NPAR(h2s));	\
+    auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),	\
+				    NPAR(co2), NPAR(h2s));
   }
   
 }; 
