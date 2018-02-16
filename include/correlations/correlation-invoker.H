@@ -300,9 +300,9 @@ private:
     return false;
   }
 
-  template <typename ... Args>
+  template <typename ... Args> static
   bool insert_in_pars_list(const DefinedCorrelation & corr,
-			   const VtlQuantity & p_q,
+			   const VtlQuantity & p_q, ParList & pars_list,
 			   const string & name, const VtlQuantity & par,
 			   const Args & ... args)
   {
@@ -334,7 +334,7 @@ public:
    */
   template <typename ... Args>
   VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
-		       const VtlQuantity & p_q,
+		       const VtlQuantity & p_q, ParList & pars_list,
 		       const Args & ... args)
   {
     if (not insert_in_pars_list(corr, p_q, args...))
@@ -366,6 +366,14 @@ public:
       }
     return VtlQuantity::null_quantity;
   }
+
+  template <typename ... Args> inline
+  VtlQuantity dcompute(const DefinedCorrelation & corr, bool check,
+		       const VtlQuantity & p_q, const Args & ... args)
+  {
+    return dcompute(corr, check, tmp_pars_list, p_q, args...);
+  }
+
 };
 
 /** Define a variable name with the result of invoking a given correlation.

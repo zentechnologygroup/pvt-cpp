@@ -3,7 +3,7 @@
 
 void test()
 {
-  CorrelationInvoker ink;
+  CorrelationInvoker ink(Fahrenheit::get_instance(), psia::get_instance());
 }
 
 int main(int argc, char *argv[])
