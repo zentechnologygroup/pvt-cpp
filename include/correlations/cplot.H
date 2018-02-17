@@ -5,6 +5,7 @@
 # include <correlations/defined-correlation.H>
 # include <correlations/correlation-invoker.H>
 # include <correlations/uo-min.H>
+# include <metadata/ttuner-units.H>
 
 class Cplot
 {
@@ -169,9 +170,10 @@ public:
   }
 
   Declare_Tuned_Correlation(pb);
-  Declare_Tuned_Correlation(rs);
+  Declare_Tuned_Correlation(rsb);
   Declare_Tuned_Correlation(bob);
   Declare_Tuned_Correlation(boa);
+  Declare_Tuned_Correlation(cob);
   Declare_Tuned_Correlation(coa);
   Declare_Tuned_Correlation(uod);
   Declare_Tuned_Correlation(uob);
@@ -193,8 +195,9 @@ public:
   void blackoil_correlations_are_set() const
   {
     verify_correlation(pb_corr, "pb");
-    verify_correlation(rs_corr, "rs");
+    verify_correlation(rsb_corr, "rs");
     verify_correlation(bob_corr, "bob");
+    verify_correlation(cob_corr, "cob");
     verify_correlation(coa_corr, "coa");
     verify_correlation(boa_corr, "boa");
     verify_correlation(uod_corr, "uod");
@@ -203,7 +206,6 @@ public:
     verify_correlation(zfactor_corr, "zfactor");
   }
 
-  Declare_Optional_Correlation(cob, CobMcCainEtAl);
   Declare_Optional_Correlation(ppchc, PpchcStanding);
   Declare_Optional_Correlation(ppcm_mixing, PpcmKayMixingRule);
   Declare_Optional_Correlation(adjustedppcm, AdjustedppcmWichertAziz);
@@ -230,8 +232,8 @@ private:
   VtlQuantity t_q, p_q;
   double temperature, pressure;
 
-  VtlQuantity bobp, pobp, bwbp;
-  NamedPar pb_par, t_par, p_par;
+  VtlQuantity bobp, uobp, pobp, bwbp, tpr;
+  NamedPar pb_par, t_par, p_par, p_pb, rs_pb, tpr_par;
 
   VtlQuantity yghc, ppchc, ppcm, tpchc, tpcm, adjustedppcm, adjustedtpcm, pb_q;
   VtlQuantity min_uo;
@@ -256,7 +258,7 @@ public:
     test_nacl();
  
     test_pb_corr();
-    test_rs_corr();
+    test_rsb_corr();
     test_bob_corr();
     test_boa_corr();
     test_uod_corr();
@@ -303,7 +305,7 @@ public:
 
      /* Initialization of correlation parameter lists */
      pb_pars = load_constant_parameters({pb_corr});
-     rs_pars = load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
+     rs_pars = load_constant_parameters({rsb_corr, &RsAbovePb::get_instance()});
      uod_pars = load_constant_parameters({uod_corr});
      bo_pars = load_constant_parameters({bob_corr, boa_corr});
      co_pars = load_constant_parameters({cob_corr, coa_corr});
@@ -323,13 +325,116 @@ public:
      sgo_pars = load_constant_parameters({sgo_corr});
   }
 
-  DefinedCorrelation rs_corr;
+  DefinedCorrelation rs_corr, co_corr, bo_corr, uo_corr, po_corr, bw_corr,
+    cw_corr;
 
   void blackoil_temperature_calculations()
   {
     
   }
+  
+  void blackoil_pressure_calculations()
+  {
+    
+  }
 
+  static DefinedCorrelation
+  define_correlation(const VtlQuantity & pb,
+		     const Correlation * below_corr_ptr, double cb, double mb,
+		     const Unit & bunit,
+		     const Correlation * above_corr_ptr,
+		     double ca, double ma, const Unit & aunit)
+  {
+    DefinedCorrelation ret("p", pb.unit);
+    ret.add_tuned_correlation(below_corr_ptr, pb_unit->min(), pb, cb, mb, bunit);
+    ret.add_tuned_correlation(above_corr_ptr, pb.next(),
+			      pb_unit->max(), ca, ma, aunit);
+    return ret;
+  }
+
+  static DefinedCorrelation
+  define_correlation(const VtlQuantity & pb,
+		     const Correlation * below_corr_ptr, 
+		     const Correlation * above_corr_ptr)
+  {
+    return define_correlation(pb, below_corr_ptr, 0, 1, *pb_unit,
+			      above_corr_ptr, 0, 1, *pb_unit);
+  }
+
+  void generate_grid_blackoil()
+  {
+    blackoil_ready();
+    for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
+      {
+	temperature = t_it.get_curr();
+	t_q = VtlQuantity(inv.t_unit, temperature);
+	t_par = npar("t", t_q);
+	tpr = Tpr::get_instance().call(t_q, adjustedtpcm);
+	pb_q =
+	  inv.tcompute(pb_corr, c_pb, m_pb, *pb_unit, check, pb_pars, t_par);
+	if (pb_q.is_null())
+	  continue;
+	pb_par = npar("pb", pb_q);
+	p_pb = npar("p", pb_q);
+
+	const Quantity<CP> min_uod = min_uod_val(uod_corr);
+	auto uod_val = inv.bcompute(uod_corr, c_uod, m_uod, *uo_unit, min_uod,
+				    CP::get_instance().max(), check, uod_pars,
+				    t_par, pb_par);
+	
+	insert_in_container(rs_pars, t_par, pb_par);
+	rs_corr = define_correlation(pb_q, rsb_corr, c_rsb, m_rsb,
+				     *rs_unit,
+				     &RsAbovePb::get_instance(), 0, 1,
+				     *rs_unit);
+
+	insert_in_container(co_pars, t_par, pb_par);
+	co_corr = define_correlation(pb_q, cob_corr, c_cob, m_cob, *co_unit,
+				     coa_corr, c_coa, m_coa, *co_unit);
+	bo_corr = define_correlation(pb_q, bob_corr, c_bob, m_bob, *bo_unit,
+				     boa_corr, c_boa, m_boa, *bo_unit);
+
+	insert_in_container(uo_pars, t_par, pb_par, npar("uod", uod_val)); 
+	uo_corr = define_correlation(pb_q, uob_corr, c_uob, m_uob, *uo_unit,
+				     uoa_corr, c_uoa, m_uoa, *uo_unit);
+	uo_corr.set_min(min_uo);
+	
+	po_corr = define_correlation(pb_q, &PobBradley::get_instance(),
+				     &PoaBradley::get_instance());
+	
+	bw_corr = define_correlation(pb_q, bwb_corr, bwa_corr);
+
+	cw_corr = define_correlation(pb_q, cwb_corr, cwa_corr);
+
+	insert_in_container(bo_pars, t_par, pb_par);
+	bobp = inv.tcompute(bob_corr, c_bob, m_bob, *bo_unit, check,
+			    bo_pars, p_pb, rs_pb);
+	
+	uobp = inv.tcompute(uob_corr, c_uob, m_uob, *uo_unit, check,
+		       uo_pars, p_pb, rs_pb, npar("bob", bobp));
+	
+	bo_pars.insert(NPAR(bobp));
+
+	uo_pars.insert("uobp", uobp.raw(), &uobp.unit);
+
+	pobp = inv.compute(&PobBradley::get_instance(), check, po_pars,
+			   rs_pb, npar("bob", bobp));
+
+	bwbp = inv.compute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));
+
+	insert_in_container(po_pars, pb_par, NPAR(pobp));
+	insert_in_container(ug_pars, t_par, tpr_par);
+	insert_in_container(bw_pars, t_par, pb_par, NPAR(bwbp));
+	cg_pars.insert(tpr_par);
+	uw_pars.insert(t_par);
+	pw_pars.insert(t_par);
+	rsw_pars.insert(t_par);
+	cw_pars.insert(t_par);
+	cwa_pars.insert(t_par);
+	sgo_pars.insert(t_par);
+	sgw_pars.insert(t_par);
+      }
+  }
 
 }; 
 
