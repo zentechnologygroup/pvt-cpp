@@ -48,6 +48,25 @@ private:
     exception_list.append(s.str());
   }
 
+  template <typename ... Args> static
+  string correlation_call(const Correlation * corr_ptr, const Args & ... args)
+  {
+    DynList<Correlation::NamedPar> pars;
+    append_in_container(pars, args...);
+
+    ostringstream s;
+    s << corr_ptr->name << "(";
+    for (auto it = pars.get_it(); it.has_curr(); it.next())
+      {
+	const auto & par = it.get_curr();
+	s << get<1>(par) << " = " << get<2>(par) << " " << get<3>(par)->name;
+	if (&par != &pars.get_last())
+	  s << ", ";
+      }
+    s << ")";
+    return s.str();
+  }
+
   /* Helper that meta-inserts par into pars_list but stops if any
      parameter is invalid.
 
@@ -61,7 +80,8 @@ private:
 
   template <typename ... Args> static
   bool insert_in_pars_list(ParList & pars_list, 
-			   const Correlation::NamedPar & par, const Args & ... args)
+			   const Correlation::NamedPar & par,
+			   const Args & ... args)
   {
     if (get<2>(par) == Unit::Invalid_Value)
       return false;

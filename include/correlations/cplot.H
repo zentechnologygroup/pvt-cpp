@@ -3,9 +3,20 @@
 
 # include <correlations/pvt-correlations.H>
 # include <correlations/defined-correlation.H>
+# include <correlations/correlation-invoker.H>
+# include <correlations/uo-min.H>
 
-struct Cplot
+class Cplot
 {
+  CorrelationInvoker inv;
+
+public:
+
+  bool check;
+
+  Cplot(const Unit & tunit, const Unit & punit, bool __check)
+    : inv(tunit, punit), check(__check) {}
+
 # define CONSTANT_PAR(NAME, __unit)			\
   VtlQuantity NAME;					\
   const Unit * NAME##_unit = &__unit::get_instance();	\
@@ -120,7 +131,6 @@ struct Cplot
 # define Declare_Optional_Correlation(NAME, CORR)			\
   const Correlation * NAME##_corr = &CORR::get_instance();		\
 									\
-									\
   Declare_Correlation_Common(NAME);					\
 									\
   void set_##NAME(const Correlation & corr)				\
@@ -211,6 +221,26 @@ struct Cplot
   Declare_Optional_Correlation(rsw, RswSpiveyMN);
   Declare_Optional_Correlation(sgo, SgoBakerSwerdloff);
   Declare_Optional_Correlation(sgw, SgwJenningsNewman);
+  
+private:
+  
+  // These vectors are used for computing grid
+  Array<double> t_values, p_values; // the units are in inv attribute
+
+  VtlQuantity t_q, p_q;
+  double temperature, pressure;
+
+  VtlQuantity bobp, pobp, bwbp;
+  NamedPar pb_par, t_par, p_par;
+
+  VtlQuantity yghc, ppchc, ppcm, tpchc, tpcm, adjustedppcm, adjustedtpcm, pb_q;
+  VtlQuantity min_uo;
+
+  ParList pb_pars, rs_pars, uod_pars, bo_pars, co_pars, uo_pars, po_pars,
+    ug_pars, bw_pars, uw_pars, pw_pars, rsw_pars, cw_pars, cwa_pars, cg_pars,
+    sgo_pars, sgw_pars;
+
+public:
 
   void blackoil_ready()
   {
@@ -253,21 +283,54 @@ struct Cplot
     test_sgo_corr();
     test_sgw_corr();
 
-    auto yghc = compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),
-			    NPAR(n2), NPAR(co2), NPAR(h2s)); 
-    auto ppchc = compute_exc(ppchc_corr, true, NPAR(yghc),		\
-			     NPAR(n2), NPAR(co2), NPAR(h2s));		\
-    auto ppcm = compute_exc(ppcm_mixing_corr, true, NPAR(ppchc),		\
-			    NPAR(n2), NPAR(co2), NPAR(h2s));		\
-    auto tpchc = tpchc_corr->compute(check, yghc);			\
-    auto tpcm = compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),		\
-			    NPAR(n2), NPAR(co2), NPAR(h2s));		\
-    auto adjustedppcm = compute_exc(adjustedppcm_corr, true, NPAR(ppcm),	\
-				    NPAR(tpcm), NPAR(co2), NPAR(h2s));	\
-    auto adjustedtpcm = compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),	\
+    /* Calculation of constants for Z */
+    yghc = inv.compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),
+			   NPAR(n2), NPAR(co2), NPAR(h2s)); 
+    ppchc = inv.compute_exc(ppchc_corr, true, NPAR(yghc), NPAR(n2),
+			    NPAR(co2), NPAR(h2s));
+    ppcm = inv.compute_exc(ppcm_mixing_corr, true, NPAR(ppchc), NPAR(n2),
+			   NPAR(co2), NPAR(h2s));
+    tpchc = tpchc_corr->compute(check, yghc);
+    tpcm = inv.compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),
+			   NPAR(n2), NPAR(co2), NPAR(h2s));
+    adjustedppcm = inv.compute_exc(adjustedppcm_corr, true, NPAR(ppcm),
+				   NPAR(tpcm), NPAR(co2), NPAR(h2s));
+     adjustedtpcm = inv.compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),
 				    NPAR(co2), NPAR(h2s));
+    /* End calculation constants for z */
+
+     min_uo = min_uo_val();
+
+     /* Initialization of correlation parameter lists */
+     pb_pars = load_constant_parameters({pb_corr});
+     rs_pars = load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
+     uod_pars = load_constant_parameters({uod_corr});
+     bo_pars = load_constant_parameters({bob_corr, boa_corr});
+     co_pars = load_constant_parameters({cob_corr, coa_corr});
+     uo_pars = load_constant_parameters({uob_corr, uoa_corr});
+     po_pars = load_constant_parameters({&PobBradley::get_instance(),
+	   &PoaBradley::get_instance()});
+     ug_pars = load_constant_parameters({ug_corr});
+     insert_in_container(ug_pars, npar("tpc", adjustedtpcm),
+			 npar("ppc", adjustedppcm));
+     bw_pars = load_constant_parameters({bwb_corr, bwa_corr});
+     uw_pars = load_constant_parameters({uw_corr});
+     pw_pars = load_constant_parameters({pw_corr});
+     rsw_pars = load_constant_parameters({rsw_corr});
+     cw_pars = load_constant_parameters({cwb_corr, cwa_corr});
+     cwa_pars = load_constant_parameters({cwa_corr});
+     cg_pars.insert(npar("ppc", ppcm));
+     sgo_pars = load_constant_parameters({sgo_corr});
   }
-  
+
+  DefinedCorrelation rs_corr;
+
+  void blackoil_temperature_calculations()
+  {
+    
+  }
+
+
 }; 
 
 # endif

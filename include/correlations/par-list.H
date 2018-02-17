@@ -114,6 +114,13 @@ public:
   {
     insert(par.first, par.second.first, par.second.second);
   }
+  
+  template <typename ... Args>
+  ParList(const Args & ... args)
+    : ParList()
+  {
+    insert_in_container(*this, args...);
+  }
 
   VtlQuantity search(const string & name) const
   {

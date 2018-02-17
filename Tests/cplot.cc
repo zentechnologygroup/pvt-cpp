@@ -13,6 +13,8 @@ using namespace testing;
 struct SimplePlot : public Test
 {
   Cplot cplot;
+
+  SimplePlot() : cplot(Fahrenheit::get_instance(), psia::get_instance(), true) {}
 };
 
 struct BlackoilPlot : public SimplePlot

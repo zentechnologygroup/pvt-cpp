@@ -25,6 +25,29 @@
 
 # include "par-list.H"
 
+/** Complex parameter by name.
+
+      `NamedPar` is a quadruple used to represent a correlation
+      parameter by name, whose structure is the following:
+
+      1. get<0>(par): a boolean value that indicates whether the
+      parameter is or not valid. In some cases, concretely when a
+      calculation depends on other calculation, it is needed to know
+      whether the result of the previous calculation was or not
+      valid. In this case, this field would indicate such thing.
+
+      2. get<1>(par): a string with the name of parameter.
+
+      3. get<2>(par): a double containing the value of parameter.
+
+      4. get<3>(par): a pointer to the unit in which the value is
+      represented. 
+
+      @ingroup Correlations
+      @author Leandro Rabindranath Leona
+   */
+using NamedPar = tuple<bool, string, double, const Unit*>;
+
 /** Define a correlation parameter
 
     @ingroup Correlations
@@ -1200,25 +1223,7 @@ public:
     return compute(vals, check);
   }
 
-  /** Complex parameter by name.
-
-      `NamedPar` is a quadruple used to represent a correlation
-      parameter by name, whose structure is the following:
-
-      1. get<0>(par): a boolean value that indicates whether the
-      parameter is or not valid. In some cases, concretely when a
-      calculation depends on other calculation, it is needed to know
-      whether the result of the previous calculation was or not
-      valid. In this case, this field would indicate such thing.
-
-      2. get<1>(par): a string with the name of parameter.
-
-      3. get<2>(par): a double containing the value of parameter.
-
-      4. get<3>(par): a pointer to the unit in which the value is
-      represented. 
-   */
-  using NamedPar = tuple<bool, string, double, const Unit*>;
+  using NamedPar = ::NamedPar;
 
   /** Build a `NamedPar` object.
 

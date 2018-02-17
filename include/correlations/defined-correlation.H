@@ -103,12 +103,13 @@ class DefinedCorrelation
   double min_val = 0;
   double max_val = numeric_limits<double>::max();
 
-  const Unit & unit; // unit of pivot parameter
+  const Unit * unit_ptr = nullptr; // unit of pivot parameter
 
 public:
 
   DynList<const Correlation*> correlations() const
   {
+    assert(unit_ptr);
     return intervals.maps<const Correlation*> ([] (const auto & i)
 					       { return i.correlation_ptr; });
   }
@@ -120,6 +121,7 @@ public:
   /// pair with the parameter name and a list of parameter synonyms
   DynList<pair<string, DynList<string>>> parameter_list() const
   {
+    assert(unit_ptr);
     using P = pair<string, DynList<string>>;
     DynMapTree<string, DynList<string>> pars;
     intervals.for_each([&pars] (const auto & i)
@@ -141,7 +143,7 @@ public:
       });
   }
 
-    /// Returns a list union of all parameters. Each item is a pair with
+  /// Returns a list union of all parameters. Each item is a pair with
   /// the parameter name and a list of parameter synonyms
   static DynList<pair<string, DynList<string>>>
     parameter_list(const DynList<const Correlation*> & l)
@@ -168,17 +170,20 @@ public:
 
   Interval * search_interval(double val) const noexcept
   {
+    assert(unit_ptr);
     Interval i(nullptr, val, val);
     return intervals.search(i);
   }
 
   Interval * search_interval(const VtlQuantity & v) const
   {
-    return search_interval(VtlQuantity(unit, v).raw());
+    assert(unit_ptr);
+    return search_interval(VtlQuantity(*unit_ptr, v).raw());
   }
 
   const Correlation * search_correlation(double val) const 
   {
+    assert(unit_ptr);
     auto interval_ptr = search_interval(val);
     if (not interval_ptr)
       return nullptr;
@@ -187,11 +192,13 @@ public:
 
   const Correlation * search_correlation(const VtlQuantity & val) const
   {
-    return search_correlation(VtlQuantity(unit, val).raw());
+    assert(unit_ptr);
+    return search_correlation(VtlQuantity(*unit_ptr, val).raw());
   }
 
   const DynSetTree<string> & search_parameters(double val) const
   {
+    assert(unit_ptr);
     auto interval_ptr = search_interval(val);
     if (not interval_ptr)
       ZENTHROW(InvalidValue, "value " + ::to_string(val) + " not found");
@@ -200,26 +207,31 @@ public:
 
   const DynSetTree<string> & search_parameters(const VtlQuantity & val) const
   {
-    return search_parameters(VtlQuantity(unit, val).raw());
+    assert(unit_ptr);
+    return search_parameters(VtlQuantity(*unit_ptr, val).raw());
   }
 
   bool contains(double val) const { return search_interval(val); }
 
   bool contains(const VtlQuantity & val) const
   {
-    return search_interval(VtlQuantity(unit, val).raw());
+    assert(unit_ptr);
+    return search_interval(VtlQuantity(*unit_ptr, val).raw());
   }
 
   DynList<Interval> interval_list() const { return intervals.keys(); }
 
   DefinedCorrelation(const string & main_par_name, const Unit & unit)
-    : main_par_name(main_par_name), unit(unit) {}
+    : main_par_name(main_par_name), unit_ptr(&unit) {}
+
+  DefinedCorrelation() {}
 
 private:
 
   void set_result_unit(Interval * interval, const Correlation * corr_ptr,
 		       double start, double end)
   {
+    assert(unit_ptr);
     if (interval)
       {
 	if (result_unit == nullptr)
@@ -243,6 +255,7 @@ public:
 			     double start, double end,
 			     double c, double m, const Unit & tuned_unit)
   {
+    assert(unit_ptr);
     auto interval =
       intervals.insert(Interval(corr_ptr, start, end, c, m, tuned_unit));
     set_result_unit(interval, corr_ptr, start, end);
@@ -252,13 +265,15 @@ public:
 			     const VtlQuantity & start, const VtlQuantity & end,
 			     double c, double m, const Unit & tuned_unit)
   {
-    add_tuned_correlation(correlation_ptr, VtlQuantity(unit, start).raw(),
-			  VtlQuantity(unit, end).raw(), c, m, tuned_unit);
+    assert(unit_ptr);
+    add_tuned_correlation(correlation_ptr, VtlQuantity(*unit_ptr, start).raw(),
+			  VtlQuantity(*unit_ptr, end).raw(), c, m, tuned_unit);
   }
 
   void add_correlation(const Correlation * corr_ptr,
 		       double start, double end)
   {
+    assert(unit_ptr);
     auto interval = intervals.insert(Interval(corr_ptr, start, end));
     set_result_unit(interval, corr_ptr, start, end);
   }
@@ -266,8 +281,9 @@ public:
   void add_correlation(const Correlation * correlation_ptr,
 		       const VtlQuantity & start, const VtlQuantity & end)
   {
-    add_correlation(correlation_ptr, VtlQuantity(unit, start).raw(),
-		    VtlQuantity(unit, end).raw());
+    assert(unit_ptr);
+    add_correlation(correlation_ptr, VtlQuantity(*unit_ptr, start).raw(),
+		    VtlQuantity(*unit_ptr, end).raw());
   }
 
   void set_min(double min_val) { this->min_val = min_val; }
@@ -276,11 +292,13 @@ public:
 
   void set_min(const VtlQuantity & min_val)
   {
+    assert(unit_ptr);
     set_min(VtlQuantity(*result_unit, min_val).raw());
   }
 
   void set_max(const VtlQuantity & max_val)
   {
+    assert(unit_ptr);
     set_max(VtlQuantity(*result_unit, max_val).raw());
   }
 
@@ -288,6 +306,7 @@ public:
   compute_by_names(const DynList<Correlation::ParByName> & pars,
 		   bool check = true) const
   {
+    assert(unit_ptr);
     auto main_par_ptr =
       pars.find_ptr([this] (auto p) { return p.first == main_par_name; });
     if (main_par_ptr == nullptr)
@@ -320,6 +339,7 @@ public:
   VtlQuantity compute_by_names(const DynList<Correlation::NamedPar> & pars,
 			       bool check = true) const
   {
+    assert(unit_ptr);
     auto main_par_ptr =
       pars.find_ptr([this] (auto t) { return get<1>(t) == main_par_name; });
     if (main_par_ptr == nullptr)
@@ -351,6 +371,7 @@ public:
 
   VtlQuantity compute_by_names(const ParList & pars, bool check = true) const
   {
+    assert(unit_ptr);
     VtlQuantity main_val = pars.search(main_par_name);
     Interval * interval_ptr = search_interval(main_val);
     if (interval_ptr == nullptr)
