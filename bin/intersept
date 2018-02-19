@@ -1,0 +1,85 @@
+#!/usr/bin/env ruby
+# -*- coding: iso-8859-1 -*-
+
+=begin
+ Simple set intersection calculator
+
+ Aleph-w Leandro Rabindranath Leon
+=end
+
+require 'fileutils'
+require 'optparse'
+require 'set'
+
+pvtdir = ENV['PVT']
+fail 'PVT env var has not been defined' unless pvtdir
+
+class Class
+
+  attr_reader :name, :members
+
+  def initialize name
+    @name = name
+    @members = Set.new
+  end
+
+  def add_members(*names)
+    names.each {|name| @members.add name }
+  end
+  
+end
+
+$classes = []
+$curr_class = nil
+
+def add_class name
+  $curr_class = Class.new(name)
+  $classes << $curr_class
+end
+
+def add_members(*names)
+  $curr_class.add_members(*names)
+end
+
+def common_names
+  i = $classes.map { |c| c.members }.inject { |s1, s2| s1 & s2 }
+  i.to_a
+end
+
+add_class 'Blackoil'
+add_members 'yghc', 'ppchc', 'tpchc', 'ppcm', 'tpcm', 'adjustedppcm'
+add_members 'adjustedtpcm', 'pb_q'
+add_members 't_q', 'p_q', 'temperature', 'pressure', 'bobp', 'uobp', 'pobp'
+add_members 'bwbp', 'tpr', 'pb_par', 't_par', 'p_par', 'p_pb', 'rs_pb', 'tpr_par'
+add_members('pb_pars', 'rs_pars', 'uod_pars', 'bo_pars', 'co_pars', 'uo_pars',
+            'po_pars', 'ug_pars', 'bw_pars', 'uw_pars', 'pw_pars', 'rsw_pars',
+            'cw_pars', 'cwa_pars', 'cg_pars', 'sgo_pars', 'sgw_pars')
+
+add_class 'Drygas'
+add_members 'yghc', 'ppchc'
+
+$classes.each do |c|
+  puts c.name
+  puts c.members
+end
+
+puts common_names
+
+options = {}
+options_parser = OptionParser.new do |opts|
+
+  opts.on('-f NAME', '--file NAME', 
+          'file name with correlations') do |file_name|
+    options[:file_name] = file_name
+  end
+  
+end
+
+options_parser.parse!
+
+file = options[:file_name]
+load file
+
+$guard_name = File.basename file, '.rb'
+
+
