@@ -20,7 +20,7 @@ inline ParPair make_par(const string & name, const VtlQuantity & par)
   return ParPair(name, ValPair(par.raw(), &par.unit));
 }
 
-# define PAR(NAME) make_par(#NAME, NAME)
+# define PPAR(NAME) make_par(#NAME, NAME)
 
 using NamedPar = tuple<bool, string, double, const Unit*>;
 
