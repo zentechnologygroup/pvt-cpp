@@ -325,19 +325,19 @@ class BlackoilGrid : public Cplot
     test_sgw_corr();
 
     /* Calculation of constants for Z */
-    yghc = inv.compute_exc(YghcWichertAziz::correlation(), true, NPAR(yg),
-			   NPAR(n2), NPAR(co2), NPAR(h2s)); 
-    ppchc = inv.compute_exc(ppchc_corr, true, NPAR(yghc), NPAR(n2),
-			    NPAR(co2), NPAR(h2s));
-    ppcm = inv.compute_exc(ppcm_mixing_corr, true, NPAR(ppchc), NPAR(n2),
-			   NPAR(co2), NPAR(h2s));
+    yghc = inv.compute_exc(YghcWichertAziz::correlation(), true, PPAR(yg),
+			   PPAR(n2), PPAR(co2), PPAR(h2s)); 
+    ppchc = inv.compute_exc(ppchc_corr, true, PPAR(yghc), PPAR(n2),
+			    PPAR(co2), PPAR(h2s));
+    ppcm = inv.compute_exc(ppcm_mixing_corr, true, PPAR(ppchc), PPAR(n2),
+			   PPAR(co2), PPAR(h2s));
     tpchc = tpchc_corr->compute(check, yghc);
-    tpcm = inv.compute_exc(tpcm_mixing_corr, true, NPAR(tpchc),
-			   NPAR(n2), NPAR(co2), NPAR(h2s));
-    adjustedppcm = inv.compute_exc(adjustedppcm_corr, true, NPAR(ppcm),
-				   NPAR(tpcm), NPAR(co2), NPAR(h2s));
-    adjustedtpcm = inv.compute_exc(adjustedtpcm_corr, true, NPAR(tpcm),
-				   NPAR(co2), NPAR(h2s));
+    tpcm = inv.compute_exc(tpcm_mixing_corr, true, PPAR(tpchc),
+			   PPAR(n2), PPAR(co2), PPAR(h2s));
+    adjustedppcm = inv.compute_exc(adjustedppcm_corr, true, PPAR(ppcm),
+				   PPAR(tpcm), PPAR(co2), PPAR(h2s));
+    adjustedtpcm = inv.compute_exc(adjustedtpcm_corr, true, PPAR(tpcm),
+				   PPAR(co2), PPAR(h2s));
     /* End calculation constants for z */
 
     min_uo = min_uo_val();
@@ -412,7 +412,7 @@ class BlackoilGrid : public Cplot
     uobp = inv.tcompute(uob_corr, c_uob, m_uob, *uo_unit, check,
 			uo_pars, p_pb, rs_pb, npar("bob", bobp));
 	
-    bo_pars.insert(NPAR(bobp));
+    bo_pars.insert(PPAR(bobp));
 
     uo_pars.insert("uobp", uobp.raw(), &uobp.unit);
 
@@ -421,9 +421,9 @@ class BlackoilGrid : public Cplot
 
     bwbp = inv.compute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));
 
-    insert_in_container(po_pars, pb_par, NPAR(pobp));
+    insert_in_container(po_pars, pb_par, PPAR(pobp));
     insert_in_container(ug_pars, t_par, tpr_par);
-    insert_in_container(bw_pars, t_par, pb_par, NPAR(bwbp));
+    insert_in_container(bw_pars, t_par, pb_par, PPAR(bwbp));
     cg_pars.insert(tpr_par);
     uw_pars.insert(t_par);
     pw_pars.insert(t_par);
@@ -454,12 +454,12 @@ class BlackoilGrid : public Cplot
   void pressure_calculations()
   {
     ppr = Ppr::get_instance().call(p_q, adjustedppcm);
-    ppr_par = NPAR(ppr);
+    ppr_par = PPAR(ppr);
     rs = inv.dcompute(rs_corr, check, p_q, rs_pars, p_par);
     rs = min(rs, rsb);
-    rs_par = NPAR(rs);							\
+    rs_par = PPAR(rs);							\
     coa = inv.dcompute(co_corr, check, p_q, co_pars, p_par);		\
-  auto coa_par = NPAR(coa);						\
+  auto coa_par = PPAR(coa);						\
   auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par,	\
 		     coa_par);						\
   auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par,	\
@@ -469,21 +469,21 @@ class BlackoilGrid : public Cplot
   VtlQuantity z;							\
   if (p_q <= pb_q)							\
     z = tcompute(zfactor_corr, c_z, m_z, *z_unit, check, ppr_par, tpr_par); \
-  auto z_par = NPAR(z);							\
+  auto z_par = PPAR(z);							\
   auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);		\
   CALL(Bg, bg, t_q, p_q, z);						\
   auto ug = compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);	\
   CALL(Pg, pg, yg, t_q, p_q, z);					\
   auto rsw = compute(rsw_corr, check, rsw_pars, p_par);			\
-  auto rsw_par = NPAR(rsw);						\
+  auto rsw_par = PPAR(rsw);						\
   auto cwa = compute(cwa_corr, check, cwa_pars, p_par, rsw_par);	\
-  auto bw = dcompute(bw_corr, check, p_q, bw_pars, p_par, NPAR(cwa));	\
-  auto bw_par = NPAR(bw);						\
+  auto bw = dcompute(bw_corr, check, p_q, bw_pars, p_par, PPAR(cwa));	\
+  auto bw_par = PPAR(bw);						\
   auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);		\
   auto cw = dcompute(cw_corr, check, p_q, cw_pars, p_par, z_par,	\
-		     NPAR(bg), rsw_par, bw_par, NPAR(cwa));		\
+		     PPAR(bg), rsw_par, bw_par, PPAR(cwa));		\
   CALL(PpwSpiveyMN, ppw, t_q, p_q);					\
-  auto uw = compute(uw_corr, check, uw_pars, p_par, NPAR(ppw));		\
+  auto uw = compute(uw_corr, check, uw_pars, p_par, PPAR(ppw));		\
   auto sgo = compute(sgo_corr, check, sgo_pars, p_par);			\
   auto sgw = compute(sgw_corr, check, sgw_pars, p_par);			\
 size_t n = insert_in_row(row, p_q, rs, coa, bo, uo, po, z, cg, bg,	\
