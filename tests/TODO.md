@@ -114,3 +114,6 @@
 ## 38. reformular coreltion-invoker
 - Created at   2018-02-16 17:18:56 -0400
 
+## 39. revisar NPAR en nuevo cplot y sustituirlo por PPAR
+- Created at   2018-02-20 10:59:52 -0400
+
