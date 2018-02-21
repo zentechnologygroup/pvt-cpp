@@ -15,12 +15,17 @@ struct Correlation;
 using ValPair = pair<double, const Unit*>;
 using ParPair = pair<string, ValPair>;
 
-inline ParPair make_par(const string & name, const VtlQuantity & par)
+inline ParPair make_ppar(const string & name, const VtlQuantity & par)
 {
   return ParPair(name, ValPair(par.raw(), &par.unit));
 }
 
-# define PPAR(NAME) make_par(#NAME, NAME)
+inline ParPair ppar(const string & name, const VtlQuantity & par)
+{
+  return make_ppar(name, par);
+}
+
+# define PPAR(NAME) make_ppar(#NAME, NAME)
 
 using NamedPar = tuple<bool, string, double, const Unit*>;
 

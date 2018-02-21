@@ -117,3 +117,6 @@
 ## 39. revisar NPAR en nuevo cplot y sustituirlo por PPAR
 - Created at   2018-02-20 10:59:52 -0400
 
+## 40. borrar macro CALL
+- Created at   2018-02-21 10:09:40 -0400
+

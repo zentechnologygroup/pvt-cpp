@@ -220,11 +220,12 @@ protected:
   VtlQuantity t_q, p_q;
   double temperature, pressure;
 
-  VtlQuantity bobp, uobp, pobp, bwbp, tpr, rs, coa;
-  NamedPar pb_par, t_par, p_par, p_pb, rs_pb, tpr_par, ppr_par, rs_par;
+  ParPair pb_par, t_par, p_par, p_pb, rs_pb, tpr_par, ppr_par, rs_par,
+    coa_par, z_par, rsw_par, bw_par;
 
-  VtlQuantity yghc, ppchc, ppcm, tpchc, tpcm, adjustedppcm, adjustedtpcm, ppr,
-    pb_q;
+  VtlQuantity bobp, uobp, pobp, bwbp, tpr, rs, coa, yghc, ppchc, ppcm,
+    tpchc, tpcm, adjustedppcm, adjustedtpcm, ppr, pb_q, bo, uo, po, z, cg,
+    bg, ug, pg, rsw, cwa, bw, pw, cw, ppw, uw, sgo, sgw;
   VtlQuantity min_uo;
 
   ParList pb_pars, rs_pars, uod_pars, bo_pars, co_pars, uo_pars, po_pars,
@@ -267,8 +268,10 @@ public:
   }  
 };
 
-class BlackoilGrid : public Cplot
+struct BlackoilGrid : public Cplot
 {
+  using Cplot::Cplot;
+
   void blackoil_correlations_are_set() const
   {
     verify_correlation(pb_corr, "pb");
@@ -352,29 +355,29 @@ class BlackoilGrid : public Cplot
     po_pars = load_constant_parameters({&PobBradley::get_instance(),
 	  &PoaBradley::get_instance()});
     ug_pars = load_constant_parameters({ug_corr});
-    insert_in_container(ug_pars, npar("tpc", adjustedtpcm),
-			npar("ppc", adjustedppcm));
+    insert_in_container(ug_pars, ppar("tpc", adjustedtpcm),
+			ppar("ppc", adjustedppcm));
     bw_pars = load_constant_parameters({bwb_corr, bwa_corr});
     uw_pars = load_constant_parameters({uw_corr});
     pw_pars = load_constant_parameters({pw_corr});
     rsw_pars = load_constant_parameters({rsw_corr});
     cw_pars = load_constant_parameters({cwb_corr, cwa_corr});
     cwa_pars = load_constant_parameters({cwa_corr});
-    cg_pars.insert(npar("ppc", ppcm));
+    cg_pars.insert(ppar("ppc", ppcm));
     sgo_pars = load_constant_parameters({sgo_corr});
   }
 
   void temperature_calculations()
   {
     t_q = VtlQuantity(inv.t_unit, temperature);
-    t_par = npar("t", t_q);
+    t_par = ppar("t", t_q);
     tpr = Tpr::get_instance().call(t_q, adjustedtpcm);
     pb_q = inv.tcompute(pb_corr, c_pb, m_pb, *pb_unit, check, pb_pars, t_par);
     if (pb_q.is_null())
       return;
     
-    pb_par = npar("pb", pb_q);
-    p_pb = npar("p", pb_q);
+    pb_par = ppar("pb", pb_q);
+    p_pb = ppar("p", pb_q);
 
     const Quantity<CP> min_uod = min_uod_val(uod_corr);
     auto uod_val = inv.bcompute(uod_corr, c_uod, m_uod, *uo_unit, min_uod,
@@ -393,7 +396,7 @@ class BlackoilGrid : public Cplot
     bo_corr = define_correlation(pb_q, bob_corr, c_bob, m_bob, *bo_unit,
 				 boa_corr, c_boa, m_boa, *bo_unit);
 
-    insert_in_container(uo_pars, t_par, pb_par, npar("uod", uod_val)); 
+    insert_in_container(uo_pars, t_par, pb_par, ppar("uod", uod_val)); 
     uo_corr = define_correlation(pb_q, uob_corr, c_uob, m_uob, *uo_unit,
 				 uoa_corr, c_uoa, m_uoa, *uo_unit);
     uo_corr.set_min(min_uo);
@@ -410,16 +413,16 @@ class BlackoilGrid : public Cplot
 			bo_pars, p_pb, rs_pb);
 	
     uobp = inv.tcompute(uob_corr, c_uob, m_uob, *uo_unit, check,
-			uo_pars, p_pb, rs_pb, npar("bob", bobp));
+			uo_pars, p_pb, rs_pb, ppar("bob", bobp));
 	
     bo_pars.insert(PPAR(bobp));
 
     uo_pars.insert("uobp", uobp.raw(), &uobp.unit);
 
     pobp = inv.compute(&PobBradley::get_instance(), check, po_pars,
-		       rs_pb, npar("bob", bobp));
+		       rs_pb, ppar("bob", bobp));
 
-    bwbp = inv.compute(bwb_corr, check, bw_pars, t_par, npar("p", pb_q));
+    bwbp = inv.compute(bwb_corr, check, bw_pars, t_par, ppar("p", pb_q));
 
     insert_in_container(po_pars, pb_par, PPAR(pobp));
     insert_in_container(ug_pars, t_par, tpr_par);
@@ -457,37 +460,35 @@ class BlackoilGrid : public Cplot
     ppr_par = PPAR(ppr);
     rs = inv.dcompute(rs_corr, check, p_q, rs_pars, p_par);
     rs = min(rs, rsb);
-    rs_par = PPAR(rs);							\
-    coa = inv.dcompute(co_corr, check, p_q, co_pars, p_par);		\
-  auto coa_par = PPAR(coa);						\
-  auto bo = dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par,	\
-		     coa_par);						\
-  auto uo = dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par,	\
-		     npar("bob", bo));					\
-  auto po = dcompute(po_corr, check, p_q, po_pars, p_par, rs_par, coa_par, \
-		     npar("bob", bo));					\
-  VtlQuantity z;							\
-  if (p_q <= pb_q)							\
-    z = tcompute(zfactor_corr, c_z, m_z, *z_unit, check, ppr_par, tpr_par); \
-  auto z_par = PPAR(z);							\
-  auto cg = compute(cg_corr, check, cg_pars, ppr_par, z_par);		\
-  CALL(Bg, bg, t_q, p_q, z);						\
-  auto ug = compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);	\
-  CALL(Pg, pg, yg, t_q, p_q, z);					\
-  auto rsw = compute(rsw_corr, check, rsw_pars, p_par);			\
-  auto rsw_par = PPAR(rsw);						\
-  auto cwa = compute(cwa_corr, check, cwa_pars, p_par, rsw_par);	\
-  auto bw = dcompute(bw_corr, check, p_q, bw_pars, p_par, PPAR(cwa));	\
-  auto bw_par = PPAR(bw);						\
-  auto pw = compute(pw_corr, check, pw_pars, p_par, bw_par);		\
-  auto cw = dcompute(cw_corr, check, p_q, cw_pars, p_par, z_par,	\
-		     PPAR(bg), rsw_par, bw_par, PPAR(cwa));		\
-  CALL(PpwSpiveyMN, ppw, t_q, p_q);					\
-  auto uw = compute(uw_corr, check, uw_pars, p_par, PPAR(ppw));		\
-  auto sgo = compute(sgo_corr, check, sgo_pars, p_par);			\
-  auto sgw = compute(sgw_corr, check, sgw_pars, p_par);			\
-size_t n = insert_in_row(row, p_q, rs, coa, bo, uo, po, z, cg, bg,	\
-			   ug, pg, bw, uw, pw, rsw, cw, sgo, sgw);	\
+    rs_par = PPAR(rs);
+    coa = inv.dcompute(co_corr, check, p_q, co_pars, p_par);
+    coa_par = PPAR(coa);
+    bo = inv.dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, coa_par);
+    uo = inv.dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par, 
+		       ppar("bob", bo));
+    po = inv.dcompute(po_corr, check, p_q, po_pars, p_par, rs_par, coa_par,
+		      ppar("bob", bo));
+
+    if (p_q <= pb_q)
+      z = inv.tcompute(zfactor_corr, c_zfactor, m_zfactor, *z_unit, check,
+		       ppr_par, tpr_par);
+    z_par = PPAR(z);
+    cg = inv.compute(cg_corr, check, cg_pars, ppr_par, z_par);
+    bg = Bg::get_instance().call(t_q, p_q, z);
+    ug = inv.compute(ug_corr, check, ug_pars, p_par, ppr_par, z_par);
+    pg = Pg::get_instance().call(yg, t_q, p_q, z);
+    rsw = inv.compute(rsw_corr, check, rsw_pars, p_par);
+    rsw_par = PPAR(rsw);
+    cwa = inv.compute(cwa_corr, check, cwa_pars, p_par, rsw_par);
+    bw = inv.dcompute(bw_corr, check, p_q, bw_pars, p_par, PPAR(cwa));
+    bw_par = PPAR(bw);
+    pw = inv.compute(pw_corr, check, pw_pars, p_par, bw_par);
+    cw = inv.dcompute(cw_corr, check, p_q, cw_pars, p_par, z_par, 
+		      PPAR(bg), rsw_par, bw_par, PPAR(cwa));
+    ppw = PpwSpiveyMN::get_instance().call(t_q, p_q);
+    uw = inv.compute(uw_corr, check, uw_pars, p_par, PPAR(ppw));
+    sgo = inv.compute(sgo_corr, check, sgo_pars, p_par);
+    sgw = inv.compute(sgw_corr, check, sgw_pars, p_par);
   }
 
   void generate_grid()
@@ -521,14 +522,14 @@ size_t n = insert_in_row(row, p_q, rs, coa, bo, uo, po, z, cg, bg,	\
 	    else
 	      {
 		pb_row = true;
-		p_par = npar("p", ++i == 1 ? pb_q : next_pb_q);
-		p_q = par(p_par);
+		p_par = ppar("p", ++i == 1 ? pb_q : next_pb_q);
+		p_q = VtlQuantity(*p_par.second.second, p_par.second.first);
+		//par(p_par);
 		assert(i <= 2);
 	      }		
 
-	    Blackoil_Pressure_Calculations();
-	    row_fct_pb(row, row_units, pb_row);
-	    row.popn(n);
+	    //Blackoil_Pressure_Calculations();
+	    // insertar fila
 	  }
 
 	pop_temperature_parameters();

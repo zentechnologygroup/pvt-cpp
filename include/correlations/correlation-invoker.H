@@ -51,15 +51,16 @@ private:
   template <typename ... Args> static
   string correlation_call(const Correlation * corr_ptr, const Args & ... args)
   {
-    DynList<Correlation::NamedPar> pars;
+    DynList<ParPair> pars;
     append_in_container(pars, args...);
 
     ostringstream s;
     s << corr_ptr->name << "(";
     for (auto it = pars.get_it(); it.has_curr(); it.next())
       {
-	const auto & par = it.get_curr();
-	s << get<1>(par) << " = " << get<2>(par) << " " << get<3>(par)->name;
+	const ParPair & par = it.get_curr();
+	s << par.first << " = " << par.second.first << " "
+	  << par.second.second->name;
 	if (&par != &pars.get_last())
 	  s << ", ";
       }
@@ -79,11 +80,10 @@ private:
   static bool insert_in_pars_list(ParList&) { return true; }
 
   template <typename ... Args> static
-  bool insert_in_pars_list(ParList & pars_list, 
-			   const Correlation::NamedPar & par,
+  bool insert_in_pars_list(ParList & pars_list, const ParPair & par,
 			   const Args & ... args)
   {
-    if (get<2>(par) == Unit::Invalid_Value)
+    if (par.second.first == Unit::Invalid_Value)
       return false;
  
     pars_list.insert(par);
@@ -254,7 +254,7 @@ public:
   {
     try
       {
-	if (not insert_in_pars_list(pars_list, args...))
+	if (not this->insert_in_pars_list(pars_list, args...))
 	  return VtlQuantity::null_quantity;
 
 	auto ret = corr_ptr->compute_by_names(pars_list, check);
@@ -291,28 +291,26 @@ public:
 private:
   
   static bool
-  insert_in_pars_list(const DefinedCorrelation&, const VtlQuantity&, ParList&)
+  dinsert_in_pars_list(const DefinedCorrelation&, const VtlQuantity&, ParList&)
   {
     return true;
   }
 
   template <typename ... Args> static
-  bool insert_in_pars_list(const DefinedCorrelation & corr,
-			   const VtlQuantity & p_q,
-			   ParList & pars_list,
-			   const Correlation::NamedPar & par,
-			   const Args & ... args)
+  bool dinsert_in_pars_list(const DefinedCorrelation & corr,
+			    const VtlQuantity & p_q, ParList & pars_list,
+			    const ParPair & par, const Args & ... args)
   {
-    if (get<2>(par) == Unit::Invalid_Value)
+    if (par.second.first == Unit::Invalid_Value)
       {
-	const string & par_name = get<1>(par);   
+	const string & par_name = par.first;   
 	if (corr.search_parameters(p_q).contains(par_name))
 	  return false; // here the correlation would receive
 			// Invalid_Value and would fail 
       }
  
     pars_list.insert(par);
-    if (insert_in_pars_list(corr, p_q, args...))
+    if (dinsert_in_pars_list(corr, p_q, args...))
       return true;
 
     pars_list.remove(par); // If recursive insertion fails ==> remove par
@@ -321,10 +319,10 @@ private:
   }
 
   template <typename ... Args> static
-  bool insert_in_pars_list(const DefinedCorrelation & corr,
-			   const VtlQuantity & p_q, ParList & pars_list,
-			   const string & name, const VtlQuantity & par,
-			   const Args & ... args)
+  bool dinsert_in_pars_list(const DefinedCorrelation & corr,
+			    const VtlQuantity & p_q, ParList & pars_list,
+			    const string & name, const VtlQuantity & par,
+			    const Args & ... args)
   {
     if (par.raw() == Unit::Invalid_Value)
       {
@@ -334,7 +332,7 @@ private:
       }
  
     pars_list.insert(name, par);
-    if (insert_in_pars_list(corr, p_q, args...))
+    if (dinsert_in_pars_list(corr, p_q, args...))
       return true;
 
     pars_list.remove(name); // If recursive insertion fails ==> remove par
@@ -357,7 +355,7 @@ public:
 		       const VtlQuantity & p_q, ParList & pars_list,
 		       const Args & ... args)
   {
-    if (not insert_in_pars_list(corr, p_q, args...))
+    if (not this->dinsert_in_pars_list(corr, p_q, args...))
       return VtlQuantity::null_quantity;
  
     try

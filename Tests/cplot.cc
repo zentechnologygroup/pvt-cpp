@@ -12,9 +12,10 @@ using namespace testing;
 
 struct SimplePlot : public Test
 {
-  Cplot cplot;
+  BlackoilGrid cplot;
 
-  SimplePlot() : cplot(Fahrenheit::get_instance(), psia::get_instance(), true) {}
+  SimplePlot()
+    : cplot(Fahrenheit::get_instance(), psia::get_instance(), true) {}
 };
 
 struct BlackoilPlot : public SimplePlot
@@ -147,5 +148,5 @@ TEST_F(SimplePlot, Set_parameters)
 
 TEST_F(BlackoilPlot, blackoil_ready)
 {
-  ASSERT_NO_THROW(cplot.blackoil_ready());
+  ASSERT_NO_THROW(cplot.init());
 }
