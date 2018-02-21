@@ -310,7 +310,7 @@ private:
       }
  
     pars_list.insert(par);
-    if (dinsert_in_pars_list(corr, p_q, args...))
+    if (dinsert_in_pars_list(corr, p_q, pars_list, args...))
       return true;
 
     pars_list.remove(par); // If recursive insertion fails ==> remove par
@@ -332,7 +332,7 @@ private:
       }
  
     pars_list.insert(name, par);
-    if (dinsert_in_pars_list(corr, p_q, args...))
+    if (dinsert_in_pars_list(corr, p_q, pars_list, args...))
       return true;
 
     pars_list.remove(name); // If recursive insertion fails ==> remove par
@@ -355,7 +355,7 @@ public:
 		       const VtlQuantity & p_q, ParList & pars_list,
 		       const Args & ... args)
   {
-    if (not this->dinsert_in_pars_list(corr, p_q, args...))
+    if (not this->dinsert_in_pars_list(corr, p_q, pars_list, args...))
       return VtlQuantity::null_quantity;
  
     try

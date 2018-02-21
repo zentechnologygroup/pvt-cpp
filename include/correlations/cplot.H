@@ -15,6 +15,55 @@ protected:
 
 public:
 
+  struct Grid
+  {
+    DynMapTree<string, size_t> name_to_col; // maps property name to column index
+    Array<const Unit *> units; // units for each column
+    Array<double> curr_row;
+    Array<Array<double>> grid;
+
+    void define_header() {}
+
+    template <typename ... Args> void
+    define_header(const string & name, const Unit & unit, const Args & ... args)
+    {
+      const size_t ncol = units.size(); // this the new column index
+      units.append(&unit);
+      name_to_col.insert(name, ncol);
+      define_header(args...);
+    }
+
+    Grid() {}
+
+    template <typename ... Args> Grid(const Args & ... args)
+      : Grid()
+    {
+      define_header(args...);
+    }
+
+    size_t ncol() const noexcept { return units.size(); }
+
+    size_t nrow() const noexcept { return grid.size(); }
+
+    void put_col() {}
+
+    template <typename ... Args> 
+    void put_col(const double & val, const Args & ... args)
+    {
+      curr_row.append(val);
+      put_col(args...);
+    }
+
+    template <typename ... Args> 
+    void put_row(const Args & ... args)
+    {
+      put_col(args...);
+      grid.append(move(curr_row));
+      assert(curr_row.is_empty());
+      curr_row.reserve(ncol());
+    }
+  };
+
   bool check;
 
   Cplot(const Unit & tunit, const Unit & punit, bool __check)
@@ -172,7 +221,7 @@ public:
   }
 
   Declare_Tuned_Correlation(pb);
-  Declare_Tuned_Correlation(rsb);
+  Declare_Tuned_Correlation(rs);
   Declare_Tuned_Correlation(bob);
   Declare_Tuned_Correlation(boa);
   Declare_Tuned_Correlation(cob);
@@ -232,8 +281,8 @@ protected:
     ug_pars, bw_pars, uw_pars, pw_pars, rsw_pars, cw_pars, cwa_pars, cg_pars,
     sgo_pars, sgw_pars;
 
-  DefinedCorrelation rs_corr, co_corr, bo_corr, uo_corr, po_corr, bw_corr,
-    cw_corr;
+  DefinedCorrelation rs_dcorr, co_dcorr, bo_dcorr, uo_dcorr, po_dcorr, bw_dcorr,
+    cw_dcorr;
 
 public:
 
@@ -275,7 +324,7 @@ struct BlackoilGrid : public Cplot
   void blackoil_correlations_are_set() const
   {
     verify_correlation(pb_corr, "pb");
-    verify_correlation(rsb_corr, "rs");
+    verify_correlation(rs_corr, "rs");
     verify_correlation(bob_corr, "bob");
     verify_correlation(cob_corr, "cob");
     verify_correlation(coa_corr, "coa");
@@ -300,7 +349,7 @@ struct BlackoilGrid : public Cplot
     test_nacl();
  
     test_pb_corr();
-    test_rsb_corr();
+    test_rs_corr();
     test_bob_corr();
     test_boa_corr();
     test_uod_corr();
@@ -347,7 +396,7 @@ struct BlackoilGrid : public Cplot
 
     /* Initialization of correlation parameter lists */
     pb_pars = load_constant_parameters({pb_corr});
-    rs_pars = load_constant_parameters({rsb_corr, &RsAbovePb::get_instance()});
+    rs_pars = load_constant_parameters({rs_corr, &RsAbovePb::get_instance()});
     uod_pars = load_constant_parameters({uod_corr});
     bo_pars = load_constant_parameters({bob_corr, boa_corr});
     co_pars = load_constant_parameters({cob_corr, coa_corr});
@@ -385,28 +434,27 @@ struct BlackoilGrid : public Cplot
 				t_par, pb_par);
 	
     insert_in_container(rs_pars, t_par, pb_par);
-    rs_corr = define_correlation(pb_q, rsb_corr, c_rsb, m_rsb,
-				 *rs_unit,
-				 &RsAbovePb::get_instance(), 0, 1,
-				 *rs_unit);
+    rs_dcorr = define_correlation(pb_q, rs_corr, c_rs, m_rs, *rs_unit,
+				  &RsAbovePb::get_instance(), 0, 1,
+				  *rs_unit);
 
     insert_in_container(co_pars, t_par, pb_par);
-    co_corr = define_correlation(pb_q, cob_corr, c_cob, m_cob, *co_unit,
-				 coa_corr, c_coa, m_coa, *co_unit);
-    bo_corr = define_correlation(pb_q, bob_corr, c_bob, m_bob, *bo_unit,
-				 boa_corr, c_boa, m_boa, *bo_unit);
+    co_dcorr = define_correlation(pb_q, cob_corr, c_cob, m_cob, *co_unit,
+				  coa_corr, c_coa, m_coa, *co_unit);
+    bo_dcorr = define_correlation(pb_q, bob_corr, c_bob, m_bob, *bo_unit,
+				  boa_corr, c_boa, m_boa, *bo_unit);
 
     insert_in_container(uo_pars, t_par, pb_par, ppar("uod", uod_val)); 
-    uo_corr = define_correlation(pb_q, uob_corr, c_uob, m_uob, *uo_unit,
-				 uoa_corr, c_uoa, m_uoa, *uo_unit);
-    uo_corr.set_min(min_uo);
+    uo_dcorr = define_correlation(pb_q, uob_corr, c_uob, m_uob, *uo_unit,
+				  uoa_corr, c_uoa, m_uoa, *uo_unit);
+    uo_dcorr.set_min(min_uo);
 	
-    po_corr = define_correlation(pb_q, &PobBradley::get_instance(),
-				 &PoaBradley::get_instance());
+    po_dcorr = define_correlation(pb_q, &PobBradley::get_instance(),
+				  &PoaBradley::get_instance());
 	
-    bw_corr = define_correlation(pb_q, bwb_corr, bwa_corr);
+    bw_dcorr = define_correlation(pb_q, bwb_corr, bwa_corr);
 
-    cw_corr = define_correlation(pb_q, cwb_corr, cwa_corr);
+    cw_dcorr = define_correlation(pb_q, cwb_corr, cwa_corr);
 
     insert_in_container(bo_pars, t_par, pb_par);
     bobp = inv.tcompute(bob_corr, c_bob, m_bob, *bo_unit, check,
@@ -458,15 +506,15 @@ struct BlackoilGrid : public Cplot
   {
     ppr = Ppr::get_instance().call(p_q, adjustedppcm);
     ppr_par = PPAR(ppr);
-    rs = inv.dcompute(rs_corr, check, p_q, rs_pars, p_par);
+    rs = inv.dcompute(rs_dcorr, check, p_q, rs_pars, p_par);
     rs = min(rs, rsb);
     rs_par = PPAR(rs);
-    coa = inv.dcompute(co_corr, check, p_q, co_pars, p_par);
+    coa = inv.dcompute(co_dcorr, check, p_q, co_pars, p_par);
     coa_par = PPAR(coa);
-    bo = inv.dcompute(bo_corr, check, p_q, bo_pars, p_par, rs_par, coa_par);
-    uo = inv.dcompute(uo_corr, check, p_q, uo_pars, p_par, rs_par, 
+    bo = inv.dcompute(bo_dcorr, check, p_q, bo_pars, p_par, rs_par, coa_par);
+    uo = inv.dcompute(uo_dcorr, check, p_q, uo_pars, p_par, rs_par, 
 		       ppar("bob", bo));
-    po = inv.dcompute(po_corr, check, p_q, po_pars, p_par, rs_par, coa_par,
+    po = inv.dcompute(po_dcorr, check, p_q, po_pars, p_par, rs_par, coa_par,
 		      ppar("bob", bo));
 
     if (p_q <= pb_q)
@@ -480,10 +528,10 @@ struct BlackoilGrid : public Cplot
     rsw = inv.compute(rsw_corr, check, rsw_pars, p_par);
     rsw_par = PPAR(rsw);
     cwa = inv.compute(cwa_corr, check, cwa_pars, p_par, rsw_par);
-    bw = inv.dcompute(bw_corr, check, p_q, bw_pars, p_par, PPAR(cwa));
+    bw = inv.dcompute(bw_dcorr, check, p_q, bw_pars, p_par, PPAR(cwa));
     bw_par = PPAR(bw);
     pw = inv.compute(pw_corr, check, pw_pars, p_par, bw_par);
-    cw = inv.dcompute(cw_corr, check, p_q, cw_pars, p_par, z_par, 
+    cw = inv.dcompute(cw_dcorr, check, p_q, cw_pars, p_par, z_par, 
 		      PPAR(bg), rsw_par, bw_par, PPAR(cwa));
     ppw = PpwSpiveyMN::get_instance().call(t_q, p_q);
     uw = inv.compute(uw_corr, check, uw_pars, p_par, PPAR(ppw));
@@ -491,9 +539,34 @@ struct BlackoilGrid : public Cplot
     sgw = inv.compute(sgw_corr, check, sgw_pars, p_par);
   }
 
-  void generate_grid()
+  Grid generate_grid()
   {
     init();
+
+    Grid grid("t", inv.t_unit,
+	      "pb", pb_corr->unit,
+	      "uod", uod_corr->unit,
+	      "p", inv.p_unit,
+	      "rs", rs_corr->unit,
+	      "co", cob_corr->unit,
+	      "bo", bob_corr->unit,
+	      "uo", uob_corr->unit,
+	      "po", PobBradley::get_instance().unit,
+	      "zfactor", Zfactor::get_instance(),
+	      "cg", cg_corr->unit,
+	      "bg", Bg::get_instance().unit,
+	      "ug", ug_corr->unit,
+	      "pg", Pg::get_instance().unit,
+	      "bw", bwb_corr->unit,
+	      "uw", uw_corr->unit,
+	      "pw", pw_corr->unit,
+	      "rsw", rsw_corr->unit,
+	      "cw", cwb_corr->unit,
+	      "sgo", sgo_corr->unit,
+	      "sgw", sgw_corr->unit,
+	      "exception", Unit::null_unit,
+	      "pbrow", Unit::null_unit);
+
     for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
       {
 	temperature = t_it.get_curr();
@@ -524,7 +597,6 @@ struct BlackoilGrid : public Cplot
 		pb_row = true;
 		p_par = ppar("p", ++i == 1 ? pb_q : next_pb_q);
 		p_q = VtlQuantity(*p_par.second.second, p_par.second.first);
-		//par(p_par);
 		assert(i <= 2);
 	      }		
 

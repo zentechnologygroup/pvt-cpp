@@ -26,12 +26,13 @@ struct BlackoilPlot : public SimplePlot
 		  -0.260005454479017, 1.23760105495816);
     cplot.set_bob(BobTotalCFP::get_instance(),
 		  -0.743320864010538, 1.73939210267341);
+    cplot.set_cob(CobMcCainEtAl::get_instance());
     cplot.set_coa(CoaPerezML::get_instance(),
 		  8.6296577461858e-06, -0.477971383291644);
     cplot.set_pb(PbSalazar::get_instance(),
 		 58.9216674773746, 0.832262895375856);
-    cplot.set_rsb(RsSalazar::get_instance(),
-		  -2.07970430374413, 1.17945155501256);
+    cplot.set_rs(RsSalazar::get_instance(),
+		 -2.07970430374413, 1.17945155501256);
     cplot.set_uoa(UoaDeGhettoEtAl::get_instance(),
 		  32.567065703422, 1.0);
     cplot.set_uob(UobPerezML::get_instance(),
@@ -91,9 +92,11 @@ TEST_F(SimplePlot, blackoil_correlations_are_set)
   ASSERT_THROW(cplot.blackoil_correlations_are_set(), CorrelationNotFound);
   cplot.set_pb(PbAlMarhoun::get_instance());
   ASSERT_THROW(cplot.blackoil_correlations_are_set(), CorrelationNotFound);
-  cplot.set_rsb(RsAlMarhoun::get_instance());
+  cplot.set_rs(RsAlMarhoun::get_instance());
   ASSERT_THROW(cplot.blackoil_correlations_are_set(), CorrelationNotFound);
   cplot.set_bob(BobAlShammasi::get_instance());
+  ASSERT_THROW(cplot.blackoil_correlations_are_set(), CorrelationNotFound);
+  cplot.set_cob(CobMcCainEtAl::get_instance());
   ASSERT_THROW(cplot.blackoil_correlations_are_set(), CorrelationNotFound);
   cplot.set_coa(CoaDeGhetto::get_instance());
   ASSERT_THROW(cplot.blackoil_correlations_are_set(), CorrelationNotFound);
@@ -148,5 +151,6 @@ TEST_F(SimplePlot, Set_parameters)
 
 TEST_F(BlackoilPlot, blackoil_ready)
 {
+  cplot.init();
   ASSERT_NO_THROW(cplot.init());
 }
