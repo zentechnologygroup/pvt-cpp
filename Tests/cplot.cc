@@ -10,6 +10,29 @@ using namespace std;
 using namespace Aleph;
 using namespace testing;
 
+TEST(Grid, GridClass)
+{
+  Cplot::Grid grid("t", Fahrenheit::get_instance(),
+		   "p", psia::get_instance(),
+		   "rs", SCF_STB::get_instance());
+  ASSERT_EQ(grid.ncol(), 3);
+  ASSERT_EQ(grid.nrow(), 0);
+  ASSERT_EQ(grid.col_index("t"), 0);
+  ASSERT_EQ(grid.col_index("p"), 1);
+  ASSERT_EQ(grid.col_index("rs"), 2);
+
+  grid.put_col(100);
+  grid.put_col(200, 90);
+  grid.put_row();
+
+  grid.put_row(200, 300, 140);
+  grid.put_row(300, 500, 340);
+
+  ASSERT_TRUE(eq(grid.col("t"), {100, 200, 300}));
+  ASSERT_TRUE(eq(grid.col("p"), {200, 300, 500}));
+  ASSERT_TRUE(eq(grid.col("rs"), {90, 140, 340}));
+}
+
 struct SimplePlot : public Test
 {
   BlackoilGrid cplot;

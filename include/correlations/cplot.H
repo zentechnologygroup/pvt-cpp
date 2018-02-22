@@ -15,12 +15,14 @@ protected:
 
 public:
 
-  struct Grid
+  class Grid
   {
     DynMapTree<string, size_t> name_to_col; // maps property name to column index
-    Array<const Unit *> units; // units for each column
+    Array<const Unit*> units; // units for each column
     Array<double> curr_row;
     Array<Array<double>> grid;
+
+  public:
 
     void define_header() {}
 
@@ -61,6 +63,39 @@ public:
       grid.append(move(curr_row));
       assert(curr_row.is_empty());
       curr_row.reserve(ncol());
+    }
+
+    size_t col_index(const string & col_name) const
+    {
+      auto p = name_to_col.search(col_name);
+      if (p == nullptr)
+	ZENTHROW(NameNotFound, "column name " + col_name + " not found");
+      return p->second;
+    }
+
+    const Unit * unit(const size_t col_idx) const
+    {
+      assert(col_idx < ncol());
+      return units(col_idx);
+    }
+
+    const Unit * unit(const string & col_name) const
+    {
+      return units(col_index(col_name));
+    }
+
+    DynList<double> col(const size_t col_idx) const
+    {
+      assert(col_idx < ncol());
+      DynList<double> ret;
+      for (size_t i = 0, n = nrow(); i < n; ++i)
+	ret.append(grid(i)(col_idx));
+      return ret;
+    }
+
+    DynList<double> col(const string col_name) const
+    {
+      return col(col_index(col_name));
     }
   };
 
