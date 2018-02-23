@@ -20,6 +20,9 @@ TEST(Grid, GridClass)
   ASSERT_EQ(grid.col_index("t"), 0);
   ASSERT_EQ(grid.col_index("p"), 1);
   ASSERT_EQ(grid.col_index("rs"), 2);
+  ASSERT_EQ(grid.unit("t"), &Fahrenheit::get_instance());
+  ASSERT_EQ(grid.unit("p"), &psia::get_instance());
+  ASSERT_EQ(grid.unit("rs"), &SCF_STB::get_instance());
 
   grid.put_col(100);
   grid.put_col(200, 90);
