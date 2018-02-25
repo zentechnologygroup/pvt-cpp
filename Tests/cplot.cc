@@ -24,16 +24,18 @@ TEST(Grid, GridClass)
   ASSERT_EQ(grid.unit("p"), &psia::get_instance());
   ASSERT_EQ(grid.unit("rs"), &SCF_STB::get_instance());
 
-  grid.put_col(100);
-  grid.put_col(200, 90);
-  grid.put_row();
+  grid.put_col(false, false, 100);
+  grid.put_col(false, false, 200, 90);
+  grid.put_row(false, false);
 
-  grid.put_row(200, 300, 140);
-  grid.put_row(300, 500, 340);
+  grid.put_row(false, false, 200, 300, 140);
+  grid.put_row(false, false, 300, 500, 340);
+  grid.put_row(false, false, Quantity<Fahrenheit>(400), Quantity<psia>(700),
+	       Quantity<SCF_STB>(500));
 
-  ASSERT_TRUE(eq(grid.col("t"), {100, 200, 300}));
-  ASSERT_TRUE(eq(grid.col("p"), {200, 300, 500}));
-  ASSERT_TRUE(eq(grid.col("rs"), {90, 140, 340}));
+  ASSERT_TRUE(eq(grid.col("t"), {100, 200, 300, 400}));
+  ASSERT_TRUE(eq(grid.col("p"), {200, 300, 500, 700}));
+  ASSERT_TRUE(eq(grid.col("rs"), {90, 140, 340, 500}));
 }
 
 struct SimplePlot : public Test
@@ -41,7 +43,10 @@ struct SimplePlot : public Test
   BlackoilGrid cplot;
 
   SimplePlot()
-    : cplot(Fahrenheit::get_instance(), psia::get_instance(), true) {}
+    : cplot(Fahrenheit::get_instance(), psia::get_instance(), true)
+  {
+    set_ttuner_units();
+  }
 };
 
 struct BlackoilPlot : public SimplePlot
@@ -179,4 +184,10 @@ TEST_F(BlackoilPlot, blackoil_ready)
 {
   cplot.init();
   ASSERT_NO_THROW(cplot.init());
+}
+
+TEST_F(BlackoilPlot, generate)
+{
+  BlackoilGrid::Grid grid =
+    cplot.generate_grid({100, 200, 300}, {100, 300, 700});
 }

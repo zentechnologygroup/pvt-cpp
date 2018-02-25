@@ -15,12 +15,21 @@ protected:
 
 public:
 
-  class Grid
+  struct Grid
   {
+    struct Row
+    {
+      bool is_pb = false;
+      bool exception = false;
+      Array<double> row;
+    };
+
+  private:
+
     DynMapTree<string, size_t> name_to_col; // maps property name to column index
     Array<const Unit*> units; // units for each column
-    Array<double> curr_row;
-    Array<Array<double>> grid;
+    Row curr_row;
+    Array<Row> grid;
 
   public:
 
@@ -47,22 +56,35 @@ public:
 
     size_t nrow() const noexcept { return grid.size(); }
 
-    void put_col() {}
-
-    template <typename ... Args> 
-    void put_col(const double & val, const Args & ... args)
+    void put_col(const bool & is_pb, const bool & exception)
     {
-      curr_row.append(val);
-      put_col(args...);
+      curr_row.is_pb = is_pb;
+      curr_row.exception = exception;
     }
 
     template <typename ... Args> 
-    void put_row(const Args & ... args)
+    void put_col(const bool & is_pb, const bool & exception,
+		 const double & val, const Args & ... args)
     {
-      put_col(args...);
+      curr_row.row.append(val);
+      put_col(is_pb, exception, args...);
+    }
+
+    template <typename ... Args> 
+    void put_col(const bool & is_pb, const bool & exception,
+		 const VtlQuantity & val, const Args & ... args)
+    {
+      put_col(is_pb, exception, val.raw(), args...);
+    }
+
+    template <typename ... Args> 
+    void put_row(const bool & is_pb, const bool & exception,
+		 const Args & ... args)
+    {
+      put_col(is_pb, exception, args...);
       grid.append(move(curr_row));
-      assert(curr_row.is_empty());
-      curr_row.reserve(ncol());
+      assert(curr_row.row.is_empty());
+      curr_row.row.reserve(ncol());
     }
 
     size_t col_index(const string & col_name) const
@@ -89,7 +111,7 @@ public:
       assert(col_idx < ncol());
       DynList<double> ret;
       for (size_t i = 0, n = nrow(); i < n; ++i)
-	ret.append(grid(i)(col_idx));
+	ret.append(grid(i).row(col_idx));
       return ret;
     }
 
@@ -98,6 +120,12 @@ public:
       return col(col_index(col_name));
     }
   };
+
+protected:
+
+  Grid grid;
+
+public:
 
   bool check;
 
@@ -298,16 +326,13 @@ public:
   
 protected:
   
-  // These vectors are used for computing grid
-  Array<double> t_values, p_values; // the units are in inv attribute
-
   VtlQuantity t_q, p_q;
   double temperature, pressure;
 
   ParPair pb_par, t_par, p_par, p_pb, rs_pb, tpr_par, ppr_par, rs_par,
     coa_par, z_par, rsw_par, bw_par;
 
-  VtlQuantity bobp, uobp, pobp, bwbp, tpr, rs, coa, yghc, ppchc, ppcm,
+  VtlQuantity bobp, uobp, pobp, uod, bwbp, tpr, rs, coa, yghc, ppchc, ppcm,
     tpchc, tpcm, adjustedppcm, adjustedtpcm, ppr, pb_q, bo, uo, po, z, cg,
     bg, ug, pg, rsw, cwa, bw, pw, cw, ppw, uw, sgo, sgw;
   VtlQuantity min_uo;
@@ -464,9 +489,8 @@ struct BlackoilGrid : public Cplot
     p_pb = ppar("p", pb_q);
 
     const Quantity<CP> min_uod = min_uod_val(uod_corr);
-    auto uod_val = inv.bcompute(uod_corr, c_uod, m_uod, *uo_unit, min_uod,
-				CP::get_instance().max(), check, uod_pars,
-				t_par, pb_par);
+    uod = inv.bcompute(uod_corr, c_uod, m_uod, *uo_unit, min_uod,
+		       CP::get_instance().max(), check, uod_pars, t_par, pb_par);
 	
     insert_in_container(rs_pars, t_par, pb_par);
     rs_dcorr = define_correlation(pb_q, rs_corr, c_rs, m_rs, *rs_unit,
@@ -479,7 +503,7 @@ struct BlackoilGrid : public Cplot
     bo_dcorr = define_correlation(pb_q, bob_corr, c_bob, m_bob, *bo_unit,
 				  boa_corr, c_boa, m_boa, *bo_unit);
 
-    insert_in_container(uo_pars, t_par, pb_par, ppar("uod", uod_val)); 
+    insert_in_container(uo_pars, t_par, pb_par, PPAR(uod)); 
     uo_dcorr = define_correlation(pb_q, uob_corr, c_uob, m_uob, *uo_unit,
 				  uoa_corr, c_uoa, m_uoa, *uo_unit);
     uo_dcorr.set_min(min_uo);
@@ -574,34 +598,34 @@ struct BlackoilGrid : public Cplot
     sgw = inv.compute(sgw_corr, check, sgw_pars, p_par);
   }
 
-  Grid generate_grid()
+  template <template <typename T> class Container = DynList>
+  Grid generate_grid(const Container<double> & t_values,
+		     const Container<double> & p_values)
   {
     init();
 
-    Grid grid("t", inv.t_unit,
-	      "pb", pb_corr->unit,
-	      "uod", uod_corr->unit,
-	      "p", inv.p_unit,
-	      "rs", rs_corr->unit,
-	      "co", cob_corr->unit,
-	      "bo", bob_corr->unit,
-	      "uo", uob_corr->unit,
-	      "po", PobBradley::get_instance().unit,
-	      "zfactor", Zfactor::get_instance(),
-	      "cg", cg_corr->unit,
-	      "bg", Bg::get_instance().unit,
-	      "ug", ug_corr->unit,
-	      "pg", Pg::get_instance().unit,
-	      "bw", bwb_corr->unit,
-	      "uw", uw_corr->unit,
-	      "pw", pw_corr->unit,
-	      "rsw", rsw_corr->unit,
-	      "cw", cwb_corr->unit,
-	      "sgo", sgo_corr->unit,
-	      "sgw", sgw_corr->unit,
-	      "exception", Unit::null_unit,
-	      "pbrow", Unit::null_unit);
-
+    grid = Grid("t", inv.t_unit,
+		"pb", pb_corr->unit,
+		"uod", uod_corr->unit,
+		"p", inv.p_unit,
+		"rs", rs_corr->unit,
+		"co", cob_corr->unit,
+		"bo", bob_corr->unit,
+		"uo", uob_corr->unit,
+		"po", PobBradley::get_instance().unit,
+		"zfactor", Zfactor::get_instance(),
+		"cg", cg_corr->unit,
+		"bg", Bg::get_instance().unit,
+		"ug", ug_corr->unit,
+		"pg", Pg::get_instance().unit,
+		"bw", bwb_corr->unit,
+		"uw", uw_corr->unit,
+		"pw", pw_corr->unit,
+		"rsw", rsw_corr->unit,
+		"cw", cwb_corr->unit,
+		"sgo", sgo_corr->unit,
+		"sgw", sgw_corr->unit);
+    
     for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
       {
 	temperature = t_it.get_curr();
@@ -635,12 +659,17 @@ struct BlackoilGrid : public Cplot
 		assert(i <= 2);
 	      }		
 
-	    //Blackoil_Pressure_Calculations();
-	    // insertar fila
+	    pressure_calculations();
+	    
+	    grid.put_row(pb_row, inv.exception_thrown, t_q, pb_q, uod, p_q, rs,
+			 coa, bo, uo, po, z, cg, bg, ug, pg, bw, uw, pw, rsw,
+			 cw, sgo, sgw);
 	  }
 
 	pop_temperature_parameters();
       }
+
+    return move(grid);
   }
 
 };

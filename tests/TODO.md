@@ -120,3 +120,6 @@
 ## 40. borrar macro CALL
 - Created at   2018-02-21 10:09:40 -0400
 
+## 41. revisar campo exception_thrown
+- Created at   2018-02-24 12:08:00 -0400
+
