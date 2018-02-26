@@ -481,6 +481,7 @@ struct BlackoilGrid : public Cplot
     t_q = VtlQuantity(inv.t_unit, temperature);
     t_par = ppar("t", t_q);
     tpr = Tpr::get_instance().call(t_q, adjustedtpcm);
+    tpr_par = PPAR(tpr);
     pb_q = inv.tcompute(pb_corr, c_pb, m_pb, *pb_unit, check, pb_pars, t_par);
     if (pb_q.is_null())
       return;
@@ -644,6 +645,7 @@ struct BlackoilGrid : public Cplot
 	  {
 	    pressure = p_it.get_curr();
 	    p_q = VtlQuantity(inv.p_unit, pressure);
+	    p_par = ppar("p", p_q);
 
 	    bool pb_row = false; /* true if this line concerns to bubble point */
 
