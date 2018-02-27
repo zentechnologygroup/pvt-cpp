@@ -10,3 +10,4 @@ coa debe ser paralelo a boa en compute_boa,2017-10-25 17:53:55 -0400,2017-10-26 
 reahacer compute_rs,2017-10-25 11:59:42 -0400,2017-11-08 08:45:52 -0400,,2017-11-08 08:45:55 -0400
 Orden: input luego programar tests de TODO: ,,2017-11-08 08:46:11 -0400,,2017-11-08 08:46:13 -0400
 capturar excepiones e ignorr en stats,2017-10-26 17:25:45 -0400,2017-10-28 21:29:13 -0400,,2017-11-08 08:46:25 -0400
+revisar privavidad de clase cplot,2018-02-14 12:34:44 -0400,2018-02-26 15:43:20 -0400,,2018-02-26 15:43:23 -0400

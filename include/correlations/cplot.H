@@ -127,7 +127,7 @@ protected:
 
 public:
 
-  bool check;
+  bool check = false;
 
   Cplot(const Unit & tunit, const Unit & punit, bool __check)
     : inv(tunit, punit), check(__check) {}
@@ -351,6 +351,11 @@ public:
   virtual void pressure_calculations() = 0;
 
   virtual void pop_temperature_parameters() = 0;
+
+  virtual Grid generate_grid(const DynList<double> & t_values,
+			     const DynList<double> & p_values) = 0;
+
+  virtual Grid generate_rows(const DynList<pair<double, double>> & tp_values) = 0;
 
   static DefinedCorrelation
   define_correlation(const VtlQuantity & pb,
@@ -599,12 +604,10 @@ struct BlackoilGrid : public Cplot
     sgw = inv.compute(sgw_corr, check, sgw_pars, p_par);
   }
 
-  template <template <typename T> class Container = DynList>
-  Grid generate_grid(const Container<double> & t_values,
-		     const Container<double> & p_values)
+  Grid generate_grid(const DynList<double> & t_values,
+		     const DynList<double> & p_values)
   {
     init();
-
     grid = Grid("t", inv.t_unit,
 		"pb", pb_corr->unit,
 		"uod", uod_corr->unit,
@@ -667,13 +670,15 @@ struct BlackoilGrid : public Cplot
 			 coa, bo, uo, po, z, cg, bg, ug, pg, bw, uw, pw, rsw,
 			 cw, sgo, sgw);
 	  }
-
 	pop_temperature_parameters();
       }
-
     return move(grid);
   }
 
+  Grid generate_rows(const DynList<pair<double, double>> & tp_values)
+  {
+
+  }
 };
 
 # endif

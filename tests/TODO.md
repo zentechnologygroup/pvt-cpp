@@ -114,12 +114,6 @@
 ## 38. reformular coreltion-invoker
 - Created at   2018-02-16 17:18:56 -0400
 
-## 39. revisar NPAR en nuevo cplot y sustituirlo por PPAR
-- Created at   2018-02-20 10:59:52 -0400
-
-## 40. borrar macro CALL
+## 39. borrar macro CALL
 - Created at   2018-02-21 10:09:40 -0400
-
-## 41. revisar campo exception_thrown
-- Created at   2018-02-24 12:08:00 -0400
 

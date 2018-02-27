@@ -70,3 +70,9 @@
 - Comment      
 - Finished     
 
+## 13. revisar privavidad de clase cplot
+- Created at   2018-02-14 12:34:44 -0400
+- Completed at 2018-02-26 15:43:20 -0400
+- Comment      
+- Finished     
+

@@ -2740,3 +2740,15 @@
 - Comment      
 - Finished     
 
+## 458. revisar campo exception_thrown
+- Created at   2018-02-24 12:08:00 -0400
+- Completed at 2018-02-26 15:41:36 -0400
+- Comment      
+- Finished     
+
+## 459. revisar NPAR en nuevo cplot y sustituirlo por PPAR
+- Created at   2018-02-20 10:59:52 -0400
+- Completed at 2018-02-26 15:41:47 -0400
+- Comment      
+- Finished     
+
