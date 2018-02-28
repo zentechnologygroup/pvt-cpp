@@ -127,7 +127,7 @@ public:
       auto col_names = sort(grid.name_to_col.items(), [] (auto & p1, auto & p2)
 			    { return p1.second < p2.second; });
       out.precision(grid.presision);
-      for (auto it = zip_it(col_names, grid.units); it.get_curr(); it.next())
+      for (auto it = zip_it(col_names, grid.units); it.has_curr(); it.next())
 	{
 
 	}
