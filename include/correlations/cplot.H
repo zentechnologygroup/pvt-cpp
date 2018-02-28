@@ -24,6 +24,8 @@ public:
       Array<double> row;
     };
 
+    size_t presision = 6;
+
   private:
 
     DynMapTree<string, size_t> name_to_col; // maps property name to column index
@@ -118,6 +120,17 @@ public:
     DynList<double> col(const string col_name) const
     {
       return col(col_index(col_name));
+    }
+
+    friend ostream & operator << (ostream & out, const Grid & grid)
+    {
+      auto col_names = sort(grid.name_to_col.items(), [] (auto & p1, auto & p2)
+			    { return p1.second < p2.second; });
+      out.precision(grid.presision);
+      for (auto it = zip_it(col_names, grid.units); it.get_curr(); it.next())
+	{
+
+	}
     }
   };
 
@@ -479,6 +492,28 @@ struct BlackoilGrid : public Cplot
     cwa_pars = load_constant_parameters({cwa_corr});
     cg_pars.insert(ppar("ppc", ppcm));
     sgo_pars = load_constant_parameters({sgo_corr});
+
+    grid = Grid("t", inv.t_unit,
+		"pb", pb_corr->unit,
+		"uod", uod_corr->unit,
+		"p", inv.p_unit,
+		"rs", rs_corr->unit,
+		"co", cob_corr->unit,
+		"bo", bob_corr->unit,
+		"uo", uob_corr->unit,
+		"po", PobBradley::get_instance().unit,
+		"zfactor", Zfactor::get_instance(),
+		"cg", cg_corr->unit,
+		"bg", Bg::get_instance().unit,
+		"ug", ug_corr->unit,
+		"pg", Pg::get_instance().unit,
+		"bw", bwb_corr->unit,
+		"uw", uw_corr->unit,
+		"pw", pw_corr->unit,
+		"rsw", rsw_corr->unit,
+		"cw", cwb_corr->unit,
+		"sgo", sgo_corr->unit,
+		"sgw", sgw_corr->unit);
   }
 
   void temperature_calculations()
@@ -607,29 +642,7 @@ struct BlackoilGrid : public Cplot
   Grid generate_grid(const DynList<double> & t_values,
 		     const DynList<double> & p_values)
   {
-    init();
-    grid = Grid("t", inv.t_unit,
-		"pb", pb_corr->unit,
-		"uod", uod_corr->unit,
-		"p", inv.p_unit,
-		"rs", rs_corr->unit,
-		"co", cob_corr->unit,
-		"bo", bob_corr->unit,
-		"uo", uob_corr->unit,
-		"po", PobBradley::get_instance().unit,
-		"zfactor", Zfactor::get_instance(),
-		"cg", cg_corr->unit,
-		"bg", Bg::get_instance().unit,
-		"ug", ug_corr->unit,
-		"pg", Pg::get_instance().unit,
-		"bw", bwb_corr->unit,
-		"uw", uw_corr->unit,
-		"pw", pw_corr->unit,
-		"rsw", rsw_corr->unit,
-		"cw", cwb_corr->unit,
-		"sgo", sgo_corr->unit,
-		"sgw", sgw_corr->unit);
-    
+    init();    
     for (auto t_it = t_values.get_it(); t_it.has_curr(); t_it.next())
       {
 	temperature = t_it.get_curr();
@@ -677,7 +690,21 @@ struct BlackoilGrid : public Cplot
 
   Grid generate_rows(const DynList<pair<double, double>> & tp_values)
   {
+    init();    
+    for (auto it = tp_values.get_it(); it.has_curr(); it.next())
+      {
+	const auto & p = it.get_curr();
+	temperature = p.first;
+	pressure = p.second;
 
+	temperature_calculations();
+	pressure_calculations();
+	grid.put_row(false, inv.exception_thrown, t_q, pb_q, uod, p_q, rs,
+		     coa, bo, uo, po, z, cg, bg, ug, pg, bw, uw, pw, rsw,
+		     cw, sgo, sgw);
+	pop_temperature_parameters();
+      }
+    return move(grid);
   }
 };
 
