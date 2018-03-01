@@ -22,9 +22,16 @@ public:
       bool is_pb = false;
       bool exception = false;
       Array<double> row;
+
+      friend ostream & operator << (ostream & out, const Row & row)
+      {
+	return out << (row.is_pb ? "true," : "false,")
+		   << (row.exception ? "true," : "false,");
+	return join(row.row, ",", out);
+      }
     };
 
-    size_t presision = 6;
+    size_t precision = 6;
 
   private:
 
@@ -126,11 +133,22 @@ public:
     {
       auto col_names = sort(grid.name_to_col.items(), [] (auto & p1, auto & p2)
 			    { return p1.second < p2.second; });
-      out.precision(grid.presision);
-      for (auto it = zip_it(col_names, grid.units); it.has_curr(); it.next())
-	{
 
+      out << join(zip_maps<string>([] (auto t)
+				   {
+				     const string & name = get<0>(t).first;
+				     const Unit * unit_ptr = get<1>(t);
+				     return name + " " + unit_ptr->name;
+				   }, col_names, grid.units), ",") << endl;
+
+      out.precision(grid.precision);
+      for (auto it = grid.grid.get_it(); it.has_curr(); it.next())
+	{
+	  const Row & row = it.get_curr();
+	  out << row << endl;
 	}
+
+      return out;
     }
   };
 
