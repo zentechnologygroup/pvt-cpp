@@ -134,13 +134,14 @@ public:
       auto col_names = sort(grid.name_to_col.items(), [] (auto & p1, auto & p2)
 			    { return p1.second < p2.second; });
 
-      out << join(zip_maps<string>([] (auto t)
+      out << "pbrow " << Unit::null_unit.name << ",exception "
+	  << Unit::null_unit.name << ","
+	  << join(zip_maps<string>([] (auto t)
 				   {
 				     const string & name = get<0>(t).first;
 				     const Unit * unit_ptr = get<1>(t);
 				     return name + " " + unit_ptr->name;
 				   }, col_names, grid.units), ",") << endl;
-
       if (grid.grid.is_empty())
 	return out;
 
@@ -776,6 +777,7 @@ struct SimpleGrid : public Cplot
     test_tpcm_mixing_corr();
     test_adjustedppcm_corr();
     test_adjustedtpcm_corr();
+    test_zfactor_corr();
 
     /* Calculation of constants for Z */
     yghc = inv.compute_exc(YghcWichertAziz::correlation(), true, PPAR(yg),
@@ -811,7 +813,6 @@ struct SimpleGrid : public Cplot
 		"co", cob_corr->unit,
 		"bo", bob_corr->unit,
 		"uo", uob_corr->unit,
-		"po", PobBradley::get_instance().unit,
 		"zfactor", Zfactor::get_instance());
   }
 
@@ -862,10 +863,10 @@ struct SimpleGrid : public Cplot
 
   void pop_temperature_parameters()
   {
+    remove_from_container(rs_pars, "pb", t_par);
     remove_from_container(co_pars, "pb", t_par);
     remove_from_container(bo_pars, "bobp", "pb", t_par);
     remove_from_container(uo_pars, "uobp", "pb", "uod", t_par);
-    remove_from_container(po_pars, "pb", "pobp");
   }
 
   void pressure_calculations()
@@ -878,8 +879,8 @@ struct SimpleGrid : public Cplot
     coa = inv.dcompute(co_dcorr, check, p_q, co_pars, p_par);
     coa_par = PPAR(coa);
     bo = inv.dcompute(bo_dcorr, check, p_q, bo_pars, p_par, rs_par, coa_par);
-    uo = inv.dcompute(uo_dcorr, check, p_q, uo_pars, p_par, rs_par, 
-		       ppar("bob", bo));
+    uo = inv.dcompute(uo_dcorr, check, p_q, uo_pars, p_par, rs_par,
+		      ppar("bob", bo));
     if (p_q <= pb_q)
       z = inv.tcompute(zfactor_corr, c_zfactor, m_zfactor, *z_unit, check,
 		       ppr_par, tpr_par);
@@ -888,9 +889,8 @@ struct SimpleGrid : public Cplot
 
   void put_row(const bool pb_row)
   {
-    grid.put_row(pb_row, inv.exception_thrown, t_q, pb_q, uod, p_q, rs,
-		 coa, bo, uo);
-
+    grid.put_row(pb_row, inv.exception_thrown, t_q, pb_q, uod, p_q, rs, coa,
+		 bo, uo);
   }
 
   Grid generate_grid(const DynList<double> & t_values,

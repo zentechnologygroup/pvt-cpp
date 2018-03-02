@@ -111,9 +111,6 @@
 ## 37. definit fluido antes de continuar con cplot
 - Created at   2018-02-14 15:08:58 -0400
 
-## 38. reformular coreltion-invoker
-- Created at   2018-02-16 17:18:56 -0400
-
-## 39. borrar macro CALL
-- Created at   2018-02-21 10:09:40 -0400
+## 38. opcion en cplot qu geere objeto fluido
+- Created at   2018-03-02 15:40:31 -0400
 

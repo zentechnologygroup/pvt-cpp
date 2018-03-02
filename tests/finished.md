@@ -2752,3 +2752,15 @@
 - Comment      
 - Finished     
 
+## 460. borrar macro CALL
+- Created at   2018-02-21 10:09:40 -0400
+- Completed at 2018-03-02 15:39:40 -0400
+- Comment      
+- Finished     
+
+## 461. reformular coreltion-invoker
+- Created at   2018-02-16 17:18:56 -0400
+- Completed at 2018-03-02 15:40:06 -0400
+- Comment      
+- Finished     
+

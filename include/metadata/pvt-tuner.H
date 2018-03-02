@@ -1701,7 +1701,7 @@ public:
     
     ParPair pb_par = get_pb(v_ptr->t, v_ptr->pb);
     ParList pars = build_correlation_pars();
-    insert_in_container(pars, pb_par, make_par("rs", get_rsb()),
+    insert_in_container(pars, pb_par, npar("rs", get_rsb()),
 			ParPair("t", ValPair(t, &Fahrenheit::get_instance())),
 			ParPair("p", pb_par.second));
     VtlQuantity bobp =
@@ -1923,7 +1923,7 @@ public:
 
     ParList pars = build_correlation_pars();
     insert_in_container(pars, pb_par, get_uod(*v_ptr, pb_par),
-			make_par("rs", get_rsb()),
+			npar("rs", get_rsb()),
 			ParPair("t", ValPair(t, &Fahrenheit::get_instance())),
 			ParPair("p", pb_par.second));
 

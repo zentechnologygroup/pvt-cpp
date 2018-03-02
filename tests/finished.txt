@@ -457,3 +457,5 @@ script que lea refs y genere archivo doxygen con sus etiquetas,2018-01-25 19:42:
 en doc se deben recuperar las referencias completas y no las tags,2018-01-25 16:47:42 -0400,2018-02-01 15:51:22 -0400,,2018-02-01 15:51:24 -0400
 revisar campo exception_thrown,2018-02-24 12:08:00 -0400,2018-02-26 15:41:36 -0400,,2018-02-26 15:41:39 -0400
 revisar NPAR en nuevo cplot y sustituirlo por PPAR,2018-02-20 10:59:52 -0400,2018-02-26 15:41:47 -0400,,2018-02-26 15:41:49 -0400
+borrar macro CALL,2018-02-21 10:09:40 -0400,2018-03-02 15:39:40 -0400,,2018-03-02 15:39:57 -0400
+reformular coreltion-invoker,2018-02-16 17:18:56 -0400,2018-03-02 15:40:06 -0400,,2018-03-02 15:40:09 -0400

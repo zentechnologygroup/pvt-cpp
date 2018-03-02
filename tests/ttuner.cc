@@ -1637,6 +1637,7 @@ void process_auto_input()
 
 int main(int argc, char *argv[])
 {
+  set_ttuner_units();
   cmd.parse(argc, argv);
   try
     {
