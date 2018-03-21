@@ -58,6 +58,12 @@
   \end{block}
  \end{frame}
 
+ \begin{frame}{Ejemplo con Bob}{(Factor volumétrico)}
+  \begin{center}
+    \includegraphics[width=10cm, height=7cm]{bob.pdf}
+  \end{center}
+ \end{frame}
+
  \begin{frame}{Solución}{Calibración según datos experimentales}
 
   Para las propiedades críticas y más propensas al error se efectúa una
@@ -72,28 +78,25 @@
 
  \end{frame}
 
-
 \section{La técnica de calibración}
-
 
 \begin{frame}{Ajuste lineal}
  
  \begin{columns}
   \begin{column}{5cm}
    \includegraphics[scale=.25]{tuining}
-   \begin{itemize}
-    \item Recta por regresión sobre el error.
-    \item Parámetros $c$ y $m$.
-   \end{itemize}
   \end{column}
   \begin{column}{5cm}
-   $Y_{ajusted} = c + m Y_{corr}$
-   
-    ~\
+   \begin{itemize}
+    \item  Puntos experimentales ordenados por presión (sin
+	  contar temperaturas).
+    \item Regresión sobre el error obtiene recta    $Y_{ajusted} = c + m Y_{corr}$.
 
-   Cómo decidir?
+   \end{itemize}
+      
+   Indicadores para decidir:
     \begin{itemize}
-     \item $R^2$
+     \item $R^2$, sumsq
      \item mse: suma de los errores al cuadrado.
      \item sigma ($\sigma$)
      \item $c$
@@ -102,6 +105,53 @@
   \end{column}
  \end{columns}
 \end{frame}
+
+\begin{frame}{Ejemplo con Bob calibrado}
+ \begin{center}
+  \includegraphics[width=10cm, height=7cm]{bob-cal}
+ \end{center}
+\end{frame}
+
+\newcommand{\ttuner}{{\tt ttuner}\xspace}
+
+\section{Backend ttuner}
+
+\begin{frame}{\ttuner}
+ 
+\ttuner es el nombre del backend que efectúa la calibración:
+
+\begin{itemize}
+ \item Todas las interacciones son por líneas de comandos.
+
+ \item Otros backends:
+       \begin{enumerate}
+	\item {\tt cplot}: genera el grid.
+	\item {\tt ztuner}: calibración automática del factor Z
+       \end{enumerate}
+
+ \item Backends desarrollados en C++.
+
+ \item Diseñados para invocarse desde un front-end completamente independiente.
+
+\end{itemize}
+
+
+
+\end{frame}
+
+\subsection{Entrada de datos}
+
+\subsection{Inputing}
+
+\subsection{apply}
+
+\subsection{napply}
+
+\subsection{relax}
+
+\subsection{split}
+
+
 
 \end{document}
 
