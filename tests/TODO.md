@@ -114,3 +114,6 @@
 ## 38. opcion en cplot qu geere objeto fluido
 - Created at   2018-03-02 15:40:31 -0400
 
+## 39. por que el f5 auo 2 cambia correlación pb
+- Created at   2018-03-22 16:01:15 -0400
+
