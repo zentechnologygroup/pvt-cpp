@@ -114,3 +114,6 @@
 ## 38. opcion en cplot qu geere objeto fluido
 - Created at   2018-03-02 15:40:31 -0400
 
+## 39. modo both parace no está funcionando bien con pb en ttuner
+- Created at   2018-03-15 15:51:37 -0400
+

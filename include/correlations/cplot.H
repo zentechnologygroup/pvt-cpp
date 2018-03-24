@@ -390,7 +390,8 @@ public:
   virtual Grid generate_grid(const DynList<double> & t_values,
 			     const DynList<double> & p_values) = 0;
 
-  virtual Grid generate_rows(const DynList<pair<double, double>> & tp_values) = 0;
+  virtual Grid
+  generate_rows(const DynList<pair<double, double>> & tp_values) = 0;
 
   static DefinedCorrelation
   define_correlation(const VtlQuantity & pb,
