@@ -556,7 +556,7 @@ MultiArg<Rs> rs_arg = { "", "rs_data", "rs", false,
 			"tunit punit rs_unit t pb p-vals rs-vals", cmd};
 
 MultiArg<Coa> coa_arg = { "", "coa_data", "coa", false,
-			  "tunit punit rs_unit t pb p-vals coa-vals", cmd};
+			  "tunit punit coa_unit t pb p-vals coa-vals", cmd};
 
 MultiArg<Bob> bob_arg = { "", "bob_data", "bob", false,
 			  "tunit punit bob_unit t pb bobp p-vals bob-vals", cmd};
@@ -565,7 +565,7 @@ MultiArg<Boa> boa_arg = { "", "boa_data", "boa", false,
 			  "tunit punit boa_unit t pb bobp p-vals boa-vals", cmd};
 
 MultiArg<Uob> uob_arg = { "", "uob_data", "uob", false,
-			  "tunit punit boa_unit t pb uobp p-vals uoa-vals", cmd};
+			  "tunit punit uob_unit t pb uobp p-vals uoa-vals", cmd};
 
 MultiArg<Uoa> uoa_arg = { "", "uoa_data", "uoa", false,
 			  "tunit punit uoa_unit t pb uobp p-vals uoa-vals", cmd};
@@ -598,7 +598,7 @@ MultiArg<string> relax_pars =
 
 // Unit change specification. Suitable for any parameter
 MultiArg<ArgUnit> unit = { "", "unit", "change unit of input data", false,
-			   "unit \"par-name unit\"", cmd };
+			   "\"par-name unit\"", cmd };
 
 const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 {
@@ -767,7 +767,7 @@ ValueArg<string> apply = { "a", "apply", "print applying correlations", false,
 
 ValueArg<string> napply =
   { "n", "napply", "print non applying correlations and reasons", false, "",
-    "napply property", cmd };
+    "property-name", cmd };
 
 ValueArg<CorrArgs> cal = { "", "lcal", "calibrate correlations", false,
 			   CorrArgs(), "calibrate correlation-list", cmd };

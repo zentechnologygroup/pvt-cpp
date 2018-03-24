@@ -54,8 +54,8 @@ void set_check()
 
 // indicates that exceptions must be reported
 SwitchArg catch_exceptions = { "", "exceptions", "report exceptions", cmd };
-bool report_exceptions = false;
-DynList<string> exception_list; // Exceptions messages are saved in this list
+extern bool report_exceptions;
+extern DynList<string> exception_list; // Exceptions messages are saved in this list
 
 // allowed parameter names (they are values ​​or ranges, but they are
 // not correlations). This table is used for validating change of
@@ -863,8 +863,8 @@ test_parameter(const DynList<pair<string, DynList<string>>> & required,
 const double Invalid_Value = Unit::Invalid_Value;
 
 // global values only set during the grid generation and can be accessed by anyone
-double temperature = 0, pressure = 0; 
-bool exception_thrown = false;
+extern double temperature, pressure; 
+extern bool exception_thrown;
 
 // save exception e that was thrown during calculation of correlation corr_name
 void store_exception(const string & corr_name, const exception & e)
