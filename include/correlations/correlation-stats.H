@@ -37,16 +37,9 @@ public:
   {
     double pearson_corr = gsl_stats_correlation(&y.base(), 1,
 					      &yc.base(), 1, y.size());
-    // cout << "r2 = " << pearson_corr << endl
-    // 	 << (std::isnan(pearson_corr) ? "true" : "false") << endl
-    // 	 << "status = " << fpclassify(pearson_corr) << endl
-    // 	 << "n  = " << y.size() << endl
-    // 	 << "y  = " << join(y) << endl
-    // 	 << "yc = " << join(yc) << endl; 
     if (not is_normal_number(pearson_corr))
-      {
-	return 1;
-      }
+      return 1;
+
     return pearson_corr*pearson_corr;
   }
 
