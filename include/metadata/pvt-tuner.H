@@ -2890,9 +2890,13 @@ public:
     else
       corr_map.insert("coa", apply(coa_corr));
 
-    boa_corr = &BoaMcCain::get_instance();
-    c_boa = 0;
-    m_boa = 1;
+    if (boa_corr == nullptr)
+      {
+	StatsDesc s = auto_apply("boa", relax_tbl, ban_list, threshold, type);
+	ADD_AUTO(boa, s);
+      }
+    else
+      corr_map.insert("boa", apply(boa_corr));
 
     if (uod_corr == nullptr)
       {
@@ -2922,7 +2926,7 @@ public:
       corr_map.insert("uoa", apply(uoa_corr));
 
     static const DynList<string> dynamic_names =
-      { "rs", "bob", "coa", "uob", "uoa" };
+      { "rs", "bob", "coa", "boa", "uob", "uoa" };
     if (n > 1)
       {
 	assert(pb_corr);
@@ -2965,7 +2969,7 @@ public:
       }
 
     static DynList<string> name_order =
-      { "pb", "rs", "bob", "coa", "uod", "uob", "uoa" };
+      { "pb", "rs", "bob", "coa", "boa", "uod", "uob", "uoa" };
     return name_order.maps<StatsDesc>([&corr_map] (const auto & name)
       {
 	return corr_map[name]; 
