@@ -36,9 +36,6 @@ ojo con reentrancia de tcompute y declaración static,2018-02-07 15:15:59 -0400,
 super auto lista de todo auto ordenada por lo mejor,2018-02-08 16:39:03 -0400,,
 definit fluido antes de continuar con cplot,2018-02-14 15:08:58 -0400,,
 opcion en cplot qu geere objeto fluido,2018-03-02 15:40:31 -0400,,
-<<<<<<< HEAD
 modo both parace no está funcionando bien con pb en ttuner,2018-03-15 15:51:37 -0400,,
-=======
 por que el f5 auo 2 cambia correlación pb,2018-03-22 16:01:15 -0400,,
->>>>>>> b4c2ed6698f287b849e4ebedf0763f3f8ed022dc
-auto_apply está retornando nullptr,2018-04-03 17:05:41 -0400,,
+poner dos thresholds para el m,2018-04-04 09:53:02 -0400,,

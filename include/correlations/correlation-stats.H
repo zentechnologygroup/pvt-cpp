@@ -240,6 +240,12 @@ public:
 				 is_valid(d) ? "valid" : "invalid");
   }
 
+  static DynList<string> null_dynlist()
+  {
+    return build_dynlist<string>("-", "-", "-", "-", "-", "-", "-",
+				 "out of threshold");
+  }
+
   static DynList<string> invalid_desc_to_dynlist()
   {
     return build_dynlist<string>("-", "-", "-", "-", "-", "-", "invalid");

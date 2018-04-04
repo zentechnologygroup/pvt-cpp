@@ -2764,3 +2764,27 @@
 - Comment      
 - Finished     
 
+## 462. >>>>>>> b4c2ed6698f287b849e4ebedf0763f3f8ed022dc
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 463. =======
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+
+## 464. auto_apply está retornando nullptr
+- Created at   2018-04-03 17:05:41 -0400
+- Completed at 2018-04-04 09:53:27 -0400
+- Comment      
+- Finished     
+
+## 465. <<<<<<< HEAD
+- Created at   
+- Completed at 
+- Comment      
+- Finished     
+

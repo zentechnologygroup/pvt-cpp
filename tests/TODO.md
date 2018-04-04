@@ -114,21 +114,12 @@
 ## 38. opcion en cplot qu geere objeto fluido
 - Created at   2018-03-02 15:40:31 -0400
 
-## 39. <<<<<<< HEAD
-- Created at   
-
-## 40. modo both parace no está funcionando bien con pb en ttuner
+## 39. modo both parace no está funcionando bien con pb en ttuner
 - Created at   2018-03-15 15:51:37 -0400
 
-## 41. =======
-- Created at   
-
-## 42. por que el f5 auo 2 cambia correlación pb
+## 40. por que el f5 auo 2 cambia correlación pb
 - Created at   2018-03-22 16:01:15 -0400
 
-## 43. >>>>>>> b4c2ed6698f287b849e4ebedf0763f3f8ed022dc
-- Created at   
-
-## 44. auto_apply está retornando nullptr
-- Created at   2018-04-03 17:05:41 -0400
+## 41. poner dos thresholds para el m
+- Created at   2018-04-04 09:53:02 -0400
 

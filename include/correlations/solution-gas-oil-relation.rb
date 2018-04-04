@@ -51,8 +51,8 @@ add_parameter("yg", "Sgg", "Gas specific gravity", 0.623, 1.517)
 add_parameter("p", "psia", "Pressure", 1038.49, 7411.54)
 add_parameter("api", "Api", "API oil gravity", 6, 22.3)
 add_parameter("t", "Fahrenheit", "Temperature", 131.4, 250.7)
-add_parameter("tsep", "Fahrenheit", "Separator temperature", 59, 177.8);
-add_parameter("psep", "psia", "Separator pressure", 14.5, 752.2); 
+add_parameter("tsep", "Fahrenheit", "Separator temperature", 59, 177.8)
+add_parameter("psep", "psia", "Separator pressure", 14.5, 752.2) 
 add_db("Based on 1200 measured data points of 63 heavy and extra-heavy oil samples obtained from the Mediterranean Basin, Africa and the Persian Gulf.")
 add_db("Oil samples have been divided in two different API gravity classes: extra-heavy oils for API<=10, heavy oils for 10<API<=22.3.")
 add_internal_note("De Ghetto et al. use Yg as the average specific gravity of total surface gases, while the original correlation (Standing) uses it as the gravity of dissolved gas. Since Standing doesn't specify if Yg is the gravity of total surface gases or of the separator, it is assumed that the data is from a one stage separation with average gas gravity.")

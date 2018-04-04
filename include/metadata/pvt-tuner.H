@@ -2512,11 +2512,11 @@ public:
 	    continue;
 	  }
 
-	if (name_in_data == "uobp" and
-	    (not uobp_vals().all([&par] (auto uobp) { return par.check(uobp); })))
+	if (name_in_data == "uobp" and (not uobp_vals().all([&par] (auto uobp)
+	    { return par.check(uobp); })))
 	  ret.append(make_pair(name_in_data, true));
-	if (name_in_data == "bobp" and
-	    (not bobp_vals().all([&par] (auto bobp) { return par.check(bobp); })))
+	if (name_in_data == "bobp" and (not bobp_vals().all([&par] (auto bobp)
+	    { return par.check(bobp); })))
 	  ret.append(make_pair(name_in_data, true));
 
 	auto pars_list = get_pars(ref_vectors, name_in_data);
@@ -2540,7 +2540,8 @@ public:
   {
     if (target_name != "pb" and target_name != "uod" and
 	search_vectors(target_name).is_empty())
-      ZENTHROW(VarNameNotFound, target_name + " does not exist in this data set");
+      ZENTHROW(VarNameNotFound, target_name +
+	       " does not exist in this data set");
 
     auto corr_list =
       Correlation::array().filter([&target_name, &ban_list] (auto ptr)
@@ -2570,7 +2571,8 @@ public:
 
     if (target_name != "pb" and target_name != "uod" and
 	search_vectors(target_name).is_empty())
-      ZENTHROW(VarNameNotFound, target_name + " does not exist in this data set");
+      ZENTHROW(VarNameNotFound, target_name +
+	       " does not exist in this data set");
     
     return Correlation::array().
       filter([&target_name, &relax_tbl, &ban_list, this] (auto ptr)
@@ -2586,7 +2588,8 @@ public:
     mutable CorrStat::Desc desc;
     mutable DynList<double> t, plab, p, ylab, ycorr, ytuned;
     mutable bool valid = false;
-    StatsDesc(const Correlation * __corr_ptr = nullptr) : corr_ptr(__corr_ptr) {}
+    StatsDesc(const Correlation * __corr_ptr = nullptr)
+      : corr_ptr(__corr_ptr) {}
     StatsDesc(ConstStats & s)
       : corr_ptr(s.corr_ptr), desc(s.desc), t(move(s.t)),
 	ylab(move(s.ylab)), ycorr(move(s.ycorr)), ytuned(move(s.ytuned)),
@@ -2627,9 +2630,13 @@ public:
     }
     DynList<string> to_dynlist() const
     {
-      assert(corr_ptr);
-      DynList<string> ret = build_dynlist<string>(corr_ptr->name);
-      return ret.append(CorrStat::desc_to_dynlist(desc));
+      if (corr_ptr)
+	{
+	  DynList<string> ret = build_dynlist<string>(corr_ptr->name);
+	  return ret.append(CorrStat::desc_to_dynlist(desc));
+	}
+      else
+	return CorrStat::null_dynlist();
     }
     friend ostream & operator << (ostream & o, const StatsDesc & s)
     {
@@ -2736,16 +2743,23 @@ public:
       };
     static auto cmp_m = [] (auto & s1, auto & s2)
       {
-	return CorrStat::m(s1.desc) < CorrStat::m(s2.desc);
+	return fabs(1 - CorrStat::m(s1.desc)) < fabs(1 - CorrStat::m(s2.desc));
       };
     AUTO_FILT(r2);
     AUTO_FILT(mse);
     AUTO_FILT(sigma);
     AUTO_FILT(sumsq);
     AUTO_FILT(cabs);
-    AUTO_FILT(m);
-    static AHDispatcher<AutoApplyType,
-     			DynList<StatsDesc> (*)(const DynList<StatsDesc>&, double)>
+    static auto m__filter = [] (const DynList<StatsDesc> & l, double threshold)
+      {
+	return sort(l.filter([threshold] (auto & s)
+        {
+	  return s.valid and fabs(1 - CorrStat::m(s.desc)) <= threshold;
+	}), cmp_m);
+      };
+    static
+      AHDispatcher<AutoApplyType,
+		   DynList<StatsDesc> (*)(const DynList<StatsDesc>&, double)>
       dispatcher(AutoApplyType::r2, r2__filter,
 		 AutoApplyType::mse, mse__filter,
 		 AutoApplyType::sigma, sigma__filter,
@@ -2782,6 +2796,7 @@ public:
     static auto set_##NAME =				\
       [] (PvtData * pvtdata, const StatsDesc & s)	\
       {							\
+	assert(s.corr_ptr);				\
 	pvtdata->NAME##_corr = s.corr_ptr;		\
 	pvtdata->c_##NAME = CorrStat::c(s.desc);	\
 	pvtdata->m_##NAME = CorrStat::m(s.desc);	\
@@ -2797,6 +2812,9 @@ public:
     static const AHDispatcher<string, void (*)(PvtData*, const StatsDesc&)>
       dispatcher("pb", set_pb, "rs", set_rs, "bob", set_bob, "coa", set_coa,
 		 "boa", set_boa, "uod", set_uod, "uob", set_uob, "uoa", set_uoa);
+
+    if (s.corr_ptr == nullptr)
+      return;
 
     const string target_name = s.corr_ptr->target_name();
     try
@@ -2866,8 +2884,6 @@ public:
     else
       corr_map.insert("pb", apply(pb_corr));
 
-    assert(pb_corr);
-      
     if (rs_corr == nullptr)
       {
 	StatsDesc s = auto_apply("rs", relax_tbl, ban_list, threshold, type);
@@ -2876,8 +2892,6 @@ public:
     else
       corr_map.insert("rs", apply(rs_corr));
 
-    assert(rs_corr);
-	
     if (bob_corr == nullptr)
       {
 	StatsDesc s = auto_apply("bob", relax_tbl, ban_list, threshold, type);
@@ -2885,8 +2899,6 @@ public:
       }
     else
       corr_map.insert("bob", apply(bob_corr));
-
-    assert(bob_corr);
 
     if (coa_corr == nullptr)
       {
@@ -2896,8 +2908,6 @@ public:
     else
       corr_map.insert("coa", apply(coa_corr));
 
-    assert(coa_corr);
-
     if (boa_corr == nullptr)
       {
 	StatsDesc s = auto_apply("boa", relax_tbl, ban_list, threshold, type);
@@ -2905,8 +2915,6 @@ public:
       }
     else
       corr_map.insert("boa", apply(boa_corr));
-
-    assert(boa_corr);
 
     if (uod_corr == nullptr)
       {
@@ -2919,8 +2927,6 @@ public:
     else
       corr_map.insert("uod", apply(uod_corr));
 
-    assert(uod_corr);
-
     if (uob_corr == nullptr)
       {
 	StatsDesc s = auto_apply("uob", relax_tbl, ban_list, threshold, type);
@@ -2929,8 +2935,6 @@ public:
     else
       corr_map.insert("uob", apply(uod_corr));
 
-    assert(uob_corr);
-
     if (uoa_corr == nullptr)
       {
 	StatsDesc s = auto_apply("uoa", relax_tbl, ban_list, threshold, type);
@@ -2938,8 +2942,6 @@ public:
       }
     else
       corr_map.insert("uoa", apply(uoa_corr));
-
-    assert(uoa_corr);
 
     static const DynList<string> dynamic_names =
       { "rs", "bob", "coa", "boa", "uob", "uoa" };
