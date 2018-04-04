@@ -2718,6 +2718,7 @@ public:
       {									\
 	return sort(l.filter([threshold] (auto & s)			\
          {								\
+	   cout << (s.valid ? "valid" : "invalid") << " " << CorrStat::__name(s.desc) << endl; \
 	   return s.valid and CorrStat::__name(s.desc) >= threshold;	\
 	 }), cmp_##__name);						\
       }  
@@ -2768,6 +2769,8 @@ public:
 		 AutoApplyType::m, m__filter);      
 
     auto corr_list = can_be_applied(target_name, relax_tbl, ban_list);
+    cout << join(corr_list.maps<string>([] (auto p) { return p->name; }), "\n")
+	 << endl;
     auto auto_list = corr_list.maps<StatsDesc>([this] (auto ptr)
       {
 	try
