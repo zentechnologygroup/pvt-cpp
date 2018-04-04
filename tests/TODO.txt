@@ -41,3 +41,4 @@ modo both parace no está funcionando bien con pb en ttuner,2018-03-15 15:51:37 
 =======
 por que el f5 auo 2 cambia correlación pb,2018-03-22 16:01:15 -0400,,
 >>>>>>> b4c2ed6698f287b849e4ebedf0763f3f8ed022dc
+auto_apply está retornando nullptr,2018-04-03 17:05:41 -0400,,

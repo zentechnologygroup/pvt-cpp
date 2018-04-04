@@ -45,15 +45,21 @@ public:
 
   double sigma_distance(const Array<double> & yc) const
   {
-    double sum = 0;
     Array<double> error;
-    for (auto it = get_zip_it(y, yc); it.has_curr(); it.next())
-      {
-	auto t = it.get_curr();
-	auto e = fabs(get<0>(t) - get<1>(t));
-	error.append(e);
-	sum += e;
-      }
+    double sum = zip_foldl(0, [&error] (auto acu, auto t)
+		    {
+		      auto e = fabs(get<0>(t) - get<1>(t));
+		      error.append(e);
+		      return acu + e;
+		    }, y, yc);
+    // Op op, const Cs &cs...)
+    // for (auto it = get_zip_it(y, yc); it.has_curr(); it.next())
+    //   {
+    // 	auto t = it.get_curr();
+    // 	auto e = fabs(get<0>(t) - get<1>(t));
+    // 	error.append(e);
+    // 	sum += e;
+    //   }
 
     auto var = error.foldl<double>(0.0, [ym = sum/n] (auto acu, auto y)
 				   {
@@ -66,13 +72,18 @@ public:
 
   double mse(const Array<double> & yc) const
   {
-    double sum = 0;
-    for (auto it = get_zip_it(y, yc); it.has_curr(); it.next())
-      {
-	auto t = it.get_curr();
-	auto diff = get<0>(t) - get<1>(t);
-	sum += diff*diff;
-      }
+    double sum = zip_foldl(0, [] (auto acu, auto t)
+			   {
+			     auto diff = get<0>(t) - get<1>(t);
+			     return acu + diff*diff;
+			   }, y, yc);
+// Op op, const Cs &cs...)
+//     for (auto it = get_zip_it(y, yc); it.has_curr(); it.next())
+//       {
+// 	auto t = it.get_curr();
+// 	auto diff = get<0>(t) - get<1>(t);
+// 	sum += diff*diff;
+//       }
 
     return sqrt(sum/n);
   }

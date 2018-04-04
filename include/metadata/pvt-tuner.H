@@ -2866,6 +2866,8 @@ public:
     else
       corr_map.insert("pb", apply(pb_corr));
 
+    assert(pb_corr);
+      
     if (rs_corr == nullptr)
       {
 	StatsDesc s = auto_apply("rs", relax_tbl, ban_list, threshold, type);
@@ -2873,6 +2875,8 @@ public:
       }
     else
       corr_map.insert("rs", apply(rs_corr));
+
+    assert(rs_corr);
 	
     if (bob_corr == nullptr)
       {
@@ -2882,6 +2886,8 @@ public:
     else
       corr_map.insert("bob", apply(bob_corr));
 
+    assert(bob_corr);
+
     if (coa_corr == nullptr)
       {
 	StatsDesc s = auto_apply("coa", relax_tbl, ban_list, threshold, type);
@@ -2890,6 +2896,8 @@ public:
     else
       corr_map.insert("coa", apply(coa_corr));
 
+    assert(coa_corr);
+
     if (boa_corr == nullptr)
       {
 	StatsDesc s = auto_apply("boa", relax_tbl, ban_list, threshold, type);
@@ -2897,6 +2905,8 @@ public:
       }
     else
       corr_map.insert("boa", apply(boa_corr));
+
+    assert(boa_corr);
 
     if (uod_corr == nullptr)
       {
@@ -2909,6 +2919,8 @@ public:
     else
       corr_map.insert("uod", apply(uod_corr));
 
+    assert(uod_corr);
+
     if (uob_corr == nullptr)
       {
 	StatsDesc s = auto_apply("uob", relax_tbl, ban_list, threshold, type);
@@ -2917,6 +2929,8 @@ public:
     else
       corr_map.insert("uob", apply(uod_corr));
 
+    assert(uob_corr);
+
     if (uoa_corr == nullptr)
       {
 	StatsDesc s = auto_apply("uoa", relax_tbl, ban_list, threshold, type);
@@ -2924,6 +2938,8 @@ public:
       }
     else
       corr_map.insert("uoa", apply(uoa_corr));
+
+    assert(uoa_corr);
 
     static const DynList<string> dynamic_names =
       { "rs", "bob", "coa", "boa", "uob", "uoa" };
