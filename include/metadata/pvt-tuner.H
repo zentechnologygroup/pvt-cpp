@@ -2718,7 +2718,6 @@ public:
       {									\
 	return sort(l.filter([threshold] (auto & s)			\
          {								\
-	   cout << (s.valid ? "valid" : "invalid") << " " << CorrStat::__name(s.desc) << endl; \
 	   return s.valid and CorrStat::__name(s.desc) >= threshold;	\
 	 }), cmp_##__name);						\
       }  
@@ -2755,7 +2754,8 @@ public:
       {
 	return sort(l.filter([threshold] (auto & s)
         {
-	  return s.valid and fabs(1 - CorrStat::m(s.desc)) <= threshold;
+	  auto m = CorrStat::m(s.desc);
+	  return s.valid and m > 0 and fabs(1 - m) <= threshold;
 	}), cmp_m);
       };
     static
@@ -2769,8 +2769,6 @@ public:
 		 AutoApplyType::m, m__filter);      
 
     auto corr_list = can_be_applied(target_name, relax_tbl, ban_list);
-    cout << join(corr_list.maps<string>([] (auto p) { return p->name; }), "\n")
-	 << endl;
     auto auto_list = corr_list.maps<StatsDesc>([this] (auto ptr)
       {
 	try
@@ -2881,7 +2879,7 @@ public:
 	auto tpset = tp_sets();
 	StatsDesc s = tpset.is_unitarian() ?
 	  auto_apply("pb", relax_tbl, ban_list, threshold, AutoApplyType::c) :
-	  auto_apply("pb", relax_tbl, ban_list, threshold, AutoApplyType::r2);
+	  auto_apply("pb", relax_tbl, ban_list, threshold, type);
 	ADD_AUTO(pb, s);
       }
     else
@@ -2924,7 +2922,7 @@ public:
 	auto tpset = tp_sets();
 	StatsDesc s = tpset.is_unitarian() ?
 	  auto_apply("uod", relax_tbl, ban_list, threshold, AutoApplyType::c) :
-	  auto_apply("uod", relax_tbl, ban_list, threshold, AutoApplyType::r2);
+	  auto_apply("uod", relax_tbl, ban_list, threshold, type);
 	ADD_AUTO(uod, s);
       }
     else
