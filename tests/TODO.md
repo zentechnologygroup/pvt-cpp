@@ -117,9 +117,3 @@
 ## 39. modo both parace no está funcionando bien con pb en ttuner
 - Created at   2018-03-15 15:51:37 -0400
 
-## 40. por que el f5 auo 2 cambia correlación pb
-- Created at   2018-03-22 16:01:15 -0400
-
-## 41. poner dos thresholds para el m
-- Created at   2018-04-04 09:53:02 -0400
-
