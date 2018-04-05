@@ -117,3 +117,9 @@
 ## 39. modo both parace no está funcionando bien con pb en ttuner
 - Created at   2018-03-15 15:51:37 -0400
 
+## 40. lita de excepciones e ttuner y quizá check
+- Created at   2018-04-05 13:52:18 -0400
+
+## 41. corregir error ausencia de bob
+- Created at   2018-04-05 16:58:57 -0400
+
