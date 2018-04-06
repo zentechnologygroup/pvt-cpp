@@ -123,3 +123,6 @@
 ## 41. corregir error ausencia de bob
 - Created at   2018-04-05 16:58:57 -0400
 
+## 42. verificar que en cplot se calcule el mínimo uob
+- Created at   2018-04-06 17:06:16 -0400
+

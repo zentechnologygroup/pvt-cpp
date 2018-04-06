@@ -1909,10 +1909,21 @@ public:
 	remove_from_container(pars, "p", "rs", "bob");
       }
 
+    try
+      {
     VectorDesc result(pref.t, pb, PVT_INVALID_VALUE, uob_list.get_first(),
 		      uob_list.get_last(), p_list, pref.punit, "uob", uob_list,
 		      &corr_ptr->unit);
     return compute_epilogue(pref, result);
+      }
+    catch (exception & e)
+      {
+	cout << "P = " << join(in.p) << endl
+	     << "uob = " << join(uob_list) << endl
+	     << "bob = " << join(bob.y) << endl;
+	cout << corr_ptr->name << " " << e.what() << endl;
+	//	exit(0);
+      }
   }
 
   VectorStats uob_stats(const Correlation * corr_ptr) const
