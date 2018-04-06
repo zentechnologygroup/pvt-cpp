@@ -556,6 +556,12 @@ struct PvtData
   DynSetTree<ConstDesc> const_values; // indexed and sorted by name
   DynSetTree<VectorDesc> vectors;
   DynSetTree<string> names;
+  DynList<string> exception_list;
+
+  void add_exception(exception & e) const
+  {
+    const_cast<DynList<string>&>(exception_list).append(e.what());
+  }
 
   const Correlation * pb_corr = nullptr;
   double c_pb = 0, m_pb = 1;    
@@ -1198,8 +1204,7 @@ public:
     pars.insert("t", t, &Fahrenheit::get_instance());
     pars.insert(get_pb(t, pb));
     VtlQuantity ret = corr_ptr->bounded_tuned_compute_by_names
-      (pars, min_uod, CP::get_instance().max(), c, m, CP::get_instance(),
-       false);
+      (pars, min_uod, CP::get_instance().max(), c, m, CP::get_instance(), false);
     return ret;
   }
 
@@ -1265,7 +1270,11 @@ public:
 	    pb_corr.append(compute_pb(curr.t, corr_ptr).raw());
 	    ++k;
 	  }
-	catch (...) { /* ignore it */ }
+	catch (exception & e)
+	  {
+	    /* ignore it */
+	    add_exception(e);
+	  }
       }
 
     if (k == 0)
@@ -1309,9 +1318,8 @@ public:
     VtlQuantity ret =
       uod_corr->bounded_tuned_compute_by_names(pars, min_uod_val(),
 					       CP::get_instance().max(),
-					       c_uod, m_uod, CP::get_instance());
-      // uod_corr->tuned_compute_by_names(pars, c_uod, m_uod,
-      // 				       CP::get_instance(), false);
+					       c_uod, m_uod, CP::get_instance(),
+					       false);
     return ParPair("uod", ValPair(ret.raw(), &ret.unit));
   }
 
@@ -1526,6 +1534,7 @@ private:
 	    stats.dirty = true;
 	    // TODO uncomment in develop mode
 	    //cout << corr_ptr->name << ": " << e.what() << endl;
+	    add_exception(e);
 	  }
       }
     stats.close();
@@ -1689,24 +1698,27 @@ public:
     return stats_epilogue(stats);
   }
 
-  VtlQuantity compute_bobp(const double t) const
+  VtlQuantity compute_bobp(const double t, const double pb) const
   {
+    if (bob_corr)
+      {
+	ParPair pb_par = get_pb(t, pb);
+	ParList pars = build_correlation_pars();
+	insert_in_container(pars, pb_par, npar("rs", get_rsb()),
+			    ParPair("t", ValPair(t, &Fahrenheit::get_instance())),
+			    ParPair("p", pb_par.second));
+	VtlQuantity bobp =
+	  bob_corr->tuned_compute_by_names(pars, c_bob, m_bob, *bo_unit, false);
+	return bobp;
+      }
+    
     const DynList<const VectorDesc*> bob_vectors = search_vectors("bob");
     auto ptr = bob_vectors.find_ptr([t] (auto vptr) { return vptr->t == t; });
     if (ptr == nullptr)
       ZENTHROW(VarNameNotFound, "Not found data for bob");
     const VectorDesc * v_ptr = *ptr;
-    if (bob_corr == nullptr)
-      return VtlQuantity(*v_ptr->yunit, v_ptr->bobp);
-    
-    ParPair pb_par = get_pb(v_ptr->t, v_ptr->pb);
-    ParList pars = build_correlation_pars();
-    insert_in_container(pars, pb_par, npar("rs", get_rsb()),
-			ParPair("t", ValPair(t, &Fahrenheit::get_instance())),
-			ParPair("p", pb_par.second));
-    VtlQuantity bobp =
-      bob_corr->tuned_compute_by_names(pars, c_bob, m_bob, *bo_unit, false);
-    return bobp;
+
+    return VtlQuantity(*v_ptr->yunit, v_ptr->bobp);
   }
 
   // In this case we return a pair with the result and the used coa correlation
@@ -1761,7 +1773,7 @@ public:
       } // else coa is already defined
     coa = coa.make_parallel(in);
 
-    const VtlQuantity bobp = compute_bobp(in.t);
+    const VtlQuantity bobp = compute_bobp(in.t, in.pb);
     in.bobp = bobp.raw();
     pars.insert("t", pref.t, &Fahrenheit::get_instance());
     pars.insert(pb_par);
@@ -2203,7 +2215,7 @@ public:
       {
 	assert(v->yname == "bob");
 	v->pb = v->p.get_last() = ptr->pb;
-	v->y.get_last() = v->bobp = pvt->compute_bobp(v->t).raw();
+	v->y.get_last() = v->bobp = pvt->compute_bobp(v->t, ptr->pb).raw();
 	for (long i = v->p.size() - 2; i >= 0 and v->p(i) > ptr->pb; --i)
 	  {
 	    v->p(i) = nextafter(v->p(i + 1), numeric_limits<double>::min());
@@ -2232,7 +2244,7 @@ public:
       {
 	assert(v->yname == "boa");
 	v->pb = ptr->pb;
-	v->bobp = pvt->compute_bobp(v->t).raw();
+	v->bobp = pvt->compute_bobp(v->t, ptr->pb).raw();
 	size_t n = 1; // number of pressure points above pb
 	while (v->p(n) < ptr->pb and n < v->p.size())
 	  ++n;
@@ -2701,6 +2713,7 @@ public:
       }
     catch (exception & e)
       {
+	add_exception(e);
 	return StatsDesc(corr_ptr); // it is invalid
       }
   }
@@ -2779,6 +2792,7 @@ public:
 	  {
 	    // uncomment in develeop mode
 	    //cout << ptr->name << ": " << e.what() << endl;
+	    this->add_exception(e);
 	    return StatsDesc(ptr);
 	  }
       });
