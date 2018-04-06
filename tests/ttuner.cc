@@ -494,44 +494,6 @@ struct Input
   }
 };
 
-struct Tinput
-{
-  double t = PVT_INVALID_VALUE;
-  DynList<double> p;
-  size_t n = 0;
-  Tinput() {}
-  Tinput & operator = (const string & str)
-  {
-    istringstream iss(str);
-    string data;
-    if (not (iss >> data))
-      ZENTHROW(CommandLineError, "cannot read temperature unit");
-    const Unit * tunit = Unit::search(data);
-    if (tunit == nullptr)
-      ZENTHROW(CommandLineError, data + " not found as temperature unit");
-    if (not tunit->is_sibling(Fahrenheit::get_instance()))
-      ZENTHROW(CommandLineError, data + " is not a temperature unit");
-
-    if (not (iss >> data))
-      ZENTHROW(CommandLineError, "cannot read temperature value");
-    if (not is_double(data))
-      ZENTHROW(CommandLineError, data + " is not a double");
-    t = tunit == &Fahrenheit::get_instance() ? atof(data) :
-      unit_convert(*tunit, atof(data), Fahrenheit::get_instance());
-
-    if (not (iss >> data))
-      ZENTHROW(CommandLineError, "cannot read pressure unit");
-    const Unit * punit = Unit::search(data);
-
-    for (; not (iss >> data); ++n)
-      {
-	if (not is_double(data))
-	  ZENTHROW(CommandLineError, data + " is not a double");
-	p.append(atof(data));
-      }
-  }
-};
-
 namespace TCLAP
 {
   template<> struct ArgTraits<Rs> { typedef StringLike ValueCategory; };
@@ -670,6 +632,7 @@ ValueArg<string> file = { "f", "file", "load json", false, "", "load json", cmd 
 ValueArg<string> Print = { "P", "Print", "print stored data", false, "",
 			   "constants|correlations|property-name", cmd };
 SwitchArg transpose_out = { "", "transpose", "transpose output", cmd };
+SwitchArg exceptions = { "e", "exceptions", "show exceptions", cmd };
 
 # define Corr_Arg(NAME)							\
   ValueArg<string> NAME##_corr_arg =					\
@@ -1018,6 +981,12 @@ void process_apply()
       return data.apply(corr_ptr);
     }), cmp[data.num_temps() > 1 ? ::sort.getValue() : "c"]);
 
+  if (exceptions.getValue())
+    {
+      data.exception_list.for_each([] (auto & s) { cout << s << endl; });
+      terminate_app();
+    }
+
   DynList<DynList<string>> rows = stats.maps<DynList<string>>([] (auto & t)
     {
       DynList<string> ret = build_dynlist<string>(t.corr_ptr->name);
@@ -1324,7 +1293,7 @@ void process_local_calibration()
 					    s.t, *tunit); });
     }
   if (yunit_arg.isSet())
-  {
+    {
       const Unit * yunit = Unit::search(yunit_arg.getValue());
       if (yunit == nullptr)
   	ZENTHROW(UnitNotFound, "unit " + yunit_arg.getValue() + " not found");

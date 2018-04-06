@@ -556,6 +556,12 @@ struct PvtData
   DynSetTree<ConstDesc> const_values; // indexed and sorted by name
   DynSetTree<VectorDesc> vectors;
   DynSetTree<string> names;
+  DynList<string> exception_list;
+
+  void add_exception(exception & e) const
+  {
+    const_cast<DynList<string>&>(exception_list).append(e.what());
+  }
 
   const Correlation * pb_corr = nullptr;
   double c_pb = 0, m_pb = 1;    
@@ -1265,7 +1271,11 @@ public:
 	    pb_corr.append(compute_pb(curr.t, corr_ptr).raw());
 	    ++k;
 	  }
-	catch (...) { /* ignore it */ }
+	catch (exception & e)
+	  {
+	    /* ignore it */
+	    add_exception(e);
+	  }
       }
 
     if (k == 0)
@@ -1525,7 +1535,8 @@ private:
 	  {
 	    stats.dirty = true;
 	    // TODO uncomment in develop mode
-	    cout << corr_ptr->name << ": " << e.what() << endl;
+	    //cout << corr_ptr->name << ": " << e.what() << endl;
+	    add_exception(e);
 	  }
       }
     stats.close();
@@ -2712,6 +2723,7 @@ public:
       }
     catch (exception & e)
       {
+	add_exception(e);
 	return StatsDesc(corr_ptr); // it is invalid
       }
   }
@@ -2790,6 +2802,7 @@ public:
 	  {
 	    // uncomment in develeop mode
 	    //cout << ptr->name << ": " << e.what() << endl;
+	    this->add_exception(e);
 	    return StatsDesc(ptr);
 	  }
       });
