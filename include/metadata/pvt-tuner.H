@@ -1525,7 +1525,7 @@ private:
 	  {
 	    stats.dirty = true;
 	    // TODO uncomment in develop mode
-	    cout << corr_ptr->name << ": " << e.what() << endl;
+	    //cout << corr_ptr->name << ": " << e.what() << endl;
 	  }
       }
     stats.close();
@@ -1921,20 +1921,9 @@ public:
       return VtlQuantity(*v_ptr->yunit, v_ptr->uobp);
     const ParPair pb_par = get_pb(v_ptr->t, v_ptr->pb);
 
-    // TMP:
-    try
-      {
-	VtlQuantity bobp = compute_bobp(t);
-      }
-    catch (exception & e)
-      {
-	cout << "**** " << e.what() << endl;
-      }
-
     ParList pars = build_correlation_pars();
     insert_in_container(pars, pb_par, get_uod(*v_ptr, pb_par),
 			npar("rs", get_rsb()),
-			//npar("bob", bobp),
 			ParPair("t", ValPair(t, &Fahrenheit::get_instance())),
 			ParPair("p", pb_par.second));
 
