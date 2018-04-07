@@ -1893,7 +1893,9 @@ public:
     const Quantity<CP> max_uo = CP::get_instance().max();
 
     DynList<double> p_list, uob_list;
-    for (auto it = zip_it(in.p, rs.y, bob.y); it.has_curr(); it.next())
+    p_list.append(0);
+    uob_list.append(uod_par.second.first); // First entry is uod
+    for (auto it = zip_it_pos(1, in.p, rs.y, bob.y); it.has_curr(); it.next())
       {
 	auto t = it.get_curr();
 	const double & p_val = get<0>(t);
@@ -1911,7 +1913,7 @@ public:
 
     try
       {
-    VectorDesc result(pref.t, pb, PVT_INVALID_VALUE, uob_list.get_first(),
+	VectorDesc result(pref.t, pb, PVT_INVALID_VALUE, uod_par.second.first,
 		      uob_list.get_last(), p_list, pref.punit, "uob", uob_list,
 		      &corr_ptr->unit);
     return compute_epilogue(pref, result);
