@@ -2815,7 +2815,14 @@ public:
 	threshold = 0;
       }
     auto ret_list = dispatcher.run(type, auto_list, threshold);
-    return ret_list.is_empty() ? StatsDesc() : ret_list.get_first();
+    if (ret_list.is_empty())
+      {
+	ostringstream s;
+	s << "Not found correlations for " << target_name
+	  << " satisfying threshold " << threshold;
+	ZENTHROW(CorrelationNotFound, s.str());
+      }
+    return ret_list.get_first();
   }
 
   void set_correlation(const StatsDesc & s)

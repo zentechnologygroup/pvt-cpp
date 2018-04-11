@@ -126,3 +126,6 @@
 ## 42. verificar que en cplot se calcule el mínimo uob
 - Created at   2018-04-06 17:06:16 -0400
 
+## 43. cambiar nombre de macro ZENTHROW
+- Created at   2018-04-10 15:22:00 -0400
+

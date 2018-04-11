@@ -40,3 +40,4 @@ modo both parace no está funcionando bien con pb en ttuner,2018-03-15 15:51:37 
 lita de excepciones e ttuner y quizá check,2018-04-05 13:52:18 -0400,,
 corregir error ausencia de bob,2018-04-05 16:58:57 -0400,,
 verificar que en cplot se calcule el mínimo uob,2018-04-06 17:06:16 -0400,,
+cambiar nombre de macro ZENTHROW,2018-04-10 15:22:00 -0400,,
