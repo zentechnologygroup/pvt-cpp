@@ -27,7 +27,7 @@ using json = nlohmann::json;
 
 struct EmpiricalData
 {
-  string name = "Test de Alberto Valderrama";
+  string name = "Test de Leandro Rabindranath";
 
   string desc = "Usado para pruebas, aparentemente de un pozo en Monagas";
 

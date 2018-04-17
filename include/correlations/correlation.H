@@ -344,8 +344,8 @@ public:
   DynList<string> names() const
   {
     DynList<string> ret = unitarian_DynList(target_name());
-    for (auto it = preconditions.get_it(); it.has_curr(); it.next())
-      ret.append(it.get_curr().name);
+    // for (auto it = preconditions.get_it(); it.has_curr(); it.next())
+    //   ret.append(it.get_curr().name);
     return ret;
   }
 
@@ -1330,7 +1330,7 @@ public:
       {
 	auto & par = it.get_curr();
 	VtlQuantity val = par_list.search(par.names());
-	vals.append(val);
+	vals.insert(val);
       }
 
     return compute(vals, check);

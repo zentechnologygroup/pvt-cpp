@@ -391,8 +391,8 @@ struct VectorDesc
 	       " is not an unit for oil formation volume ratio");
 
     if (not is_sorted(p, std::less_equal<double>()))
-      ALEPHTHROW(SamplesUnsorted, "split_uo(): pressure values are not sorted " +
-	       join(p));
+      ALEPHTHROW(SamplesUnsorted, "split_uo(): pressure values are not sorted "
+		 + join(p));
 
     // First, we must determine (p,uo) corresponding to the inflection point
     size_t min_idx = 0;
@@ -417,14 +417,15 @@ struct VectorDesc
     for (size_t i = min_idx; i < p.size(); ++i)
       {
 	p_above.append(p(i));
-	uoa.append(y(i));
+	uoa.insert(y(i));
       }
 
     // Not to forget: minimum point is at p_above(0), uoa(0)
 
     if (not is_sorted(uoa, std::less_equal<double>()))
-      ALEPHTHROW(SamplesUnsorted, "undersaturated region of uo is not increasing " +
-	       py_string());
+      ALEPHTHROW(SamplesUnsorted,
+		 "undersaturated region of uo is not increasing " +
+		 py_string());
 
     if (p_below.size() < 2)
       ALEPHTHROW(CommandLineError, "Not enough point for estimating uob");
