@@ -14,7 +14,7 @@ YghcWichertAziz::precondition(const Quantity<MoleFraction> & n2,
     ostringstream s;
     s << "YghcWichertAziz::impl: invalid values for nonhydrocarbon concentrations"
       << n2 << ", " << co2 << ", " << h2s;
-    ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    ALEPHTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }
 
@@ -40,7 +40,7 @@ PpcmKayMixingRule::precondition(const Quantity<MoleFraction> & n2,
     ostringstream s;
     s << "PpcMKayMixingRule::impl: invalid values for nonhydrocarbon concentrations "
       << n2 << ", " << co2 << ", " << h2s;
-    ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    ALEPHTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }
 
@@ -63,7 +63,7 @@ void AdjustedppcmWichertAziz::precondition
     ostringstream s;
     s << "AdjustedppcMWichertAziz::impl: invalid values for nonhydrocarbon concentrations "
       << co2 << ", " << h2s;
-    ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    ALEPHTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }
 
@@ -98,7 +98,7 @@ void TpcmKayMixingRule::precondition
     s << "In TpcmKayMixingRule::impl: invalid values for nonhydrocarbon concentrations "
       << n2 << ", " << co2 << ", "
       << h2s;
-    ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    ALEPHTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }
 
@@ -122,7 +122,7 @@ void AdjustedtpcmWichertAziz::precondition
     ostringstream s;
     s << "In AdjustedtpcmWichertAziz::impl: invalid values for nonhydrocarbon concentrations "
       << co2 << ", " << h2s;
-    ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    ALEPHTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }
 

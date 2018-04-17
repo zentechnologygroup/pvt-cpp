@@ -20,7 +20,7 @@ PvtData data;
   static void check_##pname(const ValuesArg & arg)			\
   {									\
     if (&arg.unit_ptr->physical_quantity != &pq_name::get_instance())	\
-      ZENTHROW(InvalidTargetUnit, arg.unit_ptr->name +			\
+      ALEPHTHROW(InvalidTargetUnit, arg.unit_ptr->name +			\
 	       " is not an unit for " + pq_name::get_instance().name);	\
   }
 
@@ -69,7 +69,7 @@ struct ValuesArg
   void validate_property()
   {
     if (not valid_targets.contains(target_name))
-      ZENTHROW(InvalidProperty, "target name " + target_name +
+      ALEPHTHROW(InvalidProperty, "target name " + target_name +
 	       " is not valid");
   }
 
@@ -81,12 +81,12 @@ struct ValuesArg
     for (; iss >> data; ++n)
       {
 	if (not is_double(data))
-	  ZENTHROW(CommandLineError, data + " is not a double");
+	  ALEPHTHROW(CommandLineError, data + " is not a double");
 	vals.append(atof(data));
       }
 
     if ((n % 3) != 0)
-      ZENTHROW(CommandLineError,
+      ALEPHTHROW(CommandLineError,
 	       "In input of coa values: number of values is not multiple of 3");
     
     const size_t dim = n/3;
@@ -95,7 +95,7 @@ struct ValuesArg
     each(dim, [&vals, &pmax] () { pmax.append(vals.remove_first()); });
     if (not (zip_all([] (auto t) { return get<0>(t) < get<1>(t); }, pmin, pmax)
         or zip_all([] (auto t) { return get<0>(t) > get<1>(t); }, pmin, pmax)))
-      ZENTHROW(CommandLineError,
+      ALEPHTHROW(CommandLineError,
 	       "At least a pressure pair for compressibility is invalid");
 
     each(dim, [&vals, this] () { values.append(vals.remove_first()); });
@@ -120,22 +120,22 @@ struct ValuesArg
 
     // read target_name
     if (not (iss >> target_name))
-      ZENTHROW(CommandLineError, str + " does not contain target name");
+      ALEPHTHROW(CommandLineError, str + " does not contain target name");
 
     const bool compound_target = target_name == "bo" or target_name == "uo";
 
     validate_property();
     if (not compound_target and not Correlation::array().exists([this] (auto ptr)
         { return ptr->target_name() == target_name; }))
-      ZENTHROW(CommandLineError, target_name + " is invalid as target name");
+      ALEPHTHROW(CommandLineError, target_name + " is invalid as target name");
 
     { // read property unit
       string property_unit;
       if (not (iss >> property_unit))
-	ZENTHROW(CommandLineError, "cannot read property unit");
+	ALEPHTHROW(CommandLineError, "cannot read property unit");
       unit_ptr = Unit::search(property_unit);
       if (unit_ptr == nullptr)
-	ZENTHROW(CommandLineError, property_unit + " unit for " + target_name +
+	ALEPHTHROW(CommandLineError, property_unit + " unit for " + target_name +
 		 " property not found");
     }
 
@@ -144,38 +144,38 @@ struct ValuesArg
      // read temperature unit
     string unit_name;
     if (not (iss >> unit_name))
-      ZENTHROW(CommandLineError, "cannot read temperature unit");
+      ALEPHTHROW(CommandLineError, "cannot read temperature unit");
     tunit_ptr = Unit::search(unit_name);
     if (tunit_ptr == nullptr)
-      ZENTHROW(CommandLineError, unit_name + " for temperature not found");
+      ALEPHTHROW(CommandLineError, unit_name + " for temperature not found");
     if (&tunit_ptr->physical_quantity != &Temperature::get_instance())
-      ZENTHROW(CommandLineError, unit_name + " is not a temperature unit");
+      ALEPHTHROW(CommandLineError, unit_name + " is not a temperature unit");
 
     // read temperature value
     string data;
     if (not (iss >> data))
-      ZENTHROW(CommandLineError, "temperature value not found");
+      ALEPHTHROW(CommandLineError, "temperature value not found");
     if (not is_double(data))
-      ZENTHROW(CommandLineError, "temperature value " + data +
+      ALEPHTHROW(CommandLineError, "temperature value " + data +
 	       " is not a double");
     t = atof(data);
 
     // read pressure unit
     if (not (iss >> unit_name))
-      ZENTHROW(CommandLineError, str + " does not contain unit name");
+      ALEPHTHROW(CommandLineError, str + " does not contain unit name");
     punit_ptr = Unit::search(unit_name);
     if (punit_ptr == nullptr)
-      ZENTHROW(CommandLineError, "unit " + unit_name + " for pressure not found");
+      ALEPHTHROW(CommandLineError, "unit " + unit_name + " for pressure not found");
     if (&punit_ptr->physical_quantity != &Pressure::get_instance())
-      ZENTHROW(CommandLineError, unit_name + " is not for pressure");
+      ALEPHTHROW(CommandLineError, unit_name + " is not for pressure");
 
     if (not compound_target)
       {
 	// read pb value
 	if (not (iss >> data))
-	  ZENTHROW(CommandLineError, "pb value not found");
+	  ALEPHTHROW(CommandLineError, "pb value not found");
 	if (not is_double(data))
-	  ZENTHROW(CommandLineError, "pb value " + data + " is not a double");
+	  ALEPHTHROW(CommandLineError, "pb value " + data + " is not a double");
 	pb = atof(data);
       }
 
@@ -190,7 +190,7 @@ struct ValuesArg
     for (; iss >> data; ++n)
       {
 	if (not is_double(data))
-	  ZENTHROW(CommandLineError, data + " is not a double");
+	  ALEPHTHROW(CommandLineError, data + " is not a double");
 	vals.append(atof(data));
       }
 
@@ -203,7 +203,7 @@ struct ValuesArg
 	  else
 	    regression_required = true;
 	else if ((n % 2) == 0)
-	  ZENTHROW(CommandLineError, "In uoa input: expecting uod value");
+	  ALEPHTHROW(CommandLineError, "In uoa input: expecting uod value");
 	else
 	  set_uod(vals);
       }
@@ -222,7 +222,7 @@ struct ValuesArg
     bool uobp_required = false;
     if (not compound_target and not p.exists([this] (auto v) { return v == pb; }))
       if (target_name != "uob")
-	ZENTHROW(CommandLineError, "pb value " + to_string(pb) +
+	ALEPHTHROW(CommandLineError, "pb value " + to_string(pb) +
 		 " not found in pressures array");
       else
 	uobp_required = true;
@@ -298,14 +298,14 @@ struct ArgUnit
     string unit_name;
     istringstream iss(str);
     if (not (iss >> name >> unit_name))
-      ZENTHROW(CommandLineError, str + " is not a pair par-name unit");
+      ALEPHTHROW(CommandLineError, str + " is not a pair par-name unit");
 
     if (not const_name_tbl.contains(name))
-      ZENTHROW(CommandLineError, name + " is an invalid parameter name");
+      ALEPHTHROW(CommandLineError, name + " is an invalid parameter name");
 
     unit_ptr = Unit::search(unit_name);
     if (unit_ptr == nullptr)
-      ZENTHROW(CommandLineError, "cannot find unit " + unit_name);
+      ALEPHTHROW(CommandLineError, "cannot find unit " + unit_name);
 
     return *this;
   }
@@ -340,14 +340,14 @@ struct GenerateInput
   {
     istringstream iss(str);
     if (not (iss >> target_name))
-      ZENTHROW(CommandLineError, "Cannot read target name property");
+      ALEPHTHROW(CommandLineError, "Cannot read target name property");
     if (not valid_targets.contains(target_name))
-      ZENTHROW(CommandLineError, target_name +  " is not a valid target name");
+      ALEPHTHROW(CommandLineError, target_name +  " is not a valid target name");
 
     if (not (iss >> src_name))
-      ZENTHROW(CommandLineError, "Cannot read source name property");
+      ALEPHTHROW(CommandLineError, "Cannot read source name property");
     if (not valid_targets.contains(src_name))
-      ZENTHROW(CommandLineError, src_name +  " is not a valid source name");
+      ALEPHTHROW(CommandLineError, src_name +  " is not a valid source name");
 
     return *this;
   }
@@ -370,14 +370,14 @@ struct RmProperty
   {
     istringstream iss(str);
     if (not (iss >> yname))
-      ZENTHROW(CommandLineError, "Cannot read target name property");
+      ALEPHTHROW(CommandLineError, "Cannot read target name property");
     if (not valid_targets.contains(yname))
-      ZENTHROW(InvalidProperty, yname + " is not a valid property");
+      ALEPHTHROW(InvalidProperty, yname + " is not a valid property");
     string data;
     if (not (iss >> data))
-      ZENTHROW(CommandLineError, "in rm option: cannot read temperature value");
+      ALEPHTHROW(CommandLineError, "in rm option: cannot read temperature value");
     if (not is_double(data))
-      ZENTHROW(CommandLineError, "value " + data + " is not a double");
+      ALEPHTHROW(CommandLineError, "value " + data + " is not a double");
     t = atof(data);
     return *this;
   }
@@ -395,16 +395,16 @@ struct CorrArgs
       {
 	auto corr_ptr = Correlation::search_by_name(name);
 	if (corr_ptr == nullptr)
-	  ZENTHROW(CommandLineError, "correlation " + name + " not found");
+	  ALEPHTHROW(CommandLineError, "correlation " + name + " not found");
 	corr_list.append(corr_ptr);
       }
 
     if (corr_list.is_empty())
-      ZENTHROW(CommandLineError, "Not correlation specified for calibration");
+      ALEPHTHROW(CommandLineError, "Not correlation specified for calibration");
 
     name = corr_list.get_first()->target_name();
     if (not corr_list.all([&name] (auto p) { return p->target_name() == name; }))
-      ZENTHROW(CommandLineError,
+      ALEPHTHROW(CommandLineError,
 	       "Not all the correlations to be calibrated have target " + name);
 
     return *this;
@@ -420,16 +420,16 @@ struct RangeDesc
   {
     istringstream iss(str);
     if (not (iss >> min >> max >> n))
-      ZENTHROW(CommandLineError, str + " is not of form \"min max n\"");
+      ALEPHTHROW(CommandLineError, str + " is not of form \"min max n\"");
 
     if (n == 0)
-      ZENTHROW(CommandLineError, ::to_string(n) + " n cannot be zero");
+      ALEPHTHROW(CommandLineError, ::to_string(n) + " n cannot be zero");
 
     if (min > max)
       {
 	ostringstream s;
 	s << "min value " << min << " greater than max value " << max;
-	ZENTHROW(CommandLineError, s.str());
+	ALEPHTHROW(CommandLineError, s.str());
       }
 
     return *this;
@@ -450,13 +450,13 @@ struct ArrayDesc
     while (iss >> data)
       {
 	if (not is_double(data))
-	  ZENTHROW(CommandLineError, data + " is not a double");
+	  ALEPHTHROW(CommandLineError, data + " is not a double");
 
 	values.append(atof(data));
       }
 
     if (values.is_empty())
-      ZENTHROW(CommandLineError, "cannot read array");
+      ALEPHTHROW(CommandLineError, "cannot read array");
 
     in_place_sort(values);
  
@@ -625,16 +625,16 @@ SwitchArg pbexp_arg = { "", "pbexp", "put experimental pb values", cmd };
     if (not NAME##_corr_arg.isSet() and not NAME##_cal_corr_arg.isSet()) \
       return;								\
     if (NAME##_corr_arg.isSet() and NAME##_cal_corr_arg.isSet())	\
-      ZENTHROW(CommandLineError, "options " + NAME##_corr_arg.getName() + \
+      ALEPHTHROW(CommandLineError, "options " + NAME##_corr_arg.getName() + \
 	       NAME##_cal_corr_arg.getName() + " cannot be used together"); \
     const bool calibrated = NAME##_cal_corr_arg.isSet();		\
     const string corr_name = calibrated ? NAME##_cal_corr_arg.getValue() : \
       NAME##_corr_arg.getValue();					\
     auto corr_ptr = Correlation::search_by_name(corr_name);		\
     if (corr_ptr == nullptr)						\
-      ZENTHROW(CommandLineError, "correlation " + corr_name + " not found"); \
+      ALEPHTHROW(CommandLineError, "correlation " + corr_name + " not found"); \
     if (corr_ptr->target_name() != #NAME)				\
-      ZENTHROW(CommandLineError, "correlation " + corr_ptr->name +	\
+      ALEPHTHROW(CommandLineError, "correlation " + corr_ptr->name +	\
 	       " is not for " #NAME);					\
     data.NAME##_corr = corr_ptr;					\
     if (calibrated)							\
@@ -666,10 +666,10 @@ struct BanList
       {
 	auto corr_ptr = Correlation::search_by_name(data);
 	if (corr_ptr == nullptr)
-	  ZENTHROW(CorrelationNotFound, "Correlation" + data + " not found");
+	  ALEPHTHROW(CorrelationNotFound, "Correlation" + data + " not found");
 
 	if (corr_list.has(corr_ptr))
-	  ZENTHROW(DuplicatedCorrelationName, "Correlation " + data +
+	  ALEPHTHROW(DuplicatedCorrelationName, "Correlation " + data +
 		   " is already defined in ban list");
 
 	corr_list.append(corr_ptr);
@@ -709,14 +709,14 @@ DynMapTree<string, PvtData::AutoApplyType> auto_map =
 const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 {
   if (not const_name_tbl.has(par_name))
-    ZENTHROW(CommandLineError, "unknown parameter name " + par_name);
+    ALEPHTHROW(CommandLineError, "unknown parameter name " + par_name);
 
   const Unit * ret = &dft_unit;
   for (auto & par : unit.getValue())
     if (par.name == par_name)
       {
 	if (&dft_unit.physical_quantity != &par.unit_ptr->physical_quantity)
-	  ZENTHROW(CommandLineError, par_name + " unit: physical quantity " +
+	  ALEPHTHROW(CommandLineError, par_name + " unit: physical quantity " +
 		   ret->physical_quantity.name + " is invalid");
 	return ret;
       }
@@ -732,9 +732,9 @@ const Unit * test_unit(const string & par_name, const Unit & dft_unit)
     const string & NAME##unit_name = NAME##_out_unit.getValue();	\
     const Unit * ret_unit = Unit::search(NAME##unit_name);		\
     if (ret_unit == nullptr)						\
-      ZENTHROW(UnitNotFound, #NAME " unit " + NAME##unit_name + " not found"); \
+      ALEPHTHROW(UnitNotFound, #NAME " unit " + NAME##unit_name + " not found"); \
     if (not ret_unit->is_sibling(*curr_unit))				\
-      ZENTHROW(WrongSiblingUnit, NAME##unit_name + " and " + curr_unit->name + \
+      ALEPHTHROW(WrongSiblingUnit, NAME##unit_name + " and " + curr_unit->name + \
 	       " are not physically related");				\
     return ret_unit;							\
   }
@@ -799,7 +799,7 @@ void input_data(const GenerateInput & in)
 {
   DynList<const VectorDesc*> src_vectors = data.search_vectors(in.src_name);
   if (src_vectors.is_empty())
-    ZENTHROW(CommandLineError, "target name " + in.target_name +
+    ALEPHTHROW(CommandLineError, "target name " + in.target_name +
 	     " not found in data set");
 
   DynList<const VectorDesc*> tgt_vectors = data.search_vectors(in.target_name);
@@ -811,7 +811,7 @@ void input_data(const GenerateInput & in)
   auto pars = data.get_corr(in.target_name);
   const Correlation * corr_ptr = get<0>(pars);
   if (corr_ptr == nullptr)
-    ZENTHROW(CommandLineError, "Correlation for target " + in.target_name +
+    ALEPHTHROW(CommandLineError, "Correlation for target " + in.target_name +
 	     " has not been set");
       
   const double & c = get<1>(pars);
@@ -968,7 +968,7 @@ void process_apply()
   auto property_name = apply.getValue();
   if (not valid_targets.contains(property_name) and property_name != "pb" and
       property_name != "uod")
-    ZENTHROW(CommandLineError, "target name " + property_name + " is not valid");
+    ALEPHTHROW(CommandLineError, "target name " + property_name + " is not valid");
   
   auto corr_list = data.can_be_applied(property_name, relax_names_tbl,
 				       ban.getValue().corr_list);
@@ -1058,7 +1058,7 @@ void process_napply()
   auto property_name = napply.getValue();
   if (not valid_targets.contains(property_name) and property_name != "pb" and
       property_name != "uod")
-    ZENTHROW(CommandLineError, "target name " + property_name + " is not valid");
+    ALEPHTHROW(CommandLineError, "target name " + property_name + " is not valid");
 
   auto missing_list = data.list_restrictions(property_name, relax_names_tbl,
 					     ban.getValue().corr_list);
@@ -1457,7 +1457,7 @@ void process_pb_calibration()
       auto corr_ptr = it.get_curr();
       if (not data.can_be_applied(corr_ptr, relax_names_tbl,
 				  ban.getValue().corr_list))
-	ZENTHROW(CommandLineError,
+	ALEPHTHROW(CommandLineError,
 		 corr_ptr->name + " does not apply to data set");
       
       if (mode != "single")
@@ -1590,7 +1590,7 @@ void process_uod_calibration()
       auto corr_ptr = it.get_curr();
       if (not data.can_be_applied(corr_ptr, relax_names_tbl,
 				  ban.getValue().corr_list))
-	ZENTHROW(CommandLineError,
+	ALEPHTHROW(CommandLineError,
 		 corr_ptr->name + " does not apply to data set");
       
       if (mode != "single")
@@ -1715,7 +1715,7 @@ void split_uo()
 {
   DynList<const VectorDesc*> uo_vectors = data.search_vectors("uo");
   if (uo_vectors.is_empty())
-    ZENTHROW(VarNameNotFound, "data does not contain uo");
+    ALEPHTHROW(VarNameNotFound, "data does not contain uo");
 
   for (auto it = uo_vectors.get_it(); it.has_curr(); it.next())
     {
@@ -1741,7 +1741,7 @@ void test_load_file()
       catch (exception & e)
 	{
 	  if (not save.getValue())
-	    ZENTHROW(InvalidJson, "reading json: " + string(e.what()));
+	    ALEPHTHROW(InvalidJson, "reading json: " + string(e.what()));
 	}
     }
 }
@@ -1777,7 +1777,7 @@ int main(int argc, char *argv[])
   input_data();
 
   if (not data.defined())
-    ZENTHROW(CommandLineError, "data is not defined");
+    ALEPHTHROW(CommandLineError, "data is not defined");
 
   process_Auto();
   process_print_data();
@@ -1786,11 +1786,11 @@ int main(int argc, char *argv[])
   if (save.getValue())
     {
       if (not file.isSet())
-	ZENTHROW(InvalidTargetName, "json name not defined (--file)");
+	ALEPHTHROW(InvalidTargetName, "json name not defined (--file)");
       ofstream out(file.getValue());
       out << data.to_json().dump(2);
       if (out.bad())
-	ZENTHROW(CommandLineError, "cannot write to " + file.getValue() +
+	ALEPHTHROW(CommandLineError, "cannot write to " + file.getValue() +
 		 " file");
       terminate_app();
     }

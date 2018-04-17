@@ -14,7 +14,7 @@ ValueArg<string> file =
 SmoothGrid load_grid()
 {
   if (not file.isSet())
-    ZENTHROW(CommandLineError, "csv file is not set");
+    ALEPHTHROW(CommandLineError, "csv file is not set");
   const string & file_name = file.getValue();
   if (not exists_file(file_name))
     error_msg("file " + file_name + " does not exist");

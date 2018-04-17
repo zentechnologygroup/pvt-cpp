@@ -54,7 +54,7 @@ struct VectorDesc
   {
     size_t i = p.find_index([pval] (auto p) { return p == pval; });
     if (i >= p.size())
-      ZENTHROW(ValueNotFound, ::to_string(pval) + " not found in vector");
+      ALEPHTHROW(ValueNotFound, ::to_string(pval) + " not found in vector");
     return y(i);
   }
 
@@ -181,15 +181,15 @@ struct PvtData
 	     const string yname, const Array<double> & y, const Unit & yunit)
   {
     if (&punit.physical_quantity != &Pressure::get_instance())
-      ZENTHROW(InvalidPressureUnit, punit.name + " is not for pressure");
+      ALEPHTHROW(InvalidPressureUnit, punit.name + " is not for pressure");
 
     if (not is_sorted(p))
-      ZENTHROW(SamplesUnsorted, "pressure values are not sorted");
+      ALEPHTHROW(SamplesUnsorted, "pressure values are not sorted");
 
     auto sibling = search_vector(yname);
     if (not sibling.is_empty() and not sibling.all([&yunit] (auto & p)
         { return p->yunit->is_sibling(yunit); }))
-      ZENTHROW(InvalidTargetUnit, yunit.name + " is not sibling");
+      ALEPHTHROW(InvalidTargetUnit, yunit.name + " is not sibling");
 
     temperatures.insert(t);
     vectors.emplace(t, p, &punit, yname, &yunit, y);
@@ -251,7 +251,7 @@ struct PvtData
   {
     auto samples = search_vector(target_name);
     if (samples.is_empty())
-      ZENTHROW(VarNameNotFound, target_name + " not found");
+      ALEPHTHROW(VarNameNotFound, target_name + " not found");
 
     auto ptr = samples.get_first();
     DynList<double> t = { ptr->t };
@@ -376,7 +376,7 @@ struct PvtData
 					    return names.has(p.first);
 					  });
 	if (ptr == nullptr)
-	  ZENTHROW(VarNameNotFound, "correlation parameter " + par.name +
+	  ALEPHTHROW(VarNameNotFound, "correlation parameter " + par.name +
 		   " not found in data set");
 
 	const string & name_in_data = ptr->first;
@@ -407,7 +407,7 @@ struct PvtData
 	zip_for_each([&t] (auto tt)
           {
 	    if (get<1>(get<0>(tt)) != get<1>(tt))
-	      ZENTHROW(PressureMismatch, "Pressure mismatch in property " +
+	      ALEPHTHROW(PressureMismatch, "Pressure mismatch in property " +
 	     	       get<0>(t) + ": " + ::to_string(get<1>(get<0>(tt))) +
 		       " != " + ::to_string(get<1>(tt)));
 	  }, pressures, get<1>(t));	  

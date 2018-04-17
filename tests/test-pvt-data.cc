@@ -48,74 +48,74 @@ struct ValuesArg
 
     // read target_name
     if (not (iss >> target_name))
-      ZENTHROW(CommandLineError, str + " does not contain target name");
+      ALEPHTHROW(CommandLineError, str + " does not contain target name");
     if (not Correlation::array().exists([this] (auto ptr)
 				{ return ptr->target_name() == target_name; }))
-      ZENTHROW(CommandLineError, target_name + " is invalid as target name");
+      ALEPHTHROW(CommandLineError, target_name + " is invalid as target name");
 
     { // read property unit
       string property_unit;
       if (not (iss >> property_unit))
-	ZENTHROW(CommandLineError, "cannot read property unit");
+	ALEPHTHROW(CommandLineError, "cannot read property unit");
       unit_ptr = Unit::search(property_unit);
       if (unit_ptr == nullptr)
-	ZENTHROW(CommandLineError, property_unit + " unit for " + target_name +
+	ALEPHTHROW(CommandLineError, property_unit + " unit for " + target_name +
 		 " property not found");
     }
 
     // read temperature value
     string data;
     if (not (iss >> data))
-      ZENTHROW(CommandLineError, "temperature value not found");
+      ALEPHTHROW(CommandLineError, "temperature value not found");
     if (not is_double(data))
-      ZENTHROW(CommandLineError, "temperature value " + data +
+      ALEPHTHROW(CommandLineError, "temperature value " + data +
 	       " is not a double");
     t = atof(data);
 
      // read temperature unit
     string unit_name;
     if (not (iss >> unit_name))
-      ZENTHROW(CommandLineError, "cannot read temperature unit");
+      ALEPHTHROW(CommandLineError, "cannot read temperature unit");
     tunit_ptr = Unit::search(unit_name);
     if (tunit_ptr == nullptr)
-      ZENTHROW(CommandLineError, unit_name + " for temperature not found");
+      ALEPHTHROW(CommandLineError, unit_name + " for temperature not found");
     if (&tunit_ptr->physical_quantity != &Temperature::get_instance())
-      ZENTHROW(CommandLineError, unit_name + " is not a temperature unit");
+      ALEPHTHROW(CommandLineError, unit_name + " is not a temperature unit");
 
     // read pb value
     if (not (iss >> data))
-      ZENTHROW(CommandLineError, "pb value not found");
+      ALEPHTHROW(CommandLineError, "pb value not found");
     if (not is_double(data))
-      ZENTHROW(CommandLineError, "pb value " + data + " is not a double");
+      ALEPHTHROW(CommandLineError, "pb value " + data + " is not a double");
     pb = atof(data);
 
     // read pressure unit
     if (not (iss >> unit_name))
-      ZENTHROW(CommandLineError, str + " does not contain unit name");
+      ALEPHTHROW(CommandLineError, str + " does not contain unit name");
     punit_ptr = Unit::search(unit_name);
     if (punit_ptr == nullptr)
-      ZENTHROW(CommandLineError, unit_name + " for pressure not found");
+      ALEPHTHROW(CommandLineError, unit_name + " for pressure not found");
     if (&punit_ptr->physical_quantity != &Pressure::get_instance())
-      ZENTHROW(CommandLineError, unit_name + " is not for pressure");
+      ALEPHTHROW(CommandLineError, unit_name + " is not for pressure");
 
     DynList<double> vals;
     size_t n = 0;
     for (; iss >> data; ++n)
       {
 	if (not is_double(data))
-	  ZENTHROW(CommandLineError, data + " is not a double");
+	  ALEPHTHROW(CommandLineError, data + " is not a double");
 	vals.append(atof(data));
       }
 
     if (n % 2 != 0)
-      ZENTHROW(CommandLineError, "number of values is not even");
+      ALEPHTHROW(CommandLineError, "number of values is not even");
 
     auto it = vals.get_it();
     for (size_t i = 0; i < n/2; ++i, it.next())
       p.append(it.get_curr());
 
     if (not p.exists([this] (auto v) { return v == pb; }))
-      ZENTHROW(CommandLineError, "pb value " + to_string(pb) +
+      ALEPHTHROW(CommandLineError, "pb value " + to_string(pb) +
 	       " not found in pressures array");
 
     for (size_t i = 0; i < n/2; ++i, it.next())
@@ -149,14 +149,14 @@ struct ArgUnit
     string unit_name;
     istringstream iss(str);
     if (not (iss >> name >> unit_name))
-      ZENTHROW(CommandLineError, str + " is not a pair par-name unit");
+      ALEPHTHROW(CommandLineError, str + " is not a pair par-name unit");
 
     if (not const_name_tbl.contains(name))
-      ZENTHROW(CommandLineError, name + " is an invalid parameter name");
+      ALEPHTHROW(CommandLineError, name + " is an invalid parameter name");
 
     unit_ptr = Unit::search(unit_name);
     if (unit_ptr == nullptr)
-      ZENTHROW(CommandLineError, "cannot find unit " + unit_name);
+      ALEPHTHROW(CommandLineError, "cannot find unit " + unit_name);
 
     return *this;
   }
@@ -191,14 +191,14 @@ struct ActionType
     istringstream iss(str);
 
     if (not (iss >> type))
-      ZENTHROW(CommandLineError, "cannot read action type");
+      ALEPHTHROW(CommandLineError, "cannot read action type");
     if (not valid_actions.contains(type))
       {
 	ostringstream s;
 	s << type << " is not a valid action (must be";
 	valid_actions.for_each([&s] (auto & a) { s << " " << a; });
 	s << ")";
-	ZENTHROW(CommandLineError, s.str());
+	ALEPHTHROW(CommandLineError, s.str());
       }
 
     dispatcher.run(type, this, &iss);
@@ -209,7 +209,7 @@ struct ActionType
   static void read_property_name(ActionType * action, istringstream * iss)
   {
     if (not (*iss >> action->property_name))
-      ZENTHROW(CommandLineError, "cannot read property name");
+      ALEPHTHROW(CommandLineError, "cannot read property name");
   }
 
   static void read_local_calibration(ActionType * action, istringstream * iss)
@@ -219,17 +219,17 @@ struct ActionType
       {
 	auto corr_ptr = Correlation::search_by_name(corr_name);
 	if (corr_ptr == nullptr)
-	  ZENTHROW(CommandLineError, "correlation " + corr_name + " not found");
+	  ALEPHTHROW(CommandLineError, "correlation " + corr_name + " not found");
 	action->corr_list.append(corr_ptr);
       }
 
     if (action->corr_list.is_empty())
-      ZENTHROW(CommandLineError, "list of correlations is empty");
+      ALEPHTHROW(CommandLineError, "list of correlations is empty");
 
     const string & subtype = action->corr_list.get_first()->subtype_name;
     if (not action->corr_list.all([&subtype] (auto p)
 				  { return p->subtype_name == subtype; }))
-      ZENTHROW(CommandLineError, "correlation must be of same subtype");
+      ALEPHTHROW(CommandLineError, "correlation must be of same subtype");
   }
 
   static void dummy(ActionType*, istringstream*)
@@ -316,14 +316,14 @@ ValueArg<string> mode_type = { "", "mode", "mode", false, "both",
 const Unit * test_unit(const string & par_name, const Unit & dft_unit)
 {
   if (not const_name_tbl.has(par_name))
-    ZENTHROW(CommandLineError, "unknown parameter name " + par_name);
+    ALEPHTHROW(CommandLineError, "unknown parameter name " + par_name);
 
   const Unit * ret = &dft_unit;
   for (auto & par : unit.getValue())
     if (par.name == par_name)
       {
 	if (&dft_unit.physical_quantity != &par.unit_ptr->physical_quantity)
-	  ZENTHROW(CommandLineError, par_name + " unit: physical quantity " +
+	  ALEPHTHROW(CommandLineError, par_name + " unit: physical quantity " +
 		   ret->physical_quantity.name + " is invalid");
 	return ret;
       }
@@ -561,7 +561,7 @@ void proccess_local_calibration()
     {
       auto corr_ptr = it.get_curr();
       if (not data.can_be_applied(corr_ptr))
-	ZENTHROW(CommandLineError,
+	ALEPHTHROW(CommandLineError,
 		 corr_ptr->name + " does not apply to data set");
       
       if (mode != "single")
@@ -600,7 +600,7 @@ void proccess_local_calibration()
       auto & pvals = get<0>(vals);
       if (not zip_all([] (auto t) { return get<0>(t) == get<1>(t); },
 		      pressures, pvals))
-	ZENTHROW(InvariantError, "pressures for correlation " + corr_ptr->name);
+	ALEPHTHROW(InvariantError, "pressures for correlation " + corr_ptr->name);
 
       yc = get<2>(vals);
       put_sample(corr_ptr, rows, header, 0, yc, c, m);
@@ -749,8 +749,8 @@ void proccess_tmp_calibration()
     {
       auto corr_ptr = it.get_curr();
       if (not data.can_be_applied(corr_ptr))
-	ZENTHROW(CommandLineError,
-		 corr_ptr->name + " does not apply to data set");
+	ALEPHTHROW(CommandLineError,
+		   corr_ptr->name + " does not apply to data set");
       
       if (mode != "single")
 	{

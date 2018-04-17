@@ -15,7 +15,7 @@
 # include <Tarjan.H>
 # include <tpl_dynSetHash.H>
 
-# include <zen-exceptions.H>
+# include <aleph-exceptions.H>
 
 using namespace std;
 using namespace TCLAP;
@@ -94,7 +94,7 @@ struct Goal
       goal_type(type)
   {
     if (goal_tbl.contains(id))
-      ZENTHROW(DuplicatedName, "id " + to_string(id) + " is already present");
+      ALEPHTHROW(DuplicatedName, "id " + to_string(id) + " is already present");
 
     if (end_time <= start_time)
       throw domain_error("start time " + to_string(start_time) +
@@ -105,76 +105,76 @@ struct Goal
   {
     string line;
     if (not getline(in, line))                         // id
-      ZENTHROW(InvalidRead, "cannot read goal id");
+      ALEPHTHROW(InvalidRead, "cannot read goal id");
     if (not is_size_t(line))
-      ZENTHROW(InvalidRead, line + " is not an id");  
+      ALEPHTHROW(InvalidRead, line + " is not an id");  
 
     if (not getline(in, name))                         // name
-      ZENTHROW(InvalidRead, "cannot read goal name");
+      ALEPHTHROW(InvalidRead, "cannot read goal name");
 
     string t;                                          // goal_type
     if (not getline(in, t))
-      ZENTHROW(InvalidRead, "cannot read goal type");
+      ALEPHTHROW(InvalidRead, "cannot read goal type");
     goal_type = to_goal_type(t);
     
     if (not getline(in, responsible))                  // responsible
-      ZENTHROW(InvalidRead, "cannot read goal responsible");
+      ALEPHTHROW(InvalidRead, "cannot read goal responsible");
 
     string date;
     if (not getline(in, date))                         // start_date
-      ZENTHROW(InvalidRead, "cannot read start time");
+      ALEPHTHROW(InvalidRead, "cannot read start time");
 
     start_time = atol(date);
     if (not getline(in, date))                         // end_date
-      ZENTHROW(InvalidRead, "cannot read end time");
+      ALEPHTHROW(InvalidRead, "cannot read end time");
     end_time = atol(date);
 
     // Read collective actions
     if (not getline(in, line) or not is_size_t(line))
-      ZENTHROW(InvalidRead, "cannot read number of collective actions");
+      ALEPHTHROW(InvalidRead, "cannot read number of collective actions");
     size_t n = atol(line);
     string action;
     for (size_t i = 0; i < n; ++i)
       {
 	if (not getline(in, action))
-	  ZENTHROW(InvalidRead, "cannot read collective action " +
+	  ALEPHTHROW(InvalidRead, "cannot read collective action " +
 		   to_string(i));
 	collective_actions.append(action);
       }
 
     // read individual actions
     if (not getline(in, line) or not is_size_t(line))
-      ZENTHROW(InvalidRead, "cannot read number of individual actions");
+      ALEPHTHROW(InvalidRead, "cannot read number of individual actions");
     n = atol(line);
     for (size_t i = 0; i < n; ++i)
       {
 	if (not getline(in, action))
-	  ZENTHROW(InvalidRead, "cannot read individual action " +
+	  ALEPHTHROW(InvalidRead, "cannot read individual action " +
 		   to_string(i));
 	individual_actions.append(action);
       }
 
     // Read expected results
     if (not getline(in, line) or not is_size_t(line))
-      ZENTHROW(InvalidRead, "cannot read number of expected results");
+      ALEPHTHROW(InvalidRead, "cannot read number of expected results");
     n = atol(line);
     string result;
     for (size_t i = 0; i < n; ++i)
       {
 	if (not getline(in, result))
-	  ZENTHROW(InvalidRead, "cannot read expected result " + to_string(i));
+	  ALEPHTHROW(InvalidRead, "cannot read expected result " + to_string(i));
 	expected_results.append(result);
       }
 
     // read members
     if (not getline(in, line))
-      ZENTHROW(InvalidRead, "cannot read number of members");
+      ALEPHTHROW(InvalidRead, "cannot read number of members");
     n = atol(line);
     string member;
     for (size_t i = 0; i < n; ++i)
       {
 	if (not getline(in, member))
-	  ZENTHROW(InvalidRead, "cannot read member " + to_string(i));
+	  ALEPHTHROW(InvalidRead, "cannot read member " + to_string(i));
 	expected_results.append(member);
       }   
   }
@@ -312,16 +312,16 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
   void set_priority(const size_t src_id, const size_t tgt_id)
   {
     if (src_id == tgt_id)
-      ZENTHROW(DuplicatedName, "src id " + to_string(src_id) + " is equal to " +
+      ALEPHTHROW(DuplicatedName, "src id " + to_string(src_id) + " is equal to " +
 	       to_string(tgt_id));
 
     auto src_ptr = search_node(src_id);
     if (src_ptr == nullptr)
-      ZENTHROW(NameNotFound, "src id " + to_string(src_id) + " not found");
+      ALEPHTHROW(NameNotFound, "src id " + to_string(src_id) + " not found");
 
     auto tgt_ptr = search_node(tgt_id);
     if (tgt_ptr == nullptr)
-      ZENTHROW(NameNotFound, "tgt id " + to_string(tgt_id) + " not found");
+      ALEPHTHROW(NameNotFound, "tgt id " + to_string(tgt_id) + " not found");
 
     insert_arc(src_ptr, tgt_ptr);
   }
@@ -344,7 +344,7 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
 
     const size_t goal_id = atol(row[id_idx]);
     if (nodes_tbl.has(goal_id))
-      ZENTHROW(DuplicatedName, "duplicated goal id " + to_string(goal_id));
+      ALEPHTHROW(DuplicatedName, "duplicated goal id " + to_string(goal_id));
 
     auto goal = new Goal;
     goal->id = goal_id;
@@ -391,7 +391,7 @@ struct Plan : public Array_Graph<Graph_Anode<Goal*>, Graph_Aarc<>>
 	    auto ptr = members.search(name);
 	    if (ptr == nullptr)
 	      
-	      ZENTHROW(NameNotFound, "member name " + name +
+	      ALEPHTHROW(NameNotFound, "member name " + name +
 		       " not found for goal id" + to_string(goal->id));
 	    return &ptr->second;
 	  }).for_each([goal] (Member * member_ptr)
@@ -555,7 +555,7 @@ int main(int argc, char *argv[])
 
   auto file_name = file.getValue();
   if (not exists_file(file.getValue()))
-    ZENTHROW(FileNotFound, file_name + " not found");
+    ALEPHTHROW(FileNotFound, file_name + " not found");
 
   ifstream in(file_name);
 

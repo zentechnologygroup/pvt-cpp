@@ -121,7 +121,7 @@ struct PropertyUnit
   {
     istringstream iss(str);
     if (not (iss >> name >> unit_name))
-      ZENTHROW(CommandLineError, str + " is not a pair par-name unit");
+      ALEPHTHROW(CommandLineError, str + " is not a pair par-name unit");
 
     return *this;
   }
@@ -162,7 +162,7 @@ void process_property_unit_changes()
       ostringstream s;
       s << "For correlation unit change (flag " << property_unit.getName()
 	<< "): unit name " << unit_name << " does not exist";\
-      ZENTHROW(InvalidValue, s.str());
+      ALEPHTHROW(InvalidValue, s.str());
     }
 }
 
@@ -212,7 +212,7 @@ build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
 	  s << "In flag --" << property_unit.getName() << " \"" << property_name
 	    << " " << new_unit_ptr->name << "\" : unit " << new_unit_ptr->name
 	    << " is not sibling of " << old_unit_ptr->name;
-	  ZENTHROW(InvalidValue, s.str());
+	  ALEPHTHROW(InvalidValue, s.str());
 	}
       ret.insert(p->second);
       fcts.insert(search_conversion(*old_unit_ptr, *new_unit_ptr));
@@ -225,7 +225,7 @@ build_stack_of_property_units(const FixedStack<pair<string, const Unit*>> & h)
       s << "For correlation unit change (flag --" << property_unit.getName()
 	<< "): " << property_units_changes.get_first().first
 	<< " is not a valid property name";
-      ZENTHROW(InvalidValue, s.str());
+      ALEPHTHROW(InvalidValue, s.str());
     }
 
   return make_pair(ret, fcts);
@@ -291,7 +291,7 @@ inline bool two_separators()
 {
   bool ret = tsep_arg.isSet() and tsep2_arg.isSet();
   if (ret and tsep < tsep2)
-    ZENTHROW(WrongCombinationInputValues, "separator temp " + tsep.to_string() +
+    ALEPHTHROW(WrongCombinationInputValues, "separator temp " + tsep.to_string() +
 	     " is less than separator temp " + tsep2.to_string());
   return ret;
 }
@@ -461,13 +461,13 @@ struct ParRangeDesc
   {
     istringstream iss(str);
     if (not (iss >> min >> max >> n))
-      ZENTHROW(CommandLineError, str + " is not of form \"min max n\"");
+      ALEPHTHROW(CommandLineError, str + " is not of form \"min max n\"");
 
     if (n == 0)
-      ZENTHROW(CommandLineError, ::to_string(n) + " n cannot be zero");
+      ALEPHTHROW(CommandLineError, ::to_string(n) + " n cannot be zero");
 
     if (n > Max_Num_Of_Steps)
-      ZENTHROW(CommandLineError, "Number of steps " + to_string(n) + 
+      ALEPHTHROW(CommandLineError, "Number of steps " + to_string(n) + 
 	       " is greater than allowed maximum " + to_string(Max_Num_Of_Steps) +
 	       " (Max_Num_Of_Steps)");
 
@@ -475,7 +475,7 @@ struct ParRangeDesc
       {
 	ostringstream s;
 	s << "min value " << min << " greater than max value " << max;
-	ZENTHROW(CommandLineError, s.str());
+	ALEPHTHROW(CommandLineError, s.str());
       }
 
     return *this;
@@ -512,12 +512,12 @@ struct Digits
   {
     istringstream iss(str);
     if (not (iss >> col_name))
-      ZENTHROW(CommandLineError, "--digit : cannot read column name");
+      ALEPHTHROW(CommandLineError, "--digit : cannot read column name");
     if (not (iss >> num_digits))
-      ZENTHROW(CommandLineError, "--digit \"" + col_name +
+      ALEPHTHROW(CommandLineError, "--digit \"" + col_name +
 	       "... : cannot read number o digits");
     if (not is_size_t(num_digits))
-      ZENTHROW(CommandLineError, "in --digit \"" + col_name + " " + num_digits +
+      ALEPHTHROW(CommandLineError, "in --digit \"" + col_name + " " + num_digits +
 	       "\" : invalid number o digits");
 
     return *this;
@@ -554,16 +554,16 @@ struct RowDesc
   RowDesc & operator = (const string & str)
   {
     if (n >= Max_Num_of_Tp_Pairs)
-      ZENTHROW(CommandLineError, "Number of steps " + to_string(n) + 
+      ALEPHTHROW(CommandLineError, "Number of steps " + to_string(n) + 
 	       " is greater than allowed maximum " + to_string(Max_Num_of_Tp_Pairs) +
 	       " (Max_Num_of_Tp_Pairs)");  
 
     istringstream iss(str);
     if (not (iss >> t >> p))
-      ZENTHROW(CommandLineError, str + " is not of form \"t p\"");
+      ALEPHTHROW(CommandLineError, str + " is not of form \"t p\"");
 
     if (t <= 0 or p <= 0)
-      ZENTHROW(CommandLineError, "t and p must be greater than zero");
+      ALEPHTHROW(CommandLineError, "t and p must be greater than zero");
 
     ++n;
     return *this;
@@ -600,18 +600,18 @@ struct ArrayDesc
     while (iss >> data)
       {
 	if (++n > Max_Num_Of_Steps)
-	  ZENTHROW(CommandLineError, "Number of steps " + to_string(n) + 
+	  ALEPHTHROW(CommandLineError, "Number of steps " + to_string(n) + 
 		   " is greater than allowed maximum " +
 		   to_string(Max_Num_Of_Steps) + " (Max_Num_Of_Steps)");
 
 	if (not is_double(data))
-	  ZENTHROW(CommandLineError, data + " is not a double");
+	  ALEPHTHROW(CommandLineError, data + " is not a double");
 
 	values.append(atof(data));
       }
 
     if (values.is_empty())
-      ZENTHROW(CommandLineError, "cannot read array");
+      ALEPHTHROW(CommandLineError, "cannot read array");
 
     in_place_sort(values);
  
@@ -1137,7 +1137,7 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 	  {
 	    const string & col_name = it.get_curr();
 	    if (not name_to_precision.contains(col_name))
-	      ZENTHROW(CommandLineError, "in --filter: " + col_name +
+	      ALEPHTHROW(CommandLineError, "in --filter: " + col_name +
 		       " is not a valid column name");
 	    if (nfilter_tbl.has(col_name))
 	      continue;
@@ -1164,7 +1164,7 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 	}
       catch (exception & e)
 	{
-	  ZENTHROW(CommandLineError, "error in --digits \"" + d.col_name + " " +
+	  ALEPHTHROW(CommandLineError, "error in --digits \"" + d.col_name + " " +
 		   d.num_digits + "\" (probably " + d.col_name + " is invalid");
 	}
     }
@@ -1280,7 +1280,7 @@ void print_order()
 
   auto names = filter_par.getValue().col_names;
   if (not names.all([&name_map] (auto & name) { return name_map.has(name); }))
-    ZENTHROW(CommandLineError, "--order contains an invalid name");
+    ALEPHTHROW(CommandLineError, "--order contains an invalid name");
 
   for (auto it = names.get_it(); it.has_curr(); it.next())
     {

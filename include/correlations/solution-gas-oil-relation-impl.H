@@ -131,7 +131,7 @@ void RsGlaso::precondition(const Quantity<MoleFraction> & n2,
     {
       ostringstream s;
       s << "In RsGlaso::impl: invalid values for nonhydrocarbon concentrations.";
-      ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+      ALEPHTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }
 
@@ -542,7 +542,7 @@ void RsAbovePb::precondition(const Quantity<psia> & p,
       ostringstream s;
       s << "RsAbovePb::impl: pressure" << p << " is less than bubble point pressure "
 	<< pb;
-      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
+      ALEPHTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 

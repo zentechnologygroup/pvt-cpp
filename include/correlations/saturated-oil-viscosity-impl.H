@@ -37,7 +37,7 @@ void UobKhan::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "UobKhan::impl: pressure " << p << " is greater than pb " << pb;
-      ZENTHROW(WrongValueSaturatedCondition, s.str());
+      ALEPHTHROW(WrongValueSaturatedCondition, s.str());
     }
 }
 

@@ -5,7 +5,7 @@
 # include <pvt-grid-compute.H>
 # include <pvt-units.H>
 
-DEFINE_ZEN_EXCEPTION(DuplicatedTemperature, "Duplicated temperature");
+DEFINE_ALEPH_EXCEPTION(DuplicatedTemperature, "Duplicated temperature");
 
 class PvtStats
 {
@@ -26,9 +26,9 @@ class PvtStats
       : name(__name), t(__t), p(__p), punit(__punit), y(__y), yunit(__yunit)
     {
       if (not __tunit->is_sibling(Fahrenheit::get_instance()))
-	ZENTHROW(InvalidUnit, __tunit->name + " is not a temperature unit");
+	ALEPHTHROW(InvalidUnit, __tunit->name + " is not a temperature unit");
       if (not punit->is_sibling(psia::get_instance()))
-	ZENTHROW(InvalidUnit, punit->name + " is not a pressure unit");
+	ALEPHTHROW(InvalidUnit, punit->name + " is not a pressure unit");
       if (__tunit != &Fahrenheit::get_instance())
 	t = unit_convert(*__tunit, t, Fahrenheit::get_instance());
     }
@@ -42,7 +42,7 @@ class PvtStats
   {
     auto samples_list = exp_samples[name];
     if (samples_list.exists([&t] (auto & s) { return s.t == t; }))
-      ZENTHROW(DuplicatedTemperature, to_str(t) + " is already in the set");
+      ALEPHTHROW(DuplicatedTemperature, to_str(t) + " is already in the set");
 
     exp_samples.emplace_end(name, t, tunit, p, punit, y, yunit);
   }

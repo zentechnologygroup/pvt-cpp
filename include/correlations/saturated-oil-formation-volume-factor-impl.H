@@ -243,7 +243,7 @@ void BobPerezML::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "BobPerezML::impl: pressure " << p << " is greater than pb " << pb;
-      ZENTHROW(WrongValueSaturatedCondition, s.str());
+      ALEPHTHROW(WrongValueSaturatedCondition, s.str());
     }
 }
 
@@ -311,7 +311,7 @@ void BobMillanArcia::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "BobMillanArcia::impl: pressure " << p << " is greater than pb " << pb;
-      ZENTHROW(WrongValueSaturatedCondition, s.str());
+      ALEPHTHROW(WrongValueSaturatedCondition, s.str());
     }
 }
 

@@ -14,7 +14,7 @@ void RswSpiveyMN::precondition(const Quantity<Celsius> & t,
       ostringstream s;
       s << "RswSpiveyMN::impl: received pressure " << p
 	<< " is less than computed vapor pressure " << pv;
-      ZENTHROW(WrongValueVaporPressure, s.str());
+      ALEPHTHROW(WrongValueVaporPressure, s.str());
     }
 }
 

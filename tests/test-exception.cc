@@ -1,8 +1,8 @@
 
-# include <zen-exceptions.H>
+# include <aleph-exceptions.H>
 
 int main()
 {
-  ZENTHROW(MinMaxReversed, "prueba");
+  ALEPHTHROW(MinMaxReversed, "prueba");
 }
 

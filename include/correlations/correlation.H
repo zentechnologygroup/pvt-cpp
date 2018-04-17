@@ -15,8 +15,6 @@
 # include <ah-comb.H>
 # include <ah-zip.H>
 
-# include <utils.H>
-
 # include <pvt-units.H>
 # include <biblio.H>
 
@@ -112,7 +110,7 @@ public:
 	ostringstream s;
 	s << "CorrelationPar::add_synonym(): synonym unit " << unit.name
 	  << " is not physically related to parameter unit " << this->unit.name;
-	ZENTHROW(WrongSiblingUnit, s.str());
+	ALEPHTHROW(WrongSiblingUnit, s.str());
       }
 
     auto p = make_pair(name, &unit);
@@ -129,7 +127,7 @@ public:
 	ostringstream s;
 	s << "add_synonym(): unit name or symbol " << unit_sym_name
 	  << " not found";
-	ZENTHROW(WrongSiblingUnit, s.str());
+	ALEPHTHROW(WrongSiblingUnit, s.str());
       }
     add_synonym(name, *ptr);
   }
@@ -231,14 +229,14 @@ public:
       {
 	s << "Value " << q.get_value() << " is lesser than the minimum value "
 	  << min_val << " for precondition ";
-	ZENTHROW(OutOfParameterRange, s.str());
+	ALEPHTHROW(OutOfParameterRange, s.str());
       }
 
     if (q.get_value() > max_val.raw() + epsilon)
       {
 	s << "Value " << q << " is greater than the maximum value "
 	  << max_val << " for precondition ";
-	ZENTHROW(OutOfParameterRange, s.str());
+	ALEPHTHROW(OutOfParameterRange, s.str());
       }
   }
 };
@@ -412,7 +410,7 @@ private:
 	ostringstream s;
 	s << "Correlation::search_parameter(): par name " << par_name
 	  << " not found";
-	ZENTHROW(SynonymNotFound, s.str());
+	ALEPHTHROW(SynonymNotFound, s.str());
       }
 
     return const_cast<CorrelationPar*>(par_ptr);
@@ -686,7 +684,7 @@ protected:
       {
 	ostringstream s;
 	s << "Correlation::Correlation: duplicated correlation name" << name;
-	ZENTHROW(DuplicatedCorrelationName, s.str());
+	ALEPHTHROW(DuplicatedCorrelationName, s.str());
       }
 
     tbl.insert(name, this);
@@ -735,7 +733,7 @@ protected:
 	ostringstream s;
 	s << "minimum value " << min_aux << " is greater than maximum value "
 	  << max_aux << " for parameter " << name;
-	ZENTHROW(OutOfParameterRange, s.str());
+	ALEPHTHROW(OutOfParameterRange, s.str());
       }
 
     CorrelationPar par(name, unit, description, min, max);
@@ -1134,7 +1132,7 @@ public:
 	  << values.size()
 	  << " is different from number of declared parameters "
 	  << get_num_pars();
-	ZENTHROW(InvalidNumberOfParameters, s.str());
+	ALEPHTHROW(InvalidNumberOfParameters, s.str());
       }
 
     VtlQuantity ret = { unit, compute(pars, check) }; // here conversion is done
@@ -1215,7 +1213,7 @@ public:
 	    ostringstream s;
 	    s << "compute_by_names() for correlation " << name
 	      << ": parameter name " << par.name << " was not found";
-	    ZENTHROW(ParameterNameNotFound, s.str());
+	    ALEPHTHROW(ParameterNameNotFound, s.str());
 	  }
 	vals.append(VtlQuantity(par.unit, ptr_val->second));
       }
@@ -1283,7 +1281,7 @@ public:
 	    ostringstream s;
 	    s << "compute_by_names() for correlation " << name
 	      << ": parameter name " << par.name << " was not found";
-	    ZENTHROW(ParameterNameNotFound, s.str());
+	    ALEPHTHROW(ParameterNameNotFound, s.str());
 	  }
 	
 	if (not get<0>(*ptr_val))
@@ -1291,7 +1289,7 @@ public:
 	    ostringstream s;
 	    s << "compute_by_names() for correlation " << name
 	      << ": parameter name " << par.name << " is not set";
-	    ZENTHROW(ParameterNameNotSet, s.str());
+	    ALEPHTHROW(ParameterNameNotSet, s.str());
 	  }
 	vals.append(VtlQuantity(*get<3>(*ptr_val), get<2>(*ptr_val)));
       }
@@ -1517,7 +1515,7 @@ public:
 	  << values.size()
 	  << " is different from number of declared parameters "
 	  << get_num_pars();
-	ZENTHROW(InvalidNumberOfParameters, s.str());
+	ALEPHTHROW(InvalidNumberOfParameters, s.str());
       }
 
     VtlQuantity ret = tune(compute(pars, check), c, m, tuned_unit);
@@ -1826,7 +1824,7 @@ public:
 	      << " " << par.unit.name << ") in correlation " << name 
 	      << " does not satisfy application development range ["
 	      << precondition.min_val << ", " << precondition.max_val << "]";
-	    ZENTHROW(OutOfParameterRange, s.str());
+	    ALEPHTHROW(OutOfParameterRange, s.str());
 	  }
       }
 
@@ -1835,7 +1833,7 @@ public:
 	ostringstream s;
 	s << "number of preconditions " << preconditions.size()
 	  << " is different than number of parameters " << pars.size();
-	ZENTHROW(InvalidNumberOfParameters, s.str());
+	ALEPHTHROW(InvalidNumberOfParameters, s.str());
       }
 
     return pars;
@@ -1859,7 +1857,7 @@ public:
 	  << type_name << " : return value (" << result.get_value() << " "
 	  << result.unit.name << ") is out of range ["
 	  << min_val << ", " << max_val << "] defined for the correlation";
-	ZENTHROW(OutOfCorrelationRange, s.str());
+	ALEPHTHROW(OutOfCorrelationRange, s.str());
       }
 
     return result;

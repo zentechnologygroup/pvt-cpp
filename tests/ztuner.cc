@@ -44,14 +44,14 @@ struct PZArg
   {
     string data;
     if (not (iss >> data))
-      ZENTHROW(CommandLineError, "cannot read unit for " + pq.name);
+      ALEPHTHROW(CommandLineError, "cannot read unit for " + pq.name);
 
     unit_ptr = Unit::search(data);
     if (unit_ptr == nullptr)
-      ZENTHROW(CommandLineError, "unit " + data + " not found");
+      ALEPHTHROW(CommandLineError, "unit " + data + " not found");
 
     if (&unit_ptr->physical_quantity != &pq)
-      ZENTHROW(CommandLineError, "unit " + data + " is not for " + pq.name);
+      ALEPHTHROW(CommandLineError, "unit " + data + " is not for " + pq.name);
   }
 
   static double read_double(istringstream & iss)
@@ -59,7 +59,7 @@ struct PZArg
     string data;
     iss >> data;
     if (not is_double(data))
-      ZENTHROW(CommandLineError, "read value " + data + " is not a double");
+      ALEPHTHROW(CommandLineError, "read value " + data + " is not a double");
     return atof(data);
   }
 
@@ -78,7 +78,7 @@ struct PZArg
       l.append(read_double(iss));
 
     if ((n % 2) != 0)
-      ZENTHROW(CommandLineError, "Number of values " + to_string(n) +
+      ALEPHTHROW(CommandLineError, "Number of values " + to_string(n) +
 	       " is not even");
 
     for (size_t i = 0; i < n/2; ++i)
@@ -94,7 +94,7 @@ struct PZArg
       }
       
     if (not is_sorted(p) and not is_inversely_sorted(p))
-      ZENTHROW(CommandLineError, "pressure values are not monotone");
+      ALEPHTHROW(CommandLineError, "pressure values are not monotone");
 
     mutable_unit_convert(*punit_ptr, p, psia::get_instance());
 
@@ -125,10 +125,10 @@ struct ArgUnit
   {
     istringstream iss(str);
     if (not (iss >> name >> unit_name))
-      ZENTHROW(CommandLineError, str + " is not a pair par-name unit");
+      ALEPHTHROW(CommandLineError, str + " is not a pair par-name unit");
 
     if (not valid.contains(name))
-      ZENTHROW(CommandLineError, name + " is an invalid parameter name");
+      ALEPHTHROW(CommandLineError, name + " is an invalid parameter name");
 
     return *this;
   }
@@ -154,7 +154,7 @@ struct PlotNumbers
     istringstream iss(str);
     for (; iss >> data; ++n)
       if (not is_size_t(data))
-	ZENTHROW(CommandLineError, data + " is not a unsigned integer");
+	ALEPHTHROW(CommandLineError, data + " is not a unsigned integer");
       else
 	numbers.append(atol(data));
 
@@ -433,7 +433,7 @@ void process_plot()
   const DynList<size_t> num_list = numbers.numbers;
   if (not numbers.numbers.all([n = data->zcomb_list.size()] (auto i)
 			      { return i < n; }))
-    ZENTHROW(CommandLineError, "Invalid number in plot list");
+    ALEPHTHROW(CommandLineError, "Invalid number in plot list");
 
   DynList<string> header = data->basic_header();
   auto lab_vals = data->vals();
@@ -545,7 +545,7 @@ void test_load_file()
       catch (exception & e)
 	{
 	  if (not save.getValue())
-	    ZENTHROW(InvalidJson, "reading json: " + string(e.what()));
+	    ALEPHTHROW(InvalidJson, "reading json: " + string(e.what()));
 	}
     }
 }
@@ -560,12 +560,12 @@ int main(int argc, char *argv[])
   if (save.getValue())
     {
       if (not fname.isSet())
-	ZENTHROW(CommandLineError,
+	ALEPHTHROW(CommandLineError,
 		 "for save option file name has not been set");
       ofstream out(fname.getValue());
       out << data->to_json().dump(2) << endl;
        if (out.bad())
-	ZENTHROW(CommandLineError, "cannot write to " + fname.getValue() +
+	ALEPHTHROW(CommandLineError, "cannot write to " + fname.getValue() +
 		 " file");
     }
 

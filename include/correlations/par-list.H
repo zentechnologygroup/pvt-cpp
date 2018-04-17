@@ -109,7 +109,7 @@ public:
   void insert(const NamedPar & par)
   {
     if (not get<0>(par))
-      ZENTHROW(ParameterNameNotSet, "Correlation parameter " + get<1>(par) +
+      ALEPHTHROW(ParameterNameNotSet, "Correlation parameter " + get<1>(par) +
 	       " has not been set");
     
     insert(get<1>(par), get<2>(par), get<3>(par));
@@ -132,7 +132,7 @@ public:
     ParPair pp; pp.first = name;
     auto p = tbl.search(pp);
     if (p == nullptr)
-      ZENTHROW(ParameterNameNotFound, "Parameter name " + name + " not found");
+      ALEPHTHROW(ParameterNameNotFound, "Parameter name " + name + " not found");
 
     const ValPair & vpair = p->second;
     return VtlQuantity(*vpair.second, vpair.first);
@@ -168,7 +168,7 @@ public:
 	  s << ", ";
       }
     s << "} have not been found in parameter list";
-    ZENTHROW(ParameterNameNotFound, s.str());
+    ALEPHTHROW(ParameterNameNotFound, s.str());
   }
 
   VtlQuantity operator () (const string & name) const

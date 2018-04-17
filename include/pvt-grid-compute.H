@@ -11,12 +11,13 @@
 # include <tpl_array.H>
 # include <tpl_sort_utils.H>
 # include <tpl_dynMapTree.H>
-# include <utils.H>
 # include <pvt-units.H>
 
-DEFINE_ZEN_EXCEPTION(MismatchInPressureValues, "pressure values does not match");
-DEFINE_ZEN_EXCEPTION(UnsortedPressureValues, "pressure values are not sorted");
-DEFINE_ZEN_EXCEPTION(PropertyNotFound, "Essential property not found");
+DEFINE_ALEPH_EXCEPTION(MismatchInPressureValues,
+		       "pressure values does not match");
+DEFINE_ALEPH_EXCEPTION(UnsortedPressureValues,
+		       "pressure values are not sorted");
+DEFINE_ALEPH_EXCEPTION(PropertyNotFound, "Essential property not found");
 
 /**
    
@@ -70,10 +71,10 @@ struct PvtGrid
   {
     assert(col_indexes.size() == ncol);
     if (row.size() != ncol)
-      ZENTHROW(InvalidCsvRow, "invalid size of " + to_string(row_idx) +
+      ALEPHTHROW(InvalidCsvRow, "invalid size of " + to_string(row_idx) +
 	       "-th row");
     if (not row.all([] (auto &s) { return s.size() == 0 or is_double(s); }))
-      ZENTHROW(InvalidConversion, "a value in row " + to_string(row_idx) +
+      ALEPHTHROW(InvalidConversion, "a value in row " + to_string(row_idx) +
 	       " cannot be converted to double");
 
     double t = atof(row(tidx));
@@ -117,11 +118,11 @@ public:
     Array<string> header = csv_read_row(in);
     if (not header.exists([] (auto & s)
 			  { return split_to_list(s, " ")[0] == "t"; }))
-      ZENTHROW(InvalidCsvHeader, "csv header does not contain t field");
+      ALEPHTHROW(InvalidCsvHeader, "csv header does not contain t field");
     
     if (not header.exists([] (auto & s)
 			  { return split_to_list(s, " ")[0] == "p"; }))
-      ZENTHROW(InvalidCsvHeader, "csv header does not contain p field");
+      ALEPHTHROW(InvalidCsvHeader, "csv header does not contain p field");
     
     DynList<pair<string, size_t>> names_to_idx;
     size_t i = 0, tidx = 0, pidx = 0;
@@ -130,14 +131,14 @@ public:
 	auto & s = it.get_curr();
 	auto parts = split(s, ' ');
 	if (parts.size() != 2)
-	  ZENTHROW(InvalidCsvHeader, "Invalid format in column " +
+	  ALEPHTHROW(InvalidCsvHeader, "Invalid format in column " +
 		   to_string(i));
 	const string & var_name = parts[0];
 	const string & unit_name = parts[1];
 	const Unit * unit_ptr = Unit::search(unit_name);
 	names_to_idx.append(make_pair(var_name, i));
 	if (unit_ptr == nullptr)
-	  ZENTHROW(UnitNotFound, "unit " + unit_name + " not found");
+	  ALEPHTHROW(UnitNotFound, "unit " + unit_name + " not found");
 	if (var_name == "t")
 	  {
 	    tunit_ptr = unit_ptr;
@@ -178,7 +179,7 @@ public:
 	if (not is_sorted(desc.p, std::less_equal<double>()))
 	  {
 	    size_t i = search_inversion(desc.p).second;
-	    ZENTHROW(UnsortedPressureValues,
+	    ALEPHTHROW(UnsortedPressureValues,
 		     "pressure values associated to temp " + to_string(t) +
 		     " are not sorted " +
 		     join(desc.p.take(i)) + " * " + join(desc.p.drop(i)));
@@ -323,7 +324,7 @@ public:
     long i = binary_search(var_names, p, [] (auto & p1, auto & p2)
 			   { return p1.first < p2.first; });
     if (i < 0 or size_t(i) >= var_names.size() or var_names(i).first != name)
-      ZENTHROW(NameNotFound, "var name " + name + " not found");
+      ALEPHTHROW(NameNotFound, "var name " + name + " not found");
     assert(var_names(i).first == name);
     return make_pair(i, var_names(i).second);
   }
@@ -349,7 +350,7 @@ public:
       return;
     
     if (not has_name("pb"))
-      ZENTHROW(PropertyNotFound, "pb property not found in data set");
+      ALEPHTHROW(PropertyNotFound, "pb property not found in data set");
 
     const size_t pb_idx = property_index("pb");
     for (auto it = temps.get_it(); it.has_curr(); it.next())
@@ -359,7 +360,7 @@ public:
 	const double & pb = d.vals[0][pb_idx];
 	assert(d.vals.size() == d.p.size());
 	if (not d.vals.all([pb, pb_idx] (auto & a) { return a[pb_idx] == pb; }))
-	  ZENTHROW(InvariantError, "found inconsistency with pb");
+	  ALEPHTHROW(InvariantError, "found inconsistency with pb");
 	pb_table.insert(t, pb);
       }
   }
@@ -390,7 +391,7 @@ private:
     const Array<double> & vals1 = vals(p_idx.first);    
     const double & y1 = vals1(name_idx);
     if (y1 == Unit::Invalid_Value)
-      ZENTHROW(OutOfRange, "for t = " + to_string(d.t) + " p = " +
+      ALEPHTHROW(OutOfRange, "for t = " + to_string(d.t) + " p = " +
 	       to_str(p) + " : value of " + var_names(name_idx).first +
 	       " out of grid range"); 
 
@@ -409,21 +410,21 @@ private:
 	break;
       case RangeDesc::Type::Internal:
 	if (y2 == Unit::Invalid_Value)
-	  ZENTHROW(OutOfRange, "for t = " + to_string(d.t) + " p = " +
+	  ALEPHTHROW(OutOfRange, "for t = " + to_string(d.t) + " p = " +
 		   to_str(p) + " : value of " + var_names(name_idx).first +
 		   " out of grid range");    
 	y = interpolate(p1, p2, y1, y2, p);
 	break;
       case RangeDesc::Type::Left:
 	if (y2 == Unit::Invalid_Value)
-	  ZENTHROW(OutOfRange, "for t = " + to_string(d.t) + " p = " +
+	  ALEPHTHROW(OutOfRange, "for t = " + to_string(d.t) + " p = " +
 		   to_str(p) + " : value of " + var_names(name_idx).first +
 		   " out of grid range");    
 	y = extrapolate_left(p1, p2, y1, y2, p);
 	break;
       case RangeDesc::Type::Right:
 	if (y2 == Unit::Invalid_Value)
-	  ZENTHROW(OutOfRange, "for t = " + to_string(d.t) + " p = " +
+	  ALEPHTHROW(OutOfRange, "for t = " + to_string(d.t) + " p = " +
 		   to_str(p) + " : value of " + var_names(name_idx).first +
 		   " out of grid range");    
 	y = extrapolate_right(p1, p2, y1, y2, p);

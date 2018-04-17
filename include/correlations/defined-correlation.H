@@ -201,7 +201,7 @@ public:
     assert(unit_ptr);
     auto interval_ptr = search_interval(val);
     if (not interval_ptr)
-      ZENTHROW(InvalidValue, "value " + ::to_string(val) + " not found");
+      ALEPHTHROW(InvalidValue, "value " + ::to_string(val) + " not found");
     return *interval_ptr->par_names;
   }
 

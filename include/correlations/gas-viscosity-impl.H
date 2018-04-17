@@ -12,7 +12,7 @@ void UgCarrKB::precondition(const Quantity<MoleFraction> & n2,
     {
     ostringstream s;
     s << "In UgCarrKB::impl: invalid values for nonhydrocarbon concentrations";
-    ZENTHROW(WrongNonhydrocarbonsConcentrations, s.str());
+    ALEPHTHROW(WrongNonhydrocarbonsConcentrations, s.str());
     }
 }
 

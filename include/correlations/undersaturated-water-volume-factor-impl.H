@@ -14,7 +14,7 @@ void BwaSpiveyMN::precondition(const Quantity<Celsius> & t,
       ostringstream s;
       s << "BwaSpiveyMN::impl: received pressure " << p
 	<< " is less than computed vapor pressure " << pv;
-      ZENTHROW(WrongValueVaporPressure, s.str());
+      ALEPHTHROW(WrongValueVaporPressure, s.str());
     }
 }
 
@@ -38,7 +38,7 @@ void BwaMcCain::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "BwaMcCain::impl: pressure " << p << " is not greater than pb " << pb;
-      ZENTHROW(WrongValueUndersaturatedCondition, s.str());
+      ALEPHTHROW(WrongValueUndersaturatedCondition, s.str());
     }
 }
 

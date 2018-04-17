@@ -25,7 +25,7 @@ struct VectorDesc
   void validate_p_sorted()
   {
     if (not is_sorted(p))
-      ZENTHROW(SamplesUnsorted, "pressures are not sorted");
+      ALEPHTHROW(SamplesUnsorted, "pressures are not sorted");
   }
 
   VectorDesc(double t, double pb, const Array<double> & p, const Unit * punit,
@@ -74,7 +74,7 @@ struct VectorDesc
     const size_t & n = p.size();
     long i = binary_search(p, pval);
     if (i < 0 or i >= n)
-      ZENTHROW(ValueNotFound, ::to_string(pval) + " not found in data set");
+      ALEPHTHROW(ValueNotFound, ::to_string(pval) + " not found in data set");
 
     const double pentry = p(i);
     if (pentry == pval)
@@ -218,7 +218,7 @@ struct PvtData
   {
     auto v = search_vector(target_name);
     if (v.is_empty())
-      ZENTHROW(VarNameNotFound, target_name + " not found");
+      ALEPHTHROW(VarNameNotFound, target_name + " not found");
 
     auto & desc_ptr = v.get_first();
     return make_pair(desc_ptr->punit, desc_ptr->yunit);
@@ -229,15 +229,15 @@ struct PvtData
 	     const string yname, const Array<double> & y, const Unit & yunit)
   {
     if (&punit.physical_quantity != &Pressure::get_instance())
-      ZENTHROW(InvalidPressureUnit, punit.name + " is not for pressure");
+      ALEPHTHROW(InvalidPressureUnit, punit.name + " is not for pressure");
 
     if (not is_sorted(p))
-      ZENTHROW(SamplesUnsorted, "pressure values are not sorted");
+      ALEPHTHROW(SamplesUnsorted, "pressure values are not sorted");
 
     auto sibling = search_vector(yname);
     if (not sibling.is_empty() and not sibling.all([&yunit] (auto & p)
         { return p->yunit->is_sibling(yunit); }))
-      ZENTHROW(InvalidTargetUnit, yunit.name + " is not sibling");
+      ALEPHTHROW(InvalidTargetUnit, yunit.name + " is not sibling");
 
     temperatures.insert(t);
     vectors.emplace(t, pb, p, &punit, yname, &yunit, y);
@@ -368,7 +368,7 @@ struct PvtData
   {
     auto samples = search_vector(target_name);
     if (samples.is_empty())
-      ZENTHROW(VarNameNotFound, target_name + " not found in data set");
+      ALEPHTHROW(VarNameNotFound, target_name + " not found in data set");
 
     auto ptr = samples.remove_first();
     DynList<double> p = to_dynlist(ptr->p);
@@ -391,7 +391,7 @@ struct PvtData
   {
     auto samples = search_vector(target_name);
     if (samples.is_empty())
-      ZENTHROW(VarNameNotFound, target_name + " not found");
+      ALEPHTHROW(VarNameNotFound, target_name + " not found");
 
     auto ptr = samples.remove_first();
     DynList<size_t> sz = { ptr->p.size() };
@@ -517,7 +517,7 @@ struct PvtData
 	auto * ptr =
 	  par.names().find_ptr([this] (auto & p) { return names.has(p.first); });
 	if (ptr == nullptr)
-	  ZENTHROW(VarNameNotFound, "correlation parameter " + par.name +
+	  ALEPHTHROW(VarNameNotFound, "correlation parameter " + par.name +
 		   " not found in data set");
 
 	const string & name_in_data = ptr->first;
@@ -578,7 +578,7 @@ struct PvtData
 	auto * ptr =
 	  par.names().find_ptr([this] (auto & p) { return names.has(p.first); });
 	if (ptr == nullptr)
-	  ZENTHROW(VarNameNotFound, "correlation parameter " + par.name +
+	  ALEPHTHROW(VarNameNotFound, "correlation parameter " + par.name +
 		   " not found in data set");
 
 	const string & name_in_data = ptr->first;
@@ -612,7 +612,7 @@ struct PvtData
 	Sample & ref = get<1>(tt);
 
 	if (s_punit(desc) != s_punit(ref))
-	  ZENTHROW(InvalidPressureUnit, "mismatch between pressure units " +
+	  ALEPHTHROW(InvalidPressureUnit, "mismatch between pressure units " +
 		   s_punit(desc)->name + " != " + s_punit(ref)->name);
  
 	const Unit * punit = s_punit(desc);
@@ -628,7 +628,7 @@ struct PvtData
 	    auto t = it.get_curr();
 	    const double & p = get<0>(t); // pressure from desc
 	    if (p != get<1>(t))
-	      ZENTHROW(PressureMismatch, "pressure mismatch between samples " +
+	      ALEPHTHROW(PressureMismatch, "pressure mismatch between samples " +
 		       ::to_string(p) + " != " + ::to_string(get<1>(t)));
 
 	    const double & parval = get<2>(t);
@@ -656,7 +656,7 @@ struct PvtData
     const string target_name = corr_ptr->target_name();
     auto target_samples = get_pars(target_name);
     if (target_samples.is_empty())
-      ZENTHROW(VarNameNotFound, "Correlation target " + target_name +
+      ALEPHTHROW(VarNameNotFound, "Correlation target " + target_name +
 	       " not found in data set");
 
     auto & first_sample = target_samples.get_first();
@@ -671,7 +671,7 @@ struct PvtData
 	auto * ptr =
 	  par.names().find_ptr([this] (auto & p) { return names.has(p.first); });
 	if (ptr == nullptr)
-	  ZENTHROW(VarNameNotFound, "correlation parameter " + par.name +
+	  ALEPHTHROW(VarNameNotFound, "correlation parameter " + par.name +
 		   " not found in data set");
 
 	const string & name_in_data = ptr->first;
@@ -702,7 +702,7 @@ struct PvtData
 	Sample & ref = get<1>(tt);
 
 	if (s_punit(desc) != s_punit(ref))
-	  ZENTHROW(InvalidPressureUnit, "mismatch between pressure units " +
+	  ALEPHTHROW(InvalidPressureUnit, "mismatch between pressure units " +
 		   s_punit(desc)->name + " != " + s_punit(ref)->name);
  
 	const Unit * punit = s_punit(desc);
@@ -721,7 +721,7 @@ struct PvtData
 	    auto t = it.get_curr();
 	    const double & p = get<0>(t); // pressure from desc
 	    if (p != get<1>(t))
-	      ZENTHROW(PressureMismatch, "pressure mismatch between samples " +
+	      ALEPHTHROW(PressureMismatch, "pressure mismatch between samples " +
 		       ::to_string(p) + " != " + ::to_string(get<1>(t)));
 
 	    const double & parval = get<2>(t);
@@ -749,7 +749,7 @@ struct PvtData
     const string target_name = corr_ptr->target_name();
     const DynList<const VectorDesc*> target_vectors = search_vector(target_name);
     if (target_vectors.is_empty())
-      ZENTHROW(VarNameNotFound, "Correlation target " + target_name +
+      ALEPHTHROW(VarNameNotFound, "Correlation target " + target_name +
 	       " not found in data set");
 
     auto first_sample_ptr = target_vectors.get_first();
@@ -764,7 +764,7 @@ struct PvtData
 	auto * ptr =
 	  par.names().find_ptr([this] (auto & p) { return names.has(p.first); });
 	if (ptr == nullptr)
-	  ZENTHROW(VarNameNotFound, "correlation parameter " + par.name +
+	  ALEPHTHROW(VarNameNotFound, "correlation parameter " + par.name +
 		   " not found in data set");
 
 	const string & name_in_data = ptr->first;
@@ -796,7 +796,7 @@ struct PvtData
 	const VectorDesc * ref_ptr = get<1>(tt);
 
 	// if (s_punit(desc) != ref_ptr->punit)
-	//   ZENTHROW(InvalidPressureUnit, "mismatch between pressure units " +
+	//   ALEPHTHROW(InvalidPressureUnit, "mismatch between pressure units " +
 	// 	   s_punit(desc)->name + " != " + ref_ptr->punit->name);
  
 	const Unit * punit = s_punit(desc);

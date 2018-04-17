@@ -10,7 +10,7 @@ void CobMcCainEtAl::precondition(const Quantity<psia> & p,
     {
       ostringstream s;
       s << "CobMcCainEtAl::impl: pressure " << p << " is greater than pb " << pb;
-      ZENTHROW(WrongValueSaturatedCondition, s.str());
+      ALEPHTHROW(WrongValueSaturatedCondition, s.str());
     }
 }
 
@@ -26,6 +26,4 @@ CobMcCainEtAl::impl(const double & api,
 }
 
 
-
-
- # endif // SATURATED_OIL_COMPRESSIBILITY_IMPL_H
+# endif // SATURATED_OIL_COMPRESSIBILITY_IMPL_H

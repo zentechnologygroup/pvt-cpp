@@ -103,7 +103,7 @@ void BwSpiveyMNDry::precondition(const Quantity<mPascal> & p,
       ostringstream s;
       s << "BwSpiveyMN::impl: received pressure " << p
 	<< " is less than computed vapor pressure " << pv;
-      ZENTHROW(WrongValueVaporPressure, s.str());
+      ALEPHTHROW(WrongValueVaporPressure, s.str());
     }  
 }
 

@@ -27,16 +27,16 @@ struct RangeDesc
   {
     istringstream iss(str);
     if (not (iss >> min >> max >> n))
-      ZENTHROW(CommandLineError, str + " is not of form \"min max n\"");
+      ALEPHTHROW(CommandLineError, str + " is not of form \"min max n\"");
 
     if (n == 0)
-      ZENTHROW(CommandLineError, ::to_string(n) + " n cannot be zero");
+      ALEPHTHROW(CommandLineError, ::to_string(n) + " n cannot be zero");
 
     if (min > max)
       {
 	ostringstream s;
 	s << "min value " << min << " greater than max value " << max;
-	ZENTHROW(CommandLineError, s.str());
+	ALEPHTHROW(CommandLineError, s.str());
       }
 
     return *this;
@@ -58,13 +58,13 @@ struct ArrayDesc
     for (;iss >> data; ++n)
       {
 	if (not is_double(data))
-	  ZENTHROW(CommandLineError, data + " is not a double");
+	  ALEPHTHROW(CommandLineError, data + " is not a double");
 
 	values.append(atof(data));
       }
 
     if (values.is_empty())
-      ZENTHROW(CommandLineError, "cannot read array");
+      ALEPHTHROW(CommandLineError, "cannot read array");
 
     in_place_sort(values);
  
@@ -199,11 +199,11 @@ DynList<double> tvals, pvals;
   DynList<double> & set_##NAME##_vals()					\
   {									\
     if (NAME.isSet() and NAME##_array.isSet())				\
-      ZENTHROW(CommandLineError, #NAME " and " #NAME			\
+      ALEPHTHROW(CommandLineError, #NAME " and " #NAME			\
 	       "_array option are exclusive");				\
 									\
     if (not NAME.isSet() and not NAME##_array.isSet())			\
-      ZENTHROW(CommandLineError, #NAME " or " #NAME			\
+      ALEPHTHROW(CommandLineError, #NAME " or " #NAME			\
 	       "_array option must be set");				\
 									\
     if (NAME.isSet())							\
@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
     }
 
   if (not var_name.isSet())
-    ZENTHROW(CommandLineError, "Property flag -v NAME is mandatory");
+    ALEPHTHROW(CommandLineError, "Property flag -v NAME is mandatory");
 
   DynList<DynList<double>> l;
   const string & name = var_name.getValue();

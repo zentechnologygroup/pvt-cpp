@@ -68,7 +68,7 @@ struct EmpiricalData
 	  ostringstream s;
 	  s << "var name " << name << " not found in data set name "
 	    << this->name;
-	  ZENTHROW(VarNameNotFound, s.str());
+	  ALEPHTHROW(VarNameNotFound, s.str());
 	}
 
       const auto & num_samples = samples.size();
@@ -94,7 +94,7 @@ struct EmpiricalData
 	    ostringstream s;
 	    s << "Variable name " << name << " was not found in var set "
 	      << name;
-	    ZENTHROW(VarNameNotFound, s.str());
+	    ALEPHTHROW(VarNameNotFound, s.str());
 	  }
       return ret;
     }
@@ -178,7 +178,7 @@ struct EmpiricalData
 	{
 	  ostringstream s;
 	  s << "VarSet::sort_by_name(" << name << "): name not found";
-	  ZENTHROW(VarNameNotFound, s.str());
+	  ALEPHTHROW(VarNameNotFound, s.str());
 	}
 
       auto ret = sort(samples, [&col] (auto & row1, auto & row2)
@@ -204,7 +204,7 @@ struct EmpiricalData
 	  ostringstream s;
 	  s << "VarSet::get_set_by_correlation(): name " << name
 	    << " not found";
-	  ZENTHROW(VarNameNotFound, s.str());
+	  ALEPHTHROW(VarNameNotFound, s.str());
 	}
 
       const string target_name = ptr->target_name();
@@ -215,7 +215,7 @@ struct EmpiricalData
 	  ostringstream s;
 	  s << "VarSet::get_set_by_correlation(): correlation target name "
 	    << target_name << " not found";
-	  ZENTHROW(VarNameNotFound, s.str());
+	  ALEPHTHROW(VarNameNotFound, s.str());
 	}
 
       auto mat = sort(samples, [&col] (auto & row1, auto & row2)
@@ -276,7 +276,7 @@ struct EmpiricalData
 
     ostringstream s;
     s << "const name " << name << " not found in data set";
-    ZENTHROW(ConstNameNotFound, s.str());
+    ALEPHTHROW(ConstNameNotFound, s.str());
   }
 
   tuple<bool, double, const Unit*> search_const(const string & name) const
@@ -296,7 +296,7 @@ struct EmpiricalData
       {
 	ostringstream s;
 	s << "Empiricaldata:: set_const(); " << name << " not found";
-	ZENTHROW(ConstNameNotFound, s.str());
+	ALEPHTHROW(ConstNameNotFound, s.str());
       }
 
     if (not BaseQuantity::is_valid(val, *p->second.second))
@@ -304,7 +304,7 @@ struct EmpiricalData
 	ostringstream s;
 	s << "Empiricaldata:: set_const(" << name << "): value " << val
 	  << " is out of the range of the unit";
-	ZENTHROW(OutOfUnitRange, s.str());
+	ALEPHTHROW(OutOfUnitRange, s.str());
       }
 
     *p->second.first = val;
@@ -318,7 +318,7 @@ struct EmpiricalData
 	ostringstream s;
 	s << "EmpiricalData::check_constant: constant name " << name
 	  << " not found";
-	ZENTHROW(ConstNameNotFound, s.str());
+	ALEPHTHROW(ConstNameNotFound, s.str());
       }
 
     const auto & physical_quantity = p->second.second->physical_quantity;
@@ -328,7 +328,7 @@ struct EmpiricalData
 	s << "EmpiricalData::check_constant: Physical quantity of name "
 	  << name << " is " << physical_quantity << " but it must be "
 	  << pq.name;
-	ZENTHROW(WrongSiblingUnit, s.str());
+	ALEPHTHROW(WrongSiblingUnit, s.str());
       }
 
     try
@@ -340,7 +340,7 @@ struct EmpiricalData
 	ostringstream s;
 	s << "EmpiricalData::check_constant: constant " << name << ": "
 	  << e.what();
-	ZENTHROW(ConstOutOfRangeUnit, s.str());
+	ALEPHTHROW(ConstOutOfRangeUnit, s.str());
       }
   }
 
@@ -362,7 +362,7 @@ struct EmpiricalData
 	    ostringstream s;
 	    s << "Physical quantity of name " << name << " is "
 	      << physical_quantity << " but it must be " << pq.name;
-	    ZENTHROW(InvalidPhysicalQuantity, s.str());
+	    ALEPHTHROW(InvalidPhysicalQuantity, s.str());
 	  }
 
 	if (not vset.values(name).first.is_empty())
@@ -371,12 +371,12 @@ struct EmpiricalData
 	ostringstream s;
 	s << "var name " << name << " in var set " << vset.name
 	  << " does not contain any sample";
-	ZENTHROW(EmptyVarSet, s.str());
+	ALEPHTHROW(EmptyVarSet, s.str());
       }
 
     ostringstream s;
     s << "var name " << name << " in data set " << set_i << " not found";
-    ZENTHROW(VarNameNotFound, s.str());
+    ALEPHTHROW(VarNameNotFound, s.str());
   }
 
   void check_variable(const string && set_name, const string & name,
@@ -560,7 +560,7 @@ struct EmpiricalData
 			  });
 	    s << "}, " << col_idx
 	      << "): column index refers different column names";
-	    ZENTHROW(ColumnIndexNameMismatch, s.str());
+	    ALEPHTHROW(ColumnIndexNameMismatch, s.str());
 	  }
 
 	auto a = this->values(i, col_idx);
@@ -661,7 +661,7 @@ struct EmpiricalData
 	ostringstream s;
 	s << "EmpiricalData::def_const(): name " << name
 	  << " is already defined";
-	ZENTHROW(DuplicatedConstName, s.str());
+	ALEPHTHROW(DuplicatedConstName, s.str());
       }
 
     const_names.append(name);
@@ -677,7 +677,7 @@ struct EmpiricalData
       {
 	ostringstream s;
 	s << "EmpiricalData::remove_const(): name " << name << " is not defined";
-	ZENTHROW(VarNameNotFound, s.str());
+	ALEPHTHROW(VarNameNotFound, s.str());
       }
 
     if (const_names.get_last() != name)
@@ -685,7 +685,7 @@ struct EmpiricalData
 	ostringstream s;
 	s << "EmpiricalData::remove_const(): name " << name
 	  << " is not the last";
-	ZENTHROW(InvalidConst, s.str());
+	ALEPHTHROW(InvalidConst, s.str());
       }
 
     const_names.remove_last();
@@ -707,7 +707,7 @@ private:
       {
 	ostringstream s;
 	s << "search_unit(" << name << "): unit not found";
-	ZENTHROW(UnitNotFound, s.str());
+	ALEPHTHROW(UnitNotFound, s.str());
       }
 
     return uptr;
@@ -743,7 +743,7 @@ public:
 	ostringstream s;
 	s << "EmpiricalData::def_var(): name " << name
 	  << " is already defined in the set " << vset.name;
-	ZENTHROW(DuplicatedVarName, s.str());
+	ALEPHTHROW(DuplicatedVarName, s.str());
       }
     
     vset.var_names.append(name);
@@ -762,7 +762,7 @@ public:
 
     ostringstream s;
     s << "set name " << name << " not found";
-    ZENTHROW(VarNameNotFound, s.str());
+    ALEPHTHROW(VarNameNotFound, s.str());
   }  
 
   VarSet & def_var(const string & set_name, const string & name,
@@ -803,7 +803,7 @@ public:
   {
     auto & vset = var_sets[set_index(set_name)];
     if (not vset.var_names.is_empty())
-      ZENTHROW(SamplesSetAlreadySet, "EmpiricalData::add_samples(istream&): "
+      ALEPHTHROW(SamplesSetAlreadySet, "EmpiricalData::add_samples(istream&): "
 	       "the data has already variables");
 
     auto header = csv_read_row(input, ',');
@@ -813,7 +813,7 @@ public:
 	s << "EmpiricalData::add_samples(istream&): "
 	  << "input stream header for data set name " 
 	  << set_name << " apparently is empty";
-	ZENTHROW(SamplesSetEmpty, s.str());
+	ALEPHTHROW(SamplesSetEmpty, s.str());
       }
     size_t i = 1;
     for (auto it = header.get_it(); it.has_curr(); it.next(), ++i)
@@ -830,7 +830,7 @@ public:
 		ostringstream ss;
 		ss << "EmpiricalData::add_samples(istream&): header token "
 		   << s << " has more of two tokens";
-		ZENTHROW(BadSamplesHeader, ss.str());
+		ALEPHTHROW(BadSamplesHeader, ss.str());
 	      }
 	  }
 	catch (exception & e)
@@ -838,7 +838,7 @@ public:
 	    ostringstream ss;
 	    ss << "EmpiricalData::add_samples(istream&): column number " << i
 	       << " is incomplete";
-	    ZENTHROW(SampleIncompleteColumnNumber, ss.str());
+	    ALEPHTHROW(SampleIncompleteColumnNumber, ss.str());
 	  }
 
 	auto unit_ptr = search_unit(symbol);
@@ -858,7 +858,7 @@ public:
 	      << linenum << " has << " << row.size()
 	      << " cols, which is not exactly the number of vars "
 	      << vset.num_var;
-	    ZENTHROW(SampleIncompleteRow, s.str());
+	    ALEPHTHROW(SampleIncompleteRow, s.str());
 	  }
 	DynList<double> sample;
 	enum_for_each(zip(row, vset.var_units),
@@ -870,7 +870,7 @@ public:
 		s << "EmpiricalData::add_samples(istream&): in row " << linenum
 		  << " column " << i + 1 << ": " << p.first
 		  << " is not a number";
-		ZENTHROW(SampleValueIsNotNumber, s.str());
+		ALEPHTHROW(SampleValueIsNotNumber, s.str());
 	      }
 	    try
 	      {
@@ -882,14 +882,14 @@ public:
 		ostringstream s;
 		s << "EmpiricalData::add_samples(istream&): in row " << linenum
 		  << " column " << i + 1 << ": " << e.what();
-		ZENTHROW(UnitException, s.str());
+		ALEPHTHROW(UnitException, s.str());
 	      }
 	  });
 
 	vset.samples.append(sample);
       }
     if (vset.samples.is_empty())
-      ZENTHROW(SamplesSetEmpty, "EmpiricalData::add_samples(istream&): "
+      ALEPHTHROW(SamplesSetEmpty, "EmpiricalData::add_samples(istream&): "
 	       "input stream apparently does not contain samples");
   }
 
@@ -908,7 +908,7 @@ public:
       }
 
     if (not pars.is_empty())
-	ZENTHROW(SampleRowOverflow,
+	ALEPHTHROW(SampleRowOverflow,
 		 "EmpiricalData::add_sample(DynList<Par> && pars): pars size "
 		 "is greater than number of defined variables");
 
@@ -946,7 +946,7 @@ public:
 	ostringstream s;
 	s << "EmpiricalData::add_sample(DynList<string> &&): pars size "
 	  << pars.size() << " is different than number of vars " << vset.num_var;
-	ZENTHROW(SampleIncompleteRow, s.str());
+	ALEPHTHROW(SampleIncompleteRow, s.str());
       }
 
     DynList<Par> sample;
@@ -960,7 +960,7 @@ public:
 	    ostringstream s;
 	    s << "EmpiricalData::add_sample(DynList<string>&): var name "
 	      << name << " at pos " << n + 1 << " is not defined";
-	    ZENTHROW(SampleVarNotFound, s.str());
+	    ALEPHTHROW(SampleVarNotFound, s.str());
 	  }
 
 	string val = tokens.remove_first();
@@ -969,7 +969,7 @@ public:
 	    ostringstream s;
 	    s << "EmpiricalData::add_sample(DynList<string>&): var value "
 	      << val << " at pos " << n + 1 << " is not a number";
-	    ZENTHROW(SampleValueIsNotNumber, s.str());
+	    ALEPHTHROW(SampleValueIsNotNumber, s.str());
 	  }
 	sample.append(make_pair(move(name), atof(val.c_str())));
       }
@@ -979,7 +979,7 @@ public:
 	ostringstream s;
 	s << "EmpiricalData::add_sample(DynList<string> &&): pars size "
 	  << pars.size() << " is different than number of vars " << vset.num_var;
-	ZENTHROW(SampleIncompleteRow, s.str());
+	ALEPHTHROW(SampleIncompleteRow, s.str());
       }
 
     add_sample(set_idx, move(sample));
@@ -1124,7 +1124,7 @@ public:
 	    s << "EmpiricalData::correlation_values(): parameter " << par.name
 	      << " of correlation " << correlation_ptr->name
 	      << " does not match with any name of data set";
-	    ZENTHROW(SampleVarNotFound, s.str());
+	    ALEPHTHROW(SampleVarNotFound, s.str());
 	  }
 
 	ret.append(vals);
@@ -1180,7 +1180,7 @@ public:
 	    s << "EmpiricalData::correlation_values(): parameter " << par.name
 	      << " of correlation " << correlation_ptr->name
 	      << " does not match with any name of data set";
-	    ZENTHROW(SampleVarNotFound, s.str());
+	    ALEPHTHROW(SampleVarNotFound, s.str());
 	  }
       }
 
@@ -1413,7 +1413,7 @@ public:
 	      ostringstream s;
 	      s << "Parameter " << par.name << " of correlation "
 		<< correlation_ptr->name << " was not found in data set";
-	      ZENTHROW(ParameterNameNotFound, s.str());
+	      ALEPHTHROW(ParameterNameNotFound, s.str());
 	    }
 	  return VtlQuantity(*get<2>(*ptr), get<1>(*ptr));
 	});
@@ -1434,7 +1434,7 @@ public:
 	s << "EmpiricalData::compute(" << correlation_ptr->name << ", "
 	  << seti << ", " << col << ", " << min_val << ", " << max_val
 	  << "): min_val is greater than max_val";
-	ZENTHROW(MinMaxReversed, s.str());
+	ALEPHTHROW(MinMaxReversed, s.str());
       }
 
     const auto & var_set = var_sets[seti];
@@ -1446,7 +1446,7 @@ public:
 	  << seti << ", " << col << ", " << min_val << ", " << max_val
 	  << "): column " << col << " out of range [0, "
 	  << var_set.var_names.size() - 1 << "]";
-	ZENTHROW(OutOfCorrelationRange, s.str());
+	ALEPHTHROW(OutOfCorrelationRange, s.str());
       }
 
     const size_t n = correlation_ptr->get_num_pars();
@@ -1532,7 +1532,7 @@ public:
 	pars.filter([] (auto t) { return get<2>(t); }).
 	  for_each([&s] (auto t) { s << " " << get<0>(t); });
 	s << " not found in the data set";
-	ZENTHROW(ParameterNameNotFound, s.str());
+	ALEPHTHROW(ParameterNameNotFound, s.str());
       }
 
     DynList<DynList<Correlation::ParByName>> ret;
@@ -1613,7 +1613,7 @@ public:
     if (not (get<0>(sets_ranges.get_first()) >= get<0>(corr_ranges.get_first())
 	     and
 	     get<1>(sets_ranges.get_last()) <= get<1>(corr_ranges.get_last())))
-      ZENTHROW(OutOfCorrelationRange,
+      ALEPHTHROW(OutOfCorrelationRange,
 	       "Empiricaldata::generate_samples_by_name(): data given in some "
 	       "variable set is outside of correlation range");
 
@@ -1643,7 +1643,7 @@ public:
 	      << set_min << ", " << set_max
 	      << "] does not intersect correlation range ["
 	      << corr_min << ", " << corr_max << "]";
-	    ZENTHROW(SampleDoesNotFit, s.str());
+	    ALEPHTHROW(SampleDoesNotFit, s.str());
 	  }
 
 	const auto & seti = get<2>(set_range);
@@ -1675,7 +1675,7 @@ public:
 	    s << "Empiricaldata::generate_samples_by_name(): values inside ["
 	      << set_min << ", " << corr_min
 	      << ") are not defined for any correlation";
-	    ZENTHROW(SampleOutOfRange, s.str());
+	    ALEPHTHROW(SampleOutOfRange, s.str());
 	  }
 
 	curr_pars.append(generate_samples_by_name(get<2>(corr_range), seti, col,
@@ -1857,7 +1857,7 @@ public:
       {
 	ostringstream s;
 	s << "var set " << var_set.name << " contains the name " << name;
-	ZENTHROW(SampleContainsTargetName, s.str());
+	ALEPHTHROW(SampleContainsTargetName, s.str());
       }
 
     return Correlation::array().filter([&name] (auto ptr)

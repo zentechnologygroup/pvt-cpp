@@ -95,7 +95,7 @@ public:
   void compute_base()
   {
     if (y.is_empty())
-      ZENTHROW(SizeMismatch, "experimental data is empty");
+      ALEPHTHROW(SizeMismatch, "experimental data is empty");
     
     set_statistical("r2", &CorrStat::r2);
     set_statistical("mse", &CorrStat::mse);
@@ -131,7 +131,7 @@ public:
     LFit(const Array<double> & y, const Array<double> & yc)
     {
       if (y.size() != yc.size())
-	ZENTHROW(SizeMismatch, "y and yc have different sizes");
+	ALEPHTHROW(SizeMismatch, "y and yc have different sizes");
 
       if (y.size() == 1)
 	{
@@ -204,8 +204,8 @@ public:
   Desc stats(const Array<double> & yc) const
   {
     if (yc.size() != y.size())
-      ZENTHROW(SizeMismatch,
-	       "experimental and correlation data do not have the same size");
+      ALEPHTHROW(SizeMismatch,
+		 "experimental and correlation data do not have the same size");
     double r2 = this->r2(yc);
     double mse = this->mse(yc);
     double sigma = sigma_distance(yc);

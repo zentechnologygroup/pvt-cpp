@@ -100,7 +100,7 @@ public:
     {
       auto p = name_to_col.search(col_name);
       if (p == nullptr)
-	ZENTHROW(NameNotFound, "column name " + col_name + " not found");
+	ALEPHTHROW(NameNotFound, "column name " + col_name + " not found");
       return p->second;
     }
 
@@ -174,7 +174,7 @@ public:
   void set_##NAME(double val, const Unit & unit)	\
   {							\
     if (not unit.is_sibling(*NAME##_unit))		\
-      ZENTHROW(InvalidUnit, "unit " + unit.name + " is not for " +	\
+      ALEPHTHROW(InvalidUnit, "unit " + unit.name + " is not for " +	\
 	       NAME##_unit->physical_quantity.name);			\
     NAME = VtlQuantity(unit, val);					\
   }									\
@@ -182,7 +182,7 @@ public:
   void test_##NAME() const						\
   {									\
     if (NAME.is_null())							\
-      ZENTHROW(ValueNotFound, #NAME " value has not been set");		\
+      ALEPHTHROW(ValueNotFound, #NAME " value has not been set");		\
   }
 
   CONSTANT_PAR(api, Api);
@@ -247,7 +247,7 @@ public:
   void test_##NAME##_corr() const					\
   {									\
     if (NAME##_corr == nullptr)						\
-      ZENTHROW(CorrelationNotFound, "Correlation for " #NAME		\
+      ALEPHTHROW(CorrelationNotFound, "Correlation for " #NAME		\
 	       " has not been set");					\
   }
 
@@ -268,7 +268,7 @@ public:
   void set_##NAME(const Correlation & corr)				\
   {									\
     if (corr.target_name() != #NAME)					\
-      ZENTHROW(InvalidTargetType, corr.name +				\
+      ALEPHTHROW(InvalidTargetType, corr.name +				\
 	       " is not for " #NAME);					\
     NAME##_corr = &corr;						\
   }									\
@@ -287,10 +287,10 @@ public:
   {									\
     assert(NAME##_corr);						\
     if (NAME##_corr->target_name() != #NAME)				\
-      ZENTHROW(InvalidTargetType, NAME##_corr->name +			\
+      ALEPHTHROW(InvalidTargetType, NAME##_corr->name +			\
 	       " is not for " #NAME " (probably set with macro)");	\
     if (corr.target_name() != #NAME)					\
-      ZENTHROW(InvalidTargetType, corr.name + " is not for " #NAME);	\
+      ALEPHTHROW(InvalidTargetType, corr.name + " is not for " #NAME);	\
     NAME##_corr = &corr;						\
   }									\
 									\
@@ -334,10 +334,10 @@ public:
   verify_correlation(const Correlation * corr_ptr, const string & target_name)
   {
     if (corr_ptr == nullptr)
-      ZENTHROW(CorrelationNotFound, "Correlation for " + target_name +
+      ALEPHTHROW(CorrelationNotFound, "Correlation for " + target_name +
 	       " has not been defined");
     if (corr_ptr->target_name() != target_name)
-      ZENTHROW(InvalidTargetType,
+      ALEPHTHROW(InvalidTargetType,
 	       corr_ptr->name + "  is not for" + target_name);
   }
 

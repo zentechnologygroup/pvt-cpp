@@ -51,7 +51,7 @@ Declare_Correlations_Set(zfactor)
 		    {							\
 		      return p.first->author_name() == p.second->author_name();\
 		    }))							\
-      ZENTHROW(MismatchAuthors,						\
+      ALEPHTHROW(MismatchAuthors,						\
 	       "Pseudo critical correlations does not have the same author"); \
 									\
     return ret;								\
@@ -198,7 +198,7 @@ public:
   void add_z(Zdata && z)
   {
     if (zvals.has(z))
-      ZENTHROW(DuplicatedVarName, "duplicated z for t = " + z.t.to_string());
+      ALEPHTHROW(DuplicatedVarName, "duplicated z for t = " + z.t.to_string());
     
     zvals.append(move(z));
   }
@@ -303,7 +303,7 @@ public:
   DynList<Zcomb> solve(bool check_z = false)
   {
     if (zvals.is_empty())
-      ZENTHROW(EmptyVarSet, "data set does not contain p-z values");
+      ALEPHTHROW(EmptyVarSet, "data set does not contain p-z values");
     
     auto zlab = sort(lab_values(), [] (auto & d1, auto & d2)
 		    { return d1.p < d2.p; });

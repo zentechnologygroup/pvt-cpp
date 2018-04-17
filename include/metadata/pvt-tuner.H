@@ -107,13 +107,13 @@ struct VectorDesc
       y(to_Array(j["y"].get<vector<double>>()))
   {
     if (punit == nullptr)
-      ZENTHROW(UnitNotFound, "pressure unit " + j["punit"].get<string>() +
+      ALEPHTHROW(UnitNotFound, "pressure unit " + j["punit"].get<string>() +
 	       " not found");
     if (&punit->physical_quantity != &Pressure::get_instance())
-      ZENTHROW(PressureMismatch, "unit " + punit->name +
+      ALEPHTHROW(PressureMismatch, "unit " + punit->name +
 	       " does not represent pressure");
     if (yunit == nullptr)
-      ZENTHROW(UnitNotFound, "unit for " + yname + " not found");
+      ALEPHTHROW(UnitNotFound, "unit for " + yname + " not found");
   }
 
   /// Return `true` if the vector is valid
@@ -136,7 +136,7 @@ struct VectorDesc
 	y.reverse();
       }
     if (not is_sorted(p, std::less_equal<double>()))
-      ZENTHROW(SamplesUnsorted, ctor_msg() + "pressures are not sorted " +
+      ALEPHTHROW(SamplesUnsorted, ctor_msg() + "pressures are not sorted " +
 	       join(p));
   }
 
@@ -146,17 +146,17 @@ struct VectorDesc
   {
     // verify thag unit for pressure and property are specified
     if (punit == nullptr or yunit == nullptr)
-      ZENTHROW(InvalidUnit, ctor_msg() + "vector unit are not initialized");
+      ALEPHTHROW(InvalidUnit, ctor_msg() + "vector unit are not initialized");
     // validates than punit is a pressure unit
     if (not psig::get_instance().is_sibling(*punit))
-      ZENTHROW(InvalidUnit, punit->name + " is not a valid pressure unit");
+      ALEPHTHROW(InvalidUnit, punit->name + " is not a valid pressure unit");
     // Validate that at least there are 2 value for pressure
     if (p.size() <= 1)
-      ZENTHROW(LengthMismatch, ctor_msg() +
+      ALEPHTHROW(LengthMismatch, ctor_msg() +
 	       "pressure array size is less or equal than 1");
     // Verify that all pressure values are inside the punit range
     if (not p.all([this] (auto p) { return BaseQuantity::is_valid(p, *punit); }))
-      ZENTHROW(OutOfUnitRange, ctor_msg() + 
+      ALEPHTHROW(OutOfUnitRange, ctor_msg() + 
 	       "at least a pressure value is out of its unit range " +
 	       join(p));
     // Assure that pressure unit is psig 
@@ -173,7 +173,7 @@ struct VectorDesc
   void post_validate()
   {
     if (p.size() != y.size())
-      ZENTHROW(LengthMismatch, "pressure array and " + yname +
+      ALEPHTHROW(LengthMismatch, "pressure array and " + yname +
 	       " array have different sizes");
   }
 
@@ -190,7 +190,7 @@ struct VectorDesc
   VectorDesc(double t, const string & name) : t(t), yname(name)
   {
     if (t <= 0)
-      ZENTHROW(InvalidRange, "t value " + ::to_string(t) +
+      ALEPHTHROW(InvalidRange, "t value " + ::to_string(t) +
 	       " less or equal to zero");
   }
 
@@ -238,7 +238,7 @@ struct VectorDesc
   {
     auto ret = y.find_index([yval] (auto v) { return v == yval; });
     if (ret >= y.size())
-      ZENTHROW(ValueNotFound, "y value " + ::to_string(yval) + " not found");
+      ALEPHTHROW(ValueNotFound, "y value " + ::to_string(yval) + " not found");
     return ret;
   }
 
@@ -260,7 +260,7 @@ struct VectorDesc
     const long n = p.size();
     long i = binary_search(p, pval);
     if (i < 0 or i >= n)
-      ZENTHROW(ValueNotFound, ::to_string(pval) + " not found in data set");
+      ALEPHTHROW(ValueNotFound, ::to_string(pval) + " not found in data set");
 
     const double pentry = p(i);
     if (pentry == pval)
@@ -297,7 +297,7 @@ struct VectorDesc
   VectorDesc & make_parallel(const VectorDesc & src)
   {
     if (t != src.t)
-      ZENTHROW(MetadataException,
+      ALEPHTHROW(MetadataException,
 	       "trying to do parallel two vector of different t");
     if (is_parallel(src))
       return *this;
@@ -310,7 +310,7 @@ struct VectorDesc
   VectorDesc merge_with(const VectorDesc & y_vector) const
   {
     if (not has_same_t_pb(y_vector))
-      ZENTHROW(MetadataException,
+      ALEPHTHROW(MetadataException,
 	       "vectors to be merged don't share same t and pb");
     Array<double> pressures = p; 
     if (y_vector.yname == "coa")
@@ -384,14 +384,14 @@ struct VectorDesc
   pair<VectorDesc, VectorDesc> split_uo() const
   {
     if (yname != "uo")
-      ZENTHROW(InvalidTargetName, "yname " + yname + " is not \"uo\"");
+      ALEPHTHROW(InvalidTargetName, "yname " + yname + " is not \"uo\"");
 
     if (&yunit->physical_quantity != &DynamicViscosity::get_instance())
-      ZENTHROW(InvalidTargetUnit, "yunit " + yunit->name +
+      ALEPHTHROW(InvalidTargetUnit, "yunit " + yunit->name +
 	       " is not an unit for oil formation volume ratio");
 
     if (not is_sorted(p, std::less_equal<double>()))
-      ZENTHROW(SamplesUnsorted, "split_uo(): pressure values are not sorted " +
+      ALEPHTHROW(SamplesUnsorted, "split_uo(): pressure values are not sorted " +
 	       join(p));
 
     // First, we must determine (p,uo) corresponding to the inflection point
@@ -410,7 +410,7 @@ struct VectorDesc
     Array<double> p_below = p.take(min_idx);
     Array<double> uob = y.take(min_idx);
     if (not is_inversely_sorted(uob, std::less_equal<double>()))
-      ZENTHROW(SamplesUnsorted, "saturated region of uo is not decreasing " +
+      ALEPHTHROW(SamplesUnsorted, "saturated region of uo is not decreasing " +
 	       py_string());
 
     Array<double> p_above, uoa;
@@ -423,14 +423,14 @@ struct VectorDesc
     // Not to forget: minimum point is at p_above(0), uoa(0)
 
     if (not is_sorted(uoa, std::less_equal<double>()))
-      ZENTHROW(SamplesUnsorted, "undersaturated region of uo is not increasing " +
+      ALEPHTHROW(SamplesUnsorted, "undersaturated region of uo is not increasing " +
 	       py_string());
 
     if (p_below.size() < 2)
-      ZENTHROW(CommandLineError, "Not enough point for estimating uob");
+      ALEPHTHROW(CommandLineError, "Not enough point for estimating uob");
 
     if (p_above.size() < 2)
-      ZENTHROW(CommandLineError, "Not enough point for estimating uoa");
+      ALEPHTHROW(CommandLineError, "Not enough point for estimating uoa");
 
     // In this point (p_below,uob) contains the saturated uo and
     // (p_above, uoa) the undersaturated one.
@@ -525,7 +525,7 @@ struct ConstDesc
       unit_ptr(Unit::search_by_name(j["unit"]))
   {
     if (unit_ptr == nullptr)
-      ZENTHROW(UnitNotFound, "unit for " + name + " not found");
+      ALEPHTHROW(UnitNotFound, "unit for " + name + " not found");
   }
 
   string to_string() const
@@ -671,7 +671,7 @@ struct PvtData
     CORR_TEST(uod);
     CORR_TEST(uob);
     CORR_TEST(uoa);
-    ZENTHROW(InvalidTargetName, "target name " + target_name + " not found");
+    ALEPHTHROW(InvalidTargetName, "target name " + target_name + " not found");
   }
 
   bool are_all_correlations_defined() const
@@ -716,7 +716,7 @@ struct PvtData
     if (corr_ptr == nullptr)
       return;
     if (corr_ptr->target_name() != target_name)
-      ZENTHROW(CorrelationNotApplicable, "correlation " + name +
+      ALEPHTHROW(CorrelationNotApplicable, "correlation " + name +
 	       " is not for " + target_name);
   }
 
@@ -803,7 +803,7 @@ struct PvtData
   void add_const(const ConstDesc & c)
   {
     if (const_values.has(c))
-      ZENTHROW(DuplicatedConstName, "constant name " + c.name +
+      ALEPHTHROW(DuplicatedConstName, "constant name " + c.name +
 	       " is already inserted");
     const_values.append(c);
     names.append(c.name);
@@ -817,7 +817,7 @@ struct PvtData
   void rm_const(const string & name)
   {
     if (search_const(name) == nullptr)
-      ZENTHROW(ConstNameNotFound, "const name " + name + " not found");
+      ALEPHTHROW(ConstNameNotFound, "const name " + name + " not found");
     const_values.remove(ConstDesc(name));
     names.remove(name);
   }
@@ -831,7 +831,7 @@ struct PvtData
   {
     auto v = search_vectors(target_name);
     if (v.is_empty())
-      ZENTHROW(VarNameNotFound, target_name + " not found");
+      ALEPHTHROW(VarNameNotFound, target_name + " not found");
 
     auto & desc_ptr = v.get_first();
     return make_pair(desc_ptr->punit, desc_ptr->yunit);
@@ -840,14 +840,14 @@ struct PvtData
   void add_vector(const VectorDesc & v)
   {
     if (vectors.has(v))
-      ZENTHROW(DuplicatedVarName, "add_vector(): name " + v.yname +
+      ALEPHTHROW(DuplicatedVarName, "add_vector(): name " + v.yname +
 	       " with t = " + ::to_string(v.t) + " is already defined");
 
     if (&v.punit->physical_quantity != &Pressure::get_instance())
-      ZENTHROW(InvalidPressureUnit, v.punit->name + " is not for pressure");
+      ALEPHTHROW(InvalidPressureUnit, v.punit->name + " is not for pressure");
 
     if (not is_sorted(v.p, std::less_equal<double>()))
-      ZENTHROW(SamplesUnsorted, "pressure values are not sorted " + join(v.p));
+      ALEPHTHROW(SamplesUnsorted, "pressure values are not sorted " + join(v.p));
 
     auto sibling = search_vectors(v.yname);
     if (not sibling.is_empty())
@@ -855,7 +855,7 @@ struct PvtData
 	auto fst = sibling.get_first();
 	if (not sibling.all([&v] (auto & p)
 			    { return p->yunit->is_sibling(*v.yunit); }))
-	  ZENTHROW(InvalidTargetUnit, v.yunit->name + " is not sibling of " +
+	  ALEPHTHROW(InvalidTargetUnit, v.yunit->name + " is not sibling of " +
 		   fst->yunit->name);
 	if (v.yunit != fst->yunit)
 	  mutable_unit_convert(*v.yunit, v.y, *fst->yunit);
@@ -875,11 +875,11 @@ struct PvtData
   {
     auto l = search_vectors(target_name);
     if (l.is_empty())
-      ZENTHROW(VarNameNotFound, "variable " + target_name + " not found");
+      ALEPHTHROW(VarNameNotFound, "variable " + target_name + " not found");
     auto ptr = l.find_ptr([&target_name, &t] (auto & ptr)
 			  { return ptr->yname == target_name and ptr->t == t; });
     if (ptr == nullptr)
-      ZENTHROW(VarNameNotFound, "variable " + target_name +
+      ALEPHTHROW(VarNameNotFound, "variable " + target_name +
 	       " is to associated to t = " + ::to_string(t));
     VectorDesc ret = **ptr;
     vectors.remove(VectorDesc(t, target_name));
@@ -901,7 +901,7 @@ struct PvtData
   {
     const DynList<const VectorDesc*> uo_vectors =  search_vectors("uo");
     if (uo_vectors.is_empty())
-      ZENTHROW(VarNameNotFound, "data does not contain uo");
+      ALEPHTHROW(VarNameNotFound, "data does not contain uo");
     for (auto it = uo_vectors.get_it(); it.has_curr(); it.next())
     {
       auto uo_ptr = it.get_curr();
@@ -918,7 +918,7 @@ struct PvtData
       }
     catch (PressureMismatch)
       {
-	ZENTHROW(PressureMismatch, "split_uo gives unsorted pb points");
+	ALEPHTHROW(PressureMismatch, "split_uo gives unsorted pb points");
       }
   }
 
@@ -990,7 +990,7 @@ struct PvtData
   void set_##tgt_name(const Correlation * corr_ptr, double c = 0, double m = 1)\
   {									\
     if (corr_ptr->target_name() != #tgt_name)				\
-      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +	\
+      ALEPHTHROW(InvalidTargetName, "correlation " + corr_ptr->name +	\
 	       " is not for target " #tgt_name);			\
     tgt_name##_corr = corr_ptr;						\
     c_##tgt_name = c;							\
@@ -1087,7 +1087,7 @@ struct PvtData
      if (not is_sorted(tuples.values().
 		       maps<double>([] (auto & t) { return t.pb; }),
 		       std::less_equal<double>()))
-       ZENTHROW(PressureMismatch,
+       ALEPHTHROW(PressureMismatch,
 		"pb values are not sorted through temperatures " +
 		join(tuples.values().maps<string>
 		     ([] (auto & t) { return "(" + ::to_string(t.t)
@@ -1169,7 +1169,7 @@ public:
 			 double c = 0, double m = 1) const
   {
     if (corr_ptr->target_name() != "pb")
-      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+      ALEPHTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for pb");
     ParList pars = build_correlation_pars();
     pars.insert("t", t, &Fahrenheit::get_instance());
@@ -1197,7 +1197,7 @@ public:
 			 double c = 0, double m = 1) const
   {
     if (corr_ptr->target_name() != "uod")
-      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+      ALEPHTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for uod");
     Quantity<CP> min_uod = min_uod_val(corr_ptr);
     ParList pars = build_correlation_pars();
@@ -1255,7 +1255,7 @@ public:
   ConstStats pb_stats(const Correlation * corr_ptr) const
   {
     if (corr_ptr->target_name() != "pb")
-      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+      ALEPHTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for pb");
     DynList<double> t, pb_lab, pb_corr;
     auto tp = tp_sets();
@@ -1278,7 +1278,7 @@ public:
       }
 
     if (k == 0)
-      ZENTHROW(MetadataException, "cannot compute any pb value");
+      ALEPHTHROW(MetadataException, "cannot compute any pb value");
 
     return ConstStats(corr_ptr, move(t), move(pb_lab), move(pb_corr),
 		      psig::get_instance().min_val,
@@ -1288,7 +1288,7 @@ public:
   ConstStats uod_stats(const Correlation * corr_ptr) const
   {
     if (corr_ptr->target_name() != "uod")
-      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+      ALEPHTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for uod");
     DynList<double> t, uod_lab, uod_corr;
     auto tp = tp_sets();
@@ -1302,7 +1302,7 @@ public:
 	uod_corr.append(compute_uod(curr.t, curr.pb, corr_ptr).raw());
       }
     if (t.is_empty())
-      ZENTHROW(VarNameNotFound, "not found data for uod");
+      ALEPHTHROW(VarNameNotFound, "not found data for uod");
     Quantity<CP> min_uod = min_uod_val(corr_ptr);
     return ConstStats(corr_ptr, move(t), move(uod_lab), move(uod_corr),
 		      min_uod.raw(), CP::get_instance().max_val);
@@ -1331,14 +1331,14 @@ private:
   {
     assert(pref.punit == &psig::get_instance());
     if (pref.yname != target_name)
-      ZENTHROW(InvalidTargetName, "compute_" + target_name +
+      ALEPHTHROW(InvalidTargetName, "compute_" + target_name +
 	       "(): input vector is not for " + target_name);
     if (corr_ptr->target_name() != target_name)
-      ZENTHROW(InvalidTargetName, "compute_" + target_name +
+      ALEPHTHROW(InvalidTargetName, "compute_" + target_name +
 	       "rs(): correlation " + corr_ptr->name + " is not for " +
 	       target_name);
     if (not pref.yunit->is_sibling(corr_ptr->unit))
-      ZENTHROW(MetadataException, "yunit " + pref.yunit->name +
+      ALEPHTHROW(MetadataException, "yunit " + pref.yunit->name +
 	       " is not sibling of " + corr_ptr->unit.name);
   }
 
@@ -1354,7 +1354,7 @@ private:
   {
     const ConstDesc * rsb_ptr = search_const("rsb");
     if (rsb_ptr == nullptr)
-      ZENTHROW(ConstNameNotFound, "rsb has not been defined");
+      ALEPHTHROW(ConstNameNotFound, "rsb has not been defined");
     return
       VtlQuantity(*rs_unit, VtlQuantity(*rsb_ptr->unit_ptr, rsb_ptr->value));
   }
@@ -1423,7 +1423,7 @@ public:
 	     DynList<double> && ylab, DynList<double> && ycorr)
     {
       if (closed)
-	ZENTHROW(MetadataException, "VectorStats is already closed");
+	ALEPHTHROW(MetadataException, "VectorStats is already closed");
       if (not equal_length(plab, p, ylab, ycorr))
 	dirty = true;
       else
@@ -1432,7 +1432,7 @@ public:
     void close()
     {
       if (closed)
-	ZENTHROW(MetadataException, "VectorStats is already closed");
+	ALEPHTHROW(MetadataException, "VectorStats is already closed");
 
       closed = true;
 
@@ -1462,7 +1462,7 @@ public:
     DynList<string> to_dynlist(size_t precision = 10) const
     {
       if (not closed)
-	ZENTHROW(MetadataException, "VectorStats is not closed");
+	ALEPHTHROW(MetadataException, "VectorStats is not closed");
       return build_dynlist<string>(corr_ptr->name, ::to_string(CorrStat::r2(desc)),
 				   ::to_string(CorrStat::mse(desc)),
 				   ::to_string(CorrStat::sigma(desc)),
@@ -1498,12 +1498,12 @@ private:
 					    const Correlation * corr_ptr) const
   {
     if (corr_ptr->target_name() != target_name)
-      ZENTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
+      ALEPHTHROW(InvalidTargetName, "correlation " + corr_ptr->name +
 	       " is not for " + target_name);
 
     DynList<const VectorDesc*> ret_lab = search_vectors(target_name);
     if (ret_lab.is_empty())
-      ZENTHROW(VarNameNotFound, target_name +
+      ALEPHTHROW(VarNameNotFound, target_name +
 	       " data is not found in this data set");
     return ret_lab;
   }
@@ -1609,7 +1609,7 @@ public:
       }
 
     if (not exist_rs and rs_corr == nullptr)
-      ZENTHROW(VarNameNotFound, "Not found rs vector neither correlation");
+      ALEPHTHROW(VarNameNotFound, "Not found rs vector neither correlation");
 
     if (exist_rs and rs_corr != nullptr)
       rs = compute_rs(rs, rs_corr, c_rs, m_rs);
@@ -1715,7 +1715,7 @@ public:
     const DynList<const VectorDesc*> bob_vectors = search_vectors("bob");
     auto ptr = bob_vectors.find_ptr([t] (auto vptr) { return vptr->t == t; });
     if (ptr == nullptr)
-      ZENTHROW(VarNameNotFound, "Not found data for bob");
+      ALEPHTHROW(VarNameNotFound, "Not found data for bob");
     const VectorDesc * v_ptr = *ptr;
 
     return VtlQuantity(*v_ptr->yunit, v_ptr->bobp);
@@ -1726,9 +1726,9 @@ public:
 			 double c = 0, double m = 1) const
   {
     if (pref.yname != "boa")
-      ZENTHROW(InvalidTargetName, "compute_boa(): input vector is not for boa");
+      ALEPHTHROW(InvalidTargetName, "compute_boa(): input vector is not for boa");
     if (corr_ptr->target_name() != "boa")
-      ZENTHROW(InvalidTargetName, "compute_boa(): correlation " + corr_ptr->name +
+      ALEPHTHROW(InvalidTargetName, "compute_boa(): correlation " + corr_ptr->name +
 	       " is not for boa");
 
     VectorDesc coa;
@@ -1747,7 +1747,7 @@ public:
 	}
     }
     if (not exist_coa and coa_corr == nullptr)
-      ZENTHROW(VarNameNotFound,
+      ALEPHTHROW(VarNameNotFound,
 	       "Not found experimental data neither correlation for coa");
 
     VectorDesc in = pref;
@@ -1830,7 +1830,7 @@ public:
 	}
     }
     if (not exist_rs and rs_corr == nullptr)
-      ZENTHROW(VarNameNotFound,
+      ALEPHTHROW(VarNameNotFound,
 	       "Not found experimental data neither correlation for rs");
     
     VectorDesc bob;
@@ -1847,7 +1847,7 @@ public:
     }
 
     if (not exist_bob and bob_corr == nullptr)
-      ZENTHROW(VarNameNotFound,
+      ALEPHTHROW(VarNameNotFound,
 	       "Not found experimental data neither correlation for bob");
 
     VectorDesc in = pref;
@@ -1940,7 +1940,7 @@ public:
     const DynList<const VectorDesc*> uob_vectors = search_vectors("uob");
     auto ptr = uob_vectors.find_ptr([t] (auto vptr) { return vptr->t == t; });
     if (ptr == nullptr)
-      ZENTHROW(VarNameNotFound, "Not found data for uob");
+      ALEPHTHROW(VarNameNotFound, "Not found data for uob");
     const VectorDesc * v_ptr = *ptr;
     if (uob_corr == nullptr)
       return VtlQuantity(*v_ptr->yunit, v_ptr->uobp);
@@ -2062,7 +2062,7 @@ public:
 
     const string target_name = corr_ptr->target_name();
     if (not dispatcher.valid_key(target_name))
-      ZENTHROW(InvalidTargetName, corr_ptr->name +
+      ALEPHTHROW(InvalidTargetName, corr_ptr->name +
 	       " has not a valid target_name (" +
 	       join(dispatcher.keys(), ", "));
 
@@ -2122,7 +2122,7 @@ public:
     auto uob_v = data.search_vectors("uob");
 
     if (rs_corr == nullptr)
-      ZENTHROW(CorrelationNotFound, "Correlation for rs is not set");
+      ALEPHTHROW(CorrelationNotFound, "Correlation for rs is not set");
     else
       {
 	auto rs_list = inputing(uob_v, rs_corr, c_rs, m_rs);
@@ -2131,7 +2131,7 @@ public:
       }
 
     if (bob_corr == nullptr)
-      ZENTHROW(CorrelationNotFound, "Correlation for bob is not set");
+      ALEPHTHROW(CorrelationNotFound, "Correlation for bob is not set");
     else
       {
 	auto bob_list =
@@ -2141,7 +2141,7 @@ public:
       }
       
     if (coa_corr == nullptr)
-      ZENTHROW(CorrelationNotFound, "Correlation for coa is not set");
+      ALEPHTHROW(CorrelationNotFound, "Correlation for coa is not set");
     else
       {
 	auto coa_list =
@@ -2151,7 +2151,7 @@ public:
       }
       
     if (boa_corr == nullptr)
-      ZENTHROW(CorrelationNotFound, "Correlation for boa is not set");
+      ALEPHTHROW(CorrelationNotFound, "Correlation for boa is not set");
     else
       {
 	auto boa_list =
@@ -2172,7 +2172,7 @@ public:
   {
     CorrDesc desc = search_corr(target_name);
     if (desc.corr_ptr == nullptr)
-      ZENTHROW(CorrelationNotFound, "Not set correlation for target_name " +
+      ALEPHTHROW(CorrelationNotFound, "Not set correlation for target_name " +
 	       target_name);
     VectorDesc pref(t.raw(), target_name);
     pref.p = p.maps<double>([] (auto & q) { return q.raw(); });
@@ -2310,9 +2310,9 @@ public:
 		     "uo", uo_stable };
 
     if (pb_corr == nullptr)
-      ZENTHROW(CorrelationNotFound, "correlation for pb is not set");
+      ALEPHTHROW(CorrelationNotFound, "correlation for pb is not set");
     if (uod_corr == nullptr)
-      ZENTHROW(CorrelationNotFound, "correlation for uod is not set");
+      ALEPHTHROW(CorrelationNotFound, "correlation for uod is not set");
 
     DynSetTree<double> temps =
       set_unify<double>(vectors, [] (auto & v) { return v.t; });
@@ -2565,7 +2565,7 @@ public:
   {
     if (target_name != "pb" and target_name != "uod" and
 	search_vectors(target_name).is_empty())
-      ZENTHROW(VarNameNotFound, target_name +
+      ALEPHTHROW(VarNameNotFound, target_name +
 	       " does not exist in this data set");
 
     auto corr_list =
@@ -2592,11 +2592,11 @@ public:
 		 const DynSetTree<const Correlation*> & ban_list = {}) const
   {
     if (not VectorDesc::valid_target_names.has(target_name))
-      ZENTHROW(InvalidTargetName, target_name + " target name is not valid");
+      ALEPHTHROW(InvalidTargetName, target_name + " target name is not valid");
 
     if (target_name != "pb" and target_name != "uod" and
 	search_vectors(target_name).is_empty())
-      ZENTHROW(VarNameNotFound, target_name +
+      ALEPHTHROW(VarNameNotFound, target_name +
 	       " does not exist in this data set");
     
     return Correlation::array().
@@ -2820,7 +2820,7 @@ public:
 	ostringstream s;
 	s << "Not found correlations for " << target_name
 	  << " satisfying threshold " << threshold;
-	ZENTHROW(CorrelationNotFound, s.str());
+	ALEPHTHROW(CorrelationNotFound, s.str());
       }
     return ret_list.get_first();
   }
@@ -2858,7 +2858,7 @@ public:
       }
     catch (exception & e)
       {
-	ZENTHROW(CorrelationNotApplicable,
+	ALEPHTHROW(CorrelationNotApplicable,
 		 "Invalid target for correlation " + target_name);
       }
   }
@@ -3001,7 +3001,7 @@ public:
 	    auto stats = auto_apply(target_name, relax_tbl, ban_list,
 				    0, PvtData::AutoApplyType::c);
 	    if (not stats.valid)
-	      ZENTHROW(MetadataException,
+	      ALEPHTHROW(MetadataException,
 		       "cannot compute automatic correlation for "
 		       + target_name + " in iteration " + ::to_string(i));
 	    set_correlation(stats);
@@ -3013,7 +3013,7 @@ public:
 	    auto stats = auto_apply(target_name, relax_tbl, ban_list,
 				    threshold, type);
 	    if (not stats.valid)
-	      ZENTHROW(MetadataException,
+	      ALEPHTHROW(MetadataException,
 		       "cannot compute automatic correlation for "
 		       + target_name + " in iteration " + ::to_string(i));
 	    set_correlation(stats);
@@ -3039,30 +3039,30 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
     yname(yname), yunit(yunit), y(y)
 {
   if (t <= 0)
-    ZENTHROW(InvalidRange, "t value " + ::to_string(t) +
+    ALEPHTHROW(InvalidRange, "t value " + ::to_string(t) +
 	     " less or equal to zero");
   if (pb <= 0 and yname != "uo")
-    ZENTHROW(InvalidRange, "pb value " + ::to_string(pb) +
+    ALEPHTHROW(InvalidRange, "pb value " + ::to_string(pb) +
 	     " less or equal to zero");
 
   static auto validate_pb = [] (VectorDesc* ptr)
     {
       if (not BaseQuantity::is_valid(ptr->pb, *ptr->punit))
-	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + "pb is out of unit range");
+	ALEPHTHROW(OutOfUnitRange, ptr->ctor_msg() + "pb is out of unit range");
     };
   static auto validate_pb_in_p = [] (VectorDesc* ptr)
     {
       if (not ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
-	ZENTHROW(PressureMismatch, ptr->ctor_msg() +
+	ALEPHTHROW(PressureMismatch, ptr->ctor_msg() +
 		 "p vector does not contain pb");
     };
   static auto validate_bo = [] (VectorDesc* ptr)
     {
       if (not RB_STB::get_instance().is_sibling(*ptr->yunit))
-	ZENTHROW(InvalidUnit, ptr->ctor_msg() +
+	ALEPHTHROW(InvalidUnit, ptr->ctor_msg() +
 		 ptr->yunit->name + "unit is invalid for bo");
       if (not BaseQuantity::is_valid(ptr->bobp, *ptr->yunit))
-	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + "bobp = " +
+	ALEPHTHROW(OutOfUnitRange, ptr->ctor_msg() + "bobp = " +
 		 ::to_string(ptr->bobp) + " is out of unit range");
       if (ptr->yunit != & RB_STB::get_instance())
 	{
@@ -3073,21 +3073,21 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	}
       if (not ptr->y.all([u = ptr->yunit] (auto b)
 			 { return BaseQuantity::is_valid(b, *u); }))
-	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() +
+	ALEPHTHROW(OutOfUnitRange, ptr->ctor_msg() +
 		 "at least a bo value is out of its unit range " +
 		 join(ptr->y));
     };
   static auto validate_uo = [] (VectorDesc* ptr)
     {
       if (not CP::get_instance().is_sibling(*ptr->yunit))
-	ZENTHROW(InvalidUnit, ptr->ctor_msg() + ptr->yunit->name +
+	ALEPHTHROW(InvalidUnit, ptr->ctor_msg() + ptr->yunit->name +
 		 " unit is invalid for uo");
       if (not BaseQuantity::is_valid(ptr->uobp, *ptr->yunit))
-	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + "uobp = " +
+	ALEPHTHROW(OutOfUnitRange, ptr->ctor_msg() + "uobp = " +
 		 ::to_string(ptr->bobp) + " value is out of unit range");
       if (not ptr->y.all([u = ptr->yunit] (auto b)
 			 { return BaseQuantity::is_valid(b, *u); }))
-	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() +
+	ALEPHTHROW(OutOfUnitRange, ptr->ctor_msg() +
 		 "at least an uo value is out of its unit range" +
 		 join(ptr->y));
       if (ptr->yunit != &CP::get_instance())
@@ -3100,7 +3100,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
     };    
   static auto pb_validate = [] (VectorDesc* ptr)
     {
-      ZENTHROW(InvalidTargetName, ptr->ctor_msg()  +
+      ALEPHTHROW(InvalidTargetName, ptr->ctor_msg()  +
 	       "pb cannot be a target name");
     };
   static auto rs_validate = [] (VectorDesc* ptr)
@@ -3108,17 +3108,17 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       ptr->validate_sort();
       validate_pb(ptr);
       if (not SCF_STB::get_instance().is_sibling(*ptr->yunit))
-	ZENTHROW(InvalidUnit, ptr->yunit->name + " is invalid for coa");
+	ALEPHTHROW(InvalidUnit, ptr->yunit->name + " is invalid for coa");
       if (ptr->p.get_last() != ptr->pb)
-	ZENTHROW(PressureMismatch, ptr->ctor_msg() +
+	ALEPHTHROW(PressureMismatch, ptr->ctor_msg() +
 		 "last value of p = " + ::to_str(ptr->p.get_last()) +
 		 " is not pb = " + to_str(ptr->pb));
       if (not is_sorted(ptr->y, std::less_equal<double>()))
-	ZENTHROW(SamplesUnsorted, ptr->ctor_msg() +
+	ALEPHTHROW(SamplesUnsorted, ptr->ctor_msg() +
 		 "rs samples are not sorted " + ptr->py_string());
       if (not ptr->y.all([u = ptr->yunit] (auto r)
 			 { return BaseQuantity::is_valid(r, *u); }))
-	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() +
+	ALEPHTHROW(OutOfUnitRange, ptr->ctor_msg() +
 		 "at least a value of rs is out of its unit range" +
 		 join(ptr->y));
       mutable_unit_convert(*ptr->yunit, ptr->y, *rs_unit);
@@ -3130,14 +3130,14 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       validate_pb(ptr);
       validate_bo(ptr);
       if (not is_sorted(ptr->y, std::less_equal<double>()))
-	ZENTHROW(SamplesUnsorted, ptr->ctor_msg() +
+	ALEPHTHROW(SamplesUnsorted, ptr->ctor_msg() +
 		 "bob samples are sorted " + ptr->py_string());
 
       if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
 	{
 	  if (not ptr->y.exists([bobp = ptr->bobp] (auto v)
 				{ return v == bobp; }))
-	    ZENTHROW(SampleInvalid, ptr->ctor_msg() + "bob samples " +
+	    ALEPHTHROW(SampleInvalid, ptr->ctor_msg() + "bob samples " +
 		     join(ptr->y) + " have not bobp = " + to_str(ptr->bobp));
 	}
       else
@@ -3146,10 +3146,10 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	  ptr->y.append(ptr->bobp);
 	}
       if (ptr->pb < ptr->p.get_last())
-	ZENTHROW(PressureMismatch, ptr->ctor_msg() + "pb = " + to_str(ptr->pb) +
+	ALEPHTHROW(PressureMismatch, ptr->ctor_msg() + "pb = " + to_str(ptr->pb) +
 		 " is less than last value of p = " + to_str(ptr->p.get_last()));
       if (ptr->bobp < ptr->y.get_last())
-	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "bobp = " + to_str(ptr->bobp)
+	ALEPHTHROW(SampleInvalid, ptr->ctor_msg() + "bobp = " + to_str(ptr->bobp)
 		 + " is less than last value of bob = " +
 		 to_str(ptr->y.get_last()));
       mutable_unit_convert(*ptr->yunit, ptr->y, *bo_unit);
@@ -3159,7 +3159,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
     {
       validate_pb(ptr);
       if (not psia_1::get_instance().is_sibling(*ptr->yunit))
-	ZENTHROW(InvalidUnit, ptr->ctor_msg() + ptr->yunit->name +
+	ALEPHTHROW(InvalidUnit, ptr->ctor_msg() + ptr->yunit->name +
 		 " unit is invalid for uo");
       const size_t & n = ptr->p.size();
       if (n == 2*ptr->y.size())
@@ -3170,15 +3170,15 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	  ptr->p.swap(pressures);
 	}
       else if (n != ptr->y.size())
-	ZENTHROW(LengthMismatch, ptr->ctor_msg() +
+	ALEPHTHROW(LengthMismatch, ptr->ctor_msg() +
 		 "pressure array must twice o same size than coa");      
       ptr->validate_sort();
       if (not is_inversely_sorted(ptr->y, std::less_equal<double>()))
-	ZENTHROW(SamplesUnsorted, ptr->ctor_msg() +
+	ALEPHTHROW(SamplesUnsorted, ptr->ctor_msg() +
 		 "coa samples are not inversely sorted " + ptr->py_string());
       if (not ptr->y.all([u = ptr->yunit] (auto c)
 			 { return BaseQuantity::is_valid(c, *u); }))
-	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + 
+	ALEPHTHROW(OutOfUnitRange, ptr->ctor_msg() + 
 		 "at least a coa value is out of its unit range " +
 		 join(ptr->y));
       mutable_unit_convert(*ptr->yunit, ptr->y, *co_unit);
@@ -3190,20 +3190,20 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       validate_pb(ptr);
       validate_bo(ptr);
       if (not is_inversely_sorted(ptr->y, std::less_equal<double>()))
-	ZENTHROW(SamplesUnsorted, ptr->ctor_msg() +
+	ALEPHTHROW(SamplesUnsorted, ptr->ctor_msg() +
 		 "boa samples are not inversely sorted " +
 		 ptr->py_string());
       if (ptr->p.exists([pb = ptr->pb] (auto p) { return p == pb; }))
-	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "p vector " +
+	ALEPHTHROW(SampleInvalid, ptr->ctor_msg() + "p vector " +
 		 join(ptr->p) + " contains pb = " + to_str(ptr->pb));
       if (ptr->y.exists([bobp = ptr->bobp] (auto v) { return v == bobp; }))
-       	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "boa vector " +
+       	ALEPHTHROW(SampleInvalid, ptr->ctor_msg() + "boa vector " +
 		 join(ptr->y) + " contains bobp = " + to_str(ptr->bobp));
       ptr->p.insert(nextafter(ptr->pb, numeric_limits<double>::max()));
       ptr->y.insert(nextafter(ptr->bobp, numeric_limits<double>::min()));
       if (not ptr->y.all([u = ptr->yunit] (auto b)
       			 { return BaseQuantity::is_valid(b, *u); }))
-      	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() +
+      	ALEPHTHROW(OutOfUnitRange, ptr->ctor_msg() +
       		 "at least a boa value is out of its unit range " +
 		 join(ptr->y));
       mutable_unit_convert(*ptr->yunit, ptr->y, *bo_unit);
@@ -3211,7 +3211,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
     };
   static auto uod_validate = [] (VectorDesc* ptr)
     {
-      ZENTHROW(InvalidTargetName, ptr->ctor_msg() +
+      ALEPHTHROW(InvalidTargetName, ptr->ctor_msg() +
 	       "uod cannot be a target name");
     };
   static auto uob_validate = [] (VectorDesc* ptr)
@@ -3221,28 +3221,28 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       validate_pb_in_p(ptr);
       validate_uo(ptr);
       if (not is_inversely_sorted(ptr->y, std::less_equal<double>()))
-	ZENTHROW(SamplesUnsorted, ptr->ctor_msg() +
+	ALEPHTHROW(SamplesUnsorted, ptr->ctor_msg() +
 		 "uob samples are not inversely sorted " + ptr->py_string());
       if (BaseQuantity::is_valid(ptr->uod, *ptr->yunit)) // was uod defined?
 	{ // yes ==> validate that first entries correspond to it
 	  if (not VtlQuantity(*ptr->yunit, ptr->y(0)).is_near(ptr->uod, 1))
-	    ZENTHROW(SampleInvalid, ptr->ctor_msg() +
+	    ALEPHTHROW(SampleInvalid, ptr->ctor_msg() +
 		     "uod sample " + ::to_string(ptr->uod) +
 		     " is not near of first value of uob " +
 		     ::to_string(ptr->y(0)));
 
 	  if (not Quantity<psig>(ptr->p(0)).is_near(0, 1))
-	    ZENTHROW(SampleInvalid, ptr->ctor_msg() + "first pressure value " +
+	    ALEPHTHROW(SampleInvalid, ptr->ctor_msg() + "first pressure value " +
 		     Quantity<psig>(ptr->p(0)).to_string() + " is not "
 		     "zero given that uod value is present");
 	} 
       else if (are_near(ptr->p(0), 0, 1e-1)) /// is uod inside uob vector?
 	ptr->uod = ptr->y(0);
       else
-	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "first pressure value = " +
+	ALEPHTHROW(SampleInvalid, ptr->ctor_msg() + "first pressure value = " +
 		 to_str(ptr->p(0)) + " is not near from zero");
       if (ptr->uod > ptr->y.get_first())
-	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "uod = " + to_str(ptr->uod) +
+	ALEPHTHROW(SampleInvalid, ptr->ctor_msg() + "uod = " + to_str(ptr->uod) +
 		 " is greater than first uob value = " + to_str(ptr->y(0)));
       if (ptr->y.get_first() != ptr->uod)
 	{
@@ -3250,7 +3250,7 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
 	  ptr->y.insert(ptr->uod);
 	}
       if (ptr->y.get_last() != ptr->uobp)
-	ZENTHROW(OutOfRange, ptr->ctor_msg() + "uobp = " + to_str(ptr->uobp) +
+	ALEPHTHROW(OutOfRange, ptr->ctor_msg() + "uobp = " + to_str(ptr->uobp) +
 		 " is not equal than last value of uob = " +
 		 to_str(ptr->y.get_last()));
       mutable_unit_convert(*ptr->yunit, ptr->y, *uo_unit);
@@ -3261,19 +3261,19 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
       ptr->validate_sort();
       validate_pb(ptr);
       if (not BaseQuantity::is_valid(ptr->uod, *ptr->yunit))
-	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + "uod = " +
+	ALEPHTHROW(OutOfUnitRange, ptr->ctor_msg() + "uod = " +
 		 to_str(ptr->uod) + " is out of its unit range");
       if (ptr->p.get_first() <= ptr->pb)
-	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "first p = " +
+	ALEPHTHROW(SampleInvalid, ptr->ctor_msg() + "first p = " +
 		 to_str(ptr->p.get_first()) + " is less than pb = " +
 		 to_str(ptr->pb));
       // if (ptr->uobp > ptr->y.get_first())
-      // 	ZENTHROW(SampleInvalid, ptr->ctor_msg() + "uobp = " +
+      // 	ALEPHTHROW(SampleInvalid, ptr->ctor_msg() + "uobp = " +
       // 		 to_str(ptr->uobp) + " is greater than first uoa = " +
       // 		 to_str(ptr->y.get_first()));
       validate_uo(ptr);
       if (not is_sorted(ptr->y, std::less_equal<double>()))
-	ZENTHROW(SamplesUnsorted, ptr->ctor_msg() +
+	ALEPHTHROW(SamplesUnsorted, ptr->ctor_msg() +
 		 "uoa samples are not sorted " + ptr->py_string());
       mutable_unit_convert(*ptr->yunit, ptr->y, *uo_unit);
       ptr->yunit = uo_unit;
@@ -3284,11 +3284,11 @@ VectorDesc::VectorDesc(double t, double pb, double bobp,
     {
       ptr->validate_sort();
       if (not ptr->yunit->is_sibling(CP::get_instance()))
-	ZENTHROW(InvalidUnit, ptr->ctor_msg() + ptr->yunit->name +
+	ALEPHTHROW(InvalidUnit, ptr->ctor_msg() + ptr->yunit->name +
 		 " is not sibling of CP");
       if (not ptr->y.all([u = ptr->yunit] (auto uo)
 			 { return BaseQuantity::is_valid(uo, *u); }))
-	ZENTHROW(OutOfUnitRange, ptr->ctor_msg() + 
+	ALEPHTHROW(OutOfUnitRange, ptr->ctor_msg() + 
 		 "at least an uo value is out of its unit range" +
 		 join(ptr->y));
       if (ptr->yunit != &CP::get_instance())
