@@ -290,7 +290,8 @@ inline bool two_separators()
 {
   bool ret = tsep_arg.isSet() and tsep2_arg.isSet();
   if (ret and tsep < tsep2)
-    ALEPHTHROW(WrongCombinationInputValues, "separator temp " + tsep.to_string() +
+    ALEPHTHROW(WrongCombinationInputValues, "separator temp " +
+	       tsep.to_string() +
 	     " is less than separator temp " + tsep2.to_string());
   return ret;
 }
@@ -467,8 +468,9 @@ struct ParRangeDesc
 
     if (n > Max_Num_Of_Steps)
       ALEPHTHROW(CommandLineError, "Number of steps " + to_string(n) + 
-	       " is greater than allowed maximum " + to_string(Max_Num_Of_Steps) +
-	       " (Max_Num_Of_Steps)");
+		 " is greater than allowed maximum " +
+		 to_string(Max_Num_Of_Steps) +
+		 " (Max_Num_Of_Steps)");
 
     if (min > max)
       {
@@ -514,10 +516,10 @@ struct Digits
       ALEPHTHROW(CommandLineError, "--digit : cannot read column name");
     if (not (iss >> num_digits))
       ALEPHTHROW(CommandLineError, "--digit \"" + col_name +
-	       "... : cannot read number o digits");
+		 "... : cannot read number o digits");
     if (not is_size_t(num_digits))
-      ALEPHTHROW(CommandLineError, "in --digit \"" + col_name + " " + num_digits +
-	       "\" : invalid number o digits");
+      ALEPHTHROW(CommandLineError, "in --digit \"" + col_name + " " +
+		 num_digits + "\" : invalid number o digits");
 
     return *this;
   }
@@ -554,9 +556,9 @@ struct RowDesc
   {
     if (n >= Max_Num_of_Tp_Pairs)
       ALEPHTHROW(CommandLineError, "Number of steps " + to_string(n) + 
-	       " is greater than allowed maximum " +
-	       to_string(Max_Num_of_Tp_Pairs) +
-	       " (Max_Num_of_Tp_Pairs)");  
+		 " is greater than allowed maximum " +
+		 to_string(Max_Num_of_Tp_Pairs) +
+		 " (Max_Num_of_Tp_Pairs)");  
 
     istringstream iss(str);
     if (not (iss >> t >> p))
@@ -601,8 +603,8 @@ struct ArrayDesc
       {
 	if (++n > Max_Num_Of_Steps)
 	  ALEPHTHROW(CommandLineError, "Number of steps " + to_string(n) + 
-		   " is greater than allowed maximum " +
-		   to_string(Max_Num_Of_Steps) + " (Max_Num_Of_Steps)");
+		     " is greater than allowed maximum " +
+		     to_string(Max_Num_Of_Steps) + " (Max_Num_Of_Steps)");
 
 	if (not is_double(data))
 	  ALEPHTHROW(CommandLineError, data + " is not a double");
@@ -855,8 +857,10 @@ void
 test_parameter(const DynList<pair<string, DynList<string>>> & required,
 	       const Correlation::NamedPar & par, ParList & pars_list)
 {
-  if (required.exists([&par] (const auto & p) { return p.first == get<1>(par) or
-      p.second.exists([&par] (const auto & s) { return s == get<1>(par); }); }))
+  if (required.exists([&par] (const auto & p)
+		      { return p.first == get<1>(par) or
+      p.second.exists([&par] (const auto & s)
+		      { return s == get<1>(par); }); }))
     pars_list.insert(par);
 }
 
@@ -889,7 +893,8 @@ inline bool insert_in_pars_list(ParList&) { return true; }
 
 template <typename ... Args> inline
 bool insert_in_pars_list(ParList & pars_list, 
-			 const Correlation::NamedPar & par, const Args & ... args)
+			 const Correlation::NamedPar & par,
+			 const Args & ... args)
 {
   if (get<2>(par) == Invalid_Value)
     return false;
@@ -1067,7 +1072,8 @@ VtlQuantity compute_exc(const Correlation * corr_ptr, bool check,
   return VtlQuantity::null_quantity;
 }
 
-// Macro for creating `var` variable with value returned by correlation corr_name
+// Macro for creating `var` variable with value returned by
+// correlation corr_name
 # define CALL(corr_name, var, args...)				\
   VtlQuantity var;						\
   try								\
@@ -1481,8 +1487,9 @@ FixedStack<Unit_Convert_Fct_Ptr> print_csv_header(Args ... args)
 	}
       catch (exception & e)
 	{
-	  ALEPHTHROW(CommandLineError, "error in --digits \"" + d.col_name + " " +
-		   d.num_digits + "\" (probably " + d.col_name + " is invalid");
+	  ALEPHTHROW(CommandLineError, "error in --digits \"" +
+		     d.col_name + " " + d.num_digits + "\" (probably " +
+		     d.col_name + " is invalid");
 	}
     }
 
