@@ -162,7 +162,7 @@ public:
 
   LFit linear_fit(const Array<double> & yc) const
   {
-    return LFit(y, yc);
+    return LFit(yc, y);
   }
 
   //                  r2       mse   sigma

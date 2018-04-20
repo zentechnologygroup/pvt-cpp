@@ -1182,11 +1182,7 @@ public:
 
   ParPair get_pb(double t, double pb) const
   {
-    if (pb_corr == nullptr)
-      return ParPair("pb", ValPair(pb, &psig::get_instance()));
-    VtlQuantity ret = compute_pb(t, pb_corr, c_pb, m_pb);
-    assert(&ret.unit == &psig::get_instance());
-    return ParPair("pb", ValPair(ret.raw(), &ret.unit));
+    return ParPair("pb", ValPair(pb, &psig::get_instance()));
   }
 
   ParPair get_pb(const VectorDesc & v) const
