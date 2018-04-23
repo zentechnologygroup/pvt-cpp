@@ -19,6 +19,24 @@ PVT is a C++ library for reservoir/production fluids characterization through th
 
 ## Dependencies 
 
+| Package |  Download |
+| ------------- | ------------- |
+| clang | official repositories |
+| clang-format-3.X | official repositorie |
+| gcc |  official repositories |
+| libx11-dev  | official repositories |
+| libasprintf-dev |  official repositories |
+| libgettextpo-dev  | official repositories |
+| libgsl0-dev  | official repositories )|
+| libmpfr-dev  | official repositories |
+| make | official repositories |
+| ruby | https://www.ruby-lang.org/es/downloads/ |
+| tclap | official repositories |
+| xclip | official repositories |
+| xutils-dev  | official repositories |
+| calculus | gem install |
+| bibtex-ruby | gem install |
+
 ### Aleph-w
 
 Download the latest version of Aleph-w, available at: https://github.com/lrleon/Aleph-w
