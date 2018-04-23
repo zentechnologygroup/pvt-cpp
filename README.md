@@ -17,95 +17,56 @@ PVT is a C++ library for reservoir/production fluids characterization through th
 
 
 
-## Dependencias
-
-### GSL - GNU Scientific Library
-
-Sobre una distribución basada en debian puede isstalarse con
-
-	sudo apt-get install libgsl-dev
-	
-En otra distro siga las instrucciones de la
-[página web de gsl](https://www.gnu.org/software/gsl/)
-
-### The GNU MPFR Library
-
-Sobre una distribución basada en debian puede isstalarse con
-
-	sudo apt-get install libmpfr-dev libmpfrc++-dev
-	
-En otra distro siga las instrucciones de la
-[página web de MPFR](http://www.mpfr.org/)
-
-### Imake
-
-Sobre una distribución basada en debian puede isstalarse con
-
-	sudo apt-get install xutils-dev
-	
-En otra distro tendrá que seguir
-[estas instrucciones](http://www.snake.net/software/imake-stuff/imake-faq.html#where-to-get)
+## Dependencies 
 
 ### Aleph-w
 
-Descargue la última versión de Aleph-w en [sourceorge](https://sourceforge.net/projects/aleph-w/)
+Download the latest version of Aleph-w, available at: https://github.com/lrleon/Aleph-w
 
-Explótela en el directorio de su preferencia.
+Download it in the directory of your preference. It is not necessary to compile this library. 
 
-No es necesario compilar esta biblioteca. 
-
-Los makefile buscarán una variable de ambiente llamada `ALEPHW`, la
-cual podría definirse del siguiente modo:
-	
-	ALEPHW = directorio-donde-esta-alephw
+The makefiles will search for an environment variable called ALEPHW, which could be defined as follows:
+```
+	ALEPHW = directory-where-alephw-is
 	export $ALEPHW
+```
+  
+These lines can be placed in the `.bashrc` file, so that each time a console is opened the variable is already defined.
+
+
+### Imake
+
+For a distribution based on Debian it can be installed by executing:
+```
+	sudo apt-get install xutils-dev
+```
 	
-Estas líneas pueden ponerse en el archivo `.bashrc`, de modo que cada
-vez que se abra una consola la variable ya esté definida. Para evitar
-reiniciar una nueva consola, haga
+For other distributions, follow the instructions available at: http://www.snake.net/software/imake-stuff/imake-faq.html#where-to-get
 
-	source ~/.bashrc
-	
-luego de haber editado el archivo `.bashrc`
 
-## Directorios
+## Generation of `makefiles`
 
-Al presente, los directorios de trabajo son:
+The first time you download the sources, execute:
 
-1. `include`: declaraciones de la biblioteca
-2. 'units`: módulo de manejo de unidades
-3. `tests`: pruebas
+```
+	$xmkmf
+	$make Makefiles
+	$make depend
+```
 
-Cada uno de estos directorios contiene su `README` explicativo de su contenido.
+The command `make depend` generates compilation "dependencies", which allow you to detect when the sources have to be recompiled.
 
-## Generación de `makefiles`
+Each time you add a new header file to the `include` directory, execute `make depend`.
 
-La 1ra vez que descargue los fuentes ejecute
+## Generation of executables
 
-	xmkmf
-	make Makefiles
-	make depend
-	
-El comando `make depend` genera "dependencias" de compilación, las
-cuales permiten detectar cuando hay que recompilar fuentes.
+To generate all the executables, run:
 
-Cada vez que añada un nuevo archivo header al directorio `include`
-ejecute `make depend`.
 
-## Generación de ejecutables (por ahora los tests)
+```
+  $make all
+```
 
-Ejecute
-
-	make all
-	
-Para generar todos los ejecutables. 
-
-Alternativamente se puede ejecuar
-
-	make all -n num
-	
-donde `num` sería el número de procesadores del computador. Esto
-permite compilar más rápido
 
 ## Authors
 
