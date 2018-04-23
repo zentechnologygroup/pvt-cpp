@@ -1,4 +1,4 @@
-# biblioteca PVT
+# library pvt-cpp
 
 ## Dependencias
 
@@ -89,3 +89,19 @@ Alternativamente se puede ejecuar
 	
 donde `num` sería el número de procesadores del computador. Esto
 permite compilar más rápido
+
+## Authors
+
+####  Software Architect and Lead Developer
+* PhD. Leandro Rabindranath Leon - (leandro.r.leon@gmail.com)
+
+#### Domain Driven Analyst and  Designer
+* MSc. Alberto Valderrama - (alberto.valderrama@zentech.group)
+
+#### Developer and Tester
+* Ing. Ixhel Mejías -  (ixhel.mejias@zentech.group)
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
