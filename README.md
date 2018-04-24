@@ -146,6 +146,7 @@ pb_row Sm3_Sm3,pw Lb_ft3,uw Paxs,bw RB_STB,pg Lb_ft3,ug CP,bg RCF_SCF,cg psia_1,
 .
 ```
 
+Need a case in point of its usage? Go through key reservoir fluid characterization workflows at https://www.oilandgastoolbox.com
 
 ## Authors
 
