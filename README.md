@@ -13,7 +13,7 @@ PVT is a C++ library for reservoir/production fluids characterization through th
 * Comprehensive set of correlations, methods and standard equations, 186 in current version.
 * Exceptions system powered by developmental ranges of correlations which aids in a proper use of models.
 * Command line interaction for generating high-resolution, high-precision petroleum fluid datasets of twenty-six PVT properties of crude oil, natural gas and formation brines through high-performance processing.
-* Command line for generating high-resolution, high-precision petroleum fluid datasets by applying model calibration to Constant * Composition Expansion (CCE) and Differential Liberation (DL) fluid experimental data at one or various temperatures. Several tuning modes are available depending on integrity of experimental data.
+* Command line interaction for generating high-resolution, high-precision petroleum fluid datasets by applying model calibration to Constant * Composition Expansion (CCE) and Differential Liberation (DL) fluid experimental data at one or various temperatures. Several tuning modes are available depending on integrity of experimental data.
 
 
 
