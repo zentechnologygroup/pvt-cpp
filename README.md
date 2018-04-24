@@ -39,6 +39,16 @@ PVT is a C++ library for reservoir/production fluids characterization through th
 | calculus | gem install |
 | bibtex-ruby | gem install |
 
+### Imake
+
+For a distribution based on Debian it can be installed by executing:
+```
+	sudo apt-get install xutils-dev
+```
+	
+For other distributions, follow the instructions available at: http://www.snake.net/software/imake-stuff/imake-faq.html#where-to-get
+
+
 ### Aleph-w
 
 Download the latest version of Aleph-w, available at: https://github.com/lrleon/Aleph-w
@@ -53,15 +63,20 @@ The makefiles will search for an environment variable called ALEPHW, which could
   
 These lines can be placed in the `.bashrc` file, so that each time a console is opened the variable is already defined.
 
+### libzen
 
-### Imake
+Download the repository LibZen, available at: https://github.com/zentechnologygroup/libzen
 
-For a distribution based on Debian it can be installed by executing:
+Download it in the directory of your preference.
+
+The makefiles will search for an environment variable called ZEN, which could be defined as follows:
+
 ```
-	sudo apt-get install xutils-dev
+	ZEN = directory-where-libzen-is
+	export $ZEN
 ```
-	
-For other distributions, follow the instructions available at: http://www.snake.net/software/imake-stuff/imake-faq.html#where-to-get
+  
+These lines can be placed in the `.bashrc` file, so that each time a console is opened the variable is already defined.
 
 
 ## Generation of `makefiles`
@@ -133,8 +148,6 @@ pb_row Sm3_Sm3,pw Lb_ft3,uw Paxs,bw RB_STB,pg Lb_ft3,ug CP,bg RCF_SCF,cg psia_1,
 .
 .
 ```
-
-
 
 
 ## Authors
